@@ -1,0 +1,255 @@
+<div class="grid">
+    <div class="col-12">
+        <p-messages 
+        [(value)]="messages" 
+        *ngIf="status == 'success'" 
+        [enableService]="false"
+        [closable]="true">
+        </p-messages>
+
+        <div class="card" *ngIf="status != 'success'">
+
+            <h5> Registro de usuarios </h5>
+
+            <form #aopdateAdmin="ngForm" (ngSubmit)="onSubmit(aopdateAdmin)">
+
+                <div class="p-fluid p-formgrid grid">
+
+                    <div class="field col-12">
+
+                        <p-messages [(value)]="messages" *ngIf="status == 'true'" [enableService]="false"
+                            [closable]="true"></p-messages>
+
+                        <p-fileUpload mode="basic" chooseLabel="Choose image" name="demo[]"
+                            url="https://www.primefaces.org/cdn/api/upload.php" accept="image/*" maxFileSize="1000000"
+                            (onSelect)="onSelect($event)"></p-fileUpload>
+
+                        <div class="col-md-4 mt-3">
+
+                            <img [src]="image" *ngIf="preview" alt="" width="181px" height="200px">
+
+                        </div>
+
+
+
+                    </div>
+
+                    <div class="field col-12 md:col-6">
+                        <label htmlFor="company">Empresa<span style="color: red;">*</span></label>
+
+                        <input pInputText id="company" type="text" required #company="ngModel" name="company"
+                            [(ngModel)]="user.company" aria-describedby="username-help"
+                            [ngClass]="{'ng-invalid ng-dirty':(company.touched && !company.valid), 'company':company.valid}" />
+
+                        <small *ngIf="company.touched && !company.valid" id="username-help"
+                            class="p-error">Obligatorio.</small>
+                    </div>
+
+                    <div class="field col-6 md:col-6">
+                        <label htmlFor="rnc">RNC<span style="color: red;">*</span></label>
+                        <input pInputText id="rnc" type="text" required name="rnc" #rnc="ngModel" [(ngModel)]="user.rnc"
+                            [ngClass]="{'ng-invalid ng-dirty':(rnc.touched && !rnc.valid), 'company':rnc.valid}"
+                            minlength="8" maxlength="9" pattern="^[0-9]+" />
+
+                        <small *ngIf="rnc.touched && !rnc.valid" id="username-help" class="p-error">Obligatorio (Solo
+                            numeros).</small>
+                    </div>
+
+                    <div class="field col-6 md:col-6">
+                        <label htmlFor="phone">Telefono<span style="color: red;">*</span></label>
+                        <input pInputText id="phone" type="text" required [(ngModel)]="user.phone" #phone="ngModel"
+                            name="phone" minlength="10" maxlength="10"
+                            [ngClass]="{'ng-invalid ng-dirty':(phone.touched && !phone.valid), ' ':phone.valid}" />
+
+                        <small *ngIf="phone.touched && !phone.valid" id="username-help"
+                            class="p-error">Obligatorio.</small>
+                    </div>
+
+                    <div class="field col-6 md:col-6">
+                        <label htmlFor="phone2">Telefono 2</label>
+                        <input pInputText id="phone2" type="text" required [(ngModel)]="user.phone2" #phone2="ngModel"
+                            name="phone2" maxlength="10"
+                            [ngClass]="{'ng-invalid ng-dirty':(phone2.touched && !phone2.valid), ' ':phone2.valid}" />
+
+
+                    </div>
+
+                    <br>
+
+                    <div style="margin-left: 20px;width: 100%;">
+
+                        <h5>Direccion</h5>
+                        <hr>
+
+                    </div>
+
+                    <div class="field col-12">
+                        <label htmlFor="street_1">Calle<span style="color: red;">*</span></label>
+                        <input pInputTextarea id="street_1" rows="4" name="street_1" required
+                            [(ngModel)]="user.street_1" #street_1="ngModel"
+                            [ngClass]="{'ng-invalid ng-dirty':(street_1.touched && !street_1.valid), ' ':street_1.valid}" />
+
+                        <small *ngIf="street_1.touched && !street_1.valid" id="username-help"
+                            class="p-error">Obligatorio.</small>
+                    </div>
+
+                    <div class="field col-12">
+                        <label htmlFor="street_2">Calle 2</label>
+                        <input pInputTextarea id="street_2" rows="4" name="street_2" [(ngModel)]="user.street_2"
+                            #street_2="ngModel" />
+
+                    </div>
+
+                    <div class="field col-12 md:col-5">
+                        <label htmlFor="city">Ciudad<span style="color: red;">*</span></label>
+                        <input pInputText id="city" type="text" required [(ngModel)]="user.city" #city="ngModel"
+                            name="city"
+                            [ngClass]="{'ng-invalid ng-dirty':(city.touched && !city.valid), ' ':city.valid}" />
+
+                        <small *ngIf="city.touched && !city.valid" id="username-help"
+                            class="p-error">Obligatorio.</small>
+                    </div>
+
+                    <div class="field col-12 md:col-5">
+                        <label htmlFor="states">Estado<span style="color: red;">*</span></label>
+
+                        <p-dropdown [options]="states_us" optionLabel="name" optionValue="name" [(ngModel)]="user.state"
+                            #state="ngModel" name="state" required
+                            [ngClass]="{'ng-invalid ng-dirty':(state.touched && !state.valid), ' ':state.valid}"></p-dropdown>
+
+                        <small *ngIf="state.touched && !state.valid" id="username-help"
+                            class="p-error">Obligatorio.</small>
+                    </div>
+                    <div class="field col-12 md:col-4">
+
+                        <label htmlFor="zipcode">Zip code<span style="color: red;">*</span></label>
+                        <input pInputText id="zipcode" type="text" maxlength="10" required [(ngModel)]="user.zipcode"
+                            #zipcode="ngModel" name="zipcode" />
+
+                    </div>
+
+                    <div class="field col-12 md:col-6">
+                        <label htmlFor="country">Pais<span style="color: red;">*</span></label>
+                        <input pInputText name="country" id="country" [(ngModel)]="user.country" #country="ngModel"
+                            readonly>
+                    </div>
+
+                    <div style="margin-left: 20px;width: 100%;">
+                        <h5>Persona de contacto</h5>
+                        <hr>
+                    </div>
+
+
+                    <div class="field col-12 md:col-6">
+                        <label htmlFor="name_contact">Nombres<span style="color: red;">*</span></label>
+                        <input pInputText id="name_contact" type="text" required [(ngModel)]="user.contact_person[0].name_contact"
+                            [ngClass]="{'ng-invalid ng-dirty':(name_contact.touched && !name_contact.valid), ' ':name_contact.valid}"
+                            #name_contact="ngModel" name="name_contact" maxlength="50" />
+
+                        <small *ngIf="name_contact.touched && !name_contact.valid" id="username-help"
+                            class="p-error">Obligatorio.</small>
+
+                    </div>
+                    <div class="field col-12 md:col-6">
+                        <label htmlFor="name">Apellido<span style="color: red;">*</span></label>
+
+                        <input pInputText id="lastname_contact" type="text" required [(ngModel)]="user.contact_person[0].lastname_contact"
+                            [ngClass]="{'ng-invalid ng-dirty':(lastname_contact.touched && !lastname_contact.valid), ' ':lastname_contact.valid}"
+                            #lastname_contact="ngModel" name="lastname_contact" maxlength="50" />
+
+                        <small *ngIf="lastname_contact.touched && !lastname_contact.valid" id="username-help"
+                            class="p-error">Obligatorio.</small>
+
+                    </div>
+                    <div class="field col-12 md:col-6">
+                        <label htmlFor="gender_contact">Genero<span style="color: red;">*</span></label>
+
+                        <p-dropdown [options]="genero" optionLabel="name" optionValue="name" #gender_contact="ngModel"
+                            [(ngModel)]="user.contact_person[0].gender_contact" placeholder="Genero" name="gender_contact" required
+                            [ngClass]="{'ng-invalid ng-dirty':(gender_contact.touched && !gender_contact.valid), ' ':gender_contact.valid}"></p-dropdown>
+
+                        <small *ngIf="gender_contact.touched && !gender_contact.valid" id="username-help"
+                            class="p-error">Obligatorio.</small>
+                    </div>
+
+
+                    <div class="field col-12 md:col-6">
+                        <label htmlFor="phone_contact">Telefono<span style="color: red;">*</span></label>
+
+                        <input pInputText id="phone_contact" type="text" required [(ngModel)]="user.contact_person[0].phone_contact[0]"
+                            name="phone_contact" #phone_contact="ngModel" maxlength="10" />
+
+                        <small *ngIf="phone_contact.touched && !phone_contact.valid" id="username-help"
+                            class="p-error">Obligatorio.</small>
+                    </div>
+
+                    <div class="field col-12 md:col-6">
+                        <label htmlFor="phone_contact2">Telefono 2<span style="color: red;">*</span></label>
+
+                        <input pInputText id="phone_contact2" type="text" [(ngModel)]="user.contact_person[0].phone_contact[1]"
+                            name="phone_contact2" #phone_contact2="ngModel" maxlength="10" />
+
+                    </div>
+
+
+
+                    <div class="field col-12 md:col-6">
+                        <label htmlFor="email_contact">Email<span style="color: red;">*</span></label>
+                        <input pInputText id="email_contact" type="text" required [(ngModel)]="user.contact_person[0].email_contact"
+                            name="email_contact" #email_contact="ngModel" />
+                    </div>
+
+
+                    <div class="field col-12 md:col-6">
+                        <label htmlFor="role_contact">Role en la empresa<span style="color: red;">*</span></label>
+                        <input pInputText id="role_contact" type="text" required [(ngModel)]="user.contact_person[0].role_contact"
+                            #role_contact="ngModel" name="role_contact" />
+                    </div>
+
+                    <div style="margin-left: 20px;width: 100%;">
+                        <h5>Accesos a la plataforma</h5>
+                        <hr>
+                    </div>
+
+                    <div class="field col-12 md:col-6">
+                        <label htmlFor="email_company">Email<span style="color: red;">*</span></label>
+                        <input pInputText id="email_company" type="email" required [(ngModel)]="user.email_company"
+                            name="email_company" #email_company="ngModel"
+                            pattern="[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*@[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*[.][a-zA-Z]{2,5}"
+                            maxlength="50" />
+
+                        <small *ngIf="email_company.touched && !email_company.valid" id="username-help"
+                            class="p-error">Obligatorio.</small>
+                    </div>
+
+
+
+                    <div class="field col-12 md:col-6">
+                        <label htmlFor="password">Password<span style="color: red;">*</span></label>
+                        <input pInputText id="password" type="password" required [(ngModel)]="user.password"
+                            #password="ngModel" name="password" maxlength="15" minlength="8" />
+
+                        <small *ngIf="password.touched && !password.valid" id="username-help" class="p-error">Su clave
+                            debe tener minimo 8 caracteres maximo 15.</small>
+                    </div>
+
+                    
+
+
+                </div>
+
+                <div style="margin-top: 9px;float:right">
+
+                    <input type="submit" [disabled]="!checked" value="Registrar"
+                        class="p-element p-ripple p-button p-component">
+
+                </div>
+
+            </form>
+
+
+
+
+        </div>
+    </div>
+</div>

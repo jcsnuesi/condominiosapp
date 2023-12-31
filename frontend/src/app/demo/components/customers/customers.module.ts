@@ -14,16 +14,20 @@ import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { DialogModule } from 'primeng/dialog';
+import { UpdateCustomerComponent } from '../update-customer/update-customer.component';
+
+
 
 @NgModule({
 	imports: [
 		CommonModule,
-		DialogModule,
+		DialogModule,		
 		TagModule, 
 		MultiSelectModule,
 		FormsModule,
 		TableModule,
 		CustomersDemoRoutingModule,
+		UpdateCustomerComponent,
 		DataViewModule,
 		PickListModule,
 		OrderListModule,
@@ -33,5 +37,6 @@ import { DialogModule } from 'primeng/dialog';
 		ButtonModule
 	],
 	declarations: [CustomersComponent]
+	
 })
 export class CustomersDemoModule { }

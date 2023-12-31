@@ -624,6 +624,42 @@ var controller = {
 
 
     },
+    getAdminById:function (req, res) {
+        
+        let params = req.params.id
+
+        Admin.findOne({_id:params}, (err, customer) => {
+
+            if (err) {
+
+                return res.status(500).send({
+
+                    status: 'error',
+                    message: err
+                })
+
+                
+            }
+            if (!customer) {
+
+                return res.status(404).send({
+
+                    status: 'error',
+                    message: 'User not found'
+                })
+
+                
+            }
+            customer.password = undefined
+            return res.status(200).send({
+
+                status: 'success',
+                message: customer
+            })
+
+
+        })
+    },
     getAvatar:function(req, res){
 
         var imgName = req.params.fileName

@@ -6,13 +6,14 @@ import { ActivatedRoute, Router, Params } from '@angular/router';
 import { UserService } from '../../service/user.service';
 import { global } from '../../service/global.service';
 import { User } from '../../models/user.model';
+import { UpdateCustomerComponent } from '../update-customer/update-customer.component';
 
 
 @Component({
   selector: 'app-customers',
   templateUrl: './customers.component.html',
   styleUrls: ['./customers.component.scss'],
-  providers: [UserService]
+  providers: [UserService, UpdateCustomerComponent]
 })
 export class CustomersComponent implements OnInit {
 
@@ -23,9 +24,7 @@ export class CustomersComponent implements OnInit {
   public url:string;
   public selectedCustomers:any;
   public adminInfo: User;
-
-  
-  
+ 
 
   sortOptions: SelectItem[] = [];
 
@@ -43,12 +42,12 @@ export class CustomersComponent implements OnInit {
   public loading: boolean = true;
   public statuses!: any[];
   public representatives: any;
-  public visible: boolean;
+  public visible: boolean= false;
   public modify:boolean;
 
 
   constructor(
-
+    private _updateInfo: UpdateCustomerComponent,
     private _router: Router,
     private _activeRoute: ActivatedRoute,
     private _userService:UserService) {
@@ -62,11 +61,10 @@ export class CustomersComponent implements OnInit {
     ];
 
     this.modify = false
-
-   
+    
+     }
 
      
-     }
 
     dateFormat(date:string){
       //2023-11-05T19:32:38.422Z
@@ -83,11 +81,18 @@ export class CustomersComponent implements OnInit {
     }
 
   showDialog(event:any){
-    this.visible = true
-    this.adminInfo = event
-    console.log(this.adminInfo.company)
-  }
+    this.visible = true 
 
+    this.data = event
+   
+    
+  }
+  public data: any;
+
+  sendData() {
+
+    return this.data
+  }
   getSeverity(status: string) {
 
     switch (status.toLowerCase()) {
@@ -108,11 +113,7 @@ export class CustomersComponent implements OnInit {
     table.clear();
   }
   ngOnInit() {
-
-    this.visible = false
-
-
-
+  
     this.sortOptions = [
       { label: 'Price High to Low', value: '!price' },
       { label: 'Price Low to High', value: 'price' }
@@ -120,25 +121,6 @@ export class CustomersComponent implements OnInit {
 
     this.getAdmins()
   }
-
-
-  
-  // onSortChange(event: any) {
-  //   const value = event.value;
-    
-
-  //   if (value.indexOf('!') === 0) {
-  //     this.sortOrder = -1;
-  //     this.sortField = value.substring(1, value.length);
-  //   } else {
-  //     this.sortOrder = 1;
-  //     this.sortField = value;
-  //   }
-  // }
-
-  // onFilter(dv: DataView, event: Event) {
-  //   dv.filter((event.target as HTMLInputElement).value);
-  // }
 
  
   getAdmins(){
@@ -166,8 +148,6 @@ export class CustomersComponent implements OnInit {
 
   }
 
-  update(event:any){
-
-  }
+  
 
 }

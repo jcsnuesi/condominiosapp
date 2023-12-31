@@ -16,7 +16,7 @@
 
                     <p-messages [(value)]="messages" *ngIf="status == 'true'" [enableService]="false" [closable]="true"></p-messages>
 
-                    <p-fileUpload mode="basic" chooseLabel="Choose" name="demo[]" url="https://www.primefaces.org/cdn/api/upload.php"
+                    <p-fileUpload mode="basic" chooseLabel="Choose image" name="demo[]" url="https://www.primefaces.org/cdn/api/upload.php"
                         accept="image/*" maxFileSize="1000000" (onSelect)="onSelect($event)"></p-fileUpload>
 
                         <div class="col-md-4 mt-3">

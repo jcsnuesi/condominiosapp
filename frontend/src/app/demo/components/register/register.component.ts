@@ -6,9 +6,10 @@ import { UserService } from '../../service/user.service';
 
 
 @Component({
- 
+  selector: 'app-register',
   templateUrl: './register.component.html',
   providers: [MessageService, UserService]
+  
 })
 export class RegisterComponent{
   

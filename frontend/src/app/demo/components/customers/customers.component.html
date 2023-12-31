@@ -116,11 +116,10 @@
                     <p-tag [value]="customer.status == 'active' ? 'Active' : 'Suspended'" [severity]="customer.status == 'active' ? 'success' : 'danger' "></p-tag>
                 </td>
                 <td>
-                    <button *ngIf="(customer.status == 'active' ? true : false)" pButton type="button" icon="pi pi-pencil"
+                    <button *ngIf="(customer.status == 'active' ? true : false)" pButton type="button" icon="pi pi-eye"
                        class="p-button-rounded p-button-text"  (click)="showDialog(customer)"></button>
                 </td>
-             
-                
+                             
             </tr>
 
            
@@ -132,29 +131,10 @@
         </ng-template>
     </p-table>
 
-    <p-dialog header="Header" [(visible)]="visible" [modal]="true"  [maximizable]="true" [style]="{width: '50vw'}">
-       <form #modifyForm="ngForm" (submit)="update($event)">
-
-        <!-- FORMULARIO DE ACTUALIZACION DE DATOS -->
-        <!-- <div class="row">
-
-            <div class="col-md-8">
-
-                <div class="p-float-label">
-                    <input pInputText id="company" name="company" value="{{adminInfo?.company}}" disabled/>
-                    <label for="company">Company name</label>
-                </div>
-            </div>
-            <div class="col-md-8">
-
-                <div class="p-float-label">
-                    <input pInputText id="company" name="company" value="{{adminInfo?.company}}" disabled/>
-                    <label for="company">Company name</label>
-                </div>
-            </div>
-
-        </div> -->
-
-       </form>
+    <p-dialog header="Customer information" [(visible)]="visible" [modal]="true"  [maximizable]="true" [style]="{width: '100%', height:'100%'}">
+   
+ 
+        <app-update-customer *ngIf="visible"></app-update-customer>
+        
     </p-dialog>
 </div>
