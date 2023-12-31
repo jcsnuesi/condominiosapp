@@ -1,0 +1,652 @@
+'use strict'
+
+let validator = require('validator')
+let bcrypt = require('bcrypt')
+let saltRounds = 10;
+let path = require('path')
+let fs = require('fs')
+let jwtoken = require('../service/jwt')
+let checkExtensions = require('../service/extensions')
+let verifyDataParam = require('../service/verifyParamData')
+let userCreaterModel = require('../models/userCreater')
+let errorHandler = require('../error/errorHandler')
+let Admin = require('../models/admin')
+let Staff = require('../models/staff')
+let Owner = require('../models/owners')
+let Condominio = require('../models/condominio')
+let Occupant = require('../models/occupant')
+let deactivatedOwner = require('../service/persistencia')
+let backup = require('../models/accountsDeleted');
+const { throws } = require('assert');
+
+var controller = {
+
+    createUser: async function (req, res) {
+
+        var params = req.body        
+     
+        const verifying = new verifyDataParam()
+
+        try {
+
+            var val_email = verifying.hasEmail(params)
+            var val_password = !validator.isEmpty(params.password)
+            var val_phone = verifying.phonesConverter(params)
+            var val_terms = !validator.isEmpty(toString(params.terms))
+
+        
+        } catch (error) {
+
+            return res.status(400).send({
+
+                status: "bad request",
+                message: "All fields required"
+            })
+
+        }
+
+      
+        //verificar la extension de archivo enviado sea tipo imagen
+        var imgFormatAccepted = checkExtensions.confirmExtension(req)
+
+
+        if (imgFormatAccepted == false) {
+
+            return res.status(400).send({
+
+                status: "bad request",
+                message: "Files allows '.jpg', '.jpeg', '.gif', '.png'"
+            })
+        }
+
+    
+        
+       
+        if (val_email && val_password && val_phone && val_terms) {
+
+
+            Admin.findOne(
+                {
+                    $or: [
+                        { company: params.company },
+                        { email_company: params.email },
+                        { phone: params.phone }
+
+                    ]
+                }, (err, userDuplicated) => {
+
+                    var errorHandlerArr = errorHandler.errorRegisteringUser(err, userDuplicated)
+
+                  
+                    if (errorHandlerArr[0]) {
+
+                        return res.status(
+
+                            errorHandlerArr[1]).send({
+                                status: 'error',
+                                message: errorHandlerArr[2]
+
+                            })
+
+                    }
+
+                 
+
+                    //Instanciamos el usuario segun el tipo de usuario
+                    let user = new Admin()
+                
+                 
+                    for (const key in params) {
+
+                        if (key.includes('phone') && typeof ((params['phone']).split(',')) == 'object') {
+
+                            user['phone'] = params['phone'].split(',').map(number => { return number.trim() })
+
+                        } else if(key.includes('terms')){
+                            
+                            user[key] = params[key]
+
+                        }else{
+                            user[key] = key != 'password' ? params[key].toLowerCase() : params[key]
+                        }
+
+                    }
+
+                               
+                    var contactPerson = {
+
+                        name_contact: params['name_contact'].toLowerCase(),
+                        lastname_contact: params['lastname_contact'].toLowerCase(),
+                        gender_contact: params['gender_contact'].toLowerCase(),
+                        email_contact: params['email_contact'].toLowerCase(),
+                        phone_contact: ((typeof ((params['phone_contact']).split(',')) == 'object') ? params['phone_contact'].split(',').map(number => { return number.trim() }) : params['phone_contact'].trim()),
+                        role_contact: params['role_contact'].toLowerCase()
+                    }
+
+                    user.contact_person.push(contactPerson)
+
+                
+
+                    if (Object.keys(req.files) .length != 0) {
+
+                        for (const fileKey in req.files) {
+                            user[fileKey] = (req.files[fileKey].path.split('\\'))[2]
+                        }
+
+                    }else{
+
+                        user.avatar = 'noimage.jpeg'
+                    }
+
+
+                    if (user.terms == false) return res.status(403).send({ status: 'forbidden', message: "Terms must be accept to complete the contract" })
+
+                   
+
+
+                    bcrypt.hash(params.password, saltRounds, (err, hash) => {
+
+                        user.password = hash
+
+                        if (err) {
+
+                            return res.status(500).send({
+                                status: 'error',
+                                message: 'Encrypting error, please try again'
+                            })
+
+                        }
+
+                        
+
+                        user.save((err, newUserCreated) => {
+
+                            let verifyNewUserException = errorHandler.newUser(err, newUserCreated)
+
+                            
+                            if (verifyNewUserException[1] == 200) {
+                                verifyNewUserException[3].password = undefined
+                            }
+
+                            if (verifyNewUserException[0]) {
+
+                                return res.status(verifyNewUserException[1]).send({
+                                    status: verifyNewUserException[2],
+                                    message: verifyNewUserException[3]
+
+                                })
+
+                            }
+
+
+                        })
+
+                    })
+
+                })
+
+
+        } else {
+
+            return res.status(500).send({
+                status: 'error',
+                message: 'Fill out all fields'
+            })
+        }
+    },
+
+    login: async function (req, res) {
+
+        let params = req.body
+
+        try {
+            var val_email = validator.isEmail(params.email)
+            var val_password = !validator.isEmpty(params.password)
+
+        } catch (error) {
+
+            return res.status(500).send({
+                status: 'error',
+                message: 'Missing data'
+            })
+        }
+
+
+        if (val_email && val_password) {
+
+            const userFound = await Promise.all([
+                Admin.findOne({ email_company: params.email }),
+                Staff.findOne({ email: params.email }),
+                Owner.findOne({ email: params.email }),
+                Occupant.findOne({ email: params.email }),
+            ])
+
+            let foundUser = null;
+
+            const response = userFound.some(user => {
+
+                if (user) {
+                    foundUser = user;
+                    return true;
+
+                }
+                return false
+
+            });
+
+            if (response == false) {
+
+                return res.status(404).send({
+
+                    status: "error",
+                    message: "Account not found"
+                })
+            }
+
+
+
+            if (foundUser?.status?.includes("inactive")) {
+
+                return res.status(403).send({
+
+                    status: "error",
+                    message: "Account terminated"
+                })
+
+            }
+
+
+            bcrypt.compare(params.password, foundUser.password, (err, verified) => {
+
+
+                if (verified) {
+
+                    //Generar token jwt y devolverlo
+                    if (params.gettoken) {
+
+
+                        return res.status(200).send({
+                            token: jwtoken.createToken(foundUser)
+
+                        })
+
+                    } else {
+
+                        //Limpiar el objeto para que no se muestre el resultado de la password
+                        foundUser.password = undefined;
+
+
+                        //Devolver datos
+
+                        return res.status(200).send({
+                            status: 'success',
+                            message: foundUser
+
+                        });
+
+                    }
+
+
+                } else {
+
+                    return res.status(200).send({
+                        message: "Invalid credentials."
+                    });
+                }
+
+
+            })
+
+
+
+        } else {
+
+            return res.status(401).send({
+                status: "error",
+                message: "Fill out all fields."
+            });
+        }
+
+
+    },
+
+    update: function (req, res) {
+
+
+        var params = req.body
+        const verifying = new verifyDataParam()
+
+        if (!verifying.userAllow(req.user.role.toLowerCase())) {
+
+            return res.status(403).send({
+
+                status: "Forbidden",
+                message: "You are not authorized"
+            })
+
+
+        }
+        Admin.findOne(
+            { _id: params.id }, (err, accountFound) => {
+
+                var errorHandlerArr = errorHandler.loginExceptions(err, accountFound)
+
+                if (errorHandlerArr[0]) {
+
+                    return res.status(errorHandlerArr[1]).send({
+                        status: 'error',
+                        message: errorHandlerArr[2]
+                    })
+
+                }
+
+                accountFound.street_1 = params['street_1']
+                accountFound.street_2 = params['street_2']
+                accountFound.city = params['city']
+                accountFound.state = params['state']
+                accountFound.status = params['status']
+
+                bcrypt.hash(params.password, saltRounds, async (err, hash) => {
+
+                    params.password = hash
+
+                    if (err) {
+
+                        return res.status(500).send({
+                            status: 'error',
+                            message: 'Encripts error, please try again'
+                        })
+
+                    }
+
+
+
+                    Admin.findOneAndUpdate({ _id: params.id }, accountFound, { strict: 'throw', new: true }, (err, updated) => {
+
+                        if (err) {
+
+                            return res.status(500).send({
+                                status: 'error',
+                                message: 'Server error, please try again'
+                            })
+
+                        }
+
+                        updated.password = undefined
+                        return res.status(200).send({
+                            status: 'success',
+                            message: updated
+                        })
+                    })
+
+
+                })
+
+            })
+
+
+    },
+
+    delete: async function (req, res) {
+
+        Admin.findOne(
+            { _id: req.user.sub }, (err, accountFound) => {
+
+                var errorHandlerArr = errorHandler.loginExceptions(err, accountFound)
+
+                if (errorHandlerArr[0]) {
+
+                    return res.status(errorHandlerArr[1]).send({
+                        status: 'error',
+                        message: errorHandlerArr[2]
+                    })
+
+                }
+
+                if (req.user.role.toLowerCase() == 'superuser') {
+
+                    Admin.findOneAndDelete({ _id: params.id }, (err, adminDeleted) => {
+
+
+                        if (err) {
+
+
+                            return res.status(501).send({
+                                status: 'error',
+                                message: "Server error, try again"
+                            })
+
+                        }
+
+                        if (!adminDeleted) {
+
+                            return res.status(500).send({
+
+                                status: 'error',
+                                message: "Admin was not deleted, try again"
+
+                            })
+
+                        }
+
+
+
+                        return res.status(200).send({
+
+                            status: 'success',
+                            message: adminDeleted
+
+                        })
+
+                    })
+                } else {
+
+
+                    accountFound.status = 'inactive'
+                    Admin.findOneAndUpdate({ _id: req.user.sub }, accountFound, { new: true }, (err, updated) => {
+
+                        if (err) {
+
+                            return res.status(500).send({
+                                status: 'error',
+                                message: 'Encripts error, please try again'
+                            })
+
+                        }
+
+                        updated.password = undefined
+                        return res.status(200).send({
+                            status: 'success',
+                            message: updated.status
+                        })
+                    })
+                }
+
+
+
+            })
+
+
+
+    },
+    deleteOwner: async function (req, res) {
+
+
+        var params = req.body
+
+
+        Owner.findOne({ _id: params.id }, async (err, ownerFound) => {
+
+
+            if (err) {
+
+                return res.status(500).send({
+
+                    status: "error",
+                    message: "Server error"
+                })
+
+            }
+
+            if (!ownerFound) {
+
+                return res.status(404).send({
+
+                    status: "error",
+                    message: "User was not found"
+                })
+
+            }
+
+
+            if (!ownerFound.adminId.includes(req.user.sub)) {
+
+                return res.status(400).send({
+
+                    status: "forbidden",
+                    message: "You are not authorized"
+                })
+
+            }
+
+            /// ELIMINAR OWNER DEL CONDOMINIO
+            const condominio = await Condominio.findOne({ _id: params.idCondominio })
+
+            condominio.owners.splice(condominio.owners.indexOf(params.idCondominio), 1)
+            const condominioUpdated = await Condominio.findOneAndUpdate({ _id: params.idCondominio }, condominio, { new: true })
+
+         
+
+
+            ownerFound.adminId.splice(ownerFound.adminId.indexOf(req.user.sub), 1)
+            const ownerUpdated = await Owner.findOneAndUpdate({ _id: params.id }, ownerFound, { new: true })
+
+
+
+
+            return res.status(200).send({
+
+                status: "success",
+                message: ownerUpdated
+            })
+
+        })
+
+
+
+    },
+    avatar: async function (req, res) {
+
+
+        var params = req.files.avatar
+        var fileName = params.path.split('\\')[2]
+
+
+        //verificar la extension de archivo enviado sea tipo imagen
+        var imgFormatAccepted = checkExtensions.confirmExtension(req)
+
+        if (imgFormatAccepted == false) {
+
+            return res.status(400).send({
+
+                status: "bad request",
+                message: "Files allows '.jpg', '.jpeg', '.gif', '.png'"
+            })
+        }
+
+        Admin.findOneAndUpdate({ _id: req.user.sub }, { avatar: fileName }, { new: true }, (err, updated) => {
+
+            if (err) {
+
+
+                return res.status(500).send({
+
+                    status: "bad request",
+                    message: "Avatar was not updating, try again."
+                })
+
+            }
+
+            return res.status(200).send({
+
+                status: 'success',
+                message: updated
+            })
+
+        })
+
+
+
+
+    }, 
+    getAdmins:function(req, res){
+
+        Admin.find().exec((err, admins) => {
+
+          
+            if (err) {
+
+                return res.status(500).send({
+                    status:'success',
+                    message:'server error, try again'
+                })
+                
+            }
+
+            if (Object.keys(admins).length == 0) {
+
+                return res.status(404).send({
+                    status: 'success',
+                    message: 'no users found'
+                })
+                
+            }
+
+            admins.forEach(admin => {
+                delete admin.password;
+            });
+          
+            const adm = admins.map(keys => {
+               
+                keys.password =  null
+               
+                           
+                return keys
+
+            });
+
+
+            return res.status(200).send({
+                status: 'success',
+                message: adm
+            })
+        })
+
+
+    },
+    getAvatar:function(req, res){
+
+        var imgName = req.params.fileName
+        var paths = './uploads/users/' + imgName
+          
+        if (fs.existsSync(paths)) {
+
+            return res.sendFile(path.resolve(paths))
+
+        } else {
+
+            return res.status(404).send({
+
+                status: "error",
+                message: "Image does not exits"
+            })
+        }
+
+       
+    }  
+    
+
+
+}
+
+module.exports = controller

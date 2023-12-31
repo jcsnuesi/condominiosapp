@@ -1,0 +1,160 @@
+<div class="card">
+    <p-table 
+    #dt1 
+    [value]="customers" 
+    dataKey="_id" 
+    [rows]="4" 
+    [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[4, 25, 50]" 
+    [loading]="loading" 
+    [paginator]="true"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+    [globalFilterFields]="['company', 'email_company','status', 'country', 'phone']">
+       
+    <ng-template pTemplate="caption">
+            <div class="flex">
+                <button pButton label="Clear" class="p-button-outlined" icon="pi pi-filter-slash"
+                    (click)="clear(dt1)"></button>
+                <span class="p-input-icon-left ml-auto">
+                    <i class="pi pi-search"></i>
+                    <input pInputText type="text" (input)="dt1.filterGlobal($event.target.value, 'contains')"
+                        placeholder="Search keyword" />
+                </span>
+            </div>
+        </ng-template>
+        <ng-template pTemplate="header">
+            <tr>
+                <th style="min-width:15rem">
+                    <div class="flex align-items-center">
+                        Company name
+                        <p-columnFilter type="text" field="company" display="menu"></p-columnFilter>
+                    </div>
+                </th>
+                <th style="min-width:15rem">
+                    <div class="flex align-items-center">
+                        Email
+                        <p-columnFilter type="text" field="email_company" display="menu"></p-columnFilter>
+                    </div>
+                </th>
+                <th style="min-width:15rem">
+                    <div class="flex align-items-center">
+                        Phone number
+                       
+                    </div>
+                </th>
+                <th style="min-width:10rem">
+                    <div class="flex align-items-center">
+                        Created at
+                        <p-columnFilter type="text" field="createdAt" display="menu"></p-columnFilter>
+                    </div>
+                </th>
+                <th style="min-width:10rem">
+                    <div class="flex align-items-center">
+                        Country
+                        <p-columnFilter type="text" field="country" display="menu" ></p-columnFilter>
+                    </div>
+                </th>
+                <th style="min-width:10rem">
+                    <div class="flex align-items-center">
+                        Status
+                        <p-columnFilter field="status" matchMode="equals" display="menu">
+                            
+                            <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                                
+                                <p-dropdown 
+                                [ngModel]="value" 
+                                [options]="statuses" 
+                                (onChange)="filter($event.value)"
+                                placeholder="Any">
+
+                                    <ng-template let-option pTemplate="item">
+                                        <p-tag 
+                                        [value]="option.label" 
+                                        [severity]="getSeverity(option.label)"></p-tag>
+                                    </ng-template>
+                                </p-dropdown>
+
+                            </ng-template>
+                        </p-columnFilter>
+                    </div>
+                </th>             
+                <th style="width: 3rem">
+                    <div class="flex align-items-center">
+                        Configurations
+                      
+                    </div>
+                </th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-customer>
+            <tr>
+                <td>
+                    <img [alt]="customer.avatar"
+                        [src]="url +'main-avatar/'+ customer.avatar"
+                        width="32" style="vertical-align: middle" />
+                    <span class="ml-1 vertical-align-middle">{{ customer.company }}</span>
+                </td>
+                <td>
+                    {{ customer.email_company }}
+                </td>
+                <td>
+                
+                    {{ customer.phone[0]}}
+                
+                
+                </td>
+                <td>
+                    {{dateFormat(customer.createdAt)  }}
+                </td>
+                <td>
+                    <img src="https://primefaces.org/cdn/primeng/images/demo/flag/flag_placeholder.png"
+                        class="flag flag-do" style="width: 20px" />
+                    <span class="ml-1 vertical-align-middle">{{ "Dominican Republic" }}</span>
+                </td>
+             
+                <td>
+                    <p-tag [value]="customer.status == 'active' ? 'Active' : 'Suspended'" [severity]="customer.status == 'active' ? 'success' : 'danger' "></p-tag>
+                </td>
+                <td>
+                    <button *ngIf="(customer.status == 'active' ? true : false)" pButton type="button" icon="pi pi-pencil"
+                       class="p-button-rounded p-button-text"  (click)="showDialog(customer)"></button>
+                </td>
+             
+                
+            </tr>
+
+           
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="7">No customers found.</td>
+            </tr>
+        </ng-template>
+    </p-table>
+
+    <p-dialog header="Header" [(visible)]="visible" [modal]="true"  [maximizable]="true" [style]="{width: '50vw'}">
+       <form #modifyForm="ngForm" (submit)="update($event)">
+
+        <!-- FORMULARIO DE ACTUALIZACION DE DATOS -->
+        <!-- <div class="row">
+
+            <div class="col-md-8">
+
+                <div class="p-float-label">
+                    <input pInputText id="company" name="company" value="{{adminInfo?.company}}" disabled/>
+                    <label for="company">Company name</label>
+                </div>
+            </div>
+            <div class="col-md-8">
+
+                <div class="p-float-label">
+                    <input pInputText id="company" name="company" value="{{adminInfo?.company}}" disabled/>
+                    <label for="company">Company name</label>
+                </div>
+            </div>
+
+        </div> -->
+
+       </form>
+    </p-dialog>
+</div>
