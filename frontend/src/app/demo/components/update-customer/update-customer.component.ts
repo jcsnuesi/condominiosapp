@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AutoCompleteModule } from "primeng/autocomplete";
@@ -18,6 +18,7 @@ import { User } from '../../models/user.model';
 import { UserService } from '../../service/user.service';
 import { MessageModule } from 'primeng/message';
 import { ActivatedRoute } from '@angular/router';
+import { global } from '../../service/global.service';
 
 
 @Component({
@@ -53,9 +54,12 @@ export class UpdateCustomerComponent implements OnInit {
     { name: 'M', code: 'M' }
   ]
 
+  @Input() sendDataToModal:any;
+
   public status: string;
-  public preview: boolean;
-  public image: string;
+
+  
+  public image: any;
   public userImage: any[] = [];
   public selectedState: any = null;
   public states_us: any[] = [
@@ -86,38 +90,50 @@ export class UpdateCustomerComponent implements OnInit {
   public user: User;
   public messages = [{ severity: '', summary: '', details: '' }]
   public info:any;
+  public url:string;
+  public avatarChanged:boolean = false;
 
   constructor( 
     private _userService: UserService,
     private _activatedRoute: ActivatedRoute
 
   ) {
-
-
-    
-    this.preview = false
-    this.checked = false
+   
+    this.url = global.url
+   
     
   }
   
   ngOnInit(): void {
-      
-   
+
+     
+    this.image = this.url + 'main-avatar/' + this.sendDataToModal.avatar
     
 
   }
 
-  getAdminById(id:string){
+  updateUser(id:string){
 
-    this._userService.adminsById(this.token, id).subscribe(
+    const formData = new FormData();
+    if (this.avatarChanged) {
+      
+      formData.append('avatar', this.image, this.image.name)
+    }
+
+    for (const key in this.user) {
+
+      formData.append(key, this.user[key])
+
+    }
+
+    this._userService.updateUser(this.token, id).subscribe(
 
       success => {
 
         if (success.status == 'success') {
 
-          this.user = success.message
-          
-          
+
+          this.sendDataToModal = success.message
           
         }
         console.log(success)
@@ -129,7 +145,7 @@ export class UpdateCustomerComponent implements OnInit {
     )
     
   }
-
+  
 
   onSelect(file: any) {
 
@@ -141,7 +157,8 @@ export class UpdateCustomerComponent implements OnInit {
 
       this.image = base64Data
       this.status = "true"
-      this.preview = true
+    
+      
 
       setTimeout(() => {
         this.status = 'false'
@@ -150,77 +167,14 @@ export class UpdateCustomerComponent implements OnInit {
     };
 
 
-    reader.readAsDataURL(file.files[0])
-    this.userImage.push(file.files[0])
+    reader.readAsDataURL(file.files[0])    
+    this.avatarChanged = true
 
     this.messages[0].severity = 'success'
     this.messages[0].summary = 'Image uploaded successfully!'
     this.messages[0].details = 'Upload!'
 
   }
-
-  onSubmit(form: any) {
-
-
-    if (this.checked) {
-
-      const token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI2NTU1ODk2MjE3MTI5NzgxZmZmMTg3N2UiLCJlbWFpbCI6Impjc2FudG9zQG1haWwuY29tIiwicGFzc3dvcmQiOiIkMmIkMTAkWTV4eG84VEZ3ckJJdi5CMk5qRzZwT0JIRy5OUHNWbEdWbVZKWDFrNFlOcDNLZ2FWcXNqYXUiLCJyb2xlIjoiU1VQRVJVU0VSIiwiaWF0IjoxNzAzMjkwMTA4fQ.ombBN8roQ0TZz2NFV42Cq8blm_EjLmarN_YLSKVf8G8"
-
-
-      const formData = new FormData();
-
-      if ((this.userImage).length > 0) {
-
-        this.userImage.forEach(img => {
-          formData.append('avatar', img, img.name)
-        })
-      }
-
-
-      for (const key in this.user) {
-
-        formData.append(key, this.user[key])
-
-      }
-
-
-
-      this._userService.create(formData, token).subscribe(
-
-        response => {
-
-          if (response.status == 'success') {
-
-
-            this.status = response.status
-
-            this.messages[0].severity = 'success'
-            this.messages[0].summary = 'Account created!'
-            this.messages[0].details = 'created'
-          } else {
-
-            this.messages[0].severity = 'error'
-            this.messages[0].summary = 'Account was not created'
-            this.messages[0].details = 'Error'
-          }
-
-
-        },
-        error => {
-
-          this.messages[0].severity = error.status
-          this.messages[0].summary = error.message
-          this.messages[0].details = 'Error'
-        }
-      )
-
-
-
-    }
-
-  }
-
-
 
 
 }

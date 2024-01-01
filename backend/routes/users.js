@@ -30,8 +30,8 @@ router.post('/login', UserController.login)
 
 // PUT
 
-router.put('/update-account', md_auth.authenticated, UserController.update)
-router.put('/inactive-account', md_auth.authenticated, UserController.delete)
+router.put('/update-account', [md_auth.authenticated, md_upload], UserController.update)
+router.put('/inactive-account', [md_auth.authenticated, userAuth.authorization], UserController.delete)
 router.put('/inactive-owner', md_auth.authenticated, UserController.deleteOwner)
 router.put('/avatar-admin', [md_auth.authenticated, md_upload], UserController.avatar)
 

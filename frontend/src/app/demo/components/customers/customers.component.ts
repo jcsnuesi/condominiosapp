@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { SelectItem } from 'primeng/api';
 import { DataView } from 'primeng/dataview';
 import { Table } from 'primeng/table';
@@ -17,9 +17,10 @@ import { UpdateCustomerComponent } from '../update-customer/update-customer.comp
 })
 export class CustomersComponent implements OnInit {
 
+ 
   private token: string = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI2NTU1ODk2MjE3MTI5NzgxZmZmMTg3N2UiLCJlbWFpbCI6Impjc2FudG9zQG1haWwuY29tIiwicGFzc3dvcmQiOiIkMmIkMTAkWTV4eG84VEZ3ckJJdi5CMk5qRzZwT0JIRy5OUHNWbEdWbVZKWDFrNFlOcDNLZ2FWcXNqYXUiLCJyb2xlIjoiU1VQRVJVU0VSIiwiaWF0IjoxNzAzNTU4MjY4fQ._qyJtXv90tZG_Cvx45xAErAW0371NN09_YxCDD8GJFg"
 
-
+  public sendDataToModal:any ;
   public customers: any[] = [];
   public url:string;
   public selectedCustomers:any;
@@ -80,19 +81,20 @@ export class CustomersComponent implements OnInit {
       
     }
 
+    public userInfo;
   showDialog(event:any){
-    this.visible = true 
 
-    this.data = event
+    this.visible = true 
+    this.userInfo = event
+
+
+
+ 
    
     
   }
-  public data: any;
 
-  sendData() {
-
-    return this.data
-  }
+  
   getSeverity(status: string) {
 
     switch (status.toLowerCase()) {
@@ -113,7 +115,9 @@ export class CustomersComponent implements OnInit {
     table.clear();
   }
   ngOnInit() {
-  
+
+    
+    
     this.sortOptions = [
       { label: 'Price High to Low', value: '!price' },
       { label: 'Price Low to High', value: 'price' }
@@ -131,6 +135,7 @@ export class CustomersComponent implements OnInit {
 
         if (admins.status == 'success') {
           this.customers = admins.message
+         
 
           
           

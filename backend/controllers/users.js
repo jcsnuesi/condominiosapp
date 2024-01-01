@@ -314,18 +314,7 @@ var controller = {
 
 
         var params = req.body
-        const verifying = new verifyDataParam()
-
-        if (!verifying.userAllow(req.user.role.toLowerCase())) {
-
-            return res.status(403).send({
-
-                status: "Forbidden",
-                message: "You are not authorized"
-            })
-
-
-        }
+        
         Admin.findOne(
             { _id: params.id }, (err, accountFound) => {
 
@@ -340,11 +329,19 @@ var controller = {
 
                 }
 
-                accountFound.street_1 = params['street_1']
-                accountFound.street_2 = params['street_2']
-                accountFound.city = params['city']
-                accountFound.state = params['state']
-                accountFound.status = params['status']
+                /**
+                 * Campos permitidos para modificar
+                 * Avatar
+                 * Telefonos
+                 * Direccion
+                 * Persona de contacto (todos sus campos)
+                 * Acceso a la plataforma
+                 *  Email
+                 *  Password
+                 * 
+                 */
+
+                
 
                 bcrypt.hash(params.password, saltRounds, async (err, hash) => {
 
