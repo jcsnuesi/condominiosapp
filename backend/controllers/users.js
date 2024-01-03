@@ -312,11 +312,11 @@ var controller = {
 
     update: function (req, res) {
 
-
         var params = req.body
+       
         
         Admin.findOne(
-            { _id: params.id }, (err, accountFound) => {
+            { _id: params._id }, (err, accountFound) => {
 
                 var errorHandlerArr = errorHandler.loginExceptions(err, accountFound)
 
@@ -324,60 +324,72 @@ var controller = {
 
                     return res.status(errorHandlerArr[1]).send({
                         status: 'error',
-                        message: errorHandlerArr[2]
+                        message: (errorHandlerArr[2])
                     })
 
                 }
 
+             
+                
                 /**
-                 * Campos permitidos para modificar
-                 * Avatar
-                 * Telefonos
-                 * Direccion
-                 * Persona de contacto (todos sus campos)
-                 * Acceso a la plataforma
-                 *  Email
-                 *  Password
+                 * -Campos permitidos para modificar:
+                 *  Avatar
+                 *  Telefonos
+                 *  Direccion
+                 * - Persona de contacto (todos sus campos)
+                 *  
+                 * -Acceso a la plataforma
+                 *      Email
+                 *      Password
                  * 
                  */
 
-                
+         
+                for (const key in params) {
 
-                bcrypt.hash(params.password, saltRounds, async (err, hash) => {
+            
+                accountFound[key] = params[key]
+                   
+                    
+                }
 
-                    params.password = hash
+                if (req.files.avatar) {
+                    accountFound['avatar'] = (req.files.avatar.path).split('\\')[2]
+                }
+
+                var contactPerson = {
+
+                    name_contact: params['name_contact'].toLowerCase(),
+                    lastname_contact: params['lastname_contact'].toLowerCase(),
+                    gender_contact: params['gender_contact'].toLowerCase(),
+                    email_contact: params['email_contact'].toLowerCase(),
+                    phone_contact: ((typeof ((params['phone_contact']).split(',')) == 'object') ? params['phone_contact'].split(',').map(number => { return number.trim() }) : params['phone_contact'].trim()),
+                    role_contact: params['role_contact'].toLowerCase()
+                }
+
+                accountFound.contact_person[0] = contactPerson
+           
+
+                Admin.findOneAndUpdate({ _id: params._id }, accountFound, { new: true }, (err, updated) => {
 
                     if (err) {
 
                         return res.status(500).send({
                             status: 'error',
-                            message: 'Encripts error, please try again'
+                            message: 'Server error, please try again'
                         })
 
                     }
-
-
-
-                    Admin.findOneAndUpdate({ _id: params.id }, accountFound, { strict: 'throw', new: true }, (err, updated) => {
-
-                        if (err) {
-
-                            return res.status(500).send({
-                                status: 'error',
-                                message: 'Server error, please try again'
-                            })
-
-                        }
-
-                        updated.password = undefined
-                        return res.status(200).send({
-                            status: 'success',
-                            message: updated
-                        })
+                   
+                    // updated.password = undefined
+                    return res.status(200).send({
+                        status: 'success',
+                        message: updated
                     })
-
-
                 })
+
+
+                
 
             })
 

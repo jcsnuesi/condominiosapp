@@ -1,4 +1,4 @@
-
+var bcrypt = require('bcrypt')
 
 let errors = {
 
@@ -177,6 +177,7 @@ let errors = {
         }
 
     }
+    
     
     
     

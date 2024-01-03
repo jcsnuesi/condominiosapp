@@ -11,7 +11,7 @@
 
             <h5> Registro de usuarios </h5>
 
-            <form #updateAdmin="ngForm" (ngSubmit)="onSubmit(updateAdmin)">
+            <form #updateAdmin="ngForm">
 
                 <div class="p-fluid p-formgrid grid">
 
@@ -71,7 +71,7 @@
                         <label htmlFor="phone2">Telefono 2</label>
                         <input pInputText id="phone2" type="text" required [(ngModel)]="sendDataToModal.phone[1]" #phone2="ngModel"
                             name="phone2" maxlength="10"
-                            [ngClass]="{'ng-invalid ng-dirty':(phone2.touched && !phone2.valid), ' ':phone2.valid}" />
+                           />
 
 
                     </div>
@@ -167,7 +167,7 @@
                         <label htmlFor="gender_contact">Genero<span style="color: red;">*</span></label>
 
                         <p-dropdown [options]="genero" optionLabel="name" optionValue="name" #gender_contact="ngModel"
-                            [(ngModel)]="sendDataToModal.contact_person[0].gender_contact" placeholder="Genero" name="gender_contact" required
+                            [(ngModel)]="sendDataToModal.contact_person[0].gender_contact" placeholder="{{sendDataToModal.contact_person[0].gender_contact}}" name="gender_contact" required
                             [ngClass]="{'ng-invalid ng-dirty':(gender_contact.touched && !gender_contact.valid), ' ':gender_contact.valid}"></p-dropdown>
 
                         <small *ngIf="gender_contact.touched && !gender_contact.valid" id="username-help"
@@ -218,30 +218,66 @@
                             pattern="[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*@[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*[.][a-zA-Z]{2,5}"
                             maxlength="50" />
 
+                      
                         <small *ngIf="email_company.touched && !email_company.valid" id="username-help"
                             class="p-error">Obligatorio.</small>
                     </div>
 
+                <div class="field col-12 md:col-6 float-end">
+                    <p-checkbox [(ngModel)]="changepassword" [binary]="true" inputId="binaryPassword" #changePass="ngModel"
+                        (onChange)="passwordChanger($event)" name="changePass" label="¿Change password?"></p-checkbox>
+
+                </div>
 
 
-                    <div class="field col-12 md:col-6">
-                        <label htmlFor="password">Password<span style="color: red;">*</span></label>
-                        <input pInputText id="password" type="password" required [(ngModel)]="sendDataToModal.password"
+                  
+                    <div class="field col-12 md:col-6" *ngIf="changepassword">
+                       
+                        <label htmlFor="password">Current password</label>
+                        <input pInputText id="password" type="password" [(ngModel)]="sendDataToModal.password"
                             #password="ngModel" name="password" maxlength="15" minlength="8" />
 
-                        <small *ngIf="password.touched && !password.valid" id="username-help" class="p-error">Su clave
+                    </div>
+                    <div class="field col-12 md:col-6" *ngIf="changepassword">
+
+                        <label htmlFor="new_password" >New password</label>
+                        <input pInputText id="new_password" type="password" required [(ngModel)]="sendDataToModal.npassword"
+                            #new_password="ngModel" name="new_password" maxlength="15" minlength="8" />
+
+                        <small *ngIf="new_password.touched && !new_password.valid" id="username-help" class="p-error">Su clave
                             debe tener minimo 8 caracteres maximo 15.</small>
+                    </div>
+                    <div class="field col-12 md:col-6" *ngIf="changepassword">
+
+                        <label htmlFor="rpassword">Repeat password</label>
+                        <input pInputText id="rpassword" type="password" required (input)="onPasswordChange()" [(ngModel)]="sendDataToModal.rpassword"
+                            #rpassword="ngModel" name="rpassword" maxlength="15" minlength="8" />
+
+                            <small *ngIf="match.value" id="changepasswordsmall" class="p-{{match.class}}">{{match.message}}</small>
+
+                    </div>                  
+
+                    <div class="flex align-items-center gap-1">
+                    
+                    <p-checkbox [(ngModel)]="checked" [binary]="true" inputId="binary" #selection="ngModel" (onChange)="delSelection($event)" name="selection" label="¿Delete account permanently?" required></p-checkbox>
+                      
                     </div>
 
                 </div>
 
-                <div style="margin-top: 9px;float:right">
-
-                    <input type="submit" [disabled]="!checked" value="Registrar"
-                        class="p-element p-ripple p-button p-component">
-
-                </div>
-
+               <div style="margin-top: 9px;float:right">
+             
+                <p-toast></p-toast>
+                <p-confirmDialog></p-confirmDialog>
+                
+                <p-button 
+                (click)="confirm($event, updateAdmin)"  
+                icon="pi pi-{{btnLookAndFeels.icon}}" 
+                styleClass="p-button-{{btnLookAndFeels.class}}"
+                label="{{btnLookAndFeels.label}}" ></p-button>
+                    
+               </div>
+               
             </form>
 
 

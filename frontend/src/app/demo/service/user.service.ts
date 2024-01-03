@@ -34,10 +34,10 @@ export class UserService{
         return this._http.get(this.url + 'admins',{headers:header})
     }
 
-    updateUser(token:string, id:string):Observable<any>{
+    updateUser(token: string, user: FormData):Observable<any>{
 
-        let header = new HttpHeaders().set('Content-Type','application/json').set('Authorization',token)
+        let header = new HttpHeaders().set('Authorization',token)
 
-        return this._http.get(this.url + 'adminsById/'+ id,{headers:header})
+        return this._http.put(this.url + 'update-account', user,{headers:header})
     }
 }

@@ -7,16 +7,16 @@ var UserController = require('../controllers/users')
 var router =  express.Router()
 var md_auth = require('../middleware/auth')
 var userAuth = require('../middleware/userAuth')
+var verifyPassword = require('../service/passwordVerified')
 
 var multipart = require('connect-multiparty');
-var md_upload = multipart({ uploadDir: './uploads/users' });
+var md_upload = multipart({ uploadDir: './uploads/users'});
 
 
 
 // GET
 
 router.get('/admins', [md_auth.authenticated, userAuth.authorization], UserController.getAdmins)
-router.get('/adminsById/:id', [md_auth.authenticated, userAuth.authorization], UserController.getAdminById)
 
 router.get('/main-avatar/:fileName', UserController.getAvatar)
 
@@ -30,7 +30,7 @@ router.post('/login', UserController.login)
 
 // PUT
 
-router.put('/update-account', [md_auth.authenticated, md_upload], UserController.update)
+router.put('/update-account', [md_auth.authenticated, md_upload, verifyPassword.passwordVerified], UserController.update)
 router.put('/inactive-account', [md_auth.authenticated, userAuth.authorization], UserController.delete)
 router.put('/inactive-owner', md_auth.authenticated, UserController.deleteOwner)
 router.put('/avatar-admin', [md_auth.authenticated, md_upload], UserController.avatar)

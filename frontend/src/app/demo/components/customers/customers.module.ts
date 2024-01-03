@@ -15,13 +15,15 @@ import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { DialogModule } from 'primeng/dialog';
 import { UpdateCustomerComponent } from '../update-customer/update-customer.component';
+import { TabMenuModule } from 'primeng/tabmenu';
 
 
 
 @NgModule({
 	imports: [
 		CommonModule,
-		DialogModule,		
+		DialogModule,
+		TabMenuModule,		
 		TagModule, 
 		MultiSelectModule,
 		FormsModule,

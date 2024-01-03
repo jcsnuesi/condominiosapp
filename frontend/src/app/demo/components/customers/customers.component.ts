@@ -45,10 +45,13 @@ export class CustomersComponent implements OnInit {
   public representatives: any;
   public visible: boolean= false;
   public modify:boolean;
+  public items:any[] = [];
+  public activeItem:any;
+
+
 
 
   constructor(
-    private _updateInfo: UpdateCustomerComponent,
     private _router: Router,
     private _activeRoute: ActivatedRoute,
     private _userService:UserService) {
@@ -61,11 +64,23 @@ export class CustomersComponent implements OnInit {
 
     ];
 
+    this.items = [
+      { label: 'Account info', icon: 'pi pi-fw pi-home' },
+      { label: 'Calendar', icon: 'pi pi-fw pi-calendar' },
+      { label: 'Edit', icon: 'pi pi-fw pi-pencil' },
+      { label: 'Documentation', icon: 'pi pi-fw pi-file' },
+      { label: 'Settings', icon: 'pi pi-fw pi-cog' }
+    ];
+
     this.modify = false
+   
     
      }
 
-     
+  tabMenuFunction(event:any){
+    console.log(event)
+
+  }
 
     dateFormat(date:string){
       //2023-11-05T19:32:38.422Z
@@ -86,11 +101,8 @@ export class CustomersComponent implements OnInit {
 
     this.visible = true 
     this.userInfo = event
-
-
-
- 
-   
+    this.activeItem = this.items[0]  
+    this.items[0]  
     
   }
 
@@ -110,6 +122,9 @@ export class CustomersComponent implements OnInit {
     return null;
   }
 
+ 
+  
+
 
   clear(table: Table) {
     table.clear();
@@ -117,11 +132,6 @@ export class CustomersComponent implements OnInit {
   ngOnInit() {
 
     
-    
-    this.sortOptions = [
-      { label: 'Price High to Low', value: '!price' },
-      { label: 'Price Low to High', value: 'price' }
-    ];
 
     this.getAdmins()
   }
@@ -134,13 +144,12 @@ export class CustomersComponent implements OnInit {
       admins =>{
 
         if (admins.status == 'success') {
-          this.customers = admins.message
-         
 
-          
-          
+          this.customers = admins.message
+    
+
         }
-      
+     
     
       },
       err => {

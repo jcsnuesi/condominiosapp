@@ -113,7 +113,7 @@ export class RegisterComponent{
 
       const formData = new FormData();
 
-      if ((this.userImage).length > 0) {
+      if ((this.userImage).length > 1) {
         
         this.userImage.forEach(img => {        
           formData.append('avatar', img, img.name)
