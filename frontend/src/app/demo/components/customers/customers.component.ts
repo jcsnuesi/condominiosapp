@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, DoCheck } from '@angular/core';
 import { SelectItem } from 'primeng/api';
 import { DataView } from 'primeng/dataview';
 import { Table } from 'primeng/table';
@@ -47,8 +47,7 @@ export class CustomersComponent implements OnInit {
   public modify:boolean;
   public items:any[] = [];
   public activeItem:any;
-
-
+  public userInfo: any;
 
 
   constructor(
@@ -65,7 +64,7 @@ export class CustomersComponent implements OnInit {
     ];
 
     this.items = [
-      { label: 'Account info', icon: 'pi pi-fw pi-home' },
+      { label: 'Account info', icon: 'pi pi-fw pi-home', routerLink:'details'},
       { label: 'Calendar', icon: 'pi pi-fw pi-calendar' },
       { label: 'Edit', icon: 'pi pi-fw pi-pencil' },
       { label: 'Documentation', icon: 'pi pi-fw pi-file' },
@@ -77,8 +76,15 @@ export class CustomersComponent implements OnInit {
     
      }
 
+  handleEvent(eventData: string) {
+   
+    this.getAdmins()
+  }
+     
+
   tabMenuFunction(event:any){
     console.log(event)
+    
 
   }
 
@@ -96,7 +102,7 @@ export class CustomersComponent implements OnInit {
       
     }
 
-    public userInfo;
+   
   showDialog(event:any){
 
     this.visible = true 
@@ -123,9 +129,6 @@ export class CustomersComponent implements OnInit {
   }
 
  
-  
-
-
   clear(table: Table) {
     table.clear();
   }
@@ -139,6 +142,8 @@ export class CustomersComponent implements OnInit {
  
   getAdmins(){
 
+    
+
     this._userService.admins(this.token).subscribe(
 
       admins =>{
@@ -147,7 +152,6 @@ export class CustomersComponent implements OnInit {
 
           this.customers = admins.message
     
-
         }
      
     

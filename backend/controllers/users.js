@@ -310,14 +310,46 @@ var controller = {
 
     },
 
+    reactiveAccount:function(req, res){
+
+     Admin.findOneAndUpdate({_id:req.body.id},
+        {status:'active'},
+        {new:true},
+        (err, actived) => {
+
+            if (err) {
+                
+                return res.status(500).send({
+                    status: 'error',
+                    message: 'Fill out all fields'
+                })
+            }
+            if (!actived) {
+                
+                return res.status(404).send({
+                    status: 'error',
+                    message: 'User not found'
+                })
+            }
+
+            return res.status(200).send({
+                status: 'success',
+                message: 'User reactived'
+            })
+
+
+        })
+
+    },
+
     update: function (req, res) {
 
         var params = req.body
-       
-        
+                       
         Admin.findOne(
             { _id: params._id }, (err, accountFound) => {
 
+                
                 var errorHandlerArr = errorHandler.loginExceptions(err, accountFound)
 
                 if (errorHandlerArr[0]) {
@@ -381,7 +413,7 @@ var controller = {
 
                     }
                    
-                    // updated.password = undefined
+         
                     return res.status(200).send({
                         status: 'success',
                         message: updated
@@ -396,84 +428,32 @@ var controller = {
 
     },
 
-    delete: async function (req, res) {
+    suspendedAccount: async function (req, res) {
 
-        Admin.findOne(
-            { _id: req.user.sub }, (err, accountFound) => {
+        Admin.findOneAndUpdate(
+            { _id: req.body.id }, 
+            { status: 'suspended' }, 
+            { new: true }, 
+            (err, updated) => {
+              
+                
+            if (err) {
 
-                var errorHandlerArr = errorHandler.loginExceptions(err, accountFound)
+                return res.status(500).send({
+                    status: 'error',
+                    message: 'Server, please try again'
+                })
 
-                if (errorHandlerArr[0]) {
+            }
 
-                    return res.status(errorHandlerArr[1]).send({
-                        status: 'error',
-                        message: errorHandlerArr[2]
-                    })
-
-                }
-
-                if (req.user.role.toLowerCase() == 'superuser') {
-
-                    Admin.findOneAndDelete({ _id: params.id }, (err, adminDeleted) => {
-
-
-                        if (err) {
-
-
-                            return res.status(501).send({
-                                status: 'error',
-                                message: "Server error, try again"
-                            })
-
-                        }
-
-                        if (!adminDeleted) {
-
-                            return res.status(500).send({
-
-                                status: 'error',
-                                message: "Admin was not deleted, try again"
-
-                            })
-
-                        }
-
-
-
-                        return res.status(200).send({
-
-                            status: 'success',
-                            message: adminDeleted
-
-                        })
-
-                    })
-                } else {
-
-
-                    accountFound.status = 'inactive'
-                    Admin.findOneAndUpdate({ _id: req.user.sub }, accountFound, { new: true }, (err, updated) => {
-
-                        if (err) {
-
-                            return res.status(500).send({
-                                status: 'error',
-                                message: 'Encripts error, please try again'
-                            })
-
-                        }
-
-                        updated.password = undefined
-                        return res.status(200).send({
-                            status: 'success',
-                            message: updated.status
-                        })
-                    })
-                }
-
-
-
+            
+            return res.status(200).send({
+                status: 'success',
+                message: updated.status
             })
+        })
+        
+        
 
 
 

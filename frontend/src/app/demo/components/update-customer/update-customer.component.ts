@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Form, FormsModule, NgForm } from '@angular/forms';
 import { AutoCompleteModule } from "primeng/autocomplete";
@@ -64,12 +64,15 @@ export class UpdateCustomerComponent implements OnInit {
   public checked:boolean = false;
 
   @Input() sendDataToModal:any;
+  @Output() customEvent: EventEmitter<string> = new EventEmitter<string>();
+
+  
 
   public status: string;
+  public checkBoxMsg: string = '¿Delete account permanently?'
 
   
   public image: any;
-  public userImage: any;
   public selectedState: any = null;
   public states_us: any[] = [
 
@@ -105,6 +108,8 @@ export class UpdateCustomerComponent implements OnInit {
   public btnLookAndFeels: any;
   public changepassword:boolean;
   public match:any = {value:false, message:'Does not match', validation:false, class:'error'};
+  public userImage:any;
+  public disabled:boolean;
  
 
   constructor( 
@@ -118,18 +123,34 @@ export class UpdateCustomerComponent implements OnInit {
     this.url = global.url
     this.btnSetting = [
       { icon: 'times', label: 'Delete account', class: 'danger' },
-      { icon: 'save', label: 'Update', class: 'success' }]
+      { icon: 'save', label: 'Update', class: 'success' },
+      { icon: 'power-off', label: 'Reactive', class: 'primary' }]
     this.changepassword =  false
+    
        
   }
 
+
+
   ngOnInit(): void {
 
-    this.btnLookAndFeels = this.btnSetting[1]
+    console.log(this.sendDataToModal.status)
+
+    if (this.sendDataToModal.status == 'active') {
+      
+      this.disabled = true
+      this.btnLookAndFeels = this.btnSetting[1]
+      
+    }else{
+
+      this.disabled = false
+      this.btnLookAndFeels = this.btnSetting[2]
+
+    }
 
     this.image = this.url + 'main-avatar/' + this.sendDataToModal.avatar
 
-    console.log(this.sendDataToModal)
+ 
    
   }
 
@@ -170,155 +191,159 @@ export class UpdateCustomerComponent implements OnInit {
   delSelection(event){
 
     this.btnLookAndFeels = this.btnSetting[event.checked == false ? 1 : 0]
+    
+  }
+
+  onDelete(id){
+
+    this._userService.deleteUser(this.token, id).subscribe(
+
+      account => {
+
+        if(account.status == 'success')
+        
+        this.customEvent.emit('update');
+        this.disabled = false
+        this.checkBoxMsg = "¿Reactive account?"
+        this.btnLookAndFeels = this.btnSetting[2]
+
+       
+
+      },
+      error => {
+
+        console.log(error)
+
+      }
+    )
+   
+
+  }
+
+  reactive(){
+
+    this._userService.reactiveAccount(this.token, { id: this.sendDataToModal._id,status:'active'}).subscribe(
+
+      reactived => {
+      
+     
+        if (reactived.status == 'success') {
+          this.customEvent.emit('update');
+          this.disabled = true
+          this.btnLookAndFeels = this.btnSetting[1]
+          this.checkBoxMsg = '¿Delete account permanently?'
+
+        }
+
+      },
+      error => {
+        console.log(error)
+      }
+    )
+  }
+
+  onUpdate(dataform){
+
+  
+
+    delete dataform.form.value.selection
+    delete dataform.form.value.changePass
+
+    var formData = new FormData();
+    formData.append('_id', this.sendDataToModal._id)
+    formData.append('avatar', this.userImage)
+
+    if (this.changepassword) {
+
+      if (this.match.validation) {
+
+        formData.append('password', dataform.form.value.password)
+        formData.append('new_password', dataform.form.value.new_password)
+      } else {
+
+        this._messageService.add({ severity: 'error', summary: 'Not updated', detail: 'New password must macth', life: 3000 });
+      }
+
+
+    }
+
+    delete dataform.form.value.password
+    delete dataform.form.value.new_password
+    delete dataform.form.value.rpassword
+
+    for (const key in dataform.form.value) {
+
+      if (dataform.form.value[key] != undefined || dataform.form.value[key] != null) {
+
+        formData.append(key, dataform.form.value[key])
+
+      }
+
+    }
+
+    
+    this._userService.updateUser(this.token, formData).subscribe(
+
+      response => {
+
+        if (response.status == 'success') {
+          this._messageService.add({ severity: 'success', summary: 'Confirmed', detail: 'Info updated' });
+
+          this.customEvent.emit('update');
+
+        } else {
+
+          this._messageService.add({ severity: 'error', summary: 'Not updated', detail: response.error.message, life: 3000 });
+        }
+      },
+      error => {
+        this._messageService.add({ severity: 'error', summary: 'Not updated', detail: error.error.message, life: 3000 });
+        console.log(error)
+      }
+
+    )
+
+ 
 
   }
 
   confirm(event: Event, dataform: NgForm) {
 
-    console.log(dataform.form.value)
-    delete dataform.form.value.selection
-    delete dataform.form.value.changePass
     
+    this._confirmationService.confirm({
+      target: event.target as EventTarget,
+      message: 'Are you sure that you want to proceed?',
+      header: 'Confirmation',
+      icon: 'pi pi-exclamation-triangle',
+      acceptIcon: "none",
+      rejectIcon: "none",
+      rejectButtonStyleClass: "p-button-text",
+      accept: () => {
 
-    if (this.changepassword == false) {
-   
-      this._confirmationService.confirm({
-        target: event.target as EventTarget,
-        message: 'Are you sure that you want to proceed?',
-        header: 'Confirmation',
-        icon: 'pi pi-exclamation-triangle',
-        acceptIcon: "none",
-        rejectIcon: "none",
-        rejectButtonStyleClass: "p-button-text",
-        accept: () => {
-  
-          const formData = new FormData();
-          formData.append('_id', this.sendDataToModal._id)
-         
-          if (this.avatarChanged) {
-          
-            formData.append('avatar', this.userImage)
-    
-         
-          } else {
-
-            formData.append('avatar', this.sendDataToModal.avatar)
-
-          }
-
-      
-          for (const key in dataform.form.value) {
-
-            if (dataform.form.value[key] != undefined || dataform.form.value[key] != null) {
-
-              formData.append(key, dataform.form.value[key])
-
-            }
-
-          }
-
-          delete dataform.form.value.password
-          delete dataform.form.value.new_password
-          delete dataform.form.value.rpassword
-
-
-          this._userService.updateUser(this.token, formData).subscribe(
-  
-            response => {
-  
-              if (response.status == 'success') {
-                this._messageService.add({ severity: 'info', summary: 'Confirmed', detail: 'Info updated' });
-              }else{
-  
-                this._messageService.add({ severity: 'error', summary: 'Not updated', detail: response.error.message, life: 3000 });
-              }
-            },
-            error => {
-              this._messageService.add({ severity: 'error', summary: 'Not updated', detail: error.error.message, life: 3000 });
-              console.log(error)
-            }
-  
-          )
-          
+        if (this.btnLookAndFeels.icon == 'times') {
         
-        },
-        reject: () => {
-          this._messageService.add({ severity: 'error', summary: 'Rejected', detail: 'You have rejected', life: 3000 });
-        }
-      }); 
-      
-
-    } else if (this.changepassword && this.match.validation){
-     
-      this._confirmationService.confirm({
-        target: event.target as EventTarget,
-        message: 'Are you sure that you want to proceed?',
-        header: 'Confirmation',
-        icon: 'pi pi-exclamation-triangle',
-        acceptIcon: "none",
-        rejectIcon: "none",
-        rejectButtonStyleClass: "p-button-text",
-        accept: () => {
-
-          const formData = new FormData();
-          formData.append('_id', this.sendDataToModal._id)
-          formData.append('password', dataform.form.value.password)
-          formData.append('new_password', dataform.form.value.new_password)
-
-          if (this.avatarChanged) {
-   
-            formData.append('avatar', this.userImage)
+          this.onDelete({ id: this.sendDataToModal._id })
           
-          }else{
+        }else if(this.disabled == false){
 
-            formData.append('avatar', this.sendDataToModal.avatar)
+         this.reactive()
 
-          }
-
-          delete dataform.form.value.password
-          delete dataform.form.value.new_password
-          delete dataform.form.value.rpassword
-    
-          for (const key in dataform.form.value) {
-
-            if (dataform.form.value[key] != undefined || dataform.form.value[key] != null) {
-              
-              formData.append(key, dataform.form.value[key])
-
-            }
-
-          }
-     
-          this._userService.updateUser(this.token, formData).subscribe(
-
-            response => {
-
-              if (response.status == 'success') {
-                this._messageService.add({ severity: 'info', summary: 'Confirmed', detail: 'You have accepted' });
-              } else {
-
-                this._messageService.add({ severity: 'error', summary: 'Not updated', detail: response.error.message, life: 3000 });
-              }
-            },
-            error => {
-              this._messageService.add({ severity: 'error', summary: 'Not updated', detail: error.error.message, life: 3000 });
-              console.log(error)
-            }
-
-          )
-
-
-        },
-        reject: () => {
-          this._messageService.add({ severity: 'error', summary: 'Rejected', detail: 'You have rejected', life: 3000 });
+        }        
+        else{
+        
+          this.onUpdate(dataform)
         }
-      }); 
-    }
-    
-    else{
 
-      this._messageService.add({ severity: 'error', summary: 'Not updated', detail: 'New password must macth', life: 3000 });
-    }
+
+
+
+      },
+      reject: () => {
+        this._messageService.add({ severity: 'error', summary: 'Rejected', detail: 'You have rejected', life: 3000 });
+      }
+    }); 
+
+  
 
   }
   
@@ -327,15 +352,15 @@ export class UpdateCustomerComponent implements OnInit {
 
 
     const reader = new FileReader();
+    
 
     reader.onloadend = () => {
+
       const base64Data = reader.result as string;
 
       this.image = base64Data
-      this.status = "true"
+      this.status = 'true'
     
-      
-
       setTimeout(() => {
         this.status = 'false'
       }, 3000);
@@ -343,10 +368,9 @@ export class UpdateCustomerComponent implements OnInit {
     };
 
 
-    reader.readAsDataURL(file.files[0])    
-    this.userImage = file.files[0]
-    this.avatarChanged = true
-
+    reader.readAsDataURL(file.files[0])
+    this.userImage= file.files[0]
+    
     this.messages[0].severity = 'success'
     this.messages[0].summary = 'Image uploaded successfully!'
     this.messages[0].details = 'Upload!'

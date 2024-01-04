@@ -9,11 +9,11 @@
 
         <div class="card" *ngIf="status != 'success'">
 
-            <h5> Registro de usuarios </h5>
+            <h5> Account info </h5>
 
             <form #updateAdmin="ngForm">
 
-                <div class="p-fluid p-formgrid grid">
+                <div *ngIf="disabled" class="p-fluid p-formgrid grid">
 
                     <div class="field col-12">
 
@@ -259,7 +259,7 @@
 
                     <div class="flex align-items-center gap-1">
                     
-                    <p-checkbox [(ngModel)]="checked" [binary]="true" inputId="binary" #selection="ngModel" (onChange)="delSelection($event)" name="selection" label="¿Delete account permanently?" required></p-checkbox>
+                    <p-checkbox [(ngModel)]="checked" [binary]="true" inputId="binary" #selection="ngModel" (onChange)="delSelection($event)" name="selection" label="{{checkBoxMsg}}" required></p-checkbox>
                       
                     </div>
 
@@ -271,7 +271,7 @@
                 <p-confirmDialog></p-confirmDialog>
                 
                 <p-button 
-                (click)="confirm($event, updateAdmin)"  
+                (click)="confirm($event, updateAdmin)" 
                 icon="pi pi-{{btnLookAndFeels.icon}}" 
                 styleClass="p-button-{{btnLookAndFeels.class}}"
                 label="{{btnLookAndFeels.label}}" ></p-button>

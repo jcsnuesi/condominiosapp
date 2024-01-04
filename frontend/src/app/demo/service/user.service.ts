@@ -40,4 +40,22 @@ export class UserService{
 
         return this._http.put(this.url + 'update-account', user,{headers:header})
     }
+
+    deleteUser(token:string, user:any):Observable<any>{
+
+        let param = JSON.stringify(user)
+
+       
+        let header = new HttpHeaders().set('Content-Type', 'application/json').set('Authorization',token)
+
+        return this._http.put(this.url + 'inactive-account', param, {headers:header})
+    }
+
+    reactiveAccount(token: string, info: any): Observable<any>{
+
+        let params = JSON.stringify(info)
+        let header = new HttpHeaders().set('Content-Type', 'application/json').set('Authorization', token)
+
+        return this._http.put(this.url + 'reactiveAccount', params, {headers:header})
+    }
 }

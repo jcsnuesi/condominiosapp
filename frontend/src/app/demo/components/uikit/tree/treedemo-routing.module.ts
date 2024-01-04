@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { TreeDemoComponent } from './treedemo.component';
 
-@NgModule({
+@NgModule({ 
 	imports: [RouterModule.forChild([
 		{ path: '', component: TreeDemoComponent }
 	])],
