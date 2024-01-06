@@ -1,7 +1,9 @@
-import { Injectable } from "@angular/core";
+import { Injectable, EventEmitter, Output } from "@angular/core";
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import { global } from "./global.service";
+
+
 
 @Injectable()
 export class UserService{
@@ -9,16 +11,24 @@ export class UserService{
     public url:string;
     public identity:any;
     public token:string;
+    // @Output() disparador: EventEmitter<any> = new EventEmitter();
+    @Output() disparador: EventEmitter<string> = new EventEmitter<string>();
+    @Output() customEvent: EventEmitter<string> = new EventEmitter<string>();
 
 
+
+ 
     constructor(private _http: HttpClient){
 
         this.url = global.url
 
     }
 
-
-    create(user:FormData, token:string):Observable<any>{
+    evento(key){
+        this.disparador.emit(key)
+    }
+    
+   create(user:FormData, token:string):Observable<any>{
 
         let header = new HttpHeaders().set('Authorization',token)
       
@@ -58,4 +68,11 @@ export class UserService{
 
         return this._http.put(this.url + 'reactiveAccount', params, {headers:header})
     }
+
+
+
+    
+
+
+    
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit, DoCheck } from '@angular/core';
+import { Component, OnInit, DoCheck, EventEmitter } from '@angular/core';
 import { SelectItem } from 'primeng/api';
 import { DataView } from 'primeng/dataview';
 import { Table } from 'primeng/table';
@@ -15,7 +15,7 @@ import { UpdateCustomerComponent } from '../update-customer/update-customer.comp
   styleUrls: ['./customers.component.scss'],
   providers: [UserService, UpdateCustomerComponent]
 })
-export class CustomersComponent implements OnInit {
+export class CustomersComponent implements OnInit, DoCheck {
 
  
   private token: string = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI2NTU1ODk2MjE3MTI5NzgxZmZmMTg3N2UiLCJlbWFpbCI6Impjc2FudG9zQG1haWwuY29tIiwicGFzc3dvcmQiOiIkMmIkMTAkWTV4eG84VEZ3ckJJdi5CMk5qRzZwT0JIRy5OUHNWbEdWbVZKWDFrNFlOcDNLZ2FWcXNqYXUiLCJyb2xlIjoiU1VQRVJVU0VSIiwiaWF0IjoxNzAzNTU4MjY4fQ._qyJtXv90tZG_Cvx45xAErAW0371NN09_YxCDD8GJFg"
@@ -25,6 +25,7 @@ export class CustomersComponent implements OnInit {
   public url:string;
   public selectedCustomers:any;
   public adminInfo: User;
+  public loading: boolean;
  
 
   sortOptions: SelectItem[] = [];
@@ -40,75 +41,117 @@ export class CustomersComponent implements OnInit {
   orderCities: any[] = [];
 
   public layout:string;
-  public loading: boolean = true;
   public statuses!: any[];
   public representatives: any;
   public visible: boolean= false;
   public modify:boolean;
-  public items:any[] = [];
+  public items: any[] = [];
   public activeItem:any;
-  public userInfo: any;
-
-
+  messageEvent:any;
+  public status:string
+  public identity:any;
+ 
   constructor(
     private _router: Router,
     private _activeRoute: ActivatedRoute,
-    private _userService:UserService) {
+    public _userService:UserService) {
 
     this.url = global.url
-    this.loading = false
     this.statuses = [
       { label: 'Active', value: 'active' },
       { label: 'Suspended', value: 'suspended' },
 
     ];
 
-    this.items = [
-      { label: 'Account info', icon: 'pi pi-fw pi-home', routerLink:'details'},
-      { label: 'Calendar', icon: 'pi pi-fw pi-calendar' },
-      { label: 'Edit', icon: 'pi pi-fw pi-pencil' },
-      { label: 'Documentation', icon: 'pi pi-fw pi-file' },
-      { label: 'Settings', icon: 'pi pi-fw pi-cog' }
-    ];
-
-    this.modify = false
-   
-    
      }
 
-  handleEvent(eventData: string) {
-   
+ 
+ ngOnInit() {
+
+    this.loading = true    
     this.getAdmins()
-  }
-     
-
-  tabMenuFunction(event:any){
-    console.log(event)
     
+   this._userService.customEvent.subscribe(data => {
+     this.getAdmins()
+     this.getValues().status = data == 'suspended' ? 'suspended' : 'active';
+     this._userService.identity = this.getValues()
+     this.tabMenu()
+
+     //  console.log("******EVENT EMITTER***********")
+     //  console.log(data)
+     //  console.log(this.getValues())
+
+   })
+  
+  
+      
+  }
+
+  ngDoCheck(): void {
+    // this.getAdmins()
+    this._userService.identity = this.getValues()
+      
+  }
+
+  tabMenu() {
+
+    this.items =   [
+      { label: 'Account info', icon: 'pi pi-fw pi-home', routerLink: 'details' },
+      { label: 'Calendar', icon: 'pi pi-fw pi-calendar', disabled: false },
+      { label: 'Edit', icon: 'pi pi-fw pi-pencil', disabled: false },
+      { label: 'Documentation', icon: 'pi pi-fw pi-file', routerLink: 'docs', disabled: false },
+      { label: 'Settings', icon: 'pi pi-fw pi-cog', disabled: false }
+    ]
+
+    this.items.forEach(item => {
+      item.disabled = this.getValues().status == 'suspended' ? true : false
+    
+    })
+
 
   }
 
-    dateFormat(date:string){
-      //2023-11-05T19:32:38.422Z
-      var longDate = date.split(/[-T]/)
+     
+  handleEvent() {
+    this._router.navigate(['/customers'])
+ 
+  }
 
-      var year = longDate[0]
-      var month = longDate[1]
-      var day = longDate[2]
-      const fullDate = year + '-' + month + '-' + day
+  dateFormat(date:string){
+    //2023-11-05T19:32:38.422Z
+    var longDate = date.split(/[-T]/)
 
-      return fullDate
+    var year = longDate[0]
+    var month = longDate[1]
+    var day = longDate[2]
+    const fullDate = year + '-' + month + '-' + day
 
-      
-    }
+    return fullDate
 
+    
+  }
+
+
+  public datosUpdating:any;
+ 
+  setValues(data){
+
+    this.datosUpdating = data
+  }
+
+  getValues() {
+
+   return this.datosUpdating
+  }
    
   showDialog(event:any){
-
-    this.visible = true 
-    this.userInfo = event
+  
+    this.setValues(event)   
+    this.tabMenu()
+       
     this.activeItem = this.items[0]  
-    this.items[0]  
+     
+    this.visible = true  
     
   }
 
@@ -132,13 +175,7 @@ export class CustomersComponent implements OnInit {
   clear(table: Table) {
     table.clear();
   }
-  ngOnInit() {
-
-    
-
-    this.getAdmins()
-  }
-
+ 
  
   getAdmins(){
 
@@ -149,9 +186,9 @@ export class CustomersComponent implements OnInit {
       admins =>{
 
         if (admins.status == 'success') {
-
+          this.loading = false
           this.customers = admins.message
-    
+      
         }
      
     

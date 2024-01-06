@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, DoCheck } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Form, FormsModule, NgForm } from '@angular/forms';
 import { AutoCompleteModule } from "primeng/autocomplete";
@@ -22,7 +22,7 @@ import { global } from '../../service/global.service';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
-
+import { CustomersComponent } from '../customers/customers.component';
 
 
 
@@ -50,9 +50,9 @@ import { ToastModule } from 'primeng/toast';
     FileUploadModule,
     InputTextModule,
     DividerModule],
-  providers: [UserService, MessageService, ConfirmationService]
+  providers: [MessageService, ConfirmationService]
 })
-export class UpdateCustomerComponent implements OnInit {
+export class UpdateCustomerComponent implements OnInit, DoCheck {
 
   private token: string = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI2NTU1ODk2MjE3MTI5NzgxZmZmMTg3N2UiLCJlbWFpbCI6Impjc2FudG9zQG1haWwuY29tIiwicGFzc3dvcmQiOiIkMmIkMTAkWTV4eG84VEZ3ckJJdi5CMk5qRzZwT0JIRy5OUHNWbEdWbVZKWDFrNFlOcDNLZ2FWcXNqYXUiLCJyb2xlIjoiU1VQRVJVU0VSIiwiaWF0IjoxNzAzNTU4MjY4fQ._qyJtXv90tZG_Cvx45xAErAW0371NN09_YxCDD8GJFg"
   public model: any[] = [];
@@ -63,10 +63,8 @@ export class UpdateCustomerComponent implements OnInit {
 
   public checked:boolean = false;
 
-  @Input() sendDataToModal:any;
-  @Output() customEvent: EventEmitter<string> = new EventEmitter<string>();
+  public sendDataToModal:any;
 
-  
 
   public status: string;
   public checkBoxMsg: string = '¿Delete account permanently?'
@@ -110,10 +108,12 @@ export class UpdateCustomerComponent implements OnInit {
   public match:any = {value:false, message:'Does not match', validation:false, class:'error'};
   public userImage:any;
   public disabled:boolean;
- 
+  public btnDisabled:boolean;
 
+ 
+  nuevomensaje:any;
   constructor( 
-    private _userService: UserService,
+    public _userService: UserService,
     private _activatedRoute: ActivatedRoute,
     private _messageService: MessageService,
     private _confirmationService: ConfirmationService
@@ -126,32 +126,28 @@ export class UpdateCustomerComponent implements OnInit {
       { icon: 'save', label: 'Update', class: 'success' },
       { icon: 'power-off', label: 'Reactive', class: 'primary' }]
     this.changepassword =  false
+    this.btnDisabled = true 
+   
     
-       
   }
 
+  ngDoCheck(): void {
+    this.sendDataToModal = this._userService.identity
 
+    
+  }
 
   ngOnInit(): void {
 
-    console.log(this.sendDataToModal.status)
+    
+    this.sendDataToModal = this._userService.identity
 
-    if (this.sendDataToModal.status == 'active') {
-      
-      this.disabled = true
-      this.btnLookAndFeels = this.btnSetting[1]
-      
-    }else{
-
-      this.disabled = false
-      this.btnLookAndFeels = this.btnSetting[2]
-
-    }
-
-    this.image = this.url + 'main-avatar/' + this.sendDataToModal.avatar
-
- 
+    this.disabled = this.sendDataToModal.status == 'active' ? true : false
+    this.btnLookAndFeels = this.btnSetting[this.sendDataToModal.status == 'active' ? 1 : 2]
    
+    this.image = this.url + 'main-avatar/' + this.sendDataToModal.avatar
+    console.log(this.sendDataToModal)
+
   }
 
   // Habilita las inputs para cambiar la password
@@ -202,12 +198,11 @@ export class UpdateCustomerComponent implements OnInit {
 
         if(account.status == 'success')
         
-        this.customEvent.emit('update');
+        this._userService.customEvent.emit('suspended');
         this.disabled = false
         this.checkBoxMsg = "¿Reactive account?"
         this.btnLookAndFeels = this.btnSetting[2]
-
-       
+        this.checked = false
 
       },
       error => {
@@ -228,7 +223,7 @@ export class UpdateCustomerComponent implements OnInit {
       
      
         if (reactived.status == 'success') {
-          this.customEvent.emit('update');
+          this._userService.customEvent.emit('reactive');
           this.disabled = true
           this.btnLookAndFeels = this.btnSetting[1]
           this.checkBoxMsg = '¿Delete account permanently?'
@@ -242,9 +237,19 @@ export class UpdateCustomerComponent implements OnInit {
     )
   }
 
-  onUpdate(dataform){
 
-  
+  formChanges(dataform:any) {
+
+    console.log(dataform)
+    this.btnDisabled = false
+   
+    
+
+
+  }
+
+  onUpdate(dataform){
+   
 
     delete dataform.form.value.selection
     delete dataform.form.value.changePass
@@ -281,15 +286,16 @@ export class UpdateCustomerComponent implements OnInit {
 
     }
 
+  
+
     
     this._userService.updateUser(this.token, formData).subscribe(
 
       response => {
 
         if (response.status == 'success') {
+          this._userService.customEvent.emit('updated');
           this._messageService.add({ severity: 'success', summary: 'Confirmed', detail: 'Info updated' });
-
-          this.customEvent.emit('update');
 
         } else {
 
@@ -306,6 +312,8 @@ export class UpdateCustomerComponent implements OnInit {
  
 
   }
+
+
 
   confirm(event: Event, dataform: NgForm) {
 
@@ -330,8 +338,9 @@ export class UpdateCustomerComponent implements OnInit {
 
         }        
         else{
-        
           this.onUpdate(dataform)
+      
+        
         }
 
 
@@ -353,7 +362,6 @@ export class UpdateCustomerComponent implements OnInit {
 
     const reader = new FileReader();
     
-
     reader.onloadend = () => {
 
       const base64Data = reader.result as string;

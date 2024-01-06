@@ -113,11 +113,11 @@
                 </td>
              
                 <td>
-                    <p-tag [value]="customer.status == 'active' ? 'Active' : 'Suspended'" [severity]="customer.status == 'active' ? 'success' : 'danger' "></p-tag>
+                    <p-tag [value]="customer.status == 'active' ? 'Active' : 'Suspended'" [severity]="customer.status == 'active' ? 'success' : 'danger' " ></p-tag>
                 </td>
                 <td>
                     <button pButton type="button" icon="pi pi-eye"
-                       class="p-button-rounded p-button-text"  (click)="showDialog(customer)"></button>
+                       class="p-button-rounded p-button-text" (click)="showDialog(customer)" [routerLink]="['/customers/details']"></button>
                 </td>
                              
             </tr>
@@ -135,13 +135,13 @@
         [(visible)]="visible" 
         [modal]="true" 
         [maximizable]="true"
-        [style]="{width: '100%', height:'100%'}" >
+        [style]="{width: '50%', height:'90%'}" (onHide)="handleEvent()" >
 
-             <p-tabMenu [model]="items" [activeItem]="activeItem"></p-tabMenu>
+             <p-tabMenu [model]="items" [activeItem]="activeItem" ></p-tabMenu>
 
-            <app-update-customer *ngIf="visible" (customEvent)="handleEvent($event)" [sendDataToModal]="userInfo"></app-update-customer>
+            <!-- <app-update-customer *ngIf="visible" (customEvent)="handleEvent($event)" [sendDataToModal]="userInfo"></app-update-customer> -->
 
-            <!-- <router-outlet *ngIf="visible" (customEvent)="handleEvent($event)" [sendDataToModal]="userInfo"></router-outlet> -->
+            <router-outlet></router-outlet>
 
         </p-dialog>
 
