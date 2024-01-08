@@ -22,8 +22,6 @@ import { global } from '../../service/global.service';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
-import { CustomersComponent } from '../customers/customers.component';
-
 
 
 @Component({
@@ -110,8 +108,6 @@ export class UpdateCustomerComponent implements OnInit, DoCheck {
   public disabled:boolean;
   public btnDisabled:boolean;
 
- 
-  nuevomensaje:any;
   constructor( 
     public _userService: UserService,
     private _activatedRoute: ActivatedRoute,
@@ -134,14 +130,12 @@ export class UpdateCustomerComponent implements OnInit, DoCheck {
   ngDoCheck(): void {
     this.sendDataToModal = this._userService.identity
 
-    
   }
 
   ngOnInit(): void {
-
     
     this.sendDataToModal = this._userService.identity
-
+    
     this.disabled = this.sendDataToModal.status == 'active' ? true : false
     this.btnLookAndFeels = this.btnSetting[this.sendDataToModal.status == 'active' ? 1 : 2]
    

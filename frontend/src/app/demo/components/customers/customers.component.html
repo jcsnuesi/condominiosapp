@@ -77,7 +77,16 @@
                             </ng-template>
                         </p-columnFilter>
                     </div>
-                </th>             
+                </th> 
+                
+                <th style="width: 3rem">
+                    <div class="flex align-items-center">
+                        Verified
+                        <p-columnFilter type="boolean" field="verified" display="menu"></p-columnFilter>
+                    </div>
+                </th>
+                
+                
                 <th style="width: 3rem">
                     <div class="flex align-items-center">
                         Configurations
@@ -115,6 +124,10 @@
                 <td>
                     <p-tag [value]="customer.status == 'active' ? 'Active' : 'Suspended'" [severity]="customer.status == 'active' ? 'success' : 'danger' " ></p-tag>
                 </td>
+                <td class="text-center">
+                    <i class="pi"
+                        [ngClass]="{ 'text-green-500 pi-check-circle': customer.verified, 'text-red-500 pi-times-circle': !customer.verified }"></i>
+                </td>
                 <td>
                     <button pButton type="button" icon="pi pi-eye"
                        class="p-button-rounded p-button-text" (click)="showDialog(customer)" [routerLink]="['/customers/details']"></button>
@@ -138,9 +151,7 @@
         [style]="{width: '50%', height:'90%'}" (onHide)="handleEvent()" >
 
              <p-tabMenu [model]="items" [activeItem]="activeItem" ></p-tabMenu>
-
-            <!-- <app-update-customer *ngIf="visible" (customEvent)="handleEvent($event)" [sendDataToModal]="userInfo"></app-update-customer> -->
-
+         
             <router-outlet></router-outlet>
 
         </p-dialog>

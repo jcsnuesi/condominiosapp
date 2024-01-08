@@ -1,22 +1,19 @@
 import { Component, OnInit, DoCheck, EventEmitter } from '@angular/core';
 import { SelectItem } from 'primeng/api';
-import { DataView } from 'primeng/dataview';
 import { Table } from 'primeng/table';
 import { ActivatedRoute, Router, Params } from '@angular/router';
 import { UserService } from '../../service/user.service';
 import { global } from '../../service/global.service';
 import { User } from '../../models/user.model';
-import { UpdateCustomerComponent } from '../update-customer/update-customer.component';
 
 
 @Component({
   selector: 'app-customers',
   templateUrl: './customers.component.html',
   styleUrls: ['./customers.component.scss'],
-  providers: [UserService, UpdateCustomerComponent]
+  providers: [UserService]
 })
 export class CustomersComponent implements OnInit, DoCheck {
-
  
   private token: string = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI2NTU1ODk2MjE3MTI5NzgxZmZmMTg3N2UiLCJlbWFpbCI6Impjc2FudG9zQG1haWwuY29tIiwicGFzc3dvcmQiOiIkMmIkMTAkWTV4eG84VEZ3ckJJdi5CMk5qRzZwT0JIRy5OUHNWbEdWbVZKWDFrNFlOcDNLZ2FWcXNqYXUiLCJyb2xlIjoiU1VQRVJVU0VSIiwiaWF0IjoxNzAzNTU4MjY4fQ._qyJtXv90tZG_Cvx45xAErAW0371NN09_YxCDD8GJFg"
 
@@ -25,8 +22,7 @@ export class CustomersComponent implements OnInit, DoCheck {
   public url:string;
   public selectedCustomers:any;
   public adminInfo: User;
-  public loading: boolean;
- 
+  public loading: boolean; 
 
   sortOptions: SelectItem[] = [];
 
@@ -77,18 +73,13 @@ export class CustomersComponent implements OnInit, DoCheck {
      this._userService.identity = this.getValues()
      this.tabMenu()
 
-     //  console.log("******EVENT EMITTER***********")
-     //  console.log(data)
-     //  console.log(this.getValues())
 
    })
   
-  
-      
   }
 
   ngDoCheck(): void {
-    // this.getAdmins()
+ 
     this._userService.identity = this.getValues()
       
   }
@@ -96,8 +87,8 @@ export class CustomersComponent implements OnInit, DoCheck {
   tabMenu() {
 
     this.items =   [
-      { label: 'Account info', icon: 'pi pi-fw pi-home', routerLink: 'details' },
-      { label: 'Calendar', icon: 'pi pi-fw pi-calendar', disabled: false },
+      { label: 'Account info', icon: 'pi pi-fw pi-info-circle', routerLink: 'details' },
+      { label: 'Properties', icon: 'pi pi-fw pi-home', routerLink: 'properties', disabled: false, queryParams:{id:this.getValues().id}},
       { label: 'Edit', icon: 'pi pi-fw pi-pencil', disabled: false },
       { label: 'Documentation', icon: 'pi pi-fw pi-file', routerLink: 'docs', disabled: false },
       { label: 'Settings', icon: 'pi pi-fw pi-cog', disabled: false }
@@ -114,7 +105,8 @@ export class CustomersComponent implements OnInit, DoCheck {
      
   handleEvent() {
     this._router.navigate(['/customers'])
- 
+    localStorage.clear()
+   
   }
 
   dateFormat(date:string){
@@ -148,6 +140,8 @@ export class CustomersComponent implements OnInit, DoCheck {
   
     this.setValues(event)   
     this.tabMenu()
+    localStorage.setItem('user', JSON.stringify(event))
+
        
     this.activeItem = this.items[0]  
      

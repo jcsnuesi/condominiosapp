@@ -1,7 +1,7 @@
 'use strict'
 
 module.exports = class VerifyData{
-
+  
     constructor(){}
 
 
@@ -27,10 +27,10 @@ module.exports = class VerifyData{
             })
         } else {
 
-            return (phoneNumbers.trim().length == 10) ? true : new throws('Does not meet minimun digits')
+            return (phoneNumbers.trim().length == 10) ? true : new Error('Does not meet minimun digits')
         }
 
-        return truValue.includes(false) ? new throws('Does not meet minimun digits') : true
+        return truValue.includes(false) ?  new Error('Does not meet minimun digits') : true
 
 
     }
@@ -40,6 +40,7 @@ module.exports = class VerifyData{
 
     hasEmail(params){
 
+        
       const emails =  Object.keys(params).filter(key => key.includes('email'))
       
       if (emails.length > 1) {
@@ -50,7 +51,7 @@ module.exports = class VerifyData{
             })
             
             if (emailReal.includes(false)) {
-                return new throws('It must be an email')
+                return new Error('It must be an email')
                 
             }
 
@@ -58,7 +59,7 @@ module.exports = class VerifyData{
             
         }else{
    
-          return params[emails].includes('@') ? true : new throws('It must be an email')
+          return params[emails].includes('@') ? true : new Error('It must be an email')
 
         }
  

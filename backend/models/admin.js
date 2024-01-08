@@ -12,7 +12,7 @@ var ContactPerson = Schema({
     phone_contact: [],
     role_contact: { type: String, required: true }
  
-
+ 
 }, { timestamps :true})
 
 var contactP = mongoose.model('ContactPerson', ContactPerson)
@@ -34,7 +34,8 @@ var AdminSchema = Schema({
     password: { type: String, required: true }, 
     contact_person: [ContactPerson],   
     role: { type: String, default: 'ADMIN'},  
-    status: { type: String, default: 'Active'},
+    status: { type: String, default: 'active'},
+    verified: { type: Boolean, default: false},
     terms: { type: Boolean, default: false }
    
 }, { timestamps: true })

@@ -9,7 +9,7 @@ module.exports.authenticated = function(req, res, next) {
   
 
     if (!req.headers.authorization) {
-
+ 
         return res.status(403).send({
 
             message: "You don't have the corresponding authentication."
@@ -50,6 +50,43 @@ module.exports.authenticated = function(req, res, next) {
     req.user = payload;
 
     //Pasar a la accion
+
+    next();
+
+}
+
+
+exports.emailToken = function (req, res, next){
+
+    try {
+
+        const token = req.params.id
+
+        var payload = jwt.decode(token, secret)
+
+        //Comprobar si el token han expirado
+
+        if (payload.exp <= moment().unix()) {
+
+            return res.status(404).send({
+                message: "El token ha expirado."
+            })
+
+        }
+        
+
+    } catch (error) {
+
+
+        return res.status(404).send({
+            message: "El token no es valido."
+        })
+
+    }
+
+    //Adjuntar usuario identificado a la request
+
+    req.emailTokensVelidation = payload;
 
     next();
 

@@ -16,9 +16,10 @@ var md_upload = multipart({ uploadDir: './uploads/users'});
 
 // GET
 
-router.get('/admins', [md_auth.authenticated, userAuth.authorization], UserController.getAdmins)
+router.get('/admins', [md_auth.authenticated,userAuth.authorization], UserController.getAdmins)
 
 router.get('/main-avatar/:fileName', UserController.getAvatar)
+router.get('/verify/:id', md_auth.emailToken, UserController.verify)
 
 // Buscar usuario por propietario
 // router.get('/ownerUsers', md_auth.authenticated, UserController.getUsersByOwner)

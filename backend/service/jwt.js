@@ -1,4 +1,4 @@
-'use strict'
+'use strict' 
 
 var jwt = require('jwt-simple')
 
@@ -7,7 +7,7 @@ var secret = "clave-nueva-para-cleanning-2023";
 
 exports.createToken = function (user) {
 
-     var payload = {
+     var payload = { 
          sub: user._id,
          email: user.email,
          password: user.password,
@@ -19,4 +19,19 @@ exports.createToken = function (user) {
     return jwt.encode(payload, secret)
     
     
+}
+
+
+exports.emailVerification = function (info) {
+
+    var payload = {
+        id: info.id,
+        uid: info.uid,
+        iat: moment().unix(),
+        exp: moment().add(30, 'days').unix
+    }
+
+    return jwt.encode(payload, secret)
+
+
 }

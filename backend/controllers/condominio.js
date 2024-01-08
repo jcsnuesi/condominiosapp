@@ -8,7 +8,7 @@ let errorHandler = require('../error/errorHandler')
 let checkExtensions = require('../service/extensions')
 let verifyParamData = require('../service/verifyParamData')
 
-
+ 
 var Condominium_Controller = {
     
   
@@ -246,6 +246,8 @@ var Condominium_Controller = {
     },
 
     getCondominiumByAdmin: function (req, res) {
+
+
       
         Condominium.find({ createdBy:req.user.sub})            
             .populate('createdBy', 'company lastname email')
@@ -530,8 +532,52 @@ var Condominium_Controller = {
         })
 
 
-    }
+    },
 
+    getCondominiums: function (req, res) {
+
+
+        Condominium.find({ createdBy : req.params.id})
+            .exec((err, condominiumFound) => {
+
+                var errorHandlerArr = errorHandler.newUser(err, condominiumFound)
+
+                if (errorHandlerArr[0]) {
+
+                    return res.status(
+                        errorHandlerArr[1]).send({
+                            status: errorHandlerArr[2],
+                            message: errorHandlerArr[3]
+                        })
+
+                }
+
+
+            })
+
+
+    },
+    
+    getAvatar: function (req, res) {
+
+        var imgName = req.params.avatar
+        var paths = './uploads/properties/' + imgName
+
+        if (fs.existsSync(paths)) {
+
+            return res.sendFile(path.resolve(paths))
+
+        } else {
+
+            return res.status(404).send({
+
+                status: "error",
+                message: "Image does not exits"
+            })
+        }
+
+
+    }  
 
 
 }

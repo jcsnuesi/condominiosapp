@@ -4,7 +4,6 @@ import {Observable} from 'rxjs';
 import { global } from "./global.service";
 
 
-
 @Injectable()
 export class UserService{
 
@@ -16,16 +15,17 @@ export class UserService{
     @Output() customEvent: EventEmitter<string> = new EventEmitter<string>();
 
 
-
- 
     constructor(private _http: HttpClient){
 
         this.url = global.url
 
     }
 
-    evento(key){
-        this.disparador.emit(key)
+    getProperties(token:string, id:string):Observable<any>{
+        
+        let header = new HttpHeaders().set('Content-Type', 'application/json').set('Authorization', token)
+
+        return this._http.get(this.url + 'condominios/' + id,{headers: header})
     }
     
    create(user:FormData, token:string):Observable<any>{

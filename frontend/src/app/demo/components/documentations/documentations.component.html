@@ -1,1 +1,21 @@
-<p>documentations works!</p>
+
+<p-fileUpload mode="basic" name="demo[]" url="https://www.primefaces.org/cdn/api/upload.php" accept="image/*"
+    maxFileSize="1000000" (onUpload)="onBasicUploadAuto($event)" [auto]="true" chooseLabel="Browse"></p-fileUpload>
+
+<p-table [value]="docs" [tableStyle]="{'min-width': '60rem'}">
+    <ng-template pTemplate="header">
+        <tr>
+            <th pSortableColumn="code" style="width:20%">Description  <p-sortIcon field="code"></p-sortIcon></th>
+            <th pSortableColumn="name" style="width:20%">Date uploaded <p-sortIcon field="name"></p-sortIcon></th>
+           
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-product>
+        <tr>
+            <td>{{product.description}}</td>
+            <td>{{product.createdAt}}</td>
+          
+           
+        </tr>
+    </ng-template>
+</p-table>
