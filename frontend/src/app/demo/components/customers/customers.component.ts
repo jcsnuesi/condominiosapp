@@ -70,7 +70,7 @@ export class CustomersComponent implements OnInit, DoCheck {
    this._userService.customEvent.subscribe(data => {
      this.getAdmins()
      this.getValues().status = data == 'suspended' ? 'suspended' : 'active';
-     this._userService.identity = this.getValues()
+     UserService.identity = this.getValues()
      this.tabMenu()
 
 
@@ -80,7 +80,7 @@ export class CustomersComponent implements OnInit, DoCheck {
 
   ngDoCheck(): void {
  
-    this._userService.identity = this.getValues()
+    UserService.identity = this.getValues()
       
   }
 
@@ -109,19 +109,6 @@ export class CustomersComponent implements OnInit, DoCheck {
    
   }
 
-  dateFormat(date:string){
-    //2023-11-05T19:32:38.422Z
-    var longDate = date.split(/[-T]/)
-
-    var year = longDate[0]
-    var month = longDate[1]
-    var day = longDate[2]
-    const fullDate = year + '-' + month + '-' + day
-
-    return fullDate
-
-    
-  }
 
 
   public datosUpdating:any;
@@ -150,21 +137,7 @@ export class CustomersComponent implements OnInit, DoCheck {
   }
 
   
-  getSeverity(status: string) {
-
-    switch (status.toLowerCase()) {
-
-      case 'suspended':
-        return 'danger';
-
-      case 'active':
-        return 'success';
-     
-    }
-
-    return null;
-  }
-
+ 
  
   clear(table: Table) {
     table.clear();

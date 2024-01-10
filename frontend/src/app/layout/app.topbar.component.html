@@ -13,15 +13,24 @@
     </button>
 
     <div #topbarmenu class="layout-topbar-menu" [ngClass]="{'layout-topbar-menu-mobile-active': layoutService.state.profileSidebarVisible}">
-        <button class="p-link layout-topbar-button">
+        <!-- <button class="p-link layout-topbar-button">
             <i class="pi pi-calendar"></i>
             <span>Calendar</span>
+        </button> -->
+
+    <p-toast></p-toast>
+    <p-menu #menu [model]="items" [popup]="true"></p-menu>
+    <!-- <button pButton type="button" (click)="menu.toggle($event)" icon="pi pi-bars" label="Show"></button> -->
+        
+    <button pButton type="button" class="p-link layout-topbar-button" (click)="menu.toggle($event)">
+         
+            <i class="pi pi-user" *ngIf="!identity"></i>
+
+            <p-avatar *ngIf="identity" image="https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png" styleClass="mr-2" size="large" shape="circle"></p-avatar>
+                  
         </button>
-        <button class="p-link layout-topbar-button">
-            <i class="pi pi-user"></i>
-            <span>Profile</span>
-        </button>
-        <button class="p-link layout-topbar-button" [routerLink]="'/documentation'">
+      
+        <!-- <button class="p-link layout-topbar-button" [routerLink]="'/documentation'">
             <i class="pi pi-cog"></i>
             <span>Settings</span>
         </button>
@@ -29,6 +38,6 @@
         <button class="p-link layout-topbar-button" [routerLink]="['/auth/login']">
             <i class="pi pi-lock"></i>
             <span>Login</span>
-        </button>
+        </button> -->
     </div>
 </div>

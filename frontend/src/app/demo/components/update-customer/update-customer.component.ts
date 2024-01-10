@@ -124,31 +124,27 @@ export class UpdateCustomerComponent implements OnInit, DoCheck {
     this.changepassword =  false
     this.btnDisabled = true 
    
-    
-  }
+    }
 
   ngDoCheck(): void {
-    this.sendDataToModal = this._userService.identity
+    this.sendDataToModal = UserService.identity
 
   }
 
   ngOnInit(): void {
     
-    this.sendDataToModal = this._userService.identity
+    this.sendDataToModal = UserService.identity
     
     this.disabled = this.sendDataToModal.status == 'active' ? true : false
-    this.btnLookAndFeels = this.btnSetting[this.sendDataToModal.status == 'active' ? 1 : 2]
-   
+    this.btnLookAndFeels = this.btnSetting[this.sendDataToModal.status == 'active' ? 1 : 2]   
     this.image = this.url + 'main-avatar/' + this.sendDataToModal.avatar
-    console.log(this.sendDataToModal)
-
+   
   }
 
   // Habilita las inputs para cambiar la password
   passwordChanger(event:any){
 
-    this.changepassword = event.checked
-  
+    this.changepassword = event.checked  
 
   }
 
@@ -234,10 +230,7 @@ export class UpdateCustomerComponent implements OnInit, DoCheck {
 
   formChanges(dataform:any) {
 
-    console.log(dataform)
-    this.btnDisabled = false
-   
-    
+    this.btnDisabled = false   
 
 
   }

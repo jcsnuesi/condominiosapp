@@ -70,7 +70,7 @@
                                     <ng-template let-option pTemplate="item">
                                         <p-tag 
                                         [value]="option.label" 
-                                        [severity]="getSeverity(option.label)"></p-tag>
+                                        [severity]="_userService.getSeverity(option.label)"></p-tag>
                                     </ng-template>
                                 </p-dropdown>
 
@@ -113,7 +113,7 @@
                 
                 </td>
                 <td>
-                    {{dateFormat(customer.createdAt)  }}
+                    {{_userService.dateFormat(customer.createdAt)  }}
                 </td>
                 <td>
                     <img src="https://primefaces.org/cdn/primeng/images/demo/flag/flag_placeholder.png"

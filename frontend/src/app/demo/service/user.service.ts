@@ -2,20 +2,24 @@ import { Injectable, EventEmitter, Output } from "@angular/core";
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import { global } from "./global.service";
+import { CookieService } from "ngx-cookie-service";
 
 
 @Injectable()
 export class UserService{
 
     public url:string;
-    public identity:any;
+    public static identity:any;
     public token:string;
+    public cookieInfo:any;
     // @Output() disparador: EventEmitter<any> = new EventEmitter();
     @Output() disparador: EventEmitter<string> = new EventEmitter<string>();
     @Output() customEvent: EventEmitter<string> = new EventEmitter<string>();
 
 
-    constructor(private _http: HttpClient){
+    constructor(
+        private _http: HttpClient,
+        private _cookies: CookieService){
 
         this.url = global.url
 
@@ -36,6 +40,59 @@ export class UserService{
 
 
     }
+
+    login(user:any, token:boolean):Observable<any>{
+
+      
+        if (token) {
+            
+            user.gettoken = true
+        }
+
+        let param = JSON.stringify(user)
+
+       
+        let header = new HttpHeaders().set('Content-Type', 'application/json')
+
+        return this._http.post(this.url + 'login', param, { headers: header })
+    }
+
+    getIdentity(){
+    
+        return JSON.parse(this._cookies.get('identity') ||  'false')
+
+    }
+
+    getSeverity(status: string) {
+
+        switch (status.toLowerCase()) {
+
+            case 'suspended':
+                return 'danger';
+
+            case 'active':
+                return 'success';
+
+        }
+
+        return null;
+    }
+
+    dateFormat(date: string) {
+        //2023-11-05T19:32:38.422Z
+        var longDate = date.split(/[-T]/)
+
+        var year = longDate[0]
+        var month = longDate[1]
+        var day = longDate[2]
+        const fullDate = year + '-' + month + '-' + day
+
+        return fullDate
+
+
+    }
+
+
 
     admins(token:string):Observable<any>{
 

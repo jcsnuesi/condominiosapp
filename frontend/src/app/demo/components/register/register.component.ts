@@ -69,9 +69,6 @@ export class RegisterComponent{
    
         
   }
- 
-  
-
   onSelect(file: any) {
 
 
