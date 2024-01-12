@@ -15,6 +15,7 @@ router.get('/condominios', md_auth.authenticated, condominioController.getCondom
 
 router.get('/condominioById', condominioController.getCondominiumById);
 router.get('/condominios/:id', condominioController.getCondominiums);
+router.get('/buildingDetail/:id', condominioController.getBuildingDetails);
 router.get('/avatarCondominios/:avatar', condominioController.getAvatar);
 
 router.get('/condominio-page/:page', md_auth.authenticated, condominioController.CondominiumPagination);

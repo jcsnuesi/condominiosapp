@@ -33,6 +33,7 @@ var CondominiumSchema = Schema({
     status: { type: String, default: 'active' },
     createdBy: { type: mongoose.Schema.Types.ObjectId, default: 'Admin' } ,
     owners: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Owner', required: true }], 
+    occupantId: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Occupant', required: true }], 
     employees: [EmployeesSchema] 
 }, {timestamps:true})
 

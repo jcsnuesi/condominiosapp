@@ -17,8 +17,6 @@ import { DialogModule } from 'primeng/dialog';
 import { UpdateCustomerComponent } from '../update-customer/update-customer.component';
 import { TabMenuModule } from 'primeng/tabmenu';
 
-
-
 @NgModule({
 	imports: [
 		CommonModule,

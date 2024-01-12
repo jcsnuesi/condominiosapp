@@ -538,7 +538,41 @@ var Condominium_Controller = {
 
 
         Condominium.find({ createdBy : req.params.id},(err, condominiumFound) => {
-            console.log(condominiumFound)
+            
+                var errorHandlerArr = errorHandler.newUser(err, condominiumFound)
+
+                if (errorHandlerArr[0]) {
+
+                    return res.status(
+                        errorHandlerArr[1]).send({
+                            status: errorHandlerArr[2],
+                            message: errorHandlerArr[3]
+                        })
+
+                }
+
+
+            })
+
+
+    },
+    
+    getBuildingDetails: function (req, res) {
+
+
+        Condominium.find({ _id : req.params.id})
+            .populate({
+                path: 'owners',
+                select: 'role status propertyDetails name lastname gender email phone',
+                match: { status: 'active' } // Condition to filter active owners
+            })
+            .populate({
+                path:'occupantId',
+                select: 'name lastname gender email phone role status',
+                match:{ status: 'active' }
+            })
+        .exec((err, condominiumFound) => {
+    
                 var errorHandlerArr = errorHandler.newUser(err, condominiumFound)
 
                 if (errorHandlerArr[0]) {

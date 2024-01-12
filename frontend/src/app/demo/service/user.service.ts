@@ -63,6 +63,10 @@ export class UserService{
 
     }
 
+    getToken(){
+        return this._cookies.get('token')
+    }
+
     getSeverity(status: string) {
 
         switch (status.toLowerCase()) {

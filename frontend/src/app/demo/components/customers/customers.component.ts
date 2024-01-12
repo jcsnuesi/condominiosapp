@@ -4,7 +4,6 @@ import { Table } from 'primeng/table';
 import { ActivatedRoute, Router, Params } from '@angular/router';
 import { UserService } from '../../service/user.service';
 import { global } from '../../service/global.service';
-import { User } from '../../models/user.model';
 
 
 @Component({
@@ -21,7 +20,6 @@ export class CustomersComponent implements OnInit, DoCheck {
   public customers: any[] = [];
   public url:string;
   public selectedCustomers:any;
-  public adminInfo: User;
   public loading: boolean; 
 
   sortOptions: SelectItem[] = [];
@@ -61,7 +59,7 @@ export class CustomersComponent implements OnInit, DoCheck {
 
      }
 
- 
+  
  ngOnInit() {
 
     this.loading = true    

@@ -1,0 +1,56 @@
+<p-table [value]="customers" sortField="customer.name" 
+sortMode="single" 
+[scrollable]="true" scrollHeight="400px"
+rowGroupMode="subheader" groupRowsBy="customers.name"
+ [tableStyle]="{'min-width': '60rem'}">
+    <ng-template pTemplate="header">
+        <tr>
+            <th>Name</th>
+            <th>lastname</th>
+            <th>email</th>
+            <th>phone</th>
+            <th>Apartment</th>
+            <th>Parking</th>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="groupheader" let-customer>
+        <tr pRowGroupHeader>
+            <td colspan="6">
+                <img [alt]="buiding.avatar"
+                     [src]="url +'avatarCondominios/' + buiding.avatar"
+                    width="32" style="vertical-align: middle" />
+                <span class="font-bold ml-2">{{buiding.alias}}</span>
+            </td>
+        </tr>
+    </ng-template>
+ 
+    <ng-template pTemplate="body" let-customer let-rowIndex="rowIndex">
+        <tr>
+            <td>
+                {{customer.name}}
+            </td>
+             <td>
+                {{customer.lastname}}
+            </td>
+          
+            <td>
+                {{customer.email}}
+            </td>
+            <td>
+                {{customer.phone}}
+            </td>
+            <td>
+                {{customer.propertyDetails[0].apartment}}
+            </td>
+            <td>
+                {{customer.propertyDetails[0].parkingsQty}}
+            </td>
+        </tr>
+    </ng-template>
+    <!-- <ng-template pTemplate="groupfooter" let-customer>
+        <tr>
+            <td colspan="5" class="text-right font-bold pr-6">Total Customers:
+                {{total}}</td>
+        </tr>
+    </ng-template> -->
+</p-table>

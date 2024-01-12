@@ -4,8 +4,7 @@ import { UserService } from 'src/app/demo/service/user.service';
 import { CookieService } from "ngx-cookie-service";
 import { Router } from '@angular/router';
 import { global } from 'src/app/demo/service/global.service';
-
-
+import { MessageService } from 'primeng/api';
 
 @Component({
     selector: 'app-login',
@@ -18,7 +17,7 @@ import { global } from 'src/app/demo/service/global.service';
             color: var(--primary-color) !important;
         }
     `],
-    providers: [UserService, CookieService]
+    providers: [UserService, CookieService, MessageService]
 })
 export class LoginComponent {
 
@@ -32,7 +31,8 @@ export class LoginComponent {
     constructor(public layoutService: LayoutService,
         private _userService: UserService,
         private _cookieService: CookieService,
-        private _route: Router) {
+        private _route: Router,
+        private _messageService: MessageService) {
 
         this.url = global.url;
         }
@@ -52,11 +52,16 @@ export class LoginComponent {
                                 
                                 this._cookieService.set('identity', JSON.stringify(login.message) )
                               
+                                this._cookieService.set('token', token.token )
+                              
                                 this._route.navigate(['/'])
                                 
                             }
                         }
                     )
+                }else{
+
+                    this.show();
                 }
 
            
@@ -65,10 +70,15 @@ export class LoginComponent {
 
             error => {
 
-                console.log(error)
+                this.show();
             }
         )
 
+    }
+
+    show(){
+
+        this._messageService.add({ severity: 'error', summary: 'Error', detail: 'Info was not verify, try again!' });
     }
 
 }

@@ -7,6 +7,7 @@ import { DataViewModule } from 'primeng/dataview';
 import { ButtonModule } from 'primeng/button';
 import { RatingModule } from 'primeng/rating';
 import { TagModule } from 'primeng/tag';
+import { Router } from '@angular/router';
 
 
 @Component({
@@ -26,7 +27,7 @@ import { TagModule } from 'primeng/tag';
 })
 export class PropertiesComponent implements OnInit {
 
-  public products: any[];           
+  public products: any[];            
 
   public token: string = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI2NTU1ODk2MjE3MTI5NzgxZmZmMTg3N2UiLCJlbWFpbCI6Impjc2FudG9zQG1haWwuY29tIiwicGFzc3dvcmQiOiIkMmIkMTAkWTV4eG84VEZ3ckJJdi5CMk5qRzZwT0JIRy5OUHNWbEdWbVZKWDFrNFlOcDNLZ2FWcXNqYXUiLCJyb2xlIjoiU1VQRVJVU0VSIiwiaWF0IjoxNzAzNTU4MjY4fQ._qyJtXv90tZG_Cvx45xAErAW0371NN09_YxCDD8GJFg";
 
@@ -34,9 +35,12 @@ export class PropertiesComponent implements OnInit {
   public identity:any;
   public url:any;
 
+
   constructor(
-    private _userService: UserService
+    private _userService: UserService,
+    private _router:Router
     ){
+      
     this.url = global.url
     
   }
@@ -60,13 +64,18 @@ export class PropertiesComponent implements OnInit {
       response => {
 
         this.products = response.message
-        console.log(this.products)
+    
        
       },
       error => {
         console.log(error)
       }
     )
+  }
+
+  units(id:string){
+    console.log(id)
+    this._router.navigate(['customers/units/', id])
   }
 
 }
