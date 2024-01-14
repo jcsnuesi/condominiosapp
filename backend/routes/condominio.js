@@ -14,7 +14,7 @@ var md_upload = multipart({ uploadDir: './uploads/properties' });
 router.get('/condominios', md_auth.authenticated, condominioController.getCondominiumByAdmin);
 
 router.get('/condominioById', condominioController.getCondominiumById);
-router.get('/condominios/:id', condominioController.getCondominiums);
+router.get('/condominioByAdmin/:id', condominioController.getCondominiumsByAdmin);
 router.get('/buildingDetail/:id', condominioController.getBuildingDetails);
 router.get('/avatarCondominios/:avatar', condominioController.getAvatar);
 

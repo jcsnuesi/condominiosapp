@@ -8,7 +8,7 @@ import { ButtonModule } from 'primeng/button';
 import { RatingModule } from 'primeng/rating';
 import { TagModule } from 'primeng/tag';
 import { Router } from '@angular/router';
-
+import { CondominioService } from '../../service/condominios.service';
 
 @Component({
   selector: 'app-properties',
@@ -23,8 +23,9 @@ import { Router } from '@angular/router';
     RatingModule,
     TagModule
   ],
-  providers: [UserService]
+  providers: [UserService, CondominioService]
 })
+
 export class PropertiesComponent implements OnInit {
 
   public products: any[];            
@@ -38,6 +39,7 @@ export class PropertiesComponent implements OnInit {
 
   constructor(
     private _userService: UserService,
+    private _condominioService: CondominioService,
     private _router:Router
     ){
       
@@ -59,7 +61,7 @@ export class PropertiesComponent implements OnInit {
 
   getCondominios(){
   
-    this._userService.getProperties(this.token, UserService.identity._id).subscribe(
+    this._condominioService.getPropertyByAdminId(this.token, UserService.identity._id).subscribe(
 
       response => {
 

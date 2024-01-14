@@ -534,7 +534,7 @@ var Condominium_Controller = {
 
     },
 
-    getCondominiums: function (req, res) {
+    getCondominiumsByAdmin: function (req, res) {
 
 
         Condominium.find({ createdBy : req.params.id},(err, condominiumFound) => {
@@ -556,7 +556,7 @@ var Condominium_Controller = {
 
 
     },
-    
+        
     getBuildingDetails: function (req, res) {
 
 

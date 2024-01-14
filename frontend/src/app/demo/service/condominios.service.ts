@@ -14,6 +14,14 @@ export class CondominioService {
 
     }
 
+
+    getPropertyByAdminId(token: string, id: string): Observable<any> {
+
+        let header = new HttpHeaders().set('Content-Type', 'application/json').set('Authorization', token)
+
+        return this._http.get(this.url + 'condominioByAdmin/' + id, { headers: header })
+    }
+
     getBuilding(id:string, token:string):Observable<any>{
 
         let header = new HttpHeaders().set('Content-Type', 'application/json').set('Authorization', token);

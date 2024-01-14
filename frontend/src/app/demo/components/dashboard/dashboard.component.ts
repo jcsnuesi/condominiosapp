@@ -4,9 +4,15 @@ import { Product } from '../../api/product';
 import { ProductService } from '../../service/product.service';
 import { Subscription } from 'rxjs';
 import { LayoutService } from 'src/app/layout/service/app.layout.service';
+import { ActivatedRoute } from '@angular/router';
+import { CondominioService } from '../../service/condominios.service';
+import { UserService } from '../../service/user.service';
 
 @Component({
     templateUrl: './dashboard.component.html',
+    providers: [
+        CondominioService,
+        UserService]
 })
 export class DashboardComponent implements OnInit, OnDestroy {
 
@@ -19,14 +25,59 @@ export class DashboardComponent implements OnInit, OnDestroy {
     chartOptions: any;
 
     subscription!: Subscription;
+    public buildingDetails:any;
+    public units:number;
+    private token:string;
 
-    constructor(private productService: ProductService, public layoutService: LayoutService) {
+    constructor(
+        private productService: ProductService, 
+        public _condominioService: CondominioService,
+        public _userService: UserService,
+        public layoutService: LayoutService,
+        private _activatedRoute:ActivatedRoute) {
         this.subscription = this.layoutService.configUpdate$.subscribe(() => {
             this.initChart();
         });
+
+
+        this.token = this._userService.getToken()
     }
 
     ngOnInit() {
+
+        this._activatedRoute.params.subscribe(param => {
+
+            let id  = param['id'];
+            console.log(id)
+            if (id != undefined) {
+                
+                this._condominioService.getBuilding(id, this.token).subscribe(
+                    response => {
+
+                        if (response.status == 'success') {
+                            
+                            this.buildingDetails = response.message
+                            this.units = (response.message[0].owners.propertyDetails[0].apartment).length
+
+
+
+                            console.log(response.message[0].owners)
+                        }
+
+                       
+                    },
+                    error => {
+
+                        console.log(error)
+                    }
+                )
+            }
+
+           
+        })
+
+
+     
         this.initChart();
         this.productService.getProductsSmall().then(data => this.products = data);
 

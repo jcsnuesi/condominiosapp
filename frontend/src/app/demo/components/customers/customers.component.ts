@@ -4,23 +4,26 @@ import { Table } from 'primeng/table';
 import { ActivatedRoute, Router, Params } from '@angular/router';
 import { UserService } from '../../service/user.service';
 import { global } from '../../service/global.service';
+import { MessageService } from 'primeng/api';
+import { SuperUser } from '../../service/superuser.service';
+import { CondominioService } from '../../service/condominios.service';
 
 
 @Component({
   selector: 'app-customers',
   templateUrl: './customers.component.html',
   styleUrls: ['./customers.component.scss'],
-  providers: [UserService]
+  providers: [UserService, MessageService, SuperUser, CondominioService]
 })
 export class CustomersComponent implements OnInit, DoCheck {
  
-  private token: string = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI2NTU1ODk2MjE3MTI5NzgxZmZmMTg3N2UiLCJlbWFpbCI6Impjc2FudG9zQG1haWwuY29tIiwicGFzc3dvcmQiOiIkMmIkMTAkWTV4eG84VEZ3ckJJdi5CMk5qRzZwT0JIRy5OUHNWbEdWbVZKWDFrNFlOcDNLZ2FWcXNqYXUiLCJyb2xlIjoiU1VQRVJVU0VSIiwiaWF0IjoxNzAzNTU4MjY4fQ._qyJtXv90tZG_Cvx45xAErAW0371NN09_YxCDD8GJFg"
-
+  private token: string = this._userService.getToken()
   public sendDataToModal:any ;
   public customers: any[] = [];
   public url:string;
   public selectedCustomers:any;
   public loading: boolean; 
+  public loginInfo:any;
 
   sortOptions: SelectItem[] = [];
 
@@ -48,7 +51,10 @@ export class CustomersComponent implements OnInit, DoCheck {
   constructor(
     private _router: Router,
     private _activeRoute: ActivatedRoute,
-    public _userService:UserService) {
+    public _userService:UserService,
+    private _messageService: MessageService,
+    private _condominioService: CondominioService,
+    private _superUser: SuperUser) {
 
     this.url = global.url
     this.statuses = [
@@ -56,6 +62,8 @@ export class CustomersComponent implements OnInit, DoCheck {
       { label: 'Suspended', value: 'suspended' },
 
     ];
+
+    this.loginInfo = this._userService.getIdentity()
 
      }
 
@@ -65,12 +73,12 @@ export class CustomersComponent implements OnInit, DoCheck {
     this.loading = true    
     this.getAdmins()
     
+    // habilitar o deshabilidar el MenuTab segun el estatus de la cuenta.
    this._userService.customEvent.subscribe(data => {
      this.getAdmins()
      this.getValues().status = data == 'suspended' ? 'suspended' : 'active';
      UserService.identity = this.getValues()
      this.tabMenu()
-
 
    })
   
@@ -103,10 +111,8 @@ export class CustomersComponent implements OnInit, DoCheck {
      
   handleEvent() {
     this._router.navigate(['/customers'])
-    localStorage.clear()
    
   }
-
 
 
   public datosUpdating:any;
@@ -122,21 +128,25 @@ export class CustomersComponent implements OnInit, DoCheck {
   }
    
   showDialog(event:any){
-  
-    this.setValues(event)   
-    this.tabMenu()
-    localStorage.setItem('user', JSON.stringify(event))
 
-       
-    this.activeItem = this.items[0]  
-     
-    this.visible = true  
+    if (this.loginInfo.role == 'SUPERUSER') {
+      
+      this.setValues(event)
+      this.tabMenu()
+
+      this.activeItem = this.items[0]
+      this.visible = true
+
+    } else if(this.loginInfo.role == 'ADMIN') {
+
+      this._router.navigate(['home/', event._id])
     
+    }
+  
+   
   }
 
   
- 
- 
   clear(table: Table) {
     table.clear();
   }
@@ -144,25 +154,54 @@ export class CustomersComponent implements OnInit, DoCheck {
  
   getAdmins(){
 
+   
+    switch (this.loginInfo.role) {
+      case 'SUPERUSER':
+
+        this._superUser.getAdmins(this.token).subscribe(
+
+          admins => {
+
+            if (admins.status == 'success') {
+              this.loading = false
+              this.customers = admins.message
+
+            }
+            
+
+
+          },
+          err => {
+
+            console.log(err)
+          }
+        )
+        
+        break;
+
+      case 'ADMIN':
+        console.log(this.loginInfo)
+        // console.log(this.loginInfo.message.
+        //   _id)
+        this._condominioService.getPropertyByAdminId(this.token, this.loginInfo._id).subscribe(
+          response => {
+
+            this.loading = false
+            this.customers = response.message
+            console.log(response)
+          },
+          error => {
+            console.log(error)
+          }
+        )
+
+      break;
     
-
-    this._userService.admins(this.token).subscribe(
-
-      admins =>{
-
-        if (admins.status == 'success') {
-          this.loading = false
-          this.customers = admins.message
-      
-        }
-     
+    }
+   
     
-      },
-      err => {
-
-        console.log(err)
-      }
-    )
+    
+    
   
 
 

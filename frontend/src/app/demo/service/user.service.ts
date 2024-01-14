@@ -12,7 +12,8 @@ export class UserService{
     public static identity:any;
     public token:string;
     public cookieInfo:any;
-    // @Output() disparador: EventEmitter<any> = new EventEmitter();
+    public static role: string;
+ 
     @Output() disparador: EventEmitter<string> = new EventEmitter<string>();
     @Output() customEvent: EventEmitter<string> = new EventEmitter<string>();
 
@@ -25,13 +26,6 @@ export class UserService{
 
     }
 
-    getProperties(token:string, id:string):Observable<any>{
-        
-        let header = new HttpHeaders().set('Content-Type', 'application/json').set('Authorization', token)
-
-        return this._http.get(this.url + 'condominios/' + id,{headers: header})
-    }
-    
    create(user:FormData, token:string):Observable<any>{
 
         let header = new HttpHeaders().set('Authorization',token)
@@ -58,12 +52,13 @@ export class UserService{
     }
 
     getIdentity(){
-    
+        // UserService.role = JSON.parse(this._cookies.get('identity') || 'false').role
         return JSON.parse(this._cookies.get('identity') ||  'false')
 
-    }
+    }    
 
     getToken(){
+
         return this._cookies.get('token')
     }
 
@@ -98,7 +93,7 @@ export class UserService{
 
 
 
-    admins(token:string):Observable<any>{
+    getAdmins(token:string):Observable<any>{
 
         let header = new HttpHeaders().set('Content-Type', 'application/json').set('authorization', token)
 

@@ -10,6 +10,8 @@
     [paginator]="true"
     currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
     [globalFilterFields]="['company', 'email_company','status', 'country', 'phone']">
+
+    
        
     <ng-template pTemplate="caption">
             <div class="flex">
@@ -23,6 +25,9 @@
             </div>
         </ng-template>
         <ng-template pTemplate="header">
+            <p-toast></p-toast>
+
+
             <tr>
                 <th style="min-width:15rem">
                     <div class="flex align-items-center">
@@ -79,7 +84,7 @@
                     </div>
                 </th> 
                 
-                <th style="width: 3rem">
+                <th style="width: 3rem" *ngIf="loginInfo.role == 'SUPERUSER'">
                     <div class="flex align-items-center">
                         Verified
                         <p-columnFilter type="boolean" field="verified" display="menu"></p-columnFilter>
@@ -124,7 +129,7 @@
                 <td>
                     <p-tag [value]="customer.status == 'active' ? 'Active' : 'Suspended'" [severity]="customer.status == 'active' ? 'success' : 'danger' " ></p-tag>
                 </td>
-                <td class="text-center">
+                <td class="text-center" *ngIf="loginInfo.role == 'SUPERUSER'">
                     <i class="pi"
                         [ngClass]="{ 'text-green-500 pi-check-circle': customer.verified, 'text-red-500 pi-times-circle': !customer.verified }"></i>
                 </td>
