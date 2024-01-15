@@ -20,7 +20,7 @@ var CondominiumSchema = Schema({
    
     avatar: { type: String },
     alias: { type: String, required: true },
-    type: { type: String, required: true },
+    typeOfProperty: { type: String, required: true },
     phone: [],
     street_1: { type: String, required: true },
     street_2: { type: String },    
@@ -31,10 +31,13 @@ var CondominiumSchema = Schema({
     country: { type: String, required: true },
     socialAreas: [{ type: String }],    
     status: { type: String, default: 'active' },
-    createdBy: { type: mongoose.Schema.Types.ObjectId, default: 'Admin' } ,
-    units: [{apt:String, owner:mongoose.Schema.Types.ObjectId}], 
-    occupantId: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Occupant', required: true }], 
-    employees: [EmployeesSchema] 
+    createdBy: { type: mongoose.Schema.Types.ObjectId, default: 'Admin'} ,
+    units: [
+        {
+            unit:String,
+            owner:mongoose.Schema.Types.ObjectId
+        }],
+    employees: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Employees'}] 
 }, {timestamps:true})
 
 CondominiumSchema.plugin(mongooPaginate);
