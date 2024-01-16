@@ -3,7 +3,6 @@ exports.authorization = function (req, res, next) {
 
     let params = req.user.role
  
-    console.log(params)
     if (params != 'SUPERUSER') {
         
         return res.status(403).send({
@@ -14,4 +13,21 @@ exports.authorization = function (req, res, next) {
    
     next();
 
+}
+
+exports.adminAuth = function (req, res, next) {
+
+    let params = req.user.role
+
+    if (params != 'ADMIN') {
+
+        return res.status(403).send({
+            status: "forbidden",
+            message: "You are not authorized"
+        })
+    }
+
+    next();
+
+    
 }

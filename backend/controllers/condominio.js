@@ -13,7 +13,8 @@ var Condominium_Controller = {
     
   
     createCondominium:async function (req, res) {
-
+        console.log(req.body)
+        return
         let CondominiumParams = req.body
         var verifing = new verifyParamData()
 

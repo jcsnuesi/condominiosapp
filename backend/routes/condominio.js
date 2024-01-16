@@ -8,7 +8,7 @@ let router = express.Router()
 
 var multipart = require('connect-multiparty');
 var md_upload = multipart({ uploadDir: './uploads/properties' });
-
+var adminAuth = require('../middleware/userAuth')
 // GET
 
 router.get('/condominios', md_auth.authenticated, condominioController.getCondominiumByAdmin);
@@ -22,7 +22,7 @@ router.get('/condominio-page/:page', md_auth.authenticated, condominioController
 
 // POST
 
-router.post('/create-condominio', [md_auth.authenticated, md_upload], condominioController.createCondominium)
+router.post('/create-condominio', [md_auth.authenticated, md_upload, adminAuth.adminAuth], condominioController.createCondominium)
 // router.post('/create-Apartment', md_auth.authenticated, condominioController.createApartment)
 
 // PUT

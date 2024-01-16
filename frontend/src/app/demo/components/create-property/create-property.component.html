@@ -1,75 +1,125 @@
 <div class="grid">
 
-    <form #CondominiumForm="ngForm" (submit)="submit(CondominiumForm)">
-
+ 
         <div class="col-12">
             <div class="card">
+                
                 <h5>Create condominium</h5>
+
+                <form #condominiumForm="ngForm" (submit)="submit(condominiumForm)">
+
                 <div class="p-fluid p-formgrid grid">
-                    <div class="field col-12 md:col-6">
-                        <label htmlFor="alias">Alias</label>
-                        <input pInputText #alias="ngModel" [(ngModel)]="condominioModel.alias" name="alias" id="alias" type="text" required max="50" />
-                        <span *ngIf="!alias.valid && alias.touched" [class]="{'ng-invalid':!alias.valid,'noclass':alias.valid }" style="color: red;">Requerido*</span>
+
+                    <div class="field col-12">
+                    
+                        <p-messages [(value)]="messages" *ngIf="status == 'true'" [enableService]="false" [closable]="true"></p-messages>
+                    
+                        <p-fileUpload mode="basic" 
+                            chooseLabel="Choose image"           
+                            name="demo[]"
+                            url="https://www.primefaces.org/cdn/api/upload.php" accept="image/*" 
+                            maxlengthFileSize="1000000"
+                            (onSelect)="onSelect($event)"></p-fileUpload>
+                    
+                        <div class="col-md-4 mt-3">
+                    
+                            <img [src]="image" alt="" width="181px" height="200px">
+                    
+                        </div>
+                    
+                                        
                     </div>
 
-                    <div class="field col-12 md:col-3">
+
+                    <div class="field col-12 md:col-6">
+                        <label htmlFor="alias">Alias</label>
+                        <input pInputText 
+                        #alias="ngModel" 
+                        [(ngModel)]="condominioModel.alias" 
+                        name="alias" id="alias" type="text" required maxlength="50" />
+                      
+                    </div>
+
+                    <div class="field col-12 md:col-6">
                         <label htmlFor="typeOfProperty">Property</label>
                         <p-dropdown 
                          
                         [options]="condoType"
                         optionLabel="property"
                         placeholder="Choose type of property"
-                        #typeOfProperty name="typeOfProperty" [(ngModel)]="condoSelected" required></p-dropdown>
+                        #typeOfProperty="ngModel"  
+                        [(ngModel)]="condoSelected"
+                        name="typeOfProperty"></p-dropdown>
 
                     </div>
                  
                     <div class="field col-12 md:col-6">
                         <label htmlFor="phone">Phone</label>
-                        <input [class]="{'ng-invalid':!phone.valid,'noclass':phone.valid }" pInputText #phone="ngModel" [(ngModel)]="condominioModel.phone" name="phone" id="phone" type="text" max="11"  required/>
-
-                        <span *ngIf="!phone.valid && phone.touched" [class]="{'ng-invalid':!phone.valid,'noclass':phone.valid }"
-                            style="color: red;">Requerido*</span>
+                        <input pInputText 
+                        #phone="ngModel" 
+                        [(ngModel)]="condominioModel.phone" 
+                        name="phone" id="phone"  type="text" maxlength="11" pattern="^[0-9]+"  required />
+                     
                     </div>
                     <div class="field col-12 md:col-6">
                         <label htmlFor="phone2">Phone 2</label>
-                        <input [class]="{'ng-invalid':!phone2.valid,'noclass':phone2.valid }" pInputText #phone2="ngModel" [(ngModel)]="condominioModel.phone2" name="phone2" id="phone2" type="text"  max="11"  required/>
+                        <input pInputText 
+                        #phone2="ngModel" 
+                        [(ngModel)]="condominioModel.phone2" 
+                        name="phone2" id="phone2" type="text" pattern="^[0-9]+" maxlength="11" pattern="^[0-9]+"/>
                     </div>
+
                     <div class="field col-12">
                         <label htmlFor="street_1">Address</label>
-                        <input  pInputText id="street_1" #street_1="ngModel" [(ngModel)]="condominioModel.street_1" name="street_1"  [class]="{'ng-invalid':!street_1.valid,'noclass':street_1.valid }" required  max="100"  />
-
-                        <span *ngIf="!street_1.valid && street_1.touched" [class]="{'ng-invalid':!street_1.valid,'noclass':street_1.valid }"
-                            style="color: red;">Requerido*</span>
+                        <input  pInputText id="street_1" 
+                        #street_1="ngModel" 
+                        [(ngModel)]="condominioModel.street_1" 
+                        name="street_1"  required  maxlength="100"  />
+                      
                     </div>
                     <div class="field col-12">
                         <label htmlFor="street_1">Address 2 (Unit, Apt, House)</label>
-                        <input pInputText id="street_2" #street_2="ngModel" [(ngModel)]="condominioModel.street_2" name="street_2"  max="50"  />
+                        <input pInputText 
+                        id="street_2" 
+                        #street_2="ngModel" 
+                        [(ngModel)]="condominioModel.street_2" 
+                        name="street_2"  maxlength="50"  />
                     </div>
+
                     <div class="field col-12">
                         <label htmlFor="sector_name">Sector</label>
-                        <input pInputText id="sector_name" #sector_name="ngModel" [(ngModel)]="condominioModel.sector_name" name="sector_name"  [class]="{'ng-invalid':!sector_name.valid,'noclass':sector_name.valid }" required  max="50"  />
-
-                        <span *ngIf="!sector_name.valid && sector_name.touched" [class]="{'ng-invalid':!sector_name.valid,'noclass':sector_name.valid }"
-                            style="color: red;">Requerido*</span>
+                        <input pInputText id="sector_name" 
+                        #sector_name="ngModel" 
+                        [(ngModel)]="condominioModel.sector_name" 
+                        name="sector_name"  
+                       required  maxlength="50"  />
+                      
                     </div>
                     <div class="field col-12">
                         <label htmlFor="city">City</label>
-                        <input pInputText id="city" #city="ngModel" [(ngModel)]="condominioModel.city" name="city"  [class]="{'ng-invalid':!city.valid,'noclass':city.valid }" required  max="50"  />
+                        <input pInputText 
+                        id="city" 
+                        #city="ngModel" 
+                        [(ngModel)]="condominioModel.city" 
+                        name="city"  
+                       required  maxlength="50" />
                     </div>
                     <div class="field col-12">
                         <label htmlFor="province">Province</label>
-                        <input pInputText id="province" #province="ngModel" [(ngModel)]="condominioModel.province" name="province"  [class]="{'ng-invalid':!province.valid,'noclass':province.valid }" max="50" required/>
-
-                        <span *ngIf="!province.valid && province.touched"
-                            [class]="{'ng-invalid':!province.valid,'noclass':province.valid }" style="color: red;">Requerido*</span>
+                        <input pInputText id="province" 
+                        #province="ngModel" 
+                        [(ngModel)]="condominioModel.province" 
+                        name="province" maxlength="50" required/>
+                      
                     </div>
                     <div class="field col-12">
                         <label htmlFor="zipcode">Zip code</label>
-                        <input pInputText id="zipcode" #zipcode="ngModel" [(ngModel)]="condominioModel.zipcode" name="zipcode"  
-                         required max="9"/>
-
-                        <span *ngIf="!zipcode.valid && zipcode.touched" [class]="{'ng-invalid':!zipcode.valid,'noclass':zipcode.valid }"
-                            style="color: red;">Requerido*</span>
+                        <input pInputText 
+                        id="zipcode" 
+                        #zipcode="ngModel" 
+                        [(ngModel)]="condominioModel.zipcode" 
+                        name="zipcode"  
+                         required maxlength="9"/>                     
                     </div>
                 <div class="field col-12 md:col-3">
                     <label htmlFor="country">Country</label>
@@ -79,16 +129,17 @@
                         #country="ngModel" 
                         name="country" 
                         [(ngModel)]="condominioModel.country" 
-                        required ></p-dropdown>
+                        ></p-dropdown>
                 </div>
                     <div class="field col-12 md:col-6">
                      
                         <label htmlFor="socialAreas">Social areas</label>
                         <p-multiSelect 
                         
-                        #socialAreas
+                        #socialAreas="ngModel"
                         [options]="areas" 
                         [(ngModel)]="condominioModel.socialAreas" 
+                        name="socialAreas"
                         optionLabel="areasOptions"                       
                         ></p-multiSelect>
                         
@@ -96,13 +147,14 @@
                                        
                 </div>
                 <div style="float: end;">
-                <button pButton pRipple label="Create" class="p-button-success"></button>
+                <button [disabled]="!condominiumForm.valid" pButton pRipple label="Create" class="p-button-success"></button>
                 </div>
+                </form>
             </div>
 
           
         </div>
 
      
-    </form>
+    
 </div>

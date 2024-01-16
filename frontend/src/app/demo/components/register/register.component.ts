@@ -22,9 +22,8 @@ export class RegisterComponent{
   public status:string;
   public preview:boolean;
   public image:string;
+  public token:string;
   public userImage:any[] = [];
-
-  
 
   selectedState: any = null;
 
@@ -42,7 +41,7 @@ export class RegisterComponent{
     { name: 'Option 1', code: 'Option 1' },
     { name: 'Option 2', code: 'Option 2' },
     { name: 'Option 3', code: 'Option 3' }
-  ];
+  ]; 
 
   cities1: any[] = [];
 
@@ -65,6 +64,7 @@ export class RegisterComponent{
     this.user.country = 'Republica Dominicana'   
     this.preview = false
     this.checked = false
+    this.token = this._userService.getToken();
    
    
         
@@ -105,9 +105,7 @@ export class RegisterComponent{
 
     if (this.checked) {
 
-      const token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI2NTU1ODk2MjE3MTI5NzgxZmZmMTg3N2UiLCJlbWFpbCI6Impjc2FudG9zQG1haWwuY29tIiwicGFzc3dvcmQiOiIkMmIkMTAkWTV4eG84VEZ3ckJJdi5CMk5qRzZwT0JIRy5OUHNWbEdWbVZKWDFrNFlOcDNLZ2FWcXNqYXUiLCJyb2xlIjoiU1VQRVJVU0VSIiwiaWF0IjoxNzAzMjkwMTA4fQ.ombBN8roQ0TZz2NFV42Cq8blm_EjLmarN_YLSKVf8G8"
-
-
+   
       const formData = new FormData();
 
       if ((this.userImage).length > 1) {
@@ -126,7 +124,7 @@ export class RegisterComponent{
 
 
 
-      this._userService.create(formData, token).subscribe(
+      this._userService.create(formData, this.token).subscribe(
 
         response => {
 
