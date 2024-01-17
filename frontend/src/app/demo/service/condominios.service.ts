@@ -16,11 +16,10 @@ export class CondominioService {
     
     createCondominium(token:string, condominio:any):Observable<any>{
 
-        let params = JSON.stringify(condominio)
 
-        let header = new HttpHeaders().set('Content-Type', 'application/json').set('Authorization', token);
+        let header = new HttpHeaders().set('Authorization', token);
 
-        return this._http.post(this.url + 'create-condominio', params,{headers:header})
+        return this._http.post(this.url + 'create-condominio', condominio,{headers:header})
     }
 
     getPropertyByAdminId(token: string, id: string): Observable<any> {

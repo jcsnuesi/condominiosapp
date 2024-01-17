@@ -1,8 +1,12 @@
 <div class="grid">
 
+      <p-card header="Success!" [style]="{'background-color': '#e4f8f0','color':'#1ea97c', 'border-left': '5px solid #1ea97c', 'box-shadow': 'none'}" *ngIf="status == 'success'" [innerHTML]>
+            Property created successfully! <a routerLink="/see-property">Go to properties</a> or <a style="cursor:pointer;"
+                (click)="reloadWindows()">Create another one</a>
+        </p-card>
  
         <div class="col-12">
-            <div class="card">
+            <div class="card"  *ngIf="status == 'showForm'">
                 
                 <h5>Create condominium</h5>
 
@@ -12,8 +16,8 @@
 
                     <div class="field col-12">
                     
-                        <p-messages [(value)]="messages" *ngIf="status == 'true'" [enableService]="false" [closable]="true"></p-messages>
-                    
+                        <!-- <p-messages [(value)]="messages" *ngIf="status == 'true'" [enableService]="false" hideTransitionOptions="3000"></p-messages>
+                     -->
                         <p-fileUpload mode="basic" 
                             chooseLabel="Choose image"           
                             name="demo[]"
@@ -78,7 +82,7 @@
                       
                     </div>
                     <div class="field col-12">
-                        <label htmlFor="street_1">Address 2 (Unit, Apt, House)</label>
+                        <label htmlFor="street_2">Address 2 (Unit, Apt, House)</label>
                         <input pInputText 
                         id="street_2" 
                         #street_2="ngModel" 

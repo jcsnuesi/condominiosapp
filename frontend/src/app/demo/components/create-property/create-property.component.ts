@@ -7,14 +7,15 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { FileUploadModule } from 'primeng/fileupload';
-import { MessagesModule } from 'primeng/messages';
 import { CondominioService } from '../../service/condominios.service';
 import { UserService } from '../../service/user.service';
+import { CardModule } from 'primeng/card';
+import { RouterModule } from '@angular/router';
  
 @Component({
   selector: 'app-create-property',
   standalone: true,
-  imports: [CommonModule, FormsModule, DropdownModule, InputTextModule, ButtonModule, MultiSelectModule, FileUploadModule, MessagesModule],
+  imports: [CommonModule, FormsModule, DropdownModule, InputTextModule, ButtonModule, MultiSelectModule, FileUploadModule,  CardModule, RouterModule],
   templateUrl: './create-property.component.html',
   styleUrls: ['./create-property.component.scss'],
   providers: [CondominioService, UserService]
@@ -29,9 +30,9 @@ export class CreatePropertyComponent implements OnInit {
   public selectedAreas:any;
   public image: any;
   public status: any;
-  public messages = [{ severity: '', summary: '', details: '' }]
   public avatar:any;
   public token:string;
+
 
 
   constructor(
@@ -48,6 +49,7 @@ export class CreatePropertyComponent implements OnInit {
 
   ngOnInit(): void {
 
+    this.status = 'showForm'
     this.condominioModel.country = 'Dominican Republic'
     this.condoType = [
       { property: 'House'}, 
@@ -74,13 +76,43 @@ export class CreatePropertyComponent implements OnInit {
 
   // crear el modelo condominio *
   // crear el formulario *
-  // enviar los datos a la api
-  // recibir respuesta de la api
+  // enviar los datos a la api *
+  // recibir respuesta de la api *
+
+  reloadWindows(){
+    window.location.reload()
+  }
 
   submit(condominiumForm:any){
 
-    this._condominioService.createCondominium(this.token, condominiumForm.form.value).subscribe(
+    const formdata = new FormData()
+
+    formdata.append('avatar', (this.avatar != null ? this.avatar : 'noimage.jpeg'))
+    formdata.append('alias', condominiumForm.form.value.alias)
+    formdata.append('typeOfProperty', condominiumForm.form.value.typeOfProperty.property)
+    formdata.append('phone', condominiumForm.form.value.phone)
+    formdata.append('phone2', condominiumForm.form.value.phone2)
+    formdata.append('street_1', condominiumForm.form.value.street_1)
+    formdata.append('street_2', condominiumForm.form.value.street_2)
+    formdata.append('sector_name', condominiumForm.form.value.sector_name)
+    formdata.append('city', condominiumForm.form.value.city)
+    formdata.append('zipcode', condominiumForm.form.value.zipcode)
+    formdata.append('province', condominiumForm.form.value.province)
+    formdata.append('country', condominiumForm.form.value.country.country)
+    formdata.append('socialAreas', condominiumForm.form.value.socialAreas.map(areas =>  areas.areasOptions))
+
+
+    this._condominioService.createCondominium(this.token, formdata).subscribe(
       response => {
+
+        if (response.status == 'success') {
+
+          this.status = response.status
+         
+          condominiumForm.reset()
+          
+          
+        }
         console.log(response)
       },
       error => {
@@ -113,9 +145,6 @@ export class CreatePropertyComponent implements OnInit {
     reader.readAsDataURL(file.files[0])
     this.avatar = file.files[0]
 
-    this.messages[0].severity = 'success'
-    this.messages[0].summary = 'Image uploaded successfully!'
-    this.messages[0].details = 'Upload!'
 
   }
 }

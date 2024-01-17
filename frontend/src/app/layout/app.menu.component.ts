@@ -35,6 +35,8 @@ export class AppMenuComponent implements OnInit {
                 items: [
                     {
                         label: 'Add property', icon: 'pi pi-fw pi-plus-circle', routerLink: ['/create-property'] },
+                    {
+                        label: 'See properties', icon: 'pi pi-fw pi-eye', routerLink: ['/see-property'] },
                     { label: 'Form Layout', icon: 'pi pi-fw pi-id-card', routerLink: ['/uikit/formlayout'] },
                     { label: 'Input', icon: 'pi pi-fw pi-check-square', routerLink: ['/uikit/input'] },
                     { label: 'Float Label', icon: 'pi pi-fw pi-bookmark', routerLink: ['/uikit/floatlabel'] },

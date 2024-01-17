@@ -4,6 +4,8 @@ import { NotfoundComponent } from './demo/components/notfound/notfound.component
 import { AppLayoutComponent } from "./layout/app.layout.component";
 import { UserGuard } from './demo/service/routing.guard';
 import { CreatePropertyComponent } from './demo/components/create-property/create-property.component';
+import { SeePropertyComponent } from './demo/components/see-property/see-property.component';
+
 
 @NgModule({
     imports: [
@@ -20,7 +22,8 @@ import { CreatePropertyComponent } from './demo/components/create-property/creat
                     { path: 'pages',  loadChildren: () => import('./demo/components/pages/pages.module').then(m => m.PagesModule) },
                     { path: 'register', canActivate: [UserGuard],  loadChildren: () => import('./demo/components/register/register.module').then(m => m.RegisterDemoModule) },
                     { path: 'customers', canActivate: [UserGuard], loadChildren: () => import('./demo/components/customers/customers.module').then(m => m.CustomersDemoModule) },
-                    { path: 'create-property', canActivate: [UserGuard], component: CreatePropertyComponent }
+                    { path: 'create-property', canActivate: [UserGuard], component: CreatePropertyComponent },
+                    { path: 'see-property', canActivate: [UserGuard], component: SeePropertyComponent }
 
                 ]
             },

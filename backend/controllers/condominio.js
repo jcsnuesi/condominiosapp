@@ -13,25 +13,24 @@ var Condominium_Controller = {
     
   
     createCondominium:async function (req, res) {
-        console.log(req.body)
-        return
-        let CondominiumParams = req.body
-        var verifing = new verifyParamData()
+      
+        let condominiumParams = req.body
 
+      
         try {
 
-            var alias_validation = !validator.isEmpty(CondominiumParams.alias)
-            var street_1_validation = !validator.isEmpty(CondominiumParams.street_1)
-            var sector_name_validation = !validator.isEmpty(CondominiumParams.sector_name)
-            var province_validation = !validator.isEmpty(CondominiumParams.province)
-            var city_validation = !validator.isEmpty(CondominiumParams.city)        
-            var val_phone = verifing.phonesConverter(CondominiumParams)   
-            
+            var alias_validation = !validator.isEmpty(condominiumParams.alias)
+            var street_1_validation = !validator.isEmpty(condominiumParams.street_1)
+            var sector_name_validation = !validator.isEmpty(condominiumParams.sector_name)
+            var province_validation = !validator.isEmpty(condominiumParams.province)
+            var city_validation = !validator.isEmpty(condominiumParams.city)        
+            var phone1_validation = !validator.isEmpty(condominiumParams.phone)   
+        
         } catch (error) {
 
             return res.status(400).send({
                 status: 'error',
-                message: 'Fill out all fiels'
+                message: 'Check out all fiels'
             })
         }
 
@@ -53,13 +52,12 @@ var Condominium_Controller = {
             sector_name_validation &&
             province_validation &&
             city_validation &&
-            val_phone
+            phone1_validation
             ) {
 
             Condominium.findOne({ $and: [
-                { alias: CondominiumParams.alias},
-                { street_1: CondominiumParams.street_1 },
-                { sector_name: CondominiumParams.sector_name }
+                { alias: condominiumParams.alias},
+                { phone: condominiumParams.phone }
                 ]}, (err, condominioFound) => {
         
 
@@ -75,21 +73,15 @@ var Condominium_Controller = {
 
                     var condominio = new Condominium()
 
-                for (const key in CondominiumParams) {
+                for (const key in condominiumParams) {
 
-                    if (key.includes('phone') && typeof ((CondominiumParams['phone']).split(',')) == 'object') {
+                    if (key.includes('socialAreas')){
 
-                        condominio['phone'] = CondominiumParams['phone'].split(',').map(number => { return number.trim() })
-
-                    } else if(key == 'socialAreas'){
-
-                        condominio['socialAreas'] = typeof ((CondominiumParams['socialAreas']).split(',')) == 'object' ? CondominiumParams['socialAreas'].split(',').map(sociales => {
-                            return sociales.trim().toLowerCase()
-                        }) : CondominiumParams['socialAreas'].toLowerCase()
+                        condominio['socialAreas'] = typeof ((condominiumParams['socialAreas']).split(',')) == 'object' ? condominiumParams['socialAreas'].split(',').map(sociales => sociales.trim().toLowerCase()) : condominiumParams['socialAreas'].toLowerCase()
 
                     }else{
 
-                        condominio[key] = CondominiumParams[key].toLowerCase()
+                        condominio[key] = condominiumParams[key].toLowerCase()
 
                     }
                       
@@ -102,6 +94,7 @@ var Condominium_Controller = {
                     }
                 }
 
+                //user whom created the propery
                 condominio.createdBy = req.user.sub
 
                 condominio.save((err, newCondominio) => {
@@ -118,7 +111,7 @@ var Condominium_Controller = {
 
                     return res.status(200).send({
 
-                        status: "succes",
+                        status: "success",
                         message: newCondominio 
                     })
 
