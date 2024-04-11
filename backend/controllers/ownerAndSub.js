@@ -18,6 +18,9 @@ var ownerAndSubController = {
 
     createUser: async function (req, res) {
 
+
+        console.log(req.body)
+        return
         if (req.user.role.toLowerCase() != 'admin') {
 
             return res.status(403).send({
@@ -61,6 +64,7 @@ var ownerAndSubController = {
 
         if (val_email && val_password && val_phone) {
 
+          
 
             Owner.findOne(
                 {
@@ -88,7 +92,7 @@ var ownerAndSubController = {
 
                     //Instanciamos el usuario segun el tipo de usuario
                     let user = new Owner()
-
+ 
                     var property_details = {
 
                         addressId: "",

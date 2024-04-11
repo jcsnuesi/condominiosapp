@@ -1,16 +1,16 @@
-'use strict'
- 
+'use strict' 
+  
 let express = require('express')
 let condominioController = require('../controllers/condominio')
 
-let md_auth = require('../middleware/auth')
+let md_auth = require('../middleware/auth') 
 let router = express.Router()
 
 var multipart = require('connect-multiparty');
 var md_upload = multipart({ uploadDir: './uploads/properties' });
 var adminAuth = require('../middleware/userAuth')
 // GET
-
+ 
 router.get('/condominios', md_auth.authenticated, condominioController.getCondominiumByAdmin);
 
 router.get('/condominioById', condominioController.getCondominiumById);

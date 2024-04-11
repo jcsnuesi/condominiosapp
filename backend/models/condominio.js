@@ -15,7 +15,7 @@ var EmployeesSchema = Schema({
 })
 
 const employees = mongoose.model('Employees', EmployeesSchema )
-
+ 
 var CondominiumSchema = Schema({
    
     avatar: { type: String },
@@ -30,7 +30,8 @@ var CondominiumSchema = Schema({
     province: { type: String, required: true },
     zipcode: { type: String }, 
     country: { type: String, required: true },
-    socialAreas: [{ type: String }],    
+    socialAreas: [{ type: String }],   
+    mPayment:{ type:Number, required:true}, 
     status: { type: String, default: 'active' },
     createdBy: { type: mongoose.Schema.Types.ObjectId, default: 'Admin'} ,
     units: [

@@ -1,5 +1,5 @@
 'use strict'
-
+ 
 var validator = require('validator') 
 var path = require('path')
 var Condominium = require('../models/condominio')
@@ -15,8 +15,7 @@ var Condominium_Controller = {
     createCondominium:async function (req, res) {
       
         let condominiumParams = req.body
-
-      
+       
         try {
 
             var alias_validation = !validator.isEmpty(condominiumParams.alias)
@@ -34,10 +33,11 @@ var Condominium_Controller = {
             })
         }
 
+     
         //verificar la extension de archivo enviado sea tipo imagen
         var imgFormatAccepted = checkExtensions.confirmExtension(req)
 
-        if (imgFormatAccepted == false) {
+        if (!imgFormatAccepted) {
 
             return res.status(400).send({
 
@@ -59,7 +59,7 @@ var Condominium_Controller = {
                 { alias: condominiumParams.alias},
                 { phone: condominiumParams.phone }
                 ]}, (err, condominioFound) => {
-        
+       
 
                 if (err || condominioFound != null) {
 
@@ -73,20 +73,25 @@ var Condominium_Controller = {
 
                     var condominio = new Condominium()
 
+
+               
+                if (condominiumParams['socialAreas'] != null && condominiumParams['socialAreas'].includes(",")) {
+
+                    (condominiumParams['socialAreas'].split(',')).forEach(areas => condominio['socialAreas'].push(areas.toLowerCase())) 
+                  
+                    delete condominiumParams.socialAreas
+                }
+
+
+
                 for (const key in condominiumParams) {
 
-                    if (key.includes('socialAreas')){
-
-                        condominio['socialAreas'] = typeof ((condominiumParams['socialAreas']).split(',')) == 'object' ? condominiumParams['socialAreas'].split(',').map(sociales => sociales.trim().toLowerCase()) : condominiumParams['socialAreas'].toLowerCase()
-
-                    }else{
-
-                        condominio[key] = condominiumParams[key].toLowerCase()
-
-                    }
+                    condominio[key] = typeof condominiumParams[key] == 'string' ? condominiumParams[key].toLowerCase() : condominiumParams[key]
                       
                 }
 
+
+               
                 if (req.files != undefined) {
 
                     for (const fileKey in req.files) {
@@ -94,6 +99,7 @@ var Condominium_Controller = {
                     }
                 }
 
+          
                 //user whom created the propery
                 condominio.createdBy = req.user.sub
 
@@ -182,7 +188,7 @@ var Condominium_Controller = {
 
                 } 
               
-                return
+        
                 
                
               
@@ -552,25 +558,16 @@ var Condominium_Controller = {
     },
         
     getBuildingDetails: function (req, res) {
-
-
-        Condominium.find({ _id : req.params.id})
-            .populate({
-                path: 'owners',
-                select: 'role status propertyDetails name lastname gender email phone',
-                match: { status: 'active' } // Condition to filter active owners
-            })
-            .populate({
-                path:'occupantId',
-                select: 'name lastname gender email phone role status',
-                match:{ status: 'active' }
-            })
-        .exec((err, condominiumFound) => {
+     
+        console.log(req.params.id)
+        Condominium.find({ _id : req.params.id},  (err, condominiumFound) => {
     
+         
                 var errorHandlerArr = errorHandler.newUser(err, condominiumFound)
 
                 if (errorHandlerArr[0]) {
 
+                  
                     return res.status(
                         errorHandlerArr[1]).send({
                             status: errorHandlerArr[2],

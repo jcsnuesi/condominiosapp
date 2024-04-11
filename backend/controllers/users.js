@@ -312,7 +312,7 @@ var controller = {
                 status: 'error',
                 message: 'Missing data'
             })
-        }
+        } 
 
 
         if (val_email && val_password) {
