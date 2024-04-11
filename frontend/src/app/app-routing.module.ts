@@ -14,6 +14,7 @@ import { SeePropertyComponent } from './demo/components/see-property/see-propert
                 path: '', component: AppLayoutComponent,
                 canActivate: [UserGuard],
                 children: [
+                    { path: 'home/:id', canActivate: [UserGuard],  loadChildren: () => import('./demo/components/dashboard/dashboard.module').then(m => m.DashboardModule) },
                     { path: '', canActivate: [UserGuard],  loadChildren: () => import('./demo/components/dashboard/dashboard.module').then(m => m.DashboardModule) },
                     { path: 'uikit', loadChildren: () => import('./demo/components/uikit/uikit.module').then(m => m.UIkitModule) },
                     { path: 'utilities', loadChildren: () => import('./demo/components/utilities/utilities.module').then(m => m.UtilitiesModule) },

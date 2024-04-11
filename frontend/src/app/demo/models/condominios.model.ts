@@ -1,9 +1,11 @@
+import { AnyObject } from "chart.js/types/basic";
+
 export class Condominio{
 
     constructor(
 
         public alias:string,
-        public typeOfProperty:string,
+        public typeOfProperty: any,
         public phone: string,
         public phone2: string,
         public street_1:string,
@@ -12,10 +14,11 @@ export class Condominio{
         public city:string,
         public province:string,
         public zipcode:string,
-        public country: string,
-        public socialAreas:Array<string>,
+        public country: any,
+        public socialAreas: any,
         public units: Array<string>,
-        public employees: Array<string>
+        public employees: Array<string>,
+        public mPayment: null
     ){}
 
 

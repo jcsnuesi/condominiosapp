@@ -1,1 +1,148 @@
-<p>see-property works!</p>
+<div class="card">
+    <p-table #dt1 [value]="properties" dataKey="_id" [rows]="4" [showCurrentPageReport]="true"
+        [rowsPerPageOptions]="[4, 25, 50]" [loading]="loading" [paginator]="true"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+        [globalFilterFields]="['company', 'email_company','status', 'country', 'phone']">
+
+
+
+        <ng-template pTemplate="caption">
+            <div class="flex">
+                <button pButton label="Clear" class="p-button-outlined" icon="pi pi-filter-slash"
+                    (click)="clear(dt1)"></button>
+                <span class="p-input-icon-left ml-auto">
+                    <i class="pi pi-search"></i>
+                    <input pInputText type="text" (input)="dt1.filterGlobal($event.target.value, 'contains')"
+                        placeholder="Search keyword" />
+                </span>
+            </div>
+        </ng-template>
+        <ng-template pTemplate="header">
+            <p-toast></p-toast>
+
+
+            <tr>
+                <th style="min-width:15rem">
+                    <div class="flex align-items-center">
+                        Property Alias
+                        <p-columnFilter type="text" field="company" display="menu"></p-columnFilter>
+                    </div>
+                </th>
+                <th style="min-width:15rem">
+                    <div class="flex align-items-center">
+                        Address
+                        <p-columnFilter *ngIf="loginInfo.role == 'SUPERUSER'" type="text" field="email_company"
+                            display="menu"></p-columnFilter>
+                    </div>
+                </th>
+                <th style="min-width:15rem">
+                    <div class="flex align-items-center">
+                        Phone number
+
+                    </div>
+                </th>
+                <th style="min-width:10rem">
+                    <div class="flex align-items-center">
+                        Created at
+                        <p-columnFilter type="text" field="createdAt" display="menu"></p-columnFilter>
+                    </div>
+                </th>
+                <th style="min-width:10rem">
+                    <div class="flex align-items-center">
+                        Country
+                        <p-columnFilter type="text" field="country" display="menu"></p-columnFilter>
+                    </div>
+                </th>
+                <th style="min-width:10rem">
+                    <div class="flex align-items-center">
+                        Status
+                        <p-columnFilter field="status" matchMode="equals" display="menu">
+
+                            <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+
+                                <p-dropdown [ngModel]="value" [options]="statuses" (onChange)="filter($event.value)"
+                                    placeholder="Any">
+
+                                    <ng-template let-option pTemplate="item">
+                                        <p-tag [value]="option.label"
+                                            [severity]="_userService.getSeverity(option.label)"></p-tag>
+                                    </ng-template>
+                                </p-dropdown>
+
+                            </ng-template>
+                        </p-columnFilter>
+                    </div>
+                </th>
+
+                <th style="width: 3rem" *ngIf="loginInfo.role == 'SUPERUSER'">
+                    <div class="flex align-items-center">
+                        Verified
+                        <p-columnFilter type="boolean" field="verified" display="menu"></p-columnFilter>
+                    </div>
+                </th>
+
+
+                <th style="width: 3rem">
+                    <div class="flex align-items-center">
+                        Configurations
+
+                    </div>
+                </th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-property>
+            <tr>
+                <td>
+                    <img [alt]="property.avatar" [src]="url +'avatarCondominios/'+ property.avatar" width="32"
+                        style="vertical-align: middle" />
+                    <span class="ml-1 vertical-align-middle">
+                        {{propertyName(property.alias)}}
+                    </span>
+                </td>
+                <td>
+                    {{full_address_func(property)}}
+                </td>
+                <td>
+
+                    {{phones_number_func(property)}}
+
+
+                </td>
+                <td>
+                    {{_userService.dateFormat(property.createdAt) }}
+                </td>
+                <td>
+                    <img src="https://primefaces.org/cdn/primeng/images/demo/flag/flag_placeholder.png"
+                        class="flag flag-do" style="width: 20px" />
+                    <span class="ml-1 vertical-align-middle">{{ "Dominican Republic" }}</span>
+                </td>
+
+                <td>
+                    <p-tag [value]="property.status == 'active' ? 'Active' : 'Suspended'"
+                        [severity]="property.status == 'active' ? 'success' : 'danger' "></p-tag>
+
+                </td>
+                <td class="text-center" *ngIf="loginInfo.role == 'SUPERUSER'">
+                    <i class="pi"
+                        [ngClass]="{ 'text-green-500 pi-check-circle': property.verified, 'text-red-500 pi-times-circle': !property.verified }"></i>
+                </td>
+                <td>
+                    <button pButton type="button" icon="pi pi-eye" class="p-button-rounded p-button-text"
+                        (click)="goToDashboard(property)"></button>
+                </td>
+
+            </tr>
+
+
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="7">No propertys found.</td>
+            </tr>
+        </ng-template>
+    </p-table>
+  
+    
+
+</div>

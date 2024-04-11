@@ -1,19 +1,24 @@
-import { Component, ElementRef, ViewChild, DoCheck, OnInit} from '@angular/core';
+import { Component, ElementRef, ViewChild, DoCheck, OnInit, Input } from '@angular/core';
 import { LayoutService } from "./service/app.layout.service";
 import { UserService } from '../demo/service/user.service';
 import { User } from '../demo/models/user.model';
 import { MenuItem, MessageService } from 'primeng/api';
 import { CookieService } from 'ngx-cookie-service';
 import { Router } from '@angular/router';
+import { CondominioService } from '../demo/service/condominios.service';
+import { ActivatedRoute } from '@angular/router';
+
 
 @Component({
     selector: 'app-topbar',
     templateUrl: './app.topbar.component.html',
-    providers: [MessageService]
+    providers: [MessageService, CondominioService]
 })
 export class AppTopBarComponent implements DoCheck, OnInit {
 
     items: MenuItem[] | undefined;
+
+  
 
     @ViewChild('menubutton') menuButton!: ElementRef;
 
@@ -22,20 +27,40 @@ export class AppTopBarComponent implements DoCheck, OnInit {
     @ViewChild('topbarmenu') menu!: ElementRef;
 
     public identity: User;
+    public condominio_info:any;
+    public propertyInfo: any;
+    public urlValidator:boolean;
+    @Input() item = ''
 
     constructor(
         public layoutService: LayoutService,
         private _userService:UserService,
         private _messageService: MessageService,
         private _cookieService: CookieService,
-        private _router: Router
+        private _router: Router,
+        private _condominioService:CondominioService,
+        private _activatedRoute: ActivatedRoute
         ) {}
-
-
+       
+        urlChecker(){
+         
+          
+            return (window.location.href).includes('home') 
+            
+                       
+        }
+        
+   
+        
         ngOnInit(): void {
 
-            this.identity = this._userService.getIdentity()
+         
+            
 
+            console.log() 
+
+            this.identity = this._userService.getIdentity()
+          
             this.items = [
                 {
                     label: 'Profile',
@@ -74,14 +99,28 @@ export class AppTopBarComponent implements DoCheck, OnInit {
                     ]
                 }
             ];
-            
+        
+
         }
 
+        // Terminar la comunicacion entre dashboard component y este component
         ngDoCheck(): void {
 
             this.identity = this._userService.getIdentity()
+                        
+            // if (this.urlChecker()) {
+
+            //     this.propertyInfo = CondominioService.propertyDetails[0]
+            //     console.log(this.propertyInfo)
+              
+            // }
             
+          
+            
+            
+ 
         }
+
 
     update() {
         this._messageService.add({ severity: 'success', summary: 'Success', detail: 'Data Updated' });

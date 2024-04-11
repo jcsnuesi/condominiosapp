@@ -6,9 +6,9 @@
         </p-card>
  
         <div class="col-12">
-            <div class="card"  *ngIf="status == 'showForm'">
+            <div class="card"  *ngIf="status != 'success'">
                 
-                <h5>Create condominium</h5>
+                <h5>Create property</h5>
 
                 <form #condominiumForm="ngForm" (submit)="submit(condominiumForm)">
 
@@ -40,7 +40,7 @@
                         <input pInputText 
                         #alias="ngModel" 
                         [(ngModel)]="condominioModel.alias" 
-                        name="alias" id="alias" type="text" required maxlength="50" />
+                        name="alias" id="alias" type="text"  maxlength="50" />
                       
                     </div>
 
@@ -52,8 +52,10 @@
                         optionLabel="property"
                         placeholder="Choose type of property"
                         #typeOfProperty="ngModel"  
-                        [(ngModel)]="condoSelected"
-                        name="typeOfProperty"></p-dropdown>
+                        [(ngModel)]="this.condominioModel.typeOfProperty"
+                        name="typeOfProperty">
+                    
+                        </p-dropdown>
 
                     </div>
                  
@@ -62,7 +64,7 @@
                         <input pInputText 
                         #phone="ngModel" 
                         [(ngModel)]="condominioModel.phone" 
-                        name="phone" id="phone"  type="text" maxlength="11" pattern="^[0-9]+"  required />
+                        name="phone" id="phone"  type="text" maxlength="11" pattern="^[0-9]+"   />
                      
                     </div>
                     <div class="field col-12 md:col-6">
@@ -78,7 +80,7 @@
                         <input  pInputText id="street_1" 
                         #street_1="ngModel" 
                         [(ngModel)]="condominioModel.street_1" 
-                        name="street_1"  required  maxlength="100"  />
+                        name="street_1"    maxlength="100"  />
                       
                     </div>
                     <div class="field col-12">
@@ -96,7 +98,7 @@
                         #sector_name="ngModel" 
                         [(ngModel)]="condominioModel.sector_name" 
                         name="sector_name"  
-                       required  maxlength="50"  />
+                         maxlength="50"  />
                       
                     </div>
                     <div class="field col-12">
@@ -106,14 +108,14 @@
                         #city="ngModel" 
                         [(ngModel)]="condominioModel.city" 
                         name="city"  
-                       required  maxlength="50" />
+                         maxlength="50" />
                     </div>
                     <div class="field col-12">
                         <label htmlFor="province">Province</label>
                         <input pInputText id="province" 
                         #province="ngModel" 
                         [(ngModel)]="condominioModel.province" 
-                        name="province" maxlength="50" required/>
+                        name="province" maxlength="50" />
                       
                     </div>
                     <div class="field col-12">
@@ -123,7 +125,7 @@
                         #zipcode="ngModel" 
                         [(ngModel)]="condominioModel.zipcode" 
                         name="zipcode"  
-                         required maxlength="9"/>                     
+                          maxlength="9"/>                     
                     </div>
                 <div class="field col-12 md:col-3">
                     <label htmlFor="country">Country</label>
@@ -135,20 +137,26 @@
                         [(ngModel)]="condominioModel.country" 
                         ></p-dropdown>
                 </div>
-                    <div class="field col-12 md:col-6">
-                     
-                        <label htmlFor="socialAreas">Social areas</label>
-                        <p-multiSelect 
-                        
-                        #socialAreas="ngModel"
-                        [options]="areas" 
-                        [(ngModel)]="condominioModel.socialAreas" 
-                        name="socialAreas"
-                        optionLabel="areasOptions"                       
-                        ></p-multiSelect>
-                        
-                    </div>               
-                                       
+                <div class="field col-6 md:col-4">
+                    
+                    <label htmlFor="socialAreas">Social areas</label>
+                    <p-multiSelect 
+                    
+                    [options]="areas" 
+                    optionLabel="areasOptions" 
+                    #socialAreas="ngModel"
+                    [(ngModel)]="this.condominioModel.socialAreas" 
+                    name="socialAreas"
+                    ></p-multiSelect>
+                    
+                </div> 
+                
+                    <div class="field col-4">
+                        <label htmlFor="mPayment">Monthly payment</label>
+                        <input pInputText id="mPayment" #mPayment="ngModel" [(ngModel)]="condominioModel.mPayment" name="mPayment" 
+                            maxlength="6" />
+                    </div>
+                                    
                 </div>
                 <div style="float: end;">
                 <button [disabled]="!condominiumForm.valid" pButton pRipple label="Create" class="p-button-success"></button>

@@ -1,7 +1,7 @@
 import { Component , OnInit} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Condominio } from '../../models/condominios.model';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
@@ -10,7 +10,7 @@ import { FileUploadModule } from 'primeng/fileupload';
 import { CondominioService } from '../../service/condominios.service';
 import { UserService } from '../../service/user.service';
 import { CardModule } from 'primeng/card';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
  
 @Component({
   selector: 'app-create-property',
@@ -23,7 +23,7 @@ import { RouterModule } from '@angular/router';
 export class CreatePropertyComponent implements OnInit {
 
   public condominioModel:Condominio;
-  public condoType: any[]; 
+  public condoType:any[]; 
   public condoSelected:any;
   public countrySelector:any[] = []
   public areas:any[]= []
@@ -37,11 +37,12 @@ export class CreatePropertyComponent implements OnInit {
 
   constructor(
     private _condominioService: CondominioService,
-    private _userService: UserService
+    private _userService: UserService,
+    private _router: Router
   ){
 
-    this.condominioModel = new Condominio('','','','','','','','','','','',[],[],[])
-    'C:\Users\Hardware Gaming PC\Desktop\condominiosapp\frontend\src\assets\noimage2.jpeg'
+    this.condominioModel = new Condominio('', '','','','','','','','','','','',[],[],null)
+    
     this.image = '../../assets/noimage2.jpeg'
     this.token = this._userService.getToken();
 
@@ -51,11 +52,13 @@ export class CreatePropertyComponent implements OnInit {
 
     this.status = 'showForm'
     this.condominioModel.country = 'Dominican Republic'
+    
     this.condoType = [
-      { property: 'House'}, 
-      { property: 'Tower'}, 
-      { property: 'Apartments'}
-    ]
+      { property: 'House' },
+      { property: 'Tower' },
+      { property: 'Apartments' }
+    ]; 
+
     this.countrySelector = [
       {country:'Dominican Republic'}
     ]
@@ -68,9 +71,7 @@ export class CreatePropertyComponent implements OnInit {
       { areasOptions:'Guest parking'}
 
     ]
-
-    this.selectedAreas = this.areas[0] || undefined
-    this.condoSelected = this.condoType[0]
+    
     
   }
 
@@ -80,26 +81,31 @@ export class CreatePropertyComponent implements OnInit {
   // recibir respuesta de la api *
 
   reloadWindows(){
-    window.location.reload()
+    this._router.navigate(['/create-property'])
   }
 
-  submit(condominiumForm:any){
+  public areaSocialString: any;
+  submit(condominiumForm:NgForm){
 
     const formdata = new FormData()
-
+    
     formdata.append('avatar', (this.avatar != null ? this.avatar : 'noimage.jpeg'))
-    formdata.append('alias', condominiumForm.form.value.alias)
-    formdata.append('typeOfProperty', condominiumForm.form.value.typeOfProperty.property)
-    formdata.append('phone', condominiumForm.form.value.phone)
-    formdata.append('phone2', condominiumForm.form.value.phone2)
-    formdata.append('street_1', condominiumForm.form.value.street_1)
-    formdata.append('street_2', condominiumForm.form.value.street_2)
-    formdata.append('sector_name', condominiumForm.form.value.sector_name)
-    formdata.append('city', condominiumForm.form.value.city)
-    formdata.append('zipcode', condominiumForm.form.value.zipcode)
-    formdata.append('province', condominiumForm.form.value.province)
-    formdata.append('country', condominiumForm.form.value.country.country)
-    formdata.append('socialAreas', condominiumForm.form.value.socialAreas.map(areas =>  areas.areasOptions))
+    formdata.append('alias', this.condominioModel.alias)
+    formdata.append('typeOfProperty', this.condominioModel.typeOfProperty.property )
+    formdata.append('phone', this.condominioModel.phone)
+    formdata.append('phone2', this.condominioModel.phone2)
+    formdata.append('street_1', this.condominioModel.street_1)
+    formdata.append('street_2', this.condominioModel.street_2)
+    formdata.append('sector_name', this.condominioModel.sector_name)
+    formdata.append('city', this.condominioModel.city)
+    formdata.append('zipcode', this.condominioModel.zipcode)
+    formdata.append('province', this.condominioModel.province)
+    formdata.append('country', this.condominioModel.country.country )
+    
+    this.condominioModel.socialAreas.forEach(areas => {
+      formdata.append('socialAreas', areas.areasOptions)
+    });
+    formdata.append('mPayment', this.condominioModel.mPayment)
 
 
     this._condominioService.createCondominium(this.token, formdata).subscribe(
@@ -123,9 +129,11 @@ export class CreatePropertyComponent implements OnInit {
 
   }
 
+  
+
   onSelect(file: any) {
 
-    console.log(file)
+    
     const reader = new FileReader();
 
     reader.onloadend = () => {
@@ -144,6 +152,7 @@ export class CreatePropertyComponent implements OnInit {
 
     reader.readAsDataURL(file.files[0])
     this.avatar = file.files[0]
+    console.log(this.avatar)
 
 
   }

@@ -2,9 +2,10 @@ import { Component } from '@angular/core';
 import { User } from '../../models/user.model';
 import { MessageService } from 'primeng/api';
 import { UserService } from '../../service/user.service';
+import { NgForm } from '@angular/forms';
 
 
-
+ 
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
@@ -102,9 +103,7 @@ export class RegisterComponent{
 
   onSubmit(form: any) {
 
-
     if (this.checked) {
-
    
       const formData = new FormData();
 
@@ -143,13 +142,14 @@ export class RegisterComponent{
             this.messages[0].details = 'Error'
           }
        
-
+          console.log(response)
         },
         error => {
 
           this.messages[0].severity = error.status
           this.messages[0].summary = error.message
           this.messages[0].details = 'Error'
+          console.log(error)
         }
       )
 
@@ -160,16 +160,27 @@ export class RegisterComponent{
   }
   
 
-  termSelection(event:any){
-
-    if (this.checked) {
-      this.checked = true
-      this.user.terms = true
-    }else{
-      this.checked = false
-    }
- 
+  termSelection(event: any, form: NgForm){
    
+    const isChecked = form.value.terms;
+   
+    if (isChecked && form.valid) {
+      this.user.terms = true
+      this.setformValid(true)
+    }else{
+      
+      this.setformValid(false)
+     
+    }    
+   
+  }
+
+  getformValid(){
+    return this.checked;
+  }
+
+  setformValid(formStatus:boolean){
+    this.checked = formStatus
   }
 
 }

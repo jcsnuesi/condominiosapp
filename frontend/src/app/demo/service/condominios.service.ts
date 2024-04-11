@@ -1,19 +1,22 @@
-import { Injectable } from "@angular/core";
+import { Injectable, EventEmitter, Output } from "@angular/core";
 import { global } from "./global.service";
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { Observable } from "rxjs";
+import { property_details } from "./property_details_type";
 
 @Injectable()
 export class CondominioService {
 
     public url:any;
+     
 
     constructor(private _http:HttpClient){
         
         this.url = global.url
 
     }
-    
+
+       
     createCondominium(token:string, condominio:any):Observable<any>{
 
 
@@ -21,7 +24,7 @@ export class CondominioService {
 
         return this._http.post(this.url + 'create-condominio', condominio,{headers:header})
     }
-
+ 
     getPropertyByAdminId(token: string, id: string): Observable<any> {
 
         let header = new HttpHeaders().set('Content-Type', 'application/json').set('Authorization', token)
@@ -32,7 +35,7 @@ export class CondominioService {
     getBuilding(id:string, token:string):Observable<any>{
 
         let header = new HttpHeaders().set('Content-Type', 'application/json').set('Authorization', token);
-
+ 
         return this._http.get(this.url + 'buildingDetail/'+id, {headers:header})
     }
 }

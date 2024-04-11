@@ -52,7 +52,7 @@ export class UserService{
     }
 
     getIdentity(){
-        // UserService.role = JSON.parse(this._cookies.get('identity') || 'false').role
+  
         return JSON.parse(this._cookies.get('identity') ||  'false')
 
     }    

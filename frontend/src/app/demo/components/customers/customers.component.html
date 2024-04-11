@@ -37,8 +37,8 @@
                 </th>
                 <th style="min-width:15rem">
                     <div class="flex align-items-center">
-                        Email
-                        <p-columnFilter type="text" field="email_company" display="menu"></p-columnFilter>
+                        {{header_changer}}
+                        <p-columnFilter  *ngIf="loginInfo.role == 'SUPERUSER'" type="text" field="email_company" display="menu"></p-columnFilter>
                     </div>
                 </th>
                 <th style="min-width:15rem">
@@ -109,11 +109,11 @@
                     <span class="ml-1 vertical-align-middle">{{ customer.company }}</span>
                 </td>
                 <td>
-                    {{ customer.email_company }}
+                    {{full_address_func(customer)}}
                 </td>
                 <td>
                 
-                    {{ customer.phone[0]}}
+                    {{phones_number_func(customer)}}
                 
                 
                 </td>
@@ -133,9 +133,9 @@
                     <i class="pi"
                         [ngClass]="{ 'text-green-500 pi-check-circle': customer.verified, 'text-red-500 pi-times-circle': !customer.verified }"></i>
                 </td>
-                <td>
+                <td >
                     <button pButton type="button" icon="pi pi-eye"
-                       class="p-button-rounded p-button-text" (click)="showDialog(customer)" [routerLink]="['/customers/details']"></button>
+                       class="p-button-rounded p-button-text" (click)="showDialog(customer)" ></button>
                 </td>
                              
             </tr>
@@ -150,7 +150,7 @@
         </ng-template>
     </p-table>
         <p-dialog header="Customer information" 
-        [(visible)]="visible" 
+        
         [modal]="true" 
         [maximizable]="true"
         [style]="{width: '50%', height:'90%'}" (onHide)="handleEvent()" >

@@ -5,7 +5,7 @@
 
             <div class="card" *ngIf="status != 'success'"> 
 
-                <h5> Registro de usuarios </h5>
+                <h5>Formulario de Registro para administradora </h5>
                 
                 <form #registroAdmin="ngForm"  (ngSubmit)="onSubmit(registroAdmin)">               
                     
@@ -25,37 +25,36 @@
 
                         </div>
 
-
-
                     </div>
 
                     <div class="field col-12 md:col-6">
                         <label htmlFor="company">Empresa<span style="color: red;">*</span></label>
                         
-                        <input pInputText id="company" type="text" required #company="ngModel" name="company" [(ngModel)]="user.company"  aria-describedby="username-help" [ngClass]="{'ng-invalid ng-dirty':(company.touched && !company.valid), 'company':company.valid}" />
+                        <input pInputText id="company" type="text" required #company="ngModel" name="company" [(ngModel)]="user.company"  aria-describedby="username-help" [ngClass]="{'valid-form':company.valid,'invalid-form':!company.valid}" />
                                        
                         <small *ngIf="company.touched && !company.valid" id="username-help" class="p-error">Obligatorio.</small>
                     </div>
                   
                     <div class="field col-6 md:col-6">
                         <label htmlFor="rnc">RNC<span style="color: red;">*</span></label>
-                        <input pInputText id="rnc" type="text" required name="rnc" #rnc="ngModel" [(ngModel)]="user.rnc" [ngClass]="{'ng-invalid ng-dirty':(rnc.touched && !rnc.valid), 'company':rnc.valid}" minlength="8" maxlength="9" pattern="^[0-9]+"/>
+                        <input pInputText id="rnc" type="text" required name="rnc" #rnc="ngModel" [(ngModel)]="user.rnc" [ngClass]="{'valid-form':rnc.valid,'invalid-form':!rnc.valid}" minlength="8" maxlength="9" pattern="^[0-9]+"/>
 
-                        <small *ngIf="rnc.touched && !rnc.valid" id="username-help" class="p-error">Obligatorio (Solo numeros).</small>
+                        <small *ngIf="rnc.touched && !rnc.valid" id="username-help" class="p-error">Obligatorio (Just number, 9 digits).</small>
                     </div>
 
                     <div class="field col-6 md:col-6">
                         <label htmlFor="phone">Telefono<span style="color: red;">*</span></label>
-                        <input pInputText id="phone" type="text" required [(ngModel)]="user.phone" #phone="ngModel" name="phone" minlength="10" maxlength="10" [ngClass]="{'ng-invalid ng-dirty':(phone.touched && !phone.valid), ' ':phone.valid}" />
+                        <input pInputText id="phone" type="text" required [(ngModel)]="user.phone" #phone="ngModel" name="phone" minlength="10" maxlength="10" [ngClass]="{'valid-form':phone.valid,'invalid-form':!phone.valid}" />
 
                         <small *ngIf="phone.touched && !phone.valid" id="username-help" class="p-error">Obligatorio.</small>
                     </div>
 
                     <div class="field col-6 md:col-6">
                         <label htmlFor="phone2">Telefono 2</label>
-                        <input pInputText id="phone2" type="text" required [(ngModel)]="user.phone2" #phone2="ngModel" name="phone2"
-                             maxlength="10"  [ngClass]="{'ng-invalid ng-dirty':(phone2.touched && !phone2.valid), ' ':phone2.valid}"/>
+                        <input pInputText id="phone2" type="text" [(ngModel)]="user.phone2" #phone2="ngModel" name="phone2"
+                             maxlength="10"  [ngClass]="{'valid-form':phone2.valid,'invalid-form':!phone2.valid}"/>
                     
+                            <small *ngIf="!phone.valid" id="username-help" class="p-error">Must be 10 at least digits.</small>
                        
                     </div>
 
@@ -70,7 +69,7 @@
                     
                     <div class="field col-12">
                         <label htmlFor="street_1">Calle<span style="color: red;">*</span></label>
-                        <input pInputTextarea id="street_1" rows="4" name="street_1" required [(ngModel)]="user.street_1" #street_1="ngModel" [ngClass]="{'ng-invalid ng-dirty':(street_1.touched && !street_1.valid), ' ':street_1.valid}"/>
+                        <input pInputTextarea id="street_1" rows="4" name="street_1" required [(ngModel)]="user.street_1" #street_1="ngModel" [ngClass]="{'valid-form':street_1.valid,'invalid-form':!street_1.valid}"/>
 
                         <small *ngIf="street_1.touched && !street_1.valid" id="username-help" class="p-error">Obligatorio.</small>
                     </div>
@@ -78,34 +77,48 @@
                     <div class="field col-12">
                     <label htmlFor="street_2">Calle 2</label>
                     <input pInputTextarea id="street_2" rows="4" name="street_2" [(ngModel)]="user.street_2" #street_2="ngModel"
+                    
                         />
                     
                     </div>
 
                     <div class="field col-12 md:col-5">
                         <label htmlFor="city">Ciudad<span style="color: red;">*</span></label>
-                        <input pInputText id="city" type="text" required [(ngModel)]="user.city" #city="ngModel" name="city" [ngClass]="{'ng-invalid ng-dirty':(city.touched && !city.valid), ' ':city.valid}"/>
+                        <input pInputText id="city" type="text" required [(ngModel)]="user.city" #city="ngModel" name="city" [ngClass]="{'valid-form':city.valid,'invalid-form':!city.valid}"/>
 
                         <small *ngIf="city.touched && !city.valid" id="username-help" class="p-error">Obligatorio.</small>
                     </div>
 
                     <div class="field col-12 md:col-5">
-                        <label htmlFor="states">Estado<span style="color: red;">*</span></label>
+                        <label htmlFor="states">
+                            Estado
+                            <span style="color: red;">*</span>
+                        </label>
                         
-                        <p-dropdown [options]="states_us" optionLabel="name" optionValue="name" [(ngModel)]="user.state"  #state="ngModel" name="state" required [ngClass]="{'ng-invalid ng-dirty':(state.touched && !state.valid), ' ':state.valid}"></p-dropdown>
+                        <p-dropdown [options]="states_us" optionLabel="name" 
+                        optionValue="name" 
+                        [(ngModel)]="user.state"  
+                        #state="ngModel" 
+                        name="state"                         
+                        required>
+                        </p-dropdown>
 
                         <small *ngIf="state.touched && !state.valid" id="username-help" class="p-error">Obligatorio.</small>
                     </div>
+                    
                     <div class="field col-12 md:col-4">
 
                         <label htmlFor="zipcode">Zip code<span style="color: red;">*</span></label>
-                        <input pInputText id="zipcode" type="text" maxlength="10" required [(ngModel)]="user.zipcode" #zipcode="ngModel" name="zipcode" />
+                        
+                        <input pInputText id="zipcode" type="text" maxlength="10" required [(ngModel)]="user.zipcode" #zipcode="ngModel" name="zipcode" 
+                         [ngClass]="{'valid-form':zipcode.valid,'invalid-form':!zipcode.valid}" />
 
                     </div>
                     
                     <div class="field col-12 md:col-6">
                         <label htmlFor="country">Pais<span style="color: red;">*</span></label>
-                        <input pInputText name="country" id="country" [(ngModel)]="user.country" #country="ngModel"   readonly>
+                        <input pInputText name="country" id="country" [(ngModel)]="user.country" #country="ngModel" 
+                        [ngClass]="{'valid-form':country.valid,'invalid-form':!country.valid}"   readonly>
                     </div>
                   
                     <div style="margin-left: 20px;width: 100%;">
@@ -116,7 +129,7 @@
 
                     <div class="field col-12 md:col-6">
                         <label htmlFor="name_contact">Nombres<span style="color: red;">*</span></label>
-                        <input pInputText id="name_contact" type="text" required [(ngModel)]="user.name_contact"  [ngClass]="{'ng-invalid ng-dirty':(name_contact.touched && !name_contact.valid), ' ':name_contact.valid}" #name_contact="ngModel" name="name_contact" maxlength="50"/>
+                        <input pInputText id="name_contact" type="text" required [(ngModel)]="user.name_contact"  [ngClass]="{'valid-form':name_contact.valid,'invalid-form':!name_contact.valid}" #name_contact="ngModel" name="name_contact" maxlength="50"/>
 
                         <small *ngIf="name_contact.touched && !name_contact.valid" id="username-help" class="p-error">Obligatorio.</small>
 
@@ -124,9 +137,10 @@
                     <div class="field col-12 md:col-6">
                         <label htmlFor="name">Apellido<span style="color: red;">*</span></label>
 
-                        <input pInputText id="lastname_contact" type="text" required [(ngModel)]="user.lastname_contact"
-                            [ngClass]="{'ng-invalid ng-dirty':(lastname_contact.touched && !lastname_contact.valid), ' ':lastname_contact.valid}"
-                            #lastname_contact="ngModel" name="lastname_contact" maxlength="50"/>
+                        <input pInputText id="lastname_contact" type="text" required [(ngModel)]="user.lastname_contact"                           
+                            #lastname_contact="ngModel" 
+                             [ngClass]="{'valid-form':lastname_contact.valid,'invalid-form':!lastname_contact.valid}"
+                             name="lastname_contact" maxlength="50"/>
                         
                         <small *ngIf="lastname_contact.touched && !lastname_contact.valid" id="username-help" class="p-error">Obligatorio.</small>
 
@@ -135,8 +149,8 @@
                         <label htmlFor="gender_contact">Genero<span style="color: red;">*</span></label>
 
                         <p-dropdown [options]="genero" optionLabel="name" optionValue="name" #gender_contact="ngModel" [(ngModel)]="user.gender_contact"  placeholder="Genero"
-                            name="gender_contact" required
-                            [ngClass]="{'ng-invalid ng-dirty':(gender_contact.touched && !gender_contact.valid), ' ':gender_contact.valid}"></p-dropdown>
+                        name="gender_contact" required
+                           ></p-dropdown>
 
                         <small *ngIf="gender_contact.touched && !gender_contact.valid" id="username-help"
                             class="p-error">Obligatorio.</small>
@@ -147,7 +161,8 @@
                         <label htmlFor="phone_contact">Telefono<span style="color: red;">*</span></label>
 
                         <input pInputText id="phone_contact" type="text" required [(ngModel)]="user.phone_contact" name="phone_contact"
-                            #phone_contact="ngModel" maxlength="10" />
+                            #phone_contact="ngModel" maxlength="10" 
+                          [ngClass]="{'valid-form':phone_contact.valid,'invalid-form':!phone_contact.valid}"  />
                         
                         <small *ngIf="phone_contact.touched && !phone_contact.valid" id="username-help" class="p-error">Obligatorio.</small>
                     </div>
@@ -156,7 +171,9 @@
                         <label htmlFor="phone_contact2">Telefono 2<span style="color: red;">*</span></label>
 
                         <input pInputText id="phone_contact2" type="text" [(ngModel)]="user.phone_contact2" name="phone_contact2"
-                            #phone_contact2="ngModel" maxlength="10" />
+                            #phone_contact2="ngModel" 
+                            maxlength="10"
+                            [ngClass]="{'valid-form':phone_contact2.valid,'invalid-form':!phone_contact2.valid}" />
                    
                     </div>
 
@@ -165,13 +182,15 @@
                     <div class="field col-12 md:col-6">
                         <label htmlFor="email_contact">Email<span style="color: red;">*</span></label>
                         <input pInputText id="email_contact" type="text" required [(ngModel)]="user.email_contact" name="email_contact"
-                            #email_contact="ngModel" />
+                            #email_contact="ngModel"  
+                            [ngClass]="{'valid-form':email_contact.valid,'invalid-form':!email_contact.valid}"  />
                     </div>
 
 
                     <div class="field col-12 md:col-6">
                         <label htmlFor="role_contact">Role en la empresa<span style="color: red;">*</span></label>
-                        <input pInputText id="role_contact" type="text" required [(ngModel)]="user.role_contact" #role_contact="ngModel" name="role_contact"/>
+                        <input pInputText id="role_contact" type="text" required [(ngModel)]="user.role_contact" #role_contact="ngModel" 
+                        [ngClass]="{'valid-form':role_contact.valid,'invalid-form':!role_contact.valid}" name="role_contact"/>
                     </div>
 
                     <div style="margin-left: 20px;width: 100%;">
@@ -181,7 +200,7 @@
 
                     <div class="field col-12 md:col-6">
                         <label htmlFor="email_company">Email<span style="color: red;">*</span></label>
-                        <input pInputText id="email_company" type="email" required [(ngModel)]="user.email_company" name="email_company"
+                        <input pInputText id="email_company" [ngClass]="{'valid-form':email_company.valid,'invalid-form':!email_company.valid}" type="email" required [(ngModel)]="user.email_company" name="email_company"
                             #email_company="ngModel" pattern="[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*@[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*[.][a-zA-Z]{2,5}" maxlength="50"/>
 
                             <small *ngIf="email_company.touched && !email_company.valid" id="username-help" class="p-error">Obligatorio.</small>
@@ -191,7 +210,7 @@
                   
                     <div class="field col-12 md:col-6">
                         <label htmlFor="password">Password<span style="color: red;">*</span></label>
-                        <input pInputText id="password" type="password" required [(ngModel)]="user.password" #password="ngModel" name="password" maxlength="15" minlength="8"/>
+                        <input pInputText id="password" type="password" required [(ngModel)]="user.password" #password="ngModel" name="password" [ngClass]="{'valid-form':password.valid,'invalid-form':!password.valid}" maxlength="15" minlength="8"/>
 
                         <small *ngIf="password.touched && !password.valid" id="username-help" class="p-error">Su clave debe tener minimo 8 caracteres maximo 15.</small>
                     </div>
@@ -199,25 +218,22 @@
                     
 
                 <div class="flex align-items-center gap-1">
-               
-                    
 
-                    <p-checkbox [(ngModel)]="checked" [binary]="true" inputId="binary" (click)="termSelection($event)" #terms="ngModel" name="terms" required ></p-checkbox>
+                    <p-checkbox [(ngModel)]="checked" [binary]="true" inputId="binary" (click)="termSelection($event,registroAdmin)" #terms="ngModel" name="terms" required ></p-checkbox>
 
                         <label for="terms">
                                 Aceptas los terminos y condiciones?
                         </label>
                     
-                        <small *ngIf="checked ==  false" id="username-help" class="p-error">Obligatorio.</small>
+                        <small *ngIf="checked ==  false" id="username-help" class="p-error">Obligatorio. (All required fields must be completed)</small>
 
                 </div>
 
-                    
                 </div>
 
                 <div style="margin-top: 9px;float:right">
-                                      
-                    <input type="submit" [disabled]="!checked" value="Registrar" class="p-element p-ripple p-button p-component">
+                                   
+                    <input type="submit" [disabled]="!getformValid()" value="Registrar" class="p-element p-ripple p-button p-component">
                   
                 </div>
                 

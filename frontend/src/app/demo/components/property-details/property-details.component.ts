@@ -37,9 +37,8 @@ export class PropertyDetailsComponent implements OnInit {
 
     this._activatedRoute.params.subscribe(param => {
 
-      let id = param['id']
+      let id = param['id']   
       
-
       this._condominioService.getBuilding(id, this._userService.getToken()).subscribe(
         response => {
         
@@ -65,7 +64,6 @@ export class PropertyDetailsComponent implements OnInit {
 
   calculateCustomerTotal(customer:any){
 
-    console.log()
   }
 
  

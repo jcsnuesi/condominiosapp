@@ -21,6 +21,7 @@ import { AvatarModule } from 'primeng/avatar';
 import { AvatarGroupModule } from 'primeng/avatargroup';
 import { MenuModule } from 'primeng/menu';
 import { ToastModule } from 'primeng/toast';
+import { CondominioService } from '../demo/service/condominios.service';
 
 @NgModule({
     declarations: [
@@ -48,6 +49,7 @@ import { ToastModule } from 'primeng/toast';
         AvatarGroupModule,
         MenuModule,
         ToastModule
+        
     ],
     exports: [AppLayoutComponent]
 })

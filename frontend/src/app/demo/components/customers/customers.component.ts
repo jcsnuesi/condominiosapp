@@ -24,7 +24,8 @@ export class CustomersComponent implements OnInit, DoCheck {
   public selectedCustomers:any;
   public loading: boolean; 
   public loginInfo:any;
-
+  public header_changer:string;
+  
   sortOptions: SelectItem[] = [];
 
   sortOrder: number = 0;
@@ -50,9 +51,7 @@ export class CustomersComponent implements OnInit, DoCheck {
  
   constructor(
     private _router: Router,
-    private _activeRoute: ActivatedRoute,
     public _userService:UserService,
-    private _messageService: MessageService,
     private _condominioService: CondominioService,
     private _superUser: SuperUser) {
 
@@ -80,10 +79,9 @@ export class CustomersComponent implements OnInit, DoCheck {
      UserService.identity = this.getValues()
      this.tabMenu()
 
-   })
-  
+   })  
   }
-
+ 
   ngDoCheck(): void {
  
     UserService.identity = this.getValues()
@@ -129,23 +127,31 @@ export class CustomersComponent implements OnInit, DoCheck {
    
   showDialog(event:any){
 
-    if (this.loginInfo.role == 'SUPERUSER') {
+    switch (this.loginInfo.role) {
       
-      this.setValues(event)
-      this.tabMenu()
+      case 'SUPERUSER':
 
-      this.activeItem = this.items[0]
-      this.visible = true
+        this.setValues(event)
+        this.tabMenu()
+        window.location.href + '/customers/details'
+     
+        this.activeItem = this.items[0]
+        this.visible = true
+        
+        break;
 
-    } else if(this.loginInfo.role == 'ADMIN') {
+      case 'ADMIN':
 
-      this._router.navigate(['home/', event._id])
+          
+        this._router.navigate(['home/', event._id])
+        
+        break;
     
     }
-  
    
   }
-
+ 
+  
   
   clear(table: Table) {
     table.clear();
@@ -156,6 +162,7 @@ export class CustomersComponent implements OnInit, DoCheck {
 
    
     switch (this.loginInfo.role) {
+     
       case 'SUPERUSER':
 
         this._superUser.getAdmins(this.token).subscribe(
@@ -163,11 +170,12 @@ export class CustomersComponent implements OnInit, DoCheck {
           admins => {
 
             if (admins.status == 'success') {
+             
+              this.header_changer = 'Email'
               this.loading = false
               this.customers = admins.message
 
-            }
-            
+            }            
 
 
           },
@@ -180,14 +188,14 @@ export class CustomersComponent implements OnInit, DoCheck {
         break;
 
       case 'ADMIN':
-        console.log(this.loginInfo)
-        // console.log(this.loginInfo.message.
-        //   _id)
+
         this._condominioService.getPropertyByAdminId(this.token, this.loginInfo._id).subscribe(
           response => {
-
+            this.header_changer = 'Address'
+           
             this.loading = false
             this.customers = response.message
+           
             console.log(response)
           },
           error => {
@@ -200,13 +208,36 @@ export class CustomersComponent implements OnInit, DoCheck {
     }
    
     
-    
-    
-  
-
-
   }
 
+  full_address_func(customer) {
+
+    if (this.header_changer == 'Address') {
+
+      return `${customer.street_1}, ${customer.street_2}, ${customer.sector_name}, ${customer.city}, ${customer.province}, ${customer.country}`
+
+    }else{
+      return customer.email_company
+    }
+    
+  }
+
+  phones_number_func(customer){
+
+    var full_phone_num = ''
+    if ((customer.phone[-1] != undefined)) {
+  
+      full_phone_num = `${customer.phone[0]} ${customer.phone[1]}`
+   
+    }else{
+
+      full_phone_num = `${customer.phone} ${customer.phone2}`
+    }
+   
+    return full_phone_num
+
+  }
+ 
   
 
 }

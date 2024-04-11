@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, Output, EventEmitter, Input } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { Product } from '../../api/product';
 import { ProductService } from '../../service/product.service';
@@ -7,6 +7,9 @@ import { LayoutService } from 'src/app/layout/service/app.layout.service';
 import { ActivatedRoute } from '@angular/router';
 import { CondominioService } from '../../service/condominios.service';
 import { UserService } from '../../service/user.service';
+import { CookieService } from 'ngx-cookie-service';
+import { property_details } from '../../service/property_details_type';
+import { dateTimeFormatter } from '../../service/datetime.service';
 
 @Component({
     templateUrl: './dashboard.component.html',
@@ -15,6 +18,8 @@ import { UserService } from '../../service/user.service';
         UserService]
 })
 export class DashboardComponent implements OnInit, OnDestroy {
+
+   
 
     items!: MenuItem[];
 
@@ -25,43 +30,83 @@ export class DashboardComponent implements OnInit, OnDestroy {
     chartOptions: any;
 
     subscription!: Subscription;
-    public buildingDetails:any;
+    public buildingDetails: property_details;
     public units:number;
     private token:string;
+    public dateFormatted:string;
+    public currentIcon:string;
+    public gbColor:string;
 
+    
     constructor(
         private productService: ProductService, 
         public _condominioService: CondominioService,
         public _userService: UserService,
         public layoutService: LayoutService,
-        private _activatedRoute:ActivatedRoute) {
+        private _activatedRoute:ActivatedRoute,
+        private _cookieService: CookieService) {
         this.subscription = this.layoutService.configUpdate$.subscribe(() => {
             this.initChart();
         });
 
 
         this.token = this._userService.getToken()
+        this.currentIcon = 'pi-building'
+        this.gbColor = 'blue-100'
     }
 
+
+    @Output() propertyInfoEvent: EventEmitter<any> = new EventEmitter();
+    
+    propertyData(data) {
+        // emit data to parent component
+        this.propertyInfoEvent.emit(data);
+    }
+    
+
+    onMouseOver(): void {
+        this.currentIcon = 'pi-plus';
+        this.gbColor = 'yellow-200'
+    }
+    onMouseOut(): void {
+
+        this.currentIcon = 'pi-building'
+        this.gbColor = 'blue-100'
+
+    }
+
+    
     ngOnInit() {
+
+        
+       
 
         this._activatedRoute.params.subscribe(param => {
 
-            let id  = param['id'];
-            console.log(id)
+            let id = param['id'];
+          
             if (id != undefined) {
                 
                 this._condominioService.getBuilding(id, this.token).subscribe(
                     response => {
-
+                      
+           
                         if (response.status == 'success') {
-                            
+                        
                             this.buildingDetails = response.message
-                            this.units = (response.message[0].owners.propertyDetails[0].apartment).length
+
+                            this.units = (this.buildingDetails[0].units.length) 
+
+                            this.dateFormatted = dateTimeFormatter(this.buildingDetails[0].createdAt)
+                         
+                            this.propertyData(this.buildingDetails[0])
+                            
+                          
+                            
+
+                            // this.addNewItem("saludos desde child")
 
 
-
-                            console.log(response.message[0].owners)
                         }
 
                        
@@ -152,3 +197,4 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }
     }
 }
+
