@@ -53,13 +53,10 @@ export class AppTopBarComponent implements DoCheck, OnInit {
    
         
         ngOnInit(): void {
-
-         
             
 
-            console.log() 
-
             this.identity = this._userService.getIdentity()
+            console.log(this._userService.getToken())
           
             this.items = [
                 {

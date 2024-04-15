@@ -1,35 +1,22 @@
 'use strict'
 
-let validator = require('validator')
-let bcrypt = require('bcrypt')
+let validator = require('validator');
+let bcrypt = require('bcrypt');
 let saltRounds = 10;
 let jwtoken= require('../service/jwt');
-let checkExtensions = require('../service/extensions')
-let errorHandler = require('../error/errorHandler')
-let deactivatedOwner = require('../service/persistencia')
-let verifyDataParam = require('../service/verifyParamData')
-let Condominio = require('../models/condominio')
-let Owner = require('../models/owners')
+let checkExtensions = require('../service/extensions');
+let errorHandler = require('../error/errorHandler');
+let deactivatedOwner = require('../service/persistencia');
+let verifyDataParam = require('../service/verifyParamData');
+let Condominio = require('../models/condominio');
+let Owner = require('../models/owners');
 let Occupant = require('../models/occupant');
 const occupant = require('../models/occupant');
-const verifying = new verifyDataParam()
+const verifying = new verifyDataParam();
  
 var ownerAndSubController = {
 
-    createUser: async function (req, res) {
-
-
-        console.log(req.body)
-        return
-        if (req.user.role.toLowerCase() != 'admin') {
-
-            return res.status(403).send({
-
-                status: "forbidden",
-                message: "You are not authorized"
-            })
-            
-        }
+    createOwner: async function (req, res) {
 
         var params = req.body
      

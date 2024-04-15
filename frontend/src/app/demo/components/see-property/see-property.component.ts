@@ -24,7 +24,7 @@ import { ButtonModule } from 'primeng/button';
     TabMenuModule,
     TagModule,
     TableModule,
-    ButtonModule 
+    ButtonModule
   ],
   providers: [UserService, CondominioService, MessageService]  
 })

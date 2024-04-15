@@ -21,6 +21,23 @@ exports.createToken = function (user) {
     
 }
 
+exports.ownerRegister = function (user) {
+
+    var payload = {
+        sub: user._id,
+        email: user.email,
+        condominioId: user.condominioId,
+        role: user.role,
+        iat: moment().unix(),
+        exp: moment().add(30, 'days').unix
+    }
+
+    return jwt.encode(payload, secret)
+
+
+}
+
+
 
 exports.emailVerification = function (info) {
 

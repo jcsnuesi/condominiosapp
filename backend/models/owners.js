@@ -3,8 +3,7 @@
 var mongoose = require('mongoose')
 var Schema = mongoose.Schema
 
-
-var OwnerSchema = Schema({ 
+var FamilySchema = Schema({
 
     avatar: { type: String },
     name: { type: String, required: true },
@@ -13,15 +12,32 @@ var OwnerSchema = Schema({
     email: { type: String, required: true },
     password: { type: String, required: true },
     phone: [{ type: String, required: true }],
+    status: { type: String, default: 'active'},
+    role: { type: String, default: 'TENANT' }
+})
+
+mongoose.model('FamilySchema', FamilySchema);
+
+var OwnerSchema = Schema({ 
+
+    avatar: { type: String },
+    name: { type: String, required: true },
+    lastname: { type: String, required: true },
+    gender: { type: String, required: true },
+    fechaNacimiento: { type: String, required: true },
+    phone: { type: String, required: true },
+    phone2: { type: String},
+    email: { type: String, required: true },
+    password: { type: String, required: true },
     propertyDetails: [
-        {
+        {             
             addressId: { type: mongoose.Schema.Types.ObjectId, ref: 'Condominium', required: true },
-            apartment: [{ type: String, required: true }],
+            condominium_unit: [{ type: String, required: true }],
             parkingsQty: [{ type: Number, required: true }],
             createdAt: { type: Date, default: Date.now }
-
         }
-    ],   
+    ],
+    familyAccount: [FamilySchema],   
     occupantId: [
         { 
             occupant: { type: mongoose.Schema.Types.ObjectId, ref: 'Occupant' }
@@ -36,7 +52,8 @@ var OwnerSchema = Schema({
     id_image_back: { type: String, required: true }
    
         
-}, { timestamps: true }) 
+}, 
+{ timestamps: true }) 
 
 OwnerSchema.method.toJSON = function(){
     var obj = this.toObject()
@@ -45,3 +62,4 @@ OwnerSchema.method.toJSON = function(){
 }
 
 module.exports = mongoose.model('Owner', OwnerSchema);
+

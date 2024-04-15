@@ -2,7 +2,7 @@
 
 module.exports = class VerifyData{
   
-    constructor(){}
+    constructor(){} 
 
 
     phonesConverter(params){

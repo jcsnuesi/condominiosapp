@@ -18,7 +18,7 @@ var cxc_routes = require('./routes/cxc')
 var personnel_routes = require('./routes/personnel')
 var condominio_routes = require('./routes/condominio')
 var staff_routes = require('./routes/staff')
-var owner_routes = require('./routes/ownerAndSub')
+var owner = require('./routes/owner')
 var super_user = require('./routes/super_user')
 
 //Middlewares
@@ -38,7 +38,7 @@ app.use('/api', cxc_routes)
 app.use('/api', staff_routes)
 app.use('/api', personnel_routes)
 app.use('/api', condominio_routes)
-app.use('/api', owner_routes)
+app.use('/api', owner)
 app.use('/api', super_user)
 
 module.exports = app

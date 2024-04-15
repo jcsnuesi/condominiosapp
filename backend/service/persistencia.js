@@ -18,9 +18,7 @@ module.exports = function subownerPersistencia(id) {
                 return false
                 
             }
-
- 
-            
+           
         Subowner.updateMany({ superUser: id }, fieldToUpdate, { multi: true }, (err, updated) =>{
 
             if (err) {

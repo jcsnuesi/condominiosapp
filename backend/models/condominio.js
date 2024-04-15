@@ -17,7 +17,7 @@ var EmployeesSchema = Schema({
 const employees = mongoose.model('Employees', EmployeesSchema )
  
 var CondominiumSchema = Schema({
-   
+    
     avatar: { type: String },
     alias: { type: String, required: true },
     typeOfProperty: { type: String, required: true },
@@ -36,8 +36,7 @@ var CondominiumSchema = Schema({
     createdBy: { type: mongoose.Schema.Types.ObjectId, default: 'Admin'} ,
     units: [
         {
-            unit:String,
-            owner:mongoose.Schema.Types.ObjectId
+            owner:{type: mongoose.Schema.Types.ObjectId, ref: 'Owner'}
         }],
     employees: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Employees'}] 
 }, {timestamps:true})

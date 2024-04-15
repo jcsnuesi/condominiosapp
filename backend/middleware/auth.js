@@ -5,8 +5,7 @@ var moment = require('moment');
 var secret = "clave-nueva-para-cleanning-2023";
 
 module.exports.authenticated = function(req, res, next) {
-
-  
+ 
 
     if (!req.headers.authorization) {
  
