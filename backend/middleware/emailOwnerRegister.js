@@ -2,10 +2,17 @@ const uuid = require('uuidv4')
 const mailer = require('nodemailer');
 let Condominio = require('../models/condominio')
 const jwt = require('../service/jwt')
+const validation = require('validator')
 
 exports.emailOwnerRegister = function(req, res, next) {
-    var params = req.body;
 
+    var params = req.body;
+    params.id = req.user.sub;
+    params.role = req.user.role;
+
+    var emailSplit = params.email.split(/[ ,]/);  
+
+    
  
     const transporter = mailer.createTransport({
         service: 'gmail',
@@ -19,12 +26,13 @@ exports.emailOwnerRegister = function(req, res, next) {
     });
 
     // Generate a unique registration token
-    const registrationToken = jwt.createToken(params);
+    const registrationToken = jwt.ownerRegisterToken(params);
 
 
-    Condominio.findById(params.condominioId, (err, condominio) => {
+    Condominio.findById(params.condominioId)
+    .populate('units.owner', 'email')
+    .exec((err, condominio) => {
 
-        
         if(err || !condominio){
 
             return res.status(404).send({
@@ -37,14 +45,42 @@ exports.emailOwnerRegister = function(req, res, next) {
 
             const verificationLink = `http://localhost:3993/api/create-owner/${registrationToken}`;
 
-         
             // Send the verification email
             const mailOptions = {
                 from: 'jcsnuesi@gmail.com',
-                to: 'jcsnuesi@gmail.com',
+                to: '',
                 subject: `Unete a la app del condominio ${condominio.alias}`,
                 text: `Por favor, haz clic en el siguiente enlace para comenzar el registro de tu cuenta: ${verificationLink}`
             };
+
+            emailSplit.forEach(email => {
+
+
+                try {
+
+                    let email_val = validation.isEmail(email.trim())
+
+
+                    if (!email_val) {
+                        throw new Error('El correo electrónico no es válido')
+                    }
+
+
+                } catch (error) {
+
+
+                    return res.status(404).send({
+                        message: 'El correo electrónico no es válido'
+                    })
+
+                }
+
+                mailOptions.to += `${email},`
+
+            });
+            
+            mailOptions.to = mailOptions.to.substring(0, mailOptions.to.length - 1)
+
 
             transporter.sendMail(mailOptions, (error, info) => {
                 
@@ -71,18 +107,4 @@ exports.emailOwnerRegister = function(req, res, next) {
   
 
 
-};
-
-// Handle the registration verification
-exports.verifyRegistration = function(req, res, next) {
-    const registrationToken = req.params.token;
-
-    // Retrieve the user associated with the registration token from the database or any other storage mechanism
-
-    // Perform the user registration process
-
-    // Optionally, mark the user as verified in the database
-
-    // Return a response indicating successful registration
-    res.status(200).send('Registration successful');
 };

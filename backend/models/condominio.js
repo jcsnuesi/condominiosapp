@@ -21,7 +21,9 @@ var CondominiumSchema = Schema({
     avatar: { type: String },
     alias: { type: String, required: true },
     typeOfProperty: { type: String, required: true },
-    phone: { type: String, required: true },
+    phone: {
+        type: String, required: true,
+        unique: true },
     phone2: { type: String },
     street_1: { type: String, required: true },
     street_2: { type: String },    
@@ -36,7 +38,10 @@ var CondominiumSchema = Schema({
     createdBy: { type: mongoose.Schema.Types.ObjectId, default: 'Admin'} ,
     units: [
         {
-            owner:{type: mongoose.Schema.Types.ObjectId, ref: 'Owner'}
+            owner: {
+                type: mongoose.Schema.Types.ObjectId, ref: 'Owner',
+                unique: true
+                }
         }],
     employees: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Employees'}] 
 }, {timestamps:true})

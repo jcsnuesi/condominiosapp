@@ -1,4 +1,4 @@
-'use strict' 
+'use strict'  
 
 var jwt = require('jwt-simple')
 
@@ -21,15 +21,14 @@ exports.createToken = function (user) {
     
 }
 
-exports.ownerRegister = function (user) {
+exports.ownerRegisterToken = function (user) {
 
     var payload = {
-        sub: user._id,
-        email: user.email,
+        sub: user.id,
         condominioId: user.condominioId,
         role: user.role,
         iat: moment().unix(),
-        exp: moment().add(30, 'days').unix
+        exp: moment().add(7, 'days').unix
     }
 
     return jwt.encode(payload, secret)

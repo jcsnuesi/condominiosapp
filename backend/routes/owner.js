@@ -11,9 +11,16 @@ var md_upload = multipart({ uploadDir: './uploads/owner' });
 
 router.get('/customers', md_auth.authenticated, ownerController.ownerByAdim )
 
+// verify email
+router.get('/verify-email/:email', ownerController.emailVerification)
 
-router.post('/create-owner/:condominioId', [md_upload, md_auth.authenticated], ownerController.createOwner)
+
+// create owner
+router.post('/create-owner/:token', [md_upload, md_auth.emailOwnerRegistration], ownerController.createOwner)
+
+// invite owner
 router.post('/owner-register', [md_auth.authenticated], emailRegisterGenerator.emailOwnerRegister)
+
 
 router.post('/create-occupant', [md_upload, md_auth.authenticated], ownerController.secundaryAcc)
 

@@ -1,5 +1,6 @@
 'use strict'
 
+const { max } = require('moment');
 var mongoose = require('mongoose')
 var Schema = mongoose.Schema
 
@@ -13,7 +14,7 @@ var FamilySchema = Schema({
     password: { type: String, required: true },
     phone: [{ type: String, required: true }],
     status: { type: String, default: 'active'},
-    role: { type: String, default: 'TENANT' }
+    role: { type: String, default: 'FAMILY' }
 })
 
 mongoose.model('FamilySchema', FamilySchema);
@@ -24,30 +25,40 @@ var OwnerSchema = Schema({
     name: { type: String, required: true },
     lastname: { type: String, required: true },
     gender: { type: String, required: true },
-    fechaNacimiento: { type: String, required: true },
-    phone: { type: String, required: true },
+    dob: { type: String, required: true },
+    phone: {
+        type: String, required: true,
+        unique: true },
     phone2: { type: String},
-    email: { type: String, required: true },
+    email: {
+        type: String, required: true,
+        unique: true
+    },
     password: { type: String, required: true },
     propertyDetails: [
-        {             
-            addressId: { type: mongoose.Schema.Types.ObjectId, ref: 'Condominium', required: true },
-            condominium_unit: [{ type: String, required: true }],
-            parkingsQty: [{ type: Number, required: true }],
+        {
+            _id: false,          
+            addressId: {                 
+                type: String, 
+                ref: 'Condominium', 
+                required: true},                
+            condominium_unit: {
+                type: String, required: true, max: 5,
+                unique: true
+},
+            parkingsQty: { type: Number, required: true, max: 5 },
+            isRenting: { type: Boolean, default: false },
+            occupantId: [{ occupant: { type: mongoose.Schema.Types.ObjectId, ref: 'Occupant' } }],
             createdAt: { type: Date, default: Date.now }
         }
     ],
-    familyAccount: [FamilySchema],   
-    occupantId: [
-        { 
-            occupant: { type: mongoose.Schema.Types.ObjectId, ref: 'Occupant' }
-            
-        }
-    ],
+    familyAccount: [FamilySchema],     
     role: { type: String, default: 'OWNER' },
     status: { type: String, default: 'active'},
-    id_number: { type: String, required: true },
-    adminId: [{ type: mongoose.Schema.Types.ObjectId, ref:'Admin'}],
+    emailVerified: { type: Boolean, default: false },
+    id_number: {
+        type: String, required: true,
+        unique: true },
     id_image_front: { type: String, required: true },
     id_image_back: { type: String, required: true }
    

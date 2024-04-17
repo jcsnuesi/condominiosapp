@@ -54,6 +54,41 @@ module.exports.authenticated = function(req, res, next) {
 
 }
 
+exports.emailOwnerRegistration = function (req, res, next) {
+
+    try {
+
+        const token = req.params.token
+
+        var payload = jwt.decode(token, secret)
+
+        //Comprobar si el token han expirado
+
+        if (payload.exp <= moment().unix()) {
+
+            return res.status(404).send({
+                message: "El token ha expirado."
+            })
+
+        }
+
+
+    } catch (error) {
+
+
+        return res.status(404).send({
+            message: "El token no es valido."
+        })
+
+    }
+
+    //Adjuntar usuario identificado a la request
+
+    req.ownerTokenDecoded = payload;
+
+    next();
+
+}
 
 exports.emailToken = function (req, res, next){
 

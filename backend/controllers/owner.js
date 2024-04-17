@@ -1,6 +1,5 @@
 'use strict'
 
-let validator = require('validator');
 let bcrypt = require('bcrypt');
 let saltRounds = 10;
 let jwtoken= require('../service/jwt');
@@ -13,21 +12,76 @@ let Owner = require('../models/owners');
 let Occupant = require('../models/occupant');
 const occupant = require('../models/occupant');
 const verifying = new verifyDataParam();
+let validator = require('validator');
+let emailVerification = require('../service/emailVerification');
  
 var ownerAndSubController = {
+
+    emailVerification: function (req, res) {
+
+        Owner.findOne({ email: req.params.email }, (err, userFound) => {
+
+            if (err) {
+
+                return res.status(500).send({
+                    status: 'error',
+                    message: 'Server error, try again'
+                })
+            }
+
+            if (!userFound) {
+
+                return res.status(404).send({
+                    status: 'error',
+                    message: 'User not found'
+                })
+            }
+
+            userFound.emailVerified = true
+
+            Owner.findOneAndUpdate({ email: req.params.email }, userFound, { new: true }, (err, userUpdated) => {
+
+                if (err) {
+
+                    return res.status(500).send({
+                        status: 'error',
+                        message: 'Server error, try again'
+                    })
+                }
+
+                if (!userUpdated) {
+
+                    return res.status(500).send({
+                        status: 'error',
+                        message: 'User not updated'
+                    })
+                }
+
+                return res.status(200).send({
+
+                    status: 'success',
+                    verified: userFound.emailVerified
+                })
+
+            })
+
+        })
+    },
 
     createOwner: async function (req, res) {
 
         var params = req.body
-     
+      
         try {
 
-            var val_email = verifying.hasEmail(params)
+            var val_email = validator.isEmail(params.email)
             var val_password = !validator.isEmpty(params.password)
-            var val_phone = verifying.phonesConverter(params)
+            var val_phone = verifying.phonesLengthVerification(params.phone)
+            var val_dob = !validator.isEmpty(params.dob)
+            var val_id_number = !validator.isEmpty(params.id_number)
 
         } catch (error) {
-
+          
             return res.status(400).send({
 
                 status: "bad request",
@@ -35,7 +89,7 @@ var ownerAndSubController = {
             })
 
         }
-
+        
         //verificar la extension de archivo enviado sea tipo imagen
         var imgFormatAccepted = checkExtensions.confirmExtension(req)
 
@@ -49,15 +103,15 @@ var ownerAndSubController = {
         }
 
 
-        if (val_email && val_password && val_phone) {
+        if (val_email && val_password && val_phone && val_dob && val_id_number) {
 
           
 
             Owner.findOne(
                 {
-                    $or: [                      
+                    $and: [                      
                         { email: params.email },
-                        { phone: params.phone }
+                        { id_number: params.id_number }
 
                     ]
                 },async (err, userDuplicated) => {
@@ -80,56 +134,26 @@ var ownerAndSubController = {
                     //Instanciamos el usuario segun el tipo de usuario
                     let user = new Owner()
  
+                
+                    for (const key in params) {
+                    
+                        user[key] = key != 'password' ? params[key].toLowerCase() : params[key]    
+                    }
+
                     var property_details = {
 
                         addressId: "",
-                        apartment: [],
-                        parkingsQty: []
+                        condominium_unit: "",
+                        parkingsQty: ""
 
                     }
-                      
-                    for (const key in params) {
-                    
-
-                        if (key.includes('phone') && typeof ((params['phone']).split(',')) == 'object') {
-
-                            user['phone'] = params['phone'].split(',').map(number => { return number.trim() })
-
-                        } else if (key.includes("addressId") || key.includes("apartment") || key.includes("parkingsQty")){
-        
-
-                            if (key.includes('addressId')) {
-
-                                property_details['addressId'] = (params[key].split(',')).length == 1 ? params[key] : (params[key].split(',')).map((info) => { return info })
-
-                            } else if (key.includes('apartment')){
-
-                                property_details['apartment'] = (params[key].split(',')).length == 1 ? params[key] : (params[key].split(',')).map((info) => { return info })
 
 
-                            } else if (key.includes('parkingsQty')){
-
-                                property_details['parkingsQty'] = (params[key].split(',')).length == 1 ? params[key] : (params[key].split(',')).map((info) => { return info })
-
-                                user.propertyDetails.push(property_details)
-                               
-                            }
-                          
-                            
-                            
-
-                        } else {
-
-                            user[key] = key != 'password' ? params[key].toLowerCase() : params[key]
-                        }
-
-
-                     
-                    }
-
+                    property_details.addressId = req.ownerTokenDecoded.condominioId
+                    property_details.condominium_unit = params.condominium_unit
+                    property_details.parkingsQty = params.parkingsQty
+                    user.propertyDetails.push(property_details)
                    
-                 
-                    user.adminId.push(req.user.sub) 
                     
                     if (req.files != undefined) {
 
@@ -137,13 +161,7 @@ var ownerAndSubController = {
                             user[fileKey] = (req.files[fileKey].path.split('\\'))[2].toLowerCase()
                         }
                     }
-               
-           
-                    const condominioFound = await Condominio.findOne({ _id: params.addressId })
 
-                    condominioFound.owners.push(user._id)
-
-                    await Condominio.findOneAndUpdate({ _id: params.addressId }, condominioFound, { new: true })
 
                     bcrypt.hash(params.password, saltRounds, (err, hash) => {
 
@@ -157,20 +175,31 @@ var ownerAndSubController = {
                             })
 
                         }
-
-                        user.save((err, newUserCreated) => {
-
+                   
+                     
+                        user.save(async (err, newUserCreated) => {                            
+                        
                             let verifyNewUserException = errorHandler.newUser(err, newUserCreated)
-
+                           
                             if (verifyNewUserException[1] == 200) {
                                 verifyNewUserException[3].password = undefined
+
+                                const condominioFound = await Condominio.findOne({ _id: req.ownerTokenDecoded.condominioId })
+
+                                condominioFound.units.push(newUserCreated._id)
+
+                                await Condominio.findOneAndUpdate({ _id: req.ownerTokenDecoded.condominioId }, condominioFound, { new: true })
+
+                                emailVerification.verifyRegistration(newUserCreated.email)
+
                             }
+                          
 
                             if (verifyNewUserException[0]) {
 
                                 return res.status(verifyNewUserException[1]).send({
                                     status: verifyNewUserException[2],
-                                    message: verifyNewUserException[3]
+                                    message: verifyNewUserException[3] 
 
                                 })
 

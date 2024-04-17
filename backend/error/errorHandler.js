@@ -104,7 +104,7 @@ let errors = {
             newUserArr.push(true)
             newUserArr.push(500)
             newUserArr.push("error")
-            newUserArr.push(err._message)
+            newUserArr.push(err)
             return newUserArr
         } else if (newUser == null) {
 
