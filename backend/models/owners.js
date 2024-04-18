@@ -26,14 +26,9 @@ var OwnerSchema = Schema({
     lastname: { type: String, required: true },
     gender: { type: String, required: true },
     dob: { type: String, required: true },
-    phone: {
-        type: String, required: true,
-        unique: true },
+    phone: { type: String, required: true, unique: true },
     phone2: { type: String},
-    email: {
-        type: String, required: true,
-        unique: true
-    },
+    email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     propertyDetails: [
         {
@@ -43,9 +38,8 @@ var OwnerSchema = Schema({
                 ref: 'Condominium', 
                 required: true},                
             condominium_unit: {
-                type: String, required: true, max: 5,
-                unique: true
-},
+                type: String, required: true, max: 5
+                },
             parkingsQty: { type: Number, required: true, max: 5 },
             isRenting: { type: Boolean, default: false },
             occupantId: [{ occupant: { type: mongoose.Schema.Types.ObjectId, ref: 'Occupant' } }],
@@ -57,8 +51,7 @@ var OwnerSchema = Schema({
     status: { type: String, default: 'active'},
     emailVerified: { type: Boolean, default: false },
     id_number: {
-        type: String, required: true,
-        unique: true },
+        type: String, required: true, max: 11, min: 11, unique: true},
     id_image_front: { type: String, required: true },
     id_image_back: { type: String, required: true }
    

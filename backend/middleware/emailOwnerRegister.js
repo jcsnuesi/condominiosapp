@@ -11,8 +11,7 @@ exports.emailOwnerRegister = function(req, res, next) {
     params.role = req.user.role;
 
     var emailSplit = params.email.split(/[ ,]/);  
-
-    
+   
  
     const transporter = mailer.createTransport({
         service: 'gmail',
@@ -30,7 +29,6 @@ exports.emailOwnerRegister = function(req, res, next) {
 
 
     Condominio.findById(params.condominioId)
-    .populate('units.owner', 'email')
     .exec((err, condominio) => {
 
         if(err || !condominio){

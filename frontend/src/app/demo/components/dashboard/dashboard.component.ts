@@ -10,12 +10,14 @@ import { UserService } from '../../service/user.service';
 import { CookieService } from 'ngx-cookie-service';
 import { property_details } from '../../service/property_details_type';
 import { dateTimeFormatter } from '../../service/datetime.service';
+import { global } from '../../service/global.service';
 
 @Component({
     templateUrl: './dashboard.component.html',
     providers: [
         CondominioService,
-        UserService]
+        UserService],
+    styleUrls: ['./dashboard.css']
 })
 export class DashboardComponent implements OnInit, OnDestroy {
 
@@ -36,6 +38,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     public dateFormatted:string;
     public currentIcon:string;
     public gbColor:string;
+    public url:string;
 
     
     constructor(
@@ -53,6 +56,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.token = this._userService.getToken()
         this.currentIcon = 'pi-building'
         this.gbColor = 'blue-100'
+        this.url = global.url
     }
 
 
@@ -75,15 +79,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     }
 
-    
+    public customers:any;
     ngOnInit() {
-
         
-       
+
 
         this._activatedRoute.params.subscribe(param => {
 
             let id = param['id'];
+
+            console.log(id)
           
             if (id != undefined) {
                 
@@ -94,16 +99,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         if (response.status == 'success') {
                         
                             this.buildingDetails = response.message
+                            
+                            this.units = (this.buildingDetails.units_ownerId.length) 
 
-                            this.units = (this.buildingDetails[0].units.length) 
-
-                            this.dateFormatted = dateTimeFormatter(this.buildingDetails[0].createdAt)
+                            this.dateFormatted = dateTimeFormatter(this.buildingDetails.createdAt)
                          
-                            this.propertyData(this.buildingDetails[0])
+                            this.propertyData(this.buildingDetails)
                             
-                          
+                            this.customers = this.buildingDetails.units_ownerId
                             
-
+                            console.log(this.customers)
                             // this.addNewItem("saludos desde child")
 
 
@@ -196,5 +201,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
             this.subscription.unsubscribe();
         }
     }
+    public visible: boolean = false;
+    showDialog() {
+        this.visible  = true;
+    }
+
+
 }
 

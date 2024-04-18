@@ -14,6 +14,9 @@ const occupant = require('../models/occupant');
 const verifying = new verifyDataParam();
 let validator = require('validator');
 let emailVerification = require('../service/emailVerification');
+const { getAvatar } = require('./condominio');
+const fs = require('fs');
+const paths = require('path');
  
 var ownerAndSubController = {
 
@@ -186,10 +189,11 @@ var ownerAndSubController = {
 
                                 const condominioFound = await Condominio.findOne({ _id: req.ownerTokenDecoded.condominioId })
 
-                                condominioFound.units.push(newUserCreated._id)
-
+                                condominioFound.units_ownerId.push(newUserCreated._id)
+                               
                                 await Condominio.findOneAndUpdate({ _id: req.ownerTokenDecoded.condominioId }, condominioFound, { new: true })
-
+                                
+                                console.log(newUserCreated._id)
                                 emailVerification.verifyRegistration(newUserCreated.email)
 
                             }
@@ -581,15 +585,26 @@ var ownerAndSubController = {
            
         })
 
+    },
+    getAvatar: function (req, res) {
+        console.log(req.params.avatar)
+        var file = req.params.avatar
+        var path_file = './uploads/owner/' + file
 
+        if (fs.existsSync(path_file)) {
 
+            return res.sendFile(paths.resolve(path_file))
 
+        } else {
 
+            return res.status(404).send({
 
-
+                status: "error",
+                message: "Image does not exits"
+            })
+        }
 
     }
-
 
 };
 

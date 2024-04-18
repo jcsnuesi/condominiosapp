@@ -122,6 +122,7 @@ export class SeePropertyComponent implements OnInit, DoCheck {
   }
 
 
+  
   getAdmins() {
 
 

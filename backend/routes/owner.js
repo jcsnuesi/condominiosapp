@@ -10,10 +10,10 @@ var md_upload = multipart({ uploadDir: './uploads/owner' });
 
 
 router.get('/customers', md_auth.authenticated, ownerController.ownerByAdim )
+router.get('/owner-avatar/:avatar', ownerController.getAvatar )
 
 // verify email
 router.get('/verify-email/:email', ownerController.emailVerification)
-
 
 // create owner
 router.post('/create-owner/:token', [md_upload, md_auth.emailOwnerRegistration], ownerController.createOwner)

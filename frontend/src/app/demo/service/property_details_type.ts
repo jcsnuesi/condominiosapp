@@ -1,4 +1,4 @@
-export type property_details = [{
+export type property_details = {
 
     alias: string,
     avatar: string,
@@ -16,10 +16,10 @@ export type property_details = [{
     street_1: string,
     street_2: string,
     typeOfProperty: string,
-    units: [],
+    units_ownerId: [],
     updatedAt: string,
     zipcode: string,
     _id: string
 
 
-}]
+}

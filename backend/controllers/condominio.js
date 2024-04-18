@@ -530,7 +530,7 @@ var Condominium_Controller = {
 
 
         })
-
+ 
 
     },
 
@@ -555,14 +555,15 @@ var Condominium_Controller = {
             })
 
 
-    },
-        
+    },         
     getBuildingDetails: function (req, res) {
      
-        console.log(req.params.id)
-        Condominium.find({ _id : req.params.id},  (err, condominiumFound) => {
+       
+        Condominium.findById(req.params.id)
+            .populate('units_ownerId', `
+            avatar name lastname email phone id_number familyAccount propertyDetails.addressId propertyDetails.condominium_unit propertyDetails.parkingsQty propertyDetails.isRenting propertyDetails.occupantId propertyDetails.createdAt `)
+            .exec((err, condominiumFound) => {
     
-         
                 var errorHandlerArr = errorHandler.newUser(err, condominiumFound)
 
                 if (errorHandlerArr[0]) {

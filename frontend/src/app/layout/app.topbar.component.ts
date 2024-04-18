@@ -31,7 +31,7 @@ export class AppTopBarComponent implements DoCheck, OnInit {
     public propertyInfo: any;
     public urlValidator:boolean;
     @Input() item = ''
-
+ 
     constructor(
         public layoutService: LayoutService,
         private _userService:UserService,

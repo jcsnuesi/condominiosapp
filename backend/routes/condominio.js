@@ -1,5 +1,5 @@
 'use strict' 
-
+ 
 let express = require('express')
 let condominioController = require('../controllers/condominio')
 
