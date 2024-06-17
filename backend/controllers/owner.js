@@ -73,7 +73,10 @@ var ownerAndSubController = {
 
     createOwner: async function (req, res) {
 
-        var params = req.body
+
+        var params = req
+       
+        
       
         try {
 
@@ -193,7 +196,7 @@ var ownerAndSubController = {
                                
                                 await Condominio.findOneAndUpdate({ _id: req.ownerTokenDecoded.condominioId }, condominioFound, { new: true })
                                 
-                                console.log(newUserCreated._id)
+                          
                                 emailVerification.verifyRegistration(newUserCreated.email)
 
                             }

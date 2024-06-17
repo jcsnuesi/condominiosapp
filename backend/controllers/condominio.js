@@ -182,8 +182,7 @@ var Condominium_Controller = {
                     var aptFound = apartment.apartmentInfo.filter((data, index) => data.apartmentUnit == params.apartmentUnit )
                   
                    
-                    console.log(aptFound)
-               
+              
                     
 
                 } 
@@ -535,10 +534,10 @@ var Condominium_Controller = {
     },
 
     getCondominiumsByAdmin: function (req, res) {
-
+  
 
         Condominium.find({ createdBy : req.params.id},(err, condominiumFound) => {
-            
+   
                 var errorHandlerArr = errorHandler.newUser(err, condominiumFound)
 
                 if (errorHandlerArr[0]) {

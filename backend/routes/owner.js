@@ -7,7 +7,7 @@ let router = express.Router()
 
 var multipart = require('connect-multiparty');
 var md_upload = multipart({ uploadDir: './uploads/owner' });
-
+ 
 
 router.get('/customers', md_auth.authenticated, ownerController.ownerByAdim )
 router.get('/owner-avatar/:avatar', ownerController.getAvatar )
@@ -16,7 +16,7 @@ router.get('/owner-avatar/:avatar', ownerController.getAvatar )
 router.get('/verify-email/:email', ownerController.emailVerification)
 
 // create owner
-router.post('/create-owner/:token', [md_upload, md_auth.emailOwnerRegistration], ownerController.createOwner)
+router.post('/create-owner', [md_upload, md_auth.emailOwnerRegistration], ownerController.createOwner)
 
 // invite owner
 router.post('/owner-register', [md_auth.authenticated], emailRegisterGenerator.emailOwnerRegister)

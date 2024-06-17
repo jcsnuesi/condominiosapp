@@ -26,7 +26,9 @@ export class AppLayoutComponent implements OnDestroy{
         if (componentReference instanceof DashboardComponent) {
             componentReference.propertyInfoEvent.subscribe((data) => {
 
-                this.currentProperty = data.typeOfProperty +": "+data.alias
+              
+                this.currentProperty = `${data.typeOfProperty.toUpperCase()} : ${data.alias.toUpperCase()}`               
+                localStorage.setItem('property', JSON.stringify(data))
 
             })
             

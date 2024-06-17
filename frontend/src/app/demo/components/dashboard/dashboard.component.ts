@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, Output, EventEmitter, Input } from '@angular/core';
-import { MenuItem } from 'primeng/api';
+import { MenuItem, PrimeNGConfig } from 'primeng/api';
 import { Product } from '../../api/product';
 import { ProductService } from '../../service/product.service';
 import { Subscription } from 'rxjs';
@@ -8,20 +8,28 @@ import { ActivatedRoute } from '@angular/router';
 import { CondominioService } from '../../service/condominios.service';
 import { UserService } from '../../service/user.service';
 import { CookieService } from 'ngx-cookie-service';
-import { property_details } from '../../service/property_details_type';
+import { property_details } from '../../models/property_details_type';
 import { dateTimeFormatter } from '../../service/datetime.service';
 import { global } from '../../service/global.service';
+import { MessageService } from 'primeng/api';
+import { OwnerModel } from '../../models/owner.model';
+import { NgForm } from '@angular/forms';
 
 @Component({
     templateUrl: './dashboard.component.html',
     providers: [
         CondominioService,
-        UserService],
+        UserService,
+        MessageService],
     styleUrls: ['./dashboard.css']
 })
 export class DashboardComponent implements OnInit, OnDestroy {
 
-   
+    files = [];
+
+    totalSize: number = 0;
+
+    totalSizePercent: number = 0;
 
     items!: MenuItem[];
 
@@ -30,6 +38,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     chartData: any;
 
     chartOptions: any;
+    ownerObj:OwnerModel;
 
     subscription!: Subscription;
     public buildingDetails: property_details;
@@ -39,6 +48,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     public currentIcon:string;
     public gbColor:string;
     public url:string;
+    public parkingOptions:any;
 
     
     constructor(
@@ -47,7 +57,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
         public _userService: UserService,
         public layoutService: LayoutService,
         private _activatedRoute:ActivatedRoute,
-        private _cookieService: CookieService) {
+        private _cookieService: CookieService,
+        private messageService: MessageService,
+        private _config: PrimeNGConfig) {
         this.subscription = this.layoutService.configUpdate$.subscribe(() => {
             this.initChart();
         });
@@ -57,6 +69,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.currentIcon = 'pi-building'
         this.gbColor = 'blue-100'
         this.url = global.url
+        this.ownerObj = new OwnerModel('','','','','','','','','','',0,false)
+        this.image = '../../assets/noimage2.jpeg'
+        this.addreesDetails = { street_1: '', street_2: '', sector_name: '', city: '', province: '', country: '' }
+ 
+
     }
 
 
@@ -66,6 +83,44 @@ export class DashboardComponent implements OnInit, OnDestroy {
         // emit data to parent component
         this.propertyInfoEvent.emit(data);
     }
+
+    onSubmitUnit(unitForm:NgForm){
+
+    
+        const formData = new FormData()
+        formData.append('avatar', (this.ownerObj.avatar != null ? this.ownerObj.avatar : 'noimage.jpeg'))
+        formData.append('name', this.ownerObj.ownerName)
+        formData.append('lastname', this.ownerObj.lastname)
+        formData.append('gender', this.ownerObj.gender['code'])
+        // formData.append('dob', this.ownerObj.phone2)
+        formData.append('phone', this.ownerObj.phone)
+        formData.append('phone2', this.ownerObj.phone2)
+        formData.append('email', this.ownerObj.email)
+        formData.append('addressId', this.ownerObj.addressId)
+        formData.append('apartmentUnit', this.ownerObj.apartmentsUnit)
+        formData.append('parkingsQty', this.ownerObj.parkingsQty['code'].toString())
+        formData.append('isRenting', this.ownerObj.isRenting['code'].toString())
+
+
+        this._condominioService.createOwner(this.token, formData ).subscribe({
+            next: (response) => {
+                console.log(response)
+                if (response.status == 'success') {
+                    this.ownerObj = response.message
+                   
+                  
+                }
+        },
+        error: (error) => {
+            this.messageService.add({ severity: 'warn', summary: 'Message for server', detail: 'Unit was not Created', life: 3000 });
+            console.log(error)
+        },
+        complete: () => {
+            this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Unit Created', life: 3000 });
+            unitForm.reset()
+        }
+    })
+}
     
 
     onMouseOver(): void {
@@ -79,16 +134,40 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     }
 
-    public customers:any;
-    ngOnInit() {
-        
+    image: any;
+    onSelect(file: any) {
 
+        const reader = new FileReader();
+
+        reader.onloadend = () => {
+            const base64Data = reader.result as string;
+            this.image = base64Data       
+          
+        };
+
+        reader.readAsDataURL(file.files[0])
+        this.ownerObj.avatar = file.files[0]
+        
+    }
+
+    onTemplatedUpload() {
+        this.messageService.add({ severity: 'info', summary: 'Success', detail: 'File Uploaded', life: 3000 });
+    }
+
+
+    public customers:any;
+    public propertyObj: any;
+    public genderOption: any;
+    public selectedGenero: any[];
+    public isRentOptions: any[];
+    public addreesDetails: { street_1: string, street_2: string, sector_name: string, city: string, province: string, country: string } 
+    ngOnInit() {
+        this.propertyObj = JSON.parse(localStorage.getItem('property'))
 
         this._activatedRoute.params.subscribe(param => {
 
             let id = param['id'];
-
-            console.log(id)
+         
           
             if (id != undefined) {
                 
@@ -97,7 +176,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                       
            
                         if (response.status == 'success') {
-                        
+                           
                             this.buildingDetails = response.message
                             
                             this.units = (this.buildingDetails.units_ownerId.length) 
@@ -107,10 +186,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                             this.propertyData(this.buildingDetails)
                             
                             this.customers = this.buildingDetails.units_ownerId
-                            
-                            console.log(this.customers)
-                            // this.addNewItem("saludos desde child")
-
+                  
 
                         }
 
@@ -123,8 +199,38 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 )
             }
 
+          
+
            
         })
+
+        this.genderOption = [
+            { name: 'Male', code: 'M' },
+            { name: 'Female', code: 'F' }
+        ];
+
+        this.parkingOptions = []
+
+        for (let index = 0; index < 10; index++) {
+
+            this.parkingOptions.push({
+                parking_id: `${index}`, code: index
+            })
+
+        }
+
+        this.isRentOptions = [
+            { name: 'Yes', code: true },
+            { name: 'No', code: false }
+        ]
+
+        this.ownerObj.addressId = this.propertyObj._id
+        this.addreesDetails.street_1 = this.propertyObj.street_1
+        this.addreesDetails.street_2 = this.propertyObj.street_2
+        this.addreesDetails.sector_name = this.propertyObj.sector_name
+        this.addreesDetails.city = this.propertyObj.city
+        this.addreesDetails.province = this.propertyObj.province
+        this.addreesDetails.country = this.propertyObj.country
 
 
      
@@ -202,8 +308,33 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }
     }
     public visible: boolean = false;
+ 
     showDialog() {
-        this.visible  = true;
+        this.visible  = true;  
+    }
+
+    
+    // Crear table de manera dinamica para el modal 
+    setModalContent(modalKey:string){
+     
+        let template = {
+            headers: {
+                unit_detalis: {
+                    title:'Unit Details',
+                    thead:['Image','Unit Number', 'Owner', 'Email', 'Phone', 'Status', 'Actions'],
+                    tdata: this.propertyObj
+                    
+                },
+            }
+        }
+        
+        return template.headers[modalKey]
+    }
+
+
+
+    getModalContent(){
+        return this.setModalContent('unit_detalis')
     }
 
 

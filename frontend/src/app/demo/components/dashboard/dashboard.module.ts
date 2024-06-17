@@ -10,13 +10,36 @@ import { StyleClassModule } from 'primeng/styleclass';
 import { PanelMenuModule } from 'primeng/panelmenu';
 import { DashboardsRoutingModule } from './dashboard-routing.module';
 import { DialogModule } from 'primeng/dialog';
+import { TabViewModule } from 'primeng/tabview';
+import { FileUploadModule } from 'primeng/fileupload';
+import { ToastModule } from 'primeng/toast';
+import { DropdownModule } from 'primeng/dropdown';
+import {InputTextModule} from 'primeng/inputtext';
+import { CardModule } from 'primeng/card';
+import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
+import { InputGroupModule } from 'primeng/inputgroup';
+import { InputIconModule } from 'primeng/inputicon';
+import { IconFieldModule } from 'primeng/iconfield';
+import {FieldsetModule} from 'primeng/fieldset';
+
 
 @NgModule({
     imports: [
         CommonModule,
+        FieldsetModule,
+        CardModule,
+        InputIconModule,
+        IconFieldModule,
+        InputGroupAddonModule,
+        InputGroupModule,
+        InputTextModule,
+        DropdownModule,
+        ToastModule,
+        FileUploadModule,
         FormsModule,
         ChartModule,
         MenuModule,
+        TabViewModule,
         TableModule,
         StyleClassModule,
         PanelMenuModule,

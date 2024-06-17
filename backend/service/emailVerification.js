@@ -16,7 +16,7 @@ exports.verifyRegistration = function (email) {
     });
 
 
-
+ 
     // Enviar correo electrónico de verificación
     const enlaceVerificacion = `http://localhost:3993/api/verify-email/${email}`;
     const mensajeCorreo = `Por favor, haz clic en el siguiente enlace para verificar tu cuenta: ${enlaceVerificacion}`;

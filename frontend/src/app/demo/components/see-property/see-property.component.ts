@@ -86,7 +86,8 @@ export class SeePropertyComponent implements OnInit, DoCheck {
   ngOnInit() {
 
     this.loading = true
-    this.getAdmins()
+    // this.getAdmins()
+    console.log("SEE PROPERTY COMPONENT LOADED:" ,this.getAdminsProperties())
     
   }
 
@@ -121,27 +122,45 @@ export class SeePropertyComponent implements OnInit, DoCheck {
     table.clear();
   }
 
+  getAdminsProperties() {
+    this._condominioService.getPropertyByAdminId(this.token, this.loginInfo._id).subscribe({
+      next: (response) => {
+        this.loading = false;
+       
+        if (response.status == 'success') {
+          this.properties = response.message;
+        }
+      },
+      error: (error) => {
+        console.log(error);
+      },
+      complete: () => {
+        // Code to execute after the observable completes, if needed
+      }
+    });
+  }
+
 
   
-  getAdmins() {
+  // getAdmins() {
 
 
-    this._condominioService.getPropertyByAdminId(this.token, this.loginInfo._id).subscribe(
-      response => {       
+  //   this._condominioService.getPropertyByAdminId(this.token, this.loginInfo._id).subscribe(
+  //     response => {       
 
-        this.loading = false
-        console.log(response)
-        if (response.status == 'success')
+  //       this.loading = false
+  //       console.log(response)
+  //       if (response.status == 'success')
           
-          this.properties = response.message  
+  //         this.properties = response.message  
         
-      },
-      error => {
-        console.log(error)
-      }
-    )
+  //     },
+  //     error => {
+  //       console.log(error)
+  //     }
+  //   )
 
-  }
+  // }
 
   full_address_func(customer) {
     
@@ -154,20 +173,21 @@ export class SeePropertyComponent implements OnInit, DoCheck {
     return alias.toUpperCase()
   }
 
-  phones_number_func(customer) {
+  // phones_number_func(customer) {
 
-    var full_phone_num = ''
-    if ((customer.phone[-1] != undefined)) {
+  //   console.log("PHONE NUMBER TO SHOW:",customer)
+  //   var full_phone_num = ''
+  //   if ((customer.phone[-1] != undefined)) {
 
-      full_phone_num = `${customer.phone[0]} ${customer.phone[1]}`
+  //     full_phone_num = `${customer.phone[0]} ${customer.phone[1]}`
 
-    } else {
+  //   } else {
 
-      full_phone_num = `${customer.phone} ${customer.phone2}`
-    }
+  //     full_phone_num = `${customer.phone} ${customer.phone2}`
+  //   }
 
-    return full_phone_num
+  //   return full_phone_num
 
-  }
+  // }
 
 }

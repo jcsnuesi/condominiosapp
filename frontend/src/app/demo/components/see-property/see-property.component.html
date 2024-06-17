@@ -1,10 +1,13 @@
 <div class="card">
-    <p-table #dt1 [value]="properties" dataKey="_id" [rows]="4" [showCurrentPageReport]="true"
-        [rowsPerPageOptions]="[4, 25, 50]" [loading]="loading" [paginator]="true"
-        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
-        [globalFilterFields]="['company', 'email_company','status', 'country', 'phone']">
-
-
+    <p-table #dt1 
+    [value]="properties" dataKey="_id" 
+    [rows]="4" 
+    [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[4, 25, 50]" 
+    [loading]="loading" 
+    [paginator]="true"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+    [globalFilterFields]="['company', 'email_company','status', 'country', 'phone']">
 
         <ng-template pTemplate="caption">
             <div class="flex">
@@ -104,7 +107,7 @@
                 </td>
                 <td>
 
-                    {{phones_number_func(property)}}
+                    {{property.phone}}
 
 
                 </td>

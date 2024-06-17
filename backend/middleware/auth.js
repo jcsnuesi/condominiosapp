@@ -1,5 +1,5 @@
 'use strict'
-
+ 
 var jwt = require('jwt-simple');
 var moment = require('moment');
 var secret = "clave-nueva-para-cleanning-2023";
@@ -58,7 +58,7 @@ exports.emailOwnerRegistration = function (req, res, next) {
 
     try {
 
-        const token = req.params.token
+        const token = req.headers.authorization.replace(/['"]+/g, '')
 
         var payload = jwt.decode(token, secret)
 

@@ -33,7 +33,7 @@ var CondominiumSchema = Schema({
     socialAreas: [{ type: String }],   
     mPayment:{ type:Number, required:true}, 
     status: { type: String, default: 'active' },
-    createdBy: { type:String, default: 'Admin'} ,
+    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'Admin', required:true },
     units_ownerId: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Owner' }],
     employees: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Employees'}] 
 }, {timestamps:true})

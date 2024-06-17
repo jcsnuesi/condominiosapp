@@ -2,7 +2,7 @@ import { Injectable, EventEmitter, Output } from "@angular/core";
 import { global } from "./global.service";
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { Observable } from "rxjs";
-import { property_details } from "./property_details_type";
+import { property_details } from "../models/property_details_type";
 
 @Injectable()
 export class CondominioService {
@@ -37,5 +37,12 @@ export class CondominioService {
         let header = new HttpHeaders().set('Content-Type', 'application/json').set('Authorization', token);
  
         return this._http.get(this.url + 'buildingDetail/'+id, {headers:header})
+    }
+
+    createOwner(token: string, ownerProfile: FormData):Observable<any>{
+        let header = new HttpHeaders().set('Authorization', token);
+   
+        
+        return this._http.post(this.url + 'create-owner', ownerProfile, {headers:header})
     }
 }

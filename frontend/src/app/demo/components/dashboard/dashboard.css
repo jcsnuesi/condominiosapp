@@ -8,3 +8,15 @@
     border-color:rgb(135, 192, 239);
     
 }
+
+.input-success {
+        border-color: green;
+    }
+    
+.input-error {
+
+border-color: red;
+
+}
+
+

@@ -5,7 +5,7 @@ var mongoose = require('mongoose')
 var Schema = mongoose.Schema
 
 var FamilySchema = Schema({
-
+ 
     avatar: { type: String },
     name: { type: String, required: true },
     lastname: { type: String, required: true },
@@ -25,16 +25,16 @@ var OwnerSchema = Schema({
     name: { type: String, required: true },
     lastname: { type: String, required: true },
     gender: { type: String, required: true },
-    dob: { type: String, required: true },
+    dob: { type: String },
     phone: { type: String, required: true, unique: true },
     phone2: { type: String},
     email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
+    password: { type: String },
     propertyDetails: [
         {
             _id: false,          
             addressId: {                 
-                type: String, 
+                type: mongoose.Schema.Types.ObjectId, 
                 ref: 'Condominium', 
                 required: true},                
             condominium_unit: {
@@ -51,9 +51,9 @@ var OwnerSchema = Schema({
     status: { type: String, default: 'active'},
     emailVerified: { type: Boolean, default: false },
     id_number: {
-        type: String, required: true, max: 11, min: 11, unique: true},
-    id_image_front: { type: String, required: true },
-    id_image_back: { type: String, required: true }
+        type: String, required: true, max: 11, min: 11},
+    id_image_front: { type: String },
+    id_image_back: { type: String }
    
         
 }, 
