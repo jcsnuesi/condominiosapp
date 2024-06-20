@@ -12,6 +12,7 @@ export class OwnerModel{
         public addressId: string,
         public apartmentsUnit: string,
         public parkingsQty: number,
+        public property_type: string,
         public isRenting: boolean
         
     ){}

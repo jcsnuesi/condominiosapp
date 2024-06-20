@@ -1,3 +1,4 @@
+
     <div class="grid">
        
         
@@ -246,199 +247,216 @@
             
     </div>
 
+  
+    <router-outlet></router-outlet>
+
+    <!-- DIALOG COMPONENT -->
     <p-dialog header="{{getModalContent().title}}" [(visible)]="visible" [style]="{width: '50vw'}" [maximizable]="true">
 
+        
 
         <p-tabView>
             <p-tabPanel header="Crear unidad">
 
-                <p-fieldset legend="Create unit">
+                <div class="card flex justify-content-center">
+                    <form #unitForm="ngForm" (submit)="onSubmitUnit(unitForm)">
+                                    
+                                    
+                    <p-stepper>
+                        <p-stepperPanel header="Basic Info">
+                            <ng-template pTemplate="content" let-nextCallback="nextCallback" let-index="index">
+                                <div class="row">
+                                    <div class="field col-12">
+                                    
+                                        <!-- <p-messages [(value)]="messages" *ngIf="status == 'true'" [enableService]="false" hideTransitionOptions="3000"></p-messages>
+                                                                                                                                                                                            -->
+                                    
+                                        <div class="col mt-3">
+                                            <p style="text-align: center;">
+                                                <img [src]="image" alt="" width="181px" height="200px">
 
-
-                    <div class="col-12">
-                        <form #unitForm="ngForm" (submit)="onSubmitUnit(unitForm)">
-                        
-                            <div class="p-fluid p-formgrid grid">
-                        
-                                <div class="field col-12">
-                        
-                                    <!-- <p-messages [(value)]="messages" *ngIf="status == 'true'" [enableService]="false" hideTransitionOptions="3000"></p-messages>
-                                                                    -->
-                        
-                                    <div class="col mt-3">
-                                        <p style="text-align: center;">
-                                            <img [src]="image" alt="" width="181px" height="200px">
-                        
-                                        </p>
-                        
+                                                <p-fileUpload mode="basic" chooseLabel="Choose image" name="demo[]" url="https://www.primefaces.org/cdn/api/upload.php"
+                                                    accept="image/*" maxlengthFileSize="1000000" (onSelect)="onSelect($event)">
+                                                </p-fileUpload>
+                                    
+                                            </p>
+                                    
+                                        </div>
+                                    
+                                       
+                                    
+                                    
                                     </div>
-                        
-                                    <p-fileUpload mode="basic" chooseLabel="Choose image" name="demo[]"
-                                        url="https://www.primefaces.org/cdn/api/upload.php" accept="image/*" maxlengthFileSize="1000000"
-                                        (onSelect)="onSelect($event)">
-                                    </p-fileUpload>
-                        
-                        
+                                    
+                                    
+                                    <div class="field col-12 md:col-6 d-block" *ngFor="let component of dialogDinamicComponent;">
+                                    
+                                        <p-inputGroup>
+                                            <p-inputGroupAddon>
+                                                <i [class]="component.icon"></i>
+                                            </p-inputGroupAddon>
+                                    
+                                            <input *ngIf="component.input_name == 'ownerName'" pInputText
+                                                [class]="{'input-success': ownerName.valid, 'input-error ':!ownerName.valid}" #ownerName="ngModel"
+                                                [(ngModel)]="ownerObj.ownerName" [name]="component.input_name" [type]="component.type"
+                                                [maxlength]="component.maxlength" [required]="component.required" [placeholder]="component.placeholder"
+                                                (change)="formDatosVal[ownerName]" />
+                                    
+                                            <input *ngIf="component.input_name == 'lastname'" pInputText
+                                                [class]="{'input-success': lastname.valid, 'input-error ':!lastname.valid}" #lastname="ngModel"
+                                                [(ngModel)]="ownerObj.lastname" [name]="component.input_name" [type]="component.type"
+                                                [maxlength]="component.maxlength" [required]="component.required" [placeholder]="component.placeholder" />
+                                    
+                                            <select *ngIf="component.input_name == 'gender'" class="form-select form-control"
+                                                aria-label="Default select example" name="gender">
+                                                <option selected>Select gender...</option>
+                                                <option [value]="option.code" *ngFor="let option of genderOption">{{option.name}}</option>
+                                    
+                                            </select>
+                                    
+                                            <input *ngIf="component.input_name == 'phone'" pInputText
+                                                [class]="{'input-success': phone.valid, 'input-error ':!phone.valid}" #phone="ngModel"
+                                                [(ngModel)]="ownerObj.lastname" [name]="component.input_name" [type]="component.type"
+                                                [maxlength]="component.maxlength" [required]="component.required" [placeholder]="component.placeholder" />
+                                    
+                                    
+                                        </p-inputGroup>
+                                    
+                                    
+                                    </div>
+                             
+                                    
                                 </div>
-                        
-                        
-                                <div class="field col-12 md:col-6">
-                                    <p-inputGroup>
-                                        <p-inputGroupAddon>
-                                            <i class="pi pi-user"></i>
-                                        </p-inputGroupAddon>
-                                        <input pInputText [class]="{'input-success': ownerName.valid, 'input-error ':!ownerName.valid}"
-                                            #ownerName="ngModel" [(ngModel)]="ownerObj.ownerName" name="ownerName" id="name-label" type="text"
-                                            maxlength="50" required placeholder="Jose Martin" />
-                                    </p-inputGroup>
-                        
-                                    <small *ngIf="ownerName.touched && !ownerName.valid" id="username-help" class="p-error">Required.</small>
-                        
+                                <div class="flex pt-4 justify-content-end">
+                                    <p-button label="Next" icon="pi pi-arrow-right" iconPos="right" (onClick)="nextCallback.emit()" />
                                 </div>
-                        
-                                <div class="field col-12 md:col-6">
-                                    <p-inputGroup>
-                                        <p-inputGroupAddon>
-                                            <i class="pi pi-user"></i>
-                                        </p-inputGroupAddon>
-                                        <input pInputText [class]="{'input-success': lastname.valid, 'input-error ':!lastname.valid}"
-                                            #lastname="ngModel" [(ngModel)]="ownerObj.lastname" name="lastname" id="lastname-label" type="text"
-                                            maxlength="50" required placeholder="Rodney Mock" />
-                                    </p-inputGroup>
-                        
-                                    <small *ngIf="lastname.touched && !lastname.valid" id="username-help" class="p-error">Required.</small>
-                        
-                        
-                        
+                            </ng-template>
+                        </p-stepperPanel>
+                        <p-stepperPanel header="Property details">
+                            <ng-template pTemplate="content" let-prevCallback="prevCallback" let-nextCallback="nextCallback"
+                                let-index="index">
+                                <div class="row">
+                                       
+                                        <div class="field col-12 md:col-6">
+                                        
+                                            <p-inputGroup>
+                                                <p-inputGroupAddon>
+                                                    <i class="pi pi-mobile"></i>
+                                        
+                                                </p-inputGroupAddon>
+                                        
+                                                <input pInputText #phone2="ngModel" [class]="{'input-success': phone2.valid, 'input-error ':!phone2.valid}"
+                                                    [(ngModel)]="phone2.phone2" name="phone2" id="phone2-label" type="text" placeholder="809-854-4488"
+                                                    maxlength="11" pattern="^[0-9]+" />
+                                        
+                                            </p-inputGroup>
+                                            <small *ngIf="phone2.touched && !phone2.valid" id="username-help" class="p-error">Required.</small>
+                                        </div>
+                                        
+                                        <div class="field col-12 md:col-6">
+                                            <p-inputGroup>
+                                                <p-inputGroupAddon>
+                                                    <i class="pi pi-envelope"></i>
+                                        
+                                                </p-inputGroupAddon>
+                                        
+                                                <input pInputText #email="ngModel" [(ngModel)]="ownerObj.email" name="email" id="email-label" type="text"
+                                                    maxlength="50" pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$" placeholder="correo@email.com"
+                                                    required />
+                                        
+                                            </p-inputGroup>
+                                            <small *ngIf="email.touched && !email.valid" id="username-help" class="p-error">Required.</small>
+                                        </div>
+                                        
+                                        
+                                        <div class="field col-12 md:col-6">
+                                            <p-inputGroup>
+                                                <p-inputGroupAddon>
+                                                    <i class="pi pi-building"></i>
+                                        
+                                                </p-inputGroupAddon>
+                                        
+                                                <input pInputText #apartmentsUnit="ngModel" [(ngModel)]="ownerObj.apartmentsUnit" name="apartmentsUnit"
+                                                    id="apartmentsUnit-label" type="text" maxlength="11" placeholder="307-B" required />
+                                        
+                                        
+                                            </p-inputGroup>
+                                            <small *ngIf="email.touched && !email.valid" id="apartmentsUnit-label" class="p-error">Required.</small>
+                                        </div>
+                                        
+                                        <div class="field col-12 md:col-6">
+                                        
+                                            <p-dropdown [options]="isRentOptions" #isRenting="ngModel" name="isRenting" [(ngModel)]="ownerObj.isRenting"
+                                                optionLabel="name" placeholder="Is rented..." id="isRentingLabel" />
+                                        
+                                        
+                                        </div>
+                                        
+                                        
+                                        <div class="field col-12  md:col-6 ">
+                                        
+                                            <p-dropdown [options]="parkingOptions" #parkingsQty="ngModel" name="parkingsQty" [(ngModel)]="ownerObj.parkingsQty"
+                                                optionLabel="parking_id" placeholder="Parkings qty" id="parkingsQtyLabel" />
+                                        </div>
+                                        
+                                        <div class="field col-12  md:col-6 ">
+                                        
+                                            <p-dropdown [options]="property_typeOptions" #property_type="ngModel" name="property_type"
+                                                [(ngModel)]="ownerObj.property_type" optionLabel="name" placeholder="Property type..." />
+                                        </div>
                                 </div>
-                        
-                                <div class="col-12 md:col-6">
-                        
-                                    <p-dropdown [options]="genderOption" #gender="ngModel" name="gender"
-                                        [(ngModel)]="ownerObj.gender" optionLabel="name" placeholder="Select gender" required />
-                        
+                                <div class="flex pt-4 justify-content-between">
+                                    <p-button label="Back" icon="pi pi-arrow-left" (onClick)="prevCallback.emit()" />
+                                    <p-button label="Next" icon="pi pi-arrow-right" iconPos="right" (onClick)="nextCallback.emit()" />
                                 </div>
-                        
-                        
-                                <div class="field col-12 md:col-6">
-                        
-                                    <p-inputGroup>
-                                        <p-inputGroupAddon>
-                                            <i class="pi pi-mobile">
-                                            </i>
-                                        </p-inputGroupAddon>
-                        
-                                        <input pInputText #phone="ngModel" [class]="{'input-success': phone.valid, 'input-error ':!phone.valid}"
-                                            [(ngModel)]="ownerObj.phone" name="phone" id="phone-label" type="text" pattern="^[0-9]+" maxlength="11"
-                                            pattern="^[0-9]+" placeholder="809-854-4488" />
-                        
-                                        <small *ngIf="phone.touched && !phone.valid" id="username-help" class="p-error">Required.</small>
-                        
-                                    </p-inputGroup>
+                            </ng-template>
+                        </p-stepperPanel>
+                        <p-stepperPanel header="Header III">
+                            <ng-template pTemplate="content" let-prevCallback="prevCallback" let-index="index">
+                                <div class="flex flex-column h-12rem">
+                                    <div
+                                        class="border-2 border-dashed surface-border border-round surface-ground flex-auto flex justify-content-center align-items-center font-medium">
+                                        
+                                        
+                                    </div>
                                 </div>
-                        
-                        
-                                <div class="field col-12 md:col-6">
-                        
-                                    <p-inputGroup>
-                                        <p-inputGroupAddon>
-                                            <i class="pi pi-mobile"></i>
-                        
-                                        </p-inputGroupAddon>
-                        
-                                        <input pInputText #phone2="ngModel"
-                                            [class]="{'input-success': phone2.valid, 'input-error ':!phone2.valid}" [(ngModel)]="phone2.phone2"
-                                            name="phone2" id="phone2-label" type="text" placeholder="809-854-4488" maxlength="11"
-                                            pattern="^[0-9]+" />
-                        
-                                    </p-inputGroup>
-                                    <small *ngIf="phone2.touched && !phone2.valid" id="username-help" class="p-error">Required.</small>
+                                <div class="flex pt-4 justify-content-start">
+                                    <p-button label="Back" icon="pi pi-arrow-left" (onClick)="prevCallback.emit()" />
                                 </div>
-                        
-                                <div class="field col-12 md:col-6">
-                                    <p-inputGroup>
-                                        <p-inputGroupAddon>
-                                            <i class="pi pi-envelope"></i>
-                        
-                                        </p-inputGroupAddon>
-                        
-                                        <input pInputText #email="ngModel" [(ngModel)]="ownerObj.email" name="email" id="email-label" type="text"
-                                            maxlength="50" pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
-                                            placeholder="correo@email.com" required />
-                        
-                                    </p-inputGroup>
-                                    <small *ngIf="email.touched && !email.valid" id="username-help" class="p-error">Required.</small>
-                                </div>
-                        
-                        
-                                <div class="field col-12 md:col-6">
-                                    <p-inputGroup>
-                                        <p-inputGroupAddon>
-                                            <i class="pi pi-building"></i>
-                        
-                                        </p-inputGroupAddon>
-                        
-                                        <input pInputText #apartmentsUnit="ngModel" [(ngModel)]="ownerObj.apartmentsUnit" name="apartmentsUnit"
-                                            id="apartmentsUnit-label" type="text" maxlength="11" placeholder="307-B" required />
-                        
-                        
-                                    </p-inputGroup>
-                                    <small *ngIf="email.touched && !email.valid" id="apartmentsUnit-label" class="p-error">Required.</small>
-                                </div>
-                        
-                                <div class="field col-12 md:col-6">
-                                   
-                                    <p-dropdown [options]="isRentOptions" #isRenting="ngModel" name="isRenting" [(ngModel)]="ownerObj.isRenting"
-                                        optionLabel="name" placeholder="Is rented..." id="isRentingLabel" />
-                        
-                        
-                                </div>
-                        
-                        
-                                <div class="field col-12 ">
-                                 
-                                    <p-dropdown [options]="parkingOptions" #parkingsQty="ngModel" name="parkingsQty"
-                                        [(ngModel)]="ownerObj.parkingsQty" optionLabel="parking_id" placeholder="Parkings qty" id="parkingsQtyLabel"/>
-                                </div>
-                        
-                                <div class="field col-12">
-                                    <p-card header="Address details">
-                                        <p class="m-0">
-                                            <b>Street:</b> {{addreesDetails?.street_1}}
-                                            <br>
-                                            <b>Street 2:</b> {{addreesDetails?.street_2}}
-                                            <br>
-                                            <b>Neigborhood name:</b> {{addreesDetails?.sector_name}}
-                                            <br>
-                                            <b>City:</b> {{addreesDetails?.city}}
-                                            <br>
-                                            <b>Province:</b> {{addreesDetails?.province}}
-                                            <br>
-                                            <b>Country:</b> {{addreesDetails?.country}}
-                        
-                                            <br>
-                                        </p>
-                                    </p-card>
-                                                           
-                                </div>
-                        
-                        
-                        
-                            </div>
-                            <div style="float: end;">
-                                <button [disabled]="!unitForm.valid" pButton pRipple label="Create" class="p-button-success">
-                              
-                                </button>
-                           
-                            </div>
-                        </form>
-                       
-        
-        
-                    </div>
+                            </ng-template>
+                        </p-stepperPanel>
+                    </p-stepper>
+                </form>
+                </div>
 
-                </p-fieldset>
 
+                <div class="field col-12">
+                    <p-card header="Address details">
+                        <p class="m-0">
+                            <b>Street:</b> {{addreesDetails?.street_1}}
+                            <br>
+                            <b>Street 2:</b> {{addreesDetails?.street_2}}
+                            <br>
+                            <b>Neigborhood name:</b> {{addreesDetails?.sector_name}}
+                            <br>
+                            <b>City:</b> {{addreesDetails?.city}}
+                            <br>
+                            <b>Province:</b> {{addreesDetails?.province}}
+                            <br>
+                            <b>Country:</b> {{addreesDetails?.country}}
+                
+                            <br>
+                        </p>
+                    </p-card>
+                
+                                <div style="float: end;">
+                                    <button [disabled]="!unitForm.valid" pButton pRipple label="Create" class="p-button-success">
+                                
+                                    </button>
+                                
+                                </div>
+                </div>
+                
      
         
             </p-tabPanel>

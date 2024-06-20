@@ -71,7 +71,7 @@ var ownerAndSubController = {
         })
     },
 
-    createOwner: async function (req, res) {
+    createSingleOwner: async function (req, res) {
 
 
         var params = req

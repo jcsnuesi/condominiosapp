@@ -14,6 +14,7 @@ import { global } from '../../service/global.service';
 import { MessageService } from 'primeng/api';
 import { OwnerModel } from '../../models/owner.model';
 import { NgForm } from '@angular/forms';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 @Component({
     templateUrl: './dashboard.component.html',
@@ -39,6 +40,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     chartOptions: any;
     ownerObj:OwnerModel;
+    public property_typeOptions:any[] = []
 
     subscription!: Subscription;
     public buildingDetails: property_details;
@@ -49,9 +51,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
     public gbColor:string;
     public url:string;
     public parkingOptions:any;
+  
+    public dialogDinamicComponent:any;
 
     
     constructor(
+        private _sanitizer: DomSanitizer,
         private productService: ProductService, 
         public _condominioService: CondominioService,
         public _userService: UserService,
@@ -69,10 +74,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.currentIcon = 'pi-building'
         this.gbColor = 'blue-100'
         this.url = global.url
-        this.ownerObj = new OwnerModel('','','','','','','','','','',0,false)
+        this.ownerObj = new OwnerModel('', '', '', '', '', '', '', '', '', '', 0,'',false)
         this.image = '../../assets/noimage2.jpeg'
         this.addreesDetails = { street_1: '', street_2: '', sector_name: '', city: '', province: '', country: '' }
- 
+       
 
     }
 
@@ -161,6 +166,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
     public selectedGenero: any[];
     public isRentOptions: any[];
     public addreesDetails: { street_1: string, street_2: string, sector_name: string, city: string, province: string, country: string } 
+  
+
+
     ngOnInit() {
         this.propertyObj = JSON.parse(localStorage.getItem('property'))
 
@@ -224,6 +232,18 @@ export class DashboardComponent implements OnInit, OnDestroy {
             { name: 'No', code: false }
         ]
 
+        this.property_typeOptions = [
+            {"name": "House" }, 
+            { "name": "Apartment"}, 
+            { "name": "Condo" }, 
+            { "name": "Townhouse" }, 
+            { "name": "Villa" },  
+            { "name": "Penthouse" } 
+          ]
+            
+         
+      
+
         this.ownerObj.addressId = this.propertyObj._id
         this.addreesDetails.street_1 = this.propertyObj.street_1
         this.addreesDetails.street_2 = this.propertyObj.street_2
@@ -232,8 +252,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.addreesDetails.province = this.propertyObj.province
         this.addreesDetails.country = this.propertyObj.country
 
-
-     
         this.initChart();
         this.productService.getProductsSmall().then(data => this.products = data);
 
@@ -241,7 +259,21 @@ export class DashboardComponent implements OnInit, OnDestroy {
             { label: 'Add New', icon: 'pi pi-fw pi-plus' },
             { label: 'Remove', icon: 'pi pi-fw pi-minus' }
         ];
+
+
+
+        this.dialogDinamicComponent = [
+            { icon: 'pi pi-user', placeholder: 'Name: Jose Rodolfo', type: 'text', input_name: 'ownerName', maxlength: 50, required: true },
+            { icon: 'pi pi-user', placeholder: 'Lastname: Rodney Mock', type: 'text', input_name: 'lastname', maxlength: 50, required: true },
+            { icon: 'pi pi-android', placeholder: 'Select gender',input_name: 'gender', required: true },
+            { icon: 'pi pi-mobile', placeholder: "809-854-4488", type: 'text', input_name: 'phone', maxlength: 11, required: true, pattern: "^[0-9]+" },
+        ]
+   
     }
+ 
+  
+    
+    
 
     initChart() {
         const documentStyle = getComputedStyle(document.documentElement);

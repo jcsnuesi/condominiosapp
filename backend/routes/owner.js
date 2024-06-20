@@ -16,7 +16,7 @@ router.get('/owner-avatar/:avatar', ownerController.getAvatar )
 router.get('/verify-email/:email', ownerController.emailVerification)
 
 // create owner
-router.post('/create-owner', [md_upload, md_auth.emailOwnerRegistration], ownerController.createOwner)
+router.post('/create-owner', [md_upload, md_auth.emailOwnerRegistration], ownerController.createSingleOwner)
 
 // invite owner
 router.post('/owner-register', [md_auth.authenticated], emailRegisterGenerator.emailOwnerRegister)

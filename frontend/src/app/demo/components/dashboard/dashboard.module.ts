@@ -21,12 +21,14 @@ import { InputGroupModule } from 'primeng/inputgroup';
 import { InputIconModule } from 'primeng/inputicon';
 import { IconFieldModule } from 'primeng/iconfield';
 import {FieldsetModule} from 'primeng/fieldset';
+import { StepperModule } from 'primeng/stepper';
 
 
 @NgModule({
     imports: [
         CommonModule,
         FieldsetModule,
+        StepperModule ,
         CardModule,
         InputIconModule,
         IconFieldModule,
@@ -47,6 +49,7 @@ import {FieldsetModule} from 'primeng/fieldset';
         DashboardsRoutingModule,
         DialogModule
     ],
+    exports: [StepperModule ],
     declarations: [DashboardComponent]
 })
 export class DashboardModule { }

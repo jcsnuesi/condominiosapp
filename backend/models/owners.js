@@ -36,10 +36,10 @@ var OwnerSchema = Schema({
             addressId: {                 
                 type: mongoose.Schema.Types.ObjectId, 
                 ref: 'Condominium', 
-                required: true},                
-            condominium_unit: {
-                type: String, required: true, max: 5
-                },
+                required: true
+            },                
+            condominium_unit: { type: String, required: true, max: 5 },
+            condominium_type: { type: String, required: true, max: 10 },
             parkingsQty: { type: Number, required: true, max: 5 },
             isRenting: { type: Boolean, default: false },
             occupantId: [{ occupant: { type: mongoose.Schema.Types.ObjectId, ref: 'Occupant' } }],
