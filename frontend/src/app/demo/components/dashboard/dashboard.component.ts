@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, Output, EventEmitter, Input } from '@angular/core';
-import { MenuItem, PrimeNGConfig } from 'primeng/api';
+import { ConfirmationService, MenuItem, PrimeNGConfig } from 'primeng/api';
 import { Product } from '../../api/product';
 import { ProductService } from '../../service/product.service';
 import { Subscription } from 'rxjs';
@@ -21,7 +21,7 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
     providers: [
         CondominioService,
         UserService,
-        MessageService],
+        MessageService, ConfirmationService],
     styleUrls: ['./dashboard.css']
 })
 export class DashboardComponent implements OnInit, OnDestroy {
@@ -64,7 +64,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
         private _activatedRoute:ActivatedRoute,
         private _cookieService: CookieService,
         private messageService: MessageService,
-        private _config: PrimeNGConfig) {
+        private _config: PrimeNGConfig,
+        private confirmationService: ConfirmationService) {
         this.subscription = this.layoutService.configUpdate$.subscribe(() => {
             this.initChart();
         });
@@ -74,7 +75,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.currentIcon = 'pi-building'
         this.gbColor = 'blue-100'
         this.url = global.url
-        this.ownerObj = new OwnerModel('', '', '', '', '', '', '', '', '', '', 0,'',false)
+        this.ownerObj = new OwnerModel('', '', '', '', '', '', '', '', '', '', '','','')
         this.image = '../../assets/noimage2.jpeg'
         this.addreesDetails = { street_1: '', street_2: '', sector_name: '', city: '', province: '', country: '' }
        
@@ -89,9 +90,34 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.propertyInfoEvent.emit(data);
     }
 
-    onSubmitUnit(unitForm:NgForm){
+    confirm1(event: Event) {
+        this.confirmationService.confirm({
+            target: event.target as EventTarget,
+            message: 'Are you sure that you want to proceed?',
+            header: 'Confirmation',
+            icon: 'pi pi-exclamation-triangle',
+            acceptIcon: "none",
+            rejectIcon: "none",
+            rejectButtonStyleClass: "p-button-text",
+            accept: (form) => {
+                this.messageService.add({ severity: 'info', summary: 'Confirmed', detail: 'You have accepted' });
+                
+               
+               this.onSubmitUnit(form)
+                
+            },
+            reject: () => {
+                this.messageService.add({ severity: 'error', summary: 'Rejected', detail: 'You have rejected', life: 3000 });
+            }
+        });
+    }
 
-    
+
+    onSubmitUnit(form:NgForm){
+
+        console.log(this.ownerObj)
+        form.reset()
+        return
         const formData = new FormData()
         formData.append('avatar', (this.ownerObj.avatar != null ? this.ownerObj.avatar : 'noimage.jpeg'))
         formData.append('name', this.ownerObj.ownerName)
@@ -103,10 +129,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
         formData.append('email', this.ownerObj.email)
         formData.append('addressId', this.ownerObj.addressId)
         formData.append('apartmentUnit', this.ownerObj.apartmentsUnit)
-        formData.append('parkingsQty', this.ownerObj.parkingsQty['code'].toString())
-        formData.append('isRenting', this.ownerObj.isRenting['code'].toString())
+        formData.append('parkingsQty', this.ownerObj.parkingsQty)
+        formData.append('isRenting', this.ownerObj.isRenting)
 
-
+    
+        formData.forEach((value, key) => {
+            console.log(key + ' ' + value)
+        })
+    
+return
         this._condominioService.createOwner(this.token, formData ).subscribe({
             next: (response) => {
                 console.log(response)
@@ -122,7 +153,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
         },
         complete: () => {
             this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Unit Created', life: 3000 });
-            unitForm.reset()
+         
+            
         }
     })
 }
@@ -213,17 +245,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
         })
 
         this.genderOption = [
-            { name: 'Male', code: 'M' },
-            { name: 'Female', code: 'F' }
+            { name: 'Male', code: 'm' },
+            { name: 'Female', code: 'f' }
         ];
 
         this.parkingOptions = []
 
-        for (let index = 0; index < 10; index++) {
+        for (let index = 1; index < 5; index++) {
 
-            this.parkingOptions.push({
-                parking_id: `${index}`, code: index
-            })
+            this.parkingOptions.push(index)
 
         }
 
@@ -233,17 +263,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
         ]
 
         this.property_typeOptions = [
-            {"name": "House" }, 
-            { "name": "Apartment"}, 
-            { "name": "Condo" }, 
-            { "name": "Townhouse" }, 
-            { "name": "Villa" },  
-            { "name": "Penthouse" } 
+            {"name": "House", code:"house" }, 
+            { "name": "Apartment", code:"apartment"}, 
+            { "name": "Condo" , code:"condo" }, 
+            { "name": "Townhouse" , code:"townhouse" }, 
+            { "name": "Villa", code:"villa" },  
+            { "name": "Penthouse" , code:"penthouse" }, 
           ]
             
          
       
-
+        // Address Details - Card
         this.ownerObj.addressId = this.propertyObj._id
         this.addreesDetails.street_1 = this.propertyObj.street_1
         this.addreesDetails.street_2 = this.propertyObj.street_2
@@ -262,18 +292,58 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
 
 
-        this.dialogDinamicComponent = [
-            { icon: 'pi pi-user', placeholder: 'Name: Jose Rodolfo', type: 'text', input_name: 'ownerName', maxlength: 50, required: true },
-            { icon: 'pi pi-user', placeholder: 'Lastname: Rodney Mock', type: 'text', input_name: 'lastname', maxlength: 50, required: true },
-            { icon: 'pi pi-android', placeholder: 'Select gender',input_name: 'gender', required: true },
-            { icon: 'pi pi-mobile', placeholder: "809-854-4488", type: 'text', input_name: 'phone', maxlength: 11, required: true, pattern: "^[0-9]+" },
-        ]
+        
+        
+      
+        
+        this.stepperThird = true
    
     }
- 
-  
+
     
-    
+    btnSecondStepper() {
+
+        if (this.ownerObj.ownerName != '' && this.ownerObj.lastname != '' && this.ownerObj.phone != '' && this.ownerObj.gender != '') {
+            return false
+        }
+        return true
+    }
+
+    stepperThird: boolean;
+    selectInputValues($event){
+
+     
+
+        switch ($event.target.name) {
+            case 'isRent':
+
+                this.ownerObj.isRenting = $event.target.value
+            
+                break;
+                
+            case 'parking':
+
+                this.ownerObj.parkingsQty = $event.target.value
+                
+                break;
+            case 'property_type':
+
+                this.ownerObj.property_type = $event.target.value
+                this.stepperThird = false
+                break;
+            case 'gender':
+
+                this.ownerObj.gender = $event.target.value
+               
+                
+                break;
+        
+            default:
+                break;
+        }
+
+        console.log(this.ownerObj)
+    }
 
     initChart() {
         const documentStyle = getComputedStyle(document.documentElement);

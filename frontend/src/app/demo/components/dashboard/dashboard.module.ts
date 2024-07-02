@@ -22,12 +22,14 @@ import { InputIconModule } from 'primeng/inputicon';
 import { IconFieldModule } from 'primeng/iconfield';
 import {FieldsetModule} from 'primeng/fieldset';
 import { StepperModule } from 'primeng/stepper';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 
 
 @NgModule({
     imports: [
         CommonModule,
         FieldsetModule,
+        ConfirmDialogModule,
         StepperModule ,
         CardModule,
         InputIconModule,
