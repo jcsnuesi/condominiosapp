@@ -1,25 +1,17 @@
-export type property_details = {
+export type unitOwerDetails = {
 
-    alias: string,
-    avatar: string,
-    city: string,
-    country: string,
-    createdAt: string,
-    createdBy: string,
-    employees: [],
+    _id: string,
+    fullname: string,
+    units: string,
     phone: string,
-    phone2: string,
-    province: string,
-    sector_name: string,
-    socialAreas: [],
+    monthlyPayment: number,
+    paymentMehtod: string,
+    contractStart: Date,
+    contractEnd: Date,
     status: string,
-    street_1: string,
-    street_2: string,
-    typeOfProperty: string,
-    units_ownerId: [],
-    updatedAt: string,
-    zipcode: string,
-    _id: string
+    emergecyPhoneNumber?: string,
+    isRent: boolean
+  
 
 
 }

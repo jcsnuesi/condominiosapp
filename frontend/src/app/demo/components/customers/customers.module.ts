@@ -28,7 +28,7 @@ import { TabMenuModule } from 'primeng/tabmenu';
 		TableModule,
 		CustomersDemoRoutingModule,
 		UpdateCustomerComponent,
-		DataViewModule,
+		DataViewModule, 
 		PickListModule,
 		OrderListModule,
 		InputTextModule,

@@ -14,7 +14,6 @@ import { PhotoService } from './demo/service/photo.service';
 import { UserGuard } from './demo/service/routing.guard';
 import { UserService } from './demo/service/user.service';
 
-
 @NgModule({
     declarations: [
         AppComponent, NotfoundComponent

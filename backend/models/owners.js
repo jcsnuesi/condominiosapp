@@ -19,10 +19,18 @@ var FamilySchema = Schema({
 
 mongoose.model('FamilySchema', FamilySchema);
 
+// Función para calcular la fecha de finalización del contrato un año adelantado
+const oneYearFromNow = () => {
+    let date = new Date();
+    date.setFullYear(date.getFullYear() + 1);
+    return date;
+};
+
+
 var OwnerSchema = Schema({ 
 
     avatar: { type: String },
-    name: { type: String, required: true },
+    ownerName: { type: String, required: true },
     lastname: { type: String, required: true },
     gender: { type: String, required: true },
     dob: { type: String },
@@ -38,12 +46,13 @@ var OwnerSchema = Schema({
                 ref: 'Condominium', 
                 required: true
             },                
-            condominium_unit: { type: String, required: true, max: 5 },
-            condominium_type: { type: String, required: true, max: 10 },
+            condominium_unit: { type: String, required: true, max: 5 },           
             parkingsQty: { type: Number, required: true, max: 5 },
             isRenting: { type: Boolean, default: false },
             occupantId: [{ occupant: { type: mongoose.Schema.Types.ObjectId, ref: 'Occupant' } }],
-            createdAt: { type: Date, default: Date.now }
+            createdAt: { type: Date, default: Date.now },
+            contractStart: { type: Date, required: true, default: Date.now },
+            contractEnd: { type: Date, required: true, default: oneYearFromNow() },
         }
     ],
     familyAccount: [FamilySchema],     

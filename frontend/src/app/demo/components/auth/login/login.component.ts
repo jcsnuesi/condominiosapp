@@ -49,10 +49,12 @@ export class LoginComponent {
                         token => {
                             
                             if (token.token) {
+                                const now = new Date();
+                                const expiryTime = new Date(now.getTime() + 24 * 60 * 60 * 1000);
                                 
-                                this._cookieService.set('identity', JSON.stringify(login.message) )
+                                this._cookieService.set('identity', JSON.stringify(login.message), { expires: expiryTime })
                               
-                                this._cookieService.set('token', token.token )
+                                this._cookieService.set('token', token.token, { expires: expiryTime } )
                               
                                 this._route.navigate(['/'])
                                 

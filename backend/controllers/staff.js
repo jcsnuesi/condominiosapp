@@ -9,11 +9,9 @@ var Staff = require('../models/staff')
 var Admin = require('../models/admin')
 let errorHandler = require('../error/errorHandler')
 let checkExtensions = require('../service/extensions')
-
-let deactivatedOwner = require('../service/persistencia')
-let backup = require('../models/accountsDeleted');
 const { v4: uuidv4 } = require('uuid');
 const verifyClass = require('../service/verifyParamData')
+const sendEmailVerification = require('../service/emailVerification')
 
 
 var StaffController = {
@@ -22,14 +20,15 @@ var StaffController = {
 
         var params = req.body
         var optionToVerify = new verifyClass()
-         
+        
+       
         try {
 
             var val_name = !validator.isEmpty(params.name)
             var val_lastname = !validator.isEmpty(params.lastname)
             var val_email = validator.isEmail(params.email)
             var val_password = !validator.isEmpty(params.password)
-            var val_phone = optionToVerify.phonesConverter(params)
+            var val_phone = optionToVerify.phonesTransformation(params.phone)
 
         } catch (error) {
 
@@ -40,34 +39,35 @@ var StaffController = {
             })
 
         }
-
-    
+     
         //verificar la extension de archivo enviado sea tipo imagen
-        var imgFormatAccepted = checkExtensions.confirmExtension(req)
+        // var imgFormatAccepted = checkExtensions.confirmExtension(req)
 
-        if (imgFormatAccepted == false) {
+        // if (imgFormatAccepted == false) {
 
-            return res.status(400).send({
+        //     return res.status(400).send({
 
-                status: "bad request",
-                message: "System just accept image format '.jpg', '.jpeg', '.gif', '.png'"
-            })
-        }
+        //         status: "bad request",
+        //         message: "System just accept image format '.jpg', '.jpeg', '.gif', '.png'"
+        //     })
+        // }
 
-
+       
 
         if (val_name && val_lastname && val_email && val_password && val_phone) {
             
-        
+                   
             Staff.findOne({
                 $or: [
 
                     { email: params.email },
+                    { government_id: params.government_id },
                     { phone: params.phone }
 
                 ]
             }, async (err, staffound) => {
 
+                
                 var errorHandlerArr = errorHandler.errorRegisteringUser(err, staffound, params)
 
                 if (errorHandlerArr[0]) {
@@ -82,64 +82,78 @@ var StaffController = {
 
                 }
 
-                var staffAcc = new Staff()
-
-
-               const admin = await Admin.findOne({ _id: req.user.sub })
-            
-
+                var staffAcc = new Staff()               
+              
                 for (const key in params) {
 
-                    if (key.includes('phone') && params[key].split(',') == 'object') {
-
-                        staffAcc['phone'] = params[key].split(',').map(phoneNumber => { return phoneNumber.strim() })
-
-                    }else{
-
-                        staffAcc[key] = (key != 'password') ? params[key].toLowerCase() : params[key]
-
+                    if (key == 'password' || key == 'permissions'){
+                        continue;
                     }
+                    staffAcc[key] = params[key].toLowerCase() 
 
                 }
-            
+                // Se le asigna el id del admin que lo creo
+                staffAcc.createdBy = req.user.sub
+
+                // Se asignan los permisos
+                params.permissions.split(',').forEach(element => {
+                    staffAcc.permissions.push(element)
+                })
                 
-                if (req.files != undefined) {
-                    staffAcc['avatar'] = (req.files['avatar'].path.split('\\'))[2]
-                }
+                // if (Boolean(req.files.avatar != undefined ) ) {
+                //     staffAcc['avatar'] = (req.files['avatar'].path.split('\\'))[2]
+                // }
 
-                admin.staff.push(staffAcc)
-                Admin.findOneAndUpdate({ _id: req.user.sub }, admin, { new: true }).then((success) => console.log({ status: 'success', message: 'Staff added to admin' })).catch(err => { return res.status(501).send({status:'error', message:'Staff was not added to admin'})})
-
-
-                bcrypt.hash(params.password, saltRounds, (err, hash) => {
-
-                staffAcc.password = hash
-
+                staffAcc.password = await bcrypt.hash(params.password, saltRounds)
+                
                 staffAcc.save(async (err, staffSaved) => {
 
 
                     if (err) {
 
                         return res.status(501).send({
-                                status: 'error',
-                                message: 'Staff was not create, try again'
+                            status: 'error',
+                            message: 'Staff was not create, try again',
+                            errors: err
 
-
-                            })
+                        })
                     }
 
+                    // // Se busca el admin y se le agrega el staff
+                    // var admin = await Admin.findOne({ _id: req.user.sub })
+                    // admin.staff.push(staffSaved._id)
+
+                    // await Admin.findOneAndUpdate({ _id: req.user.sub }, admin, { new: true })
+
                     staffSaved.password = undefined
-                    return res.status(200).send({
-                            status: 'success',
-                        message: staffSaved
+
+                    try {
+
+                        sendEmailVerification.verifyRegistration(staffSaved.email)
+
+                    } catch (error) {
+
+                        return res.status(500).send({
+                            status: 'error',
+                            message: error
 
 
                         })
 
-                    })
-                })
+                    }
 
+
+                    return res.status(200).send({
+                        status: 'success',
+                        message: staffSaved
+
+
+                    })
+
+                })
             })
+                
+           
 
 
 
@@ -154,98 +168,81 @@ var StaffController = {
         }
 
     },    
-    update:function(req, res){
+    update:async function(req, res){
 
-        Staff.findOne({ _id: req.user.sub }, async (err, stafFound) => {
+        try {
 
-            
-            if (err || (stafFound).length <= 0 || stafFound == undefined || stafFound == null) {
+            const staffId = req.params.staffId;
+            const stafFound = await Staff.findOne({ _id: staffId });
 
-                return res.status(501).send({
+            if (!stafFound) {
+                return res.status(404).send({
                     status: 'error',
-                    message: 'STAFF does not found'
+                    message: 'STAFF not found'
+                });
+            }
 
-
-                })
-
+            const avatarExist = fs.existsSync('../uploads/staff/' + stafFound.avatar) ? true : false;
+            
+            if (!avatarExist) {
+                fs.unlinkSync('../uploads/staff/' + stafFound.avatar);
             }
 
             for (const key in req.body) {
-               
-                stafFound[key] = (key != 'password') ? req.body[key].toLowerCase() : stafFound[key]
-            }
 
-         
-            stafFound.password = await bcrypt.hash(req.body.password, saltRounds, (err, hash) => { return hash })
-
-            Staff.findOneAndUpdate({ _id: req.user.sub }, stafFound, { new: true }, (err, staffUpdated) => {
-
-                var errorHandlerArr = errorHandler.update(err, staffUpdated)
-
-                if (errorHandlerArr[0]) {
-
-                    return res.status(
-                        errorHandlerArr[1]).send({
-                            status: errorHandlerArr[2],
-                            message: errorHandlerArr[3]
-
-                        })
-
+                if (key !== 'password') {
+                    stafFound[key] = req.body[key].toLowerCase();
                 }
 
-
-                return res.status(200).send({
-                        status: 'success',
-                    message: staffUpdated
-
-                    })
-           
-            })
-
-        })
-       
-        
-    },
-    avatar: function (req, res) {
-
-
-        var params = req.files.avatar
-        var fileName = params.path.split('\\')[2]
-
-        //verificar la extension de archivo enviado sea tipo imagen
-        var imgFormatAccepted = checkExtensions.confirmExtension(req)
-
-        if (imgFormatAccepted == false) {
-
-            return res.status(400).send({
-
-                status: "bad request",
-                message: "Files allows '.jpg', '.jpeg', '.gif', '.png'"
-            })
-        }
-
-        Staff.findOneAndUpdate({ _id: req.user.sub }, { avatar: fileName }, { new: true }, (err, updated) => {
-
-            if (err) {
-
-
-                return res.status(500).send({
-
-                    status: "bad request",
-                    message: "Avatar was not updating, try again."
-                })
-
             }
 
+            if (req.body.password) {
+                stafFound.password = await bcrypt.hash(req.body.password, saltRounds);
+            }
+
+            const staffUpdated = await Staff.findOneAndUpdate({ _id: staffId }, stafFound, { new: true });
+
+            if (!staffUpdated) {
+                return res.status(500).send({
+                    status: 'error',
+                    message: 'Error updating staff'
+                });
+            }
+
+            
+
             return res.status(200).send({
-
                 status: 'success',
-                message: updated
-            })
+                message: staffUpdated
+            });
 
-        })
+        } catch (err) {
+            return res.status(500).send({
+                status: 'error',
+                message: 'Server error',
+                error: err
+            });
+        }
+        
+    },
+    getAvatar: function (req, res) {
 
 
+        var avatarParams = req.params.avatar
+        var filePath = './uploads/staff/' + avatarParams
+       
+
+        fs.access(filePath, fs.constants.F_OK, (err, exist) => {
+
+            if (err) {
+                console.error(`${filePath} does not exist ${err}`);
+              
+            } else {
+              
+                return res.sendFile(path.resolve(filePath))
+                
+            }
+        });
 
 
     },
@@ -351,11 +348,11 @@ var StaffController = {
        
     },
     getStaffByAdmin:function(req,res){
+     
+        
+        Staff.find({ createdBy:req.user.sub},(err, staffs) => {
 
-
-        Admin.find({_id:req.user.sub}).populate('staff', 'avatar name lastname gender email phone position status role').exec((err, staffs) => {
-
-
+          
             if (err || !staffs) {
                 
 
@@ -365,13 +362,12 @@ var StaffController = {
                     message: "Staffs was not found"
                 })
             }
-
                     
-            
+                console.log(staffs)
             return res.status(200).send({
 
                 status: "success",
-                message: staffs[0].staff
+                message: staffs
             })
 
         })

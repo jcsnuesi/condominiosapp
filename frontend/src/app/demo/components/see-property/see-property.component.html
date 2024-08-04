@@ -41,7 +41,11 @@
                 <th style="min-width:15rem">
                     <div class="flex align-items-center">
                         Phone number
-
+                    </div>
+                </th>
+                <th style="min-width:15rem">
+                    <div class="flex align-items-center">
+                        Monthly payment
                     </div>
                 </th>
                 <th style="min-width:10rem">
@@ -108,6 +112,12 @@
                 <td>
 
                     {{property.phone}}
+
+
+                </td>
+                <td>
+
+                    {{property.mPayment | currency:'USD':'symbol':'1.2-2'}}
 
 
                 </td>

@@ -3,24 +3,22 @@
 var mongoose = require('mongoose')
 var Schema = mongoose.Schema
  
- 
-var StaffSchema = Schema({
 
-    avatar: { type: String, default: 'noimage.jpeg' },
+var AdminsSchema = Schema({
+
+    avatar: { type: String },
     name: { type: String, required: true },
     lastname: { type: String, required: true },
     gender: { type: String, required: true },
-    government_id: { type: String, required: true },
     email: { type: String, required: true },
     password: { type: String, required: true },
-    phone: { type: String, required: true },
+    phone: [{ type: String, required: true }],
     position: { type: String, required: true },
     status: { type: String, default:'active' },
-    role: { type: String, required: true },
-    permissions: [{ type: String, required: true }],
-    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'Admin' },
+    role: { type: String, default: 'STAFF' },
+    permissions: [{ type: String, default: ['read','write','delete'] , required: true }]
 
-}, { timestamps :true})
+})
 
 StaffSchema.method.toJSON = function () {
 
@@ -30,4 +28,4 @@ StaffSchema.method.toJSON = function () {
 };
 
 
-module.exports = mongoose.model('Staff', StaffSchema);
+module.exports = mongoose.model('Administrators', StaffSchema);

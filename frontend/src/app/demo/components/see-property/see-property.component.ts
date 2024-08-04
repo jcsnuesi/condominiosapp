@@ -86,8 +86,9 @@ export class SeePropertyComponent implements OnInit, DoCheck {
   ngOnInit() {
 
     this.loading = true
+    this.getAdminsProperties()
     // this.getAdmins()
-    console.log("SEE PROPERTY COMPONENT LOADED:" ,this.getAdminsProperties())
+  
     
   }
 
@@ -126,9 +127,10 @@ export class SeePropertyComponent implements OnInit, DoCheck {
     this._condominioService.getPropertyByAdminId(this.token, this.loginInfo._id).subscribe({
       next: (response) => {
         this.loading = false;
-       
+        console.log(response);
         if (response.status == 'success') {
           this.properties = response.message;
+          
         }
       },
       error: (error) => {

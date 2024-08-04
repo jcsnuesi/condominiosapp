@@ -12,10 +12,11 @@ var EmployeesSchema = Schema({
     gender: { type: String, required: true },
     email: { type: String, required: true },   
     phone: [{ type: String, required: true }],
-})
+}) 
 
 const employees = mongoose.model('Employees', EmployeesSchema )
- 
+
+
 var CondominiumSchema = Schema({
     
     avatar: { type: String },
@@ -32,7 +33,7 @@ var CondominiumSchema = Schema({
     country: { type: String, required: true },
     socialAreas: [{ type: String }],   
     mPayment:{ type:Number, required:true}, 
-    status: { type: String, default: 'active' },
+    status: { type: String, default: 'active' },    
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'Admin', required:true },
     units_ownerId: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Owner' }],
     employees: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Employees'}] 

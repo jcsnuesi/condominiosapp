@@ -17,6 +17,18 @@ let emailVerification = require('../service/emailVerification');
 const { getAvatar } = require('./condominio');
 const fs = require('fs');
 const paths = require('path');
+const generatePassword = require('generate-password');
+const wsConfirmationMessage = require('./whatsappController')
+// Generar una contraseña con opciones específicas
+const password = generatePassword.generate({
+    length: 8,       // Longitud de la contraseña
+    numbers: true,    // Incluir números
+    symbols: true,    // Incluir símbolos
+    uppercase: true,  // Incluir letras mayúsculas
+    lowercase: true,  // Incluir letras minúsculas
+    excludeSimilarCharacters: true,  // Excluir caracteres similares
+});
+
  
 var ownerAndSubController = {
 
@@ -74,17 +86,16 @@ var ownerAndSubController = {
     createSingleOwner: async function (req, res) {
 
 
-        var params = req
+        var params = req.body        
        
-        
       
         try {
 
             var val_email = validator.isEmail(params.email)
-            var val_password = !validator.isEmpty(params.password)
             var val_phone = verifying.phonesLengthVerification(params.phone)
-            var val_dob = !validator.isEmpty(params.dob)
             var val_id_number = !validator.isEmpty(params.id_number)
+            // Validamos que el condominio exista antes de crear al usuario
+            var condominioFound = await Condominio.findOne({ _id: params.addressId })
 
         } catch (error) {
           
@@ -98,6 +109,7 @@ var ownerAndSubController = {
         
         //verificar la extension de archivo enviado sea tipo imagen
         var imgFormatAccepted = checkExtensions.confirmExtension(req)
+        
 
         if (imgFormatAccepted == false) {
 
@@ -108,8 +120,11 @@ var ownerAndSubController = {
             })
         }
 
+     
+       
+   
 
-        if (val_email && val_password && val_phone && val_dob && val_id_number) {
+        if (val_email && val_phone  && val_id_number) {
 
           
 
@@ -122,7 +137,7 @@ var ownerAndSubController = {
                     ]
                 },async (err, userDuplicated) => {
 
-
+            
                     var errorHandlerArr = errorHandler.errorRegisteringUser(err, userDuplicated)
 
                     if (errorHandlerArr[0]) {
@@ -139,83 +154,72 @@ var ownerAndSubController = {
 
                     //Instanciamos el usuario segun el tipo de usuario
                     let user = new Owner()
- 
-                
-                    for (const key in params) {
-                    
-                        user[key] = key != 'password' ? params[key].toLowerCase() : params[key]    
-                    }
+                 
+                    try {
 
-                    var property_details = {
+                        for (const key in params) {
 
-                        addressId: "",
-                        condominium_unit: "",
-                        parkingsQty: ""
+                            if (key == 'propertyDetails') {
+                                continue
+                            }else{
+                                user[key] = params[key].toLowerCase()
 
-                    }
-
-
-                    property_details.addressId = req.ownerTokenDecoded.condominioId
-                    property_details.condominium_unit = params.condominium_unit
-                    property_details.parkingsQty = params.parkingsQty
-                    user.propertyDetails.push(property_details)
-                   
-                    
-                    if (req.files != undefined) {
-
-                        for (const fileKey in req.files) {
-                            user[fileKey] = (req.files[fileKey].path.split('\\'))[2].toLowerCase()
+                            }
                         }
-                    }
 
+                        var property_details = {
 
-                    bcrypt.hash(params.password, saltRounds, (err, hash) => {
-
-                        user.password = hash
-
-                        if (err) {
-
-                            return res.status(500).send({
-                                status: 'error',
-                                message: 'Encrypting error, please try again'
-                            })
+                            addressId: "",
+                            condominium_unit: "",
+                            parkingsQty: "",
+                            isRenting: false,
 
                         }
-                   
-                     
-                        user.save(async (err, newUserCreated) => {                            
+
+                        // # Me quede aqui
+                        property_details.addressId = params.addressId
+                        property_details.condominium_unit = params.apartmentUnit
+                        property_details.parkingsQty = params.parkingsQty
+                        property_details.isRenting = params.isRenting
+                        user.propertyDetails.push(property_details)
+                        user.password = await bcrypt.hash(password, saltRounds)
+
+                        if (Object.keys(req.files).length != 0) {
+                            console.log("AVATAR: ", Object.keys(req.files).length != 0)
+                            user["avatar"] = (req.files['avatar'].path.split('\\'))[2]
+                         
+                            
+                        }
+
+
+                        await user.save()
+                        condominioFound.units_ownerId.push(user._id)
+                        await Condominio.findOneAndUpdate({ _id: params.addressId }, { units_ownerId: condominioFound.units_ownerId }, { new: true })
                         
-                            let verifyNewUserException = errorHandler.newUser(err, newUserCreated)
-                           
-                            if (verifyNewUserException[1] == 200) {
-                                verifyNewUserException[3].password = undefined
+                        user.passwordTemp = password
+                        user.condominioName = condominioFound.alias
+                        emailVerification.verifyRegistration(user.email)
+                        wsConfirmationMessage.sendWhatsappMessage(user)
+                        
+                        
+                    } catch (
+                        error
+                    ) {
+                        console.log(error)
+                        return res.status(500).send({
+                            status: 'error',
+                            message: 'Missing params to create this user',
+                            error:error
+                        })
+                    }
 
-                                const condominioFound = await Condominio.findOne({ _id: req.ownerTokenDecoded.condominioId })
 
-                                condominioFound.units_ownerId.push(newUserCreated._id)
-                               
-                                await Condominio.findOneAndUpdate({ _id: req.ownerTokenDecoded.condominioId }, condominioFound, { new: true })
-                                
-                          
-                                emailVerification.verifyRegistration(newUserCreated.email)
-
-                            }
-                          
-
-                            if (verifyNewUserException[0]) {
-
-                                return res.status(verifyNewUserException[1]).send({
-                                    status: verifyNewUserException[2],
-                                    message: verifyNewUserException[3] 
-
-                                })
-
-                            }
-
+                    return res.status(200).send({
+                            status: 'success',
+                            message: 'User created successfully'
 
                         })
-
-                    })
+                                 
 
                 })
 
@@ -315,7 +319,7 @@ var ownerAndSubController = {
                     
                 }
          
-                if (req.files != undefined) {
+                if (Boolean(req.files)) {
                     occupant['avatar'] = (req.files['avatar'].path.split('\\'))[2]
                 }               
                 

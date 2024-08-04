@@ -23,11 +23,22 @@ import { IconFieldModule } from 'primeng/iconfield';
 import {FieldsetModule} from 'primeng/fieldset';
 import { StepperModule } from 'primeng/stepper';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { MessagesModule } from 'primeng/messages';
+import { SidebarModule } from 'primeng/sidebar';
+import { ConfirmPopupModule } from 'primeng/confirmpopup';
+import { ToolbarModule } from 'primeng/toolbar';
+import { TagModule } from 'primeng/tag';
+import { OwnerRegistrationComponent } from '../owner-registration/owner-registration.component';
 
 
 @NgModule({
     imports: [
         CommonModule,
+        TagModule,
+        ToolbarModule,
+        ConfirmPopupModule,
+        SidebarModule,
+        MessagesModule,
         FieldsetModule,
         ConfirmDialogModule,
         StepperModule ,
@@ -49,7 +60,8 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
         PanelMenuModule,
         ButtonModule,
         DashboardsRoutingModule,
-        DialogModule
+        DialogModule,
+        OwnerRegistrationComponent
     ],
     exports: [StepperModule ],
     declarations: [DashboardComponent]

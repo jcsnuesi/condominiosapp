@@ -560,7 +560,7 @@ var Condominium_Controller = {
        
         Condominium.findById(req.params.id)
             .populate('units_ownerId', `
-            avatar name lastname email phone id_number familyAccount propertyDetails.addressId propertyDetails.condominium_unit propertyDetails.parkingsQty propertyDetails.isRenting propertyDetails.occupantId propertyDetails.createdAt `)
+            avatar ownerName lastname gender email phone id_number status role familyAccount propertyDetails.addressId propertyDetails.condominium_unit propertyDetails.parkingsQty propertyDetails.isRenting propertyDetails.occupantId propertyDetails.createdAt `)
             .exec((err, condominiumFound) => {
     
                 var errorHandlerArr = errorHandler.newUser(err, condominiumFound)

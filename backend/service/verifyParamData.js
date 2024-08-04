@@ -5,11 +5,22 @@ module.exports = class VerifyData{
     constructor(){} 
 
 
-    phonesLengthVerification(phoneNumber){
-       
-        const phoneVerified = phoneNumber.length == 10 ? true : new Error('Phone number must have 10 digits')
-        console.log(phoneVerified)
-        return phoneVerified
+    phonesTransformation(phoneNumber){
+        
+        const phoneDirty = phoneNumber.trim().replace(/-/g, '')
+  
+        
+        if (phoneDirty.length === 10) {
+            
+           
+            return phoneDirty
+
+        } else {
+
+            throw new Error('Phone number must have 10 digits');
+        }
+    
+      
 
 
     }

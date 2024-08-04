@@ -4,7 +4,7 @@
         <span>SAKAI 2.0</span>
     </a>
 
-       
+        
 
     <button #menubutton class="p-link layout-menu-button layout-topbar-button" (click)="layoutService.onMenuToggle()">
         <i class="pi pi-bars"></i>
@@ -25,17 +25,35 @@
         </button> -->
 
     <p-toast></p-toast>
-    <p-menu #menu [model]="items" [popup]="true"></p-menu>
     <!-- <button pButton type="button" (click)="menu.toggle($event)" icon="pi pi-bars" label="Show"></button> -->
-        
-    <button pButton type="button" class="p-link layout-topbar-button" (click)="menu.toggle($event)">
-         
-            <i class="pi pi-user" *ngIf="!identity"></i>
+     <div class="d-flex">
+                          
+         <div>
+            <div>
 
-            <p-avatar *ngIf="identity" image="https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png" styleClass="mr-2" size="large" shape="circle"></p-avatar>
-                  
-        </button>
-      
+                <span class="p-text-bold">Amy Elsner</span>
+                
+            </div>
+            <div style="text-align: center;">
+
+                <span class="p-text-bold">{{identity.company}}</span>
+            </div>
+         
+                
+     
+          </div>  
+          
+            <p-menu #menu [model]="items" [popup]="true"></p-menu>
+            <button pButton type="button" class="p-link layout-topbar-button" (click)="menu.toggle($event)">
+            
+                <i class="pi pi-user" *ngIf="!identity"></i>
+            
+                <p-avatar *ngIf="identity" image="https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png"
+                    styleClass="mr-2" size="large" shape="circle" />
+            
+            
+            </button>
+        </div>
         <!-- <button class="p-link layout-topbar-button" [routerLink]="'/documentation'">
             <i class="pi pi-cog"></i>
             <span>Settings</span>

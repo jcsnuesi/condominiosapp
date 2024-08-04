@@ -56,7 +56,8 @@ export class AppTopBarComponent implements DoCheck, OnInit {
             
 
             this.identity = this._userService.getIdentity()
-            console.log(this._userService.getToken())
+             console.log("Topbar:", this._userService.getToken())
+      
           
             this.items = [
                 {

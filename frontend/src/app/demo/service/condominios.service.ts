@@ -2,7 +2,7 @@ import { Injectable, EventEmitter, Output } from "@angular/core";
 import { global } from "./global.service";
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { Observable } from "rxjs";
-import { property_details } from "../models/property_details_type";
+
 
 @Injectable()
 export class CondominioService {

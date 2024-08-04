@@ -213,9 +213,7 @@ var controller = {
                         role_contact: params['role_contact'].toLowerCase()
                     }
 
-                    user.contact_person.push(contactPerson)
-
-                
+                    user.contact_person.push(contactPerson)                
 
                     if (Object.keys(req.files) .length != 0) {
 
@@ -230,9 +228,7 @@ var controller = {
 
 
                     if (user.terms == false) return res.status(403).send({ status: 'forbidden', message: "Terms must be accept to complete the contract" })
-
                    
-
 
                     bcrypt.hash(params.password, saltRounds, (err, hash) => {
 
@@ -245,9 +241,7 @@ var controller = {
                                 message: 'Encrypting error, please try again'
                             })
 
-                        }
-
-                        
+                        }                      
 
                         user.save((err, newUserCreated) => {
                             
@@ -666,10 +660,6 @@ var controller = {
             })
 
         })
-
-
-
-
     }, 
     getAdmins:function(req, res){
 

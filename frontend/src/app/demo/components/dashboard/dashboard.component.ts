@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Output, EventEmitter, Input } from '@angular/core';
+import { Component, OnInit, OnDestroy, Output, EventEmitter, Input, ElementRef, ViewChild, AfterViewInit, TemplateRef, ViewContainerRef } from '@angular/core';
 import { ConfirmationService, MenuItem, PrimeNGConfig } from 'primeng/api';
 import { Product } from '../../api/product';
 import { ProductService } from '../../service/product.service';
@@ -8,13 +8,18 @@ import { ActivatedRoute } from '@angular/router';
 import { CondominioService } from '../../service/condominios.service';
 import { UserService } from '../../service/user.service';
 import { CookieService } from 'ngx-cookie-service';
-import { property_details } from '../../models/property_details_type';
+import { unitOwerDetails } from '../../models/property_details_type';
 import { dateTimeFormatter } from '../../service/datetime.service';
 import { global } from '../../service/global.service';
 import { MessageService } from 'primeng/api';
 import { OwnerModel } from '../../models/owner.model';
-import { NgForm } from '@angular/forms';
+import { FormBuilder, NgForm } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { OwnerRegistrationComponent } from '../owner-registration/owner-registration.component';
+
+
+
+
 
 @Component({
     templateUrl: './dashboard.component.html',
@@ -43,7 +48,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     public property_typeOptions:any[] = []
 
     subscription!: Subscription;
-    public buildingDetails: property_details;
     public units:number;
     private token:string;
     public dateFormatted:string;
@@ -51,10 +55,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
     public gbColor:string;
     public url:string;
     public parkingOptions:any;
-  
-    public dialogDinamicComponent:any;
 
+    public formValidation:boolean;
+
+    public apiUnitResponse:boolean;
+    public messageApiResponse:{message:string, severity:string};
+    public identity: any;
+   
     
+    
+   
     constructor(
         private _sanitizer: DomSanitizer,
         private productService: ProductService, 
@@ -63,23 +73,36 @@ export class DashboardComponent implements OnInit, OnDestroy {
         public layoutService: LayoutService,
         private _activatedRoute:ActivatedRoute,
         private _cookieService: CookieService,
-        private messageService: MessageService,
         private _config: PrimeNGConfig,
-        private confirmationService: ConfirmationService) {
+        private _messageService: MessageService,
+        private _confirmationService: ConfirmationService) {
         this.subscription = this.layoutService.configUpdate$.subscribe(() => {
             this.initChart();
         });
-
-
+        
+       
         this.token = this._userService.getToken()
+        this.identity = this._userService.getIdentity()
         this.currentIcon = 'pi-building'
         this.gbColor = 'blue-100'
         this.url = global.url
-        this.ownerObj = new OwnerModel('', '', '', '', '', '', '', '', '', '', '','','')
+        this.ownerObj = new OwnerModel('', '', '', '','', '', '', '', '', '', '', '','','','')
+        this.formValidation = this.ownerObj.apartmentsUnit != '' && this.ownerObj.parkingsQty != '' && this.ownerObj.isRenting != '' ? false  :  true
         this.image = '../../assets/noimage2.jpeg'
-        this.addreesDetails = { street_1: '', street_2: '', sector_name: '', city: '', province: '', country: '' }
-       
+        
+        
+        this.apiUnitResponse = false
+        this.messageApiResponse = {message:'', severity:''}
+        this.visible_owner = false;
 
+    
+        this.formData = new FormData()
+
+    }
+
+
+    handleButtonClick(event: Event) {
+        console.log('Button clicked!', event);
     }
 
 
@@ -90,8 +113,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.propertyInfoEvent.emit(data);
     }
 
-    confirm1(event: Event) {
-        this.confirmationService.confirm({
+    public indexStepper: number = 0;
+
+    confirmNewOwner(event: Event) {
+
+        this._confirmationService.confirm({
             target: event.target as EventTarget,
             message: 'Are you sure that you want to proceed?',
             header: 'Confirmation',
@@ -99,30 +125,31 @@ export class DashboardComponent implements OnInit, OnDestroy {
             acceptIcon: "none",
             rejectIcon: "none",
             rejectButtonStyleClass: "p-button-text",
-            accept: (form) => {
-                this.messageService.add({ severity: 'info', summary: 'Confirmed', detail: 'You have accepted' });
-                
-               
-               this.onSubmitUnit(form)
-                
+            accept: () => {
+
+                this._messageService.add({ severity: 'info', summary: 'Confirmed', detail: 'You have accepted' });
+                this.onSubmitUnit()
+
+
+
             },
             reject: () => {
-                this.messageService.add({ severity: 'error', summary: 'Rejected', detail: 'You have rejected', life: 3000 });
+                this._messageService.add({ severity: 'error', summary: 'Rejected', detail: 'You have rejected', life: 3000 });
             }
         });
+
     }
 
-
-    onSubmitUnit(form:NgForm){
-
-        console.log(this.ownerObj)
-        form.reset()
-        return
+    onSubmitUnit(){      
+     
         const formData = new FormData()
+
         formData.append('avatar', (this.ownerObj.avatar != null ? this.ownerObj.avatar : 'noimage.jpeg'))
-        formData.append('name', this.ownerObj.ownerName)
+
+        formData.append('ownerName', this.ownerObj.ownerName)
         formData.append('lastname', this.ownerObj.lastname)
-        formData.append('gender', this.ownerObj.gender['code'])
+        formData.append('gender', this.ownerObj.gender)
+        formData.append('id_number', this.ownerObj.id_number)
         // formData.append('dob', this.ownerObj.phone2)
         formData.append('phone', this.ownerObj.phone)
         formData.append('phone2', this.ownerObj.phone2)
@@ -131,34 +158,49 @@ export class DashboardComponent implements OnInit, OnDestroy {
         formData.append('apartmentUnit', this.ownerObj.apartmentsUnit)
         formData.append('parkingsQty', this.ownerObj.parkingsQty)
         formData.append('isRenting', this.ownerObj.isRenting)
-
-    
-        formData.forEach((value, key) => {
-            console.log(key + ' ' + value)
-        })
-    
-return
-        this._condominioService.createOwner(this.token, formData ).subscribe({
+       
+        this._condominioService.createOwner(this.token, formData).subscribe({
             next: (response) => {
-                console.log(response)
+
                 if (response.status == 'success') {
-                    this.ownerObj = response.message
-                   
-                  
+                    this.messageApiResponse.message = response.message
+                    this.messageApiResponse.severity = 'success'
+                    this.apiUnitResponse = true
+                
+                } else {
+                    this.messageApiResponse.message = response.message
+                    this.messageApiResponse.severity = 'danger'
+                    this.apiUnitResponse = true
                 }
-        },
-        error: (error) => {
-            this.messageService.add({ severity: 'warn', summary: 'Message for server', detail: 'Unit was not Created', life: 3000 });
-            console.log(error)
-        },
-        complete: () => {
-            this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Unit Created', life: 3000 });
-         
-            
-        }
-    })
+            },
+            error: (error) => {
+                this._messageService.add({ severity: 'warn', summary: 'Message for server', detail: 'Unit was not Created', life: 3000 });
+                console.log(error)
+            },
+            complete: () => {
+                this._messageService.add({ severity: 'success', summary: 'Success', detail: 'Unit Created', life: 3000 });
+
+
+            }
+        })
+
+     
 }
+  
+    alertStatus(){
+
+     
+        if(this.apiUnitResponse){
+          
+            this.apiUnitResponse = false
+           
+        }else{
+
+          
+            this.apiUnitResponse = true
+        }
     
+    }
 
     onMouseOver(): void {
         this.currentIcon = 'pi-plus';
@@ -188,49 +230,45 @@ return
     }
 
     onTemplatedUpload() {
-        this.messageService.add({ severity: 'info', summary: 'Success', detail: 'File Uploaded', life: 3000 });
+        this._messageService.add({ severity: 'info', summary: 'Success', detail: 'File Uploaded', life: 3000 });
     }
 
 
-    public customers:any;
+    public customers:any[];
     public propertyObj: any;
     public genderOption: any;
     public selectedGenero: any[];
     public isRentOptions: any[];
-    public addreesDetails: { street_1: string, street_2: string, sector_name: string, city: string, province: string, country: string } 
-  
-
-
-    ngOnInit() {
-        this.propertyObj = JSON.parse(localStorage.getItem('property'))
+    
+    onInitInfo() {
 
         this._activatedRoute.params.subscribe(param => {
 
             let id = param['id'];
-         
-          
+
+
             if (id != undefined) {
-                
+
                 this._condominioService.getBuilding(id, this.token).subscribe(
                     response => {
-                      
-           
-                        if (response.status == 'success') {
-                           
-                            this.buildingDetails = response.message
-                            
-                            this.units = (this.buildingDetails.units_ownerId.length) 
 
-                            this.dateFormatted = dateTimeFormatter(this.buildingDetails.createdAt)
-                         
-                            this.propertyData(this.buildingDetails)
-                            
-                            this.customers = this.buildingDetails.units_ownerId
-                  
+
+                        if (response.status == 'success') {
+
+                            var unitList = { ...response.message }
+                            this.units = (unitList.units_ownerId.length)
+
+                            this.dateFormatted = dateTimeFormatter(unitList.createdAt)
+
+                            this.propertyData(unitList)
+
+                            this.customers = unitList.units_ownerId
+                           
+                            console.log(this.customers)
 
                         }
 
-                       
+
                     },
                     error => {
 
@@ -239,14 +277,34 @@ return
                 )
             }
 
-          
 
-           
+
+
         })
+    }
+
+    unitFormatOnInit(unit) {
+        var unitList = []
+        for (let index = 0; index < unit.length; index++) {
+            unitList.push(unit[index].condominium_unit)
+            
+        }
+      
+        return unitList.join(", ") 
+    }
+
+
+    ngOnInit() {
+
+        this.propertyObj = JSON.parse(localStorage.getItem('property'))
+
+        this.onInitInfo()
+     
+        
 
         this.genderOption = [
-            { name: 'Male', code: 'm' },
-            { name: 'Female', code: 'f' }
+            { name: 'Male', gender: 'm' },
+            { name: 'Female', gender: 'f' }
         ];
 
         this.parkingOptions = []
@@ -273,15 +331,7 @@ return
             
          
       
-        // Address Details - Card
-        this.ownerObj.addressId = this.propertyObj._id
-        this.addreesDetails.street_1 = this.propertyObj.street_1
-        this.addreesDetails.street_2 = this.propertyObj.street_2
-        this.addreesDetails.sector_name = this.propertyObj.sector_name
-        this.addreesDetails.city = this.propertyObj.city
-        this.addreesDetails.province = this.propertyObj.province
-        this.addreesDetails.country = this.propertyObj.country
-
+          
         this.initChart();
         this.productService.getProductsSmall().then(data => this.products = data);
 
@@ -290,15 +340,10 @@ return
             { label: 'Remove', icon: 'pi pi-fw pi-minus' }
         ];
 
+       
 
-
-        
-        
-      
-        
-        this.stepperThird = true
-   
     }
+
 
     
     btnSecondStepper() {
@@ -309,42 +354,8 @@ return
         return true
     }
 
-    stepperThird: boolean;
-    selectInputValues($event){
-
-     
-
-        switch ($event.target.name) {
-            case 'isRent':
-
-                this.ownerObj.isRenting = $event.target.value
-            
-                break;
-                
-            case 'parking':
-
-                this.ownerObj.parkingsQty = $event.target.value
-                
-                break;
-            case 'property_type':
-
-                this.ownerObj.property_type = $event.target.value
-                this.stepperThird = false
-                break;
-            case 'gender':
-
-                this.ownerObj.gender = $event.target.value
-               
-                
-                break;
-        
-            default:
-                break;
-        }
-
-        console.log(this.ownerObj)
-    }
-
+  
+    
     initChart() {
         const documentStyle = getComputedStyle(document.documentElement);
         const textColor = documentStyle.getPropertyValue('--text-color');
@@ -404,15 +415,123 @@ return
         };
     }
 
+    public ownerDetails:any;
+    public passwordOwner:boolean
+    public visible_owner: boolean;
+    public propertyDetailsUser: unitOwerDetails;
+
+    showOwnerDialog(events) {
+        this.ownerObj = events   
+        
+        this.propertyDetailsUser =  events
+        this.propertyDetailsUser.units = events.propertyDetails.condominium_unit
+        this.propertyDetailsUser.fullname = events.ownerName + ' ' + events.lastname
+        this.propertyDetailsUser.isRent = events.isRenting
+        this.propertyDetailsUser.emergecyPhoneNumber = '809-555-5555'
+        this.propertyDetailsUser.paymentMehtod = 'Deposit: Bank of America'
+        // this.propertyDetailsUser.condominium_unit = events.propertyDetails.condominium_unit
+        // this.propertyDetailsUser.isRenting = events.propertyDetails.isRenting
+        // this.propertyDetailsUser.parkingsQty = events.propertyDetails.parkingsQty
+        // this.propertyDetailsUser.payment = this.propertyObj.mPayment
+
+        this.visible_owner = true;    
+       
+        console.log(events)
+    
+    if (this.identity._id == events._id) {
+            this.passwordOwner = true
+        }else{
+            this.passwordOwner = false
+        }
+       
+    
+    }
+
+    public updateUnitDetails: boolean;
+    editProduct(details: unitOwerDetails) {
+        this.propertyDetailsUser = { ...details };
+        this.updateUnitDetails = true;
+    }
+
+    getSeverity(severity:string){
+        return severity == 'active' ? 'success': 'danger';
+
+    }
+
+
+    
+
+
     ngOnDestroy() {
         if (this.subscription) {
             this.subscription.unsubscribe();
         }
     }
-    public visible: boolean = false;
+
+
+    public visible: boolean = false;   
+    public formData: FormData;
+
+
+    confirmUpdate(event: Event) {
+
+        this._confirmationService.confirm({
+            target: event.target as EventTarget,
+            message: 'Please confirm to proceed moving forward.',
+            icon: 'pi pi-exclamation-circle',
+            acceptIcon: 'pi pi-check mr-1',
+            rejectIcon: 'pi pi-times mr-1',
+            acceptLabel: 'Confirm',
+            rejectLabel: 'Cancel',
+            rejectButtonStyleClass: 'p-button-outlined p-button-sm',
+            acceptButtonStyleClass: 'p-button-sm',
+            accept: () => {
+                this._messageService.add({ severity: 'info', summary: 'Confirmed', detail: 'You have accepted', life: 3000 });
+
+                this.onUpdate()
+                
+            },
+            reject: () => {
+                this._messageService.add({ severity: 'error', summary: 'Rejected', detail: 'You have rejected', life: 3000 });
+            }
+        });
+
+
+    }
+
+    onUpdate(){
+
+        this.formData.append('avatar', (this.ownerObj.avatar != null ? this.ownerObj.avatar : 'noimage.jpeg'))
+
+        for (const key in this.ownerObj) {
+
+            if (key == 'avatar' || key == 'propertyDetails' || key == 'familyAccount') {
+                continue;
+
+            } else {
+
+                this.formData.append(key, this.ownerObj[key])
+            }
+
+        }
+
+        this.formData.forEach((value, key) => {
+            console.log(key + ' ' + value)
+        })
+
+    }
+
+    hideDialog() {
+     
+      
+        this.ownerObj = new OwnerModel('', '', '', '','', '', '', '', '', '', '', '','','','')
+    }
+
  
     showDialog() {
         this.visible  = true;  
+     
+        
     }
 
     
@@ -422,7 +541,7 @@ return
         let template = {
             headers: {
                 unit_detalis: {
-                    title:'Unit Details',
+                    title:'Create unit',
                     thead:['Image','Unit Number', 'Owner', 'Email', 'Phone', 'Status', 'Actions'],
                     tdata: this.propertyObj
                     
@@ -436,7 +555,9 @@ return
 
 
     getModalContent(){
-        return this.setModalContent('unit_detalis')
+
+        this.ownerObj = new OwnerModel('', '', '', '','', '', '', '', '', '', '', '','','','')
+        // return this.setModalContent('unit_detalis')
     }
 
 
