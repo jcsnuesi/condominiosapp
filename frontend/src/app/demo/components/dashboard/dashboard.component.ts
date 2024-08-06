@@ -13,13 +13,6 @@ import { dateTimeFormatter } from '../../service/datetime.service';
 import { global } from '../../service/global.service';
 import { MessageService } from 'primeng/api';
 import { OwnerModel } from '../../models/owner.model';
-import { FormBuilder, NgForm } from '@angular/forms';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { OwnerRegistrationComponent } from '../owner-registration/owner-registration.component';
-
-
-
-
 
 @Component({
     templateUrl: './dashboard.component.html',
@@ -61,12 +54,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
     public apiUnitResponse:boolean;
     public messageApiResponse:{message:string, severity:string};
     public identity: any;
+    public areaSocial: boolean
+    public options: any;
+    public data: any;
    
-    
-    
    
     constructor(
-        private _sanitizer: DomSanitizer,
+       
         private productService: ProductService, 
         public _condominioService: CondominioService,
         public _userService: UserService,
@@ -94,6 +88,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.apiUnitResponse = false
         this.messageApiResponse = {message:'', severity:''}
         this.visible_owner = false;
+        this.areaSocial = false;
 
     
         this.formData = new FormData()
@@ -329,11 +324,68 @@ export class DashboardComponent implements OnInit, OnDestroy {
             { "name": "Penthouse" , code:"penthouse" }, 
           ]
             
-         
+        const documentStyle = getComputedStyle(document.documentElement);
+
+        const textColor = documentStyle.getPropertyValue('--text-color');
+
+        const textColorSecondary = documentStyle.getPropertyValue('--text-color-secondary');
+
+        const surfaceBorder = documentStyle.getPropertyValue('--surface-border');
       
-          
-        this.initChart();
-        this.productService.getProductsSmall().then(data => this.products = data);
+
+        this.data = {
+            labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+            datasets: [
+                {
+                    label: 'My First dataset',
+                    backgroundColor: documentStyle.getPropertyValue('--blue-500'),
+                    borderColor: documentStyle.getPropertyValue('--blue-500'),
+                    data: [65, 59, 80, 81, 56, 55, 40]
+                },
+                {
+                    label: 'My Second dataset',
+                    backgroundColor: documentStyle.getPropertyValue('--pink-500'),
+                    borderColor: documentStyle.getPropertyValue('--pink-500'),
+                    data: [28, 48, 40, 19, 86, 27, 90]
+                }
+            ]
+        };
+
+        this.options = {
+            maintainAspectRatio: false,
+            aspectRatio: 0.8,
+            plugins: {
+                legend: {
+                    labels: {
+                        color: textColor
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: {
+                        color: textColorSecondary,
+                        font: {
+                            weight: 500
+                        }
+                    },
+                    grid: {
+                        color: surfaceBorder,
+                        drawBorder: false
+                    }
+                },
+                y: {
+                    ticks: {
+                        color: textColorSecondary
+                    },
+                    grid: {
+                        color: surfaceBorder,
+                        drawBorder: false
+                    }
+                }
+
+            }
+        };
 
         this.items = [
             { label: 'Add New', icon: 'pi pi-fw pi-plus' },
@@ -436,7 +488,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
         this.visible_owner = true;    
        
-        console.log(events)
+     
     
     if (this.identity._id == events._id) {
             this.passwordOwner = true
@@ -524,16 +576,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
     hideDialog() {
      
       
-        this.ownerObj = new OwnerModel('', '', '', '','', '', '', '', '', '', '', '','','','')
     }
 
  
-    showDialog() {
-        this.visible  = true;  
-     
-        
-    }
-
+  
     
     // Crear table de manera dinamica para el modal 
     setModalContent(modalKey:string){

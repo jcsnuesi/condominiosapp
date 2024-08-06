@@ -1,0 +1,82 @@
+
+        <p-toolbar styleClass="mb-4 gap-2">
+            <ng-template pTemplate="left">
+                <p-button severity="success" label="Create user" icon="pi pi-plus" class="mr-2" (onClick)="openNew()" />
+                <p-button severity="danger" label="Delete" icon="pi pi-trash" (onClick)="deleteSelectedUsers()"
+                    [disabled]="!selectedStaffs || !selectedStaffs.length" />
+            </ng-template>
+        
+        </p-toolbar>
+
+<!-- USER DIALOG -->
+<p-dialog [(visible)]="userDialog" [style]="{ width: '450px' }" header="Create new member" [modal]="true"
+    styleClass="p-fluid">
+
+
+    <ng-template pTemplate="content">
+        <!-- <img [src]="'https://primefaces.org/cdn/primeng/images/demo/product/' + product.image" [alt]="product.image"
+                        class="block m-auto pb-3" *ngIf="product.image" /> -->
+
+        <form #FamilyForm="ngForm" (ngSubmit)="submit(FamilyForm)">
+
+            <div class="field">
+                <label for="name">Name</label>
+                <input type="text" pInputText id="name" #name="ngModel" name="name" [(ngModel)]="authorizedUser.name"
+                    required />
+                <small class="p-error" *ngIf="name.touched && !name.dirty">
+                    Name is required.
+                </small>
+            </div>
+            <div class="field">
+                <label for="name">Lastname</label>
+                <input type="text" pInputText id="lastname" #lastname="ngModel" name="lastname"
+                    [(ngModel)]="authorizedUser.lastname" required />
+                <small class="p-error" *ngIf="lastname.touched && !lastname.dirty">
+                    Lastname is required.
+                </small>
+            </div>
+            <div class="field">
+                <label for="genderLabel">Gender</label>
+                <p-dropdown [options]="genderModel" #genderx="ngModel" name="genderx"
+                    [(ngModel)]="authorizedUser.gender" optionLabel="name" placeholder="Select gender..." required />
+
+            </div>
+
+            <div class="field">
+                <label for="phoneLabel">Phone</label>
+                <input type="text" pInputText id="phoneLabel" #phone="ngModel" name="phone"
+                    [(ngModel)]="authorizedUser.phone" required />
+                <small class="p-error" *ngIf="phone.touched && !phone.dirty">
+                    Phone is required.
+                </small>
+            </div>
+
+
+            <div class="field">
+                <label for="emaillabel">Email</label>
+                <input type="text" pInputText id="emaillabel" #email="ngModel" name="email"
+                    [(ngModel)]="authorizedUser.email" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" required />
+                <small class="p-error" *ngIf="email.touched && !email.dirty">
+                    Email is required.
+                </small>
+            </div>
+
+            <div class="field">
+                <label for="passwordlabel">Password</label>
+                <input type="text" pInputText id="passwordlabel" #password="ngModel" name="password"
+                    [(ngModel)]="authorizedUser.password" required />
+            </div>
+
+
+        </form>
+
+
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+        <p-button label="Cancel" icon="pi pi-times" [text]="true" (onClick)="hideDialog()" />
+        <p-button label="Create" #btnSave icon="pi pi-check" [text]="true" (onClick)="saveUser(btnSave)" />
+    </ng-template>
+
+</p-dialog>
+<p-confirmDialog [style]="{ width: '450px' }" />

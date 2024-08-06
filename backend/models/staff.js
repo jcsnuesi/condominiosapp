@@ -16,7 +16,7 @@ var StaffSchema = Schema({
     phone: { type: String, required: true },
     position: { type: String, required: true },
     status: { type: String, default:'active' },
-    role: { type: String, required: true },
+    role: { type: String, default: 'STAFF' },
     permissions: [{ type: String, required: true }],
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'Admin' },
 

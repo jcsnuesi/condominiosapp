@@ -19,6 +19,7 @@ const fs = require('fs');
 const paths = require('path');
 const generatePassword = require('generate-password');
 const wsConfirmationMessage = require('./whatsappController')
+
 // Generar una contraseña con opciones específicas
 const password = generatePassword.generate({
     length: 8,       // Longitud de la contraseña

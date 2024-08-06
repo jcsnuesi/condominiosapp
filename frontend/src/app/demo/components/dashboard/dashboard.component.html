@@ -1,601 +1,130 @@
 
 
    <div class="grid">
-       
-  
-        <div class="col-12 lg:col-6 xl:col-3">
-            <div class="card mb-0">
-                <div class="flex justify-content-between mb-3">
-                    <div>
-                        <span class="block text-500 font-medium mb-3">Total units</span>
-                        <div class="text-900 font-medium text-xl">{{units}}</div>
-                    </div>
-                    <div  [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
-                        
-                        <p-button [icon]="'pi '+currentIcon+' text-blue-500 text-xl'"   
-                        (mouseover)="onMouseOver()"                             
-                        (mouseout)="onMouseOut()" 
-                       class="add-unit" (click)="showDialog() ">
-                                              
-                        </p-button>
-                    </div>
-             
+
+    <div class="col-12 lg:col-6 xl:col-3">
+        <div class="card mb-0">
+            <div class="flex justify-content-between mb-3">
+                <div>
+                    <span class="block text-500 font-medium mb-3">Total units</span>
+                    <div class="text-900 font-medium text-xl">0</div>
                 </div>
-                <span class="text-500">Member since: </span>
-                <br>
-                <span class="text-green-500 font-medium">{{ dateFormatted }} </span>
+                <div [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
+                    <i class="pi pi-building text-blue-500 text-x"></i>
+                    <!-- <p-button [icon]="'pi '+currentIcon+' text-blue-500 text-xl'" (mouseover)="onMouseOver()"
+                        (mouseout)="onMouseOut()" class="add-unit" (click)="showDialog() ">
+    
+                    </p-button> -->
+                </div>
+    
             </div>
+            <span class="text-500">Member since: </span>
+            <br>
+            <span class="text-green-500 font-medium">{{dateFormatted}} </span>
         </div>
+    </div>    
+
+    <div class="col-12 lg:col-6 xl:col-3">
+        <div class="card mb-0">
+            <div class="flex justify-content-between mb-3">
+                <div>
+                    <span class="block text-500 font-medium mb-3">Staff list</span>
+                    <div class="text-900 font-medium text-xl">28441</div>
+                </div>
+                <div class="flex align-items-center justify-content-center bg-cyan-100 border-round"
+                    [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
+                    <i class="pi pi-users text-cyan-500 text-xl"></i>
+                </div>
+            </div>
+            <span class="text-green-500 font-medium">520 </span>
+            <span class="text-500">newly registered</span>
+        </div>
+    </div>
+    <div class="col-12 lg:col-6 xl:col-3">
+        <div class="card mb-0">
+            <div class="flex justify-content-between mb-3">
+                <div>
+                    <span class="block text-500 font-medium mb-3">Comments</span>
+                    <div class="text-900 font-medium text-xl">152 Unread</div>
+                </div>
+                <div class="flex align-items-center justify-content-center bg-purple-100 border-round"
+                    [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
+                    <i class="pi pi-comment text-purple-500 text-xl"></i>
+                </div>
+            </div>
+            <span class="text-green-500 font-medium">85 </span>
+            <span class="text-500">responded</span>
+        </div>
+    </div>
+
+    
+    <div class="col-12 xl:col-6">
+        <div class="card">
+            <h5>Sales Overview</h5>
+            <p-chart type="bar" [data]="data" [options]="options"></p-chart>
+        </div>
+    
+        <div class="card">
+            <div class="flex align-items-center justify-content-between mb-4">
+                <h5>Notifications</h5>
+                <div>
+                    <button pButton type="button" icon="pi pi-ellipsis-v"
+                        class="p-button-rounded p-button-text p-button-plain" (click)="menu.toggle($event)"></button>
+                    <p-menu #menu [popup]="true" [model]="items"></p-menu>
+                </div>
+            </div>
+    
+            <span class="block text-600 font-medium mb-3">TODAY</span>
+            <ul class="p-0 mx-0 mt-0 mb-4 list-none">
+                <li class="flex align-items-center py-2 border-bottom-1 surface-border">
+                    <div
+                        class="w-3rem h-3rem flex align-items-center justify-content-center bg-blue-100 border-circle mr-3 flex-shrink-0">
+                        <i class="pi pi-dollar text-xl text-blue-500"></i>
+                    </div>
+                    <span class="text-900 line-height-3">Richard Jones
+                        <span class="text-700"> has purchased a blue t-shirt for <span
+                                class="text-blue-500">79$</span></span>
+                    </span>
+                </li>
+                <li class="flex align-items-center py-2">
+                    <div
+                        class="w-3rem h-3rem flex align-items-center justify-content-center bg-orange-100 border-circle mr-3 flex-shrink-0">
+                        <i class="pi pi-download text-xl text-orange-500"></i>
+                    </div>
+                    <span class="text-700 line-height-3">Your request for withdrawal of <span
+                            class="text-blue-500 font-medium">2500$</span> has been initiated.</span>
+                </li>
+            </ul>
+    
+            <span class="block text-600 font-medium mb-3">YESTERDAY</span>
+            <ul class="p-0 m-0 list-none">
+                <li class="flex align-items-center py-2 border-bottom-1 surface-border">
+                    <div
+                        class="w-3rem h-3rem flex align-items-center justify-content-center bg-blue-100 border-circle mr-3 flex-shrink-0">
+                        <i class="pi pi-dollar text-xl text-blue-500"></i>
+                    </div>
+                    <span class="text-900 line-height-3">Keyser Wick
+                        <span class="text-700"> has purchased a black jacket for <span
+                                class="text-blue-500">59$</span></span>
+                    </span>
+                </li>
+                <li class="flex align-items-center py-2 border-bottom-1 surface-border">
+                    <div
+                        class="w-3rem h-3rem flex align-items-center justify-content-center bg-pink-100 border-circle mr-3 flex-shrink-0">
+                        <i class="pi pi-question text-xl text-pink-500"></i>
+                    </div>
+                    <span class="text-900 line-height-3">Jane Davis<span class="text-700"> has posted a new questions
+                            about your product.</span></span>
+                </li>
+            </ul>
+        </div>
+    
+    
         
-        <div class="col-12 lg:col-6 xl:col-3">
-            <div class="card mb-0">
-                <div class="flex justify-content-between mb-3">
-                    <div>
-                        <span class="block text-500 font-medium mb-3">
-                            Social Area booking
-                        </span>
-                        <div class="text-900 font-medium text-xl">$2.100</div>
-                    </div>
-                    <div class="flex align-items-center justify-content-center bg-orange-100 border-round" [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
-                        <i class="pi pi-calendar-minus text-orange-500 text-xl"></i>
-                    </div>
-                </div>
-                <span class="text-green-500 font-medium">%52+ </span>
-                <span class="text-500">since last week</span>
-            </div>
-        </div>
-        <div class="col-12 lg:col-6 xl:col-3">
-            <div class="card mb-0">
-                <div class="flex justify-content-between mb-3">
-                    <div>
-                        <span class="block text-500 font-medium mb-3">Staff list</span>
-                        <div class="text-900 font-medium text-xl">28441</div>
-                    </div>
-                    <div class="flex align-items-center justify-content-center bg-cyan-100 border-round" [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
-                        <i class="pi pi-users text-cyan-500 text-xl"></i>
-                    </div>
-                </div>
-                <span class="text-green-500 font-medium">520  </span>
-                <span class="text-500">newly registered</span>
-            </div>
-        </div>
-        <div class="col-12 lg:col-6 xl:col-3">
-            <div class="card mb-0">
-                <div class="flex justify-content-between mb-3">
-                    <div>
-                        <span class="block text-500 font-medium mb-3">Comments</span>
-                        <div class="text-900 font-medium text-xl">152 Unread</div>
-                    </div>
-                    <div class="flex align-items-center justify-content-center bg-purple-100 border-round" [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
-                        <i class="pi pi-comment text-purple-500 text-xl"></i>
-                    </div>
-                </div>
-                <span class="text-green-500 font-medium">85 </span>
-                <span class="text-500">responded</span>
-            </div>
-        </div>
-
-        <div class="col-12 xl:col-6">
-            <div class="card">
-                <h5>Residents list</h5>
-                <p-table [value]="customers" [paginator]="true" [rows]="5" responsiveLayout="scroll">
-                    <ng-template pTemplate="header">
-                        <tr>
-                            <th>Picture</th>
-                            <th pSortableColumn="ownerName">Fullname <p-sortIcon field="fullname"></p-sortIcon></th>
-                            <th pSortableColumn="unit">Unit <p-sortIcon field="unit"></p-sortIcon></th>
-                            <th>View</th>
-                        </tr>
-                    </ng-template>
-                    <ng-template pTemplate="body" let-customer>
-                        <tr>
-                            <td style="width: 15%; min-width: 5rem;">
-                                <img src="{{url + 'owner-avatar/' +customer.avatar}}" class="shadow-4" alt="" width="50" style="border-radius: 5px;">
-                            </td>
-                            <td style="width: 35%; min-width: 7rem;">
-                                {{customer.ownerName + ' ' + customer.lastname }}
-                              </td>
-                            <td style="width: 35%; min-width: 8rem;">
-                                {{unitFormatOnInit(customer.propertyDetails)}}
-
-                            </td>
-                            <td style="width: 15%;">
-                                <button pButton pRipple type="button" (click)="showOwnerDialog(customer)" icon="pi pi-search" class="p-button p-component p-button-text p-button-icon-only"></button>
-                            </td>
-                        </tr>
-                    </ng-template>
-                </p-table>
-            </div>
-            <div class="card">
-                <div class="flex justify-content-between align-items-center mb-5">
-                    <h5>Best Selling Products</h5>
-                    <div>
-                        <button pButton type="button" icon="pi pi-ellipsis-v" class="p-button-rounded p-button-text p-button-plain" (click)="menu.toggle($event)"></button>
-                        <p-menu #menu [popup]="true" [model]="items"></p-menu>
-                    </div>
-                </div>
-                <ul class="list-none p-0 m-0">
-                    <li class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
-                        <div>
-                            <span class="text-900 font-medium mr-2 mb-1 md:mb-0">Space T-Shirt</span>
-                            <div class="mt-1 text-600">Clothing</div>
-                        </div>
-                        <div class="mt-2 md:mt-0 flex align-items-center">
-                            <div class="surface-300 border-round overflow-hidden w-10rem lg:w-6rem" [ngStyle]="{height: '8px'}">
-                                <div class="bg-orange-500 h-full" [ngStyle]="{width: '50%'}"></div>
-                            </div>
-                            <span class="text-orange-500 ml-3 font-medium">%50</span>
-                        </div>
-                    </li>
-                    <li class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
-                        <div>
-                            <span class="text-900 font-medium mr-2 mb-1 md:mb-0">Portal Sticker</span>
-                            <div class="mt-1 text-600">Accessories</div>
-                        </div>
-                        <div class="mt-2 md:mt-0 ml-0 md:ml-8 flex align-items-center">
-                            <div class="surface-300 border-round overflow-hidden w-10rem lg:w-6rem" [ngStyle]="{height: '8px'}">
-                                <div class="bg-cyan-500 h-full" [ngStyle]="{width: '16%'}"></div>
-                            </div>
-                            <span class="text-cyan-500 ml-3 font-medium">%16</span>
-                        </div>
-                    </li>
-                    <li class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
-                        <div>
-                            <span class="text-900 font-medium mr-2 mb-1 md:mb-0">Supernova Sticker</span>
-                            <div class="mt-1 text-600">Accessories</div>
-                        </div>
-                        <div class="mt-2 md:mt-0 ml-0 md:ml-8 flex align-items-center">
-                            <div class="surface-300 border-round overflow-hidden w-10rem lg:w-6rem" [ngStyle]="{height: '8px'}">
-                                <div class="bg-pink-500 h-full" [ngStyle]="{width: '67%'}"></div>
-                            </div>
-                            <span class="text-pink-500 ml-3 font-medium">%67</span>
-                        </div>
-                    </li>
-                    <li class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
-                        <div>
-                            <span class="text-900 font-medium mr-2 mb-1 md:mb-0">Wonders Notebook</span>
-                            <div class="mt-1 text-600">Office</div>
-                        </div>
-                        <div class="mt-2 md:mt-0 ml-0 md:ml-8 flex align-items-center">
-                            <div class="surface-300 border-round overflow-hidden w-10rem lg:w-6rem" [ngStyle]="{height: '8px'}">
-                                <div class="bg-green-500 h-full" [ngStyle]="{width: '35%'}"></div>
-                            </div>
-                            <span class="text-green-500 ml-3 font-medium">%35</span>
-                        </div>
-                    </li>
-                    <li class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
-                        <div>
-                            <span class="text-900 font-medium mr-2 mb-1 md:mb-0">Mat Black Case</span>
-                            <div class="mt-1 text-600">Accessories</div>
-                        </div>
-                        <div class="mt-2 md:mt-0 ml-0 md:ml-8 flex align-items-center">
-                            <div class="surface-300 border-round overflow-hidden w-10rem lg:w-6rem" [ngStyle]="{height: '8px'}">
-                                <div class="bg-purple-500 h-full" [ngStyle]="{width: '75%'}"></div>
-                            </div>
-                            <span class="text-purple-500 ml-3 font-medium">%75</span>
-                        </div>
-                    </li>
-                    <li class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
-                        <div>
-                            <span class="text-900 font-medium mr-2 mb-1 md:mb-0">Robots T-Shirt</span>
-                            <div class="mt-1 text-600">Clothing</div>
-                        </div>
-                        <div class="mt-2 md:mt-0 ml-0 md:ml-8 flex align-items-center">
-                            <div class="surface-300 border-round overflow-hidden w-10rem lg:w-6rem" [ngStyle]="{height: '8px'}">
-                                <div class="bg-teal-500 h-full" [ngStyle]="{width: '40%'}"></div>
-                            </div>
-                            <span class="text-teal-500 ml-3 font-medium">%40</span>
-                        </div>
-                    </li>
-                </ul>
-            </div>
-        </div>
-
-        <div class="col-12 xl:col-6">
-            <div class="card">
-                <h5>Sales Overview</h5>
-                <p-chart type="line" [data]="chartData" [options]="chartOptions"></p-chart>
-            </div>
-
-            <div class="card">
-                <div class="flex align-items-center justify-content-between mb-4">
-                    <h5>Notifications</h5>
-                    <div>
-                        <button pButton type="button" icon="pi pi-ellipsis-v" class="p-button-rounded p-button-text p-button-plain" (click)="menu.toggle($event)"></button>
-                        <p-menu #menu [popup]="true" [model]="items"></p-menu>
-                    </div>
-                </div>
-
-                <span class="block text-600 font-medium mb-3">TODAY</span>
-                <ul class="p-0 mx-0 mt-0 mb-4 list-none">
-                    <li class="flex align-items-center py-2 border-bottom-1 surface-border">
-                        <div class="w-3rem h-3rem flex align-items-center justify-content-center bg-blue-100 border-circle mr-3 flex-shrink-0">
-                            <i class="pi pi-dollar text-xl text-blue-500"></i>
-                        </div>
-                        <span class="text-900 line-height-3">Richard Jones
-                    <span class="text-700"> has purchased a blue t-shirt for <span class="text-blue-500">79$</span></span>
-                </span>
-                    </li>
-                    <li class="flex align-items-center py-2">
-                        <div class="w-3rem h-3rem flex align-items-center justify-content-center bg-orange-100 border-circle mr-3 flex-shrink-0">
-                            <i class="pi pi-download text-xl text-orange-500"></i>
-                        </div>
-                        <span class="text-700 line-height-3">Your request for withdrawal of <span class="text-blue-500 font-medium">2500$</span> has been initiated.</span>
-                    </li>
-                </ul>
-
-                <span class="block text-600 font-medium mb-3">YESTERDAY</span>
-                <ul class="p-0 m-0 list-none">
-                    <li class="flex align-items-center py-2 border-bottom-1 surface-border">
-                        <div class="w-3rem h-3rem flex align-items-center justify-content-center bg-blue-100 border-circle mr-3 flex-shrink-0">
-                            <i class="pi pi-dollar text-xl text-blue-500"></i>
-                        </div>
-                        <span class="text-900 line-height-3">Keyser Wick
-                    <span class="text-700"> has purchased a black jacket for <span class="text-blue-500">59$</span></span>
-                </span>
-                    </li>
-                    <li class="flex align-items-center py-2 border-bottom-1 surface-border">
-                        <div class="w-3rem h-3rem flex align-items-center justify-content-center bg-pink-100 border-circle mr-3 flex-shrink-0">
-                            <i class="pi pi-question text-xl text-pink-500"></i>
-                        </div>
-                        <span class="text-900 line-height-3">Jane Davis<span class="text-700"> has posted a new questions about your product.</span></span>
-                    </li>
-                </ul>
-            </div>
-
-           <div>
-
     
-           </div>
-
-        </div>
-
-  
-    <router-outlet></router-outlet>
-
-    <!--START MODAL-->
-<p-dialog [(visible)]="visible" (onHide)="hideDialog() " [modal]="true" [style]="{ width: '50rem' }"
-    [maximizable]="true">
-
-    <ng-template pTemplate="header">
-        <span class="font-semibold text-xl w-100">
-            <!-- {{ getModalContent().title}} -->
-        </span>
-    </ng-template>
-
-
-    <p-tabView>
-        <p-tabPanel header="Create single unit">
-
-
-            <app-owner-registration></app-owner-registration>
-
-        </p-tabPanel>
-        <p-tabPanel header="Create multiple units">
-
-            <p-fileUpload mode="basic" chooseLabel="Choose image" name="demo[]"
-                url="https://www.primefaces.org/cdn/api/upload.php" accept="image/*" maxlengthFileSize="1000000"
-                (onSelect)="onSelect($event)">
-            </p-fileUpload>
-
-        </p-tabPanel>
-
-
-    </p-tabView>
-
-
-</p-dialog>
-
-
-
-<!-- Modal owners -->
-   
-
-
+    </div>
 
 
     
-
-
-<p-dialog header="Resident details" class="minw" [modal]="true" [(visible)]="visible_owner" [style]="{ width: '50rem' }"
-    [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" [maximizable]="true">
-
-    <p-tabView>
-        <p-tabPanel header="Basic info">
-            <form #basicInfo="ngForm">
-
-                <div class="d-flex">
-
-                    <div class="col-md-6">
-                        <p style="text-align: center;">
-                            <img [src]="image" alt="" width="181px" height="200px">
-
-                            <p-fileUpload mode="basic" chooseLabel="Choose image" name="demo[]"
-                                url="https://www.primefaces.org/cdn/api/upload.php" accept="image/*"
-                                maxlengthFileSize="1000000" (onSelect)="onSelect($event)">
-                            </p-fileUpload>
-
-                        </p>
-
-                    </div>
-                    <div class="w-100">
-                        <h4>Basic info:</h4>
-                        <div class="col-md-6 w-100">
-                            <p-inputGroup>
-                                <p-inputGroupAddon>
-                                    <i class="pi pi-user"></i>
-                                </p-inputGroupAddon>
-
-                                <input pInputText
-                                    [ngClass]="{'input-success':ownerName.valid, 'input-error ':(ownerName.touched && !ownerName.dirty)}"
-                                    #ownerName="ngModel" [(ngModel)]="ownerObj.ownerName" name="ownerName" type="text"
-                                    maxlength="30" required placeholder="Name: Jose Rodolfo" />
-
-                            </p-inputGroup>
-
-                            <small *ngIf="ownerName.touched && !ownerName.valid" class="p-error">Required.</small>
-                        </div>
-
-                        <div class="col-md-6 w-100 mt-3">
-                            <p-inputGroup>
-                                <p-inputGroupAddon>
-                                    <i class="pi pi-user"></i>
-                                </p-inputGroupAddon>
-
-                                <input pInputText
-                                    [ngClass]="{'input-success':lastnameOW.valid, 'input-error ':(lastnameOW.touched && !lastnameOW.dirty)}"
-                                    #lastnameOW="ngModel" [(ngModel)]="ownerObj.lastname" name="lastnameOW" type="text"
-                                    maxlength="30" required placeholder="Name: Rogers Martins" />
-
-                            </p-inputGroup>
-
-                            <small *ngIf="ownerName.touched && !ownerName.valid" class="p-error">Required.</small>
-                        </div>
-
-                        <div class="col-md-6 w-100 mt-3">
-                            <p-inputGroup>
-                                <p-inputGroupAddon>
-                                    <i class="pi pi-android"></i>
-                                </p-inputGroupAddon>
-
-                                <select class="form-select form-control" name="gender" #gender="ngModel"
-                                    [(ngModel)]="ownerObj.gender" required>
-
-                                    <option [value]="option.gender" *ngFor="let option of genderOption">
-                                        {{option.name}}</option>
-
-                                </select>
-                            </p-inputGroup>
-
-                        </div>
-
-                        <div class="col-md-6 w-100 mt-3">
-
-
-                            <p-inputGroup>
-                                <p-inputGroupAddon>
-                                    <i class="pi pi-mobile"></i>
-                                </p-inputGroupAddon>
-
-                                <input pInputText
-                                    [ngClass]="{'input-success':phone.valid, 'input-error ':(phone.touched && !phone.dirty)}"
-                                    #phone="ngModel" [(ngModel)]="ownerObj.phone" name="phone" type="text"
-                                    maxlength="15" required placeholder="8496587417" pattern="^[0-9]+" />
-
-                            </p-inputGroup>
-
-                            <small *ngIf="phone.touched && !phone.valid" class="p-error">Required.</small>
-
-                        </div>
-
-                        <div class="col-md-6 w-100 mt-3">
-
-                            <p-inputGroup>
-                                <p-inputGroupAddon>
-                                    <i class="pi pi-check-circle"></i>
-
-                                </p-inputGroupAddon>
-
-                                <input pInputText #id_number="ngModel"
-                                    [ngClass]="{'input-success':id_number.valid, 'input-error ':(id_number.touched && !id_number.dirty)}"
-                                    [(ngModel)]="ownerObj.id_number" name="id_number" type="text"
-                                    placeholder="Personal id (No dashes)" maxlength="11" pattern="^[0-9]+" required />
-
-                            </p-inputGroup>
-
-                        </div>
-
-                        <div class="col-md-6 w-100 mt-3">
-                            <p-inputGroup>
-                                <p-inputGroupAddon>
-                                    <i class="pi pi-envelope"></i>
-
-                                </p-inputGroupAddon>
-
-                                <input pInputText #email="ngModel" [(ngModel)]="ownerObj.email"
-                                    [ngClass]="{'input-success': email.valid, 'input-error ':(email.touched && !email.dirty)}"
-                                    name="email" type="text" maxlength="50"
-                                    pattern="[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}"
-                                    placeholder="correo@email.com" required />
-
-                            </p-inputGroup>
-                            <small *ngIf="email.touched && !email.valid" class="p-error">Required.</small>
-                        </div>
-
-                        <div class="col-md-6 w-100 mt-3" *ngIf="passwordOwner">
-                            <p-inputGroup>
-                                <p-inputGroupAddon>
-                                    <i class="pi pi-lock"></i>
-
-                                </p-inputGroupAddon>
-
-                                <input pInputText #password="ngModel" [(ngModel)]="ownerObj.email"
-                                    [ngClass]="{'input-success': password.valid, 'input-error ':(password.touched && !email.dirty)}"
-                                    name="password" type="password" maxlength="12" pattern="[a-zA-Z0-9._-]"
-                                    placeholder="Password" required />
-
-                            </p-inputGroup>
-                            <small *ngIf="password.touched && !password.valid" class="p-error">Required.</small>
-                        </div>
-
-                        <div class="col-md-6 w-100 mt-3">
-                            
-                            <p-toast />
-                            <p-confirmDialog />
-                            <p-button (onClick)="confirmUpdate($event)" 
-                            icon="pi pi-check" 
-                            label="Update" 
-                            status="primary"
-                            [disabled]="!ownerName.valid || !phone.valid  || !lastnameOW.valid" />
-
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                
-            </form>
-        </p-tabPanel>
-        <p-tabPanel header="Properties details">
-            <form #basicInfo="ngForm" (ngSubmit)="onUpdate()">
-
-                <div class="col-md-12">
-                   
-                    <!-- <p-toast /> -->
-                    <!-- <p-toolbar styleClass="mb-4 gap-2">
-                        <ng-template pTemplate="left">
-                            <p-button severity="success" label="New" icon="pi pi-plus" class="mr-2" (onClick)="openNew()" />
-                            <p-button severity="danger" label="Delete" icon="pi pi-trash" (onClick)="deleteSelectedProducts()"
-                                [disabled]="!selectedProducts || !selectedProducts.length" />
-                        </ng-template>
-                    
-                        <ng-template pTemplate="right">
-                            <p-fileUpload mode="basic" accept="image/*" [maxFileSize]="1000000" label="Import" chooseLabel="Import"
-                                class="mr-2 inline-block" />
-                            <p-button severity="help" label="Export" icon="pi pi-upload" />
-                        </ng-template>
-                    </p-toolbar> -->
-                    
-                    <p-table #dt [value]="[propertyDetailsUser]" 
-                    [rows]="10" [paginator]="true"
-                        [globalFilterFields]="['fullname',  'status']"
-                        [tableStyle]="{ 'min-width': '75rem' }"  
-                        [rowHover]="true" 
-                        dataKey="id"
-                        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [showCurrentPageReport]="true">
-
-                        <ng-template pTemplate="caption">
-                            <div class="flex align-items-center justify-content-between">
-                                <h5 class="m-0">Manage residence</h5>
-                                <span class="p-input-icon-left">
-                                    <i class="pi pi-search"></i>
-                                    <input pInputText type="text" (input)="dt.filterGlobal($event.target.value, 'contains')"
-                                        placeholder="Search..." />
-                                </span>
-                            </div>
-                        </ng-template>
-                        <ng-template pTemplate="header">
-                            <tr>
-                          
-                                <th pSortableColumn="fullname" style="min-width:15rem">
-                                    Fullname <p-sortIcon field="fullname" />
-                                </th>
-                                <th>
-                                    Unit
-                                </th>
-                                <th>
-                                   Phone number
-                                </th>
-                                <th>
-                                    Monthly payment 
-                                </th>
-                                <th>
-                                   Contract start date
-                                </th>
-                                <th>
-                                   Contract end date
-                                </th>
-                                <th>
-                                    Payment method
-                                </th>
-                                <th>
-                                    Emergency contact
-                                </th>
-                                <th>
-                                    Is rent?
-                                </th>
-                                <th>
-                                    Status <p-sortIcon field="status" />
-                                </th>                                
-                           
-                            </tr>
-                        </ng-template>
-                        <ng-template pTemplate="body" let-owner>
-                            <tr >
-                               
-                                <td>
-                                    {{ owner.fullname}}
-                                </td>                             
-                                
-                                <td>
-                                    {{ owner.units }}
-                                </td>
-                                <td>
-                                    {{ owner.phone}}
-                                </td>
-                                <td>
-                                    {{ owner.monthlyPayment}}
-                                </td>
-                                <td>
-                                    {{ owner.contractStart}}
-                                </td>
-                                <td>
-                                    {{ owner.contractEnd}}
-                                </td>
-                                <td>
-                                    {{ owner.paymentMehtod}}
-                                </td>
-                                <td>
-                                    {{ owner.emergecyPhoneNumber}}
-                                </td>
-                                <td>
-                                    {{ owner.isRent}}
-                                </td>
-                                <td>
-                                    <p-tag [value]="owner.status" [severity]="getSeverity(owner.status)" />
-                                </td>
-                                <td>
-                                    <p-button icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true" severity="success"
-                                        (onClick)="editProduct(owner)" />
-                                    <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true"
-                                        (onClick)="deleteProduct(product)" />
-                                </td>
-                            </tr>
-                        </ng-template>
-                        <ng-template pTemplate="summary">
-                            <div class="flex align-items-center justify-content-between">
-                                In total there are {{ products ? products.length : 0 }} products.
-                            </div>
-                        </ng-template>
-                    </p-table>
-
-                    
-                </div>
-
-            </form>
-        </p-tabPanel>
-        <p-tabPanel header="Header III">
-            <p>
-                At vero eos et accusamus et iusto odio dignissimos...
-            </p>
-        </p-tabPanel>
-    </p-tabView>
-
-</p-dialog>
-
-
      
 </div>

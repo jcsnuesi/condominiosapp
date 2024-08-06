@@ -6,7 +6,7 @@
         <ng-template pTemplate="left">
             <p-button severity="success" label="Create user" icon="pi pi-plus" class="mr-2" (onClick)="openNew()" />
             <p-button severity="danger" label="Delete" icon="pi pi-trash" (onClick)="deleteSelectedUsers()"
-                [disabled]="!selectedProducts || !selectedProducts.length" />
+                [disabled]="!selectedStaffs || !selectedStaffs.length" />
         </ng-template>
     
         <ng-template pTemplate="right">
@@ -16,9 +16,15 @@
         </ng-template>
     </p-toolbar>
     
-    <p-table #dt [value]="users" [rows]="10" [paginator]="true"
-        [globalFilterFields]="['name', 'country.name', 'representative.name', 'status']"
-        [tableStyle]="{ 'min-width': '75rem' }" [(selection)]="selectedProducts" [rowHover]="true" dataKey="id"
+    <p-table #dt 
+    [value]="users" 
+    [rows]="10" 
+    [paginator]="true"
+        [globalFilterFields]="['name', 'lastname',  'status', 'position']"
+        [tableStyle]="{ 'min-width': '75rem' }" 
+        [(selection)]="selectedStaffs" 
+        [rowHover]="true" 
+     
         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [showCurrentPageReport]="true">
         <ng-template pTemplate="caption">
             <div class="flex align-items-center justify-content-between">
@@ -35,6 +41,7 @@
                 <th style="width: 4rem">
                     <p-tableHeaderCheckbox />
                 </th>
+          
                 <th style="min-width:15rem">
                     Avatar
                 </th>
@@ -70,6 +77,7 @@
                 <td>
                     <p-tableCheckbox [value]="userx" />
                 </td>
+            
                 <td>
                     <p-avatar label="{{getAvatarFirstLetter( userx.name) }}" styleClass="mr-2" size="xlarge" />
                 </td>
@@ -89,6 +97,7 @@
                 </td>
                 <td>
                     {{upperCase(userx.position) }}
+  
                 </td>
                 <td>
                     <p-tag [value]="userx.status" [severity]="getSeverity(userx.status)" />
@@ -98,7 +107,7 @@
                 </td>
                 <td>
                     <p-button icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true" severity="success"
-                        (onClick)="editProduct(userx)" />
+                        (onClick)="editStaff(userx)" />
                     <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true"
                         (onClick)="deleteUser(userx)" />
                 </td>
@@ -111,9 +120,9 @@
         </ng-template>
     </p-table>
 
-
+ 
    <!-- USER DIALOG -->
-    <p-dialog [(visible)]="userDialog" [style]="{ width: '450px' }" header="Create Staff" [modal]="true"
+    <p-dialog [(visible)]="userDialog" [style]="{ width: '450px' }" [header]="dialogHeader" [modal]="true"
         styleClass="p-fluid">
 
    
@@ -152,7 +161,7 @@
                         name="genderx"
                         [(ngModel)]="genderSelected" 
                         optionLabel="name" 
-                        [placeholder]="txtGender" 
+                        [placeholder]="genderSelected" 
                         required />               
                         
                     </div>
@@ -186,7 +195,7 @@
                         name="position" 
                         [(ngModel)]="positionSelected" 
                         optionLabel="name"
-                            placeholder="Select position" />
+                            [placeholder]="positionSelected" />
                         <small class="p-error" *ngIf="position.touched && !position.dirty">
                             Position is required.
                         </small>
@@ -213,32 +222,22 @@
                         name="password" 
                         [(ngModel)]="userModel.password"
                         required  />
-                    </div>
+                    </div>            
+                    
                     
                     <div class="field">
-                        <label for="roleLabel">Role</label>
-                        <p-dropdown 
-                        [options]="roleOptions" 
-                        #role="ngModel" 
-                        name="role" 
-                        [(ngModel)]="roleSelected"
-                        optionLabel="name" 
-                        placeholder="Select role"
-                        required />
-                        <small class="p-error" *ngIf="role.touched && !role.dirty">
-                            Role is required.
-                        </small>
-                    </div>
-                    
-                    <div class="field">
-                        <label for="roleLabel">Permissions</label>
+                        <label for="permissionsLabel">Permissions</label>
                         <p-multiSelect 
                         [options]="permissionsOptions" 
                         #permissionsx="ngModel"
                         name="permissionsx"
                         [(ngModel)]="permissions" 
                         optionLabel="name" 
-                        placeholder="Select Permissions" />
+                        placeholder="Select permissions..." />
+
+                    <small style="font-style: italic;font-size: 12px;color:forestgreen" class="p-error" *ngIf="passwordActive">
+                        Current permissions: {{current_permissions}}.
+                    </small>
                     <small class="p-error" *ngIf="permissionsx.touched && !permissionsx.dirty">
                         Permissions is required.
                     </small>
@@ -250,7 +249,7 @@
                        
         <ng-template pTemplate="footer">
             <p-button label="Cancel" icon="pi pi-times" [text]="true" (onClick)="hideDialog()" />
-            <p-button label="Save" icon="pi pi-check" [text]="true" (onClick)="saveUser()" />
+            <p-button [label]="btnLabel" #btnSave icon="pi pi-check" [text]="true" (onClick)="saveUser(btnSave)" />
         </ng-template>
 
     </p-dialog>

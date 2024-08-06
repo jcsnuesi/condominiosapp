@@ -16,11 +16,9 @@ import { Staff } from '../../models/staff.model';
 import { DropdownModule } from 'primeng/dropdown';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { InputTextModule } from 'primeng/inputtext';
+import { StaffService } from '../../service/staff.service';
 
-interface Permissions {
-  name: string,
-  code: string
-}
+
 
 @Component({
   selector: 'app-create-user',
@@ -44,7 +42,7 @@ interface Permissions {
   ],
   templateUrl: './create-user.component.html',
   styleUrl: './create-user.component.scss',
-  providers: [UserService, ConfirmationService, MessageService]  
+  providers: [UserService, ConfirmationService, MessageService, StaffService]  
 })
 export class CreateUserComponent implements OnInit {
 
@@ -52,24 +50,31 @@ export class CreateUserComponent implements OnInit {
   public users: any;
   public userInfo: any;
   public token: string;
-  public selectedProducts: any;
+  public selectedStaffs: any;
   public userDialog: boolean;
   public genderModel:{name: string, code: string}[];
   public passwordActive: boolean = false;
   public positionOptions: { name: string, code: string}[];
   public roleOptions: { name: string, code: string}[];
   public permissionsOptions: { name: string, code: string}[];
-  public permissions!: Permissions[];
+  public permissions: any;
   public genderSelected: any;
   public roleSelected: any;
   public positionSelected: any;
+  public current_permissions: any;
+  public dialogHeader: string;
 
 
-  constructor(private _userService: UserService, private _confirmationService: ConfirmationService, private _messageService: MessageService) {
+  constructor(
+    private _userService: UserService, 
+    private _confirmationService: ConfirmationService, 
+    private _messageService: MessageService,
+  private _staffService: StaffService) {
 
-    this.selectedProducts = [];
+    this.selectedStaffs = [];
+    this.positionSelected = [];
     this.token = this._userService.getToken();
-    this.userModel = new Staff('','','','','','','','','','');    
+    this.userModel = new Staff('','','','','','','','','');    
     this.genderModel = [
       {name:'Female', code:'F'}, 
       {name:'Male', code:'M'}
@@ -81,49 +86,47 @@ export class CreateUserComponent implements OnInit {
       { name: 'Sales', code: 'sales'},
       { name: 'Marketing', code: 'marketing'},
       { name: 'Human Resources', code: 'human_resources'},
-      { name: 'Handyman', code: 'handy_man' },
+      { name: 'Handyman', code: 'handyman' },
+      { name: 'Customer care', code: 'customer_care' }
     ];
-
-    this.roleOptions = [
-      { name: 'Admin', code: 'admin'},
-      { name: 'Staff', code: 'staff'}
-    ]
-
+   
     this.permissionsOptions = [
       { name: 'Create', code: 'create'},
       { name: 'Read', code: 'read'},
       { name: 'Update', code: 'update'},
       { name: 'Delete', code: 'delete'}
-    ]
-
-
+    ];
 
    }
 
-
    ngOnInit(): void {
 
-     this.userModel.gender = "Select gender...";
-     this._userService.getStaff(this.token).subscribe({
-      
-      next: (response)  => {
+    // Cargamos todos los usuarios
+     this.getAllStaff();
+       
+   }
+
+   getAllStaff(){
+
+     this._staffService.getStaff(this.token).subscribe({
+
+       next: (response) => {
 
          this.users = response.message
-        console.log(this.users)
-      },
+      
+       },
 
-      error: (error) => {
+       error: (error) => {
 
-        console.log("error", error)
-      },
-      complete: () => {
+         console.log("error", error)
+       },
+       complete: () => {
 
-        console.log('Get staff complete!')
-      }
-    
-    });
+         console.log('Get staff complete!')
+       }
 
-       
+     });
+
    }
 
    upperCase(user){
@@ -131,29 +134,71 @@ export class CreateUserComponent implements OnInit {
     return user.toUpperCase();
    }
 
+
+   
+
   deleteSelectedUsers() {
+
     this._confirmationService.confirm({
       message: 'Are you sure you want to delete the selected products?',
       header: 'Confirm',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
-        // this.products = this.products.filter((val) => !this.selectedProducts?.includes(val));
-        this.selectedProducts = null;
-        this._messageService.add({ severity: 'success', summary: 'Successful', detail: 'Products Deleted', life: 3000 });
+   
+        const ids = this.selectedStaffs.map((staff) => staff._id);       
+
+        this._staffService.deleteStaff(this.token, ids).subscribe({
+          
+            next: (response)  => {
+              console.log(response)
+              if (response.status == 'success') {
+
+                this.getAllStaff();
+                this._messageService.add({ severity: 'success', summary: 'Successful', detail: 'Staffs deleted successfully!', life: 3000 });
+            
+              }else{
+                this._messageService.add({ severity: 'error', summary: 'Error', detail: 'Staffs not deleted', life: 3000 });
+              }
+          
+            },
+      
+            error: (error) => {
+      
+              console.log("error", error)
+              this._messageService.add({ severity: 'error', summary: 'Error', detail: 'Staffs not deleted', life: 3000 });
+      
+            },
+            complete: () => {
+      
+              console.log('Staffs deleted!')
+            }
+        });
+       
       }
     });
   }
 
+  
+
+  public btnLabel:string;
   openNew() {
     this.userDialog = true; 
+    this.btnLabel = 'Create';
+    this.dialogHeader = 'Create User';
+    this.passwordActive = false;
 
     Object.keys(this.userModel).forEach((key) => {
       this.userModel[key] = '';
     })
 
-    this.positionSelected = '';
+    // Restablecer todos los campos del modelo userModel
+    this.userModel = new Staff('', '', '', '', '', '', '', '', '');
+
+    // Restablecer las variables relacionadas con el formulario
+    this.permissions = [];
     this.genderSelected = 'Select gender...';
-    this.roleSelected = '';
+    this.roleSelected = 'Select role...';
+    this.positionSelected = 'Select position...';
     
     
     
@@ -165,21 +210,44 @@ export class CreateUserComponent implements OnInit {
   }
 
   txtGender: string;
-  editProduct(user: any) {
+  editStaff(user: any) {
+
     this.userDialog = true;
+    this.btnLabel = 'Update';
+    this.dialogHeader = 'Edit User';
     this.passwordActive = true;
 
-    this.userModel.name = user.name;
-    this.userModel.gender = user.gender
-    this.userModel.lastname = user.lastname;
-    this.genderSelected = (this.genderModel[0].name = user.gender)
-    this.userModel.phone = user.phone;
-    this.userModel.government_id = user.government_id;
-    this.userModel.position = user.position;
-    this.userModel.email = user.email;
-    this.userModel.role = user.role;
-    this.userModel.permissions = user.permissions;
-    console.log(this.genderSelected)
+
+    for (const key in this.userModel) {
+    
+      this.userModel[key] = user[key];
+      
+    }
+
+    this.genderSelected = this.userModel['gender'] == 'M' ? { name: 'Male', code: 'M' } : { name: 'Female', code: 'F' };
+
+    this.positionSelected = this.positionOptions.filter((position) => position.code.toUpperCase() == user.position.toUpperCase())[0].name;
+
+    // Cargamos los permisos del usuario  al dropdown
+    var perm = [];
+    user.permissions.forEach((permission) =>{
+   
+     for (let i = 0; i < this.permissionsOptions.length; i++) {
+   
+       console.log(this.permissionsOptions[i].code.trim() == permission.trim()) 
+       if (this.permissionsOptions[i].code.trim() == permission.trim()) {
+         perm.push(this.permissionsOptions[i]);  
+        
+      }  
+      
+    }
+    
+    } );
+   
+    this.permissions = perm
+    this.current_permissions = user.permissions;
+  
+ 
 
   }
 
@@ -192,41 +260,98 @@ export class CreateUserComponent implements OnInit {
   }
 
   deleteUser(user: any) {
+
     this._confirmationService.confirm({
-      message: 'Are you sure you want to delete ' + user.name + '?',
+      message: 'Are you sure you want to delete the selected products?',
       header: 'Confirm',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
-        // this.products = this.products.filter((val) => val.id !== product.id);
-        // this.product = {};
-        this._messageService.add({ severity: 'success', summary: 'Successful', detail: 'Product Deleted', life: 3000 });
+
+        const ids = new Array(user._id);
+
+        this._staffService.deleteStaff(this.token, ids).subscribe({
+
+          next: (response) => {
+           
+            if (response.status == 'success') {
+
+              this.getAllStaff();
+              this._messageService.add({ severity: 'success', summary: 'Successful', detail: 'Staffs deleted successfully!', life: 3000 });
+
+            } else {
+              this._messageService.add({ severity: 'error', summary: 'Error', detail: 'Staffs not deleted', life: 3000 });
+            }
+
+          },
+
+          error: (error) => {
+
+            console.log("error", error)
+            this._messageService.add({ severity: 'error', summary: 'Error', detail: 'Staffs not deleted', life: 3000 });
+
+          },
+          complete: () => {
+
+            console.log('Staffs deleted!')
+          }
+        });
+
       }
     });
   }
 
 
-  saveUser() {
-    // this.submitted = true;
+  saveUser(event:any) {
 
-    this._confirmationService.confirm({
-      message: 'Are you sure you want to create this user?',
-      header: 'Confirm',
-      icon: 'pi pi-exclamation-triangle',
-      accept: () => {
-      
-        this.permissions.forEach((permission) => {
-          this.userModel.permissions += permission.code + ',';
+    switch (event.label) {
+      case 'Create':
+        
+        this._confirmationService.confirm({
+          message: 'Are you sure you want to create this user?',
+          header: 'Confirm',
+          icon: 'pi pi-exclamation-triangle',
+          accept: () => {
+
+            this.userModel.permissions = '';
+            this.permissions.forEach((permission) => {
+              this.userModel.permissions += permission.code + ',';
+            });
+
+            this.userModel.position = this.positionSelected.code;
+            this.userModel.gender = this.genderSelected.code;
+            this.submit();
+
+          }
         });
 
-        this.userModel.position = this.positionSelected.code;
-        this.userModel.gender = this.genderSelected.code;
-        this.userModel.role = this.roleSelected.code;
+        break;
+      case 'Update':
 
-       this.submit(this.userModel);
-        this._messageService.add({ severity: 'success', summary: 'Successful', detail: 'Product Deleted', life: 3000 });
-      }
-    });    
+        this._confirmationService.confirm({
+          message: 'Are you sure you want to update this user?',
+          header: 'Confirm',
+          icon: 'pi pi-exclamation-triangle',
+          accept: () => {
+
+            this.userModel.permissions = '';
+            this.permissions.forEach((permission) => {
+              this.userModel.permissions += permission.code + ',';
+            });
+
+            this.userModel.position = this.positionSelected.code;
+            this.userModel.gender = this.genderSelected.code;
+            this.update();
+
+          }
+        });
+
+        
+        break;
     
+    }
+ 
+    
+ 
   }
 
  
@@ -242,10 +367,69 @@ export class CreateUserComponent implements OnInit {
     }
   }
 
+  update(){
 
-  submit(form:any){
+    this._staffService.updateStaff(this.token, this.userModel).subscribe({
+        
+        next: (response)  => {
+          
+          if (response.status == 'success') {
+            this.getAllStaff();
+            this.userDialog = false;
+            this._messageService.add({ severity: 'success', summary: 'Successful', detail: 'Staff updated successfully!', life: 3000 });
+         
+          }else{
+            this._messageService.add({ severity: 'error', summary: 'Error', detail: 'Staff not updated', life: 3000 });
+          }
+       
+        },
+  
+        error: (error) => {
+  
+          console.log("error", error)
+          this._messageService.add({ severity: 'error', summary: 'Error', detail: 'Staff not updated', life: 3000 });
 
-    console.log(this.userModel)
+        },
+        complete: () => {
+  
+          console.log('Staff updated!')
+        }
+    });
+  }
+
+  submit(){
+
+   
+    this._staffService.create(this.userModel, this.token).subscribe({
+        
+        next: (response)  => {
+          
+          if (response.status == 'success') {
+            this.getAllStaff();
+            this.userDialog = false;
+            this._messageService.add({ severity: 'success', summary: 'Successful', detail: 'Staff created successfully', life: 3000 });
+            
+          } else {
+
+            this._messageService.add({ severity: 'error', summary: 'Error', detail: 'Staff not created', life: 3000 });
+
+          }
+       
+        
+        },
+  
+        error: (error) => {
+  
+          console.log("error", error)
+          this._messageService.add({ severity: 'error', summary: 'Error', detail: 'Staff not created', life: 3000 });
+
+        },
+        complete: () => {
+  
+          console.log('Staff created!')
+        }
+    });
+    
   }
 
 }

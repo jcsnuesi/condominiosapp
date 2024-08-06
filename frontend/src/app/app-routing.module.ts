@@ -6,7 +6,7 @@ import { UserGuard } from './demo/service/routing.guard';
 import { CreatePropertyComponent } from './demo/components/create-property/create-property.component';
 import { SeePropertyComponent } from './demo/components/see-property/see-property.component';
 import { CreateUserComponent } from './demo/components/create-user/create-user.component';
-
+import { HomeComponent } from './demo/components/home/home.component';
 
 @NgModule({
     imports: [
@@ -15,7 +15,7 @@ import { CreateUserComponent } from './demo/components/create-user/create-user.c
                 path: '', component: AppLayoutComponent,
                 canActivate: [UserGuard],
                 children: [
-                    { path: 'home/:id', canActivate: [UserGuard],  loadChildren: () => import('./demo/components/dashboard/dashboard.module').then(m => m.DashboardModule) },
+                    { path: 'home/:id', canActivate: [UserGuard], component:  HomeComponent },
                     { path: '', canActivate: [UserGuard],  loadChildren: () => import('./demo/components/dashboard/dashboard.module').then(m => m.DashboardModule) },
                     { path: 'uikit', loadChildren: () => import('./demo/components/uikit/uikit.module').then(m => m.UIkitModule) },
                     { path: 'utilities', loadChildren: () => import('./demo/components/utilities/utilities.module').then(m => m.UtilitiesModule) },

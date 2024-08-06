@@ -9,7 +9,7 @@ export class CondominioService {
 
     public url:any;
      
-
+ 
     constructor(private _http:HttpClient){
         
         this.url = global.url

@@ -12,6 +12,18 @@ let checkExtensions = require('../service/extensions')
 const { v4: uuidv4 } = require('uuid');
 const verifyClass = require('../service/verifyParamData')
 const sendEmailVerification = require('../service/emailVerification')
+const generatePassword = require('generate-password');
+// Generar una contraseña con opciones específicas
+const password = generatePassword.generate({
+    length: 8,       // Longitud de la contraseña
+    numbers: true,    // Incluir números
+    symbols: true,    // Incluir símbolos
+    uppercase: true,  // Incluir letras mayúsculas
+    lowercase: true,  // Incluir letras minúsculas
+    excludeSimilarCharacters: true,  // Excluir caracteres similares
+});
+
+
 
 
 var StaffController = {
@@ -19,15 +31,13 @@ var StaffController = {
     createStaff: function(req,res){
 
         var params = req.body
-        var optionToVerify = new verifyClass()
-        
+        var optionToVerify = new verifyClass()        
        
         try {
 
             var val_name = !validator.isEmpty(params.name)
             var val_lastname = !validator.isEmpty(params.lastname)
             var val_email = validator.isEmail(params.email)
-            var val_password = !validator.isEmpty(params.password)
             var val_phone = optionToVerify.phonesTransformation(params.phone)
 
         } catch (error) {
@@ -52,9 +62,8 @@ var StaffController = {
         //     })
         // }
 
-       
-
-        if (val_name && val_lastname && val_email && val_password && val_phone) {
+     
+        if (val_name && val_lastname && val_email  && val_phone) {
             
                    
             Staff.findOne({
@@ -68,6 +77,7 @@ var StaffController = {
             }, async (err, staffound) => {
 
                 
+            
                 var errorHandlerArr = errorHandler.errorRegisteringUser(err, staffound, params)
 
                 if (errorHandlerArr[0]) {
@@ -82,6 +92,8 @@ var StaffController = {
 
                 }
 
+             
+
                 var staffAcc = new Staff()               
               
                 for (const key in params) {
@@ -92,11 +104,15 @@ var StaffController = {
                     staffAcc[key] = params[key].toLowerCase() 
 
                 }
+
+            
                 // Se le asigna el id del admin que lo creo
-                staffAcc.createdBy = req.user.sub
+                staffAcc.createdBy = req.user.sub              
 
                 // Se asignan los permisos
-                params.permissions.split(',').forEach(element => {
+                const permission = params.permissions.split(',')
+                permission.pop()              
+                permission.forEach(element => {
                     staffAcc.permissions.push(element)
                 })
                 
@@ -104,10 +120,9 @@ var StaffController = {
                 //     staffAcc['avatar'] = (req.files['avatar'].path.split('\\'))[2]
                 // }
 
-                staffAcc.password = await bcrypt.hash(params.password, saltRounds)
-                
+                staffAcc.password = await bcrypt.hash(password, saltRounds)
+               
                 staffAcc.save(async (err, staffSaved) => {
-
 
                     if (err) {
 
@@ -118,18 +133,11 @@ var StaffController = {
 
                         })
                     }
-
-                    // // Se busca el admin y se le agrega el staff
-                    // var admin = await Admin.findOne({ _id: req.user.sub })
-                    // admin.staff.push(staffSaved._id)
-
-                    // await Admin.findOneAndUpdate({ _id: req.user.sub }, admin, { new: true })
-
-                    staffSaved.password = undefined
+                   
 
                     try {
 
-                        sendEmailVerification.verifyRegistration(staffSaved.email)
+                        sendEmailVerification.StaffRegistration({email:staffSaved.email, password:password})
 
                     } catch (error) {
 
@@ -142,6 +150,7 @@ var StaffController = {
 
                     }
 
+                    staffSaved.password = undefined
 
                     return res.status(200).send({
                         status: 'success',
@@ -172,8 +181,8 @@ var StaffController = {
 
         try {
 
-            const staffId = req.params.staffId;
-            const stafFound = await Staff.findOne({ _id: staffId });
+            const staffParams = req.body;
+            const stafFound = await Staff.findOne({ email: staffParams.email });
 
             if (!stafFound) {
                 return res.status(404).send({
@@ -182,25 +191,24 @@ var StaffController = {
                 });
             }
 
-            const avatarExist = fs.existsSync('../uploads/staff/' + stafFound.avatar) ? true : false;
+            // const avatarExist = fs.existsSync('../uploads/staff/' + stafFound.avatar) ? true : false;
             
-            if (!avatarExist) {
-                fs.unlinkSync('../uploads/staff/' + stafFound.avatar);
-            }
+            // if (!avatarExist) {
+            //     fs.unlinkSync('../uploads/staff/' + stafFound.avatar);
+            // }
 
-            for (const key in req.body) {
+            for (const key in staffParams) {
 
                 if (key !== 'password') {
-                    stafFound[key] = req.body[key].toLowerCase();
+                    stafFound[key] = staffParams[key].toLowerCase();
+                } else if (key == 'password') {
+                    stafFound.password = await bcrypt.hash(staffParams.password, saltRounds);
                 }
 
             }
 
-            if (req.body.password) {
-                stafFound.password = await bcrypt.hash(req.body.password, saltRounds);
-            }
 
-            const staffUpdated = await Staff.findOneAndUpdate({ _id: staffId }, stafFound, { new: true });
+            const staffUpdated = await Staff.findOneAndUpdate({ email: staffParams.email }, stafFound, { new: true });
 
             if (!staffUpdated) {
                 return res.status(500).send({
@@ -251,7 +259,6 @@ var StaffController = {
        
         var params = req.body
        
-        
         if (req.user.role.toLowerCase() != 'admin') {
 
             return res.status(403).send({
@@ -263,94 +270,70 @@ var StaffController = {
         }
 
         // Hacer el bloque de codigo para eliminar del Schema ADMIN
+        Staff.findOneAndUpdate({ _id: params._id }, { status: 'inactive' }, { new: true }, (err, deleted) => {
 
-        if (params.permanent) {
+            if (err) {
 
+                return res.status(500).send({
 
-            Staff.findOne({ _id: params.id }, async (err, staff) => {
-
-                if (err) {
-
-                    res.status(500).send({
-
-                        status: 'error',
-                        message: 'Staff could not be deleted'
-                    })
-                    
-                }
-       
-               
-                if (!staff) {
-                    
-                    res.status(404).send({
-
-                        status: 'error',
-                        message: 'Staff not found'
-                    })
-                }
-
-                const admin = await Admin.findOne({ _id: req.user.sub })
-                admin.staff.splice(admin.staff.indexOf(staff._id), 1) 
-
-                const adminUpdated = await Admin.findOneAndUpdate({ _id: req.user.sub }, admin, {new:true})
-
-                if (!adminUpdated) {
-
-                    res.status(404).send({
-
-                        status: 'error',
-                        message: 'Admin does not upload'
-                    })
-                    
-                }else{
-                    
-                    await Staff.findOneAndDelete({ _id: params.id })
-                    res.status(200).send({
-
-                        status: 'success',
-                        message: 'Staff deleted permanently'
-                    })
-
-                }
-
-              
-               
-           
-            })
-
-        }else{
-  
-            Staff.findOneAndUpdate({ _id: params.id }, { status: 'inactive' }, {new:true}, (err, deleted) => {
-
-                if (err) {
-
-                    return res.status(500).send({
-
-                        status: 'error',
-                        message: 'Error deleting'
-                    })
-                    
-                }
-
-                return res.status(200).send({
-
-                    status: 'success',
-                    message: deleted
+                    status: 'error',
+                    message: 'Error deleting'
                 })
 
+            }
 
+            return res.status(200).send({
+
+                status: 'success',
+                message: deleted
             })
 
 
+        })
 
-        }
+        
+        
 
        
     },
-    getStaffByAdmin:function(req,res){
+    deleteBatch: async function (req, res) {
+        const userIds = req.body; // Extraer los IDs de los usuarios a eliminar del cuerpo de la solicitud
+
+    
+        if (!Array.isArray(userIds) || userIds.length === 0) {
+            return res.status(400).send({ message: 'No se proporcionaron IDs válidos' });
+        }
+
+        try {
+            // Realizar la eliminación por lotes
+            const result = await Staff.findOneAndUpdate({ _id: { $in: userIds } }, { status: 'inactive' }, { new: true });
+
+            if (result.deletedCount === 0) {
+                return res.status(404).send({ 
+                    status: 'error',
+                    message: 'No se encontraron usuarios para eliminar' });
+            }       
+            
+            return res.status(200).send({ 
+                status: 'success',
+                message: 'Usuarios eliminados correctamente', 
+                deletedCount: result.deletedCount 
+            });
+
+                
+        } catch (err) {
+            console.error('Error en la eliminación:', err);
+            return res.status(500).send({ message: 'Error en la petición' });
+        }
+    },
+    getStaffByAdmin:async function(req,res){
      
+   
         
-        Staff.find({ createdBy:req.user.sub},(err, staffs) => {
+        Staff.find({
+            status: { $ne: 'inactive' },
+            createdBy: req.user.sub
+        },(err, staffs) => {
 
           
             if (err || !staffs) {
@@ -361,9 +344,16 @@ var StaffController = {
                     status: "error",
                     message: "Staffs was not found"
                 })
-            }
-                    
-                console.log(staffs)
+            }         
+            
+                
+           // Ocultamos la password
+            for (const index in staffs) {
+             
+                staffs[index].password = undefined
+
+             }
+                       
             return res.status(200).send({
 
                 status: "success",

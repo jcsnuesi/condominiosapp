@@ -3,7 +3,7 @@
 var express = require('express')
 var StaffController = require('../controllers/staff')
 
-var router = express.Router()
+var router = express.Router() 
 var md_auth = require('../middleware/auth')
 
 
@@ -35,6 +35,6 @@ router.put('/update-staff', md_auth.authenticated, StaffController.update)
 
 // // DELETE
 
-router.delete('/delete-staff', md_auth.authenticated, StaffController.delete)
+router.put('/delete-staff', md_auth.authenticated, StaffController.deleteBatch)
 
 module.exports = router

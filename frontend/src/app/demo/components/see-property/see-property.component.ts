@@ -117,13 +117,12 @@ export class SeePropertyComponent implements OnInit, DoCheck {
 
   }
 
-
-
   clear(table: Table) {
     table.clear();
   }
 
-  getAdminsProperties() {
+  getAdminsProperties(){
+    
     this._condominioService.getPropertyByAdminId(this.token, this.loginInfo._id).subscribe({
       next: (response) => {
         this.loading = false;
@@ -137,7 +136,7 @@ export class SeePropertyComponent implements OnInit, DoCheck {
         console.log(error);
       },
       complete: () => {
-        // Code to execute after the observable completes, if needed
+          console.log('See property completed!')
       }
     });
   }

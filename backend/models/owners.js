@@ -17,7 +17,7 @@ var FamilySchema = Schema({
     role: { type: String, default: 'FAMILY' }
 })
 
-mongoose.model('FamilySchema', FamilySchema);
+module.exports = mongoose.model('FamilySchema', FamilySchema);
 
 // Función para calcular la fecha de finalización del contrato un año adelantado
 const oneYearFromNow = () => {
