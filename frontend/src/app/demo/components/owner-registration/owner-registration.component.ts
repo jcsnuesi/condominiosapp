@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, TemplateRef, ViewChild, ViewContainerRef, AfterViewInit } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { MessagesModule } from 'primeng/messages';
 import { IconFieldModule } from 'primeng/iconfield';
@@ -16,6 +16,7 @@ import { UserService } from '../../service/user.service';
 import { StepperModule } from 'primeng/stepper';
 import { DialogModule } from 'primeng/dialog';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+
 
 @Component({
   selector: 'app-owner-registration',
@@ -42,7 +43,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
   templateUrl: './owner-registration.component.html',
   styleUrl: './owner-registration.component.scss'
 })
-export class OwnerRegistrationComponent implements OnInit {
+export class OwnerRegistrationComponent implements OnInit, AfterViewInit {
 
   public ownerObj: OwnerModel;
   public image: any;
@@ -54,8 +55,10 @@ export class OwnerRegistrationComponent implements OnInit {
   public parkingOptions: any;
   public property_typeOptions: any[] = []
   public addreesDetails!: { street_1: string, street_2: string, sector_name: string, city: string, province: string, country: string }
-  @ViewChild('form') formUnit!: NgForm; 
+  @ViewChild('unitFormUno') basicInfo: NgForm; 
+  @ViewChild('unitFormDos') propertyInfo: NgForm; 
   
+   
 
   constructor(
     private _condominioService: CondominioService,
@@ -67,6 +70,7 @@ export class OwnerRegistrationComponent implements OnInit {
     this.identity = this._userService.getIdentity()
 
     this.ownerObj = new OwnerModel('', '', '', '', '', '', '', '', '', '', '', '', '', '', '')
+   
     this.image = '../../assets/noimage2.jpeg'
     this.apiUnitResponse = false;
     this.messageApiResponse = { message: '', severity: '' }
@@ -80,9 +84,12 @@ export class OwnerRegistrationComponent implements OnInit {
   
   }
 
+
+  
+
   ngOnInit(): void {
     this.parkingOptions = []
-
+     
     for (let index = 1; index < 5; index++) {
 
       this.parkingOptions.push(index)
@@ -108,7 +115,7 @@ export class OwnerRegistrationComponent implements OnInit {
     this.addreesDetails.city = property.city
     this.addreesDetails.province = property.province
     this.addreesDetails.country = property.country
-    console.log("Owner Registration", property)
+   
   }
     
   
@@ -140,7 +147,7 @@ export class OwnerRegistrationComponent implements OnInit {
       rejectButtonStyleClass: "p-button-text",
       accept: () => {
 
-        this._messageService.add({ severity: 'info', summary: 'Confirmed', detail: 'You have accepted' });
+       
         this.onSubmitUnit()
 
 
@@ -176,6 +183,7 @@ export class OwnerRegistrationComponent implements OnInit {
       next: (response) => {
 
         if (response.status == 'success') {
+          this._messageService.add({ severity: 'info', summary: 'Confirmed', detail: 'You have accepted' });
           this.messageApiResponse.message = response.message
           this.messageApiResponse.severity = 'success'
           this.apiUnitResponse = true
@@ -201,27 +209,39 @@ export class OwnerRegistrationComponent implements OnInit {
   }
 
 
-  ngAfterViewInit() {
-    // La referencia al formulario debería estar disponible aquí
-    this.formUnit; // Verifica que la referencia esté inicializada
-    
+  
+ ngAfterViewInit() {
+
+  //  this.propertyInfo.reset();
+   this.basicInfo.reset();
+ }
+
+  
+  reset(form: NgForm){
+    console.log(form.reset())
+    // this.propertyInfo.reset();
   }
 
   alertStatus(form: NgForm) {
 
-
+   
     if (this.apiUnitResponse) {
-      console.log(form)
+ 
+      this.ownerObj = new OwnerModel('', '', '', '', '', '', '', '', '', '', '', '', '', '', '')
+      this.ownerObj.avatar = '../../assets/noimage2.jpeg'
+    
       this.apiUnitResponse = false
-      form.resetForm();
-
-      this.formUnit.resetForm();
+     
+  
 
     } else {
 
 
       this.apiUnitResponse = true
     }
+
+    form.reset()
+   
 
   }
 

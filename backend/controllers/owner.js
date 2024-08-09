@@ -9,7 +9,7 @@ let deactivatedOwner = require('../service/persistencia');
 let verifyDataParam = require('../service/verifyParamData');
 let Condominio = require('../models/condominio');
 let Owner = require('../models/owners');
-let Occupant = require('../models/occupant');
+let Family = require('../models/family');
 const occupant = require('../models/occupant');
 const verifying = new verifyDataParam();
 let validator = require('validator');
@@ -88,14 +88,14 @@ var ownerAndSubController = {
 
 
         var params = req.body        
-       
-      
+     
         try {
 
             var val_email = validator.isEmail(params.email)
-            var val_phone = verifying.phonesLengthVerification(params.phone)
+            var val_phone = verifying.phonesTransformation(params.phone)
             var val_id_number = !validator.isEmpty(params.id_number)
-            // Validamos que el condominio exista antes de crear al usuario
+
+            // Validamos que el condominio exista antes de crear al usuario        
             var condominioFound = await Condominio.findOne({ _id: params.addressId })
 
         } catch (error) {
@@ -107,7 +107,7 @@ var ownerAndSubController = {
             })
 
         }
-        
+      
         //verificar la extension de archivo enviado sea tipo imagen
         var imgFormatAccepted = checkExtensions.confirmExtension(req)
         
@@ -122,9 +122,6 @@ var ownerAndSubController = {
         }
 
      
-       
-   
-
         if (val_email && val_phone  && val_id_number) {
 
           
@@ -186,7 +183,7 @@ var ownerAndSubController = {
                         user.password = await bcrypt.hash(password, saltRounds)
 
                         if (Object.keys(req.files).length != 0) {
-                            console.log("AVATAR: ", Object.keys(req.files).length != 0)
+                         
                             user["avatar"] = (req.files['avatar'].path.split('\\'))[2]
                          
                             
@@ -199,7 +196,7 @@ var ownerAndSubController = {
                         
                         user.passwordTemp = password
                         user.condominioName = condominioFound.alias
-                        emailVerification.verifyRegistration(user.email)
+                        emailVerification.verifyRegistration(user)
                         wsConfirmationMessage.sendWhatsappMessage(user)
                         
                         
@@ -253,9 +250,9 @@ var ownerAndSubController = {
 
         try {
 
-            var val_email = verifying.hasEmail(params)
+            var val_email = validator.isEmail(params.email)
             var val_password = !validator.isEmpty(params.password)
-            var val_phone = verifying.phonesConverter(params)
+            var val_phone = verifying.phonesTransformation(params.phone)
 
         } catch (error) {
 
@@ -269,8 +266,7 @@ var ownerAndSubController = {
 
         //verificar la extension de archivo enviado sea tipo imagen
         var imgFormatAccepted = checkExtensions.confirmExtension(req)
-
-       
+      
         if (imgFormatAccepted == false) {
 
             return res.status(400).send({
@@ -287,10 +283,14 @@ var ownerAndSubController = {
             ) {
 
 
-            Occupant.findOne({email:params.email}, async (err, ownerFound) => {
+            Family.findOne({$and:[
+                { email: params.email },
+                { phone: params.phone }
+            ]
+            }, async (err, familyFound) => {
 
 
-                var errorHandlerArr = errorHandler.errorRegisteringUser(err, ownerFound)
+                var errorHandlerArr = errorHandler.errorRegisteringUser(err, familyFound)
 
                 if (errorHandlerArr[0]) {
 
@@ -302,89 +302,78 @@ var ownerAndSubController = {
 
                         })
 
-                }          
-             
-                const occupant = new Occupant()
-
-                for (const key in params) {
-                   
-                    if (key.includes('phone')) {
-
-                        occupant[key] = ((typeof ((params['phone']).split(',')) == 'object') ? params['phone'].split(',').map(number => { return number.trim() }) : params['phone'].trim())
-                        
-                    }else{
-
-                        occupant[key] = key != 'password' ? params[key].toLowerCase() : params[key]
-
-                    }
-                    
-                }
-         
-                if (Boolean(req.files)) {
-                    occupant['avatar'] = (req.files['avatar'].path.split('\\'))[2]
-                }               
+                }  
                 
-               const owner = await Owner.findOne({ _id:req.user.sub})
-
-                owner.occupantId.push({occupant:occupant._id})
-            
-                
-               const ownerUpdated = await Owner.findOneAndUpdate({ _id: req.user.sub }, owner, {new:true})
-               
-                if (!ownerUpdated) {
-
+                if (familyFound) {
 
                     return res.status(500).send({
                         status: 'error',
                         message: 'Owner not updated'
                     })
+
+                }
+
+             
+                const family_model = new Family()
+
+                for (const key in params) {
+                   
+                    if (key == 'password' || key == 'permission'){
+                        continue;
+                    }else{
+
+                        family_model[key] = params[key].toLowerCase() 
+                    }
                     
                 }
 
+                let permissions = params.permissions.split(',')
+                permissions.forEach(perm => {
+                    family_model.permission.push(perm)
+                });
+         
+                if (Object.keys(req.files).length != 0) {
+                    family_model['avatar'] = (req.files['avatar'].path.split('\\'))[2]
+                }              
                
-                
+               
+                try {
 
-               bcrypt.hash(params.password, saltRounds,(err, hash) => {
+                    const tempPass = '12345678'
+                    family_model.password = await bcrypt.hash(tempPass, saltRounds)
+                    var newMember = await family_model.save()
 
+                    const owner = await Owner.findOne({ _id: req.user.sub }).populate('propertyDetails.addressId', 'alias')
                    
-                   if (err) {
+                    // Buscarmos el id correspondiente a la propiedad que se le dara acceso
+                    let addressInfo = owner.propertyDetails.filter(prop => prop.addressId._id == params.addressId)[0]
 
-                       return res.status(500).send({
-                           status: 'error',
-                           message: 'Error encrypting'
-                       })
-                       
+                    // Alias del condominio
+                    var { addressId } = addressInfo
+                 
+                    owner.familyAccount.push(family_model._id)
+                    Owner.findOneAndUpdate({ _id: req.user.sub }, owner, { new: true })
+                  
+                    family_model.passwordTemp = tempPass
+                    family_model.condominioName = addressId.alias
+                    emailVerification.verifyRegistration(family_model)
+                    wsConfirmationMessage.sendWhatsappMessage(family_model)
+
+                    
+                } catch (error) {
+
+                    return res.status(500).send({
+                        status: 'error',
+                        message: 'Missing params to create this user'
+                    })
+                    
                 }
 
-                
-                   occupant.password = hash
-
-                   occupant.save((err, account_saved) => {
-
-
-                       if (err) {
-
-                           return res.status(500).send({
-                               status: 'error',
-                               message: 'Error saving'
-                           })
-
-                       }
-
-
-                       return res.status(200).send({
-
-                           status: "success",
-                           message: account_saved
+                return res.status(200).send({
+                    status: 'success',
+                    message: newMember
                 })
 
-                   })
-
-
-              
-               })
-             
-                
 
 
             })
@@ -399,8 +388,43 @@ var ownerAndSubController = {
         }
         
     },   
+    getFamily: function(req, res) {
+            
+            if (req.user.role.toLowerCase() != 'owner') {
     
-    ownerByAdim: async function (req, res) {
+                return res.status(403).send({
+    
+                    status: "forbidden",
+                    message: "You are not authorized"
+                })
+    
+            }
+    
+         
+        Family.find({ ownerId: req.user.sub }, (err, familyFound) => {
+
+            if (err) {
+                return res.status(500).send({
+                    status: "error",
+                    message: "Server error, try again"
+                })
+            }
+
+            if (!familyFound) {
+                return res.status(404).send({
+                    status: "error",
+                    message: "Family not found"
+                })
+            }
+
+            return res.status(200).send({
+                status: "success",
+                message: familyFound
+            })
+
+        })
+    },
+    ownerByAdmin: async function (req, res) {
 
        
         if (req.user.role.toLowerCase() != 'admin') {
@@ -612,7 +636,32 @@ var ownerAndSubController = {
             })
         }
 
-    }
+    },
+
+    getCondominiumByOwnerId: function (req, res) {
+
+        Owner.find({ _id: req.user.sub })
+            .populate('propertyDetails.addressId', 'avatar alias phone street_1 street_2 sector_name city province zipcode country socialAreas mPayment status mPayment createdAt')
+            .exec((err, condominiumFound) => {
+
+                var errorHandlerArr = errorHandler.newUser(err, condominiumFound)
+
+                if (errorHandlerArr[0]) {
+
+                    return res.status(
+
+                        errorHandlerArr[1]).send({
+                            status: errorHandlerArr[2],
+                            message: errorHandlerArr[3]
+                        })
+
+                }
+
+
+            })
+        // 654af792af898fdd1ea3a266
+
+    },
 
 };
 

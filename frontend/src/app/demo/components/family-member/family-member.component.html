@@ -1,5 +1,5 @@
 
-        <p-toolbar styleClass="mb-4 gap-2">
+        <p-toolbar styleClass="mb-4 gap-2" *appHasPermissions="['OWNER']">
             <ng-template pTemplate="left">
                 <p-button severity="success" label="Create user" icon="pi pi-plus" class="mr-2" (onClick)="openNew()" />
                 <p-button severity="danger" label="Delete" icon="pi pi-trash" (onClick)="deleteSelectedUsers()"

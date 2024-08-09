@@ -1,273 +1,277 @@
-<p-messages severity="success" *ngIf="apiUnitResponse">
-    <ng-template pTemplate>
-        <div class="row d-block">
-
-            <div class="col">
-                {{messageApiResponse.message}}
-            </div>
-            <div class="col">
-                <button pButton pRipple (click)="alertStatus(unitForm)" label="¿Do you want to create a new one?"
-                    class="p-button-success">
-                </button>
-
-            </div>
-
-        </div>
 
 
-    </ng-template>
-</p-messages>
-
-
-<div class="card flex justify-content-center" *ngIf="!apiUnitResponse">
+<form #unitFormUno="ngForm">
 
    
+    <p-messages severity="success" *ngIf="apiUnitResponse">
+        <ng-template pTemplate>
+            <div class="row d-block">
+    
+                <div class="col">
+                    {{messageApiResponse.message}}
+                </div>
+                <div class="col">
+                    <button pButton pRipple (click)="alertStatus(unitFormUno)" label="¿Do you want to create a new one?"
+                        class="p-button-success">
+                    </button>
+    
+                </div>
+    
+            </div>
+    
+    
+        </ng-template>
+    </p-messages>
+
+
+    <div class="card flex justify-content-center" *ngIf="!apiUnitResponse">
+    
         <p-stepper [linear]="true">
             <p-stepperPanel header="Basic Info">
                 <ng-template pTemplate="content" let-nextCallback="nextCallback" let-index="index">
-
-                    <form #unitForm="ngForm">
-                      
+        
+    
+    
                         <div class="form-group  mt-3">
                             <p style="text-align: center;">
                                 <img [src]="image" alt="" width="181px" height="200px">
-                        
+        
                                 <p-fileUpload mode="basic" chooseLabel="Choose image" name="demo[]"
-                                    url="https://www.primefaces.org/cdn/api/upload.php" accept="image/*" maxlengthFileSize="1000000"
-                                    (onSelect)="onSelect($event)">
+                                    url="https://www.primefaces.org/cdn/api/upload.php" accept="image/*"
+                                    maxlengthFileSize="1000000" (onSelect)="onSelect($event)">
                                 </p-fileUpload>
-                        
+        
                             </p>
-                        
+        
                         </div>
-                        
-                        
+        
+        
                         <div class="form-group mt-3">
-                        
-                        
+        
+        
                             <p-inputGroup>
                                 <p-inputGroupAddon>
                                     <i class="pi pi-user"></i>
                                 </p-inputGroupAddon>
-                        
+        
                                 <input pInputText
                                     [ngClass]="{'input-success':ownerName.valid, 'input-error ':(ownerName.touched && !ownerName.dirty)}"
-                                    #ownerName="ngModel" [(ngModel)]="ownerObj.ownerName" name="ownerName" type="text" maxlength="30" required
-                                    placeholder="Name: Jose Rodolfo" />
-                        
+                                    #ownerName="ngModel" [(ngModel)]="ownerObj.ownerName" name="ownerName" type="text"
+                                    maxlength="30" required placeholder="Name: Jose Rodolfo" />
+        
                             </p-inputGroup>
-                        
+        
                             <small *ngIf="ownerName.touched && !ownerName.valid" class="p-error">Required.</small>
-                        
+        
                         </div>
-                        
+        
                         <div class="form-group mt-3">
-                        
-                        
+        
+        
                             <p-inputGroup>
                                 <p-inputGroupAddon>
                                     <i class="pi pi-user"></i>
                                 </p-inputGroupAddon>
-                        
+        
                                 <input pInputText
                                     [ngClass]="{'input-success':lastname.valid, 'input-error ':(lastname.touched && !lastname.dirty)}"
-                                    #lastname="ngModel" [(ngModel)]="ownerObj.lastname" name="lastname" type="text" maxlength="30" required
-                                    placeholder="Name: Rodney Mock" />
-                        
+                                    #lastname="ngModel" [(ngModel)]="ownerObj.lastname" name="lastname" type="text"
+                                    maxlength="30" required placeholder="Name: Rodney Mock" />
+        
                             </p-inputGroup>
-                        
+        
                             <small *ngIf="lastname.touched && !lastname.valid" class="p-error">Required.</small>
-                        
+        
                         </div>
-                        
+        
                         <div class="form-group mt-3">
-                        
-                        
+        
+        
                             <p-inputGroup>
                                 <p-inputGroupAddon>
                                     <i class="pi pi-android"></i>
                                 </p-inputGroupAddon>
-                        
-                                <select class="form-select form-control" 
-                                name="gender" 
-                                #gender="ngModel" 
-                                [(ngModel)]="ownerObj.gender" required>
+        
+                                <select class="form-select form-control" name="gender" #gender="ngModel"
+                                    [(ngModel)]="ownerObj.gender" required>
                                     <option value="">Select gender...</option>
-                                    <option *ngFor="let option of genderOption" [value]="option.code" >
+                                    <option *ngFor="let option of genderOption" [value]="option.code">
                                         {{option.gender}}
                                     </option>
-                        
+        
                                 </select>
                             </p-inputGroup>
-                        
-                        
-                        
+        
+        
+        
                         </div>
-                        
+        
                         <div class="form-group mt-3">
-                        
-                        
+        
+        
                             <p-inputGroup>
                                 <p-inputGroupAddon>
                                     <i class="pi pi-mobile"></i>
                                 </p-inputGroupAddon>
-                        
-                                <input pInputText [ngClass]="{'input-success':phone.valid, 'input-error ':(phone.touched && !phone.dirty)}"
-                                    #phone="ngModel" [(ngModel)]="ownerObj.phone" name="phone" type="text" maxlength="15" required
-                                    placeholder="8496587417" pattern="^[0-9]+" />
-                        
+        
+                                <input pInputText
+                                    [ngClass]="{'input-success':phone.valid, 'input-error ':(phone.touched && !phone.dirty)}"
+                                    #phone="ngModel" [(ngModel)]="ownerObj.phone" name="phone" type="text" maxlength="15"
+                                    required placeholder="8496587417" pattern="^[0-9]+" />
+        
                             </p-inputGroup>
-                        
+        
                             <small *ngIf="phone.touched && !phone.valid" class="p-error">Required.</small>
-                        
+        
                         </div>
-                        
+        
                         <div class="form-group mt-3">
-                        
+        
                             <p-inputGroup>
                                 <p-inputGroupAddon>
                                     <i class="pi pi-check-circle"></i>
-                        
+        
                                 </p-inputGroupAddon>
-                        
+        
                                 <input pInputText #id_number="ngModel"
                                     [ngClass]="{'input-success':id_number.valid, 'input-error ':(id_number.touched && !id_number.dirty)}"
-                                    [(ngModel)]="ownerObj.id_number" name="id_number" type="text" placeholder="Personal id (No dashes)"
-                                    maxlength="11" pattern="^[0-9]+" required />
-                        
+                                    [(ngModel)]="ownerObj.id_number" name="id_number" type="text"
+                                    placeholder="Personal id (No dashes)" maxlength="11" pattern="^[0-9]+" required />
+        
                             </p-inputGroup>
-                        
+        
                         </div>
-                        
+        
                         <div class="form-group mt-3">
                             <p-inputGroup>
                                 <p-inputGroupAddon>
                                     <i class="pi pi-envelope"></i>
-                        
+        
                                 </p-inputGroupAddon>
-                        
+        
                                 <input pInputText #email="ngModel" [(ngModel)]="ownerObj.email"
-                                    [ngClass]="{'input-success': email.valid, 'input-error ':(email.touched && !email.dirty)}" name="email"
-                                    type="text" maxlength="50" pattern="[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}"
-                                    placeholder="correo@email.com" required />
-                        
+                                    [ngClass]="{'input-success': email.valid, 'input-error ':(email.touched && !email.dirty)}"
+                                    name="email" type="text" maxlength="50"
+                                    pattern="[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}" placeholder="correo@email.com"
+                                    required />
+        
                             </p-inputGroup>
                             <small *ngIf="email.touched && !email.valid" class="p-error">Required.</small>
                         </div>
-                        
-                        
+        
+        
                         <div class="flex pt-4 justify-content-end">
                             <p-button label="Next" icon="pi pi-arrow-right" iconPos="right" (onClick)="nextCallback.emit()"
                                 [disabled]="!ownerName.valid || !phone.valid  || !lastname.valid || !gender.valid || !id_number.valid" />
                         </div>
-                   
-                    </form>
-
+        
+                  
+        
                 </ng-template>
             </p-stepperPanel>
             <p-stepperPanel header="Property details">
                 <ng-template pTemplate="content" let-prevCallback="prevCallback" let-nextCallback="nextCallback"
                     let-index="index">
-                    <form #unitForm="ngForm">
-
+                   
+        
                         <div class="form-group mb-3">
                             <p-inputGroup>
                                 <p-inputGroupAddon>
                                     <i class="pi pi-building"></i>
-    
+        
                                 </p-inputGroupAddon>
-    
+        
                                 <input
                                     [ngClass]="{'input-success': apartmentsUnit.valid, 'input-error ':(apartmentsUnit.touched && !apartmentsUnit.dirty)}"
-                                    pInputText #apartmentsUnit="ngModel" [(ngModel)]="ownerObj.apartmentsUnit" name="apartmentsUnit" type="text"
-                                    maxlength="11" placeholder="307-B" required />
-    
-    
+                                    pInputText #apartmentsUnit="ngModel" [(ngModel)]="ownerObj.apartmentsUnit"
+                                    name="apartmentsUnit" type="text" maxlength="11" placeholder="307-B" required />
+        
+        
                             </p-inputGroup>
                             <small *ngIf="apartmentsUnit.touched && !apartmentsUnit.valid" id="apartmentsUnit-label"
                                 class="p-error">Required.</small>
                         </div>
-    
+        
                         <div class="form-group mb-3">
                             <p-inputGroup>
                                 <p-inputGroupAddon>
                                     <i class="pi pi-hourglass"></i>
-    
+        
                                 </p-inputGroupAddon>
-    
-                                <select class="form-select" name="isRent" #isRent="ngModel" [(ngModel)]="ownerObj.isRenting" required
-                                    style="border-left: none">
+        
+                                <select class="form-select" name="isRent" #isRent="ngModel" [(ngModel)]="ownerObj.isRenting"
+                                    required style="border-left: none">
                                     <option value="">Select option...</option>
                                     <option value="yes">Si</option>
                                     <option value="no">No</option>
-    
+        
                                 </select>
-    
-    
+        
+        
                             </p-inputGroup>
-    
+        
                         </div>
-    
+        
                         <div class="form-group mb-3">
                             <p-inputGroup>
                                 <p-inputGroupAddon>
                                     <i class="pi pi-car"></i>
-    
+        
                                 </p-inputGroupAddon>
-    
+        
                                 <select class="form-select" style="border-left: none" name="parking" #parking="ngModel"
                                     [(ngModel)]="ownerObj.parkingsQty" required>
                                     <option value="">Select spot parking qty...</option>
                                     <option *ngFor="let qty of parkingOptions" [value]="qty">{{qty}}
                                     </option>
-    
-    
+        
+        
                                 </select>
-    
-    
+        
+        
                             </p-inputGroup>
-    
+        
                         </div>
-    
+        
                         <div class="form-group mb-3">
                             <p-inputGroup>
                                 <p-inputGroupAddon>
                                     <i class="pi pi-home"></i>
-    
+        
                                 </p-inputGroupAddon>
-    
-                                <select class="form-select" style="border-left: none" name="propertyType" #propertyType="ngModel"
-                                    [(ngModel)]="ownerObj.propertyType" required>
+        
+                                <select class="form-select" style="border-left: none" name="propertyType"
+                                    #propertyType="ngModel" [(ngModel)]="ownerObj.propertyType" required>
                                     <option value="">Select property...</option>
                                     <option *ngFor="let property of property_typeOptions" [value]="property.code">
                                         {{property.name}}</option>
-    
-    
+        
+        
                                 </select>
-    
-    
+        
+        
                             </p-inputGroup>
-    
-    
-    
+        
+        
+        
                         </div>
-    
-    
+        
+        
                         <div class="flex pt-4 justify-content-between">
-    
+        
                             <p-button label="Back" icon="pi pi-arrow-left" (onClick)="prevCallback.emit()" />
-    
+        
                             <p-button label="Next" icon="pi pi-arrow-right" iconPos="right"
                                 [disabled]=" !apartmentsUnit.valid ||  !isRent.valid || !parking.valid || !propertyType.valid"
                                 (onClick)="nextCallback.emit()" />
                         </div>
-
-                    </form>
-
+        
+                 
+        
                 </ng-template>
             </p-stepperPanel>
             <p-stepperPanel header="Review">
-
+        
                 <ng-template pTemplate="content" let-prevCallback="prevCallback" let-index="index">
                     <p-card header="Info confirmation:">
                         <p class="m-0">
@@ -289,7 +293,7 @@
                             <br>
                             <b>Is rent?:</b> {{ownerObj.isRenting}}
                             <br>
-
+        
                         </p>
                         <h4>Address detail:</h4>
                         <p class="m-0">
@@ -304,42 +308,42 @@
                             <b>Province:</b> {{addreesDetails?.province}}
                             <br>
                             <b>Country:</b> {{addreesDetails?.country}}
-
+        
                             <br>
                         </p>
                     </p-card>
-
-
+        
+        
                     <div class="d-flex gap-1">
-
+        
                         <div class="flex pt-4 justify-content-start">
                             <p-button label="Back" icon="pi pi-arrow-left" (onClick)="prevCallback.emit()" />
-
+        
                         </div>
-
+        
                         <div class="flex pt-4 justify-content-end align-content-end w-100">
                             <p-toast />
                             <p-confirmDialog />
-                            <p-button label="Create" (onClick)="confirmNewOwner($event)" [raised]="true"
-                                severity="success" />
-
-
+                            <p-button label="Create" (onClick)="confirmNewOwner($event)" [raised]="true" severity="success" />
+        
+        
                         </div>
                     </div>
-
-
-
-
+        
+        
+        
+        
                 </ng-template>
-
-
-
-
+        
+        
+        
+        
             </p-stepperPanel>
-
+        
         </p-stepper>
-  
-
-
-
-</div>
+       
+    
+        
+    
+    </div>
+</form>

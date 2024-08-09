@@ -10,8 +10,7 @@ var wsController = {
 
            
         try {
-           
-    
+               
             const phoneNumber = `1${user.phone}` 
            
            // var message = messageObject[0];

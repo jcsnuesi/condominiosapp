@@ -13,7 +13,7 @@ import { DialogModule } from 'primeng/dialog';
 import { FormsModule } from '@angular/forms';
 import { ToolbarModule } from 'primeng/toolbar';
 import { DropdownModule } from 'primeng/dropdown';
-
+import { HasPermissionsDirective } from 'src/app/has-permissions.directive';
 
 type FamilyAccess = {
 
@@ -33,6 +33,7 @@ type FamilyAccess = {
   selector: 'app-family-member',
   standalone: true,
   imports: [
+    HasPermissionsDirective,
     ConfirmDialogModule,
     DropdownModule,
     FormsModule,

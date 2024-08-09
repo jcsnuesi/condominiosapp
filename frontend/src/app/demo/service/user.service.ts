@@ -125,6 +125,30 @@ export class UserService{
         return this._http.put(this.url + 'reactiveAccount', params, {headers:header})
     }
 
+
+    // Family methods
+
+    createFamily(token: string, family: FormData): Observable<any>{
+
+        let header = new HttpHeaders().set('Authorization', token)
+
+        return this._http.post(this.url + 'create-family', family, {headers:header})
+    }
+
+    getFamilies(token: string): Observable<any>{
+
+        let header = new HttpHeaders().set('Authorization', token)
+
+        return this._http.get(this.url + 'get-family', {headers:header})
+    }
+
+    getPropertyByOwner(token: string): Observable<any>{
+
+        let header = new HttpHeaders().set('Content-Type', 'application/json').set('Authorization', token)
+
+        return this._http.get(this.url + 'condominioByOwnerId', {headers:header})
+    }
+    
     
 
     

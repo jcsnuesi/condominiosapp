@@ -10,9 +10,9 @@ var multipart = require('connect-multiparty');
 var md_upload = multipart({ uploadDir: './uploads/owner' });
  
 
-router.get('/customers', md_auth.authenticated, ownerController.ownerByAdim )
+router.get('/customers', md_auth.authenticated, ownerController.ownerByAdmin )
 router.get('/owner-avatar/:avatar', ownerController.getAvatar )
-
+router.get('/condominioByOwnerId', md_auth.authenticated, ownerController.getCondominiumByOwnerId);
 
 // verify email
 router.get('/verify-email/:email', ownerController.emailVerification)
@@ -23,8 +23,9 @@ router.post('/create-owner', [md_upload, md_auth.emailOwnerRegistration], ownerC
 // // invite owner
 // router.post('/owner-register', [md_auth.authenticated], emailRegisterGenerator.emailOwnerRegister)
 
+router.get("/get-family", md_auth.authenticated, ownerController.getFamily)
 
-router.post('/create-occupant', [md_upload, md_auth.authenticated], ownerController.secundaryAcc)
+router.post('/create-family', [md_upload, md_auth.authenticated], ownerController.secundaryAcc)
 
 
 router.put('/update-owner', md_auth.authenticated, ownerController.update)

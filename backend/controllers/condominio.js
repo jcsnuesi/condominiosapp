@@ -7,6 +7,7 @@ var fs = require('fs')
 let errorHandler = require('../error/errorHandler')
 let checkExtensions = require('../service/extensions')
 let verifyParamData = require('../service/verifyParamData')
+let Owner = require('../models/owners')
 
  
 var Condominium_Controller = {
@@ -267,7 +268,7 @@ var Condominium_Controller = {
 
         })
      
-
+        // 654af792af898fdd1ea3a266
     },
     getCondominiumById: function (req, res) {
 

@@ -32,6 +32,13 @@ export class CondominioService {
         return this._http.get(this.url + 'condominioByAdmin/' + id, { headers: header })
     }
 
+    getPropertyByOwner(token: string): Observable<any> {
+
+        let header = new HttpHeaders().set('Content-Type', 'application/json').set('Authorization', token)
+
+        return this._http.get(this.url + 'condominioByOwner' ,{ headers: header })
+    }
+
     getBuilding(id:string, token:string):Observable<any>{
 
         let header = new HttpHeaders().set('Content-Type', 'application/json').set('Authorization', token);

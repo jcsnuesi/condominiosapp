@@ -15,7 +15,7 @@ var OccupantSchema = Schema({
     phone: [{ type: String, required: true }],
     role: { type: String, default: "OCCUPANT" },
     status: { type: String, default: "active" },
-    addressId: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Condominium' }]
+    ownerId: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Owner' }]
 
 }, { timestamps: true })
 

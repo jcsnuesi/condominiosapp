@@ -1,23 +1,9 @@
 'use strict'
 
-const { max } = require('moment');
+
 var mongoose = require('mongoose')
 var Schema = mongoose.Schema
 
-var FamilySchema = Schema({
- 
-    avatar: { type: String },
-    name: { type: String, required: true },
-    lastname: { type: String, required: true },
-    gender: { type: String, required: true },
-    email: { type: String, required: true },
-    password: { type: String, required: true },
-    phone: [{ type: String, required: true }],
-    status: { type: String, default: 'active'},
-    role: { type: String, default: 'FAMILY' }
-})
-
-module.exports = mongoose.model('FamilySchema', FamilySchema);
 
 // Función para calcular la fecha de finalización del contrato un año adelantado
 const oneYearFromNow = () => {
@@ -48,14 +34,13 @@ var OwnerSchema = Schema({
             },                
             condominium_unit: { type: String, required: true, max: 5 },           
             parkingsQty: { type: Number, required: true, max: 5 },
-            isRenting: { type: Boolean, default: false },
-            occupantId: [{ occupant: { type: mongoose.Schema.Types.ObjectId, ref: 'Occupant' } }],
+            isRenting: { type: Boolean, default: false },          
             createdAt: { type: Date, default: Date.now },
             contractStart: { type: Date, required: true, default: Date.now },
             contractEnd: { type: Date, required: true, default: oneYearFromNow() },
         }
     ],
-    familyAccount: [FamilySchema],     
+    familyAccount: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Family' }],     
     role: { type: String, default: 'OWNER' },
     status: { type: String, default: 'active'},
     emailVerified: { type: Boolean, default: false },

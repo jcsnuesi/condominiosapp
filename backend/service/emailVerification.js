@@ -2,7 +2,7 @@
 const mailer = require('nodemailer');
 
 // Handle the registration verification
-exports.verifyRegistration = function (email) {
+exports.verifyRegistration = function (user) {
 
     const transporter = mailer.createTransport({
         service: 'gmail',
@@ -17,12 +17,17 @@ exports.verifyRegistration = function (email) {
 
 
      // Enviar correo electrónico de verificación
-    const enlaceVerificacion = `http://localhost:3993/api/verify-email/${email}`;
-    const mensajeCorreo = `Por favor, haz clic en el siguiente enlace para verificar tu cuenta: ${enlaceVerificacion} `;
+    const enlaceVerificacion = `http://localhost:3993/api/verify-email/${user.email}`;
+    const mensajeCorreo = `Por favor, haz clic en el siguiente enlace para verificar tu cuenta: ${enlaceVerificacion} \n
+    \n
+    ==== Credenciales de acceso ====
+    Email: ${user.email} \n
+    Password: ${user.passwordTemp} \n
+    `;
 
     const mailOptions = {
         from: 'jcsnuesi@gmail.com',
-        to: `${email}`,
+        to: `${user.email}`,
         subject: 'Verificación de cuenta',
         text: mensajeCorreo
     };

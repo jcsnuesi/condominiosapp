@@ -6,11 +6,10 @@ module.exports = class VerifyData{
 
 
     phonesTransformation(phoneNumber){
-        
-        const phoneDirty = phoneNumber.trim().replace(/-/g, '')
-  
-        
-        if (phoneDirty.length === 10) {
+        const phoneDirty = phoneNumber.replace(/[ -]/g, '')
+     
+       
+        if (phoneDirty.length >= 10) {
             
            
             return phoneDirty

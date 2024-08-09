@@ -28,6 +28,8 @@ import { AvatarGroupModule } from 'primeng/avatargroup';
 import { ToolbarModule } from 'primeng/toolbar';
 import { FamilyMemberComponent } from '../family-member/family-member.component';
 import { DropdownModule } from 'primeng/dropdown';
+import { HasPermissionsDirective } from 'src/app/has-permissions.directive';
+
 
 type FamilyAccess = {
 
@@ -47,6 +49,7 @@ type FamilyAccess = {
   selector: 'app-home',
   standalone: true,
   imports: [
+    HasPermissionsDirective,
     FamilyMemberComponent,
     DropdownModule,
     TableModule,   
@@ -172,6 +175,7 @@ export class HomeComponent implements OnInit {
 
     // INIT INFO
     this.onInitInfo() 
+   
 
     // GRAPH VARIABLES
     const documentStyle = getComputedStyle(document.documentElement);
