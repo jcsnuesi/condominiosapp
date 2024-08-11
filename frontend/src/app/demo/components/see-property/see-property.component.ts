@@ -12,6 +12,9 @@ import { TabMenuModule } from 'primeng/tabmenu';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { ButtonModule } from 'primeng/button';
+import { HasPermissionsDirective } from 'src/app/has-permissions.directive';
+import { HasRoleDirective } from 'src/app/has-role.directive';
+
 
 @Component({
   selector: 'app-see-property',  
@@ -24,7 +27,9 @@ import { ButtonModule } from 'primeng/button';
     TabMenuModule,
     TagModule,
     TableModule,
-    ButtonModule
+    ButtonModule,
+    HasRoleDirective
+    
   ],
   providers: [UserService, CondominioService, MessageService]  
 })
@@ -63,6 +68,7 @@ export class SeePropertyComponent implements OnInit, DoCheck {
   public status: string
   public identity: any;
   public properties: any;
+ 
 
   constructor(
     private _router: Router,
@@ -88,8 +94,8 @@ export class SeePropertyComponent implements OnInit, DoCheck {
     this.loading = true
     this.getAdminsProperties()
     console.log('LOGIN INFO:', this.loginInfo)
-    // this.getAdmins()
-  
+   
+     
     
   }
 
@@ -185,35 +191,18 @@ export class SeePropertyComponent implements OnInit, DoCheck {
       })
 
         break;
-    }
-    
+    }    
   
   }
+ 
 
-
-  
-  // getAdmins() {
-
-
-  //   this._condominioService.getPropertyByAdminId(this.token, this.loginInfo._id).subscribe(
-  //     response => {       
-
-  //       this.loading = false
-  //       console.log(response)
-  //       if (response.status == 'success')
-          
-  //         this.properties = response.message  
-        
-  //     },
-  //     error => {
-  //       console.log(error)
-  //     }
-  //   )
-
-  // }
+  ownerDialogDetails(){
+      
+      this.visible = true;
+  }
 
   full_address_func(customer) {
-    console.log("FULL ADDRESS TO SHOW:",customer)
+    
     return `${customer.street_1}, ${customer.street_2}, ${customer.sector_name}, ${customer.city}, ${customer.province}, ${customer.country}`
 
   }
@@ -223,21 +212,7 @@ export class SeePropertyComponent implements OnInit, DoCheck {
     return alias.toUpperCase()
   }
 
-  // phones_number_func(customer) {
 
-  //   console.log("PHONE NUMBER TO SHOW:",customer)
-  //   var full_phone_num = ''
-  //   if ((customer.phone[-1] != undefined)) {
-
-  //     full_phone_num = `${customer.phone[0]} ${customer.phone[1]}`
-
-  //   } else {
-
-  //     full_phone_num = `${customer.phone} ${customer.phone2}`
-  //   }
-
-  //   return full_phone_num
-
-  // }
+  
 
 }

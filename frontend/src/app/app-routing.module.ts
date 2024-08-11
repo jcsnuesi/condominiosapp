@@ -7,6 +7,7 @@ import { CreatePropertyComponent } from './demo/components/create-property/creat
 import { SeePropertyComponent } from './demo/components/see-property/see-property.component';
 import { CreateUserComponent } from './demo/components/create-user/create-user.component';
 import { HomeComponent } from './demo/components/home/home.component';
+import { FamilyMemberComponent } from './demo/components/family-member/family-member.component';
 
 @NgModule({
     imports: [
@@ -26,7 +27,8 @@ import { HomeComponent } from './demo/components/home/home.component';
                     { path: 'customers', canActivate: [UserGuard], loadChildren: () => import('./demo/components/customers/customers.module').then(m => m.CustomersDemoModule) },
                     { path: 'create-property', canActivate: [UserGuard], component: CreatePropertyComponent },
                     { path: 'see-property', canActivate: [UserGuard], component: SeePropertyComponent },
-                    { path: 'usermanagement', canActivate: [UserGuard], component: CreateUserComponent }
+                    { path: 'usermanagement', canActivate: [UserGuard], component: CreateUserComponent },
+                    { path: 'family-members', canActivate: [UserGuard], component: FamilyMemberComponent }
                     
                     
 

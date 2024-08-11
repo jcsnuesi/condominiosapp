@@ -13,6 +13,7 @@ import { NodeService } from './demo/service/node.service';
 import { PhotoService } from './demo/service/photo.service';
 import { UserGuard } from './demo/service/routing.guard';
 import { UserService } from './demo/service/user.service';
+import { HasRoleDirective } from './has-role.directive';
 
 @NgModule({
     declarations: [
@@ -20,7 +21,8 @@ import { UserService } from './demo/service/user.service';
     ],
     imports: [
         AppRoutingModule,
-        AppLayoutModule
+        AppLayoutModule,
+        HasRoleDirective
         
     ],
     providers: [

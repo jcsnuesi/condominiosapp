@@ -31,7 +31,7 @@ export class HasPermissionsDirective {
 
   @Input() 
   set appHasPermissions(permissionsUser: string[]) {
-    this.permissions = permissionsUser;
+    this.permissions = permissionsUser;    
     this.UpdateView() 
     console.log('permissions', permissionsUser);
   }
@@ -44,6 +44,7 @@ export class HasPermissionsDirective {
     }
 
   }
+  
 
   private checkPermissions(): boolean {
     
@@ -70,22 +71,6 @@ export class HasPermissionsDirective {
     return has_perms;
   }
 
-  private checkRole(roles: string[]) {
-
-    this.identity = this.userService.getIdentity();
-    console.log('identity', this.identity);
-    if (this.identity) {
-      if (roles.includes(this.identity.role)) {
-       
-      } else {
-        this.viewContainer.clear();
-      }
-    } else {
-      this.viewContainer.clear();
-    }
-
-
-
-  }
+  
 
 }

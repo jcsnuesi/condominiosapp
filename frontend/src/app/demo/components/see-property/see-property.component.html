@@ -119,7 +119,6 @@
 
                     {{property.mPayment | currency:'USD':'symbol':'1.2-2'}}
 
-
                 </td>
                 <td>
                     {{_userService.dateFormat(property.createdAt) }}
@@ -139,9 +138,12 @@
                     <i class="pi"
                         [ngClass]="{ 'text-green-500 pi-check-circle': property.verified, 'text-red-500 pi-times-circle': !property.verified }"></i>
                 </td>
-                <td>
-                    <button pButton type="button" icon="pi pi-eye" class="p-button-rounded p-button-text"
+                <td >
+                    <button  *appHasRole="'admin'" pButton type="button" icon="pi pi-eye" class="p-button-rounded p-button-text"
                         (click)="goToDashboard(property)"></button>
+
+                    <button *appHasRole="'owner'" pButton type="button" icon="pi pi-eye" class="p-button-rounded p-button-text"
+                        (click)="ownerDialogDetails()"></button>
                 </td>
 
             </tr>
@@ -156,6 +158,34 @@
         </ng-template>
     </p-table>
   
+    
+    <p-dialog header="Property details" 
+    [modal]="true" 
+    [(visible)]="visible" 
+    [style]="{ width: '50rem' }"
+    [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" 
+    [maximizable]="true">
+       
+    <p-table *appHasRole="'owner'" [value]="customers" [paginator]="true" [rows]="5" [tableStyle]="{ 'min-width': '50rem' }"
+        [rowsPerPageOptions]="[5, 10, 20]">
+        <ng-template pTemplate="header">
+            <tr>
+                <th style="width:25%">Name</th>
+                <th style="width:25%">Country</th>
+                <th style="width:25%">Company</th>
+                <th style="width:25%">Representative</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-customer>
+            <tr>
+                <td>{{ customer.name }}</td>
+                <td>{{ customer.country.name }}</td>
+                <td>{{ customer.company }}</td>
+                <td>{{ customer.representative.name }}</td>
+            </tr>
+        </ng-template>
+    </p-table>
+    </p-dialog>
     
 
 </div>
