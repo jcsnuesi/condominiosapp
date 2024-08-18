@@ -21,7 +21,7 @@ const { throws } = require('assert');
 const uuid = require('uuid')
 const mailer = require('nodemailer')
 var jwebtoken = require('../service/jwt')
-
+var Family = require('../models/family')
 
 var controller = {
 
@@ -314,13 +314,15 @@ var controller = {
             const userFound = await Promise.all([
                 Admin.findOne({ email_company: params.email }),
                 Staff.findOne({ email: params.email }),
-                Owner.findOne({ email: params.email }),
-                Occupant.findOne({ email: params.email }),
+                Owner.findOne({ email: params.email }).populate("propertyDetails.addressId", "alias type phone street_1 street_2 sector_name city province zipcode country  status createdAt createdBy").populate('familyAccount', 'name lastname gender email phone status permission addressId')
+                ,
+                Family.findOne({ email: params.email }),
             ])
 
             let foundUser = null;
 
             const response = userFound.some(user => {
+              
 
                 if (user) {
                     foundUser = user;

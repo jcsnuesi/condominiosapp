@@ -245,8 +245,20 @@ var ownerAndSubController = {
 
         }
 
-
         var params = req.body
+
+        if (req.user.email == params.email) {
+
+            return res.status(403).send({
+
+                status: "forbidden",
+                message: "Main account cannot be the same as the secondary account"
+            })
+            
+        }
+
+
+      
 
         try {
 
@@ -264,17 +276,18 @@ var ownerAndSubController = {
 
         }
 
-        //verificar la extension de archivo enviado sea tipo imagen
-        var imgFormatAccepted = checkExtensions.confirmExtension(req)
       
-        if (imgFormatAccepted == false) {
+        //verificar la extension de archivo enviado sea tipo imagen
+        // var imgFormatAccepted = checkExtensions.confirmExtension(req)
+      
+        // if (imgFormatAccepted == false) {
 
-            return res.status(400).send({
+        //     return res.status(400).send({
 
-                status: "bad request",
-                message: "Files allows '.jpg', '.jpeg', '.gif', '.png'"
-            })
-        }
+        //         status: "bad request",
+        //         message: "Files allows '.jpg', '.jpeg', '.gif', '.png'"
+        //     })
+        // }
 
         if (
             val_email  &&
@@ -314,29 +327,32 @@ var ownerAndSubController = {
                 }
 
              
-                const family_model = new Family()
+                var family_model = new Family()
 
                 for (const key in params) {
                    
-                    if (key == 'password' || key == 'permission'){
+                    if (key == 'password' || key == 'addressId'){
                         continue;
                     }else{
 
                         family_model[key] = params[key].toLowerCase() 
+                       
                     }
                     
                 }
+                const fCondominioId = {
+                   
+                    condominioId: ""
+                }
 
-                let permissions = params.permissions.split(',')
-                permissions.forEach(perm => {
-                    family_model.permission.push(perm)
-                });
-         
-                if (Object.keys(req.files).length != 0) {
-                    family_model['avatar'] = (req.files['avatar'].path.split('\\'))[2]
-                }              
+                fCondominioId.condominioId = params.addressId
+                family_model.addressId.push(fCondominioId)
+                
+                // if (Object.keys(req.files).length != 0) {
+                //     family_model['avatar'] = (req.files['avatar'].path.split('\\'))[2]
+                // }              
                
-               
+              
                 try {
 
                     const tempPass = '12345678'
@@ -389,7 +405,7 @@ var ownerAndSubController = {
         
     },   
     getFamily: function(req, res) {
-            
+      
             if (req.user.role.toLowerCase() != 'owner') {
     
                 return res.status(403).send({
@@ -401,7 +417,8 @@ var ownerAndSubController = {
             }
     
          
-        Family.find({ ownerId: req.user.sub }, (err, familyFound) => {
+        Family.find({ ownerId: req.user.sub })
+            .populate('addressId.condominioId', 'alias type phone street_1 street_2 sector_name city province zipcode country  status createdAt').exec((err, familyFound) => {
 
             if (err) {
                 return res.status(500).send({
@@ -416,6 +433,53 @@ var ownerAndSubController = {
                     message: "Family not found"
                 })
             }
+
+            return res.status(200).send({
+                status: "success",
+                message: familyFound
+            })
+
+        })
+    },
+
+    addFamilyProperty: function(req, res) {
+
+      
+       
+        if (req.user.role.toLowerCase() != 'owner') {
+
+            return res.status(403).send({
+
+                status: "forbidden",
+                message: "You are not authorized"
+            })
+        }
+
+        var params = req.body
+
+        Family.findOne({ _id: params.id__ }, async (err, familyFound) => {
+
+            if (err) {
+                return res.status(500).send({
+                    status: "error",
+                    message: "Server error, try again"
+                })
+            }
+
+            if (!familyFound) {
+                return res.status(404).send({
+                    status: "error",
+                    message: "Family not found"
+                })
+            }
+
+            const fCondominioId = {
+                condominioId: ""
+            }
+
+            fCondominioId.condominioId = params.addressId
+            familyFound.addressId.push(fCondominioId)
+            await Family.findOneAndUpdate({ _id: params.__id }, familyFound, { new: true })
 
             return res.status(200).send({
                 status: "success",

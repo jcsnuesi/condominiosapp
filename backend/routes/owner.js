@@ -32,6 +32,7 @@ router.put('/update-owner', md_auth.authenticated, ownerController.update)
 
 router.put('/delete-user-account', md_auth.authenticated, ownerController.deleteOccupantByOwner)
 
+router.put('/add-prop-family', md_auth.authenticated, ownerController.addFamilyProperty)
 
 
 module.exports =  router

@@ -12,16 +12,16 @@ var FamilySchema = Schema({
     gender: { type: String, required: true },
     email: { type: String, required: true },
     password: { type: String, required: true },
-    phone: [{ type: String, required: true }],
+    phone: { type: String, required: true },
     status: { type: String, default: 'active' },
     role: { type: String, default: 'FAMILY' },
-    permission: [{ type: String, required: true }],
-    addressId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Condominium',
-        required: true
-    },
-    ownerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Owner' },
+    addressId: [{
+        _id: false,
+        condominioId: { type: mongoose.Schema.Types.ObjectId, ref: 'Condominium' },
+        family_status: { type: String, default: 'active' },
+        createdAt: { type: Date, default: Date.now }
+    }],
+    ownerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Owner', required: true },
 },{timestamps: true})
 
 module.exports = mongoose.model('Family', FamilySchema);

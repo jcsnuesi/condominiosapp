@@ -8,6 +8,113 @@
         
         </p-toolbar>
 
+        <!-- TABLE FAMILY MEMBERS -->
+
+        <p-card header="Family members" *ngIf="nodata">
+            <p class="m-0" style="font-family: Georgia, 'Times New Roman', Times, serif;font-style: italic; font-size: 12px;">
+                No data found!
+            </p>
+        </p-card>
+
+        <p-table *ngIf="!nodata" [value]="addressInfo" sortField="fullname" sortMode="single" dataKey="fullname"
+            rowGroupMode="subheader" 
+            groupRowsBy="fullname" 
+            [tableStyle]="{'min-width': '70rem'}">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th style="width:20%">Name</th>
+                    <th style="width:20%">Property alias</th>
+                    <th style="width:20%">Address</th>
+                    <th style="width:20%">Created at</th>
+                    <th style="width:20%">Status</th>
+                    <th style="width:20%">Actions</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="groupheader" let-familyMember let-rowIndex="rowIndex" let-expanded="expanded">
+                <tr>
+                    <td colspan="3">
+                        <button type="button" pButton pRipple [pRowToggler]="familyMember"
+                            class="p-button-text p-button-rounded p-button-plain mr-2"
+                            [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'">
+                        </button>
+                        <p-avatar label="P" class="mr-2" size="xlarge" />
+                        <span class="font-bold ml-2"  style="text-transform: uppercase;">{{familyMember.fullname}}</span>
+                    </td>
+                    <td>
+                        {{ familyMember.familyUserCreatedAt}}
+                    </td>
+                                 
+                    <td>
+                        <p-tag [value]="familyMember.current_status" [severity]="getSeverity(familyMember.current_status)" />
+                    </td>
+                    <td></td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="groupfooter" let-family>
+                <tr class="p-rowgroup-footer">
+                    <td colspan="4" style="text-align: right">Total properties:</td>
+                    <td>{{family.total_properties}}</td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="rowexpansion" let-family>
+                <tr>
+                    <td  style="text-transform: uppercase;">
+                        {{family.fullname}}
+                    </td>
+                    <td  style="text-transform: uppercase;"> 
+                        {{family.alias}}
+                    </td>
+                    <td>
+                         {{family.address}}
+                    </td>
+                    <td>
+                        {{ family.createdAt }}
+                    </td>
+                    <td >
+                        <p-tag [value]="statusOptions(family.authorized)" [severity]="getSeverity(family.authorized)" />
+                    </td>
+                                         
+                    <td>
+                        <div class="d-flex">
+
+                            <p-button icon="pi pi-plus" class="mr-2" [rounded]="true" [outlined]="true" severity="success"
+                                (click)="showDialogToAddProperty(family)" />
+                            <p-button icon="pi pi-trash" [rounded]="true" [outlined]="true" severity="danger"
+                                (click)="confirmDeleteUser(family)" />
+                        </div>
+                        
+                      
+                    </td>               
+                  
+                </tr>
+            </ng-template>
+        </p-table>
+
+
+        <!-- ENDED TABLE FAMILY MEMBERS -->
+
+        <!-- ADD NEW ADDRESS -->
+
+       
+        <p-dialog header="Add new address" [modal]="true" [(visible)]="visibleUpdate" [style]="{ width: '25rem' }">
+            <span class="p-text-secondary block mb-5">Add more property to this family's member.</span>
+            <div class="d-block mb-5">
+                <p-dropdown class="w-100"  [options]="propertyData" [(ngModel)]="propertySelected" optionLabel="alias" placeholder="Select a property"
+                    #propertyIdNew="ngModel" name="propertyIdNew" required />
+                   
+            </div>
+
+            <div class="flex justify-content-end gap-2">
+      
+                <p-button label="Cancel" severity="secondary" size="small"   />
+                <p-button label="Save" size="small" (onClick)="updateFamilyUser()" />
+            </div>
+            
+        </p-dialog>
+
+
+        <!--END ADD NEW ADDRESS -->
+
 <!-- USER DIALOG -->
 <p-dialog [(visible)]="userDialog" [style]="{ width: '450px' }" header="Create new member" [modal]="true"
     styleClass="p-fluid">
@@ -21,7 +128,7 @@
 
             <div class="field">
                 <label for="name">Name</label>
-                <input type="text" pInputText id="name" #name="ngModel" name="name" [(ngModel)]="authorizedUser.name"
+                <input type="text" pInputText id="name" #name="ngModel" name="name" [(ngModel)]="newFamilyMember.name"
                     required />
                 <small class="p-error" *ngIf="name.touched && !name.dirty">
                     Name is required.
@@ -30,23 +137,42 @@
             <div class="field">
                 <label for="name">Lastname</label>
                 <input type="text" pInputText id="lastname" #lastname="ngModel" name="lastname"
-                    [(ngModel)]="authorizedUser.lastname" required />
+                    [(ngModel)]="newFamilyMember.lastname" required />
                 <small class="p-error" *ngIf="lastname.touched && !lastname.dirty">
                     Lastname is required.
                 </small>
             </div>
             <div class="field">
                 <label for="genderLabel">Gender</label>
-                <p-dropdown [options]="genderModel" #genderx="ngModel" name="genderx"
-                    [(ngModel)]="authorizedUser.gender" optionLabel="name" placeholder="Select gender..." required />
+                <p-dropdown 
+                [options]="genderOptions" 
+                #genderx="ngModel" 
+                name="genderx"
+                [(ngModel)]="genderSelected" 
+                optionLabel="name" placeholder="Select gender..." required />
 
             </div>
 
             <div class="field">
                 <label for="phoneLabel">Phone</label>
                 <input type="text" pInputText id="phoneLabel" #phone="ngModel" name="phone"
-                    [(ngModel)]="authorizedUser.phone" required />
+                    [(ngModel)]="newFamilyMember.phone" required />
                 <small class="p-error" *ngIf="phone.touched && !phone.dirty">
+                    Phone is required.
+                </small>
+            </div>
+            <div class="field" style="text-transform: uppercase;">
+                <label for="propertyLabel">Property</label>             
+                <p-dropdown 
+                [options]="propertyData" 
+                [(ngModel)]="propertySelected" 
+                optionLabel="alias" 
+                placeholder="Select a property"   
+                #propertyId="ngModel" 
+                name="propertyId"
+                   required/>
+                
+                    <small class="p-error" *ngIf="propertyId.touched && !propertyId.dirty">
                     Phone is required.
                 </small>
             </div>
@@ -55,7 +181,7 @@
             <div class="field">
                 <label for="emaillabel">Email</label>
                 <input type="text" pInputText id="emaillabel" #email="ngModel" name="email"
-                    [(ngModel)]="authorizedUser.email" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" required />
+                    [(ngModel)]="newFamilyMember.email" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" required />
                 <small class="p-error" *ngIf="email.touched && !email.dirty">
                     Email is required.
                 </small>
@@ -63,10 +189,15 @@
 
             <div class="field">
                 <label for="passwordlabel">Password</label>
-                <input type="text" pInputText id="passwordlabel" #password="ngModel" name="password"
-                    [(ngModel)]="authorizedUser.password" required />
+                <input type="password" pInputText id="passwordlabel" #password="ngModel" name="password"
+                    [(ngModel)]="newFamilyMember.password" required />
+
+                <small class="p-error" *ngIf="password.touched && !password.dirty"></small>
             </div>
 
+            <input type="text" name="ownerId" #ownerId="ngModel" [(ngModel)]="newFamilyMember.ownerId" hidden>
+
+          
 
         </form>
 

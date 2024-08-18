@@ -128,7 +128,7 @@ export class UserService{
 
     // Family methods
 
-    createFamily(token: string, family: FormData): Observable<any>{
+    createFamily(token: string, family: any): Observable<any>{
 
         let header = new HttpHeaders().set('Authorization', token)
 
@@ -138,7 +138,7 @@ export class UserService{
     getFamilies(token: string): Observable<any>{
 
         let header = new HttpHeaders().set('Authorization', token)
-
+       
         return this._http.get(this.url + 'get-family', {headers:header})
     }
 
@@ -149,6 +149,14 @@ export class UserService{
         return this._http.get(this.url + 'condominioByOwnerId', {headers:header})
     }
     
+    addNewProperty(token: string, property: any): Observable<any>{
+
+        let header = new HttpHeaders().set('Content-Type', 'application/json').set('Authorization', token)
+
+        return this._http.put(this.url + 'add-prop-family', property, {headers:header})
+
+
+    }
     
 
     
