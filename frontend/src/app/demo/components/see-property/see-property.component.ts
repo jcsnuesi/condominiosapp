@@ -44,6 +44,7 @@ export class SeePropertyComponent implements OnInit, DoCheck {
   public loading: boolean;
   public loginInfo: any;
   public header_changer: string;
+  public addressInfo: any[] = [];
 
   sortOptions: SelectItem[] = [];
 
@@ -85,7 +86,7 @@ export class SeePropertyComponent implements OnInit, DoCheck {
     ];
 
     this.loginInfo = this._userService.getIdentity()
-
+    console.log('LOGIN INFO:', this.loginInfo)
   }
 
 
@@ -93,7 +94,7 @@ export class SeePropertyComponent implements OnInit, DoCheck {
 
     this.loading = true
     this.getAdminsProperties()
-    console.log('LOGIN INFO:', this.loginInfo)
+ 
    
      
     
@@ -131,6 +132,7 @@ export class SeePropertyComponent implements OnInit, DoCheck {
   
 
   getAdminsProperties(){
+
 
     switch (this.loginInfo.role) {
       case 'ADMIN':
@@ -186,8 +188,12 @@ export class SeePropertyComponent implements OnInit, DoCheck {
 ;
           }
         },
-        error: (error) => {},
-        complete: () => {}
+        error: (error) => {
+          console.log('For owner propuse:',error);
+        },
+        complete: () => {
+          console.log('See OWNER property completed!')
+        }
       })
 
         break;

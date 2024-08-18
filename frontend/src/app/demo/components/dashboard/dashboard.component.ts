@@ -80,7 +80,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.currentIcon = 'pi-building'
         this.gbColor = 'blue-100'
         this.url = global.url
-        this.ownerObj = new OwnerModel('', '', '', '','', '', '', '', '', '', '', '','','','')
+        this.ownerObj = new OwnerModel('' ,'', '', '', '','', '', '', '', '', '', '', '','','','')
         this.formValidation = this.ownerObj.apartmentsUnit != '' && this.ownerObj.parkingsQty != '' && this.ownerObj.isRenting != '' ? false  :  true
         this.image = '../../assets/noimage2.jpeg'
         
@@ -602,7 +602,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     getModalContent(){
 
-        this.ownerObj = new OwnerModel('', '', '', '','', '', '', '', '', '', '', '','','','')
+        this.ownerObj = new OwnerModel('', '', '', '', '','', '', '', '', '', '', '', '','','','')
         // return this.setModalContent('unit_detalis')
     }
 

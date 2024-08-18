@@ -36,7 +36,8 @@ var CondominiumSchema = Schema({
     status: { type: String, default: 'active' },    
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'Admin', required:true },
     units_ownerId: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Owner' }],
-    employees: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Employees'}] 
+    employees: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Employees'}]
+
 }, {timestamps:true})
 
 CondominiumSchema.plugin(mongooPaginate);

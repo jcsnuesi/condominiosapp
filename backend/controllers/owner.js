@@ -18,7 +18,8 @@ const { getAvatar } = require('./condominio');
 const fs = require('fs');
 const paths = require('path');
 const generatePassword = require('generate-password');
-const wsConfirmationMessage = require('./whatsappController')
+const wsConfirmationMessage = require('./whatsappController');
+const { model } = require('mongoose');
 
 // Generar una contraseña con opciones específicas
 const password = generatePassword.generate({
@@ -359,16 +360,17 @@ var ownerAndSubController = {
                     family_model.password = await bcrypt.hash(tempPass, saltRounds)
                     var newMember = await family_model.save()
 
-                    const owner = await Owner.findOne({ _id: req.user.sub }).populate('propertyDetails.addressId', 'alias')
+                    const owner = await Owner.findOne({ _id: req.user.sub })
+                    .populate('propertyDetails.addressId', 'alias')
                    
                     // Buscarmos el id correspondiente a la propiedad que se le dara acceso
                     let addressInfo = owner.propertyDetails.filter(prop => prop.addressId._id == params.addressId)[0]
-
+                    
                     // Alias del condominio
                     var { addressId } = addressInfo
                  
-                    owner.familyAccount.push(family_model._id)
-                    Owner.findOneAndUpdate({ _id: req.user.sub }, owner, { new: true })
+                    owner.familyAccount.push(newMember._id)
+                    await Owner.findOneAndUpdate({ _id: req.user.sub }, owner, { new: true })
                   
                     family_model.passwordTemp = tempPass
                     family_model.condominioName = addressId.alias
@@ -441,6 +443,61 @@ var ownerAndSubController = {
 
         })
     },
+    getFamilyByOwnerId: function(req, res) {
+      
+            if (req.user.role.toLowerCase() != 'admin') {
+    
+                return res.status(403).send({
+    
+                    status: "forbidden",
+                    message: "You are not authorized"
+                })
+    
+            }
+
+        let params = req.params.id
+        
+        Owner.find({ _id: params })
+       
+            .populate({
+                path: 'familyAccount',              
+                populate: { 
+                    path:'addressId',
+                     populate: {
+                        path: 'condominioId',
+                        select: 'alias type phone street_1 street_2 sector_name city province zipcode country  status createdAt'
+                     }
+                }
+            })
+            .exec((err, familyFound) => {
+
+            
+            if (err) {
+                return res.status(500).send({
+                    status: "error",
+                    message: "Server error, try again"
+                })
+            }
+
+            if (!familyFound) {
+                return res.status(404).send({
+                    status: "error",
+                    message: "Family not found"
+                })
+            }
+
+                let getFamily = { familyAccount:[] }
+            
+                getFamily.familyAccount = familyFound[0].familyAccount
+             
+   
+            return res.status(200).send({
+                status: "success",
+                message: getFamily
+            })
+
+        })
+    },
 
     addFamilyProperty: function(req, res) {
 
@@ -459,6 +516,7 @@ var ownerAndSubController = {
 
         Family.findOne({ _id: params.id__ }, async (err, familyFound) => {
 
+         
             if (err) {
                 return res.status(500).send({
                     status: "error",

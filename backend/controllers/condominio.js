@@ -11,7 +11,7 @@ let Owner = require('../models/owners')
 
  
 var Condominium_Controller = {
-    
+     
   
     createCondominium:async function (req, res) {
       
@@ -541,7 +541,7 @@ var Condominium_Controller = {
             
                 var errorHandlerArr = errorHandler.newUser(err, condominiumFound)
 
-                if (errorHandlerArr[0]) {
+                if (errorHandlerArr[0]) { 
 
                     return res.status(
                         errorHandlerArr[1]).send({

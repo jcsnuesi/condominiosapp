@@ -3,7 +3,7 @@
 
 var mongoose = require('mongoose')
 var Schema = mongoose.Schema
-
+ 
 var FamilySchema = Schema({
 
     avatar: { type: String, default: 'noimage1.jpeg' },

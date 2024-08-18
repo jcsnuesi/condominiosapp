@@ -1,10 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ToastModule } from 'primeng/toast';
 import { CommonModule } from '@angular/common';
 import { FileUploadModule } from 'primeng/fileupload';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
-import { ToastModule } from 'primeng/toast';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { InputTextModule } from 'primeng/inputtext';
 import { AvatarModule } from 'primeng/avatar';
@@ -20,6 +20,7 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { CardModule } from 'primeng/card';
 import { TagModule } from 'primeng/tag';
 import { ButtonModule } from 'primeng/button';
+import { ConfirmPopupModule } from 'primeng/confirmpopup';
 
 
 type FamilyAccess = {
@@ -50,6 +51,7 @@ interface FamilyMembers {
   standalone: true,
   imports: [
     HasPermissionsDirective,
+    ConfirmPopupModule,
     ButtonModule,
     TagModule,
     CardModule,
@@ -92,7 +94,9 @@ export class FamilyMemberComponent implements OnInit  {
   public familyMembers: FamilyMembers;
   public nodata: boolean;
   public visibleUpdate: boolean;
-  
+  public addProperty: {_id: string, addressId: string };
+  @Input() ownerIdInput!: string;
+
 
 
   constructor(
@@ -120,16 +124,17 @@ export class FamilyMemberComponent implements OnInit  {
   
     
 
-    // Asignamos las propiedades al dropdown
-    for (let index = 0; index < this.identity.propertyDetails.length; index++) {
-      this.propertyData.push({ alias: this.identity.propertyDetails[index].addressId.alias, id: this.identity.propertyDetails[index].addressId._id})
-      
-    }
-
     this.genderOptions = [
       {name:"Male", code:"M"},
       { name: "Female", code: "F" }
     ]
+
+    console.log("Property",this.identity)
+
+    this.addProperty = {
+    _id: '',
+      addressId: ''
+    }
 
   }
 
@@ -169,6 +174,7 @@ export class FamilyMemberComponent implements OnInit  {
 
   hideDialog() {
     this.userDialog = false;
+    this.visibleUpdate = false;
 
   }
 
@@ -206,76 +212,167 @@ export class FamilyMemberComponent implements OnInit  {
 
   }
 
-  // family.addressId.condominioId.alias
-
-
   
   public addressInfo: any;
   public info: any;
   getFamilies(){
 
+     switch (this.identity.role) {
+      case 'OWNER':
 
-      
-      this._userService.getFamilies(this.token).subscribe({
-        next: data => {
+         this._userService.getFamilies(this.token).subscribe({
+           next: data => {
 
-          if(data.status == 'success'){
-
-            this.addressInfo = [];
-            this.info = [];
-
-            for (let i = 0; i < data.message.length; i++) {
-              
-              data.message[i].addressId.forEach((element, index) => {
-
-                  this.addressInfo.push({
-                    id__: data.message[i]._id,
-                    fullname: `${data.message[i].name} ${data.message[i].lastname}`,
-                    familyUserCreatedAt: this._userService.dateFormat(data.message[i].createdAt),
-                    current_status: data.message[i].status, 
-                    addressId: element.condominioId._id,
-                    alias: element.condominioId.alias,
-                    address: `${element.condominioId.street_1}, ${element.condominioId.street_2}, ${element.condominioId.sector_name}, ${element.condominioId.province}, ${element.condominioId.zipcode}, ${element.condominioId.country} `, createdAt: this._userService.dateFormat(element.createdAt) , authorized: element.family_status,
-                    total_properties: index + 1,
-                  })
-
-              });
-
-       
-              
-            }
+             if (data.status == 'success') {
 
 
-            console.log(this.addressInfo)
-            this.nodata = data.message.length == 0 ? true : false;
+               // Asignamos las propiedades al dropdown
+               for (let index = 0; index < this.identity.propertyDetails.length; index++) {
+                 this.propertyData.push({ alias: this.identity.propertyDetails[index].addressId.alias, id: this.identity.propertyDetails[index].addressId._id })
+
+               }
+
+
+               this.addressInfo = [];
+               this.info = [];
+
+               for (let i = 0; i < data.message.length; i++) {
+
+                 data.message[i].addressId.forEach((element, index) => {
+
+                   this.addressInfo.push({
+                     id__: data.message[i]._id,
+                     fullname: `${data.message[i].name} ${data.message[i].lastname}`,
+                     familyUserCreatedAt: this._userService.dateFormat(data.message[i].createdAt),
+                     current_status: data.message[i].status,
+                     addressId: element.condominioId._id,
+                     alias: element.condominioId.alias,
+                     address: `${element.condominioId.street_1}, ${element.condominioId.street_2}, ${element.condominioId.sector_name}, ${element.condominioId.province}, ${element.condominioId.zipcode}, ${element.condominioId.country} `, createdAt: this._userService.dateFormat(element.createdAt), authorized: element.family_status,
+                     total_properties: index + 1,
+                   })
+
+                 });
+
+
+
+               }
+
+               console.log("****************ADDRESS INFO*****************")
+               console.log(this.addressInfo)
+               this.nodata = data.message.length == 0 ? true : false;
+
+
+
+             }
+
+
+           },
+           error: errors => {
+             console.error('There was an error!', errors);
+           },
+           complete: () => {
+             console.log('Completed');
+           }
+
+         })
+        
+        break;
+      case 'ADMIN':
+
+         console.log("INPUT RECEIVED", this.ownerIdInput)
+         this._userService.getFamiliesByOwnerId(this.token, this.ownerIdInput).subscribe({
+           next: data => {
+
+             console.log("****************ADDRESS INFO FOR ADMIN *****************")
+             console.log()
+
+             if (data.status == 'success') {
+
+               this.addressInfo = [];
+               this.info = [];
+
+               for (let i = 0; i < data.message.familyAccount.length; i++) {
+
+                 data.message.familyAccount[i].addressId.forEach((element, index) => {
+
+                   this.addressInfo.push({
+                     id__: data.message.familyAccount[i]._id,
+                     fullname: `${data.message.familyAccount[i].name} ${data.message.familyAccount[i].lastname}`,
+                     familyUserCreatedAt: this._userService.dateFormat(data.message.familyAccount[i].createdAt),
+                     current_status: data.message.familyAccount[i].status,
+                     addressId: element.condominioId._id,
+                     alias: element.condominioId.alias,
+                     address: `${element.condominioId.street_1}, ${element.condominioId.street_2}, ${element.condominioId.sector_name}, ${element.condominioId.province}, ${element.condominioId.zipcode}, ${element.condominioId.country} `, createdAt: this._userService.dateFormat(element.createdAt), authorized: element.family_status,
+                     total_properties: index + 1,
+                   })
+
+                 });
+
+
+
+               }
+
+              //  this.nodata = data.message.length == 0 ? true : false;
             
-          
-          
-          }
 
+               if (!this.nodata){
+
+                //  for (let i = 0; i < data.message.length; i++) {
+
+                //    data.message[i].addressId.forEach((element, index) => {
+
+                //      this.addressInfo.push({
+                //        id__: data.message[i]._id,
+                //        fullname: `${data.message[i].name} ${data.message[i].lastname}`,
+                //        familyUserCreatedAt: this._userService.dateFormat(data.message[i].createdAt),
+                //        current_status: data.message[i].status,
+                //        addressId: element.condominioId._id,
+                //        alias: element.condominioId.alias,
+                //        address: `${element.condominioId.street_1}, ${element.condominioId.street_2}, ${element.condominioId.sector_name}, ${element.condominioId.province}, ${element.condominioId.zipcode}, ${element.condominioId.country} `, createdAt: this._userService.dateFormat(element.createdAt), authorized: element.family_status,
+                //        total_properties: index + 1,
+                //      })
+
+                //    });
+
+
+
+                //  }
+
+               }
+            
+              
+               
+
+
+
+             }
+
+
+           },
+           error: errors => {
+             console.error('There was an error!', errors);
+           },
+           complete: () => {
+             console.log('Completed');
+           }
+
+         })
+        
+        break;
+     
+      default:
+        break;
+     }
     
-        },
-        error: errors => {
-          console.error('There was an error!', errors);
-        },
-        complete: () => {
-          console.log('Completed');
-        }
-  
-      })
       
   }
  
-  public addProperty: any;
+  
   showDialogToAddProperty(familyMember: any) {
 
     this.visibleUpdate = true;
-    this.addProperty = familyMember;
-   
-   
-    console.log(this.addProperty)
-    console.log(this.visibleUpdate)
-    
+    this.addProperty._id = familyMember.id__;
+         
 
   }
   
@@ -323,30 +420,68 @@ export class FamilyMemberComponent implements OnInit  {
 
   updateFamilyUser(){
 
-    this.addProperty.addressId = this.propertySelected.id;
 
-    this._userService.addNewProperty(this.token, this.addProperty).subscribe({
-      next: data => {
+    // this.addProperty.addressId = this.propertySelected.id;
+    // console.log("alreadyAdded", this.addProperty)
 
-      
-        if(data.status == 'success'){
+    const familyFound = this.addressInfo.filter(family => family.addressId === this.addProperty.addressId && family.id__ === this.addProperty._id);
 
-          this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'User Updated', life: 3000 });
-          this.visibleUpdate = false;
-          this.getFamilies();
+    
+    console.log("alreadyAdded", familyFound)
+    console.log("alreadyAdded.......", this.addProperty._id)
+    
+    if (familyFound) {
 
-        }else{
-            
-            this.messageService.add({ severity: 'error', summary: 'Error', detail: data.message, life: 3000 });
-        }
-      },
-      error: error => {
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: error.message, life: 3000 });
-      },
-      complete: () => {
-        console.log('Add new property Completed');
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Address already added to this user!', life: 3000 });
+        
+        
+      }else{
+
+
+        this.confirmationService.confirm({
+          message: 'Do you want to confirm this action?',
+          header: 'Confirm',
+          icon: 'pi pi-exclamation-triangle',
+          accept: () => {
+
+         
+
+            this._userService.addNewProperty(this.token, this.addProperty).subscribe({
+              next: data => {
+        
+              
+                if(data.status == 'success'){
+        
+                  this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'User Updated', life: 3000 });
+                  this.visibleUpdate = false;
+                  this.getFamilies();
+        
+                }else{
+                    
+                    this.messageService.add({ severity: 'error', summary: 'Error', detail: data.message, life: 3000 });
+                }
+              },
+              error: error => {
+                this.messageService.add({ severity: 'error', summary: 'Error', detail: error.message, life: 3000 });
+              },
+              complete: () => {
+                console.log('Add new property Completed');
+              }
+            })
+
+          },
+          reject: () => {
+            this.messageService.add({ severity: 'error', summary: 'Rejected', detail: 'You have rejected this action', life: 3000 });
+          }
+        
+        });
+
+
       }
-    })
+ 
+ 
+     
+
 
    
   }

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output, Input, ViewChild } from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { CondominioService } from '../../service/condominios.service';
 import { dateTimeFormatter } from '../../service/datetime.service';
@@ -15,7 +15,6 @@ import { ChartModule } from 'primeng/chart';
 import { TabViewModule } from 'primeng/tabview';
 import { DialogModule } from 'primeng/dialog';
 import { FileUploadModule } from 'primeng/fileupload';
-import { unitOwerDetails } from '../../models/property_details_type';
 import { UserService } from '../../service/user.service';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
@@ -29,6 +28,11 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { FamilyMemberComponent } from '../family-member/family-member.component';
 import { DropdownModule } from 'primeng/dropdown';
 import { HasPermissionsDirective } from 'src/app/has-permissions.directive';
+import { PaymentsHistoryComponent } from '../payments-history/payments-history.component';
+import { InviceGeneraterComponent } from '../invice-generater/invice-generater.component';
+import { DynamicDialogRef, DynamicDialogModule } from 'primeng/dynamicdialog';
+import { DialogService } from 'primeng/dynamicdialog';
+import { ButtonModule } from 'primeng/button';
 
 
 type FamilyAccess = {
@@ -45,11 +49,15 @@ type FamilyAccess = {
 
 }
 
+
 @Component({
   selector: 'app-home',
   standalone: true,
   imports: [
     HasPermissionsDirective,
+    ButtonModule,
+    DynamicDialogModule,
+    PaymentsHistoryComponent,
     FamilyMemberComponent,
     DropdownModule,
     TableModule,   
@@ -68,7 +76,8 @@ type FamilyAccess = {
     ToastModule,
     ConfirmDialogModule,
     OwnerRegistrationComponent,
-    InputTextModule
+    InputTextModule,
+    InviceGeneraterComponent
     
   ],
   templateUrl: './home.component.html',
@@ -77,8 +86,8 @@ type FamilyAccess = {
     MessageService,   
     CondominioService,
     UserService,
-    ConfirmationService
-    
+    ConfirmationService,
+    DialogService  
     
   ]
 })
@@ -91,7 +100,7 @@ export class HomeComponent implements OnInit {
   public image: any;
   public ownerObj: OwnerModel;
   public visible: boolean = false;
-  public propertyDetailsUser: unitOwerDetails;
+  public visible_invoice: boolean = false;
   public visible_owner: boolean = false;
   public identity: any;
   private token: string;
@@ -106,17 +115,20 @@ export class HomeComponent implements OnInit {
   public url:string;
   public dateFormatted: string;
   public authorizedUser: FamilyAccess[];
-  
+  public addressInfo: any;
+  public nodata: boolean;  
   public genderModel: { name: string, code: string }[];
   @Output() propertyInfoEvent: EventEmitter<any> = new EventEmitter();
+  ref: DynamicDialogRef;
 
-
+  @ViewChild(InviceGeneraterComponent) invoiceGenerator: InviceGeneraterComponent;
   constructor(
     private _userService: UserService,
     private _messageService: MessageService,
     private _confirmationService: ConfirmationService,
     public _condominioService: CondominioService,
-    private _activatedRoute: ActivatedRoute
+    private _activatedRoute: ActivatedRoute,
+    private dialogService: DialogService
   ){
 
     this.items = [
@@ -124,7 +136,7 @@ export class HomeComponent implements OnInit {
       { label: 'Remove', icon: 'pi pi-fw pi-minus' }
     ];
 
-    this.ownerObj = new OwnerModel('', '', '', '', '', '', '', '', '', '', '', '', '', '', '');
+    this.ownerObj = new OwnerModel('', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '');
 
     this.url = global.url
     this.identity = this._userService.getIdentity()
@@ -171,9 +183,10 @@ export class HomeComponent implements OnInit {
 
   }
 
+
   ngOnInit() {
 
-    // INIT INFO
+    // INIT INFO 
     this.onInitInfo() 
    
 
@@ -244,9 +257,13 @@ export class HomeComponent implements OnInit {
     // END GRAPH VARIABLES
   }
 
-
-
  
+  // Open Invoice generater dialog
+  openInvoiceGenerator() {
+    this.invoiceGenerator.open();
+  }
+
+
   propertyData(data) {
     // emit data to parent component
     this.propertyInfoEvent.emit(data);
@@ -293,10 +310,11 @@ export class HomeComponent implements OnInit {
         this._condominioService.getBuilding(id, this.token).subscribe(
           response => {
 
-
+         
             if (response.status == 'success') {
 
               var unitList = response.message
+              localStorage.setItem('property', JSON.stringify(unitList))
               this.units = (unitList.units_ownerId.length)
 
              this.dateFormatted = dateTimeFormatter(unitList.createdAt)
@@ -304,8 +322,6 @@ export class HomeComponent implements OnInit {
               this.propertyData(unitList)
 
               this.customers = unitList.units_ownerId
-
-              console.log(this.dateFormatted)
 
             }
 
@@ -346,21 +362,16 @@ export class HomeComponent implements OnInit {
   showDialog() {
     this.visible = true;
 
-    this.ownerObj = new OwnerModel('', '', '', '', '', '', '', '', '', '', '', '', '', '', '')
+    this.ownerObj = new OwnerModel('', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '')
 
   }
 
   showOwnerDialog(events) {
     this.ownerObj = events
+   
     this.image = this.url + 'owner-avatar/' + events.avatar
 
-    this.propertyDetailsUser = events
-    this.propertyDetailsUser.units = events.propertyDetails.condominium_unit
-    this.propertyDetailsUser.fullname = events.ownerName + ' ' + events.lastname
-    this.propertyDetailsUser.isRent = events.isRenting
-    this.propertyDetailsUser.emergecyPhoneNumber = '809-555-5555'
-    this.propertyDetailsUser.paymentMehtod = 'Deposit: Bank of America'
-  
+   
     
     this.visible_owner = true;
 
@@ -465,10 +476,8 @@ export class HomeComponent implements OnInit {
 
     }
 
-    this.formData.forEach((value, key) => {
-      console.log(key + ' ' + value)
-    })
-
+   
+    
   }
 
 

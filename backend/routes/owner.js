@@ -13,6 +13,8 @@ var md_upload = multipart({ uploadDir: './uploads/owner' });
 router.get('/customers', md_auth.authenticated, ownerController.ownerByAdmin )
 router.get('/owner-avatar/:avatar', ownerController.getAvatar )
 router.get('/condominioByOwnerId', md_auth.authenticated, ownerController.getCondominiumByOwnerId);
+router.get("/get-family", md_auth.authenticated, ownerController.getFamily)
+router.get("/get-familyMembers/:id", md_auth.authenticated, ownerController.getFamilyByOwnerId)
 
 // verify email
 router.get('/verify-email/:email', ownerController.emailVerification)
@@ -23,7 +25,6 @@ router.post('/create-owner', [md_upload, md_auth.emailOwnerRegistration], ownerC
 // // invite owner
 // router.post('/owner-register', [md_auth.authenticated], emailRegisterGenerator.emailOwnerRegister)
 
-router.get("/get-family", md_auth.authenticated, ownerController.getFamily)
 
 router.post('/create-family', [md_upload, md_auth.authenticated], ownerController.secundaryAcc)
 

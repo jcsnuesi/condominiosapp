@@ -32,8 +32,7 @@ export class HasRoleDirective {
   set appHasRole(role: string) {
     this.role = role.toLocaleUpperCase();
     this.UpdateView();
-    console.log('role', role);
-    console.log('role identity', this.identity);
+
   }
 
   private UpdateView() {

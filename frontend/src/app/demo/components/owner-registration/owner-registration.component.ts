@@ -69,7 +69,7 @@ export class OwnerRegistrationComponent implements OnInit, AfterViewInit {
     this.token = this._userService.getToken()
     this.identity = this._userService.getIdentity()
 
-    this.ownerObj = new OwnerModel('', '', '', '', '', '', '', '', '', '', '', '', '', '', '')
+    this.ownerObj = new OwnerModel('', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '')
    
     this.image = '../../assets/noimage2.jpeg'
     this.apiUnitResponse = false;
@@ -227,7 +227,7 @@ export class OwnerRegistrationComponent implements OnInit, AfterViewInit {
    
     if (this.apiUnitResponse) {
  
-      this.ownerObj = new OwnerModel('', '', '', '', '', '', '', '', '', '', '', '', '', '', '')
+      this.ownerObj = new OwnerModel('', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '')
       this.ownerObj.avatar = '../../assets/noimage2.jpeg'
     
       this.apiUnitResponse = false

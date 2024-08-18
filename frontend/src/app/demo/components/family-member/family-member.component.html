@@ -1,5 +1,5 @@
 
-        <p-toolbar styleClass="mb-4 gap-2" *appHasPermissions="['OWNER']">
+        <p-toolbar styleClass="mb-4 gap-2" *appHasPermissions="'owner'">
             <ng-template pTemplate="left">
                 <p-button severity="success" label="Create user" icon="pi pi-plus" class="mr-2" (onClick)="openNew()" />
                 <p-button severity="danger" label="Delete" icon="pi pi-trash" (onClick)="deleteSelectedUsers()"
@@ -75,7 +75,7 @@
                     </td>
                                          
                     <td>
-                        <div class="d-flex">
+                        <div class="d-flex" *appHasPermissions="'owner'">
 
                             <p-button icon="pi pi-plus" class="mr-2" [rounded]="true" [outlined]="true" severity="success"
                                 (click)="showDialogToAddProperty(family)" />
@@ -95,8 +95,8 @@
 
         <!-- ADD NEW ADDRESS -->
 
-       
-        <p-dialog header="Add new address" [modal]="true" [(visible)]="visibleUpdate" [style]="{ width: '25rem' }">
+
+        <p-dialog *appHasPermissions="'owner'" header="Add new address" [modal]="true" [(visible)]="visibleUpdate" [style]="{ width: '25rem' }">
             <span class="p-text-secondary block mb-5">Add more property to this family's member.</span>
             <div class="d-block mb-5">
                 <p-dropdown class="w-100"  [options]="propertyData" [(ngModel)]="propertySelected" optionLabel="alias" placeholder="Select a property"
@@ -106,7 +106,10 @@
 
             <div class="flex justify-content-end gap-2">
       
-                <p-button label="Cancel" severity="secondary" size="small"   />
+                <p-button label="Cancel" severity="secondary" size="small" (onClick)="hideDialog()"   />
+                
+                <p-toast />
+                <p-confirmDialog />
                 <p-button label="Save" size="small" (onClick)="updateFamilyUser()" />
             </div>
             
@@ -115,8 +118,9 @@
 
         <!--END ADD NEW ADDRESS -->
 
-<!-- USER DIALOG -->
-<p-dialog [(visible)]="userDialog" [style]="{ width: '450px' }" header="Create new member" [modal]="true"
+<!-- USER DIALOG - CREAR NEW FAMILY MEMBER -->
+
+<p-dialog  *appHasPermissions="'owner'" [(visible)]="userDialog" [style]="{ width: '450px' }" header="Create new member" [modal]="true"
     styleClass="p-fluid">
 
 
@@ -206,6 +210,8 @@
 
     <ng-template pTemplate="footer">
         <p-button label="Cancel" icon="pi pi-times" [text]="true" (onClick)="hideDialog()" />
+        <p-toast />
+        <p-confirmDialog />
         <p-button label="Create" #btnSave icon="pi pi-check" [text]="true" (onClick)="saveUser(btnSave)" />
     </ng-template>
 
