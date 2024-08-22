@@ -13,7 +13,7 @@ var EmployeesSchema = Schema({
     email: { type: String, required: true },   
     phone: [{ type: String, required: true }],
 }) 
-
+ 
 const employees = mongoose.model('Employees', EmployeesSchema )
 
 

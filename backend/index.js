@@ -5,7 +5,6 @@ const mongoose = require('mongoose')
 var app = require('./app')
 var port = 3993
 var conection = 'mongodb://127.0.0.1:27017/cleaningService'
-var autoIncrement = require('mongoose-auto-increment');
 
 
 mongoose.set('strictQuery', true);
@@ -16,7 +15,7 @@ const connectBD = async () => {
             useNewUrlParser: true,
             useUnifiedTopology: true
         })
-        autoIncrement.initialize(mongoose.connection);
+       
 
         console.log('MongoDB connected!')
     } catch (error) {
@@ -29,4 +28,4 @@ app.listen(port, () =>{
     console.log('Servidor corriendo.')
 })
 
-module.exports = { mongoose, autoIncrement };
+

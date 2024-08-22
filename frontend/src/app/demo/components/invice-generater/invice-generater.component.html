@@ -1,16 +1,84 @@
 
-<p-dialog header="Edit Profile" [modal]="true" [(visible)]="display" [style]="{ width: '25rem' }" (onHide)="onHide()">
-    <span class="p-text-secondary block mb-5">Update your information.</span>
-    <div class="flex align-items-center gap-3 mb-3">
-        <label for="username" class="font-semibold w-6rem">Username</label>
-            <p-calendar [(ngModel)]="invoice_date_label" />
+<p-dialog 
+header="Set up invoice datails" 
+[modal]="true" 
+[(visible)]="display" 
+[draggable]="false" 
+[resizable]="true"
+(onHide)="onHide()">
+
+<p-toast />
+<p-confirmDialog />
+<div class="container">
+
+    <span class="p-text-secondary block mb-5">Update your payment information.</span>
+
+    <div class="mb-3">
+        <label for="username" class="font-semibold d-block">Payment description</label>
+
+        <p-multiSelect  
+        [options]="paymentDescriptionOptions" 
+        [(ngModel)]="descriptionSelected" 
+        optionLabel="label"
+            placeholder="Select Description..." 
+            [disabled]="invoiceSetup"/>
+    
     </div>
-    <div class="flex align-items-center gap-3 mb-5">
-        <label for="email" class="font-semibold w-6rem">Email</label>
-        <input pInputText id="email" class="flex-auto" autocomplete="off" />
+
+    <div class="mb-3">
+        <label for="amountLabel" class="font-semibold w-6rem mb-2">Amount $</label>
+        <input type="text" 
+        class="form-control"
+         #amount="ngModel" name="amount" [(ngModel)]="invoice.amounts" id="amountLabel" 
+         [disabled]="invoiceSetup"/>
     </div>
-    <div class="flex justify-content-end gap-2">
-        <p-button label="Cancel" severity="secondary" (onClick)="onHide()" />
-        <p-button label="Save" (onClick)="onHide()" />
+
+    
+
+
+    <div class="mb-3">
+        <label for="issueDateLabel" class="font-semibold w-6rem mb-2">Issue date</label>
+        <input type="date" 
+        #issueDate="ngModel" 
+        [(ngModel)]="invoice.issueDate" 
+        name="dueDate" 
+        id="issueDate"
+            class="form-control"
+            (change)="setDate()"
+            [disabled]="invoiceSetup">       
+        
+
     </div>
+
+    <div class="mb-3">
+        <label for="dueDataLabel" class="font-semibold w-6rem mb-2">Due date</label>
+        <input 
+        type="date" 
+          #dueDate="ngModel"
+          [(ngModel)]="invoice.dueDate"
+            name="dueDate"
+            id="dueDataLabel"
+         class="form-control"
+         disabled 
+         
+         >
+           
+    </div>
+   
+  
+    <div class="mb-3"  *ngIf="!invoiceSetup">
+        <button class="btn btn-outline-success w-100 mr-3" (click)="saveInvoice()">Save</button>
+    </div>
+    <div *ngIf="!invoiceSetup">
+        <button class="btn btn-outline-danger  w-100 mr-3" (click)="onHide()" >Cancel</button>
+      
+    </div>
+    <div *ngIf="invoiceSetup">
+        <button class="btn btn-outline-primary  w-100 mr-3" (click)="generateNow()" >Generate now</button>
+      
+    </div>
+</div>
+  
+
+   
 </p-dialog>
