@@ -8,12 +8,13 @@ let errorHandler = require('../error/errorHandler')
 let checkExtensions = require('../service/extensions')
 let verifyParamData = require('../service/verifyParamData')
 let Owner = require('../models/owners')
-
+  
  
 var Condominium_Controller = {
      
   
     createCondominium:async function (req, res) {
+
       
         let condominiumParams = req.body
        
@@ -61,8 +62,8 @@ var Condominium_Controller = {
                 { phone: condominiumParams.phone }
                 ]}, (err, condominioFound) => {
        
-
-                if (err || condominioFound != null) {
+                
+                if (err) {
 
                         return res.status(500).send({
 
@@ -71,11 +72,19 @@ var Condominium_Controller = {
                         })
                         
                     }
+                if (condominioFound) {
+
+                        return res.status(204).send({
+
+                            status: "success",
+                            message: "Usur already exists"
+                        })
+                        
+                    }
 
                     var condominio = new Condominium()
 
-
-               
+          
                 if (condominiumParams['socialAreas'] != null && condominiumParams['socialAreas'].includes(",")) {
 
                     (condominiumParams['socialAreas'].split(',')).forEach(areas => condominio['socialAreas'].push(areas.toLowerCase())) 
@@ -91,21 +100,23 @@ var Condominium_Controller = {
                       
                 }
 
+              
 
                
-                if (req.files != undefined) {
+                if (Boolean(req.files.avatar != undefined) ) {
 
-                    for (const fileKey in req.files) {
-                        condominio[fileKey] = (req.files[fileKey].path.split('\\'))[2]
-                    }
+                    condominio['avatar'] = (req.files.avatar.path.split('\\'))[2]
                 }
-
+             
           
+                
                 //user whom created the propery
                 condominio.createdBy = req.user.sub
 
                 condominio.save((err, newCondominio) => {
 
+
+                  
                     if (err) {
 
                         return res.status(500).send({
@@ -315,34 +326,38 @@ var Condominium_Controller = {
     },
     CondominiumUpdate: function (req, res) {
 
-        let CondominiumParams = req.body
+        
+        if (req.user.role != "ADMIN") {
+                
+                return res.status(401).send({
+                    status: 'error',
+                    message: "You don't have permission to update this Condominium."
+                });
+        }
 
-     
+        let params = req.body
+
+    
+    
         try {
-            var id_validation = !validator.isEmpty(CondominiumParams.id)
-          
-        } catch (error) {
+           
 
-            return res.status(401).send({
-                status: 'error',
-                message: "Some entries have mistakes."
-            });
+        
+            var imgFormatAccepted = checkExtensions.confirmExtension(params)
 
-        }
+            if (imgFormatAccepted == false) {
 
-        var imgFormatAccepted = checkExtensions.confirmExtension(CondominiumParams)
+                return res.status(400).send({
 
-        if (imgFormatAccepted == false) {
+                    status: "bad request",
+                    message: "System just accept images format 'jpg', 'jpeg', 'gif', 'png'"
+                })
+            }
 
-            return res.status(400).send({
+        
+            Condominium.findOne({ _id: params.id }, async (err, CondominiumFound) => {
 
-                status: "bad request",
-                message: "System just accept images format 'jpg', 'jpeg', 'gif', 'png'"
-            })
-        }
-
-            Condominium.findOne({ _id: CondominiumParams.id }, (err, CondominiumFound) => {
-
+               
                 var loginErrorHandlerArr = errorHandler.loginExceptions(err, CondominiumFound)
 
                 if (loginErrorHandlerArr[0]) {
@@ -357,67 +372,53 @@ var Condominium_Controller = {
                         })
 
                 }
-             
-              
-                if (req.user.role == "ROLE_ADMIN") {
+           
 
-                    CondominiumFound.updatedByAdmin = req.user.sub
-               
-                   
-                }else{
-                    CondominiumFound.updatedByStaff = req.user.sub
-                 
-                }
+                for (const key in params) {
 
-               
-                
-
-                for (const key in CondominiumParams) {
-                   
                     if (key == "socialAreas") {
 
-                        let areas = CondominiumParams[key].split(",")
+                        let areas = params[key].split(",")
 
                         for (let index = 0; index < areas.length; index++) {
-                           
-                            CondominiumFound[key].push(areas[index].trim()) 
-                        }
-                       
-                    }else{
 
-                        CondominiumFound[key] = CondominiumParams[key]
+                            CondominiumFound[key].push(areas[index].trim())
+                        }
+
+                    } else {
+
+                        CondominiumFound[key] = params[key]
                     }
 
 
                 }
 
-             
-              
+            var condominioUpdated =  await Condominium.findOneAndUpdate(
+                    { _id: params.id },
+                    CondominiumFound,
+                { new: true }).populate('units_ownerId', 'avatar ownerName lastname gender email phone id_number status role familyAccount propertyDetails.addressId propertyDetails.condominium_unit propertyDetails.parkingsQty propertyDetails.isRenting propertyDetails.occupantId propertyDetails.createdAt')
                 
-                Condominium.findOneAndUpdate(
-                    { _id: CondominiumParams.id }, 
-                    CondominiumFound, 
-                    { new: true }, 
-                    (err, CondominiumUpdated) => {
+                return res.status(200).send({
+                    status: 'success',
+                    message: 'Condominium updated successfully.',
+                    updated: condominioUpdated
+                });
 
-                    if (err) {
-
-                        return res.status(500).send({
-                            status: 'error',
-                            message: "Server error while updating Condominium, please again later."
-                        });
-
-                    }
-
-                    return res.status(200).send({
-                        status: 'succes',
-                        condominium: CondominiumUpdated
-                    });
-
+                
                 })
 
+        
+        } catch (error) {
 
-            })
+            return res.status(401).send({
+                status: 'error',
+                message: "Some entries have mistakes.",
+                error: error
+            });
+
+        }
+
+    
 
       
     },

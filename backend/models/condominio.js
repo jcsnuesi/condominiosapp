@@ -33,6 +33,7 @@ var CondominiumSchema = Schema({
     country: { type: String, required: true },
     socialAreas: [{ type: String }],   
     mPayment:{ type:Number, required:true}, 
+    paymentDate:{ type:Date, required:true}, 
     status: { type: String, default: 'active' },    
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'Admin', required:true },
     units_ownerId: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Owner' }],

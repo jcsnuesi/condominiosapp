@@ -13,6 +13,7 @@ var invoiceController = {
 
     createInvoice:async function(req, res){
 
+   
         if (req.user.role != 'ADMIN') {
             return res.status(400).send({
                 status: 'forbidden',
@@ -22,13 +23,15 @@ var invoiceController = {
         
         var params = req.body
 
+        delete params.paymentDescription
+        delete params.invoiceOwner
+     
         try {
 
             var validate_invoice_issue = !validation.isEmpty(params.issueDate)
             var validate_invoice_due = !validation.isEmpty(params.dueDate)
             var validate_invoice_amount = !validation.isEmpty(params.amounts.toString())
-            var validate_invoice_description = !validation.isEmpty(params.description)
-
+      
 
             
         } catch (error) {
@@ -37,56 +40,69 @@ var invoiceController = {
                 message: 'Error in the request. Try again.'
             })
             
-        }
+        }        
 
-      
        
         if (validate_invoice_issue &&
             validate_invoice_due &&
-            validate_invoice_amount &&
-            validate_invoice_description) {
-
-            const InvoiceInfo = await Invoice.findOne({ condominiumId: params.condominiumId })
-          
-
-            if (InvoiceInfo) {
-
-                invoice.invoice_issue = new Date(params.issueDate)
-                invoice.invoice_due = new Date(params.dueDate)
-                invoice.invoice_amount = params.amounts
-                invoice.invoice_description = params.description
+            validate_invoice_amount) {
 
 
-                await Invoice.findOneAndUpdate({ condominiumId: params.condominiumId }, invoice, { new: true })
+                try {
 
-                return res.status(200).send({
-                    status: 'success',
-                    message: 'Invoice updated successfully.',
-                    invoice: invoice
-                })
+                   let invoice = [];
 
 
-            }
+                    params.invoiceOwnerSelected.forEach(element => {
 
-            var invoice = new Invoice(
-                {
-                    invoice_issue: new Date(params.issueDate),
-                    invoice_due: new Date(params.dueDate),
-                    invoice_amount: params.amounts,
-                    invoice_description: params.description,
-                    condominiumId: params.condominiumId,
-                    createdBy: req.user.sub
+                        const invoiceDoc = new Invoice(
+                            {
+                                invoice_issue: new Date(params.issueDate),
+                                invoice_due: new Date(params.dueDate),
+                                invoice_amount: params.amounts,
+                                invoice_description: params.paymentDescriptionSelected[0].value,
+                                condominiumId: params.condominiumId,
+                                ownerId: element.value,
+                                createdBy: req.user.sub
+                            }
+                        )
+
+                        invoice.push(invoiceDoc)
+
+                    });
+
+
+
+                    // guardo la factura
+
+                    await Invoice.insertMany(invoice)
+
+                    return res.status(200).send({
+                        status: 'success',
+                        message: 'Invoice created successfully.',
+                        invoice: invoice
+                    })
+                    
+                } catch (
+                    error
+                ) {
+                    
+                    return res.status(500).send({
+                        status: 'error',
+                        message: 'Error creating invoice. Try again.',
+                        error_found: error
+                    })
                 }
-            )
+             
 
-            await invoice.save()
+          
+        }else{
 
-            return res.status(200).send({
-                status: 'success',
-                message: 'Invoice created successfully.',
-                invoice: invoice
+            return res.status(400).send({
+
+                status: 'error',
+                message: 'Data is missing. Try again.'
             })
-
         }
         
 
@@ -155,7 +171,35 @@ var invoiceController = {
             status: 'success',
             message: 'Invoices generated successfully.'
         })
-    }
+    },
+    getInvoices:function(req, res){
+        var userId = req.params.id
+
+        Invoice.find({ ownerId: userId })
+            .populate('condominiumId','alias phone street_1 street_2 sector_name city province country')
+            .populate('ownerId', 'ownerName lastname email phone id_number propertyDetails')
+        .exec((err, invoices) => {
+          
+            if (err) {
+                return res.status(500).send({
+                    status: 'error',
+                    message: 'Error in the request. Try again.'
+                })
+            }
+
+            if (!invoices) {
+                return res.status(404).send({
+                    status: 'error',
+                    message: 'There are no invoices to show.'
+                })
+            }
+
+            return res.status(200).send({
+                status: 'success',
+                invoices
+            })
+        })
+    },
 }
 
 

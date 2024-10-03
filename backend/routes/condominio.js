@@ -12,7 +12,7 @@ var adminAuth = require('../middleware/userAuth')
 // GET
 
 router.get('/condominios', md_auth.authenticated, condominioController.getCondominiumByAdmin);
-
+ 
 
 router.get('/condominioById', condominioController.getCondominiumById);
 router.get('/condominioByAdmin/:id', condominioController.getCondominiumsByAdmin);

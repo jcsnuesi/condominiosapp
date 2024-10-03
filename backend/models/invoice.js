@@ -8,6 +8,7 @@ var Counter = require('./counter')
 var InvoiceSchema = Schema({
 
     invoice_number: { type: Number},
+    invoice_paid_date: { type: Date, default:null },
     invoice_issue: { type: Date, required: true },
     invoice_due: { type: Date, required: true },
     invoice_amount: { type: Number, required: true },

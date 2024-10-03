@@ -129,7 +129,7 @@ var ownerAndSubController = {
 
             Owner.findOne(
                 {
-                    $and: [                      
+                    $or: [                      
                         { email: params.email },
                         { id_number: params.id_number }
 
@@ -174,7 +174,7 @@ var ownerAndSubController = {
                             isRenting: false,
 
                         }
-
+  
                         // # Me quede aqui
                         property_details.addressId = params.addressId
                         property_details.condominium_unit = params.apartmentUnit
@@ -190,7 +190,7 @@ var ownerAndSubController = {
                             
                         }
 
-
+                     
                         await user.save()
                         condominioFound.units_ownerId.push(user._id)
                         await Condominio.findOneAndUpdate({ _id: params.addressId }, { units_ownerId: condominioFound.units_ownerId }, { new: true })
@@ -365,7 +365,7 @@ var ownerAndSubController = {
                    
                     // Buscarmos el id correspondiente a la propiedad que se le dara acceso
                     let addressInfo = owner.propertyDetails.filter(prop => prop.addressId._id == params.addressId)[0]
-                    
+                     
                     // Alias del condominio
                     var { addressId } = addressInfo
                  
@@ -419,9 +419,9 @@ var ownerAndSubController = {
             }
     
          
-        Family.find({ ownerId: req.user.sub })
+        Family.find({ ownerId:  '66f84833006341d7843b4127' })
             .populate('addressId.condominioId', 'alias type phone street_1 street_2 sector_name city province zipcode country  status createdAt').exec((err, familyFound) => {
-
+              
             if (err) {
                 return res.status(500).send({
                     status: "error",
@@ -457,7 +457,7 @@ var ownerAndSubController = {
 
         let params = req.params.id
         
-        Owner.find({ _id: params })
+        Owner.find({ _id: '66f84833006341d7843b4127' })
        
             .populate({
                 path: 'familyAccount',              
@@ -470,7 +470,7 @@ var ownerAndSubController = {
                 }
             })
             .exec((err, familyFound) => {
-
+                console.log(familyFound)
             
             if (err) {
                 return res.status(500).send({

@@ -5,7 +5,7 @@ checkExtension = {
 
         let fileExtensions = []
         
-        if (Object.keys(req?.files).length == 0  ) return true
+        if (Boolean(req?.files == undefined) || Object.keys(req?.files).length == 0  ) return true
       
         for (const key in req.files) {
 
