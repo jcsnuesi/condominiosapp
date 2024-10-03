@@ -22,6 +22,7 @@ import { TagModule } from 'primeng/tag';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmPopupModule } from 'primeng/confirmpopup';
 import { unitOwerDetails } from '../../models/property_details_type';
+import { InvoiceService } from '../../service/invoice.service';
 
 
 @Component({
@@ -54,23 +55,94 @@ import { unitOwerDetails } from '../../models/property_details_type';
   providers: [
     MessageService,
     ConfirmationService,
-    UserService]
+    UserService,
+  InvoiceService]
 })
-export class PaymentsHistoryComponent {
+export class PaymentsHistoryComponent implements OnInit {
 
   @Input() ownerIdInput!: string;
   public propertyDetailsUser: unitOwerDetails;
-
+  public token: string;
 
 
   constructor(
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
-    private _userService: UserService
+    private _userService: UserService,
+    private _invoiceService: InvoiceService
   ) { 
 
+    this.token = this._userService.getToken()
+  }
+
+  ngOnInit(): void {
+      console.log('ownerIdInput', this.ownerIdInput);
+      this.getInvoiceByOwner();
+  }
+
+  getInvoiceByOwner() {
+
+    this._invoiceService.getInvoiceByOwner(this.token,this.ownerIdInput).subscribe({
+      next: (result) => {
+       
+     
+
+        if (result.status == 'success') {
+          this.propertyDetailsUser = result.invoices
+          // this.propertyDetailsUser.fullname = result.invoices.ownerId.ownerName + ' ' + result.invoices.ownerId.lastname 
+          console.log('getInvoiceByOwner result:', result.invoices)
+        }
+      },
+      error: (error) => {
+        console.log('error', error)
+      }
+    })
+    
 
   }
+
+  fullNameFormat(owner): string{
+    let fullname = ''
+
+    if (typeof owner.ownerName === 'string' && typeof owner.lastname === 'string') {
+
+      fullname = `${owner.ownerName.toUpperCase()} ${owner.lastname.toUpperCase() }`
+
+    }
+
+    return fullname
+  }
+
+  unitFormat(unit): string{
+    let unitArray = unit.ownerId.propertyDetails
+    let condominioId = unit.condominiumId._id
+    let ownerUnit = unit.ownerId.propertyDetails
+    let units = ''
+
+    unitArray.forEach(property => {
+     
+      if (property.addressId == condominioId) {
+       
+        units += property.condominium_unit
+      
+        
+      }
+
+      
+
+    });
+
+    // console.log('condominioId', condominioId)
+   
+    // console.log('unitFormat', units)
+    return units
+  }
+
+  dateFormate(date: string): string {
+    let dateFormated = new Date(date)
+    return dateFormated.toDateString() 
+  }
+
 
   loadPaymentsHistory() {
 
@@ -81,6 +153,19 @@ export class PaymentsHistoryComponent {
     // this.propertyDetailsUser.emergecyPhoneNumber = '809-555-5555'
     // this.propertyDetailsUser.paymentMehtod = 'Deposit: Bank of America'
 
+  }
+
+
+  getSeverity(invoice_status: string) {
+    if (invoice_status == 'new') {
+      return 'success'
+    } else if (invoice_status == 'pending') {
+      return 'warning'
+    } else if (invoice_status == 'overdue') {
+      return 'danger'
+    }else{
+      return 'info'
+    }
   }
 
 

@@ -102,7 +102,7 @@ export class HomeComponent implements OnInit {
   public visible: boolean = false;
   public visible_invoice: boolean = false;
   public visible_owner: boolean = false;
-  public identity: any;
+  public identity: any; 
   private token: string;
   public genderOption: any;
   public passwordOwner: boolean;
@@ -122,6 +122,7 @@ export class HomeComponent implements OnInit {
   ref: DynamicDialogRef;
 
   @ViewChild(InviceGeneraterComponent) invoiceGenerator: InviceGeneraterComponent;
+
   constructor(
     private _userService: UserService,
     private _messageService: MessageService,
@@ -153,16 +154,16 @@ export class HomeComponent implements OnInit {
     ]
 
     this.authorizedUser = [
-      { avatar: 'avatar1.png', 
-        name: 'John', 
-        lastname: 'Mendez',
-      gender:"Male",
-      phone: '809-555-5555',
-      email: 'jmendex@mail.com',
-      password: 'password',
-      status: 'active',
-      role: 'Owner'
-    }
+        { avatar: 'avatar1.png', 
+          name: 'John', 
+          lastname: 'Mendez',
+        gender:"Male",
+        phone: '809-555-5555',
+        email: 'jmendex@mail.com',
+        password: 'password',
+        status: 'active',
+        role: 'Owner'
+      }
     ]
 
     this.property_typeOptions = [
@@ -255,8 +256,14 @@ export class HomeComponent implements OnInit {
 
 
     // END GRAPH VARIABLES
-  }
+  } 
 
+
+  procesarFactura(event){
+    this.onInitInfo();
+    this.visible_invoice = false;
+    this._messageService.add(event);
+  }
  
   // Open Invoice generater dialog
   openInvoiceGenerator() {
@@ -268,9 +275,6 @@ export class HomeComponent implements OnInit {
     // emit data to parent component
     this.propertyInfoEvent.emit(data);
   }
-
-
-
 
   unitFormatOnInit(unit) {
     var unitList = []
@@ -314,6 +318,7 @@ export class HomeComponent implements OnInit {
             if (response.status == 'success') {
 
               var unitList = response.message
+             
               localStorage.setItem('property', JSON.stringify(unitList))
               this.units = (unitList.units_ownerId.length)
 
@@ -370,9 +375,6 @@ export class HomeComponent implements OnInit {
     this.ownerObj = events
    
     this.image = this.url + 'owner-avatar/' + events.avatar
-
-   
-    
     this.visible_owner = true;
 
     
@@ -390,7 +392,6 @@ export class HomeComponent implements OnInit {
     const formData = new FormData()
 
     formData.append('avatar', (this.ownerObj.avatar != null ? this.ownerObj.avatar : 'noimage.jpeg'))
-
     formData.append('ownerName', this.ownerObj.ownerName)
     formData.append('lastname', this.ownerObj.lastname)
     formData.append('gender', this.ownerObj.gender)

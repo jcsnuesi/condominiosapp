@@ -1,4 +1,4 @@
-<p-table #dt [value]="[propertyDetailsUser]" [rows]="10" [paginator]="true"
+<p-table #dt [value]="propertyDetailsUser" [rows]="10" [paginator]="true"
     [globalFilterFields]="['fullname',  'status']" [tableStyle]="{ 'min-width': '75rem' }" [rowHover]="true"
     dataKey="id" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
     [showCurrentPageReport]="true">
@@ -9,7 +9,7 @@
 
         </div>
     </ng-template>
-    <ng-template pTemplate="header">
+    <ng-template pTemplate="header" >
         <tr>
 
             <th pSortableColumn="fullname" style="min-width:15rem">
@@ -25,20 +25,16 @@
                 Monthly payment
             </th>
             <th>
-                Contract start date
+                Issue date
             </th>
             <th>
-                Contract end date
+               Due date
             </th>
             <th>
                 Payment method
             </th>
-            <th>
-                Emergency contact
-            </th>
-            <th>
-                Is rent?
-            </th>
+         
+            
             <th>
                 Status <p-sortIcon field="status" />
             </th>
@@ -52,35 +48,31 @@
         <tr>
 
             <td>
-                {{ owner.fullname}}
+                {{fullNameFormat(owner.ownerId) }}
             </td>
 
             <td>
-                {{ owner.units }}
+                {{ unitFormat(owner) }}
             </td>
             <td>
-                {{ owner.phone}}
+                {{ owner.ownerId.phone}}
             </td>
             <td>
-                {{ owner.monthlyPayment}}
+                {{ owner.invoice_amount}}
             </td>
             <td>
-                {{ owner.contractStart}}
+                {{dateFormate(owner.invoice_issue) }}
             </td>
             <td>
-                {{ owner.contractEnd}}
+                {{dateFormate(owner.invoice_due) }}
             </td>
             <td>
                 {{ owner.paymentMehtod}}
             </td>
+           
+            
             <td>
-                {{ owner.emergecyPhoneNumber}}
-            </td>
-            <td>
-                {{ owner.isRent}}
-            </td>
-            <td>
-                <p-tag [value]="owner.status" [severity]="getSeverity(owner.status)" />
+                <p-tag [value]="owner.invoice_status" [severity]="getSeverity(owner.invoice_status)" />
             </td>
             <td>
                 <p-button icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true" severity="success"

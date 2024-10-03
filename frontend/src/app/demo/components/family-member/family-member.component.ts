@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
 import { CommonModule } from '@angular/common';
@@ -21,6 +21,7 @@ import { CardModule } from 'primeng/card';
 import { TagModule } from 'primeng/tag';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmPopupModule } from 'primeng/confirmpopup';
+import { DynamicTableComponent } from "../dynamic-table/dynamic-table.component";
 
 
 type FamilyAccess = {
@@ -69,10 +70,11 @@ interface FamilyMembers {
     AvatarModule,
     AvatarGroupModule,
     ToolbarModule,
-    DialogModule
-  ],
+    DialogModule,
+    DynamicTableComponent
+],
   templateUrl: './family-member.component.html',
-  styleUrl: './family-member.component.scss',
+  styleUrl: './family-member.component.html',
   providers: [
     MessageService,
     ConfirmationService,
@@ -96,7 +98,7 @@ export class FamilyMemberComponent implements OnInit  {
   public visibleUpdate: boolean;
   public addProperty: {_id: string, addressId: string };
   @Input() ownerIdInput!: string;
-
+  public dataToSend: [{ name: string, lastname: string }];
 
 
   constructor(
@@ -108,6 +110,7 @@ export class FamilyMemberComponent implements OnInit  {
     this.identity = this._userService.getIdentity()
     this.token = this._userService.getToken();
     this.propertyData = [];
+   
 
     this.newFamilyMember = {
       
@@ -139,10 +142,19 @@ export class FamilyMemberComponent implements OnInit  {
   }
 
 
-  ngOnInit(): void {
+  sendData() {
 
-    
+
+    return this.dataToSend;
+
+  }
+  
+
+
+  ngOnInit(): void {
+  
     this.getFamilies();
+    this.sendData();
   }
  
 
@@ -279,18 +291,18 @@ export class FamilyMemberComponent implements OnInit  {
         break;
       case 'ADMIN':
 
-         console.log("INPUT RECEIVED", this.ownerIdInput)
+        //  console.log("INPUT RECEIVED", this.ownerIdInput)
          this._userService.getFamiliesByOwnerId(this.token, this.ownerIdInput).subscribe({
            next: data => {
 
-             console.log("****************ADDRESS INFO FOR ADMIN *****************")
-             console.log()
-
+            //  console.log("****************ADDRESS INFO FOR ADMIN *****************")
+             
              if (data.status == 'success') {
-
+               console.log(data)
+               this.dataToSend = data.message
                this.addressInfo = [];
                this.info = [];
-
+              
                for (let i = 0; i < data.message.familyAccount.length; i++) {
 
                  data.message.familyAccount[i].addressId.forEach((element, index) => {

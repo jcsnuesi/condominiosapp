@@ -4,7 +4,7 @@
     <div   class="col-12 lg:col-6 xl:col-3">
         <div class="card">
             <div class="flex justify-content-between">
-                <div>
+                <div> 
                     <span class="block text-500 font-medium">Total units</span>
                     <div class="text-900 font-medium text-xl">{{units}}</div>
                 </div>
@@ -27,7 +27,8 @@
     </div>
 
     <!-- Invoice generater -->
-        <app-invice-generater></app-invice-generater>
+    <p-toast />
+        <app-invice-generater (facturaGenerada)="procesarFactura($event)"></app-invice-generater>
     <!--END  Invoice generater -->
     
     <div class="col-12 lg:col-6 xl:col-3">
@@ -280,8 +281,8 @@
     <!-- <router-outlet></router-outlet> -->
 
     <!--START MODAL-->
-    <p-dialog [(visible)]="visible"  [modal]="true" [style]="{ width: '50rem' }"
-        [maximizable]="true">
+    <p-dialog [(visible)]="visible"  [modal]="true" [style]="{width: '100vw', height: '100vh'}"  [maximizable]="true">
+
 
         <ng-template pTemplate="header">
             <span class="font-semibold text-xl w-100">
@@ -477,8 +478,8 @@
 
                 </form>
             </p-tabPanel>
-          
-
+           
+ 
             <p-tabPanel header="Authorized users">
                 <form #basicInfo="ngForm" (ngSubmit)="onUpdate()">
 
@@ -487,10 +488,11 @@
 
                 </form>
             </p-tabPanel>
-            <p-tabPanel header="Payments history">
+            <p-tabPanel header="Payments history" >
         
+
                 
-            <app-payments-history *ngIf="visible_owner" [ownerIdInput]="ownerObj._id" ></app-payments-history>
+            <app-payments-history *ngIf="visible_owner"  [ownerIdInput]="ownerObj._id" ></app-payments-history>
                 
           
                    

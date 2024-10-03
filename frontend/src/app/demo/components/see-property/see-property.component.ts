@@ -135,6 +135,7 @@ export class SeePropertyComponent implements OnInit, DoCheck {
 
 
     switch (this.loginInfo.role) {
+     
       case 'ADMIN':
        
       this._condominioService.getPropertyByAdminId(this.token, this.loginInfo._id).subscribe({
@@ -143,6 +144,7 @@ export class SeePropertyComponent implements OnInit, DoCheck {
        
             if (response.status == 'success') {
               this.properties = response.message;
+              console.log('PROPERTIES:', this.properties)
 
             }
           },

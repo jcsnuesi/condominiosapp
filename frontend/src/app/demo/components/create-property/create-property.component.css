@@ -1,0 +1,66 @@
+.custom-file-upload {
+    display: inline-block;
+    cursor: pointer;
+    padding: 6px 12px;
+}
+
+.upload-img {
+    width:250px;
+    height: 180px;
+    cursor: pointer;
+    border-radius: 5px;
+    border: solid 1px #e0e0e0;
+}
+
+.vertical-center {
+    display: flex;
+    justify-content: center;
+    /* Opcional: Centra horizontalmente */
+    align-items: center;
+    /* Centra verticalmente */
+    height: 100%;
+   
+    /* Asegúrate de que el div ocupe el 100% de la altura disponible */
+}
+
+/* .addressProperty {
+   
+    padding: 12px;
+
+} */
+::ng-deep .p-dropdown{
+    width: 100% !important;
+}
+
+::ng-deep  .p-multiselect {
+    width: 100% !important;
+}
+::ng-deep .p-calendar{
+    width: 100% !important;
+}
+
+/* .addressPropertyMulti {
+
+    padding: 12px;
+    width: 100%;
+
+} */
+
+label{
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
+
+input {
+    width: 100%;
+    padding-top: 9px;
+    padding-bottom: 5px;
+    margin: 5px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+
+.input-error {
+    border: 1px solid red;
+}

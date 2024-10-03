@@ -1,4 +1,4 @@
-import { Component , OnInit} from '@angular/core';
+import { Component , OnInit, ViewChild} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Condominio } from '../../models/condominios.model';
 import { FormsModule, NgForm } from '@angular/forms';
@@ -6,18 +6,20 @@ import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { MultiSelectModule } from 'primeng/multiselect';
-import { FileUploadModule } from 'primeng/fileupload';
+import { FileUpload, FileUploadModule } from 'primeng/fileupload';
 import { CondominioService } from '../../service/condominios.service';
 import { UserService } from '../../service/user.service';
 import { CardModule } from 'primeng/card';
 import { RouterModule, Router } from '@angular/router';
- 
+import { StepperModule } from 'primeng/stepper';
+import { CalendarModule } from 'primeng/calendar';
+
 @Component({
   selector: 'app-create-property',
   standalone: true,
-  imports: [CommonModule, FormsModule, DropdownModule, InputTextModule, ButtonModule, MultiSelectModule, FileUploadModule,  CardModule, RouterModule],
+  imports: [CommonModule, FormsModule, DropdownModule, InputTextModule, ButtonModule, MultiSelectModule, FileUploadModule, CardModule, RouterModule, StepperModule, CalendarModule],
   templateUrl: './create-property.component.html',
-  styleUrls: ['./create-property.component.scss'],
+  styleUrls: ['./create-property.component.css'],
   providers: [CondominioService, UserService]
 })
 export class CreatePropertyComponent implements OnInit {
@@ -32,6 +34,7 @@ export class CreatePropertyComponent implements OnInit {
   public status: any;
   public avatar:any;
   public token:string;
+  @ViewChild('fileInput') fileInput!: FileUpload;
 
 
 
@@ -41,7 +44,7 @@ export class CreatePropertyComponent implements OnInit {
     private _router: Router
   ){
 
-    this.condominioModel = new Condominio('', '','','','','','','','','','','',[],[],null)
+    this.condominioModel = new Condominio('', '','','','','','','','','','','',[],[],null, new Date())
     
     this.image = '../../assets/noimage2.jpeg'
     this.token = this._userService.getToken();
@@ -75,6 +78,11 @@ export class CreatePropertyComponent implements OnInit {
     
   }
 
+  triggerFileUpload() {
+    // Accedemos al componente y simulamos el clic
+    this.fileInput.basicFileInput.nativeElement.click();
+  }
+
   // crear el modelo condominio *
   // crear el formulario *
   // enviar los datos a la api *
@@ -85,8 +93,17 @@ export class CreatePropertyComponent implements OnInit {
   }
 
   public areaSocialString: any;
+
+ dateFormat(date: Date) {
+    let month = date.getMonth() + 1;
+    let day = date.getDate();
+    let year = date.getFullYear();
+    return year + '-' + month + '-' + day;
+  }
+
   submit(condominiumForm:NgForm){
 
+  
     const formdata = new FormData()
     
     formdata.append('avatar', (this.avatar != null ? this.avatar : 'noimage.jpeg'))
@@ -100,12 +117,12 @@ export class CreatePropertyComponent implements OnInit {
     formdata.append('city', this.condominioModel.city)
     formdata.append('zipcode', this.condominioModel.zipcode)
     formdata.append('province', this.condominioModel.province)
-    formdata.append('country', this.condominioModel.country.country )
-    
+    formdata.append('country', this.condominioModel.country )
+    formdata.append('mPayment', this.condominioModel.mPayment)
+    formdata.append('paymentDate', this.dateFormat(this.condominioModel.paymentDate) )    
     this.condominioModel.socialAreas.forEach(areas => {
       formdata.append('socialAreas', areas.areasOptions)
     });
-    formdata.append('mPayment', this.condominioModel.mPayment)
 
 
     this._condominioService.createCondominium(this.token, formdata).subscribe(

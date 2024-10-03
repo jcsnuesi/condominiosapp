@@ -79,8 +79,6 @@ export class OwnerRegistrationComponent implements OnInit, AfterViewInit {
       { gender: 'Female', code: 'f' }
     ];
     this.addreesDetails = { street_1: '', street_2: '', sector_name: '', city: '', province: '', country: '' }
-
- 
   
   }
 
@@ -88,8 +86,11 @@ export class OwnerRegistrationComponent implements OnInit, AfterViewInit {
   
 
   ngOnInit(): void {
+
     this.parkingOptions = []
-     
+    let propertyTypeLocal = JSON.parse(localStorage.getItem('property')).typeOfProperty
+    this.ownerObj.propertyType = propertyTypeLocal.toUpperCase()
+    
     for (let index = 1; index < 5; index++) {
 
       this.parkingOptions.push(index)
@@ -187,6 +188,7 @@ export class OwnerRegistrationComponent implements OnInit, AfterViewInit {
           this.messageApiResponse.message = response.message
           this.messageApiResponse.severity = 'success'
           this.apiUnitResponse = true
+          this.image = '../../assets/noimage2.jpeg'
 
         } else {
           this.messageApiResponse.message = response.message

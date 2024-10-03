@@ -18,9 +18,9 @@ export class InvoiceService {
        
     createInvoice(token:string, invoice:any):Observable<any>{
 
-        let params = JSON.stringify(invoice);
-        let headers = new HttpHeaders().set('Content-Type', 'application/json')
-                                    .set('Authorization', token);
+    
+        let params =  JSON.stringify(invoice);
+        let headers = new HttpHeaders().set('Content-Type', 'application/json').set('Authorization', token);
 
         return this._http.post(this.url + 'create-invoice', params, {headers:headers});
 
@@ -33,6 +33,15 @@ export class InvoiceService {
                                         .set('Authorization', token);
     
         return this._http.post(this.url + 'generate-invoice', params, { headers: headers });
+    }
+
+    getInvoiceByOwner(token:string, id:string):Observable<any>{
+
+        let headers = new HttpHeaders().set('Content-Type', 'application/json')
+                                    .set('Authorization', token);
+
+        return this._http.get(this.url + 'get-invoices/'+id, {headers:headers});
+
     }
 
 }

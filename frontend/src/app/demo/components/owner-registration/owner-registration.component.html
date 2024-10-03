@@ -107,7 +107,7 @@
                         </div>
         
                         <div class="form-group mt-3">
-        
+     
         
                             <p-inputGroup>
                                 <p-inputGroupAddon>
@@ -116,7 +116,7 @@
         
                                 <input pInputText
                                     [ngClass]="{'input-success':phone.valid, 'input-error ':(phone.touched && !phone.dirty)}"
-                                    #phone="ngModel" [(ngModel)]="ownerObj.phone" name="phone" type="text" maxlength="15"
+                                    #phone="ngModel" [(ngModel)]="ownerObj.phone" name="phone" type="text" maxlength="11"
                                     required placeholder="8496587417" pattern="^[0-9]+" />
         
                             </p-inputGroup>
@@ -201,13 +201,13 @@
         
                                 <select class="form-select" name="isRent" #isRent="ngModel" [(ngModel)]="ownerObj.isRenting"
                                     required style="border-left: none">
+                                    
                                     <option value="">Select option...</option>
                                     <option value="yes">Si</option>
                                     <option value="no">No</option>
         
                                 </select>
-        
-        
+                
                             </p-inputGroup>
         
                         </div>
@@ -239,15 +239,19 @@
                                     <i class="pi pi-home"></i>
         
                                 </p-inputGroupAddon>
+<!--  Llenar el tipo de casa automaticamente -->
+    <select class="form-select" style="border-left: none" name="propertyType"
+        #propertyType="ngModel" 
+        [(ngModel)]="ownerObj.propertyType"
+        [disabled]="true" >
+        <option [value]="ownerObj.propertyType">{{ownerObj.propertyType}}</option>
         
-                                <select class="form-select" style="border-left: none" name="propertyType"
-                                    #propertyType="ngModel" [(ngModel)]="ownerObj.propertyType" required>
-                                    <option value="">Select property...</option>
-                                    <option *ngFor="let property of property_typeOptions" [value]="property.code">
-                                        {{property.name}}</option>
-        
-        
-                                </select>
+        <!-- <option value="">Select property...</option> -->
+        <!-- <option *ngFor="let property of property_typeOptions" [value]="property.code">
+            {{property.name}}</option>
+-->
+
+    </select>
         
         
                             </p-inputGroup>

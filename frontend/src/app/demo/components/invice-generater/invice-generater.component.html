@@ -1,83 +1,114 @@
 
 <p-dialog 
-header="Set up invoice datails" 
+header="Set up invoice details" 
 [modal]="true" 
 [(visible)]="display" 
-[draggable]="false" 
-[resizable]="true"
+[draggable]="true" 
+[resizable]="false"
+[style]="{ width: '30%' }" 
+[breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" 
 (onHide)="onHide()">
 
-<p-toast />
+
 <p-confirmDialog />
-<div class="container">
 
-    <span class="p-text-secondary block mb-5">Update your payment information.</span>
+<form #invoiceForm="ngForm">
 
-    <div class="mb-3">
-        <label for="username" class="font-semibold d-block">Payment description</label>
+    <div class="container">
 
-        <p-multiSelect  
-        [options]="paymentDescriptionOptions" 
-        [(ngModel)]="descriptionSelected" 
-        optionLabel="label"
-            placeholder="Select Description..." 
-            [disabled]="invoiceSetup"/>
-    
-    </div>
+        <span class="p-text-secondary block mb-3">Update your payment information.</span>
 
-    <div class="mb-3">
-        <label for="amountLabel" class="font-semibold w-6rem mb-2">Amount $</label>
-        <input type="text" 
-        class="form-control"
-         #amount="ngModel" name="amount" [(ngModel)]="invoice.amounts" id="amountLabel" 
-         [disabled]="invoiceSetup"/>
-    </div>
-
-    
-
-
-    <div class="mb-3">
-        <label for="issueDateLabel" class="font-semibold w-6rem mb-2">Issue date</label>
-        <input type="date" 
-        #issueDate="ngModel" 
-        [(ngModel)]="invoice.issueDate" 
-        name="dueDate" 
-        id="issueDate"
-            class="form-control"
-            (change)="setDate()"
-            [disabled]="invoiceSetup">       
+        <div class="mb-3">
+            <label for="amountInvoiceLabel" class="font-semibold w-6rem mb-2">Amount $</label>
+            <input type="text" class="form-control" #amountInvoice="ngModel" name="amountInvoice" [(ngModel)]="updateInfo.mPayment"
+                id="amountInvoiceLabel" />
+        </div>
         
+        <div class="mb-3">
+            <label for="issueDateUpdatelabel" class="font-semibold w-6rem mb-2">Issue date</label>
+            <input type="date" #issueDateUpdate="ngModel" name="issueDateUpdate" [(ngModel)]="updateInfo.paymentDate" id="issueDateUpdatelabel"
+                class="form-control">
+        
+        </div>
 
+        <div class="mb-3" *ngIf="!invoiceSetup">
+            <button class="btn btn-outline-secondary w-100 mr-3" (click)="updateInvoice()"
+               >Update</button>
+        </div>
+
+        <div  class="col">
+            <hr class="dropdown-divider">
+        </div>
+    
+        <span class="p-text-secondary block mb-3">Create a new invoice.</span>
+    
+        <div class="mb-3">
+            <label for="username" class="font-semibold d-block mb-2">Choose who the invoice belongs to</label>
+        
+            <p-multiSelect (onClick)="onClickInvoiceOwnerMultiSelect()" 
+            #invoiceOwnerMultiSelect="ngModel"
+            name="invoiceOwnerMultiSelect"
+            [options]="invoiceInfo?.invoiceOwner" 
+            [(ngModel)]="invoiceInfo.invoiceOwnerSelected" 
+            optionLabel="label"
+                placeholder="Select Description..." 
+                [disabled]="invoiceSetup"  />
+        
+        </div>
+    
+       
+    
+        <div class="mb-3">
+            <label for="username" class="font-semibold d-block mb-2">Payment description</label>
+    
+            <p-multiSelect  
+            [options]="invoiceInfo?.paymentDescription" 
+            #paymentDescriptionMultiSelect="ngModel"
+            name="paymentDescriptionMultiSelect"
+            [(ngModel)]="invoiceInfo.paymentDescriptionSelected" 
+            optionLabel="label"
+                placeholder="Select Description..." 
+                [disabled]="invoiceSetup" />
+        
+        </div>
+    
+        <div class="mb-3">
+            <label for="amountLabel" class="font-semibold w-6rem mb-2">Amount $</label>
+            <input type="text" 
+            class="form-control"
+             #amount="ngModel" name="amount" [(ngModel)]="invoiceInfo.amounts" id="amountLabel" 
+             [disabled]="invoiceSetup"/>
+        </div>
+    
+        <div class="mb-3">
+            <label for="issueDatelabel" class="font-semibold w-6rem mb-2">Issue date</label>
+            <input type="date" 
+            #issueDate="ngModel" 
+            name="issueDate" 
+            [(ngModel)]="invoiceInfo.issueDate" 
+            id="issueDatelabel"
+                class="form-control"           
+                [disabled]="invoiceSetup" >      
+            
+        </div>   
+        
+       
+      
+        <div class="mb-3"  *ngIf="!invoiceSetup">
+            <button class="btn btn-outline-success w-100 mr-3" (click)="saveInvoice()" [disabled]="invoiceForm.invalid">Save</button>
+        </div>
+        <div *ngIf="!invoiceSetup">
+            <button class="btn btn-outline-danger  w-100 mr-3" (click)="onHide()" >Cancel</button>
+          
+        </div>
+        <div *ngIf="invoiceSetup">
+            <button class="btn btn-outline-primary  w-100 mr-3" (click)="generateNow()" >Generate now</button>
+          
+        </div>
     </div>
 
-    <div class="mb-3">
-        <label for="dueDataLabel" class="font-semibold w-6rem mb-2">Due date</label>
-        <input 
-        type="date" 
-          #dueDate="ngModel"
-          [(ngModel)]="invoice.dueDate"
-            name="dueDate"
-            id="dueDataLabel"
-         class="form-control"
-         disabled 
-         
-         >
-           
-    </div>
-   
-  
-    <div class="mb-3"  *ngIf="!invoiceSetup">
-        <button class="btn btn-outline-success w-100 mr-3" (click)="saveInvoice()">Save</button>
-    </div>
-    <div *ngIf="!invoiceSetup">
-        <button class="btn btn-outline-danger  w-100 mr-3" (click)="onHide()" >Cancel</button>
-      
-    </div>
-    <div *ngIf="invoiceSetup">
-        <button class="btn btn-outline-primary  w-100 mr-3" (click)="generateNow()" >Generate now</button>
-      
-    </div>
-</div>
+
+</form>
   
 
    

@@ -52,4 +52,15 @@ export class CondominioService {
         
         return this._http.post(this.url + 'create-owner', ownerProfile, {headers:header})
     }
+
+    updateCondominium(token:string, condominio:any):Observable<any>{
+
+        let params = JSON.stringify(condominio);
+      
+        let header = new HttpHeaders().set('Content-Type', 'application/json').set('Authorization', token);
+
+        return this._http.put(this.url + 'updateCondominio', params,{headers:header})
+    }
+
+    
 }

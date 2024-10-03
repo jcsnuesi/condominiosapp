@@ -18,7 +18,8 @@ export class Condominio{
         public socialAreas: any,
         public units: Array<string>,
         public employees: Array<string>,
-        public mPayment: null
+        public mPayment: null,
+        public paymentDate: Date
     ){}
 
 
