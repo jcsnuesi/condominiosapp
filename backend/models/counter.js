@@ -7,5 +7,6 @@ var counterSchema = Schema({
 });
 
 var Counter = mongoose.models.Counter || mongoose.model('Counter', counterSchema);
+// var Counter = mongoose.model('Counter', counterSchema);
 
 module.exports = Counter;

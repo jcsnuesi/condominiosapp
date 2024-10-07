@@ -457,20 +457,8 @@ var ownerAndSubController = {
 
         let params = req.params.id
         
-        Owner.find({ _id: '66f84833006341d7843b4127' })
-       
-            .populate({
-                path: 'familyAccount',              
-                populate: { 
-                    path:'addressId',
-                     populate: {
-                        path: 'condominioId',
-                        select: 'alias type phone street_1 street_2 sector_name city province zipcode country  status createdAt'
-                     }
-                }
-            })
-            .exec((err, familyFound) => {
-                console.log(familyFound)
+        Family.find({ ownerId: '66f84833006341d7843b4127' }, (err, familyFound) => {
+           
             
             if (err) {
                 return res.status(500).send({
@@ -486,14 +474,12 @@ var ownerAndSubController = {
                 })
             }
 
-                let getFamily = { familyAccount:[] }
-            
-                getFamily.familyAccount = familyFound[0].familyAccount
+           
              
-   
+            console.log(familyFound)
             return res.status(200).send({
                 status: "success",
-                message: getFamily
+                message: familyFound
             })
 
         })
