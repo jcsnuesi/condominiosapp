@@ -1,0 +1,51 @@
+/* Sobrescribir estilos para el <th> con ng-reflect-field="id" */
+th[ng-reflect-field="id"] {
+        /* Sobrescribir cualquier estilo específico aquí */
+        min-width: 0 !important;
+        /* Ejemplo: sobrescribir min-width */
+        /* Otros estilos que desees aplicar */
+    }
+th[ng-reflect-field="invoice_issue_date"]{
+        /* Sobrescribir cualquier estilo específico aquí */
+        min-width: 0 !important;
+        /* Ejemplo: sobrescribir min-width */
+        /* Otros estilos que desees aplicar */
+    }
+th[ng-reflect-field="invoice_due_date"]
+ {
+    /* Sobrescribir cualquier estilo específico aquí */
+    min-width: 0 !important;
+    /* Ejemplo: sobrescribir min-width */
+    /* Otros estilos que desees aplicar */
+}
+
+th[ng-reflect-field="units"] {
+    /* Sobrescribir cualquier estilo específico aquí */
+    min-width: 0 !important;
+    /* Ejemplo: sobrescribir min-width */
+    /* Otros estilos que desees aplicar */
+}
+th[ng-reflect-field="phone"] {
+    /* Sobrescribir cualquier estilo específico aquí */
+    min-width: 0 !important;
+    /* Ejemplo: sobrescribir min-width */
+    /* Otros estilos que desees aplicar */
+}
+th[ng-reflect-field="amounts"] {
+    /* Sobrescribir cualquier estilo específico aquí */
+    min-width: 0!important;
+    /* Ejemplo: sobrescribir min-width */
+    /* Otros estilos que desees aplicar */
+}
+th[ng-reflect-field="status"] {
+    /* Sobrescribir cualquier estilo específico aquí */
+    min-width:0!important;
+    /* Ejemplo: sobrescribir min-width */
+    /* Otros estilos que desees aplicar */
+}
+th[ng-reflect-field="actions"] {
+    /* Sobrescribir cualquier estilo específico aquí */
+    min-width: 0 !important;
+    /* Ejemplo: sobrescribir min-width */
+    /* Otros estilos que desees aplicar */
+}

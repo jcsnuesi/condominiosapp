@@ -22,35 +22,30 @@ import { TagModule } from 'primeng/tag';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmPopupModule } from 'primeng/confirmpopup';
 import { DynamicTableComponent } from "../dynamic-table/dynamic-table.component";
+import { FormatFunctions } from '../../service/formating_text';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { PdfViewerModule } from 'ng2-pdf-viewer';
 
 
-type FamilyAccess = {
-
-  
-  name: string,
-  lastname: string,
-  gender: string,
-  phone: string,
-  email: string,
-  password: string,
-  addressId: string,
-  ownerId: string
-
-
-}
 
 interface FamilyMembers {
-    name: string,
-    alias: string,
-    addressInfo: any[],
-    createdAt: string,
-    status: string
+  avatar: string,
+  fullname: string,
+  email: string ,
+  phone: string,
+  addressInfo: any[],
+  role: string,  
+  createdAt: string,
+  status: string,
+  actions: boolean
 }
 
 @Component({
   selector: 'app-family-member',
   standalone: true,
   imports: [
+    PdfViewerModule,
+    ProgressSpinnerModule,
     HasPermissionsDirective,
     ConfirmPopupModule,
     ButtonModule,
@@ -73,17 +68,20 @@ interface FamilyMembers {
     DialogModule,
     DynamicTableComponent
 ],
-  templateUrl: './family-member.component.html',
-  styleUrl: './family-member.component.html',
+  templateUrl: '../dynamic-table/dynamic-table.component.html',
+  styleUrl: './family-member.component.scss',
   providers: [
     MessageService,
     ConfirmationService,
     UserService]
 })
 export class FamilyMemberComponent implements OnInit  {
-
+// ./family-member.component.html
   public userDialog: boolean;
-  public newFamilyMember!: FamilyAccess;
+  public visible_spinner: boolean;
+  public dynamicHeaders: any;
+  public propertyDetailsUser: any;
+  public tableDataStructure!: FamilyMembers;
   private token: string;
   public authorizedUser: any;
   public propertyData: any;
@@ -93,12 +91,25 @@ export class FamilyMemberComponent implements OnInit  {
   public genderOptions: { name: string; code: string; }[];
   public propertySelected: any;
   public genderSelected: any;
-  public familyMembers: FamilyMembers;
+  public visible_dynamic: boolean;
   public nodata: boolean;
   public visibleUpdate: boolean;
   public addProperty: {_id: string, addressId: string };
   @Input() ownerIdInput!: string;
   public dataToSend: [{ name: string, lastname: string }];
+  public addressInfo: any;
+  public info: any;
+  public bodyTableInfo: any[];
+  public headertbl = "Family Members";
+  public getSeverityColor: any;
+  public _upperUfunction: any;
+  public _stringFormating: any;
+  public header_modal_aux = 'Family Member Details'; 
+  public pdfSrc: any;
+  
+
+ 
+
 
 
   constructor(
@@ -110,21 +121,12 @@ export class FamilyMemberComponent implements OnInit  {
     this.identity = this._userService.getIdentity()
     this.token = this._userService.getToken();
     this.propertyData = [];
-   
+    this.bodyTableInfo = [];
+    this._stringFormating = new FormatFunctions();
+    this.getSeverityColor = this._stringFormating.getSeverity;
+    this._upperUfunction = this._stringFormating.upper;
 
-    this.newFamilyMember = {
-      
-      name: '',
-      lastname: '',
-      gender: "",
-      phone: '',
-      email: '',
-      password: '',
-      addressId: '',
-      ownerId: this.identity._id
 
-    }
-  
     
 
     this.genderOptions = [
@@ -150,11 +152,11 @@ export class FamilyMemberComponent implements OnInit  {
   }
   
 
-
+  public tblInfo: any;
   ngOnInit(): void {
-  
+   
     this.getFamilies();
-    this.sendData();
+    // this.sendData();
   }
  
 
@@ -192,41 +194,45 @@ export class FamilyMemberComponent implements OnInit  {
 
   submit(){
 
-    this.newFamilyMember.addressId = this.propertySelected.id;
-    this.newFamilyMember.gender = this.genderSelected.code;
+    // this.newFamilyMember.addressId = this.propertySelected.id;
+    // this.newFamilyMember.gender = this.genderSelected.code;
    
-    this._userService.createFamily(this.token, this.newFamilyMember).subscribe({
-      next: data => {
+    // this._userService.createFamily(this.token, this.newFamilyMember).subscribe({
+    //   next: data => {
       
-        if(data.status == 'success'){
-          this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'User Created', life: 3000 });
-          this.userDialog = false;
-          this.getFamilies();
-        }else{
+    //     if(data.status == 'success'){
+    //       this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'User Created', life: 3000 });
+    //       this.userDialog = false;
+    //       this.getFamilies();
+    //     }else{
 
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: data.message, life: 3000 });
-          this.userDialog = true;
-        }
+    //       this.messageService.add({ severity: 'error', summary: 'Error', detail: data.message, life: 3000 });
+    //       this.userDialog = true;
+    //     }
 
-      },
-      error: error => {
-        console.error('There was an error!', error);
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: error.message, life: 3000 });
-        this.userDialog = true;
-      },
-      complete: () => {
-        console.log('Completed');
-      }
+    //   },
+    //   error: error => {
+    //     console.error('There was an error!', error);
+    //     this.messageService.add({ severity: 'error', summary: 'Error', detail: error.message, life: 3000 });
+    //     this.userDialog = true;
+    //   },
+    //   complete: () => {
+    //     console.log('Completed');
+    //   }
 
-    })
+    // })
     
 
 
   }
 
+  editItem(event: any) {
+    console.log(event)
+    this.visible_dynamic = true;
+  }
+
   
-  public addressInfo: any;
-  public info: any;
+
   getFamilies(){
 
      switch (this.identity.role) {
@@ -237,7 +243,7 @@ export class FamilyMemberComponent implements OnInit  {
 
              if (data.status == 'success') {
 
-
+            
                // Asignamos las propiedades al dropdown
                for (let index = 0; index < this.identity.propertyDetails.length; index++) {
                  this.propertyData.push({ alias: this.identity.propertyDetails[index].addressId.alias, id: this.identity.propertyDetails[index].addressId._id })
@@ -295,66 +301,44 @@ export class FamilyMemberComponent implements OnInit  {
          this._userService.getFamiliesByOwnerId(this.token, this.ownerIdInput).subscribe({
            next: data => {
 
-            //  console.log("****************ADDRESS INFO FOR ADMIN *****************")
-             
+             console.log("****************ADDRESS INFO FOR ADMIN *****************")
+
+          
              if (data.status == 'success') {
                console.log(data)
                this.dataToSend = data.message
                this.addressInfo = [];
                this.info = [];
-              
-               for (let i = 0; i < data.message.familyAccount.length; i++) {
 
-                 data.message.familyAccount[i].addressId.forEach((element, index) => {
+               data.message.forEach((familyMember, index) => {
 
-                   this.addressInfo.push({
-                     id__: data.message.familyAccount[i]._id,
-                     fullname: `${data.message.familyAccount[i].name} ${data.message.familyAccount[i].lastname}`,
-                     familyUserCreatedAt: this._userService.dateFormat(data.message.familyAccount[i].createdAt),
-                     current_status: data.message.familyAccount[i].status,
-                     addressId: element.condominioId._id,
-                     alias: element.condominioId.alias,
-                     address: `${element.condominioId.street_1}, ${element.condominioId.street_2}, ${element.condominioId.sector_name}, ${element.condominioId.province}, ${element.condominioId.zipcode}, ${element.condominioId.country} `, createdAt: this._userService.dateFormat(element.createdAt), authorized: element.family_status,
-                     total_properties: index + 1,
-                   })
+                 this.tableDataStructure = {
+                   avatar: '',
+                   fullname: '',                
+                   email: '',
+                   phone: '',
+                   addressInfo: [],
+                   role: '',
+                   createdAt: '',
+                   status: '',
+                  actions: true
+                 }
 
-                 });
-
-
-
-               }
-
-              //  this.nodata = data.message.length == 0 ? true : false;
-            
-
-               if (!this.nodata){
-
-                //  for (let i = 0; i < data.message.length; i++) {
-
-                //    data.message[i].addressId.forEach((element, index) => {
-
-                //      this.addressInfo.push({
-                //        id__: data.message[i]._id,
-                //        fullname: `${data.message[i].name} ${data.message[i].lastname}`,
-                //        familyUserCreatedAt: this._userService.dateFormat(data.message[i].createdAt),
-                //        current_status: data.message[i].status,
-                //        addressId: element.condominioId._id,
-                //        alias: element.condominioId.alias,
-                //        address: `${element.condominioId.street_1}, ${element.condominioId.street_2}, ${element.condominioId.sector_name}, ${element.condominioId.province}, ${element.condominioId.zipcode}, ${element.condominioId.country} `, createdAt: this._userService.dateFormat(element.createdAt), authorized: element.family_status,
-                //        total_properties: index + 1,
-                //      })
-
-                //    });
+                 this.tableDataStructure.avatar = familyMember.avatar;
+                 this.tableDataStructure.fullname = this._stringFormating.transform(familyMember.name) + ' ' + this._stringFormating. transform(familyMember.lastname)
+                 this.tableDataStructure.phone = familyMember.phone
+                 this.tableDataStructure.email = familyMember.email
+                 this.tableDataStructure.status = familyMember.status
+                 this.tableDataStructure.addressInfo.push(familyMember.addressId)                      
+                 this.bodyTableInfo.push(this.tableDataStructure)
 
 
 
-                //  }
+               })
 
-               }
-            
-              
-               
-
+               // excluir role,createdAt, addressInfo
+               this.dynamicHeaders = Object.keys(this.tableDataStructure).filter((key) => key !== 'role' && key !== 'createdAt' && key !== 'addressInfo');
+   
 
 
              }

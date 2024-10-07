@@ -44,4 +44,13 @@ export class InvoiceService {
 
     }
 
+    getInvoiceById(token:string, id:string):Observable<any>{
+        
+        let headers = new HttpHeaders()
+            .set('Content-Type', 'application / pdf')
+                                    .set('Authorization', token);
+
+        return this._http.get(this.url + '/get-invoicesById/'+id, {headers:headers});
+    }
+
 }

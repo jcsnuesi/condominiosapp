@@ -7,30 +7,49 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { AvatarModule } from 'primeng/avatar';
 import { HasPermissionsDirective } from 'src/app/has-permissions.directive';
 import { CardModule } from 'primeng/card';
+import { DialogModule } from 'primeng/dialog';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { PdfViewerModule } from 'ng2-pdf-viewer';
+
 
 @Component({
   selector: 'app-dynamic-table',
   standalone: true,
   imports: [
+    PdfViewerModule,
     TableModule,
     CommonModule,
     ConfirmDialogModule,
     HasPermissionsDirective,
-    CardModule
+    CardModule,
+    DialogModule,
+    ProgressSpinnerModule
   ],
   templateUrl: './dynamic-table.component.html',
-  styleUrl: './dynamic-table.component.scss'
+  styleUrl: './dynamic-table.component.css'
 })
 export class DynamicTableComponent implements OnInit {
 
 
   @Input() inputData!: any;
   public nodata: boolean;
+  public bodyTableInfo: any;
+  public dynamicHeaders: any; 
+  public _stringFormating: any;
+  public visible_dynamic: any;
+  public visible_spinner: any;
+  public header_modal_aux: any;
+  public pdfSrc: any;
+
+
 
   constructor( private confirmationService: ConfirmationService) {
     this.nodata = false;
+    
+   
    }
 
+public tblInfo: any;
 ngOnInit() {
 
  

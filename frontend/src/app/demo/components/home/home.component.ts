@@ -8,7 +8,7 @@ import { ActivatedRoute } from '@angular/router';
 import { global } from '../../service/global.service';
 import { TableModule } from 'primeng/table';
 import { MenuModule } from 'primeng/menu';
-import { ConfirmDialog, ConfirmDialogModule } from 'primeng/confirmdialog';
+import {  ConfirmDialogModule } from 'primeng/confirmdialog';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ChartModule } from 'primeng/chart';
@@ -62,8 +62,7 @@ type FamilyAccess = {
     DropdownModule,
     TableModule,   
     AvatarModule,
-    AvatarGroupModule,
-    ConfirmDialogModule,
+    AvatarGroupModule,   
     MenuModule,
     FormsModule,
     CommonModule,
@@ -117,6 +116,7 @@ export class HomeComponent implements OnInit {
   public authorizedUser: FamilyAccess[];
   public addressInfo: any;
   public nodata: boolean;  
+  public visible_dynamic: boolean;  
   public genderModel: { name: string, code: string }[];
   @Output() propertyInfoEvent: EventEmitter<any> = new EventEmitter();
   ref: DynamicDialogRef;

@@ -313,8 +313,6 @@
 
     </p-dialog>
 
-
-
     <!-- Modal owners -->
 
     <p-dialog header="Resident details" class="minw" [modal]="true" [(visible)]="visible_owner"
@@ -484,6 +482,7 @@
                 <form #basicInfo="ngForm" (ngSubmit)="onUpdate()">
 
 
+        
                     <app-family-member *ngIf="visible_owner" [ownerIdInput]="ownerObj._id" ></app-family-member>
 
                 </form>

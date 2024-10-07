@@ -239,19 +239,14 @@
                                     <i class="pi pi-home"></i>
         
                                 </p-inputGroupAddon>
-<!--  Llenar el tipo de casa automaticamente -->
-    <select class="form-select" style="border-left: none" name="propertyType"
-        #propertyType="ngModel" 
-        [(ngModel)]="ownerObj.propertyType"
-        [disabled]="true" >
-        <option [value]="ownerObj.propertyType">{{ownerObj.propertyType}}</option>
-        
-        <!-- <option value="">Select property...</option> -->
-        <!-- <option *ngFor="let property of property_typeOptions" [value]="property.code">
-            {{property.name}}</option>
--->
-
-    </select>
+                        <!--  Llenar el tipo de casa automaticamente -->
+                            <select class="form-select" style="border-left: none" name="propertyType"
+                                #propertyType="ngModel" 
+                                [(ngModel)]="ownerObj.propertyType"
+                                [disabled]="true" >
+                                <option [value]="ownerObj.propertyType">{{ownerObj.propertyType}}</option>
+                                
+                            </select>
         
         
                             </p-inputGroup>
@@ -266,7 +261,7 @@
                             <p-button label="Back" icon="pi pi-arrow-left" (onClick)="prevCallback.emit()" />
         
                             <p-button label="Next" icon="pi pi-arrow-right" iconPos="right"
-                                [disabled]=" !apartmentsUnit.valid ||  !isRent.valid || !parking.valid || !propertyType.valid"
+                                [disabled]=" !apartmentsUnit.valid ||  !isRent.valid || !parking.valid"
                                 (onClick)="nextCallback.emit()" />
                         </div>
         

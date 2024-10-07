@@ -1,6 +1,11 @@
-<p-table #dt [value]="propertyDetailsUser" [rows]="10" [paginator]="true"
-    [globalFilterFields]="['fullname',  'status']" [tableStyle]="{ 'min-width': '75rem' }" [rowHover]="true"
-    dataKey="id" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+<p-table #dt [value]="propertyDetailsUser" 
+[rows]="10" 
+[paginator]="true"
+[globalFilterFields]="['fullname',  'status']" 
+[tableStyle]="{ 'min-width': '75rem' }" 
+[rowHover]="true"
+    dataKey="id" 
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
     [showCurrentPageReport]="true">
 
     <ng-template pTemplate="caption">
@@ -77,7 +82,7 @@
             <td>
                 <p-button icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true" severity="success"
                     (onClick)="editProduct(owner)" />
-                <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true"
+                <p-button *HasPermissionsDirective="'owner'" icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true"
                     (onClick)="deleteProduct(product)" />
             </td>
         </tr>
