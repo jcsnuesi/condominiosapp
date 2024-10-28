@@ -5,7 +5,7 @@ var mongoose = require('mongoose')
 var Schema = mongoose.Schema
  
 var FamilySchema = Schema({
-
+ 
     avatar: { type: String, default: 'noimage1.jpeg' },
     name: { type: String, required: true },
     lastname: { type: String, required: true },
@@ -18,7 +18,9 @@ var FamilySchema = Schema({
     addressId: [{
         _id: false,
         condominioId: { type: mongoose.Schema.Types.ObjectId, ref: 'Condominium' },
-        family_status: { type: String, default: 'active' },
+        unit: { type: String, required: true },
+        family_status: { type: String, default: 'authorized' },
+        lastUpdate: { type: Date, default: Date.now },
         createdAt: { type: Date, default: Date.now }
     }],
     ownerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Owner', required: true },

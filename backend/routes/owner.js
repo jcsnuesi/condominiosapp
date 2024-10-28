@@ -1,4 +1,4 @@
-
+ 
 let express = require('express')
 let ownerController = require('../controllers/owner')
 let md_auth = require('../middleware/auth')
@@ -15,6 +15,7 @@ router.get('/owner-avatar/:avatar', ownerController.getAvatar )
 router.get('/condominioByOwnerId', md_auth.authenticated, ownerController.getCondominiumByOwnerId);
 router.get("/get-family", md_auth.authenticated, ownerController.getFamily)
 router.get("/get-familyMembers/:id", md_auth.authenticated, ownerController.getFamilyByOwnerId)
+router.get("/family-member-details/:id", md_auth.authenticated, ownerController.getFamilyDetailsById)
 
 // verify email
 router.get('/verify-email/:email', ownerController.emailVerification)
@@ -35,5 +36,6 @@ router.put('/delete-user-account', md_auth.authenticated, ownerController.delete
 
 router.put('/add-prop-family', md_auth.authenticated, ownerController.addFamilyProperty)
 
+router.put('/update-family-auth', md_auth.authenticated, ownerController.authFamily)
 
 module.exports =  router

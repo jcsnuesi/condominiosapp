@@ -405,7 +405,69 @@ var ownerAndSubController = {
 
         }
         
-    },   
+    }, 
+    authFamily: async function (req, res) {
+        
+        let params = req.body
+
+
+        // if (req.user.role.toLowerCase() != 'owner') {
+
+        //     return res.status(403).send({
+
+        //         status: "forbidden",
+        //         message: "You are not authorized"
+        //     })
+
+        // }
+
+        const familyMember = await Family.findOne({ _id: params.familyId })
+       
+        familyMember.addressId.forEach((element, index) => {
+
+
+            let { condominioId } = element
+
+            if (condominioId == params.propertyId) {
+
+
+                if (params.status === 'inactive') {
+
+                    element.family_status = 'active'
+
+                } else {
+
+                    element.family_status = 'inactive'
+                }
+
+
+            }
+
+           
+
+        });
+
+        try {
+
+            await Family.findOneAndUpdate({ _id: params.familyId }, familyMember, { new: true })
+    
+            return res.status(200).send({
+                status: "success",
+                message: familyMember
+            })
+            
+        } catch (error) {
+            
+            return res.status(500).send({
+                status: "error",
+                message: "Server error, try again"
+            })
+            
+        }
+
+    
+
+    }, 
     getFamily: function(req, res) {
       
             if (req.user.role.toLowerCase() != 'owner') {
@@ -457,7 +519,15 @@ var ownerAndSubController = {
 
         let params = req.params.id
         
-        Family.find({ ownerId: '66f84833006341d7843b4127' }, (err, familyFound) => {
+        Family.find({ ownerId: '66f84833006341d7843b4127' })
+        .populate(
+            {
+                path: 'addressId.condominioId', // Especificamos el campo que deseamos popular
+                model: 'Condominium',
+                select: 'alias type phone street_1 street_2 sector_name city province zipcode country socialAreas'
+            }
+        )
+        .exec( (err, familyFound) => {
            
             
             if (err) {
@@ -476,7 +546,7 @@ var ownerAndSubController = {
 
            
              
-            console.log(familyFound)
+            
             return res.status(200).send({
                 status: "success",
                 message: familyFound
@@ -484,7 +554,37 @@ var ownerAndSubController = {
 
         })
     },
+    getFamilyDetailsById: async function(req, res) {
 
+        let id_member = req.params.id
+
+        if (Boolean(id_member == undefined)) {
+            return res.status(400).send({
+                status: "bad request",
+                message: "All fields required"
+            })
+            
+        }
+
+
+      const familyMember = await Family.findOne({ _id: id_member })
+                                .populate('addressId.condominioId', 'alias type phone street_1 street_2 sector_name city province zipcode country socialAreas status')
+
+        if (!familyMember) {
+            return res.status(404).send({
+                status: "error",
+                message: "Family member not found"
+            })
+        }
+
+        return res.status(200).send({
+            status: "success",
+            message: familyMember
+        })
+
+
+        
+    },
     addFamilyProperty: function(req, res) {
 
       
