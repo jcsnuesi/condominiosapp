@@ -15,28 +15,16 @@ export class FormatFunctions {
     
         return fullname
     }
-    
-     unitFormat(unit): string{
-        let unitArray = unit.ownerId.propertyDetails
-        let condominioId = unit.condominiumId._id
-        let ownerUnit = unit.ownerId.propertyDetails
-        let units = ''
-    
-        unitArray.forEach(property => {
-    
-            if (property.addressId == condominioId) {
-    
-                units += property.condominium_unit
-    
-    
-            }
-    
-    
-    
-        });
-    
-        return units;
+
+    unitFormat(invoice): string {
+        let unit = ''
+        if (typeof invoice.unit === 'string') {
+            unit = invoice.unit.toUpperCase()
+        }
+        return unit
     }
+    
+
     
      dateFormate(date: string): string {
         let dateFormated = new Date(date)
@@ -44,11 +32,11 @@ export class FormatFunctions {
     }
     
      getSeverity(invoice_status: string) {
-        if (invoice_status == 'new') {
+        if (invoice_status == 'new' || invoice_status == 'active') {
             return 'success'
         } else if (invoice_status == 'pending') {
             return 'warning'
-        } else if (invoice_status == 'overdue') {
+        } else if (invoice_status == 'overdue' || invoice_status == 'unactive') {
             return 'danger'
         } else {
             return 'info'
@@ -63,6 +51,21 @@ export class FormatFunctions {
      upper(string: string): string {
         return string.toUpperCase()
     }
+
+    dateFormat2(date: string) {
+        //2023-11-05T19:32:38.422Z
+        var longDate = date.split(/[-T]/)
+
+        var year = longDate[0]
+        var month = longDate[1]
+        var day = longDate[2]
+        const fullDate = year + '-' + month + '-' + day
+
+        return fullDate
+
+
+    }
+
     
     
     

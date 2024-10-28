@@ -1,0 +1,109 @@
+
+
+
+
+<span *ngIf="!nodata"  style="font-family: 'Courier New', Courier, monospace;">No data found</span>
+
+<p-toast />
+<p-confirmDialog />
+<p-table 
+*ngIf="nodata" 
+[value]="data" 
+dataKey="_id" [tableStyle]="{ 'min-width': '60rem' }" [expandedRowKeys]="expandedRows"
+>
+    <ng-template pTemplate="caption">
+        <div class="flex justify-content-between align-items-center gap-2">
+
+            <div class="justify-content-start">
+
+                <h4>Family's members</h4>
+
+            </div>
+
+            <div class="justify-content-end">
+
+                <p-button label="Expand All" icon="pi pi-plus" text (onClick)="expandAll()" />
+                <p-button label="Collapse All" icon="pi pi-minus" text (onClick)="collapseAll()" />
+            </div>
+        </div>
+    </ng-template>
+    <ng-template pTemplate="header">
+        <tr>
+            <th style="width: 5rem"></th>
+            <th style="width: 5rem">Picture</th>
+            <th pSortableColumn="name">Name <p-sortIcon field="name" /></th>
+            <th>Lastname <p-sortIcon field="lastname" /></th>
+            <th pSortableColumn="email">Email <p-sortIcon field="email" /></th>
+            <th>Phone</th>
+            <th>Member Since</th>
+            <th>Status </th>
+        </tr>
+    </ng-template>
+   <ng-template pTemplate="body" 
+   let-property 
+   let-expanded="expanded"  
+   let-rowIndex="rowIndex">
+
+        <tr>
+          
+            <td>
+                <p-button type="button" pRipple [pRowToggler]="property" (click)="setMemberId(property)" [text]="true" [rounded]="true" [plain]="true"
+                    [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'" />
+            </td>
+
+            <td>
+                <img [src]="'https://cdn-icons-png.freepik.com/512/10100/10100091.png'"
+                    [alt]="property.name" width="50" class="shadow-4" />
+            </td>
+            <td>{{ property.name}}</td>
+            <td>{{ property.lastname }}</td>                    
+            <td>{{ property.email  }}</td>
+            <td>{{ property.phone }}</td>
+            <td>{{getMemberSince(property.createdAt)  }}</td>
+            
+            
+            <td>
+                <p-tag [value]="property.status" [severity]="getSeverity(property.status)" />
+            </td>
+        </tr>
+    </ng-template>
+  <ng-template pTemplate="rowexpansion" let-property>
+<tr>
+    <td colspan="7">
+        <div class="p-3">
+            <p-table [value]="property.addressId" dataKey="condominioId._id">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th pSortableColumn="alias">Residence <p-sortIcon field="alias" />
+                        </th>
+                        <th pSortableColumn="address">Address <p-sortIcon field="address" />
+                        </th>
+                        <th pSortableColumn="unit">Unit <p-sortIcon field="unit" /></th>
+                        <th pSortableColumn="family_status">Authorization <p-sortIcon field="family_status" /></th>         
+                        <th>Action</th>         
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-info>
+                    <tr>
+                        <td>{{ info.condominioId.alias | uppercase}}</td>
+                        <td>{{ getAddres(info) | uppercase }}</td>
+                        <td>{{ info.unit | uppercase }}</td>
+                        <td>
+                            <p-tag [value]="info.family_status" 
+                            [severity]="getSeverity(info.family_status)" />
+                        </td>
+                       
+                        <td><p-button type="button"  [severity]="getSeverityAuth(info.family_status)" (click)="authSetting(property,info)" [label]="getLabelAuth(info.family_status)" /></td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="6">There are no order for this product yet.</td>
+            </tr>
+                </ng-template>
+            </p-table>
+        </div>
+</td>
+</tr>
+    </ng-template>
+</p-table>

@@ -14,8 +14,8 @@ import { TagModule } from 'primeng/tag';
 import { ButtonModule } from 'primeng/button';
 import { HasPermissionsDirective } from 'src/app/has-permissions.directive';
 import { HasRoleDirective } from 'src/app/has-role.directive';
-
-
+import { FormatFunctions } from '../../../pipes/formating_text';
+ 
 @Component({
   selector: 'app-see-property',  
   templateUrl: './see-property.component.html',
@@ -31,7 +31,7 @@ import { HasRoleDirective } from 'src/app/has-role.directive';
     HasRoleDirective
     
   ],
-  providers: [UserService, CondominioService, MessageService]  
+  providers: [UserService, CondominioService, MessageService, FormatFunctions]  
 })
 
 export class SeePropertyComponent implements OnInit, DoCheck {
@@ -74,7 +74,8 @@ export class SeePropertyComponent implements OnInit, DoCheck {
   constructor(
     private _router: Router,
     public _userService: UserService,
-    private _condominioService: CondominioService
+    private _condominioService: CondominioService,
+    private _format: FormatFunctions,
    ) {
 
     this.url = global.url
@@ -95,9 +96,6 @@ export class SeePropertyComponent implements OnInit, DoCheck {
     this.loading = true
     this.getAdminsProperties()
  
-   
-     
-    
   }
 
   ngDoCheck(): void {
@@ -127,6 +125,11 @@ export class SeePropertyComponent implements OnInit, DoCheck {
 
   clear(table: Table) {
     table.clear();
+  }
+
+  fechaCreacion(fecha) {
+      
+      return this._format.dateFormate(fecha)
   }
 
   
@@ -180,7 +183,7 @@ export class SeePropertyComponent implements OnInit, DoCheck {
                 sector_name: element.addressId.sector_name,
                 street_1: element.addressId.street_1,
                 street_2: element.addressId.street_2,
-                createdAt: element.addressId.createdAt,
+                createdAt: this._format.dateFormate(element.addressId.createdAt) ,
                 property_id: element.addressId._id,
                 status: element.addressId.status,
                 mPayment: element.addressId.mPayment

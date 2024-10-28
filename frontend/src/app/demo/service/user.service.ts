@@ -63,36 +63,9 @@ export class UserService{
 
         return this._cookies.get('token')
     }
+    
 
-    getSeverity(status: string) {
-
-        switch (status.toLowerCase()) {
-
-            case 'suspended':
-                return 'danger';
-
-            case 'active':
-                return 'success';
-
-        }
-
-        return null;
-    }
-
-    dateFormat(date: string) {
-        //2023-11-05T19:32:38.422Z
-        var longDate = date.split(/[-T]/)
-
-        var year = longDate[0]
-        var month = longDate[1]
-        var day = longDate[2]
-        const fullDate = year + '-' + month + '-' + day
-
-        return fullDate
-
-
-    }
-
+  
     getAdmins(token:string):Observable<any>{
 
         let header = new HttpHeaders().set('Content-Type', 'application/json').set('authorization', token)
@@ -142,6 +115,14 @@ export class UserService{
         return this._http.get(this.url + 'get-family', {headers:header})
     }
 
+
+    getFamiliesById(token: string, id): Observable<any>{
+
+        let header = new HttpHeaders().set('Authorization', token)
+       
+        return this._http.get(this.url + 'family-member-details/' + id, {headers:header})
+    }
+
     getFamiliesByOwnerId(token: string, id: string): Observable<any> {
 
         let header = new HttpHeaders().set('Authorization', token)
@@ -149,6 +130,14 @@ export class UserService{
         return this._http.get(this.url + 'get-familyMembers/' + id, { headers: header })
     }
 
+    updateFamilyAuth(token: string, info: any): Observable<any>{
+
+        let header = new HttpHeaders().set('Content-Type','application/json').set('Authorization', token)
+
+        return this._http.put(this.url + 'update-family-auth', info, {headers:header})
+    }
+
+    // End - Family methods
 
     getPropertyByOwner(token: string): Observable<any>{
 

@@ -9,6 +9,7 @@ import { CreateUserComponent } from './demo/components/create-user/create-user.c
 import { HomeComponent } from './demo/components/home/home.component';
 import { FamilyMemberComponent } from './demo/components/family-member/family-member.component';
 
+
 @NgModule({
     imports: [
         RouterModule.forRoot([
@@ -29,7 +30,6 @@ import { FamilyMemberComponent } from './demo/components/family-member/family-me
                     { path: 'see-property', canActivate: [UserGuard], component: SeePropertyComponent },
                     { path: 'usermanagement', canActivate: [UserGuard], component: CreateUserComponent },
                     { path: 'family-members', canActivate: [UserGuard], component: FamilyMemberComponent }
-                    
                     
 
                 ]

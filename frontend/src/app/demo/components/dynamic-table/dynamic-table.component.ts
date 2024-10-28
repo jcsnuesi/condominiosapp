@@ -10,12 +10,15 @@ import { CardModule } from 'primeng/card';
 import { DialogModule } from 'primeng/dialog';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
+import { Router } from '@angular/router';
+import { FamilyMemberDetailsComponent } from '../family-member-details/family-member-details.component';
 
 
 @Component({
   selector: 'app-dynamic-table',
   standalone: true,
   imports: [
+    FamilyMemberDetailsComponent,
     PdfViewerModule,
     TableModule,
     CommonModule,
@@ -40,6 +43,8 @@ export class DynamicTableComponent implements OnInit {
   public visible_spinner: any;
   public header_modal_aux: any;
   public pdfSrc: any;
+  // public familyMember: any;
+  public modalAuxInfo: any;
 
 
 

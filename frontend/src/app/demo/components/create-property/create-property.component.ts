@@ -169,7 +169,7 @@ export class CreatePropertyComponent implements OnInit {
 
     reader.readAsDataURL(file.files[0])
     this.avatar = file.files[0]
-    console.log(this.avatar)
+
 
 
   }

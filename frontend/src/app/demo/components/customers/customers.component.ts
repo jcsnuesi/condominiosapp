@@ -7,13 +7,13 @@ import { global } from '../../service/global.service';
 import { MessageService } from 'primeng/api';
 import { SuperUser } from '../../service/superuser.service';
 import { CondominioService } from '../../service/condominios.service';
-
+import { FormatFunctions } from '../../../pipes/formating_text';
 
 @Component({
   selector: 'app-customers',
   templateUrl: './customers.component.html',
   styleUrls: ['./customers.component.scss'],
-  providers: [UserService, MessageService, SuperUser, CondominioService]
+  providers: [UserService, MessageService, SuperUser, CondominioService, FormatFunctions]
 })
 export class CustomersComponent implements OnInit, DoCheck {
  
@@ -53,7 +53,8 @@ export class CustomersComponent implements OnInit, DoCheck {
     private _router: Router,
     public _userService:UserService,
     private _condominioService: CondominioService,
-    private _superUser: SuperUser) {
+    private _superUser: SuperUser,
+    private _formating: FormatFunctions) {
 
     this.url = global.url
     this.statuses = [
@@ -87,6 +88,12 @@ export class CustomersComponent implements OnInit, DoCheck {
     UserService.identity = this.getValues()
       
   }
+
+dateFormat(customer:any){
+
+  this._formating.dateFormate(customer.created_at)
+
+}
 
   tabMenu() {
 
@@ -224,6 +231,7 @@ export class CustomersComponent implements OnInit, DoCheck {
 
   phones_number_func(customer){
 
+    console.log("customer PHONEEE", customer)
     var full_phone_num = ''
     if ((customer.phone[-1] != undefined)) {
   

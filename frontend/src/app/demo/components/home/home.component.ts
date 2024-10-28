@@ -33,7 +33,8 @@ import { InviceGeneraterComponent } from '../invice-generater/invice-generater.c
 import { DynamicDialogRef, DynamicDialogModule } from 'primeng/dynamicdialog';
 import { DialogService } from 'primeng/dynamicdialog';
 import { ButtonModule } from 'primeng/button';
-
+import { FamilyMemberDetailsComponent } from "../family-member-details/family-member-details.component";
+import { BookingAreaComponent } from '../booking-area/booking-area.component';
 
 type FamilyAccess = {
 
@@ -54,15 +55,16 @@ type FamilyAccess = {
   selector: 'app-home',
   standalone: true,
   imports: [
+    BookingAreaComponent,
     HasPermissionsDirective,
     ButtonModule,
     DynamicDialogModule,
     PaymentsHistoryComponent,
     FamilyMemberComponent,
     DropdownModule,
-    TableModule,   
+    TableModule,
     AvatarModule,
-    AvatarGroupModule,   
+    AvatarGroupModule,
     MenuModule,
     FormsModule,
     CommonModule,
@@ -76,9 +78,9 @@ type FamilyAccess = {
     ConfirmDialogModule,
     OwnerRegistrationComponent,
     InputTextModule,
-    InviceGeneraterComponent
-    
-  ],
+    InviceGeneraterComponent,
+    FamilyMemberDetailsComponent
+],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
   providers: [
@@ -92,6 +94,8 @@ type FamilyAccess = {
 })
 export class HomeComponent implements OnInit {
 
+
+  public maximized: boolean;
   public customers: any[];
   public items!: any[];
   public options: any;
@@ -290,6 +294,7 @@ export class HomeComponent implements OnInit {
   
   openNew() {
     this.userDialog = true;
+    this.maximized = true;
 
   }
 
@@ -297,6 +302,7 @@ export class HomeComponent implements OnInit {
 
   hideDialog() {
     this.userDialog = false;
+    this.maximized = false;
 
   }
 
@@ -372,16 +378,20 @@ export class HomeComponent implements OnInit {
   }
 
   showOwnerDialog(events) {
-    this.ownerObj = events
+    this.ownerObj = events    
    
     this.image = this.url + 'owner-avatar/' + events.avatar
     this.visible_owner = true;
 
     
     if (this.identity._id == events._id) {
+
       this.passwordOwner = true
+
     } else {
+
       this.passwordOwner = false
+      
     }
 
 

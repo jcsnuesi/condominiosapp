@@ -102,7 +102,7 @@
                                 style="border-radius: 5px;">
                         </td>
                         <td style="width: 35%; min-width: 7rem;">
-                            {{customer.ownerName + ' ' + customer.lastname }}
+                            {{customer.ownerName + ' ' + customer.lastname | uppercase}}
                         </td>
                         <td style="width: 35%; min-width: 8rem;">
                             {{unitFormatOnInit(customer.propertyDetails)}}
@@ -483,7 +483,7 @@
 
 
         
-                    <app-family-member *ngIf="visible_owner" [ownerIdInput]="ownerObj._id" ></app-family-member>
+                    <app-family-member-details *ngIf="visible_owner" [reciving]="ownerObj._id" ></app-family-member-details>
 
                 </form>
             </p-tabPanel>
@@ -493,6 +493,14 @@
                 
             <app-payments-history *ngIf="visible_owner"  [ownerIdInput]="ownerObj._id" ></app-payments-history>
                 
+          
+                   
+            </p-tabPanel>
+            <p-tabPanel header="Bookings" >
+        
+         
+                <app-booking-area></app-booking-area>
+               
           
                    
             </p-tabPanel>

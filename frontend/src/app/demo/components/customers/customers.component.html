@@ -3,7 +3,7 @@
     #dt1 
     [value]="customers" 
     dataKey="_id" 
-    [rows]="4" 
+    [rows]="4"  
     [showCurrentPageReport]="true"
     [rowsPerPageOptions]="[4, 25, 50]" 
     [loading]="loading" 
@@ -117,7 +117,7 @@
                 
                 </td>
                 <td>
-                    {{_userService.dateFormat(customer.createdAt)  }}
+                    {{dateFormat(customer)  }}
                 </td>
                 <td>
                     <img src="https://primefaces.org/cdn/primeng/images/demo/flag/flag_placeholder.png"

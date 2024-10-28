@@ -16,13 +16,14 @@
         <tr >
        
 
-            <th *ngFor="let tdhead of dynamicHeaders" [pSortableColumn]="tdhead" style="min-width:15rem" >
+            <th *ngFor="let tdhead of dynamicHeaders | PreserveOrder"  style="min-width:15rem"   ng-reflect-field="id">
 
-                <span *ngIf="tdhead.includes('id')">
+             
+                <span *ngIf="tdhead.value.includes('id')">
                         #
                 </span>
-                <span  *ngIf="!tdhead.includes('id')">
-                    {{ _stringFormating.upper(tdhead)}} <p-sortIcon [field]="tdhead" />
+                <span  *ngIf="!tdhead.value.includes('id')">
+                    {{ tdhead.value | uppercase}} <p-sortIcon [field]="tdhead.value" />
 
                 </span>
 
@@ -34,34 +35,41 @@
     <ng-template pTemplate="body" let-rowData  let-rowIndex="rowIndex">
         <tr>
             
-            <td  *ngFor="let tdhead of dynamicHeaders;">
+            <td *ngFor="let tdhead of dynamicHeaders | PreserveOrder">
             
-            <span *ngIf="tdhead.includes('id')">
+            <span *ngIf="tdhead.key.includes('id')">
                 {{rowIndex + 1 }}
             </span>
 
-            <span *ngIf="!tdhead.includes('status') && !tdhead.includes('actions') && !tdhead.includes('id') ">
+            <span *ngIf="!tdhead.key.includes('status') && 
+            !tdhead.key.includes('actions') && 
+            !tdhead.key.includes('id') &&
+            !tdhead.key.includes('details')">
            
-                {{ rowData[tdhead]}}
+                {{ rowData[tdhead.key]}}
 
             </span>
-            <span *ngIf="tdhead.includes('status')">
-            
-                    <p-tag [value]="rowData[tdhead]" [severity]="_stringFormating.getSeverity(rowData[tdhead])" />
-            
-            </span>
-            <span *ngIf="tdhead.includes('actions')">
-            
-                    <p-button icon="pi pi-eye" class="mr-2" [rounded]="true" [outlined]="true" severity="success"
-                        (onClick)="editItem(rowData)" />
 
-                    <span  *appHasPermissions="'owner'">
-
-                        <p-button  icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true" (onClick)="deleteProduct(product)" />
-                    </span>
+            <span *ngIf="tdhead.key.includes('status')">
+            
+                    <p-tag [value]="rowData[tdhead.key]" [severity]="_stringFormating.getSeverity(rowData[tdhead.key])" />
             
             </span>
 
+            <span *ngIf="tdhead.key.includes('actions')">
+          
+                    <p-button icon="pi pi-eye" 
+                    class="mr-2" 
+                    [rounded]="true" 
+                    [outlined]="true" 
+                    severity="success"
+                    (onClick)="editItem(rowData)" />
+
+            
+            </span>
+     
+         
+            
      
             </td>
         
@@ -71,38 +79,10 @@
     
 </p-table>
 
-<!-- Dialog para dynamico -->
 
-<p-dialog [header]="header_modal_aux" [modal]="true" [(visible)]="visible_dynamic" [style]="{ width: '50rem' }"
-    [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" [maximizable]="true">
-    <p style="text-align: center;">
 
-        <p-progressSpinner *ngIf="visible_spinner" ariaLabel="loading" />
+<div class="family_details" *ngIf="visible_dynamic">
 
-        <!-- <pdf-viewer 
-        [src]="pdfSrc" 
-        [render-text]="true" 
-        [original-size]="false"
-        style="width: 400px; height: 500px"></pdf-viewer> -->
-        
-    </p>
+<app-family-member-details [reciving]="familyId"></app-family-member-details>
     
-    <!-- <p-table [value]="fullItem" styleClass="p-datatable-gridlines" [tableStyle]="{ 'min-width': '50rem' }">
-        <ng-template pTemplate="header">
-            <tr>
-                <th>Code</th>
-                <th>Name</th>
-                <th>Category</th>
-                <th>Quantity</th>
-            </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-product>
-            <tr>
-                <td>{{ product.code }}</td>
-                <td>{{ product.name }}</td>
-                <td>{{ product.category }}</td>
-                <td>{{ product.quantity }}</td>
-            </tr>
-        </ng-template>
-    </p-table> -->
-</p-dialog>
+</div>
