@@ -36,6 +36,7 @@ import { ButtonModule } from 'primeng/button';
 import { FamilyMemberDetailsComponent } from "../family-member-details/family-member-details.component";
 import { BookingAreaComponent } from '../booking-area/booking-area.component';
 
+
 type FamilyAccess = {
 
   avatar: string,
@@ -82,7 +83,7 @@ type FamilyAccess = {
     FamilyMemberDetailsComponent
 ],
   templateUrl: './home.component.html',
-  styleUrl: './home.component.scss',
+  styleUrl: './home.component.css',
   providers: [
     MessageService,   
     CondominioService,
@@ -124,6 +125,7 @@ export class HomeComponent implements OnInit {
   public genderModel: { name: string, code: string }[];
   @Output() propertyInfoEvent: EventEmitter<any> = new EventEmitter();
   ref: DynamicDialogRef;
+  public bookingVisible:boolean;
 
   @ViewChild(InviceGeneraterComponent) invoiceGenerator: InviceGeneraterComponent;
 
@@ -142,7 +144,7 @@ export class HomeComponent implements OnInit {
     ];
 
     this.ownerObj = new OwnerModel('', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '');
-
+    this.bookingVisible = false;
     this.url = global.url
     this.identity = this._userService.getIdentity()
     this.token = this._userService.getToken()
@@ -188,6 +190,15 @@ export class HomeComponent implements OnInit {
 
   }
 
+  allBooking(){
+
+    if(this.bookingVisible){
+      this.bookingVisible = false;
+    }else{
+      this.bookingVisible = true;
+    }
+  
+  }
 
   ngOnInit() {
 
@@ -294,7 +305,7 @@ export class HomeComponent implements OnInit {
   
   openNew() {
     this.userDialog = true;
-    this.maximized = true;
+
 
   }
 
@@ -378,7 +389,8 @@ export class HomeComponent implements OnInit {
   }
 
   showOwnerDialog(events) {
-    this.ownerObj = events    
+    this.ownerObj = events  
+    this.maximized = true; 
    
     this.image = this.url + 'owner-avatar/' + events.avatar
     this.visible_owner = true;

@@ -5,6 +5,9 @@ import { TimelineDemoComponent } from './timelinedemo.component';
 import { TimelineModule } from 'primeng/timeline';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
+import { FieldsetModule } from 'primeng/fieldset';
+import { CalendarModule } from 'primeng/calendar';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
     imports: [
@@ -12,7 +15,10 @@ import { CardModule } from 'primeng/card';
         TimelineModule,
         ButtonModule,
         CardModule,
-        TimelineDemoRoutingModule
+        TimelineDemoRoutingModule,
+        FieldsetModule,
+        CalendarModule,
+        FormsModule
     ],
     declarations: [TimelineDemoComponent]
 })

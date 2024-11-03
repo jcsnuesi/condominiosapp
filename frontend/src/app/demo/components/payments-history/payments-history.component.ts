@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { ToastModule } from 'primeng/toast';
+import { ToastModule } from 'primeng/toast'; 
 import { CommonModule } from '@angular/common';
 import { FileUploadModule } from 'primeng/fileupload';
 import { InputGroupModule } from 'primeng/inputgroup';

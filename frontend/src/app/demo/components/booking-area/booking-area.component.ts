@@ -1,61 +1,98 @@
 
-import { Component, AfterViewInit, EventEmitter, OnInit, Output, Input, ViewChild } from '@angular/core';
+import { Component, AfterViewInit, EventEmitter, OnInit, Output, Input, ViewChild, ElementRef, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BrowserModule } from '@angular/platform-browser';
+import { CalendarModule } from 'primeng/calendar';
+import { FormsModule } from '@angular/forms';
+import { FieldsetModule } from 'primeng/fieldset';
+import { FloatLabelModule } from 'primeng/floatlabel';
+import { DropdownModule } from 'primeng/dropdown';
+import { ButtonModule } from 'primeng/button';
+import { TableModule } from 'primeng/table';
+import { TagModule } from 'primeng/tag';
+import { HasPermissionsDirective } from 'src/app/has-permissions.directive';
 
-import { FullCalendarModule } from '@fullcalendar/angular';
-import { CalendarOptions } from '@fullcalendar/core'; 
-import dayGridPlugin from '@fullcalendar/daygrid';
-import interactionPlugin from '@fullcalendar/interaction';
+type AreaFormat = {
+  memberId: string;
+  areaId: string;
+  areaName: string;
+  chosenDate: Date;
+  chosenTime: string;  
 
+}
 
 @Component({
   selector: 'app-booking-area',
   standalone: true,
   imports: [
+    HasPermissionsDirective,
     CommonModule,
-    FullCalendarModule
-    
+    CalendarModule,
+    FormsModule, 
+    FieldsetModule,
+    FloatLabelModule,
+    DropdownModule,
+    ButtonModule,
+    TableModule,
+    TagModule 
   ],
-  
   templateUrl: './booking-area.component.html',
   styleUrl: './booking-area.component.css'
 })
 export class BookingAreaComponent implements OnInit {
 
-  calendarOptions: CalendarOptions;
+  public dates: Date[] = [];
+  public selectedArea: string;
+  public areaOptions: any[] = [];
+  public bookingInfo:any[];
+
   
+  
+ constructor() { 
 
-  ngOnInit(): void {
-
-    this.calendarOptions = {
-      initialView: 'dayGridMonth',
-      plugins: [dayGridPlugin, interactionPlugin],
-      dateClick: (arg) => this.handleDateClick(arg),
-      events: [
-        { title: 'event 1', date: '2019-04-01' },
-        { title: 'event 2', date: '2019-04-02' }
-      ]
-    };
-      
-  }
-
-  handleDateClick(arg) {
-    alert('date click! ' + arg.dateStr)
-  }
+   this.bookingInfo =[ {
+    bookedBy: 'John Doe',
+    unit: 'Apto 101',
+    areaName: 'Piscina',
+    chosenDate: new Date(),
+    chosenTime: '10:00 AM',
+    chosenEndTime: '11:00 AM',
+    status: 'Scheduled'
+   }]
+ }
+ 
+ ngOnInit(): void {
+    this.areasAvailable();
+ }
 
   ngAfterViewInit() {
-    console.log('Calendario renderizado*********ngAfterViewInit*******');
-    this.renderCalendar();
-  }
 
-  renderCalendar() {
-    const calendarElement = document.querySelector('full-calendar');
-    if (calendarElement) {
-      // Forzar el renderizado del calendario
-      (calendarElement as any).getApi().render();
-      console.log('Calendario renderizado****************');
-    }
+    // this.areaCalentarRef.nativeElement.style.top = '0px';
+    // Accede a las propiedades del componente p-calendar después de que la vista se haya inicializado
+
+ 
+  
+    
   }
+  
+  areasAvailable(){
+
+   
+    
+    let areasJson = JSON.parse(localStorage.getItem('property')) 
+
+    if (areasJson.socialAreas
+      && areasJson.socialAreas.length > 0) {
+
+      areasJson.socialAreas.forEach((area, index) => {
+        this.areaOptions.push({ label: area, name: area });
+      });
+      }
+
+
+    }
+  
+
+  
   
 }

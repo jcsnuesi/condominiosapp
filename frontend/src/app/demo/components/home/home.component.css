@@ -1,0 +1,12 @@
+.change-icon:hover{
+   
+    cursor: pointer;
+    border: rgb(249, 181, 57) 1px solid;
+}
+
+.icon-plus-changer:hover{
+
+    cursor: pointer;
+    border: rgb(28, 132, 237) 1px solid;
+
+}
