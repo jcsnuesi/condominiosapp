@@ -16,12 +16,13 @@ import { UserService } from '../../service/user.service';
 import { StepperModule } from 'primeng/stepper';
 import { DialogModule } from 'primeng/dialog';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-
+import { StepsModule } from 'primeng/steps';
 
 @Component({
   selector: 'app-owner-registration',
   standalone: true,
   imports: [
+    StepsModule,
     MessagesModule, 
     StepperModule,
     DialogModule,
@@ -57,7 +58,8 @@ export class OwnerRegistrationComponent implements OnInit, AfterViewInit {
   public addreesDetails!: { street_1: string, street_2: string, sector_name: string, city: string, province: string, country: string }
   @ViewChild('unitFormUno') basicInfo: NgForm; 
   @ViewChild('unitFormDos') propertyInfo: NgForm; 
-  
+  public items:any;
+  public active: number = 0;
    
 
   constructor(
@@ -80,6 +82,17 @@ export class OwnerRegistrationComponent implements OnInit, AfterViewInit {
     ];
     this.addreesDetails = { street_1: '', street_2: '', sector_name: '', city: '', province: '', country: '' }
   
+    this.items = [
+      {
+        label: 'Personal Info'
+      },
+      {
+        label: 'Reservation'
+      },
+      {
+        label: 'Review'
+      }
+    ];
   }
 
 

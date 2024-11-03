@@ -14,7 +14,7 @@
                     <div class="text-900 font-medium text-xl">{{units}}</div>
                 </div>
                 <!-- <div [ngStyle]="{width: '2.5rem', height: '2.5rem'}"> -->
-                    <div class="flex align-items-center justify-content-center bg-orange-100 border-round icon-plus-changer" 
+                    <div class="flex align-items-center justify-content-center bg-blue-100 border-round icon-plus-changer" 
                     (click)="showDialog()"  
                     [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
                         <i class="pi pi-plus text-blue-500 text-xl " ></i>
@@ -332,155 +332,155 @@
                 <form #basicInfo="ngForm">
                     <div style="display: flex;justify-content: center;">
                         
-                                            <div class="w-30rem">
-                        
-                                                <div class="col-md-6">
-                                                    <p style="text-align: center;">
-                                                        <img [src]="image" alt="" width="181px" height="200px">
-                        
-                                                        <p-fileUpload mode="basic" chooseLabel="Choose image" name="demo[]"
-                                                            url="https://www.primefaces.org/cdn/api/upload.php" accept="image/*"
-                                                            maxlengthFileSize="1000000" (onSelect)="onSelect($event)">
-                                                        </p-fileUpload>
-                        
-                                                    </p>
-                        
-                                                </div>
-                                                <div class="w-100">
-                                                    <h4>Basic info:</h4>
-                                                    <div class="col-md-6 w-100">
-                                                        <p-inputGroup>
-                                                            <p-inputGroupAddon>
-                                                                <i class="pi pi-user"></i>
-                                                            </p-inputGroupAddon>
-                        
-                                                            <input pInputText
-                                                                [ngClass]="{'input-success':ownerName.valid, 'input-error ':(ownerName.touched && !ownerName.dirty)}"
-                                                                #ownerName="ngModel" [(ngModel)]="ownerObj.ownerName" name="ownerName"
-                                                                type="text" maxlength="30" required placeholder="Name: Jose Rodolfo" />
-                        
-                                                        </p-inputGroup>
-                        
-                                                        <small *ngIf="ownerName.touched && !ownerName.valid" class="p-error">Required.</small>
-                                                    </div>
-                        
-                                                    <div class="col-md-6 w-100 mt-3">
-                                                        <p-inputGroup>
-                                                            <p-inputGroupAddon>
-                                                                <i class="pi pi-user"></i>
-                                                            </p-inputGroupAddon>
-                        
-                                                            <input pInputText
-                                                                [ngClass]="{'input-success':lastnameOW.valid, 'input-error ':(lastnameOW.touched && !lastnameOW.dirty)}"
-                                                                #lastnameOW="ngModel" [(ngModel)]="ownerObj.lastname" name="lastnameOW"
-                                                                type="text" maxlength="30" required placeholder="Name: Rogers Martins" />
-                        
-                                                        </p-inputGroup>
-                        
-                                                        <small *ngIf="ownerName.touched && !ownerName.valid" class="p-error">Required.</small>
-                                                    </div>
-                        
-                                                    <div class="col-md-6 w-100 mt-3">
-                                                        <p-inputGroup>
-                                                            <p-inputGroupAddon>
-                                                                <i class="pi pi-android"></i>
-                                                            </p-inputGroupAddon>
-                        
-                                                            <select class="form-select form-control" name="gender" #gender="ngModel"
-                                                                [(ngModel)]="ownerObj.gender" required>
-                        
-                                                                <option [value]="option.gender" *ngFor="let option of genderOption">
-                                                                    {{option.name}}</option>
-                        
-                                                            </select>
-                                                        </p-inputGroup>
-                        
-                                                    </div>
-                        
-                                                    <div class="col-md-6 w-100 mt-3">
-                        
-                        
-                                                        <p-inputGroup>
-                                                            <p-inputGroupAddon>
-                                                                <i class="pi pi-mobile"></i>
-                                                            </p-inputGroupAddon>
-                        
-                                                            <input pInputText
-                                                                [ngClass]="{'input-success':phone.valid, 'input-error ':(phone.touched && !phone.dirty)}"
-                                                                #phone="ngModel" [(ngModel)]="ownerObj.phone" name="phone" type="text"
-                                                                maxlength="15" required placeholder="8496587417" pattern="^[0-9]+" />
-                        
-                                                        </p-inputGroup>
-                        
-                                                        <small *ngIf="phone.touched && !phone.valid" class="p-error">Required.</small>
-                        
-                                                    </div>
-                        
-                                                    <div class="col-md-6 w-100 mt-3">
-                        
-                                                        <p-inputGroup>
-                                                            <p-inputGroupAddon>
-                                                                <i class="pi pi-check-circle"></i>
-                        
-                                                            </p-inputGroupAddon>
-                        
-                                                            <input pInputText #id_number="ngModel"
-                                                                [ngClass]="{'input-success':id_number.valid, 'input-error ':(id_number.touched && !id_number.dirty)}"
-                                                                [(ngModel)]="ownerObj.id_number" name="id_number" type="text"
-                                                                placeholder="Personal id (No dashes)" maxlength="11" pattern="^[0-9]+"
-                                                                required />
-                        
-                                                        </p-inputGroup>
-                        
-                                                    </div>
-                        
-                                                    <div class="col-md-6 w-100 mt-3">
-                                                        <p-inputGroup>
-                                                            <p-inputGroupAddon>
-                                                                <i class="pi pi-envelope"></i>
-                        
-                                                            </p-inputGroupAddon>
-                        
-                                                            <input pInputText #email="ngModel" [(ngModel)]="ownerObj.email"
-                                                                [ngClass]="{'input-success': email.valid, 'input-error ':(email.touched && !email.dirty)}"
-                                                                name="email" type="text" maxlength="50"
-                                                                pattern="[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}"
-                                                                placeholder="correo@email.com" required />
-                        
-                                                        </p-inputGroup>
-                                                        <small *ngIf="email.touched && !email.valid" class="p-error">Required.</small>
-                                                    </div>
-                        
-                                                    <div class="col-md-6 w-100 mt-3" *ngIf="passwordOwner">
-                                                        <p-inputGroup>
-                                                            <p-inputGroupAddon>
-                                                                <i class="pi pi-lock"></i>
-                        
-                                                            </p-inputGroupAddon>
-                        
-                                                            <input pInputText #password="ngModel" [(ngModel)]="ownerObj.email"
-                                                                [ngClass]="{'input-success': password.valid, 'input-error ':(password.touched && !email.dirty)}"
-                                                                name="password" type="password" maxlength="12" pattern="[a-zA-Z0-9._-]"
-                                                                placeholder="Password" required />
-                        
-                                                        </p-inputGroup>
-                                                        <small *ngIf="password.touched && !password.valid" class="p-error">Required.</small>
-                                                    </div>
-                        
-                                                    <div class="col-md-6 w-100 mt-3">
-                        
-                                                        <p-toast />
-                                                        <p-confirmDialog />
-                                                        <p-button (onClick)="confirmUpdate($event)" icon="pi pi-check" label="Update"
-                                                            status="primary"
-                                                            [disabled]="!ownerName.valid || !phone.valid  || !lastnameOW.valid" />
-                        
-                        
-                                                    </div>
-                        
-                                                </div>
-                        
-                                            </div>
+                        <div class="w-30rem">
+    
+                            <div class="col-md-6">
+                                <p style="text-align: center;">
+                                    <img [src]="image" alt="" width="181px" height="200px">
+    
+                                    <p-fileUpload mode="basic" chooseLabel="Choose image" name="demo[]"
+                                        url="https://www.primefaces.org/cdn/api/upload.php" accept="image/*"
+                                        maxlengthFileSize="1000000" (onSelect)="onSelect($event)">
+                                    </p-fileUpload>
+    
+                                </p>
+    
+                            </div>
+                            <div class="w-100">
+                                <h4>Basic info:</h4>
+                                <div class="col-md-6 w-100">
+                                    <p-inputGroup>
+                                        <p-inputGroupAddon>
+                                            <i class="pi pi-user"></i>
+                                        </p-inputGroupAddon>
+    
+                                        <input pInputText
+                                            [ngClass]="{'input-success':ownerName.valid, 'input-error ':(ownerName.touched && !ownerName.dirty)}"
+                                            #ownerName="ngModel" [(ngModel)]="ownerObj.ownerName" name="ownerName"
+                                            type="text" maxlength="30" required placeholder="Name: Jose Rodolfo" />
+    
+                                    </p-inputGroup>
+    
+                                    <small *ngIf="ownerName.touched && !ownerName.valid" class="p-error">Required.</small>
+                                </div>
+    
+                                <div class="col-md-6 w-100 mt-3">
+                                    <p-inputGroup>
+                                        <p-inputGroupAddon>
+                                            <i class="pi pi-user"></i>
+                                        </p-inputGroupAddon>
+    
+                                        <input pInputText
+                                            [ngClass]="{'input-success':lastnameOW.valid, 'input-error ':(lastnameOW.touched && !lastnameOW.dirty)}"
+                                            #lastnameOW="ngModel" [(ngModel)]="ownerObj.lastname" name="lastnameOW"
+                                            type="text" maxlength="30" required placeholder="Name: Rogers Martins" />
+    
+                                    </p-inputGroup>
+    
+                                    <small *ngIf="ownerName.touched && !ownerName.valid" class="p-error">Required.</small>
+                                </div>
+    
+                                <div class="col-md-6 w-100 mt-3">
+                                    <p-inputGroup>
+                                        <p-inputGroupAddon>
+                                            <i class="pi pi-android"></i>
+                                        </p-inputGroupAddon>
+    
+                                        <select class="form-select form-control" name="gender" #gender="ngModel"
+                                            [(ngModel)]="ownerObj.gender" required>
+    
+                                            <option [value]="option.gender" *ngFor="let option of genderOption">
+                                                {{option.name}}</option>
+    
+                                        </select>
+                                    </p-inputGroup>
+    
+                                </div>
+    
+                                <div class="col-md-6 w-100 mt-3">
+    
+    
+                                    <p-inputGroup>
+                                        <p-inputGroupAddon>
+                                            <i class="pi pi-mobile"></i>
+                                        </p-inputGroupAddon>
+    
+                                        <input pInputText
+                                            [ngClass]="{'input-success':phone.valid, 'input-error ':(phone.touched && !phone.dirty)}"
+                                            #phone="ngModel" [(ngModel)]="ownerObj.phone" name="phone" type="text"
+                                            maxlength="15" required placeholder="8496587417" pattern="^[0-9]+" />
+    
+                                    </p-inputGroup>
+    
+                                    <small *ngIf="phone.touched && !phone.valid" class="p-error">Required.</small>
+    
+                                </div>
+    
+                                <div class="col-md-6 w-100 mt-3">
+    
+                                    <p-inputGroup>
+                                        <p-inputGroupAddon>
+                                            <i class="pi pi-check-circle"></i>
+    
+                                        </p-inputGroupAddon>
+    
+                                        <input pInputText #id_number="ngModel"
+                                            [ngClass]="{'input-success':id_number.valid, 'input-error ':(id_number.touched && !id_number.dirty)}"
+                                            [(ngModel)]="ownerObj.id_number" name="id_number" type="text"
+                                            placeholder="Personal id (No dashes)" maxlength="11" pattern="^[0-9]+"
+                                            required />
+    
+                                    </p-inputGroup>
+    
+                                </div>
+    
+                                <div class="col-md-6 w-100 mt-3">
+                                    <p-inputGroup>
+                                        <p-inputGroupAddon>
+                                            <i class="pi pi-envelope"></i>
+    
+                                        </p-inputGroupAddon>
+    
+                                        <input pInputText #email="ngModel" [(ngModel)]="ownerObj.email"
+                                            [ngClass]="{'input-success': email.valid, 'input-error ':(email.touched && !email.dirty)}"
+                                            name="email" type="text" maxlength="50"
+                                            pattern="[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}"
+                                            placeholder="correo@email.com" required />
+    
+                                    </p-inputGroup>
+                                    <small *ngIf="email.touched && !email.valid" class="p-error">Required.</small>
+                                </div>
+    
+                                <div class="col-md-6 w-100 mt-3" *ngIf="passwordOwner">
+                                    <p-inputGroup>
+                                        <p-inputGroupAddon>
+                                            <i class="pi pi-lock"></i>
+    
+                                        </p-inputGroupAddon>
+    
+                                        <input pInputText #password="ngModel" [(ngModel)]="ownerObj.email"
+                                            [ngClass]="{'input-success': password.valid, 'input-error ':(password.touched && !email.dirty)}"
+                                            name="password" type="password" maxlength="12" pattern="[a-zA-Z0-9._-]"
+                                            placeholder="Password" required />
+    
+                                    </p-inputGroup>
+                                    <small *ngIf="password.touched && !password.valid" class="p-error">Required.</small>
+                                </div>
+    
+                                <div class="col-md-6 w-100 mt-3">
+    
+                                    <p-toast />
+                                    <p-confirmDialog />
+                                    <p-button (onClick)="confirmUpdate($event)" icon="pi pi-check" label="Update"
+                                        status="primary"
+                                        [disabled]="!ownerName.valid || !phone.valid  || !lastnameOW.valid" />
+    
+    
+                                </div>
+    
+                            </div>
+    
+                        </div>
 
 
                     </div>

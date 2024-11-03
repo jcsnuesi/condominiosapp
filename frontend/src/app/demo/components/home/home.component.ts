@@ -35,7 +35,7 @@ import { DialogService } from 'primeng/dynamicdialog';
 import { ButtonModule } from 'primeng/button';
 import { FamilyMemberDetailsComponent } from "../family-member-details/family-member-details.component";
 import { BookingAreaComponent } from '../booking-area/booking-area.component';
-
+import { StepperModule } from 'primeng/stepper';
 
 type FamilyAccess = {
 
@@ -80,7 +80,8 @@ type FamilyAccess = {
     OwnerRegistrationComponent,
     InputTextModule,
     InviceGeneraterComponent,
-    FamilyMemberDetailsComponent
+    FamilyMemberDetailsComponent,
+    StepperModule
 ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
