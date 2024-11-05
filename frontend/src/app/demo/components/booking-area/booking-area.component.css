@@ -11,6 +11,16 @@
     width: 30% !important;
 
 }
+
+.filters {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 3rem;
+
+
+}
 @media screen and (max-width: 400px) {
     .areas-positions {
             display: block;
@@ -25,14 +35,7 @@
     
 }
 
-.filters {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    align-items: center;
-    margin-bottom: 3rem;
 
-}
 
 ::ng-deep .p-fieldset .p-fieldset-content {
     padding: 0;
@@ -47,7 +50,7 @@ label{
     padding: 1.25rem;
     border: 1px solid #dee2e600;
     color: #343a40ad;
-    background: #f8f9fa00;
+    background: #f7f8f900;
     font-weight: 700;
     border-radius: 4px;
 }

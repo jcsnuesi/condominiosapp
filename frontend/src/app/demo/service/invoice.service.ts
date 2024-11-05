@@ -53,4 +53,11 @@ export class InvoiceService {
         return this._http.get(this.url + '/get-invoicesById/'+id, {headers:headers});
     }
 
+    getInvoiceByCondo(token:string, id:string):Observable<any>{
+            
+            let headers = new HttpHeaders().set('Authorization', token);
+    
+            return this._http.get(this.url + 'get-invoicesByCondo/'+id, {headers:headers});
+    }
+
 }

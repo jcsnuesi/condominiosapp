@@ -16,6 +16,18 @@ export class FormatFunctions {
         return fullname
     }
 
+    getMonthName(month: number): string {
+
+        if (month === null){
+            return 'null'
+        }
+
+        let monthArry = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+
+        return monthArry[month-1]
+
+    }
+
     unitFormat(invoice): string {
         let unit = ''
         if (typeof invoice.unit === 'string') {
@@ -52,7 +64,7 @@ export class FormatFunctions {
         return string.toUpperCase()
     }
 
-    dateFormat2(date: string) {
+    dateFormat2(date: string) :any{
         //2023-11-05T19:32:38.422Z
         var longDate = date.split(/[-T]/)
 
@@ -60,7 +72,6 @@ export class FormatFunctions {
         var month = longDate[1]
         var day = longDate[2]
         const fullDate = year + '-' + month + '-' + day
-
         return fullDate
 
 

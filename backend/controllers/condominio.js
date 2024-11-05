@@ -582,27 +582,6 @@ var Condominium_Controller = {
             })
 
 
-    },
-    
-    getAvatar: function (req, res) {
-
-        var imgName = req.params.avatar
-        var paths = './uploads/properties/' + imgName
-
-        if (fs.existsSync(paths)) {
-
-            return res.sendFile(path.resolve(paths))
-
-        } else {
-
-            return res.status(404).send({
-
-                status: "error",
-                message: "Image does not exits"
-            })
-        }
-
-
     }  
 
 

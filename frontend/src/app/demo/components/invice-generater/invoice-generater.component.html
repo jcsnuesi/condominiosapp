@@ -12,40 +12,38 @@ header="Set up invoice details"
 
 <p-confirmDialog />
 
-<form #invoiceForm="ngForm">
 
-    <div class="container">
+<form #invoiceForm="ngForm"  class="size-full">
 
-        <span class="p-text-secondary block mb-3">Update your payment information.</span>
+
+        <span class="p-text-secondary mb-3">Update your payment information.</span>
 
         <div class="mb-3">
-            <label for="amountInvoiceLabel" class="font-semibold w-6rem mb-2">Amount $</label>
-            <input type="text" class="form-control" #amountInvoice="ngModel" name="amountInvoice" [(ngModel)]="updateInfo.mPayment"
+            <label for="amountInvoiceLabel" class="font-semibold w-6rem d-block">Enter amount $</label>
+            <div class="mt-2"></div>
+            <input pInputText  type="text" #amountInvoice="ngModel" name="amountInvoice" [(ngModel)]="updateInfo.mPayment"
                 id="amountInvoiceLabel" />
         </div>
         
         <div class="mb-3">
-            <label for="issueDateUpdatelabel" class="font-semibold w-6rem mb-2">Issue date</label>
-            <input type="date" #issueDateUpdate="ngModel" name="issueDateUpdate" [(ngModel)]="updateInfo.paymentDate" id="issueDateUpdatelabel"
-                class="form-control">
+            <label for="issueDateUpdatelabel" class="font-semibold w-6rem  d-block">Issue date</label>
+            <div class="mt-2"></div>
+            <p-calendar   #issueDateUpdate="ngModel" name="issueDateUpdate" [(ngModel)]="updateInfo.paymentDate" id="issueDateUpdatelabel" />          
         
         </div>
 
         <div class="mb-3" *ngIf="!invoiceSetup">
-            <button class="btn btn-outline-secondary w-100 mr-3" (click)="updateInvoice()"
-               >Update</button>
+            <p-button label="Update"  severity="info" (click)="updateInvoice()" />
         </div>
 
-        <div  class="col">
-            <hr class="dropdown-divider">
-        </div>
+     <hr class="dropdown-divider">
     
-        <span class="p-text-secondary block mb-3">Create a new invoice.</span>
+        <h3>Create a new invoice.</h3>
     
         <div class="mb-3">
             <label for="username" class="font-semibold d-block mb-2">Choose who the invoice belongs to</label>
-        
-            <p-multiSelect (onClick)="onClickInvoiceOwnerMultiSelect()" 
+            <div class="mt-2"></div>
+            <p-multiSelect   (onClick)="onClickInvoiceOwnerMultiSelect()" 
             #invoiceOwnerMultiSelect="ngModel"
             name="invoiceOwnerMultiSelect"
             [options]="invoiceInfo?.invoiceOwner" 
@@ -60,7 +58,7 @@ header="Set up invoice details"
     
         <div class="mb-3">
             <label for="username" class="font-semibold d-block mb-2">Payment description</label>
-    
+            <div class="mt-2"></div>
             <p-multiSelect  
             [options]="invoiceInfo?.paymentDescription" 
             #paymentDescriptionMultiSelect="ngModel"
@@ -73,42 +71,44 @@ header="Set up invoice details"
         </div>
     
         <div class="mb-3">
-            <label for="amountLabel" class="font-semibold w-6rem mb-2">Amount $</label>
-            <input type="text" 
-            class="form-control"
+            <label for="amountLabel" class="font-semibold w-6rem d-block mb-2">Amount $</label>
+            <div class="mt-2"></div>
+            <input pInputText type="text" 
+           
              #amount="ngModel" name="amount" [(ngModel)]="invoiceInfo.amounts" id="amountLabel" 
              [disabled]="invoiceSetup"/>
         </div>
     
         <div class="mb-3">
-            <label for="issueDatelabel" class="font-semibold w-6rem mb-2">Issue date</label>
-            <input type="date" 
+            <label for="issueDatelabel" class="font-semibold d-block w-6rem mb-2">Issue date</label>
+            <div class="mt-2"></div>
+            <input pInputText type="date" 
             #issueDate="ngModel" 
             name="issueDate" 
             [(ngModel)]="invoiceInfo.issueDate" 
             id="issueDatelabel"
-                class="form-control"           
+                      
                 [disabled]="invoiceSetup" >      
             
         </div>   
         
        
       
-        <div class="mb-3"  *ngIf="!invoiceSetup">
-            <button class="btn btn-outline-success w-100 mr-3" (click)="saveInvoice()" [disabled]="invoiceForm.invalid">Save</button>
+        <div class="mb-3 btn-invoices"  *ngIf="!invoiceSetup">
+            <p-button label="Cancel" severity="danger" (click)="onHide()" />
+            <p-button label="Save"
+            icon="pi pi-check" 
+           (click)="saveInvoice()" [disabled]="invoiceForm.invalid" />
         </div>
-        <div *ngIf="!invoiceSetup">
-            <button class="btn btn-outline-danger  w-100 mr-3" (click)="onHide()" >Cancel</button>
-          
-        </div>
+     
         <div *ngIf="invoiceSetup">
-            <button class="btn btn-outline-primary  w-100 mr-3" (click)="generateNow()" >Generate now</button>
+            <p-button label="Generate now" severity="success" (click)="generateNow()" />
           
         </div>
-    </div>
-
-
+        
+        
 </form>
+
   
 
    

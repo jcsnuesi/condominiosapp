@@ -1,0 +1,113 @@
+
+<p-table #dt1 [value]="tbl_invoice" 
+dataKey="_id" 
+[rows]="10" 
+[rowsPerPageOptions]="[10, 25, 50]" 
+[loading]="loading"  
+    [paginator]="true" [globalFilterFields]="['ownerId.ownerName', 'invoice_issue','descriptions', 'invoice_status', 'paymentStatus']">
+    <ng-template pTemplate="caption">
+        <div class="flex">
+            <p-button label="Clear" [outlined]="true" icon="pi pi-filter-slash" (onClick)="clear(dt1)" />
+            <span class="p-input-icon-left ml-auto">
+                <i class="pi pi-search"></i>
+                <input pInputText type="text" [(ngModel)]="searchValue"
+                    (input)="dt1.filterGlobal($event.target.value, 'contains')" placeholder="Search keyword" />
+            </span>
+        </div>
+    </ng-template>
+    <ng-template pTemplate="header">
+        <tr>
+            <th style="min-width:15rem">
+                <div class="flex align-items-center">
+                Fullname
+                    <p-columnFilter type="text" field="ownerId.ownerName" display="menu" />
+                </div>
+            </th>
+            <th style="min-width:10rem">
+                <div class="flex align-items-center">
+                    Issue date
+                    <p-columnFilter type="date" field="invoice_issue" display="menu" />
+                </div>
+            </th>
+
+            <th style="min-width:15rem">
+                <div class="flex align-items-center">
+                    Description
+                    <p-columnFilter type="text" field="ownerId.ownerName" display="menu" />
+                </div>
+            </th>
+           
+     
+            <th style="min-width:10rem">
+                <div class="flex align-items-center">
+                    Amount
+                    <p-columnFilter type="numeric" field="balance" display="menu" currency="USD" />
+                </div>
+            </th>
+            <th style="min-width:10rem">
+                <div class="flex align-items-center">
+                    Status
+                    <p-columnFilter field="invoice_status" matchMode="equals" display="menu">
+                        <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                            <p-dropdown [ngModel]="value" 
+                            [options]="statuses" 
+                            (onChange)="filter($event.value)"
+                            placeholder="Any">
+                                <ng-template let-option pTemplate="item">
+                                    <p-tag [value]="option.invoice_status" [severity]="getInvoiceStatus(option.invoice_status)" />
+                                </ng-template>
+                            </p-dropdown>
+                        </ng-template>
+                    </p-columnFilter>
+                </div>
+            </th>
+            <th style="min-width:10rem">
+                <div class="flex align-items-center">
+                   Payment Status
+                    <p-columnFilter field="paymentStatus" matchMode="equals" display="menu">
+                        <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                            <p-dropdown [ngModel]="value" 
+                            [options]="paymentStatuses" 
+                            (onChange)="filter($event.value)"
+                            placeholder="Any">
+                                <ng-template let-option pTemplate="item">
+                                    <p-tag [value]="option.paymentStatus" [severity]="getPaymentStatus(option.paymentStatus)" />
+                                </ng-template>
+                            </p-dropdown>
+                        </ng-template>
+                    </p-columnFilter>
+                </div>
+            </th>
+  
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-customer>
+        <tr>
+            <td>
+                {{ customer.ownerId.ownerName + ' ' + customer.ownerId.lastname | titlecase }}
+            </td>
+           
+            <td>
+                {{ customer.invoice_issue }}
+            </td>
+            <td>
+                {{ customer.invoice_description }}
+            </td>
+            <td>
+                {{ customer.invoice_amount }}
+            </td>
+            <td>
+                {{ customer.invoice_status }}
+            </td>
+            <td>
+                {{ customer.paymentStatus }}
+            </td>
+           
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+        <tr>
+            <td colspan="7">No customers found.</td>
+        </tr>
+    </ng-template>
+</p-table>

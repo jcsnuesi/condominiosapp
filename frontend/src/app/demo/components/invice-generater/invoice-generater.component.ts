@@ -79,8 +79,8 @@ type UpdateInvoiceInfo = {
     DialogModule,
     InputTextModule 
   ],
-  templateUrl: './invice-generater.component.html',
-  styleUrl: './invice-generater.component.css',
+  templateUrl: './invoice-generater.component.html',
+  styleUrl: './invoice-generater.component.css',
   providers: [
     MessageService,
     ConfirmationService,

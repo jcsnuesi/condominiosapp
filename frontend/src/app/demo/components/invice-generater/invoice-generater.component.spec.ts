@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { InviceGeneraterComponent } from './invice-generater.component';
+import { InviceGeneraterComponent } from './invoice-generater.component';
 
 describe('InviceGeneraterComponent', () => {
   let component: InviceGeneraterComponent;

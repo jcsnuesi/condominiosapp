@@ -1,0 +1,26 @@
+
+
+:host ::size-full  {
+  
+    width: 100% !important;
+    /* O el valor que necesites */
+}
+
+
+.dropdown-divider {
+    border-top: 1px solid #e9ecef;
+    margin: 0.5rem 0;
+}
+
+
+.btn-invoices{
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+:host ::ng-deep input{
+    width: 100%;
+  
+}
+

@@ -8,6 +8,7 @@ import { SeePropertyComponent } from './demo/components/see-property/see-propert
 import { CreateUserComponent } from './demo/components/create-user/create-user.component';
 import { HomeComponent } from './demo/components/home/home.component';
 import { FamilyMemberComponent } from './demo/components/family-member/family-member.component';
+import { InvoiceHistoryComponent } from './demo/components/invoice-history/invoice-history.component';
 
 
 @NgModule({
@@ -29,7 +30,8 @@ import { FamilyMemberComponent } from './demo/components/family-member/family-me
                     { path: 'create-property', canActivate: [UserGuard], component: CreatePropertyComponent },
                     { path: 'see-property', canActivate: [UserGuard], component: SeePropertyComponent },
                     { path: 'usermanagement', canActivate: [UserGuard], component: CreateUserComponent },
-                    { path: 'family-members', canActivate: [UserGuard], component: FamilyMemberComponent }
+                    { path: 'family-members', canActivate: [UserGuard], component: FamilyMemberComponent },                    
+                    { path: 'invoice-history/:condoId', canActivate: [UserGuard], component: InvoiceHistoryComponent }
                     
 
                 ]

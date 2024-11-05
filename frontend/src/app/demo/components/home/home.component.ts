@@ -29,13 +29,18 @@ import { FamilyMemberComponent } from '../family-member/family-member.component'
 import { DropdownModule } from 'primeng/dropdown';
 import { HasPermissionsDirective } from 'src/app/has-permissions.directive';
 import { PaymentsHistoryComponent } from '../payments-history/payments-history.component';
-import { InviceGeneraterComponent } from '../invice-generater/invice-generater.component';
+import { InviceGeneraterComponent } from '../invice-generater/invoice-generater.component';
 import { DynamicDialogRef, DynamicDialogModule } from 'primeng/dynamicdialog';
 import { DialogService } from 'primeng/dynamicdialog';
 import { ButtonModule } from 'primeng/button';
 import { FamilyMemberDetailsComponent } from "../family-member-details/family-member-details.component";
 import { BookingAreaComponent } from '../booking-area/booking-area.component';
 import { StepperModule } from 'primeng/stepper';
+import { DividerModule } from 'primeng/divider';
+import { InvoiceService } from '../../service/invoice.service';
+import { FormatFunctions } from 'src/app/pipes/formating_text';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { Router } from '@angular/router';
 
 type FamilyAccess = {
 
@@ -56,6 +61,9 @@ type FamilyAccess = {
   selector: 'app-home',
   standalone: true,
   imports: [
+    
+    DividerModule,
+    ProgressSpinnerModule,
     BookingAreaComponent,
     HasPermissionsDirective,
     ButtonModule,
@@ -90,7 +98,9 @@ type FamilyAccess = {
     CondominioService,
     UserService,
     ConfirmationService,
-    DialogService  
+    DialogService,
+    InvoiceService,
+    FormatFunctions
     
   ]
 })
@@ -101,7 +111,7 @@ export class HomeComponent implements OnInit {
   public customers: any[];
   public items!: any[];
   public options: any;
-  public data: any;
+  public dataChart: any;
   public image: any;
   public ownerObj: OwnerModel;
   public visible: boolean = false;
@@ -127,6 +137,7 @@ export class HomeComponent implements OnInit {
   @Output() propertyInfoEvent: EventEmitter<any> = new EventEmitter();
   ref: DynamicDialogRef;
   public bookingVisible:boolean;
+  public chartVisible:boolean;
 
   @ViewChild(InviceGeneraterComponent) invoiceGenerator: InviceGeneraterComponent;
 
@@ -136,13 +147,18 @@ export class HomeComponent implements OnInit {
     private _confirmationService: ConfirmationService,
     public _condominioService: CondominioService,
     private _activatedRoute: ActivatedRoute,
-    private dialogService: DialogService
+    private dialogService: DialogService,
+    private _invoiceService: InvoiceService,
+    private _formatFunctions: FormatFunctions,
+    private _router: Router
   ){
 
     this.items = [
       { label: 'Add New', icon: 'pi pi-fw pi-plus' },
       { label: 'Remove', icon: 'pi pi-fw pi-minus' }
     ];
+
+    this.chartVisible = false;
 
     this.ownerObj = new OwnerModel('', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '');
     this.bookingVisible = false;
@@ -201,77 +217,13 @@ export class HomeComponent implements OnInit {
   
   }
 
+
   ngOnInit() {
 
     // INIT INFO 
     this.onInitInfo() 
-   
-
-    // GRAPH VARIABLES
-    const documentStyle = getComputedStyle(document.documentElement);
     
-    const textColor = documentStyle.getPropertyValue('--text-color');
-    
-    const textColorSecondary = documentStyle.getPropertyValue('--text-color-secondary');
-    
-    const surfaceBorder = documentStyle.getPropertyValue('--surface-border');
 
-    this.data = {
-      labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
-      datasets: [
-        {
-          label: 'My First dataset',
-          backgroundColor: documentStyle.getPropertyValue('--blue-500'),
-          borderColor: documentStyle.getPropertyValue('--blue-500'),
-          data: [65, 59, 80, 81, 56, 55, 40]
-        },
-        {
-          label: 'My Second dataset',
-          backgroundColor: documentStyle.getPropertyValue('--pink-500'),
-          borderColor: documentStyle.getPropertyValue('--pink-500'),
-          data: [28, 48, 40, 19, 86, 27, 90]
-        }
-      ]
-    };
-
-    this.options = {
-      maintainAspectRatio: false,
-      aspectRatio: 0.8,
-      plugins: {
-        legend: {
-          labels: {
-            color: textColor
-          }
-        }
-      },
-      scales: {
-        x: {
-          ticks: {
-            color: textColorSecondary,
-            font: {
-              weight: 500
-            }
-          },
-          grid: {
-            color: surfaceBorder,
-            drawBorder: false
-          }
-        },
-        y: {
-          ticks: {
-            color: textColorSecondary
-          },
-          grid: {
-            color: surfaceBorder,
-            drawBorder: false
-          }
-        }
-
-      }
-    };
-
-
-    // END GRAPH VARIABLES
   } 
 
 
@@ -336,6 +288,8 @@ export class HomeComponent implements OnInit {
             if (response.status == 'success') {
 
               var unitList = response.message
+            
+              
              
               localStorage.setItem('property', JSON.stringify(unitList))
               this.units = (unitList.units_ownerId.length)
@@ -344,6 +298,8 @@ export class HomeComponent implements OnInit {
 
               this.propertyData(unitList)
 
+            
+              this.getInvoiceByCondoFunc(unitList)
               this.customers = unitList.units_ownerId
 
             }
@@ -456,8 +412,6 @@ export class HomeComponent implements OnInit {
 
   }
 
-
-
   confirmUpdate(event: Event) {
 
     this._confirmationService.confirm({
@@ -498,11 +452,169 @@ export class HomeComponent implements OnInit {
         this.formData.append(key, this.ownerObj[key])
       }
 
-    }
-
-   
+    }  
     
   }
+
+  getCondoId(){
+
+    return JSON.parse(localStorage.getItem('property'))
+  }
+
+
+  getInvoiceByCondoFunc(cantidadOwner) {
+   
+    let condoId = this.getCondoId()    
+
+    this._invoiceService.getInvoiceByCondo(this.token, condoId._id).subscribe({
+      next:  (response) => {
+
+       
+        if (cantidadOwner.units_ownerId.length != undefined) {            
+       
+          this.chartVisible = true;
+
+        }
+     
+        if (response.status == 'success') {
+         
+          let invoiceResp = response.invoices
+
+          // GRAPH VARIABLES
+          const documentStyle = getComputedStyle(document.documentElement);
+
+          const textColor = documentStyle.getPropertyValue('--text-color');
+
+          const textColorSecondary = documentStyle.getPropertyValue('--text-color-secondary');
+
+          const surfaceBorder = documentStyle.getPropertyValue('--surface-border');
+
+          let paidData = {}
+          let unpaidData = {}
+
+          invoiceResp.forEach(element => {
+            let { invoice_amount, invoice_status,
+              paymentStatus, invoice_paid_date, invoice_issue } = element
+
+
+            if (typeof invoice_paid_date === 'string' && invoice_paid_date != null) {
+
+              let monthName = this._formatFunctions.getMonthName(parseInt(invoice_paid_date.split(/[-T]/)[1]))
+
+              if (paidData[monthName] == undefined) {
+                paidData[monthName] = 0
+              }
+              paidData[monthName] = paidData[monthName] + 1
+
+
+            } else {
+
+              let monthNameUnpaid = this._formatFunctions.getMonthName(parseInt(invoice_issue.split(/[-T]/)[1]))
+
+              if (unpaidData[monthNameUnpaid] == undefined) {
+                unpaidData[monthNameUnpaid] = 0
+              }
+              unpaidData[monthNameUnpaid] = unpaidData[monthNameUnpaid] + 1
+
+            }
+
+          })
+
+
+          this.dataChart = {
+            labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+            datasets: [
+              {
+                label: 'Paid',
+                backgroundColor: documentStyle.getPropertyValue('--blue-500'),
+                borderColor: documentStyle.getPropertyValue('--blue-500'),
+                data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+              },
+              {
+                label: 'Unpaid',
+                backgroundColor: documentStyle.getPropertyValue('--red-500'),
+                borderColor: documentStyle.getPropertyValue('--red-500'),
+                data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+              }
+            ]
+          };
+
+          for (const key in paidData) {
+
+            this.dataChart.datasets[0].data[this.dataChart.labels.indexOf(key)] = paidData[key]
+
+          }
+
+          for (const key in unpaidData) {
+            this.dataChart.datasets[1].data[this.dataChart.labels.indexOf(key)] = unpaidData[key]
+          }
+
+          this.options = {
+            maintainAspectRatio: false,
+            aspectRatio: 0.8,
+            plugins: {
+              legend: {
+                labels: {
+                  color: textColor
+                }
+              }
+            },
+            scales: {
+              x: {
+                ticks: {
+                  color: textColorSecondary,
+                  font: {
+                    weight: 500
+                  }
+                },
+                grid: {
+                  color: surfaceBorder,
+                  drawBorder: false
+                }
+              },
+              y: {
+                beginAtZero: true,
+                max: cantidadOwner.units_ownerId.length,
+                ticks: {
+                  color: textColorSecondary
+                },
+                grid: {
+                  color: surfaceBorder,
+                  drawBorder: false
+                }
+              }
+
+            }
+          };
+        }
+
+
+
+
+      },
+      error: (error) => {
+        console.log(error)
+      },
+      complete: () => {
+
+
+
+        console.log('completed')
+      }
+    })
+  }
+
+  invoiceHistory(){
+
+    let condoId = this.getCondoId()
+
+    this._router.navigate(['/invoice-history', condoId._id])
+
+
+
+  }
+
 
 
 
