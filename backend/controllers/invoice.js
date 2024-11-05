@@ -193,23 +193,9 @@ var invoiceController = {
                     status: 'error',
                     message: 'There are no invoices to show.'
                 })
-            }
+           }
 
-           
-
-            // // Crear el documento PDF
-            // const doc = new PDFDocument();
-            // const datetime = new Date().toISOString().replace(/:/g, '-');
-            // console.log(datetime)
-            // doc.pipe(fs.createWriteStream(`../uploads/pdf/invoice_${datetime}.pdf`));
-            // doc.fontSize(25).text('Factura de pago', {
-            //     align: 'center'
-            // });
-            // doc.fontSize(25).text('Condominio: ', {
-            //     align: 'left',
-            //     text:`${invoices.condominiumId.alias}`
-            // });
-
+       
 
             return res.status(200).send({
                 status: 'success',
@@ -344,6 +330,38 @@ var invoiceController = {
     
     
      
+    },
+    getInvoiceByCondo: function(req, res){
+
+        var params = req.params.id
+      
+        Invoice.find({ condominiumId: params })           
+            .populate('ownerId', 'ownerName lastname email phone id_number propertyDetails')
+            .exec((err, invoices) => {
+
+                if (err) {
+
+                    return res.status(500).send({
+                        status: 'error',
+                        message: 'Error in the request. Try again.'
+                    })
+                }
+
+                if (!invoices) {
+
+                    return res.status(404).send({
+                        status: 'error',
+                        message: 'There are no invoices to show.'
+                    })
+                }
+
+                return res.status(200).send({
+                    status: 'success',
+                    invoices: invoices
+                })
+            })
+
+            
     }
 
 }

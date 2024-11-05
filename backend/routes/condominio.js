@@ -24,7 +24,7 @@ router.get('/condominio-page/:page', md_auth.authenticated, condominioController
 // POST
 
 router.post('/create-condominio', [md_auth.authenticated, md_upload, adminAuth.adminAuth], condominioController.createCondominium)
-// router.post('/create-Apartment', md_auth.authenticated, condominioController.createApartment)
+router.post('/create-Apartment', md_auth.authenticated, condominioController.createApartment)
 
 // PUT
 
