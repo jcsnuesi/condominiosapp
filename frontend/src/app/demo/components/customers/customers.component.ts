@@ -91,7 +91,7 @@ export class CustomersComponent implements OnInit, DoCheck {
 
 dateFormat(customer:any){
 
-  this._formating.dateFormate(customer.created_at)
+  this._formating.dateFormat(customer.created_at)
 
 }
 

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { TitleCasePipe, DatePipe } from '@angular/common';
+import { TitleCasePipe, DatePipe, CurrencyPipe, UpperCasePipe } from '@angular/common';
 import { InputTextModule } from 'primeng/inputtext';
 import { FormsModule } from '@angular/forms';
 import { DropdownModule } from 'primeng/dropdown';
@@ -14,12 +14,16 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { TagModule } from 'primeng/tag';
 import { Table } from 'primeng/table';
+import { DialogModule } from 'primeng/dialog';
+import { HttpClient } from '@angular/common/http';
 
 
 @Component({
   selector: 'app-invoice-history',
   standalone: true,
   imports: [
+    UpperCasePipe,
+    DialogModule,
     TagModule,
     InputIconModule,
     IconFieldModule,
@@ -30,7 +34,8 @@ import { Table } from 'primeng/table';
     TitleCasePipe,
     DatePipe,
     FloatLabelModule,
-    CalendarModule
+    CalendarModule,
+    CurrencyPipe
   ],
   providers: [
     UserService, 
@@ -38,7 +43,7 @@ import { Table } from 'primeng/table';
     FormatFunctions
   ],
   templateUrl: './invoice-history.component.html',
-  styleUrl: './invoice-history.component.scss'
+  styleUrl: './invoice-history.component.css'
 })
 export class InvoiceHistoryComponent implements OnInit {
 
@@ -48,15 +53,20 @@ export class InvoiceHistoryComponent implements OnInit {
   public dateInput: Date;
   public statuses!: any[];
   public paymentStatuses!: any[];
+  public dialogVisible: boolean;
+
+  public selectedPayment: any;
 
   constructor(
     private _userService: UserService,
     private _router: Router,
     private _activateRoute: ActivatedRoute,
     private _invoiceService: InvoiceService,
-    private _formatFunctions: FormatFunctions) {
+    private _formatFunctions: FormatFunctions,
+    private _http: HttpClient) {
 
     this.token = this._userService.getToken();
+    this.dialogVisible = false;
 
 
     this.statuses = [  
@@ -64,9 +74,11 @@ export class InvoiceHistoryComponent implements OnInit {
       { label: 'Overdue', value: 'overdue' }
     ];
 
+
     this.paymentStatuses = [
       { label: 'Paid', value: 'paid' },
       { label: 'Unpaid', value: 'unpaid' },
+      { label: 'Split payment', value: 'splited' },
       { label: 'Pending', value: 'pending' }
     ]
   }
@@ -78,11 +90,17 @@ export class InvoiceHistoryComponent implements OnInit {
  
 }
 
+
+
+
 getInvoiceStatus(invoice_status: string) {
 
   if(invoice_status == 'new') {
+    return '';
+  } else if(invoice_status == 'completed') {
     return 'success';
-  } else {
+  }  
+  else {
     return 'danger';
   }
 
@@ -93,15 +111,19 @@ getInvoiceStatus(invoice_status: string) {
     table.clear();
     this.searchValue = ''
   }
+
 getPaymentStatus(payment_status: string) {
-  console.log("payment_status");
-  console.log(payment_status);
+
   if (payment_status == 'pending') {
-    return 'danger';
-  } else {
-      return 'success';
+    return 'warning';
+    } else if (payment_status == 'unpaid') {
+      return 'danger';
+    }else{
+    return 'success';
     }
 }
+
+
 public dateOptions:any[];
 
   getInvoiceHistory() {
@@ -115,11 +137,20 @@ public dateOptions:any[];
 
           if(res.status == 'success') {
             this.loading = false;            
-            
+            let propertyDetails = [];
             res.invoices.forEach((invoice) => {
-              invoice.invoice_issue = new Date(<Date>this._formatFunctions.dateFormat2(invoice.invoice_issue)) ;
+              invoice.invoice_issue = new Date(<Date>invoice.invoice_issue);
+             invoice.ownerId.propertyDetails.forEach((property) => {
+               invoice.unit = property.condominium_unit;
+             
+            
+              });
             });
+
+            
             this.tbl_invoice = res.invoices;
+ 
+            console.log("propertyDetails");
             console.log(this.tbl_invoice);
             this.dateOptions = this.tbl_invoice.map((invoice) => {
               return {label: invoice.date, value: invoice.date}
@@ -143,20 +174,46 @@ public dateOptions:any[];
     return this._formatFunctions.getSeverity(severity);
   }
 
-  testing(v:any){
-    console.log("****************************");
-    console.log(v);
+ 
+  
+  public logoBase64: any;
+  public selectedInvoice:any
+
+  getInvoiceInfo(info:any){
+
+    this.dialogVisible = true;
+    let dateIssue = new Date(info.invoice_issue).getMonth();
+    
+    
+    const invoInfo = {
+      fullname: info?.ownerId.ownerName + ' ' + info?.ownerId.lastname,
+      unit: info.unit,
+      invoice_issue: this._formatFunctions.getMonthName(dateIssue),
+      condo: info?.condominiumId.alias,
+      invoice_status: info.invoice_status,
+      description: `Maintenance Fee - ${this._formatFunctions.getMonthName(dateIssue)}`,     
+      total: info.invoice_amount
+    }
+
+    this.selectedInvoice = invoInfo;
+    console.log("info:", invoInfo)
+
   }
+
+
+  convertImageToBase64() {
+    this._http.get('./assets/noimage2.jpeg', { responseType: 'blob' }).subscribe((blob) => {
+      const reader = new FileReader();
+
+      reader.onloadend = () => {
+        this.logoBase64 = reader.result as string;
+
+      };
+      reader.readAsDataURL(blob);
+    });
+  }
+
 
 }
 
 
-// <th style="width:22%" > Invoice # </th>
-//   < th style = "width:22%" > Fullname </th>invoice_issue
-
-//     < th style = "width:22%" > Issue date </th>
-//       < th style = "width:22%" > Invoice due </th>
-//         < th style = "width:22%" > Description </th>
-//           < th style = "width:22%" > Amount </th>
-//             < th style = "width:12%" > Status </th>
-//               < th style = "width:12%" > Payment Status </th>

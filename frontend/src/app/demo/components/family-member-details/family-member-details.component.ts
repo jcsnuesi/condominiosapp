@@ -157,7 +157,7 @@ export class FamilyMemberDetailsComponent implements OnInit {
   }
 
   getMemberSince(date: string) {
-    return this._format.dateFormate(date);
+    return this._format.dateFormat(date);
   }
 
   getAddres(address: any) {

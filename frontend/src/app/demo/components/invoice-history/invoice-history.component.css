@@ -1,0 +1,23 @@
+.info{
+    display: flex;
+    justify-content: space-between;
+}
+
+.bodyinfo{
+
+    font-size: 18px;
+    font-weight: bold;
+    padding-top:4px;
+}
+.vertical-line {
+    width: 1px;
+    /* Ancho de la línea */
+    height: 50px;
+    /* Altura de la línea */
+    background-color: #d5d5d5;
+    /* Color de la línea */
+    margin: 0 10px;
+    /* Espaciado horizontal */
+    display: inline-block;
+    /* Para alinearla con otros elementos */
+}

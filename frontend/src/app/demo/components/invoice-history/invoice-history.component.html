@@ -1,10 +1,10 @@
-
+<h3>Invoice history</h3>
 <p-table #dt1 [value]="tbl_invoice" 
 dataKey="_id" 
 [rows]="10" 
 [rowsPerPageOptions]="[10, 25, 50]" 
 [loading]="loading"  
-    [paginator]="true" [globalFilterFields]="['ownerId.ownerName', 'invoice_issue','descriptions', 'invoice_status', 'paymentStatus']">
+    [paginator]="true" [globalFilterFields]="['ownerId.ownerName','unit', 'invoice_issue','descriptions','invoice_amount', 'invoice_status', 'paymentStatus']">
     <ng-template pTemplate="caption">
         <div class="flex">
             <p-button label="Clear" [outlined]="true" icon="pi pi-filter-slash" (onClick)="clear(dt1)" />
@@ -23,10 +23,18 @@ dataKey="_id"
                     <p-columnFilter type="text" field="ownerId.ownerName" display="menu" />
                 </div>
             </th>
+            <th style="min-width:5rem">
+                <div class="flex align-items-center">
+                Unit
+                    <p-columnFilter type="text" field="unit" display="menu" />
+                </div>
+            </th>
             <th style="min-width:10rem">
                 <div class="flex align-items-center">
                     Issue date
-                    <p-columnFilter type="date" field="invoice_issue" display="menu" />
+                    <p-columnFilter type="date" field="invoice_issue" display="menu" 
+             
+                    />
                 </div>
             </th>
 
@@ -41,27 +49,28 @@ dataKey="_id"
             <th style="min-width:10rem">
                 <div class="flex align-items-center">
                     Amount
-                    <p-columnFilter type="numeric" field="balance" display="menu" currency="USD" />
+                    <p-columnFilter type="numeric" field="invoice_amount" display="menu" currency="USD" />
                 </div>
             </th>
-            <th style="min-width:10rem">
+            <th style="min-width:5rem">
                 <div class="flex align-items-center">
                     Status
                     <p-columnFilter field="invoice_status" matchMode="equals" display="menu">
                         <ng-template pTemplate="filter" let-value let-filter="filterCallback">
-                            <p-dropdown [ngModel]="value" 
+                            <p-dropdown 
+                            [ngModel]="value" 
                             [options]="statuses" 
                             (onChange)="filter($event.value)"
                             placeholder="Any">
                                 <ng-template let-option pTemplate="item">
-                                    <p-tag [value]="option.invoice_status" [severity]="getInvoiceStatus(option.invoice_status)" />
+                                    <p-tag [value]="option.label" [severity]="getInvoiceStatus(option.value)" />
                                 </ng-template>
                             </p-dropdown>
                         </ng-template>
                     </p-columnFilter>
                 </div>
             </th>
-            <th style="min-width:10rem">
+            <th style="min-width:5rem">
                 <div class="flex align-items-center">
                    Payment Status
                     <p-columnFilter field="paymentStatus" matchMode="equals" display="menu">
@@ -71,14 +80,14 @@ dataKey="_id"
                             (onChange)="filter($event.value)"
                             placeholder="Any">
                                 <ng-template let-option pTemplate="item">
-                                    <p-tag [value]="option.paymentStatus" [severity]="getPaymentStatus(option.paymentStatus)" />
+                                    <p-tag [value]="option.label" [severity]="getPaymentStatus(option.value)" />
                                 </ng-template>
                             </p-dropdown>
                         </ng-template>
                     </p-columnFilter>
                 </div>
             </th>
-  
+            <th style="width: 5rem"></th>
         </tr>
     </ng-template>
     <ng-template pTemplate="body" let-customer>
@@ -88,19 +97,28 @@ dataKey="_id"
             </td>
            
             <td>
-                {{ customer.invoice_issue }}
+                {{ customer.unit }}
+            </td>
+           
+            <td>
+                {{ customer.invoice_issue | date : 'MM/dd/yyyy'}}
             </td>
             <td>
-                {{ customer.invoice_description }}
+                {{ "customer.invoice_description " }}
             </td>
             <td>
-                {{ customer.invoice_amount }}
+                {{ customer.invoice_amount | currency: 'USD' }}
             </td>
             <td>
-                {{ customer.invoice_status }}
+                <p-tag value="{{customer.invoice_status | titlecase}}" [severity]="getInvoiceStatus( customer.invoice_status)"  />
+             
             </td>
             <td>
-                {{ customer.paymentStatus }}
+                <p-tag value="{{ customer.paymentStatus | titlecase }}" [severity]="getPaymentStatus(customer.paymentStatus)" />
+            
+            </td>
+            <td style="text-align: center">
+                <p-button severity="secondary" (click)="getInvoiceInfo(customer)" icon="pi pi-cog" />
             </td>
            
         </tr>
@@ -111,3 +129,105 @@ dataKey="_id"
         </tr>
     </ng-template>
 </p-table>
+
+<!-- MODAL INVOICE HISTORY -->
+
+<p-dialog header="{{selectedInvoice?.condo | titlecase}}" [(visible)]="dialogVisible" [modal]="true" [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
+    [style]="{ width: '50vw' }" [draggable]="false" [resizable]="false">
+    <div class="card">
+
+        <div class="info">
+            
+            <div>
+                <label for="nameInfo">Fullname:</label>
+                <div class="d-block"></div>
+                <div class="bodyinfo">
+                    {{ selectedInvoice?.fullname| titlecase}}
+                </div>
+            </div>
+            <div class="vertical-line"></div>
+            <div>
+                <label for="unit">Unit:</label>
+                <div class="d-block"></div>
+                <div class="bodyinfo">
+                    {{selectedInvoice?.unit}}
+                </div>
+            </div>
+            <div class="vertical-line"></div>
+            <div>
+                <label for="unit">Month:</label>
+                <div class="d-block"></div>
+                <div class="bodyinfo">
+                    {{selectedInvoice?.invoice_issue}}
+                </div>
+            </div>
+            <div class="vertical-line"></div>
+            <div>
+                <label for="unit">Invoice Status:</label>
+                <div class="d-block"></div>
+                <div class="bodyinfo">
+                    <p-tag value="{{ selectedInvoice?.invoice_status | titlecase }}" [severity]="getInvoiceStatus(selectedInvoice?.invoice_status)" />
+                   
+                </div>
+            </div>
+                      
+        </div>
+      
+        
+    </div>
+
+    <div class="card">
+
+        <div class="invoiceAction">
+            <label for="currentAmount">Payment options:</label>
+            <div class="d-block"></div>
+            <div class="bodyinfo">
+                <p-dropdown [options]="paymentStatuses" [(ngModel)]="selectedPayment" optionLabel="label" placeholder="Select an option" />
+            </div>
+        </div>
+        <div class="currentAmount">
+            <label for="currentAmount">Current Amount:</label>
+            <div class="d-block"></div>
+            <div class="bodyinfo">
+                <input type="text" pInputText name="" id="">
+                {{selectedInvoice?.total | currency:'USD'}}
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+
+        <p-table [value]="[selectedInvoice]"  [tableStyle]="{'min-width': '60rem'}">
+            <ng-template pTemplate="caption">
+                <div class="flex align-items-center justify-content-between">
+                <span style="font-size: 16px;">
+                        Detailed information
+                </span> 
+                    <p-button icon="pi pi-file-pdf" severity="info"/>
+                </div>
+            </ng-template>
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>Description</th>
+                    <th>Total</th>
+                
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-invoice>
+                <tr>
+                    <td style="max-width:5rem">{{invoice?.description }}</td>          
+                    <td>{{invoice?.total | currency:'USD'}}</td>
+                    
+                    
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="summary">
+                <div class="flex align-items-center justify-content-between">
+                *If you have any question about your invoice, please contact support.
+                </div>
+            </ng-template>
+        </p-table>
+
+    
+    </div>
+</p-dialog>

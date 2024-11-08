@@ -185,8 +185,8 @@ export class PaymentsHistoryComponent implements OnInit {
             this.tableDataStructure.amounts = invoice[index].invoice_amount          
             this.tableDataStructure.paymentMehtod = invoice[index].payment_method
             this.tableDataStructure.status = invoice[index].invoice_status
-            this.tableDataStructure.invoice_issue_date = this._stringFormating.dateFormate(invoice[index].invoice_issue) 
-            this.tableDataStructure.invoice_due_date = this._stringFormating.dateFormate(invoice[index].invoice_due) 
+            this.tableDataStructure.invoice_issue_date = this._stringFormating.dateFormat(invoice[index].invoice_issue) 
+            this.tableDataStructure.invoice_due_date = this._stringFormating.dateFormat(invoice[index].invoice_due) 
             this.tableDataStructure.actions = true
 
             this.bodyTableInfo.push(this.tableDataStructure)          
@@ -208,20 +208,16 @@ export class PaymentsHistoryComponent implements OnInit {
 
   }
 
-  
  
   editItem(event: any) {
     
  
     this._invoiceService.getInvoiceById(this.token, event.id).subscribe({
-      next:(result) => {
-
-       
+      next:(result) => {       
   
         if (result.status == 'success') {
        
-          this.genPDF(result.invoiceDetails)
-          console.log(result)
+          this._invoiceService.genPDF(result.invoiceDetails, this.logoBase64)     
           
         }else{
           this.visible_spinner = false;
@@ -241,75 +237,7 @@ export class PaymentsHistoryComponent implements OnInit {
 
 
 
-  
-genPDF(data) {
-
-  let docDefinition = {
-
-    content: [
-      {
-        image:this.logoBase64,
-        width: 50,
-        height: 50,
-        alignment: 'left'
-      },
-     
-      { text: 'INVOICE', style: 'header'},
-      { text: 'CONDOMINIUM: ' + this._stringFormating.upper(data.condominiumId.alias),    style: 'subheader'},
-      { text: `Invoice issue: ${this._stringFormating.dateFormate(data.invoice_issue)}`, style: 'bodyStyle' },
-      { text: `Invoice due:${this._stringFormating.dateFormate(data.invoice_due)} `, style: 'bodyStyle' },
-     
-      {
-      table:{
-        body: [
-
-         ['Fullname', 'Phone', 'Email', 'Unit', 'Status'],
-          [
-            this._stringFormating.fullNameFormat(data.ownerId), 
-            data.ownerId.phone, data.ownerId.email, 
-            this._stringFormating.unitFormat(data),
-            data.invoice_status],
-        ],
-      },
-      
-    },
-    { text: 'Payment Details', style: 'subheader' },
-    {
-    table:{
-      body:[
-        ['Description', 'Qty', 'Amount', 'Total'],
-        [
-          'Condominium Fee', 1, data.invoice_amount, data.invoice_amount
-        ]
-        
-       
-      ]
-    },
-     
-  }
-    ],
-    styles: {
-      header: {
-        fontSize: 20,
-        bold: true,
-        alignment: 'center'
-      },
-      subheader: {
-        fontSize: 14,       
-        margin: [0, 15, 0, 0]
-      },
-
-      bodyStyle:{
-        fontSize: 12,
-        margin: [0, 15, 0,0]
-       
-      }
-    }
-  }
-
-  pdfMake.createPdf(docDefinition).open();
-
-}
+ 
   public logoBase64: any;
 
   

@@ -33,6 +33,7 @@ import { CondominioService } from '../../service/condominios.service';
 type InvoiceDetails = {
 
   issueDate: Date | string;
+  unit: string;
   amounts: number;
   description?: string;
   condominiumId: string;
@@ -116,6 +117,7 @@ export class InviceGeneraterComponent {
     this.invoiceInfo = {
       issueDate: '',
       amounts: 0,
+      unit: '',
       condominiumId: '',
       invoiceOwner: [],
       invoiceOwnerSelected: [],
@@ -201,19 +203,19 @@ export class InviceGeneraterComponent {
 
   onClickInvoiceOwnerMultiSelect() {
 
-    let propertyOwner = this.condoInfo; 
+    // let propertyOwner = this.condoInfo; 
 
     this.invoiceBelongsTo = [];
 
-    for (let i = 0; i < propertyOwner.units_ownerId.length; i++) {
-      let ownerInfo = propertyOwner.units_ownerId[i].ownerName + " " + propertyOwner.units_ownerId[i].lastname;
+    for (let i = 0; i < this.condoInfo.units_ownerId.length; i++) {
+      let ownerInfo = this.condoInfo.units_ownerId[i].ownerName + " " + this.condoInfo.units_ownerId[i].lastname;
       let propertyInfo = "";
      
-      for (let index = 0; index < propertyOwner.units_ownerId[i].propertyDetails.length; index++) {
-        propertyInfo += propertyOwner.units_ownerId[i].propertyDetails[index].condominium_unit + ' ';
+      for (let index = 0; index < this.condoInfo.units_ownerId[i].propertyDetails.length; index++) {
+        propertyInfo += this.condoInfo.units_ownerId[i].propertyDetails[index].condominium_unit + ' ';
        
       }
-      this.invoiceBelongsTo.push({ label: `${ownerInfo.toUpperCase()} - ${propertyInfo.toUpperCase()}`, value: propertyOwner.units_ownerId[i]._id });
+      this.invoiceBelongsTo.push({ label: `${ownerInfo.toUpperCase()} - ${propertyInfo.toUpperCase()}`, value: this.condoInfo.units_ownerId[i]._id });
      
     }
     this.invoiceInfo.invoiceOwner = this.invoiceBelongsTo;
@@ -343,6 +345,7 @@ export class InviceGeneraterComponent {
       issueDate: '',
       amounts: 0,
       condominiumId: '',
+      unit: '',
       invoiceOwner: [],
       invoiceOwnerSelected: [],
       paymentDescription: [{ label: 'Rent', value: 'Rent' },

@@ -129,7 +129,7 @@ export class SeePropertyComponent implements OnInit, DoCheck {
 
   fechaCreacion(fecha) {
       
-      return this._format.dateFormate(fecha)
+      return this._format.dateFormat(fecha)
   }
 
   
@@ -183,7 +183,7 @@ export class SeePropertyComponent implements OnInit, DoCheck {
                 sector_name: element.addressId.sector_name,
                 street_1: element.addressId.street_1,
                 street_2: element.addressId.street_2,
-                createdAt: this._format.dateFormate(element.addressId.createdAt) ,
+                createdAt: this._format.dateFormat(element.addressId.createdAt) ,
                 property_id: element.addressId._id,
                 status: element.addressId.status,
                 mPayment: element.addressId.mPayment

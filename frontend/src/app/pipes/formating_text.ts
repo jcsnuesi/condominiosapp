@@ -38,7 +38,7 @@ export class FormatFunctions {
     
 
     
-     dateFormate(date: string): string {
+     dateFormat(date: string): string {
         let dateFormated = new Date(date)
         return dateFormated.toDateString()
     }
@@ -64,6 +64,7 @@ export class FormatFunctions {
         return string.toUpperCase()
     }
 
+
     dateFormat2(date: string) :any{
         //2023-11-05T19:32:38.422Z
         var longDate = date.split(/[-T]/)
@@ -71,7 +72,7 @@ export class FormatFunctions {
         var year = longDate[0]
         var month = longDate[1]
         var day = longDate[2]
-        const fullDate = year + '-' + month + '-' + day
+        const fullDate = day + '-' + month + '-' +  year
         return fullDate
 
 
