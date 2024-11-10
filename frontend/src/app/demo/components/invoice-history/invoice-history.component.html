@@ -1,4 +1,14 @@
-<h3>Invoice history</h3>
+<div class="head">
+    <div class="icon head" (click)="back()">
+
+        <i class="pi pi-arrow-left i-hover"></i>
+    </div>
+    <div class="head">
+        <h3>Invoice History</h3>
+
+    </div>
+
+</div>
 <p-table #dt1 [value]="tbl_invoice" 
 dataKey="_id" 
 [rows]="10" 
@@ -132,10 +142,15 @@ dataKey="_id"
 
 <!-- MODAL INVOICE HISTORY -->
 
-<p-dialog header="{{selectedInvoice?.condo | titlecase}}" [(visible)]="dialogVisible" [modal]="true" [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
-    [style]="{ width: '50vw' }" [draggable]="false" [resizable]="false">
+<p-dialog header="{{selectedInvoice?.alias | titlecase}}" 
+[(visible)]="dialogVisible" 
+[modal]="true" 
+[breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
+[style]="{ width: '50vw' }" 
+[draggable]="false" 
+[resizable]="false">
+    
     <div class="card">
-
         <div class="info">
             
             <div>
@@ -145,6 +160,7 @@ dataKey="_id"
                     {{ selectedInvoice?.fullname| titlecase}}
                 </div>
             </div>
+
             <div class="vertical-line"></div>
             <div>
                 <label for="unit">Unit:</label>
@@ -176,48 +192,28 @@ dataKey="_id"
         
     </div>
 
-    <div class="card">
-
-        <div class="invoiceAction">
-            <label for="currentAmount">Payment options:</label>
-            <div class="d-block"></div>
-            <div class="bodyinfo">
-                <p-dropdown [options]="paymentStatuses" [(ngModel)]="selectedPayment" optionLabel="label" placeholder="Select an option" />
-            </div>
-        </div>
-        <div class="currentAmount">
-            <label for="currentAmount">Current Amount:</label>
-            <div class="d-block"></div>
-            <div class="bodyinfo">
-                <input type="text" pInputText name="" id="">
-                {{selectedInvoice?.total | currency:'USD'}}
-            </div>
-        </div>
-    </div>
 
     <div class="card">
 
-        <p-table [value]="[selectedInvoice]"  [tableStyle]="{'min-width': '60rem'}">
+        <p-table [value]="[selectedInvoice]"  >
             <ng-template pTemplate="caption">
                 <div class="flex align-items-center justify-content-between">
                 <span style="font-size: 16px;">
-                        Detailed information
+                    Detailed information
                 </span> 
-                    <p-button icon="pi pi-file-pdf" severity="info"/>
+                    <p-button (click)="generatePDF(selectedInvoice)" icon="pi pi-file-pdf" severity="info"/>
                 </div>
             </ng-template>
             <ng-template pTemplate="header">
                 <tr>
                     <th>Description</th>
                     <th>Total</th>
-                
                 </tr>
             </ng-template>
             <ng-template pTemplate="body" let-invoice>
                 <tr>
-                    <td style="max-width:5rem">{{invoice?.description }}</td>          
+                    <td>{{invoice?.description }}</td>          
                     <td>{{invoice?.total | currency:'USD'}}</td>
-                    
                     
                 </tr>
             </ng-template>

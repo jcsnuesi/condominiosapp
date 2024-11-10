@@ -77,7 +77,6 @@ type invoiceData = {
     PdfViewerModule,
     DialogModule,
     ProgressSpinnerModule,
-    HasPermissionsDirective,
     ConfirmPopupModule, 
     ButtonModule,
     TagModule,

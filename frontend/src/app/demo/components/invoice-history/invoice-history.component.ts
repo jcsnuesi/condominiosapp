@@ -22,7 +22,6 @@ import { HttpClient } from '@angular/common/http';
   selector: 'app-invoice-history',
   standalone: true,
   imports: [
-    UpperCasePipe,
     DialogModule,
     TagModule,
     InputIconModule,
@@ -87,10 +86,16 @@ export class InvoiceHistoryComponent implements OnInit {
  ngOnInit() {
 
    this.getInvoiceHistory()
+   this.convertImageToBase64() 
  
 }
 
+  generatePDF(){
 
+
+    this._invoiceService.genPDF(this.invoiceSelected, this.logoBase64);
+    
+  }
 
 
 getInvoiceStatus(invoice_status: string) {
@@ -123,7 +128,7 @@ getPaymentStatus(payment_status: string) {
     }
 }
 
-
+public idCondo: string;
 public dateOptions:any[];
 
   getInvoiceHistory() {
@@ -131,6 +136,7 @@ public dateOptions:any[];
     this._activateRoute.params.subscribe(params => {
 
       let condoId = params['condoId'];
+      this.idCondo = condoId;
 
       this._invoiceService.getInvoiceByCondo(this.token, condoId).subscribe({
         next: (res) => {
@@ -140,7 +146,7 @@ public dateOptions:any[];
             let propertyDetails = [];
             res.invoices.forEach((invoice) => {
               invoice.invoice_issue = new Date(<Date>invoice.invoice_issue);
-             invoice.ownerId.propertyDetails.forEach((property) => {
+              invoice.ownerId.propertyDetails.forEach((property) => {
                invoice.unit = property.condominium_unit;
              
             
@@ -150,8 +156,6 @@ public dateOptions:any[];
             
             this.tbl_invoice = res.invoices;
  
-            console.log("propertyDetails");
-            console.log(this.tbl_invoice);
             this.dateOptions = this.tbl_invoice.map((invoice) => {
               return {label: invoice.date, value: invoice.date}
             })
@@ -174,22 +178,26 @@ public dateOptions:any[];
     return this._formatFunctions.getSeverity(severity);
   }
 
- 
+  back() {
+    this._router.navigate(['/home', this.idCondo]);
+  }
+
   
   public logoBase64: any;
   public selectedInvoice:any
+  public invoiceSelected:any;
 
   getInvoiceInfo(info:any){
 
     this.dialogVisible = true;
     let dateIssue = new Date(info.invoice_issue).getMonth();
-    
+    this.invoiceSelected = info;
     
     const invoInfo = {
       fullname: info?.ownerId.ownerName + ' ' + info?.ownerId.lastname,
       unit: info.unit,
       invoice_issue: this._formatFunctions.getMonthName(dateIssue),
-      condo: info?.condominiumId.alias,
+      alias: info?.condominiumId.alias,
       invoice_status: info.invoice_status,
       description: `Maintenance Fee - ${this._formatFunctions.getMonthName(dateIssue)}`,     
       total: info.invoice_amount

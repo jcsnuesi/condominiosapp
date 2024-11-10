@@ -65,81 +65,96 @@ export class InvoiceService {
     
             return this._http.get(this.url + 'get-invoicesByCondo/'+id, {headers:headers});
     }
-
+ 
     genPDF(data:any, logoBase64:string){ {
         
+  
         let alias = (typeof data.condominiumId.alias === 'string') ? data.condominiumId.alias : 'null';
         let dateIssue = new Date(data.invoice_issue).toDateString();
         let dateDue = new Date(data.invoice_due).toDateString();
         let ownerFullname = (typeof data.ownerId.ownerName === 'string') && (typeof data.ownerId.lastname === 'string') ? `${data.ownerId.ownerName} ${data.ownerId.lastname}`: 'null';
         let unit = (typeof data.unit === 'string') ? data.unit : 'null';
+        let docDefinition = null
 
-        let docDefinition = {
+        try {
 
-            content: [
-                {
-                    image: logoBase64,
-                    width: 50,
-                    height: 50,
-                    alignment: 'left'
-                },
 
-                { text: 'INVOICE', style: 'header' },
-                { text: `CONDOMINIUM: ${alias}` , style: 'subheader' },
-                { text: `Invoice issue: ${dateIssue}`, style: 'bodyStyle' },
-                { text: `Invoice due:${dateDue} `, style: 'bodyStyle' },
+            docDefinition = {
 
-                {
-                    table: {
-                        body: [
-
-                            ['Fullname', 'Phone', 'Email', 'Unit', 'Status'],
-                            [
-                                ownerFullname,
-                                data.ownerId.phone, 
-                                data.ownerId.email,
-                                unit,
-                                data.invoice_status],
-                        ],
+                content: [
+                    {
+                        image: logoBase64,
+                        width: 50,
+                        height: 50,
+                        alignment: 'left'
                     },
 
-                },
-                { text: 'Payment Details', style: 'subheader' },
-                {
-                    table: {
-                        body: [
-                            ['Description', 'Qty', 'Amount', 'Total'],
-                            [
-                                'Condominium Fee', 1, data.invoice_amount, data.invoice_amount
+                    { text: 'INVOICE', style: 'header' },
+                    { text: `CONDOMINIUM: ${alias}`, style: 'subheader' },
+                    { text: `Invoice issue: ${dateIssue}`, style: 'bodyStyle' },
+                    { text: `Invoice due:${dateDue} `, style: 'bodyStyle' },
+
+                    {
+                        table: {
+                            body: [
+
+                                ['Fullname', 'Phone', 'Email', 'Unit', 'Status'],
+                                [
+                                    ownerFullname,
+                                    data.ownerId.phone,
+                                    data.ownerId.email,
+                                    unit,
+                                    data.invoice_status],
+                            ],
+                        },
+
+                    },
+                    { text: 'Payment Details', style: 'subheader' },
+                    {
+                        table: {
+                            body: [
+                                ['Description', 'Qty', 'Amount', 'Total'],
+                                [
+                                    'Condominium Fee', 1, data.invoice_amount, data.invoice_amount
+                                ]
+
+
                             ]
+                        },
 
-
-                        ]
+                    }
+                ],
+                styles: {
+                    header: {
+                        fontSize: 20,
+                        bold: true,
+                        alignment: 'center'
+                    },
+                    subheader: {
+                        fontSize: 14,
+                        margin: [0, 15, 0, 0]
                     },
 
-                }
-            ],
-            styles: {
-                header: {
-                    fontSize: 20,
-                    bold: true,
-                    alignment: 'center'
-                },
-                subheader: {
-                    fontSize: 14,
-                    margin: [0, 15, 0, 0]
-                },
+                    bodyStyle: {
+                        fontSize: 12,
+                        margin: [0, 15, 0, 0]
 
-                bodyStyle: {
-                    fontSize: 12,
-                    margin: [0, 15, 0, 0]
-
+                    }
                 }
             }
+
+            Promise.all([
+                pdfMake.createPdf(docDefinition).download(`invoice_${alias}.pdf`)
+
+            ]);
+
+
+        } catch (error) {
+            console.log(error)
+
         }
 
-        pdfMake.createPdf(docDefinition).open();
-
+     
     }
 }
 
