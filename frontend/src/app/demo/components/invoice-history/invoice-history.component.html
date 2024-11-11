@@ -9,12 +9,8 @@
     </div>
 
 </div>
-<p-table #dt1 [value]="tbl_invoice" 
-dataKey="_id" 
-[rows]="10" 
-[rowsPerPageOptions]="[10, 25, 50]" 
-[loading]="loading"  
-    [paginator]="true" [globalFilterFields]="['ownerId.ownerName','unit', 'invoice_issue','descriptions','invoice_amount', 'invoice_status', 'paymentStatus']">
+<p-table #dt1 [value]="propertyDetailsVar" dataKey="_id" [rows]="10" [rowsPerPageOptions]="[10, 25, 50]" [loading]="loading"
+    [paginator]="true" [globalFilterFields]="globalFilters">
     <ng-template pTemplate="caption">
         <div class="flex">
             <p-button label="Clear" [outlined]="true" icon="pi pi-filter-slash" (onClick)="clear(dt1)" />
@@ -27,51 +23,37 @@ dataKey="_id"
     </ng-template>
     <ng-template pTemplate="header">
         <tr>
-            <th style="min-width:15rem">
-                <div class="flex align-items-center">
-                Fullname
-                    <p-columnFilter type="text" field="ownerId.ownerName" display="menu" />
-                </div>
-            </th>
-            <th style="min-width:5rem">
-                <div class="flex align-items-center">
-                Unit
-                    <p-columnFilter type="text" field="unit" display="menu" />
-                </div>
-            </th>
-            <th style="min-width:10rem">
-                <div class="flex align-items-center">
-                    Issue date
-                    <p-columnFilter type="date" field="invoice_issue" display="menu" 
-             
-                    />
-                </div>
-            </th>
 
-            <th style="min-width:15rem">
-                <div class="flex align-items-center">
-                    Description
-                    <p-columnFilter type="text" field="ownerId.ownerName" display="menu" />
+            <th *ngFor="let headerKey of headerTitleDict | PreserveOrder;">
+
+
+                <div *ngIf="headerKey.key == 'fullname' 
+                || headerKey.key == 'unit'
+                || headerKey.key == 'phone'
+                || headerKey.key == 'descriptions' " class="flex align-items-center">
+
+                    {{headerKey.value}}
+
+                    <p-columnFilter type="text" [field]="headerKey.key" display="menu" />
+
                 </div>
-            </th>
-           
-     
-            <th style="min-width:10rem">
-                <div class="flex align-items-center">
-                    Amount
-                    <p-columnFilter type="numeric" field="invoice_amount" display="menu" currency="USD" />
+
+                <div *ngIf="headerKey.key == 'invoice_amount'" class="flex align-items-center">
+                    {{headerKey.value}}
+                    <p-columnFilter type="numeric" field="invoice_amount" display="menu" />
                 </div>
-            </th>
-            <th style="min-width:5rem">
-                <div class="flex align-items-center">
+
+                <div *ngIf="headerKey.key == 'invoice_issue'" class="flex align-items-center">
+                    Issue date
+                    <p-columnFilter type="date" field="invoice_issue" display="menu" />
+                </div>
+
+                <div *ngIf="headerKey.key == 'invoice_status'" class="flex align-items-center">
                     Status
                     <p-columnFilter field="invoice_status" matchMode="equals" display="menu">
                         <ng-template pTemplate="filter" let-value let-filter="filterCallback">
-                            <p-dropdown 
-                            [ngModel]="value" 
-                            [options]="statuses" 
-                            (onChange)="filter($event.value)"
-                            placeholder="Any">
+                            <p-dropdown [ngModel]="value" [options]="statuses" (onChange)="filter($event.value)"
+                                placeholder="Any">
                                 <ng-template let-option pTemplate="item">
                                     <p-tag [value]="option.label" [severity]="getInvoiceStatus(option.value)" />
                                 </ng-template>
@@ -79,16 +61,13 @@ dataKey="_id"
                         </ng-template>
                     </p-columnFilter>
                 </div>
-            </th>
-            <th style="min-width:5rem">
-                <div class="flex align-items-center">
-                   Payment Status
+
+                <div *ngIf="headerKey.key == 'paymentStatus'" class="flex align-items-center">
+                    Payment Status
                     <p-columnFilter field="paymentStatus" matchMode="equals" display="menu">
                         <ng-template pTemplate="filter" let-value let-filter="filterCallback">
-                            <p-dropdown [ngModel]="value" 
-                            [options]="paymentStatuses" 
-                            (onChange)="filter($event.value)"
-                            placeholder="Any">
+                            <p-dropdown [ngModel]="value" [options]="paymentStatuses" (onChange)="filter($event.value)"
+                                placeholder="Any">
                                 <ng-template let-option pTemplate="item">
                                     <p-tag [value]="option.label" [severity]="getPaymentStatus(option.value)" />
                                 </ng-template>
@@ -97,40 +76,65 @@ dataKey="_id"
                     </p-columnFilter>
                 </div>
             </th>
+
             <th style="width: 5rem"></th>
         </tr>
     </ng-template>
+
     <ng-template pTemplate="body" let-customer>
         <tr>
-            <td>
-                {{ customer.ownerId.ownerName + ' ' + customer.ownerId.lastname | titlecase }}
+            <td *ngFor="let data of customer | PreserveOrder: ['_id', 'alias','email']">
+               
+                <span *ngIf="data.key == 'fullname' ||
+                    data.key == 'unit' ||
+                    data.key == 'phone'  ">                    
+                    {{ data.value | titlecase }}
+                </span>
+
+                <span *ngIf="data.key == 'invoice_issue'">
+                    {{ data.value | date:'MM/dd/yy' }}
+                </span>
+                <span *ngIf="data.key == 'invoice_amount'">
+                    {{ data.value | currency:'USD' }}
+                </span>
+
+                <span *ngIf="data.key == 'invoice_status'">
+                <p-tag [value]="data.value | titlecase" [severity]="getInvoiceStatus(data.value)" />
+                </span>
+
+                <span *ngIf="data.key == 'paymentStatus'">
+                <p-tag [value]="data.value | titlecase" [severity]="getPaymentStatus(data.value)" />
+                </span>
             </td>
-           
+            <td>
+                <p-button icon="pi pi-cog" severity="secondary" (click)="getInvoiceInfo(customer)" />
+            </td>
+            <!-- <td>
+                {{ customer.phone }}
+            </td>
             <td>
                 {{ customer.unit }}
             </td>
-           
             <td>
-                {{ customer.invoice_issue | date : 'MM/dd/yyyy'}}
-            </td>
-            <td>
-                {{ "customer.invoice_description " }}
+                {{ customer.invoice_issue | date:'MM/dd/yy' }}
             </td>
             <td>
-                {{ customer.invoice_amount | currency: 'USD' }}
+                {{ customer.descriptions }}
             </td>
             <td>
-                <p-tag value="{{customer.invoice_status | titlecase}}" [severity]="getInvoiceStatus( customer.invoice_status)"  />
-             
+                {{ customer.invoice_amount | currency:'USD' }}
+            </td>
+
+            <td>
+                <p-tag [value]="customer.invoice_status | titlecase"
+                    [severity]="getInvoiceStatus(customer.invoice_status)" />
             </td>
             <td>
-                <p-tag value="{{ customer.paymentStatus | titlecase }}" [severity]="getPaymentStatus(customer.paymentStatus)" />
-            
-            </td>
-            <td style="text-align: center">
-                <p-button severity="secondary" (click)="getInvoiceInfo(customer)" icon="pi pi-cog" />
-            </td>
-           
+                <p-tag [value]="customer.paymentStatus | titlecase"
+                    [severity]="getPaymentStatus(customer.paymentStatus)" />
+            </td> -->
+
+
         </tr>
     </ng-template>
     <ng-template pTemplate="emptymessage">
@@ -142,17 +146,13 @@ dataKey="_id"
 
 <!-- MODAL INVOICE HISTORY -->
 
-<p-dialog header="{{selectedInvoice?.alias | titlecase}}" 
-[(visible)]="dialogVisible" 
-[modal]="true" 
-[breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
-[style]="{ width: '50vw' }" 
-[draggable]="false" 
-[resizable]="false">
-    
+<p-dialog header="{{selectedInvoice?.alias | titlecase}}" [(visible)]="dialogVisible" [modal]="true"
+    [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" [style]="{ width: '50vw' }" [draggable]="false"
+    [resizable]="false">
+
     <div class="card">
         <div class="info">
-            
+
             <div>
                 <label for="nameInfo">Fullname:</label>
                 <div class="d-block"></div>
@@ -182,26 +182,27 @@ dataKey="_id"
                 <label for="unit">Invoice Status:</label>
                 <div class="d-block"></div>
                 <div class="bodyinfo">
-                    <p-tag value="{{ selectedInvoice?.invoice_status | titlecase }}" [severity]="getInvoiceStatus(selectedInvoice?.invoice_status)" />
-                   
+                    <p-tag value="{{ selectedInvoice?.invoice_status | titlecase }}"
+                        [severity]="getInvoiceStatus(selectedInvoice?.invoice_status)" />
+
                 </div>
             </div>
-                      
+
         </div>
-      
-        
+
+
     </div>
 
 
     <div class="card">
 
-        <p-table [value]="[selectedInvoice]"  >
+        <p-table [value]="[selectedInvoice]">
             <ng-template pTemplate="caption">
                 <div class="flex align-items-center justify-content-between">
-                <span style="font-size: 16px;">
-                    Detailed information
-                </span> 
-                    <p-button (click)="generatePDF(selectedInvoice)" icon="pi pi-file-pdf" severity="info"/>
+                    <span style="font-size: 16px;">
+                        Detailed information
+                    </span>
+                    <p-button (click)="generatePDF(selectedInvoice)" icon="pi pi-file-pdf" severity="info" />
                 </div>
             </ng-template>
             <ng-template pTemplate="header">
@@ -212,18 +213,18 @@ dataKey="_id"
             </ng-template>
             <ng-template pTemplate="body" let-invoice>
                 <tr>
-                    <td>{{invoice?.description }}</td>          
-                    <td>{{invoice?.total | currency:'USD'}}</td>
-                    
+                    <td>{{invoice?.description }}</td>
+                    <td>{{invoice?.invoice_amount | currency:'USD'}}</td>
+
                 </tr>
             </ng-template>
             <ng-template pTemplate="summary">
                 <div class="flex align-items-center justify-content-between">
-                *If you have any question about your invoice, please contact support.
+                    *If you have any question about your invoice, please contact support.
                 </div>
             </ng-template>
         </p-table>
 
-    
+
     </div>
 </p-dialog>

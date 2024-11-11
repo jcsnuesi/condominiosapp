@@ -65,11 +65,9 @@ type FamilyAccess = {
     DividerModule,
     ProgressSpinnerModule,
     BookingAreaComponent,
-    HasPermissionsDirective,
     ButtonModule,
     DynamicDialogModule,
     PaymentsHistoryComponent,
-    FamilyMemberComponent,
     DropdownModule,
     TableModule,
     AvatarModule,
@@ -270,8 +268,7 @@ export class HomeComponent implements OnInit {
 
   }
 
-
-
+  public totalBooked:number = 0;
   onInitInfo() {
 
     this._activatedRoute.params.subscribe(param => {
@@ -283,21 +280,20 @@ export class HomeComponent implements OnInit {
 
         this._condominioService.getBuilding(id, this.token).subscribe(
           response => {
-
          
             if (response.status == 'success') {
 
-              var unitList = response.message
-            
-              
+              var unitList = response.message              
              
               localStorage.setItem('property', JSON.stringify(unitList))
               this.units = (unitList.units_ownerId.length)
 
-             this.dateFormatted = dateTimeFormatter(unitList.createdAt)
+              this.dateFormatted = dateTimeFormatter(unitList.createdAt)
 
               this.propertyData(unitList)
-
+              // Total de booking - falta implementar la funcion de booking para cargcar el total de booking
+              this.totalBooked =  0;
+              console.log("unitList", unitList)
             
               this.getInvoiceByCondoFunc(unitList)
               this.customers = unitList.units_ownerId

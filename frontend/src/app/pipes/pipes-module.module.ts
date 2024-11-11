@@ -1,13 +1,13 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PreserveOrderPipe } from './perservedOrder';
-
+import { KeysValuesPipe } from './perservedOrder';
 
 @NgModule({
-  declarations: [PreserveOrderPipe],
+  declarations: [PreserveOrderPipe, KeysValuesPipe],
   imports: [
     CommonModule
   ],
-  exports: [PreserveOrderPipe]
+  exports: [PreserveOrderPipe, KeysValuesPipe]
 })
 export class PipesModuleModule { }

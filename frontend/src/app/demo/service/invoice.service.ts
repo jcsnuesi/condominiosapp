@@ -69,12 +69,16 @@ export class InvoiceService {
     genPDF(data:any, logoBase64:string){ {
         
   
-        let alias = (typeof data.condominiumId.alias === 'string') ? data.condominiumId.alias : 'null';
+        let alias = data.alias ?? data?.condominiumId?.alias;
         let dateIssue = new Date(data.invoice_issue).toDateString();
         let dateDue = new Date(data.invoice_due).toDateString();
-        let ownerFullname = (typeof data.ownerId.ownerName === 'string') && (typeof data.ownerId.lastname === 'string') ? `${data.ownerId.ownerName} ${data.ownerId.lastname}`: 'null';
+        let ownerFullname = data.fullname  ?? `${data.ownerId.ownerName} ${data.ownerId.lastname}`;
+        let phone = data.phone ?? data.ownerId.phone;
         let unit = (typeof data.unit === 'string') ? data.unit : 'null';
+        let email = data.email ?? data.ownerId.email;
         let docDefinition = null
+
+
 
         try {
 
@@ -101,8 +105,8 @@ export class InvoiceService {
                                 ['Fullname', 'Phone', 'Email', 'Unit', 'Status'],
                                 [
                                     ownerFullname,
-                                    data.ownerId.phone,
-                                    data.ownerId.email,
+                                    phone,
+                                    email,
                                     unit,
                                     data.invoice_status],
                             ],
