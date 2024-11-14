@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { TitleCasePipe, DatePipe, CurrencyPipe, UpperCasePipe, CommonModule, KeyValuePipe } from '@angular/common';
-import { InputTextModule } from 'primeng/inputtext';
+import { InputTextModule } from 'primeng/inputtext'; 
 import { FormsModule } from '@angular/forms';
 import { DropdownModule } from 'primeng/dropdown';
 import { TableModule } from 'primeng/table';
@@ -77,8 +77,8 @@ export class InvoiceHistoryComponent implements OnInit {
   public globalFilters: any;
   public headerTitleDict:any;
   public tableBody: InvoiceBody;
-
   public selectedPayment: any;
+  public excludedColumns: any[];
 
   constructor(
     private _userService: UserService,
@@ -87,6 +87,8 @@ export class InvoiceHistoryComponent implements OnInit {
     private _invoiceService: InvoiceService,
     private _formatFunctions: FormatFunctions,
     private _http: HttpClient) {
+
+    this.excludedColumns = ['_id', 'alias', 'email']
 
     this.token = this._userService.getToken();
     this.dialogVisible = false;
@@ -218,8 +220,7 @@ public propertyDetailsVar: any[];
               }
 
              invoice.invoice_issue = new Date(<Date>invoice.invoice_issue);
-
-
+             
              invoice.ownerId.propertyDetails.map((property) => {
                invoice.unit = property.condominium_unit;
              });

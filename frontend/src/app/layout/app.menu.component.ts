@@ -80,7 +80,7 @@ export class AppMenuComponent implements OnInit {
             role:'ADMIN'
             },
             { 
-                label: 'Options',
+                label: 'Options', 
                 items:[
                     {
                         label: 'Properties', icon: 'pi pi-fw pi-eye', routerLink: ['/see-property']
@@ -90,6 +90,13 @@ export class AppMenuComponent implements OnInit {
                     }
             ],
                 role: 'OWNER'
+            },
+            {
+                label: 'Staff',
+                items:[
+                    { label:'See Staff', icon:'pi pi-users', routerLink:['/staff']}
+                ],
+                role: 'ADMIN'
             },
             
             {

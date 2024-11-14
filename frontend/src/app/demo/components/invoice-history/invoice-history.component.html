@@ -1,3 +1,10 @@
+
+<div class="staff-info">
+
+    
+</div>
+
+
 <div class="head">
     <div class="icon head" (click)="back()">
 
@@ -5,7 +12,6 @@
     </div>
     <div class="head">
         <h3>Invoice History</h3>
-
     </div>
 
 </div>
@@ -83,7 +89,7 @@
 
     <ng-template pTemplate="body" let-customer>
         <tr>
-            <td *ngFor="let data of customer | PreserveOrder: ['_id', 'alias','email']">
+            <td *ngFor="let data of customer | PreserveOrder:excludedColumns ">
                
                 <span *ngIf="data.key == 'fullname' ||
                     data.key == 'unit' ||
@@ -109,31 +115,8 @@
             <td>
                 <p-button icon="pi pi-cog" severity="secondary" (click)="getInvoiceInfo(customer)" />
             </td>
-            <!-- <td>
-                {{ customer.phone }}
-            </td>
-            <td>
-                {{ customer.unit }}
-            </td>
-            <td>
-                {{ customer.invoice_issue | date:'MM/dd/yy' }}
-            </td>
-            <td>
-                {{ customer.descriptions }}
-            </td>
-            <td>
-                {{ customer.invoice_amount | currency:'USD' }}
-            </td>
-
-            <td>
-                <p-tag [value]="customer.invoice_status | titlecase"
-                    [severity]="getInvoiceStatus(customer.invoice_status)" />
-            </td>
-            <td>
-                <p-tag [value]="customer.paymentStatus | titlecase"
-                    [severity]="getPaymentStatus(customer.paymentStatus)" />
-            </td> -->
-
+   
+            
 
         </tr>
     </ng-template>

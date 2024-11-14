@@ -1,0 +1,53 @@
+.staffInfo{
+    display: flex;
+    justify-content: center;
+    padding: 10px;
+  
+}
+
+.all-info{
+
+    margin-right: 5px;
+    width: 100%;
+}
+
+
+::ng-deep  .p-calendar{
+    width: 100%;
+    border-radius: 1px;
+    
+}
+
+::ng-deep .p-element .p-inputwrapper {
+    width: 100%;
+    border-radius: 1px;
+}
+
+.input-success {
+    border: 1px solid rgb(85, 252, 85);
+    
+}
+
+.input-error {
+    border: 1px solid rgb(238, 64, 64);
+    border-radius: 1px;
+}
+
+.passmsg-success{
+    color: rgb(85, 252, 85);
+    font-size: 12px;
+}
+
+.passmsg-error{
+    color: red;
+    font-size: 12px;
+}
+
+.btn-staff{
+    display: flex;
+    justify-content: right;
+    margin-top: 10px;
+    padding: 10px; 
+    
+
+}

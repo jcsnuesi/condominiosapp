@@ -137,6 +137,7 @@ export class HomeComponent implements OnInit {
   public bookingVisible:boolean;
   public chartVisible:boolean;
 
+
   @ViewChild(InviceGeneraterComponent) invoiceGenerator: InviceGeneraterComponent;
 
   constructor(
@@ -163,7 +164,7 @@ export class HomeComponent implements OnInit {
     this.url = global.url
     this.identity = this._userService.getIdentity()
     this.token = this._userService.getToken()
-
+    
     this.genderOption = [
       { name: 'Male', gender: 'm' },
       { name: 'Female', gender: 'f' }
@@ -259,8 +260,6 @@ export class HomeComponent implements OnInit {
 
 
   }
-
-
 
   hideDialog() {
     this.userDialog = false;
