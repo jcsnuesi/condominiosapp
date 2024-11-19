@@ -15,6 +15,7 @@ var InvoiceSchema = Schema({
     invoice_status: { type: String, default:"new" },
     // invoice_type: { type: String, required: true },
     invoice_description: { type: String },
+    unit: { type: String },
     condominiumId: { type: mongoose.Schema.Types.ObjectId, ref: 'Condominium' },
     ownerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Owner'},
     paymentMethod: { type: String },

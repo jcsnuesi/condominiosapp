@@ -13,7 +13,9 @@ var invoiceController = {
 
     createInvoice:async function(req, res){
 
-   
+        console.log(req.body)
+
+        return
         if (req.user.role != 'ADMIN') {
             return res.status(400).send({
                 status: 'forbidden',
@@ -61,6 +63,7 @@ var invoiceController = {
                                 invoice_amount: params.amounts,
                                 invoice_description: params.paymentDescriptionSelected[0].value,
                                 condominiumId: params.condominiumId,
+                                unit: params.invoiceOwnerSelected[0].label.split('-')[1],
                                 ownerId: element.value,
                                 createdBy: req.user.sub
                             }
@@ -337,6 +340,7 @@ var invoiceController = {
       
         Invoice.find({ condominiumId: params })           
             .populate('ownerId', 'ownerName lastname email phone id_number propertyDetails')
+            .populate('condominiumId', 'alias phone street_1 street_2 sector_name city province country')
             .exec((err, invoices) => {
 
                 if (err) {

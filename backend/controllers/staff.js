@@ -31,8 +31,11 @@ var StaffController = {
     createStaff: function(req,res){
 
         var params = req.body
-        var optionToVerify = new verifyClass()        
-       
+        params.condo_id = params.condo_id.name
+        params.gender = params.gender.value 
+        params.position = params.position.value 
+        var optionToVerify = new verifyClass()    
+     
         try {
 
             var val_name = !validator.isEmpty(params.name)
@@ -98,10 +101,16 @@ var StaffController = {
               
                 for (const key in params) {
 
-                    if (key == 'password' || key == 'permissions'){
+                   if (key == 'password' || key == 'permissions'){
                         continue;
+                    } 
+
+                    if(typeof params[key] == 'string'){
+
+                        staffAcc[key] = params[key].toLowerCase() 
+                    }else{
+                        staffAcc[key] = params[key]
                     }
-                    staffAcc[key] = params[key].toLowerCase() 
 
                 }
 
@@ -109,18 +118,20 @@ var StaffController = {
                 // Se le asigna el id del admin que lo creo
                 staffAcc.createdBy = req.user.sub              
 
-                // Se asignan los permisos
-                const permission = params.permissions.split(',')
-                permission.pop()              
-                permission.forEach(element => {
-                    staffAcc.permissions.push(element)
-                })
+                // // Se asignan los permisos
+                // const permission = params.permissions.split(',')
+                // permission.pop()              
+                // permission.forEach(element => {
+                //     staffAcc.permissions.push(element)
+                // })
                 
                 // if (Boolean(req.files.avatar != undefined ) ) {
                 //     staffAcc['avatar'] = (req.files['avatar'].path.split('\\'))[2]
                 // }
 
                 staffAcc.password = await bcrypt.hash(password, saltRounds)
+             
+                
                
                 staffAcc.save(async (err, staffSaved) => {
 
@@ -137,7 +148,17 @@ var StaffController = {
 
                     try {
 
+                      
                         sendEmailVerification.StaffRegistration({email:staffSaved.email, password:password})
+                        
+                        staffSaved.password = undefined
+
+                        return res.status(200).send({
+                            status: 'success',
+                            message: staffSaved
+
+
+                        })
 
                     } catch (error) {
 
@@ -150,14 +171,7 @@ var StaffController = {
 
                     }
 
-                    staffSaved.password = undefined
-
-                    return res.status(200).send({
-                        status: 'success',
-                        message: staffSaved
-
-
-                    })
+                    
 
                 })
             })

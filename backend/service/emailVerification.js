@@ -11,7 +11,7 @@ exports.verifyRegistration = function (user) {
         secure: true,
         auth: {
             user: 'jcsnuesi@gmail.com',
-            pass: 'rbrx htzt qdwd pahd'
+            pass: 'kuca awmz fnak nhbr'
         }
     });
 
@@ -47,8 +47,12 @@ exports.verifyRegistration = function (user) {
 };
 
 
-exports.StaffRegistration = function (email) {
+exports.StaffRegistration = function (fullobject) {
 
+    let { email, password } = fullobject;
+    
+    console.log('Email:', email, 'Password:', password);
+  
     const transporter = mailer.createTransport({
         service: 'gmail',
         host: "smtp.gmail.com",
@@ -56,7 +60,7 @@ exports.StaffRegistration = function (email) {
         secure: true,
         auth: {
             user: 'jcsnuesi@gmail.com',
-            pass: 'rbrx htzt qdwd pahd'
+            pass: 'wamy arbl bnhc kvwp'
         }
     });
 
@@ -64,11 +68,11 @@ exports.StaffRegistration = function (email) {
     // Enviar correo electrónico de verificación
     const enlaceVerificacion = `http://localhost:3993/api/verify-email/${email}`;
     const mensajeCorreo = `Por favor, haz clic en el siguiente enlace para verificar tu cuenta: ${enlaceVerificacion} \n
-    Password temporal: ${email.password} \n`;
+    Password temporal: ${password} \n`;
 
     const mailOptions = {
         from: 'jcsnuesi@gmail.com',
-        to: `${email.email}`,
+        to: `${email}`,
         subject: 'Verificación de cuenta',
         text: mensajeCorreo
     };
