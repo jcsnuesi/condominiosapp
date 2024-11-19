@@ -1,3 +1,7 @@
+
+
+<p-toast position="bottom-right" key="br" />
+<p-confirmDialog />
 <div class="staff-section">
 
     <p-tabView>
@@ -7,53 +11,200 @@
                 <p class="m-0">
                     Lorem ipsum dolor sit amet...
                 </p>
+
+     
             </p-card>
         </p-tabPanel>
         <p-tabPanel header="Create Staff">
+
+           
            
             <p-card header="STAFF INFO">
 
+             
+
                 
                 <form #staffForm="ngForm">
-                    <div class="staffInfo">
 
-                    <div class="all-info">
-    
-                        <p-inputGroup>
-                            <p-inputGroupAddon>
-                                <i class="pi pi-user"></i>
-                            </p-inputGroupAddon>
-                    
-                            <input pInputText [ngClass]="{'input-success':name.valid, 'input-error ':(name.touched && !name.dirty)}"
-                                #name="ngModel" [(ngModel)]="staffInfo.name" name="name" type="text" maxlength="30" required
-                                placeholder="Name" />
-                    
-                        </p-inputGroup>
-                    
-                        <small *ngIf="name.touched && !name.valid" class="p-error">Required.</small>
-                    
-    
-                    </div>
-                    <div class="all-info">
-    
-                        <p-inputGroup>
-                            <p-inputGroupAddon>
-                                <i class="pi pi-user"></i>
-                            </p-inputGroupAddon>
-                    
-                            <input pInputText [ngClass]="{'input-success':lastname.valid, 'input-error ':(lastname.touched && !lastname.dirty)}"
-                                #lastname="ngModel" [(ngModel)]="staffInfo.lastname" name="lastname" type="text" maxlength="30" required
-                                placeholder="lastname" />
-                    
-                        </p-inputGroup>
-                    
-                        <small *ngIf="lastname.touched && !lastname.valid" class="p-error">Required.</small>
-                    
-    
-                    </div>
-                   
+                        <p-panel header="Basic Info">
+                            <div class="staffInfo">
+                            
+                                <div class="all-info">
+                            
+                                    <p-inputGroup>
+                                        <p-inputGroupAddon>
+                                            <i class="pi pi-user"></i>
+                                        </p-inputGroupAddon>
+                            
+                                        <input pInputText [ngClass]="{'input-success':name.valid, 'input-error ':(name.touched && !name.dirty)}"
+                                            #name="ngModel" [(ngModel)]="staffInfo.name" name="name" type="text" maxlength="30" required
+                                            placeholder="Name" />
+                            
+                                    </p-inputGroup>
+                            
+                                    <small *ngIf="name.touched && !name.valid" class="p-error">Required.</small>
+                            
+                            
+                                </div>
+                                <div class="all-info">
+                            
+                                    <p-inputGroup>
+                                        <p-inputGroupAddon>
+                                            <i class="pi pi-user"></i>
+                                        </p-inputGroupAddon>
+                            
+                                        <input pInputText
+                                            [ngClass]="{'input-success':lastname.valid, 'input-error ':(lastname.touched && !lastname.dirty)}"
+                                            #lastname="ngModel" [(ngModel)]="staffInfo.lastname" name="lastname" type="text" maxlength="30" required
+                                            placeholder="lastname" />
+                            
+                                    </p-inputGroup>
+                            
+                                    <small *ngIf="lastname.touched && !lastname.valid" class="p-error">Required.</small>
+                            
+                            
+                                </div>
+                            
+                            
+                            </div>
+                            
+                            <div class="staffInfo">
+                            
+                                <div class="all-info">
+                            
+                                    <p-inputGroup>
+                                        <p-inputGroupAddon>
+                                            <i class="pi pi-users"></i>
+                                        </p-inputGroupAddon>
+                            
+                                        <p-dropdown
+                                            [ngClass]="{'ng-valid input-success':gender.valid, 'ng-invalid ng-dirty':(gender.touched && !gender.dirty)}"
+                                            #gender="ngModel" name="gender" [options]="genderOptions" [(ngModel)]="staffInfo.gender"
+                                            optionLabel="label" placeholder="Select a gender" required />
+                            
+                                    </p-inputGroup>
+                            
+                                    <small *ngIf="gender.touched && !gender.valid" class="p-error">Required.</small>
+                            
+                            
+                                </div>
+                                <div class="all-info">
+                            
+                                    <p-inputGroup>
+                                        <p-inputGroupAddon>
+                                            <i class="pi pi-calendar-minus"></i>
+                                        </p-inputGroupAddon>
+                            
+                                        <p-calendar  [ngClass]="{'ng-valid input-success':dob.valid, 'ng-invalid ng-dirty':(dob.touched && !dob.dirty)}" #dob="ngModel" name="dob" [(ngModel)]="staffInfo.dob" [showButtonBar]="true" />
+                            
+                                    </p-inputGroup>
+                            
+                                    <small *ngIf="dob.touched && !dob.valid" class="p-error">Required.</small>
+                            
+                            
+                                </div>
+                            </div>
+                            <div class="staffInfo">
+                            
+                                <div class="all-info">
+                            
+                                    <p-inputGroup>
+                                        <p-inputGroupAddon>
+                                            <i class="pi pi-id-card"></i>
+                                        </p-inputGroupAddon>
+                            
+                                        <input pInputText
+                                            [ngClass]="{'input-success':government_id.valid, 'input-error':(government_id.touched && !government_id.dirty)}"
+                                            #government_id="ngModel" [(ngModel)]="staffInfo.government_id" name="government_id" type="text"
+                                            maxlength="30" required placeholder="Government ID" />
+                            
+                                    </p-inputGroup>
+                            
+                                    <small *ngIf="government_id.touched && !government_id.valid" class="p-error">Required.</small>
+                            
+                            
+                                </div>
+                                <div class="all-info">
+                            
+                                    <p-inputGroup>
+                                        <p-inputGroupAddon>
+                                            <i class="pi pi-mobile"></i>
+                                        </p-inputGroupAddon>
+                            
+                                        <input pInputText [ngClass]="{'input-success':phone.valid, 'input-error':(phone.touched && !phone.dirty)}"
+                                            #phone="ngModel" [(ngModel)]="staffInfo.phone" name="phone" type="text" maxlength="30" required
+                                            placeholder="Phone number" />
+                            
+                                    </p-inputGroup>
+                            
+                                    <small *ngIf="phone.touched && !phone.valid" class="p-error">Required.</small>
+                            
+                            
+                                </div>
+                            </div>
+                        </p-panel>
 
-                    </div>
+                        <p-panel header="Work info">
+                        <div class="staffInfo">
+                        
+                            <div class="all-info">
+                        
+                                <p-inputGroup>
+                                    <p-inputGroupAddon>
+                                        <i class="pi pi-briefcase"></i>
+                                    </p-inputGroupAddon>
+                        
+                                    <p-dropdown #position="ngModel" name="position" [options]="positionOptions" [(ngModel)]="staffInfo.position"
+                                     [ngClass]="{'ng-valid input-success':position.valid, 'ng-invalid ng-dirty':(position.touched && !position.dirty)}"
+                                        optionLabel="label" placeholder="Select a position" required />
+                        
+                                </p-inputGroup>
+                        
+                                <small *ngIf="position.touched && !position.valid" class="p-error">Required.</small>
+                        
+                        
+                            </div>
+
+                            <div class="all-info">
+                            
+                                <p-inputGroup>
+                                    <p-inputGroupAddon>
+                                        <i class="pi pi-building"></i>
+                                    </p-inputGroupAddon>
+                            
+                                    <p-dropdown #building="ngModel" name="building" [options]="condominioList" [(ngModel)]="staffInfo.condo_id"
+                                     [ngClass]="{'ng-valid input-success':building.valid, 'ng-invalid ng-dirty':(building.touched && !building.dirty)}"
+                                        [loading]="loadingCondo" [virtualScroll]="true" [virtualScrollItemSize]="10" optionLabel="label"
+                                        placeholder="Select a condominium" required />
+                            
+                                </p-inputGroup>
+                            
+                                <small *ngIf="building.touched && !building.valid" class="p-error">Required.</small>
+                            
+                            
+                            </div>
+                     
+                        </div>
+
+                        <div class="staffInfo">
+                                <div class="all-info">
+                                
+                                    <p-inputGroup>
+                                        <p-inputGroupAddon>
+                                            <i class="pi pi-at"></i>
+                                        </p-inputGroupAddon>
+                                
+                                        <input pInputText [ngClass]="{'input-success':email.valid, 'input-error ':(email.touched && !email.dirty)}"
+                                            #email="ngModel" [(ngModel)]="staffInfo.email" name="phone" type="text" maxlength="30" required
+                                            placeholder="Email address" required />
+                                
+                                    </p-inputGroup>
+                                
+                                    <small *ngIf="email.touched && !email.valid" class="p-error">Required.</small>
+                                
+                                
+                                </div>
+                        </div>
 
                         <div class="staffInfo">
                         
@@ -61,15 +212,20 @@
                         
                                 <p-inputGroup>
                                     <p-inputGroupAddon>
-                                        <i class="pi pi-users"></i>
+                                        <i class="pi pi-key"></i>
                                     </p-inputGroupAddon>
                         
-                                    <p-dropdown #gender="ngModel" name="gender" [options]="genderOptions" [(ngModel)]="staffInfo.gender"
-                                        optionLabel="label" placeholder="Select a gender" required />
+                                    <p-password [ngClass]="{'ng-valid':this.passval, 'ng-invalid ng-dirty':!this.passval}" #password="ngModel"
+                                        [(ngModel)]="staffInfo.password" 
+                                        name="Password" minlength="10" maxlength="30" 
+                                        weakLabel="Too simple" 
+                                        mediumLabel="Average complexity" 
+                                        strongLabel="Complex password"
+                                        required placeholder="Password" />
                         
                                 </p-inputGroup>
                         
-                                <small *ngIf="gender.touched && !gender.valid" class="p-error">Required.</small>
+                                <small *ngIf="password.touched && !password.valid" class="p-error">Required.</small>
                         
                         
                             </div>
@@ -77,150 +233,25 @@
                         
                                 <p-inputGroup>
                                     <p-inputGroupAddon>
-                                        <i class="pi pi-calendar-minus"></i>
+                                        <i class="pi pi-key"></i>
                                     </p-inputGroupAddon>
-                        
-                                <p-calendar
-                                #dob="ngModel"
-                                name="dob" [(ngModel)]="staffInfo.dob" [showButtonBar]="true" />
+                                    <p-password [ngClass]="{'ng-valid':this.passval, 'ng-invalid ng-dirty':!this.passval}"
+                                        #password_verify="ngModel" [(ngModel)]="staffInfo.password_verify" name="password_verify" maxlength="30"
+                                        required placeholder="Re-type Password" (keyup)="verifyPassword($event)" />
                         
                                 </p-inputGroup>
                         
-                                <small *ngIf="email.touched && !email.valid" class="p-error">Required.</small>
+                                <small [ngClass]="{'passmsg-success':this.passval, 'passmsg-error':!this.passval}">{{passMessage}}</small>
                         
                         
                             </div>
+                        
+                        
+                          
                         </div>
-                    <div class="staffInfo">
-                    
-                        <div class="all-info">
-                        
-                            <p-inputGroup>
-                                <p-inputGroupAddon>
-                                    <i class="pi pi-id-card"></i>
-                                </p-inputGroupAddon>
-                        
-                                <input pInputText
-                                    [ngClass]="{'input-success':government_id.valid, 'input-error':(government_id.touched && !government_id.dirty)}"
-                                    #government_id="ngModel" [(ngModel)]="staffInfo.government_id" name="government_id" type="text"
-                                    maxlength="30" required placeholder="Government ID" />
-                        
-                            </p-inputGroup>
-                        
-                            <small *ngIf="government_id.touched && !government_id.valid" class="p-error">Required.</small>
-                        
-                        
-                        </div>
-                        <div class="all-info">
-                        
-                            <p-inputGroup>
-                                <p-inputGroupAddon>
-                                    <i class="pi pi-mobile"></i>
-                                </p-inputGroupAddon>
-                        
-                                <input pInputText
-                                    [ngClass]="{'input-success':phone.valid, 'input-error':(phone.touched && !phone.dirty)}"
-                                    #phone="ngModel" [(ngModel)]="staffInfo.phone" name="phone" type="text"
-                                    maxlength="30" required placeholder="Phone number" />
-                        
-                            </p-inputGroup>
-                        
-                            <small *ngIf="phone.touched && !phone.valid" class="p-error">Required.</small>
-                        
-                        
-                        </div>
-                    </div>
+                        </p-panel>
+                                    
                  
-                 
-                    <div class="staffInfo">
-                    
-                        <div class="all-info">
-                        
-                            <p-inputGroup>
-                                <p-inputGroupAddon>
-                                    <i class="pi pi-briefcase"></i>
-                                </p-inputGroupAddon>
-                        
-                            <p-dropdown 
-                            #position="ngModel"
-                            name="position"
-                            [options]="positionOptions" 
-                            [(ngModel)]="staffInfo.position" 
-                            optionLabel="label" 
-                            placeholder="Select a position" required />
-                        
-                            </p-inputGroup>
-                        
-                            <small *ngIf="position.touched && !position.valid" class="p-error">Required.</small>
-                        
-                        
-                        </div>
-                        <div class="all-info">
-                        
-                            <p-inputGroup>
-                                <p-inputGroupAddon>
-                                    <i class="pi pi-at"></i>
-                                </p-inputGroupAddon>
-                        
-                                <input pInputText
-                                    [ngClass]="{'input-success':email.valid, 'input-error ':(email.touched && !email.dirty)}"
-                                    #email="ngModel" [(ngModel)]="staffInfo.email" name="phone" type="text"
-                                    maxlength="30" required placeholder="Email address" required/>
-                        
-                            </p-inputGroup>
-                        
-                            <small *ngIf="email.touched && !email.valid" class="p-error">Required.</small>
-                        
-                        
-                        </div>
-                    </div>
-               
-
-
-                    
-                    <div class="staffInfo">
-                    
-                        <div class="all-info">
-                        
-                            <p-inputGroup>
-                                <p-inputGroupAddon>
-                                    <i class="pi pi-key"></i>
-                                </p-inputGroupAddon>
-                                                        
-                                <p-password 
-                                    [ngClass]="{'ng-valid':this.passval, 'ng-invalid ng-dirty':!this.passval}"
-                                    #password="ngModel" [(ngModel)]="staffInfo.password" name="Password"
-                                    maxlength="30" required placeholder="Password" />
-                        
-                            </p-inputGroup>
-                        
-                            <small *ngIf="password.touched && !password.valid" class="p-error">Required.</small>
-                        
-                        
-                        </div>
-                        <div class="all-info">
-                        
-                            <p-inputGroup>
-                                <p-inputGroupAddon>
-                                    <i class="pi pi-key"></i>
-                                </p-inputGroupAddon>
-                            <p-password   [ngClass]="{'ng-valid':this.passval, 'ng-invalid ng-dirty':!this.passval}"
-                                #password_verify="ngModel" 
-                                [(ngModel)]="staffInfo.password_verify" 
-                                name="password_verify" 
-                                maxlength="30" required
-                                placeholder="Re-type Password"
-                                (keyup)="verifyPassword($event)" />
-                        
-                            </p-inputGroup>
-                        
-                            <small [ngClass]="{'passmsg-success':this.passval, 'passmsg-error':!this.passval}">{{passMessage}}</small>
-                        
-                        
-                        </div>
-                    
-                    
-                    </div>
                     <div class="btn-staff">
                       
                         <p-button label="Register Staff" (onClick)="onsubmit()" [disabled]="!staffForm.valid" icon="pi pi-check"/>

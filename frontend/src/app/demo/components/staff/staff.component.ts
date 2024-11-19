@@ -23,7 +23,11 @@ import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { CardModule } from 'primeng/card';
 import { PasswordModule } from 'primeng/password';
 import { ButtonModule } from 'primeng/button';
-
+import { PanelModule } from 'primeng/panel';
+import { CondominioService } from '../../service/condominios.service';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ToastModule } from 'primeng/toast';
+import { MessageService, ConfirmationService } from 'primeng/api';
 
 type StaffInfo = {
 
@@ -45,6 +49,7 @@ type StaffInfo = {
   selector: 'app-staff',
   standalone: true,
   imports: [
+    ToastModule,
     ButtonModule,
     PasswordModule,
     CardModule,
@@ -65,30 +70,44 @@ type StaffInfo = {
     DatePipe,
     FloatLabelModule,
     CalendarModule,
-    CurrencyPipe
+    CurrencyPipe,
+    PanelModule,
+    ConfirmDialogModule
   ],
   providers: [
     UserService,
     StaffService, 
     FormatFunctions,
-    KeyValuePipe
+    KeyValuePipe,
+    CondominioService,
+    MessageService,
+    ConfirmationService
   ],
   templateUrl: './staff.component.html',
   styleUrl: './staff.component.css'
 })
-export class StaffComponent {
+export class StaffComponent implements OnInit {
 
   public staffInfo: StaffInfo;
   public positionOptions:any[];
   public genderOptions: any[];
+  public condominioList: any[];
+  public loadingCondo: boolean;
+  public token: string;
+  public loginInfo: any;
 
   constructor(
     private _userService: UserService,
     private _staffService: StaffService,
     private _formatFunctions: FormatFunctions,
     private _route: ActivatedRoute,
-    private _router: Router
+    private _router: Router,
+    private _condominioService: CondominioService,
+    private _messageService: MessageService,
+    private _confirmationService: ConfirmationService
+    
   ){
+    this.condominioList = [{label: '', name: ''}];
 
     this.staffInfo = {
 
@@ -105,31 +124,87 @@ export class StaffComponent {
       dob:''
       
     }
+    this.loadingCondo = true;
 
     this.genderOptions = [
       {label:"Male", value:"male"},
       { label: "Female", value: "female" }
     ];
      
+    this.token = this._userService.getToken();
+    this.loginInfo = this._userService.getIdentity()
 
     this.positionOptions = [
         
-        {label: 'Admin', value: 'Admin'},
-        {label: 'Staff', value: 'Staff'},
-        {label: 'Security', value: 'Security'},
-        {label: 'Maintenance', value: 'Maintenance'},
-        {label: 'Receptionist', value: 'Receptionist'},
-        {label: 'Cleaning', value: 'Cleaning'},
-        {label: 'Gardener', value: 'Gardener'}
+        {label: 'Admin', value: 'admin'},
+        {label: 'Staff', value: 'staff'},
+        {label: 'Security', value: 'security'},
+        {label: 'Maintenance', value: 'maintenance'},
+        {label: 'Receptionist', value: 'receptionist'},
+        {label: 'Cleaning', value: 'vleaning'},
+        {label: 'Gardener', value: 'gardener'}
         
     ]
     
 
   }
 
+  ngOnInit(): void {
+    this.getAdminsProperties()
+  }
+
   onsubmit(){
 
-    console.log(this.staffInfo);
+    this._confirmationService.confirm({
+      target: event.target as EventTarget,
+      message: 'Are you sure that you want to proceed?',
+      header: 'Confirmation',
+      icon: 'pi pi-exclamation-triangle',
+      acceptIcon: "none",
+      rejectIcon: "none",
+      rejectButtonStyleClass: "p-button-text",
+      accept: () => {
+
+        this._staffService.create(this.staffInfo, this.token).subscribe({
+          next: (response) => {
+            if (response.status == 'success') {
+              this._messageService.add({ severity: 'success', summary: 'Confirmed', detail: 'Staff successfully registered!', key:'br', life: 3000 });
+
+              this.staffInfo = {
+
+                condo_id: '',
+                name: '',
+                lastname: '',
+                gender: '',
+                government_id: '',
+                phone: '',
+                position: '',
+                email: '',
+                password: '',
+                password_verify: '',
+                dob: ''
+
+              }
+            
+            }
+          },
+          error: (error) => {
+            this._messageService.add({ severity: 'error', summary: 'Error', detail: 'Staff was not registered!', key: 'br', life: 3000 });
+            console.log(error);
+          },
+          complete: () => {
+            console.log('Request completed!')
+          }
+        });
+        
+      },
+      reject: () => {
+        this._messageService.add({ severity: 'error', summary: 'Rejected', detail: 'You have rejected', key: 'br', life: 3000 });
+      }
+    });
+  
+    
+   
   }
 
   public passval:boolean;
@@ -153,6 +228,38 @@ export class StaffComponent {
     }
 
   }
+
+  getAdminsProperties() {
+
+
+    this._condominioService.getPropertyByAdminId(this.token, this.loginInfo._id).subscribe({
+      next: (response) => {
+      
+        console.log('PROPERTIES:', response)
+
+        if (response.status == 'success') {
+          
+          this.loadingCondo = false;
+
+          this.condominioList =  response.message.map((element) => {
+            return {
+              label: element.alias.toUpperCase(), name: element._id
+            }
+          });
+         
+
+        }
+      },
+      error: (error) => {
+        console.log(error);
+      },
+      complete: () => {
+        console.log('See property completed!')
+      }
+    });
+  }
+  
+  
 
 }
  

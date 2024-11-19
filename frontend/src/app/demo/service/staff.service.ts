@@ -24,12 +24,12 @@ export class StaffService{
     }
 
     create(staff:any, token:string):Observable<any>{
-
+        let params = JSON.stringify(staff)
         let header = new HttpHeaders()
                         .set('Content-Type', 'application/json')
                         .set('Authorization',token)
                     
-       return this._http.post(this.url + 'create-staff', staff,{headers:header})
+        return this._http.post(this.url + 'create-staff', params,{headers:header})
 
 
     }

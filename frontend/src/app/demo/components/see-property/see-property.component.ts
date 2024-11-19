@@ -87,7 +87,7 @@ export class SeePropertyComponent implements OnInit, DoCheck {
     ];
 
     this.loginInfo = this._userService.getIdentity()
-    console.log('LOGIN INFO:', this.loginInfo)
+ 
   }
 
 
@@ -147,7 +147,7 @@ export class SeePropertyComponent implements OnInit, DoCheck {
        
             if (response.status == 'success') {
               this.properties = response.message;
-              console.log('PROPERTIES:', this.properties)
+           
 
             }
           },
@@ -190,7 +190,7 @@ export class SeePropertyComponent implements OnInit, DoCheck {
               });
             });
            
-;
+
           }
         },
         error: (error) => {
