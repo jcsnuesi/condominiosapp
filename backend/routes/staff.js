@@ -12,13 +12,13 @@ var md_upload = multipart({ uploadDir: './uploads/staff' });
 
 // GET
 
-router.get('/staffs', md_auth.authenticated, StaffController.getStaffByAdmin)
+router.get('/staffs/:id', md_auth.authenticated, StaffController.getStaffByAdmin)
 router.get('/avatar-staff/:avatar',  StaffController.getAvatar)
 
 
 // POST
 
-router.post('/create-staff', [md_auth.authenticated], StaffController.createStaff)
+router.post('/create-staff', [md_auth.authenticated, md_upload], StaffController.createStaff)
 
 // // Buscar usuario por propietario
 

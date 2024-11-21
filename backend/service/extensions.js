@@ -9,8 +9,7 @@ checkExtension = {
       
         for (const key in req.files) {
 
-            fileExtensions.push(((req.files[key].path).split('.'))[1].toLowerCase()) 
-            
+            fileExtensions.push(((req.files[key].path).split('.'))[1].toLowerCase())             
              
         }      
        

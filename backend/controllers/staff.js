@@ -31,10 +31,9 @@ var StaffController = {
     createStaff: function(req,res){
 
         var params = req.body
-        params.condo_id = params.condo_id.name
-        params.gender = params.gender.value 
-        params.position = params.position.value 
-        var optionToVerify = new verifyClass()    
+      
+        var optionToVerify = new verifyClass()  
+          
      
         try {
 
@@ -52,18 +51,25 @@ var StaffController = {
             })
 
         }
-     
+
+        // Image settings
+
+        let avatarPath = req.files.avatar.path
+        let avatarFullname = avatarPath.split("\\")[2]
+        params.avatar = avatarFullname
+
+       
         //verificar la extension de archivo enviado sea tipo imagen
-        // var imgFormatAccepted = checkExtensions.confirmExtension(req)
+        var imgFormatAccepted = checkExtensions.confirmExtension(req)
 
-        // if (imgFormatAccepted == false) {
+        if (imgFormatAccepted == false) {
 
-        //     return res.status(400).send({
+            return res.status(400).send({
 
-        //         status: "bad request",
-        //         message: "System just accept image format '.jpg', '.jpeg', '.gif', '.png'"
-        //     })
-        // }
+                status: "bad request",
+                message: "System just accept image format '.jpg', '.jpeg', '.gif', '.png'"
+            })
+        }
 
      
         if (val_name && val_lastname && val_email  && val_phone) {
@@ -342,12 +348,13 @@ var StaffController = {
     },
     getStaffByAdmin:async function(req,res){
      
-   
+        let _id = req.params.id
         
         Staff.find({
             status: { $ne: 'inactive' },
-            createdBy: req.user.sub
-        },(err, staffs) => {
+            createdBy: _id
+        }).populate('condo_id', 'alias')
+        .exec((err, staffs) => {
 
           
             if (err || !staffs) {

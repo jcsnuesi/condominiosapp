@@ -6,6 +6,7 @@ var Schema = mongoose.Schema
  
 var StaffSchema = Schema({
 
+
     avatar: { type: String, default: 'noimage.jpeg' },
     name: { type: String, required: true },
     lastname: { type: String, required: true },
