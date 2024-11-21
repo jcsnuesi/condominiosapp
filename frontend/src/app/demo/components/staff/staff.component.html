@@ -8,9 +8,170 @@
         <p-tabPanel header="All">
 
             <p-card header="GENERAL">
-                <p class="m-0">
-                    Lorem ipsum dolor sit amet...
-                </p>
+              
+            <p-table #dt 
+            [value]="propertyDetailsVar" 
+            [(selection)]="staffSelected" 
+            dataKey="_id" 
+            [rowHover]="true" 
+            [rows]="10"
+            [showCurrentPageReport]="true" 
+            [rowsPerPageOptions]="[10, 25, 50]" 
+            [loading]="loading" 
+            [paginator]="true"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [filterDelay]="0"
+                [globalFilterFields]="globalFilters">
+                <ng-template pTemplate="caption">
+                    
+                    
+                    <div class="flex justify-content-between">
+                        <p-button [outlined]="true" icon="pi pi-filter-slash" label="Clear" (onClick)="clear(dt)" />
+                        <p-iconField iconPosition="left">
+                            <span class="p-input-icon-left ml-auto">
+                                <i class="pi pi-search"></i>
+                        
+                            <input pInputText type="text" [(ngModel)]="searchValue"
+                                (input)="dt.filterGlobal($event.target.value, 'contains')" placeholder="Keyboard Search" />
+                            </span>
+                        </p-iconField>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="width: 4rem">
+                            <p-tableHeaderCheckbox />
+                        </th>
+                     
+                        <th pSortableColumn="fullname" style="min-width: 14rem">
+                            <div class="flex justify-content-between align-items-center">
+                                Fullname
+                                <p-sortIcon field="fullname" />
+                                <p-columnFilter type="text" field="fullname" display="menu" class="ml-auto" />
+                            </div>
+                        </th>
+                        <th pSortableColumn="phone" style="min-width: 8rem">
+                            <div class="flex justify-content-between align-items-center">
+                                Phone
+                                <p-sortIcon field="phone" />
+                                <p-columnFilter type="text" field="phone" display="menu" class="ml-auto" />
+                            </div>
+                        </th>
+                        <th pSortableColumn="gender" style="min-width: 14rem">
+                            <div class="flex justify-content-between align-items-center">
+                                Gender
+                                <p-sortIcon field="gender" />
+                                <p-columnFilter type="text" field="gender" display="menu" class="ml-auto" />
+                            </div>
+                        </th>
+                        <th pSortableColumn="condo_id" style="min-width: 10rem">
+                            <div class="flex justify-content-between align-items-center">
+                                Condominium name
+                                <p-sortIcon field="condo_id" />
+                                <p-columnFilter type="text" field="condo_id" display="menu" class="ml-auto" />
+                            </div>
+                        </th>
+                        <th pSortableColumn="government_id" style="min-width: 10rem">
+                            <div class="flex justify-content-between align-items-center">
+                                Government ID
+                                <p-sortIcon field="government_id" />
+                                <p-columnFilter type="text" field="government_id" display="menu" class="ml-auto" />
+                            </div>
+                        </th>
+                        <th pSortableColumn="position" style="min-width: 10rem">
+                            <div class="flex justify-content-between align-items-center">
+                                Role
+                                <p-sortIcon field="position" />
+                                <p-columnFilter type="text" field="position" display="menu" class="ml-auto" />
+                            </div>
+                        </th>
+              
+                        
+                        <th pSortableColumn="createdAt" style="min-width: 10rem">
+                            <div class="flex justify-content-between align-items-center">
+                                Start date
+                                <p-sortIcon field="createdAt" />
+                                <p-columnFilter type="date" field="createdAt" display="menu" class="ml-auto" />
+                            </div>
+                        </th>
+                
+                        <th pSortableColumn="status" style="min-width: 10rem">
+                            <div class="flex justify-content-between align-items-center">
+                                Status
+                                <p-sortIcon field="status" />
+                                <p-columnFilter field="status" matchMode="equals" display="menu" class="ml-auto">
+                                    <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                                        <p-dropdown [ngModel]="value" [options]="statuses" (onChange)="filter($event.value)"
+                                            placeholder="Any">
+                                            <ng-template let-option pTemplate="item">
+                                                <p-tag [value]="option.label" [severity]="getSeverity(option.label)" />
+                                            </ng-template>
+                                        </p-dropdown>
+                                    </ng-template>
+                                </p-columnFilter>
+                            </div>
+                        </th>
+                  
+                        <th style="width: 5rem"></th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-staff>
+                    <tr class="p-selectable-row">
+                        <td>
+                            <p-tableCheckbox [value]="staff._id" />
+                        </td>
+                        <td>
+                            <span class="p-column-title">Fullname</span>
+                            <img [alt]="staff.fullname"
+                                src="{{url + 'getStaffAvatar/'+staff.avatar }}" width="32"
+                                style="vertical-align: middle" />
+                            <span class="ml-1 vertical-align-middle">{{staff.fullname}}</span>
+                        </td>      
+                   
+                        <td>
+                            <span class="p-column-title">Phone</span>
+                            {{ staff.phone }}
+                        </td>
+                        <td>
+                            <span class="p-column-title">Gender</span>
+                            {{ staff.gender }}
+                        </td>
+                        <td>
+                            <span class="p-column-title">Codominium name</span>
+                            {{ staff.condo_id }}
+                        </td>
+                        <td>
+                            <span class="p-column-title">Government ID</span>
+                            {{ staff.government_id }}
+                        </td>
+                        <td>
+                            <span class="p-column-title">Role</span>
+                            {{ staff.position }}
+                        </td>
+                      
+                        
+                        <td>
+                            <span class="p-column-title">Start date</span>
+                            {{ staff.createdAt | date : 'MM/dd/yyyy' }}
+                        </td>
+                      
+                        
+                        <td>
+                            <span class="p-column-title">Status</span>
+                            <p-tag [value]="staff.status" [severity]="getSeverity(staff.status)" />
+                        </td>
+                        
+                        
+                        <td style="text-align: center">
+                            <p-button severity="secondary" icon="pi pi-cog" />
+                        </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="8">No customers found.</td>
+                    </tr>
+                </ng-template>
+            </p-table>
 
      
             </p-card>
@@ -24,7 +185,22 @@
              
 
                 
-                <form #staffForm="ngForm">
+                <form #staffForm="ngForm" (ngSubmit)="onsubmit(staffForm)">
+
+                    <div class="avatar">
+                        <div class="avatar-div">
+
+                            <img class="avatar-img" #avatar name="avatar" src="{{previwImage}}" alt="avatar" width="250px" height="230px" />
+
+                            <p-fileUpload class="avatar-btn" mode="basic" chooseLabel="Choose" chooseIcon="pi pi-upload" name="demo[]"
+                                url="https://www.primefaces.org/cdn/api/upload.php" accept="image/*" maxFileSize="1000000"
+                                (onSelect)="onUpload($event)" />
+                        </div>
+
+                      
+
+                        
+                    </div>
 
                         <p-panel header="Basic Info">
                             <div class="staffInfo">
@@ -143,6 +319,7 @@
                                 </div>
                             </div>
                         </p-panel>
+                        <div class="mt-5"></div>
 
                         <p-panel header="Work info">
                         <div class="staffInfo">
@@ -253,8 +430,8 @@
                                     
                  
                     <div class="btn-staff">
-                      
-                        <p-button label="Register Staff" (onClick)="onsubmit()" [disabled]="!staffForm.valid" icon="pi pi-check"/>
+                        
+                        <button pButton type="submit"label="Register Staff" [disabled]="!staffForm.valid" icon="pi pi-check"></button>
 
                     </div>
 

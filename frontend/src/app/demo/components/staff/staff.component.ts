@@ -28,9 +28,10 @@ import { CondominioService } from '../../service/condominios.service';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
 import { MessageService, ConfirmationService } from 'primeng/api';
+import { FileUploadModule } from 'primeng/fileupload';
 
 type StaffInfo = {
-
+  createdBy: string;
   condo_id: string;
   name: string;
   lastname: string;
@@ -42,6 +43,10 @@ type StaffInfo = {
   password: string;
   password_verify: string;
   dob:'';
+  createdAt?: string;
+  updatedAt?: string;
+  avatar?: string;
+  fullname?: string;
 
 };
 
@@ -49,6 +54,7 @@ type StaffInfo = {
   selector: 'app-staff',
   standalone: true,
   imports: [
+    FileUploadModule,
     ToastModule,
     ButtonModule,
     PasswordModule,
@@ -89,12 +95,26 @@ type StaffInfo = {
 export class StaffComponent implements OnInit {
 
   public staffInfo: StaffInfo;
-  public positionOptions:any[];
-  public genderOptions: any[];
-  public condominioList: any[];
+  public positionOptions: Array<{label: string, code: string}>;
+  public genderOptions: Array<{ label: string, code: string }>;
+  public condominioList: Array<{ label: string, code: string }>;
   public loadingCondo: boolean;
   public token: string;
-  public loginInfo: any;
+  public loginInfo: any; 
+  public loading: boolean;
+  
+  //Table settings
+  public propertyDetailsVar: any[];
+  public globalFilters: any;
+  public headerTitleDict: any;
+  public selectedPayment: any;
+  public staffSelected: any[];
+
+
+
+  public passval: boolean;
+  public passMessage: string;
+  public previwImage: any;
 
   constructor(
     private _userService: UserService,
@@ -107,10 +127,24 @@ export class StaffComponent implements OnInit {
     private _confirmationService: ConfirmationService
     
   ){
-    this.condominioList = [{label: '', name: ''}];
+
+    this.condominioList = [{ label: '', code: ''}];
+    this.staffSelected = [];
+    
+
+    this.previwImage =  '../../../assets/noimage2.jpeg';
+    this.loadingCondo = true;
+
+    this.genderOptions = [
+      { label: "Male", code:"male"},
+      { label: "Female", code: "female" }
+    ];
+     
+    this.token = this._userService.getToken();
+    this.loginInfo = this._userService.getIdentity()
 
     this.staffInfo = {
-
+      createdBy: '',
       condo_id: '',
       name: '',
       lastname: '',
@@ -119,41 +153,123 @@ export class StaffComponent implements OnInit {
       phone: '',
       position: '',
       email: '',
-      password:'',
+      password: '',
       password_verify: '',
-      dob:''
-      
-    }
-    this.loadingCondo = true;
+      dob: ''
 
-    this.genderOptions = [
-      {label:"Male", value:"male"},
-      { label: "Female", value: "female" }
-    ];
-     
-    this.token = this._userService.getToken();
-    this.loginInfo = this._userService.getIdentity()
+
+    }
 
     this.positionOptions = [
         
-        {label: 'Admin', value: 'admin'},
-        {label: 'Staff', value: 'staff'},
-        {label: 'Security', value: 'security'},
-        {label: 'Maintenance', value: 'maintenance'},
-        {label: 'Receptionist', value: 'receptionist'},
-        {label: 'Cleaning', value: 'vleaning'},
-        {label: 'Gardener', value: 'gardener'}
+        {label: 'Admin', code: 'admin'},
+        {label: 'Staff', code: 'staff'},
+        {label: 'Security', code: 'security'},
+        {label: 'Maintenance', code: 'maintenance'},
+        {label: 'Receptionist', code: 'receptionist'},
+        {label: 'Cleaning', code: 'vleaning'},
+        {label: 'Gardener', code: 'gardener'}
         
     ]
+
+    this.propertyDetailsVar = [];
+
+    // table settings
+    this.globalFilters = [
+      'fullname',
+      'phone',
+      'gender',
+      'condo_id',
+      'government_id',
+      'position',
+      'status',
+      'createdAt'
+    ]
+    
+    this.loading = true;
+
+    this.headerTitleDict = {
+      'fullname': 'Fullname',
+      'phone': 'Phone',
+      'condo_id': 'Condominium',
+      'position': 'Position',
+      'status': 'Status',
+      'createdAt': 'Start Date'
+    }
     
 
   }
 
   ngOnInit(): void {
-    this.getAdminsProperties()
+    this.getAdminsProperties();
+    this.getStaffList();
   }
 
-  onsubmit(){
+  clear(dt:any) {
+    dt.clear();
+  }
+
+  getStaffList(){
+
+    this._staffService.getStaff(this.token, this.loginInfo._id).subscribe({
+      next: (response) => {
+
+        if(response.status == 'success'){
+
+          this.propertyDetailsVar = response.message.map((staff) => {
+
+            console.log('STAFF:', staff)
+            return {
+              _id: staff._id,
+              fullname: staff.name + ' ' + staff.lastname,
+              phone: staff.phone,
+              gender: staff.gender,
+              government_id: staff.government_id,
+              createdBy: staff.createdBy,
+              condo_id: staff.condo_id?.alias ?? 'No Condo',
+              position: staff.position,
+              email: staff.email,
+              status: staff.status,
+              createdAt: staff.createdAt
+
+            }
+          });
+
+          this.loading = false;
+        }
+      
+      },
+      error: (error) => {
+        console.log(error);
+      },
+      complete: () => {
+        console.log('Request completed getStaffList!');
+    }
+    });
+  }
+
+  getSeverity(status:string){
+
+    return this._formatFunctions.getSeverityUser(status);
+
+  }
+
+  onUpload(event:any){
+
+    const reader = new FileReader();
+
+    reader.onloadend = (e) => {
+      const base64Data = reader.result as string;
+      this.previwImage = base64Data;
+    
+     
+    }
+
+    reader.readAsDataURL(event.files[0]);
+    this.staffInfo.avatar = event.files[0];
+  }
+
+  onsubmit(form:NgForm){
 
     this._confirmationService.confirm({
       target: event.target as EventTarget,
@@ -165,26 +281,41 @@ export class StaffComponent implements OnInit {
       rejectButtonStyleClass: "p-button-text",
       accept: () => {
 
-        this._staffService.create(this.staffInfo, this.token).subscribe({
+        const formSfaff = new FormData();
+        
+        let keys = [
+          'condo_id',
+          'position',
+          'gender'
+        ]        
+        // console.log("******************************************")
+        // console.log(this.staffInfo)
+
+       // Id of the company
+        this.staffInfo.createdBy = this.loginInfo._id;
+ 
+        for (const key in this.staffInfo) {
+          
+          if (keys.find((element) => element === key)) {
+            formSfaff.append(key, this.staffInfo[key].code);
+        }else{
+          formSfaff.append(key, this.staffInfo[key]);
+        }
+      }
+        formSfaff.forEach((value, key) => {
+          console.log(key, value);
+        });
+     
+
+        this._staffService.create(formSfaff, this.token).subscribe({
           next: (response) => {
             if (response.status == 'success') {
               this._messageService.add({ severity: 'success', summary: 'Confirmed', detail: 'Staff successfully registered!', key:'br', life: 3000 });
 
-              this.staffInfo = {
-
-                condo_id: '',
-                name: '',
-                lastname: '',
-                gender: '',
-                government_id: '',
-                phone: '',
-                position: '',
-                email: '',
-                password: '',
-                password_verify: '',
-                dob: ''
-
-              }
+              form.reset();
+              this.previwImage = '../../../assets/noimage2.jpeg';
+            
+              
             
             }
           },
@@ -207,8 +338,6 @@ export class StaffComponent implements OnInit {
    
   }
 
-  public passval:boolean;
-  public passMessage:string;
   verifyPassword(confirmPassword:any){
 
     let passwordInput = confirmPassword.target.value;
@@ -241,9 +370,9 @@ export class StaffComponent implements OnInit {
           
           this.loadingCondo = false;
 
-          this.condominioList =  response.message.map((element) => {
+          this.condominioList = response.message.map((element) => {
             return {
-              label: element.alias.toUpperCase(), name: element._id
+              label: element.alias.toUpperCase(), code: element._id
             }
           });
          

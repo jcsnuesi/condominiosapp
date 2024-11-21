@@ -43,6 +43,14 @@ export class FormatFunctions {
         return dateFormated.toDateString()
     }
     
+     getSeverityUser(user_status: string) {
+        if ( user_status == 'active') {
+            return 'success'
+        } else {
+            return 'danger'
+        } 
+        
+    }
      getSeverity(invoice_status: string) {
         if (invoice_status == 'new' || invoice_status == 'active') {
             return 'success'

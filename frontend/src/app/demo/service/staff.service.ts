@@ -23,13 +23,12 @@ export class StaffService{
 
     }
 
-    create(staff:any, token:string):Observable<any>{
-        let params = JSON.stringify(staff)
+    create(staff:FormData, token:string):Observable<any>{
+        
         let header = new HttpHeaders()
-                        .set('Content-Type', 'application/json')
                         .set('Authorization',token)
                     
-        return this._http.post(this.url + 'create-staff', params,{headers:header})
+        return this._http.post(this.url + 'create-staff', staff,{headers:header})
 
 
     }
@@ -88,11 +87,11 @@ export class StaffService{
         return this._http.put(this.url + 'reactiveAccount', params, {headers:header})
     }
 
-    getStaff(token: string): Observable<any>{
+    getStaff(token: string, company_id:string): Observable<any>{
 
         let header = new HttpHeaders().set('Content-Type', 'application/json').set('Authorization', token)
        
-        return this._http.get(this.url + 'staffs', {headers:header})
+        return this._http.get(this.url + 'staffs/'+ company_id, {headers:header})
     }
 
     

@@ -1,9 +1,4 @@
 
-<div class="staff-info">
-
-    
-</div>
-
 
 <div class="head">
     <div class="icon head" (click)="back()">
@@ -11,7 +6,7 @@
         <i class="pi pi-arrow-left i-hover"></i>
     </div>
     <div class="head">
-        <h3>Invoice History</h3>
+        <h3>{{moduleTitle}}</h3>
     </div>
 
 </div>
@@ -28,7 +23,7 @@
         </div>
     </ng-template>
     <ng-template pTemplate="header">
-        <tr>
+        <tr >
 
             <th *ngFor="let headerKey of headerTitleDict | PreserveOrder;">
 
@@ -119,6 +114,7 @@
             
 
         </tr>
+     
     </ng-template>
     <ng-template pTemplate="emptymessage">
         <tr>

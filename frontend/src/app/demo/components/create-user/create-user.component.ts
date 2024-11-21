@@ -108,24 +108,24 @@ export class CreateUserComponent implements OnInit {
 
    getAllStaff(){
 
-     this._staffService.getStaff(this.token).subscribe({
+    //  this._staffService.getStaff(this.token).subscribe({
 
-       next: (response) => {
+    //    next: (response) => {
 
-         this.users = response.message
+    //      this.users = response.message
       
-       },
+    //    },
 
-       error: (error) => {
+    //    error: (error) => {
 
-         console.log("error", error)
-       },
-       complete: () => {
+    //      console.log("error", error)
+    //    },
+    //    complete: () => {
 
-         console.log('Get staff complete!')
-       }
+    //      console.log('Get staff complete!')
+    //    }
 
-     });
+    //  });
 
    }
 
@@ -400,35 +400,35 @@ export class CreateUserComponent implements OnInit {
   submit(){
 
    
-    this._staffService.create(this.userModel, this.token).subscribe({
+    // this._staffService.create(this.userModel, this.token).subscribe({
         
-        next: (response)  => {
+    //     next: (response)  => {
           
-          if (response.status == 'success') {
-            this.getAllStaff();
-            this.userDialog = false;
-            this._messageService.add({ severity: 'success', summary: 'Successful', detail: 'Staff created successfully', life: 3000 });
+    //       if (response.status == 'success') {
+    //         this.getAllStaff();
+    //         this.userDialog = false;
+    //         this._messageService.add({ severity: 'success', summary: 'Successful', detail: 'Staff created successfully', life: 3000 });
             
-          } else {
+    //       } else {
 
-            this._messageService.add({ severity: 'error', summary: 'Error', detail: 'Staff not created', life: 3000 });
+    //         this._messageService.add({ severity: 'error', summary: 'Error', detail: 'Staff not created', life: 3000 });
 
-          }
+    //       }
        
         
-        },
+    //     },
   
-        error: (error) => {
+    //     error: (error) => {
   
-          console.log("error", error)
-          this._messageService.add({ severity: 'error', summary: 'Error', detail: 'Staff not created', life: 3000 });
+    //       console.log("error", error)
+    //       this._messageService.add({ severity: 'error', summary: 'Error', detail: 'Staff not created', life: 3000 });
 
-        },
-        complete: () => {
+    //     },
+    //     complete: () => {
   
-          console.log('Staff created!')
-        }
-    });
+    //       console.log('Staff created!')
+    //     }
+    // });
     
   }
 

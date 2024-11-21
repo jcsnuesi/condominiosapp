@@ -72,6 +72,9 @@ export class InvoiceHistoryComponent implements OnInit {
   public statuses!: any[];
   public paymentStatuses!: any[];
   public dialogVisible: boolean;
+  public moduleTitle: string = 'Invoice History';
+  public displayHistory: boolean;
+  public displayStaff: boolean;
 
   //Table settings
   public globalFilters: any;
@@ -89,6 +92,8 @@ export class InvoiceHistoryComponent implements OnInit {
     private _http: HttpClient) {
 
     this.excludedColumns = ['_id', 'alias', 'email']
+    this.displayHistory = true;
+    this.displayStaff = false;
 
     this.token = this._userService.getToken();
     this.dialogVisible = false;
@@ -239,7 +244,7 @@ public propertyDetailsVar: any[];
              return this.tableBody;
             });
             
-            console.log("tbl_invoice:", this.propertyDetailsVar)
+            // console.log("tbl_invoice:", this.propertyDetailsVar)
             
             // this.dateOptions = this.tbl_invoice.map((invoice) => {
             //   return {label: invoice.date, value: invoice.date}
