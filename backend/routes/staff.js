@@ -31,7 +31,7 @@ router.post('/create-staff', [md_auth.authenticated, md_upload], StaffController
 // // PUT
 
 // router.put('/updateAccount', [md_auth.authenticated, md_upload], UserController.update)
-router.put('/update-staff', md_auth.authenticated, StaffController.update)
+router.put('/update-staff', [md_auth.authenticated, md_upload], StaffController.update)
 
 // // DELETE
 

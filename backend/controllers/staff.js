@@ -23,9 +23,6 @@ const password = generatePassword.generate({
     excludeSimilarCharacters: true,  // Excluir caracteres similares
 });
 
-
-
-
 var StaffController = {
 
     createStaff: function(req,res){
@@ -199,12 +196,24 @@ var StaffController = {
     },    
     update:async function(req, res){
 
-        try {
+        const avatarPath = req?.files?.avatar?.path?.split('\\')[2];
+        var filePath = null;
 
-            const staffParams = req.body;
-            const stafFound = await Staff.findOne({ email: staffParams.email });
+        if (Boolean(avatarPath != undefined)) {
+            staffParams.avatar = avatarPath;
+            
+             filePath = './uploads/staff/' + avatarPath;
+        }
+     
+        try {
+           
+            let staffParams = req.body;
+            let stafFound = await Staff.findOne({ email: staffParams.email });
 
             if (!stafFound) {
+
+                if (Boolean(avatarPath != undefined)) this.unlikeImage(filePath);
+
                 return res.status(404).send({
                     status: 'error',
                     message: 'STAFF not found'
@@ -231,6 +240,8 @@ var StaffController = {
             const staffUpdated = await Staff.findOneAndUpdate({ email: staffParams.email }, stafFound, { new: true });
 
             if (!staffUpdated) {
+
+                if (Boolean(avatarPath != undefined)) this.unlikeImage(filePath);
                 return res.status(500).send({
                     status: 'error',
                     message: 'Error updating staff'
@@ -245,6 +256,8 @@ var StaffController = {
             });
 
         } catch (err) {
+            if (Boolean(avatarPath != undefined)) this.unlikeImage(filePath);
+           
             return res.status(500).send({
                 status: 'error',
                 message: 'Server error',
@@ -259,9 +272,10 @@ var StaffController = {
         var avatarParams = req.params.avatar
         var filePath = './uploads/staff/' + avatarParams
        
-
         fs.access(filePath, fs.constants.F_OK, (err, exist) => {
 
+
+         
             if (err) {
                 console.error(`${filePath} does not exist ${err}`);
               
@@ -350,8 +364,7 @@ var StaffController = {
      
         let _id = req.params.id
         
-        Staff.find({
-            status: { $ne: 'inactive' },
+        Staff.find({           
             createdBy: _id
         }).populate('condo_id', 'alias')
         .exec((err, staffs) => {
@@ -383,6 +396,15 @@ var StaffController = {
 
         })
     
+    },
+    unlikeImage: function (filePath){
+        fs.unlink(filePath, (err) => {
+            if (err) {
+                console.error(`Error al eliminar el archivo: ${err.message}`);
+            } else {
+                console.log('Archivo eliminado correctamente.');
+            }
+        });
     }
      
 
