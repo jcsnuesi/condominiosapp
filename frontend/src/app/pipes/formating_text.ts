@@ -86,6 +86,19 @@ export class FormatFunctions {
 
     }
 
+    genderPipe(gender:string):string{
+
+   
+        let genders = ['m','male']
+       
+        if (genders.find(g => g === gender)){
+
+            return 'Male'
+        }else{
+            return 'Female'
+        }
+    }
+
     
     
     

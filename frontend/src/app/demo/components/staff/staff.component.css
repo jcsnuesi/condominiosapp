@@ -5,12 +5,9 @@
     justify-content: center;
     align-items: center;
     margin-bottom: 10px;
-    cursor: pointer;
-    
+ 
    
 }
-
-
 
 .avatar-img {
 
@@ -43,22 +40,14 @@ border-radius: 50%;
 ::ng-deep #pn_id_6{
     margin-top: 10px;
 }
-/* ::ng-deep  .p-calendar{
-    width: 100%;
-    border-top-left-radius: 0;
-        border-bottom-left-radius: 0;
-    
-} */
 
-::ng-deep .p-element .p-inputwrapper {
-    width: 100%;
-    border-top-left-radius: 0;
-        border-bottom-left-radius: 0;
-}
+
+
+
 
 .input-success {
     border: 1px solid rgb(85, 252, 85);
-    border-radius: 6px;
+    border-radius: 1px;
     
 }
 
@@ -85,10 +74,8 @@ border-radius: 50%;
     
 
 }
-/* .p-inputgroup input {
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-} */
+
+
  ::ng-deep .p-inputgroup-addon:first-child,
 .p-inputgroup button:first-child,
 .p-inputgroup input:first-child,
@@ -106,44 +93,48 @@ border-radius: 50%;
     width: 100%;
 }
 
- ::ng-deep .p-inputwrapper {
-     border-top-left-radius: 0 !important;
-     border-top-right-radius: 0 !important;
-     border-bottom-left-radius: 0 !important;
-     border-bottom-right-radius: 0 !important;
-     width: 100%;
- }
+.dropdown-class{
+    width: 100%;
+}
 
-    ::ng-deep .p-calendar {
-   
-        width: 100%;
-    }
 
-    ::ng-deep .p-panel {
-        border: 1px solid #e2e8f0;
-        border-radius: 6px;
-        background-color: #ffffff;
-    }
+::ng-deep .p-calendar {
 
-         ::ng-deep   .p-panel .p-panel-header,
-          .p-panel .p-panel-content,
-          .p-panel .p-panel-footer {
-              background: transparent;
-              border: 0 none;
-            
-              
-          }
+width: 100%;
+}
 
-      
-            ::ng-deep .p-panel .p-panel-content {
-                background: transparent;
-                border: 0 none;
-            }
-          
-                      
-            ::ng-deep .p-panel-title {
-                color: #495057;
-            }
-          
-                      
-            
+::ng-deep .p-panel {
+border: 1px solid #e2e8f0;
+border-radius: 6px;
+background-color: #ffffff;
+}
+
+::ng-deep   .p-panel .p-panel-header,
+.p-panel .p-panel-content,
+.p-panel .p-panel-footer {
+background: transparent;
+border: 0 none;
+
+
+}
+
+::ng-deep .p-password{
+    width: 100%;
+}
+
+::ng-deep .p-panel .p-panel-content {
+background: transparent;
+border: 0 none;
+}
+
+        
+::ng-deep .p-panel-title {
+color: #495057;
+}
+
+/* 
+::ng-deep #pn_id_45{
+
+width: 10%;
+
+} */

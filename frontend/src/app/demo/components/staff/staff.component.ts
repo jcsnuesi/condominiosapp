@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { TitleCasePipe, DatePipe, CurrencyPipe, UpperCasePipe, CommonModule, KeyValuePipe } from '@angular/common';
 import { InputTextModule } from 'primeng/inputtext';
 import { FormsModule, NgForm } from '@angular/forms';
@@ -29,6 +29,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { FileUploadModule } from 'primeng/fileupload';
+import { global } from '../../service/global.service';
 
 type StaffInfo = {
   createdBy: string;
@@ -54,6 +55,7 @@ type StaffInfo = {
   selector: 'app-staff',
   standalone: true,
   imports: [
+    DialogModule,
     FileUploadModule,
     ToastModule,
     ButtonModule,
@@ -92,7 +94,7 @@ type StaffInfo = {
   templateUrl: './staff.component.html',
   styleUrl: './staff.component.css'
 })
-export class StaffComponent implements OnInit {
+export class StaffComponent implements OnInit, AfterViewInit {
 
   public staffInfo: StaffInfo;
   public positionOptions: Array<{label: string, code: string}>;
@@ -109,12 +111,24 @@ export class StaffComponent implements OnInit {
   public headerTitleDict: any;
   public selectedPayment: any;
   public staffSelected: any[];
+  public url: string;
 
+
+  public visibleStaff: boolean;
+  public statusStaff:Array<{label: string, code: string}>;
 
 
   public passval: boolean;
   public passMessage: string;
   public previwImage: any;
+
+  @ViewChild('genderRef') genderDropDown!: ElementRef;
+  @ViewChild('positionRef') genderPositionRef!: ElementRef;
+  @ViewChild('buildingRef') buildingRef!: ElementRef;
+  @ViewChild('editGenderRef') editGenderRef!: ElementRef;
+  @ViewChild('editpositionRef') editpositionRef!: ElementRef;
+  @ViewChild('editbuildingRef') editbuildingRef!: ElementRef;
+  @ViewChild('editStatusRef') editStatusRef!: ElementRef;
 
   constructor(
     private _userService: UserService,
@@ -130,15 +144,21 @@ export class StaffComponent implements OnInit {
 
     this.condominioList = [{ label: '', code: ''}];
     this.staffSelected = [];
+    this.url = global.url;
     
 
-    this.previwImage =  '../../../assets/noimage2.jpeg';
+    this.previwImage =  '../../../assets/noimage.jpeg';
     this.loadingCondo = true;
 
     this.genderOptions = [
       { label: "Male", code:"male"},
       { label: "Female", code: "female" }
     ];
+
+    this.statusStaff = [
+      {label: 'Active', code: 'active'},
+      {label: 'Inactive', code: 'inactive'}
+    ]
      
     this.token = this._userService.getToken();
     this.loginInfo = this._userService.getIdentity()
@@ -156,9 +176,25 @@ export class StaffComponent implements OnInit {
       password: '',
       password_verify: '',
       dob: ''
+    }
+    
+    this.dataToUpdate = {
 
+      condo_id: '',
+      name: '',
+      lastname: '',
+      gender: '',
+      government_id: '',
+      phone: '',
+      position: '',
+      email: '',
+      password: '',
+      password_verify: '',
+      dob: '',
+      status: ''
 
     }
+    
 
     this.positionOptions = [
         
@@ -200,6 +236,31 @@ export class StaffComponent implements OnInit {
 
   }
 
+
+  ngAfterViewInit() {
+    
+
+    const dropdownElement = this.genderDropDown.nativeElement.querySelector('.p-inputwrapper').querySelector('.p-dropdown');
+    const dropdPositionRef = this.genderPositionRef.nativeElement.querySelector('.p-inputwrapper').querySelector('.p-dropdown');
+    const dropdbuildingRef = this.buildingRef.nativeElement.querySelector('.p-inputwrapper').querySelector('.p-dropdown');
+    const dropdeditGenderRef = this.editGenderRef.nativeElement.querySelector('.p-inputwrapper').querySelector('.p-dropdown');
+    const dropdeditpositionRef = this.editpositionRef.nativeElement.querySelector('.p-inputwrapper').querySelector('.p-dropdown');
+    const dropeditbuildingRef = this.editbuildingRef.nativeElement.querySelector('.p-inputwrapper').querySelector('.p-dropdown');
+    const dropeditStatusRef = this.editStatusRef.nativeElement.querySelector('.p-inputwrapper').querySelector('.p-dropdown');
+    
+ 
+    if (dropdownElement) {
+      [dropeditStatusRef,dropeditbuildingRef,dropdeditpositionRef,dropdownElement, dropdPositionRef, dropdbuildingRef, dropdeditGenderRef].forEach((element) => {
+        element.style.width = '100%';
+        element.style.borderRadius = '0';
+      });  
+      
+    
+    } else {
+      console.error('Dropdown element not found inside the template.');
+    }
+  }
+
   ngOnInit(): void {
     this.getAdminsProperties();
     this.getStaffList();
@@ -207,6 +268,59 @@ export class StaffComponent implements OnInit {
 
   clear(dt:any) {
     dt.clear();
+  }
+
+  genderFormat(genderRaw:any):string{
+    
+  
+    return this._formatFunctions.genderPipe(genderRaw);
+
+
+  }
+
+  public dataToUpdate: any;
+  public previewGender:any;
+
+  showDialog(info: any) {
+    this.visibleStaff = true;
+    let { fullname, ...res } = info;
+
+    // let params = {
+
+    //   condo_id:'',
+    //   name: '',
+    //   lastname: '',
+    //   gender: '',
+    //   government_id: '',
+    //   phone: '',
+    //   position: '',
+    //   email: '',
+    //   password: '',
+    //   password_verify: '',
+    //   dob: '',
+    //   status: ''
+      
+    // }
+
+    for (const key in this.dataToUpdate) {
+     
+      if (res[key] && key !== "fullname") {
+        this.dataToUpdate[key] = res[key];
+      }
+      
+    }
+    this.dataToUpdate.name = fullname.split(' ')[0];
+    this.dataToUpdate.lastname = fullname.split(' ')[1]; 
+    this.dataToUpdate.dob = new Date();
+    this.previwImage = this.url + 'avatar-staff/' + this.dataToUpdate.avatar;
+    
+    // 
+    // this.dataToUpdate = params;
+   
+  
+    // 
+    //
+   
   }
 
   getStaffList(){
@@ -217,11 +331,10 @@ export class StaffComponent implements OnInit {
         if(response.status == 'success'){
 
           this.propertyDetailsVar = response.message.map((staff) => {
-
-            console.log('STAFF:', staff)
+      
             return {
               _id: staff._id,
-              fullname: staff.name + ' ' + staff.lastname,
+              fullname: staff?.name + ' ' + staff?.lastname,
               phone: staff.phone,
               gender: staff.gender,
               government_id: staff.government_id,
@@ -230,7 +343,8 @@ export class StaffComponent implements OnInit {
               position: staff.position,
               email: staff.email,
               status: staff.status,
-              createdAt: staff.createdAt
+              createdAt: staff.createdAt,
+              avatar: staff.avatar
 
             }
           });
@@ -254,6 +368,12 @@ export class StaffComponent implements OnInit {
 
   }
 
+  onStatusChange(value:string){
+ console.log('STATUS:', value);
+    this.dataToUpdate.statusStaff = value;
+
+  }
+
   onUpload(event:any){
 
     const reader = new FileReader();
@@ -261,12 +381,14 @@ export class StaffComponent implements OnInit {
     reader.onloadend = (e) => {
       const base64Data = reader.result as string;
       this.previwImage = base64Data;
-    
+     
      
     }
 
     reader.readAsDataURL(event.files[0]);
     this.staffInfo.avatar = event.files[0];
+    this.dataToUpdate.avatar = event.files[0];
+    console.log('AVATAR:', this.dataToUpdate.avatar);
   }
 
   onsubmit(form:NgForm){
@@ -299,13 +421,12 @@ export class StaffComponent implements OnInit {
           if (keys.find((element) => element === key)) {
             formSfaff.append(key, this.staffInfo[key].code);
         }else{
-          formSfaff.append(key, this.staffInfo[key]);
+            formSfaff.append(key, this.staffInfo[key]);
         }
+
       }
-        formSfaff.forEach((value, key) => {
-          console.log(key, value);
-        });
-     
+      
+      
 
         this._staffService.create(formSfaff, this.token).subscribe({
           next: (response) => {
@@ -336,6 +457,54 @@ export class StaffComponent implements OnInit {
   
     
    
+  }
+
+  public previwImageEdit: any;
+  update(form: NgForm){
+
+    const formdata = new FormData();
+
+    let keys = [
+      'condo_id',
+      'position',
+      'gender'
+    ]   
+    console.log("key................", this.dataToUpdate);
+
+    for (const key in this.dataToUpdate) {
+
+
+      if (keys.find((element) => element === key)) {
+        formdata.append(key, this.dataToUpdate[key].code);
+      } else {
+        formdata.append(key, this.dataToUpdate[key]);
+      }
+    }
+
+    formdata.forEach((value, key) => {
+      console.log(key, value);
+    });
+return
+    this._staffService.updateStaff(this.token, formdata).subscribe({
+      next: (response) => {
+
+        if (response.status == 'success') {
+          this._messageService.add({ severity: 'success', summary: 'Confirmed', detail: 'Staff successfully updated!', key: 'br', life: 3000 });
+          this.visibleStaff = false;
+          form.reset();
+          this.getStaffList();
+        }
+
+      },
+      error: (error) => {
+        this._messageService.add({ severity: 'error', summary: 'Error', detail: 'Staff was not updated!', key: 'br', life: 3000 });
+        console.log(error);
+      },
+      complete: () => {
+        console.log('Request completed!')
+      }
+    });
+
   }
 
   verifyPassword(confirmPassword:any){

@@ -63,7 +63,6 @@ export class StaffService{
     updateStaff(token: string, staff: any):Observable<any>{
 
         let header = new HttpHeaders()
-            .set('Content-Type', 'application/json')
             .set('Authorization', token)
 
         return this._http.put(this.url + 'update-staff', staff,{headers:header})
