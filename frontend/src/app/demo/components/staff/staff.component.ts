@@ -32,7 +32,8 @@ import { FileUploadModule } from 'primeng/fileupload';
 import { global } from '../../service/global.service';
 
 type StaffInfo = {
-  createdBy: string;
+  _id: string;
+  createdBy?: string;
   condo_id: string;
   name: string;
   lastname: string;
@@ -41,13 +42,14 @@ type StaffInfo = {
   phone: string;
   position: string;
   email: string;
-  password: string;
+  password?: string;
   password_verify: string;
   dob:'';
   createdAt?: string;
   updatedAt?: string;
   avatar?: string;
   fullname?: string;
+  status?: string;
 
 };
 
@@ -106,11 +108,11 @@ export class StaffComponent implements OnInit, AfterViewInit {
   public loading: boolean;
   
   //Table settings
-  public propertyDetailsVar: any[];
+  public propertyDetailsVar: Array<StaffInfo>;
   public globalFilters: any;
   public headerTitleDict: any;
-  public selectedPayment: any;
-  public staffSelected: any[];
+  // public selectedPayment: StaffInfo;
+  public staffSelected: StaffInfo[] = [];
   public url: string;
 
 
@@ -121,6 +123,7 @@ export class StaffComponent implements OnInit, AfterViewInit {
   public passval: boolean;
   public passMessage: string;
   public previwImage: any;
+  public statusApi:boolean;
 
   @ViewChild('genderRef') genderDropDown!: ElementRef;
   @ViewChild('positionRef') genderPositionRef!: ElementRef;
@@ -143,7 +146,8 @@ export class StaffComponent implements OnInit, AfterViewInit {
   ){
 
     this.condominioList = [{ label: '', code: ''}];
-    this.staffSelected = [];
+ 
+    
     this.url = global.url;
     
 
@@ -164,6 +168,7 @@ export class StaffComponent implements OnInit, AfterViewInit {
     this.loginInfo = this._userService.getIdentity()
 
     this.staffInfo = {
+      _id: '',
       createdBy: '',
       condo_id: '',
       name: '',
@@ -177,9 +182,10 @@ export class StaffComponent implements OnInit, AfterViewInit {
       password_verify: '',
       dob: ''
     }
-    
-    this.dataToUpdate = {
 
+    this.dataToUpdate = {
+      _id: '',
+      createdBy: '',
       condo_id: '',
       name: '',
       lastname: '',
@@ -191,8 +197,7 @@ export class StaffComponent implements OnInit, AfterViewInit {
       password: '',
       password_verify: '',
       dob: '',
-      status: ''
-
+      currentPassword:''
     }
     
 
@@ -204,11 +209,12 @@ export class StaffComponent implements OnInit, AfterViewInit {
         {label: 'Maintenance', code: 'maintenance'},
         {label: 'Receptionist', code: 'receptionist'},
         {label: 'Cleaning', code: 'vleaning'},
+      { label: 'Accounting', code: 'accounting'},
         {label: 'Gardener', code: 'gardener'}
         
     ]
 
-    this.propertyDetailsVar = [];
+    
 
     // table settings
     this.globalFilters = [
@@ -268,6 +274,7 @@ export class StaffComponent implements OnInit, AfterViewInit {
 
   clear(dt:any) {
     dt.clear();
+    
   }
 
   genderFormat(genderRaw:any):string{
@@ -279,48 +286,32 @@ export class StaffComponent implements OnInit, AfterViewInit {
   }
 
   public dataToUpdate: any;
-  public previewGender:any;
+  public previewGender:any;  
 
   showDialog(info: any) {
-    this.visibleStaff = true;
-    let { fullname, ...res } = info;
 
-    // let params = {
-
-    //   condo_id:'',
-    //   name: '',
-    //   lastname: '',
-    //   gender: '',
-    //   government_id: '',
-    //   phone: '',
-    //   position: '',
-    //   email: '',
-    //   password: '',
-    //   password_verify: '',
-    //   dob: '',
-    //   status: ''
-      
-    // }
-
-    for (const key in this.dataToUpdate) {
-     
-      if (res[key] && key !== "fullname") {
-        this.dataToUpdate[key] = res[key];
-      }
-      
-    }
-    this.dataToUpdate.name = fullname.split(' ')[0];
-    this.dataToUpdate.lastname = fullname.split(' ')[1]; 
-    this.dataToUpdate.dob = new Date();
-    this.previwImage = this.url + 'avatar-staff/' + this.dataToUpdate.avatar;
+    this.visibleStaff = true;  
+    this.passwordMatch = false;  
+    this.dataToUpdate = {};
     
-    // 
-    // this.dataToUpdate = params;
+    let { ...res } = info;
+
+    this.dataToUpdate = {
+      _id: res._id,
+      condo_id: this.condominioList.find((condo) => condo.label.toLowerCase() === res.condo_id),
+      name: res.fullname.split(' ')[0],
+      lastname: res.fullname.split(' ')[1],
+      gender: this.genderOptions.find((gend) => gend.code.startsWith(res.gender)),
+      dob: new Date(),
+      government_id: res.government_id,
+      phone: res.phone,
+      position: this.positionOptions.find((pos) => pos.code == res.position),
+      email: res.email,
+      status: this.statusStaff.find((stat) => stat.code == res.status)
+    }; 
    
-  
-    // 
-    //
-   
+    this.previwImageEdit = this.url + 'avatar-staff/' + res.avatar;      
+
   }
 
   getStaffList(){
@@ -330,8 +321,28 @@ export class StaffComponent implements OnInit, AfterViewInit {
 
         if(response.status == 'success'){
 
+
+          // StaffInfo = {
+          //   _id: string;
+          //   createdBy?: string;
+          //   condo_id: string;
+          //   name: string;
+          //   lastname: string;
+          //   gender: string;
+          //   government_id: string;
+          //   phone: string;
+          //   position: string;
+          //   email: string;
+          //   password?: string;
+          //   password_verify: string;
+          //   dob: '';
+          //   createdAt?: string;
+          //   updatedAt?: string;
+          //   avatar?: string;
+          //   fullname?: string;
+
+          // };
           this.propertyDetailsVar = response.message.map((staff) => {
-      
             return {
               _id: staff._id,
               fullname: staff?.name + ' ' + staff?.lastname,
@@ -345,10 +356,11 @@ export class StaffComponent implements OnInit, AfterViewInit {
               status: staff.status,
               createdAt: staff.createdAt,
               avatar: staff.avatar
-
+              
             }
           });
-
+          
+        
           this.loading = false;
         }
       
@@ -434,7 +446,8 @@ export class StaffComponent implements OnInit, AfterViewInit {
               this._messageService.add({ severity: 'success', summary: 'Confirmed', detail: 'Staff successfully registered!', key:'br', life: 3000 });
 
               form.reset();
-              this.previwImage = '../../../assets/noimage2.jpeg';
+              this.getStaffList();
+             
             
               
             
@@ -445,6 +458,7 @@ export class StaffComponent implements OnInit, AfterViewInit {
             console.log(error);
           },
           complete: () => {
+            this.previwImage = '../../../assets/noimage2.jpeg';
             console.log('Request completed!')
           }
         });
@@ -460,6 +474,7 @@ export class StaffComponent implements OnInit, AfterViewInit {
   }
 
   public previwImageEdit: any;
+  public currentPasswordMsg: string;
   update(form: NgForm){
 
     const formdata = new FormData();
@@ -467,24 +482,22 @@ export class StaffComponent implements OnInit, AfterViewInit {
     let keys = [
       'condo_id',
       'position',
-      'gender'
+      'gender',
+      'status'
     ]   
-    console.log("key................", this.dataToUpdate);
-
+  
     for (const key in this.dataToUpdate) {
 
-
-      if (keys.find((element) => element === key)) {
+      if (keys.includes(key)) {
         formdata.append(key, this.dataToUpdate[key].code);
       } else {
         formdata.append(key, this.dataToUpdate[key]);
       }
     }
 
-    formdata.forEach((value, key) => {
-      console.log(key, value);
-    });
-return
+ 
+    
+
     this._staffService.updateStaff(this.token, formdata).subscribe({
       next: (response) => {
 
@@ -498,7 +511,17 @@ return
       },
       error: (error) => {
         this._messageService.add({ severity: 'error', summary: 'Error', detail: 'Staff was not updated!', key: 'br', life: 3000 });
-        console.log(error);
+      
+        if (error.error.message == 'Password incorrect') {
+
+          this.statusApi = true;
+          this.currentPasswordMsg = error.error.message;
+          setTimeout(() => {
+            this.statusApi = false;
+          }, 6000);
+        }
+
+
       },
       complete: () => {
         console.log('Request completed!')
@@ -507,13 +530,13 @@ return
 
   }
 
-  verifyPassword(confirmPassword:any){
+  verifyPasswordInput(confirmPassword:any){
 
     let passwordInput = confirmPassword.target.value;
     this.passval = false;
 
 
-    if (this.staffInfo.password === passwordInput){
+    if (this.dataToUpdate.password === passwordInput){
       this.passMessage = "Password Match";
     
       this.passval = true;
@@ -527,8 +550,56 @@ return
 
   }
 
+  public passwordMatch: boolean;
+
+  verifyPasswordAPI(confirmPassword:any){
+
+    let passwordInput = '';
+    passwordInput += confirmPassword.target.value;
+ 
+    if (passwordInput.length >= 8) {
+      
+      let data = { _id: this.dataToUpdate._id, currentPassword: passwordInput };
+      
+      this._staffService.verifyPassword(this.token, data).subscribe({
+        next: (response) => {
+          
+          if (response.status == 'success') {
+            this.statusApi = true;
+            this.passwordMatch = true;
+            this.currentPasswordMsg = "Password Match";
+            setTimeout(() => {
+              this.statusApi = false;
+            }, 6000);
+    
+          }
+       
+        },
+        error: (error) => {
+          console.log(error);
+          this.statusApi = true;
+          this.passwordMatch = false;
+          this.currentPasswordMsg = error.error.message;
+          setTimeout(() => {
+            this.statusApi = false;
+          }, 6000);
+        },
+        complete: () => {
+          console.log('Request completed!')
+        }
+      });
+
+    }  else{
+      this.currentPasswordMsg = "Password does not match";
+      this.passval = false;
+    }
+
+}
+
+
   getAdminsProperties() {
 
+    this.loadingCondo = true;
 
     this._condominioService.getPropertyByAdminId(this.token, this.loginInfo._id).subscribe({
       next: (response) => {
@@ -555,6 +626,45 @@ return
         console.log('See property completed!')
       }
     });
+  }
+
+  deleteStaff() {
+
+    this._confirmationService.confirm({
+      target: event.target as EventTarget,
+      message: 'Are you sure that you want to proceed?',
+      header: 'Confirmation',
+      icon: 'pi pi-exclamation-triangle',
+      acceptIcon: "pi pi-check",
+      rejectIcon: "pi pi-times",
+      acceptButtonStyleClass: "p-button-danger",
+      accept: () => {
+
+        this._staffService.deleteStaff(this.token, this.staffSelected).subscribe({
+          next: (response) => {
+            
+            if (response.status == 'success') {
+              
+              this._messageService.add({ severity: 'success', summary: 'Deletion confirmation', detail: 'Staff successfully deleted!', key: 'br', life: 3000 });
+              this.getStaffList();
+            }
+          },
+          error: (error) => {
+            this._messageService.add({ severity: 'error', summary: 'Error', detail: 'Staff was not deleted!', key: 'br', life: 3000 });
+            console.log(error);
+          }
+
+        });
+      },
+      reject: () => {
+        this._messageService.add({ severity: 'info', summary: 'Rejected', detail: 'You have rejected', key: 'br', life: 3000 });
+      }
+    });
+
+  
+
+ 
+
   }
   
   

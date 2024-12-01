@@ -16,7 +16,22 @@ border-radius: 50%;
 }
 
 
-
+.avata-tbl{
+    border-radius: 90px;
+}
+.btns{
+    display: flex;
+   
+}
+.btn-clear{
+    margin-right: 5px;
+}
+.font-color-fail{
+    color:red;
+}
+.font-color-success{
+    color:greenyellow;
+}
 
 ::ng-deep .p-fileupload-choose{
 
@@ -75,6 +90,11 @@ border-radius: 50%;
 
 }
 
+.createBoox-size{
+    display: flex;
+    justify-content: center;
+   
+}
 
  ::ng-deep .p-inputgroup-addon:first-child,
 .p-inputgroup button:first-child,

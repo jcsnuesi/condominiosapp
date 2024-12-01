@@ -93,5 +93,13 @@ export class StaffService{
         return this._http.get(this.url + 'staffs/'+ company_id, {headers:header})
     }
 
+    verifyPassword(token: string, password: any): Observable<any>{
+        let params = JSON.stringify(password)
+        let header = new HttpHeaders().set('Content-Type', 'application/json').set('Authorization', token)
+
+        return this._http.post(this.url + 'verify-password-staff', params, {headers:header})
+    }
+
+
     
 }
