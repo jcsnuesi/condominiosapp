@@ -195,60 +195,63 @@ var StaffController = {
 
     },    
     update:async function(req, res){
-
+        
+        let staffParams = req.body;
         const avatarPath = req?.files?.avatar?.path?.split('\\')[2];
         var filePath = null;
 
         if (Boolean(avatarPath != undefined)) {
             staffParams.avatar = avatarPath;
-            
-             filePath = './uploads/staff/' + avatarPath;
+            filePath = './uploads/staff/' + avatarPath;
         }
-     
-        try {
-           
-            let staffParams = req.body;
-            let stafFound = await Staff.findOne({ email: staffParams.email });
+
+    
+          
+        try {          
+       
+       
+            let stafFound = await Staff.findOne({ _id: staffParams._id });
+            
+            
+            if (Boolean(staffParams.currentPassword != undefined)) {
+                var passChecked = await bcrypt.compare(staffParams.currentPassword, stafFound.password)             
+
+                if (passChecked) {
+                    staffParams.password = await bcrypt.hash(staffParams.password, saltRounds)
+                    console.log("passChecked", staffParams.password)
+                } else {
+                    return res.status(400).send({
+                        status: 'error',
+                        message: 'Password incorrect'
+                    });
+                }
+            }
 
             if (!stafFound) {
 
-                if (Boolean(avatarPath != undefined)) this.unlikeImage(filePath);
-
+                this.unlikeImage(filePath);
                 return res.status(404).send({
                     status: 'error',
                     message: 'STAFF not found'
                 });
             }
 
-            // const avatarExist = fs.existsSync('../uploads/staff/' + stafFound.avatar) ? true : false;
             
-            // if (!avatarExist) {
-            //     fs.unlinkSync('../uploads/staff/' + stafFound.avatar);
-            // }
-
             for (const key in staffParams) {
 
-                if (key !== 'password') {
+                if (key != 'password') {
                     stafFound[key] = staffParams[key].toLowerCase();
-                } else if (key == 'password') {
-                    stafFound.password = await bcrypt.hash(staffParams.password, saltRounds);
-                }
+                } 
+                
 
             }
 
+            stafFound.password = staffParams.password;
 
-            const staffUpdated = await Staff.findOneAndUpdate({ email: staffParams.email }, stafFound, { new: true });
 
-            if (!staffUpdated) {
-
-                if (Boolean(avatarPath != undefined)) this.unlikeImage(filePath);
-                return res.status(500).send({
-                    status: 'error',
-                    message: 'Error updating staff'
-                });
-            }
-
-            
+            const staffUpdated = await Staff.findOneAndUpdate({ _id: staffParams._id }, stafFound, { new: true });
+            staffUpdated.password = undefined;
+       
 
             return res.status(200).send({
                 status: 'success',
@@ -264,6 +267,7 @@ var StaffController = {
                 error: err
             });
         }
+
         
     },
     getAvatar: function (req, res) {
@@ -272,6 +276,7 @@ var StaffController = {
         var avatarParams = req.params.avatar
         var filePath = './uploads/staff/' + avatarParams
        
+      
         fs.access(filePath, fs.constants.F_OK, (err, exist) => {
 
 
@@ -405,6 +410,49 @@ var StaffController = {
                 console.log('Archivo eliminado correctamente.');
             }
         });
+    }, 
+    verifyPasswordStaff: async function (req, res) {
+
+        let params = req.body;
+
+        if (params.currentPassword.length < 8) {
+            return res.status(400).send({
+                status: 'error',
+                message: 'Password too long'
+            });
+        }    
+        
+        
+    
+        try {
+
+            let staffInfo = await Staff.findOne({
+                _id: params._id
+            });
+
+          
+            var passChecked = await bcrypt.compare(params.currentPassword, staffInfo.password)
+
+       
+            if(passChecked){
+                return res.status(200).send({
+                    status: 'success',
+                    message: 'Password correct'
+                }); 
+            }else{
+                return res.status(400).send({
+                    status: 'error',
+                    message: 'Wrong password'
+                });
+            }
+            
+        } catch (error) {
+            return res.status(400).send({
+                status: 'error',
+                message: error
+            });
+            
+        }
     }
      
 

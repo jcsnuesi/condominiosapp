@@ -15,10 +15,10 @@ var md_upload = multipart({ uploadDir: './uploads/staff' });
 router.get('/staffs/:id', md_auth.authenticated, StaffController.getStaffByAdmin)
 router.get('/avatar-staff/:avatar',  StaffController.getAvatar)
 
-
 // POST
 
 router.post('/create-staff', [md_auth.authenticated, md_upload], StaffController.createStaff)
+router.post('/verify-password-staff', md_auth.authenticated, StaffController.verifyPasswordStaff)
 
 // // Buscar usuario por propietario
 
