@@ -55,8 +55,16 @@ label{
     border-radius: 4px;
 }
 
-
-
-
+@media screen and (max-width: 500px) {
+    .booking-responsive {
+            display: block;
+ 
+            /* Centra verticalmente */
+            padding: 15px;
+            /* Espacio interno */
+            width: 100%;
+            /* Asegura el ajuste completo */
+        }
+}
 
 

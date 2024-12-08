@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DashboardComponent } from './dashboard.component';
-import { ChartModule } from 'primeng/chart';
+import { ChartModule } from 'primeng/chart'; 
 import { MenuModule } from 'primeng/menu';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -30,10 +30,13 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { TagModule } from 'primeng/tag';
 import { OwnerRegistrationComponent } from '../owner-registration/owner-registration.component';
 import { CardsComponent } from "../cards/cards.component";
-
+import { BookingAreaComponent } from '../booking-area/booking-area.component';
+import { HasPermissionsDirective } from 'src/app/has-permissions.directive';
 
 @NgModule({
     imports: [
+        HasPermissionsDirective,
+    BookingAreaComponent,
     CommonModule,
     TagModule,
     ToolbarModule,

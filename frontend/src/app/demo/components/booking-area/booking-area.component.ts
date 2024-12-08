@@ -46,6 +46,8 @@ export class BookingAreaComponent implements OnInit {
   public areaOptions: any[] = [];
   public bookingInfo:any[];
 
+  public condoOptions: any[];
+  public selectedCondo: any[];
   
   
  constructor() { 

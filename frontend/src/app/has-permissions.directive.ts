@@ -26,14 +26,14 @@ export class HasPermissionsDirective {
   ) {
 
     this.identity = this.userService.getIdentity();
-
+ ;
    }
 
   @Input() 
   set appHasPermissions(permissionsUser: string[]) {
     this.permissions = permissionsUser;    
     this.UpdateView() 
-    console.log('permissions', permissionsUser);
+    
   }
 
   private UpdateView() {
@@ -50,22 +50,16 @@ export class HasPermissionsDirective {
     
     let has_perms = false; 
     let currentUser = new Array(this.identity.role);
+    console.log("permissionsFound", currentUser);
+    console.log("this.identity", this.identity);
 
 
     if(this.identity && this.identity.role) {
-      // TODO: USER ROLE
-      for (const checkPerm of this.permissions) {
-        // TODO: DATA ACCESS
+      // TODO: USER ROLE   
 
-        const permissionsFound = currentUser.find(perm => perm === checkPerm);
-
-        if (permissionsFound) {
-          has_perms = true;
-          break;
-          
-        }
-
-
+      const permissionsFound = currentUser.find(perm => perm.toLowerCase() === this.permissions);
+      if (permissionsFound) {
+        has_perms = true;
       }
     }
     return has_perms;

@@ -7,7 +7,7 @@ import { CookieService } from 'ngx-cookie-service';
 import { ActivatedRoute } from '@angular/router';
 import { global } from '../../service/global.service';
 import { TableModule } from 'primeng/table';
-import { MenuModule } from 'primeng/menu';
+import { MenuModule } from 'primeng/menu'; 
 import {  ConfirmDialogModule } from 'primeng/confirmdialog';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -27,7 +27,6 @@ import { AvatarGroupModule } from 'primeng/avatargroup';
 import { ToolbarModule } from 'primeng/toolbar';
 import { FamilyMemberComponent } from '../family-member/family-member.component';
 import { DropdownModule } from 'primeng/dropdown';
-import { HasPermissionsDirective } from 'src/app/has-permissions.directive';
 import { PaymentsHistoryComponent } from '../payments-history/payments-history.component';
 import { InviceGeneraterComponent } from '../invice-generater/invoice-generater.component';
 import { DynamicDialogRef, DynamicDialogModule } from 'primeng/dynamicdialog';
@@ -41,6 +40,7 @@ import { InvoiceService } from '../../service/invoice.service';
 import { FormatFunctions } from 'src/app/pipes/formating_text';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { Router } from '@angular/router';
+import { StaffService } from '../../service/staff.service';
 
 type FamilyAccess = {
 
@@ -98,7 +98,8 @@ type FamilyAccess = {
     ConfirmationService,
     DialogService,
     InvoiceService,
-    FormatFunctions
+    FormatFunctions,
+    StaffService
     
   ]
 })
@@ -136,6 +137,7 @@ export class HomeComponent implements OnInit {
   ref: DynamicDialogRef;
   public bookingVisible:boolean;
   public chartVisible:boolean;
+  public stafflistNumber:number;
 
 
   @ViewChild(InviceGeneraterComponent) invoiceGenerator: InviceGeneraterComponent;
@@ -149,7 +151,8 @@ export class HomeComponent implements OnInit {
     private dialogService: DialogService,
     private _invoiceService: InvoiceService,
     private _formatFunctions: FormatFunctions,
-    private _router: Router
+    private _router: Router,
+    private _staffService: StaffService
   ){
 
     this.items = [
@@ -158,6 +161,7 @@ export class HomeComponent implements OnInit {
     ];
 
     this.chartVisible = false;
+    this.stafflistNumber = 0;
 
     this.ownerObj = new OwnerModel('', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '');
     this.bookingVisible = false;
@@ -216,11 +220,17 @@ export class HomeComponent implements OnInit {
   
   }
 
+  seeStaff(){
+      
+      this._router.navigate(['/staff', this.getCondoId()._id])
+  }
+
 
   ngOnInit() {
 
     // INIT INFO 
     this.onInitInfo() 
+    this.getStaffByCondoId();
     
 
   } 
@@ -455,6 +465,33 @@ export class HomeComponent implements OnInit {
 
     return JSON.parse(localStorage.getItem('property'))
   }
+
+  public activeStaffQty:number;
+  // Carga los staff por condominio
+  getStaffByCondoId() {
+
+    let condoId = this.getCondoId() 
+
+    this._staffService.getStaffByCondo(this.token, condoId._id).subscribe({
+
+      next: (response) => {
+
+        if (response.status == 'success') {
+          this.activeStaffQty = response.message.filter((staff) => staff.status == 'active').length;
+          this.stafflistNumber = response.message.length;        
+        }
+
+      },
+      error: (error) => {
+        console.log(error);
+      }
+
+
+    });
+
+
+  }
+
 
 
   getInvoiceByCondoFunc(cantidadOwner) {

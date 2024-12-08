@@ -14,6 +14,7 @@ import { global } from '../../service/global.service';
 import { MessageService } from 'primeng/api';
 import { OwnerModel } from '../../models/owner.model';
 
+
 @Component({
     templateUrl: './dashboard.component.html',
     providers: [
@@ -22,7 +23,7 @@ import { OwnerModel } from '../../models/owner.model';
         MessageService, ConfirmationService],
     styleUrls: ['./dashboard.css']
 })
-export class DashboardComponent implements OnInit, OnDestroy {
+ export class DashboardComponent implements OnInit, OnDestroy {
 
     files = [];
 
@@ -57,7 +58,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
     public areaSocial: boolean
     public options: any;
     public data: any;
-   
+    public bookingVisible: boolean;
+    public totalBooked: number = 0;
+
    
     constructor(
        
@@ -100,7 +103,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
         console.log('Button clicked!', event);
     }
 
-
     @Output() propertyInfoEvent: EventEmitter<any> = new EventEmitter();
     
     propertyData(data) {
@@ -132,6 +134,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 this._messageService.add({ severity: 'error', summary: 'Rejected', detail: 'You have rejected', life: 3000 });
             }
         });
+
+    }
+
+    allBooking() {
+
+        if (this.bookingVisible) {
+            this.bookingVisible = false;
+        } else {
+            this.bookingVisible = true;
+        }
 
     }
 

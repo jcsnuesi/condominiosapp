@@ -17,6 +17,10 @@
                 "build": {
                   "builder": "@angular-devkit/build-angular:browser",
                   "options": {
+                    "allowedCommonJsDependencies": [
+                      "pdfmake/build/pdfmake",
+                      "pdfmake/build/vfs_fonts"
+                    ],
                     "outputPath": "dist/sakai-ng",
                     "index": "src/index.html",
                     "main": "src/main.ts",

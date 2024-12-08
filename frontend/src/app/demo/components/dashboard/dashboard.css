@@ -26,3 +26,8 @@ border-color: red;
 .minw{
     min-width: 400px;
 }
+.change-icon:hover {
+
+    cursor: pointer;
+    border: rgb(249, 181, 57) 1px solid;
+}

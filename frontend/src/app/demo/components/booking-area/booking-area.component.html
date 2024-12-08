@@ -1,41 +1,58 @@
-<div class="container">
+<div class="card booking-responsive">
+        <div class="areas-positions">
+        
+        
+            <p-fieldset legend="Condominium">
+        
+                <div style="display: block;margin-right:18px;">
+        
+                    <label for="areas-available-label">Choose condominium:</label>
+                    <div></div>
+                    <p-dropdown name="areasOption" id="areas-available-label" [options]="condoOptions"
+                        [(ngModel)]="selectedCondo" optionLabel="name" placeholder="Areas available" />
+                </div>
+        
+        
+            </p-fieldset>
+            <p-fieldset legend="Avaiable areas">
+        
+                <div style="display: block;margin-right:18px;">
+        
+                    <label for="areas-available-label">Choose an area:</label>
+                    <div></div>
+                    <p-dropdown name="areasOption" id="areas-available-label" [options]="areaOptions" [(ngModel)]="selectedArea"
+                        optionLabel="name" placeholder="Areas available" />
+                </div>
+        
+        
+            </p-fieldset>
+        
+            <p-fieldset legend="Pick date/time">
+        
+        
+                <div style="display: block;">
+        
+                    <label for="pickDataLabel"> Date / Time </label>
+                    <div></div>
+                    <p-calendar #areaCalentar name="areaCalendar" inputId="calendar-12h" [(ngModel)]="dates" [showTime]="true"
+                        [hourFormat]="12" />
+        
+                </div>
+        
+            </p-fieldset>
+        
+        
+        
+        </div>
+</div>
+
+
+<div class="card">
 
     
     <form #bookingForm="ngForm" style="text-align: center;" *appHasPermissions="'owner'">
         
-        <div class="areas-positions">
     
-    
-                <p-fieldset legend="Avaiable areas">
-                
-                    <div style="display: block;margin-right:18px;">
-                
-                        <label for="areas-available-label">Choose an area:</label>
-                        <div></div>
-                        <p-dropdown name="areasOption" id="areas-available-label" [options]="areaOptions" [(ngModel)]="selectedArea" optionLabel="name"
-                            placeholder="Areas available" />
-                    </div>
-                
-                
-                </p-fieldset>
-        
-                <p-fieldset legend="Pick date/time">
-    
-    
-                    <div style="display: block;">
-                    
-                        <label for="pickDataLabel"> Date / Time </label>
-                        <div></div>
-                        <p-calendar #areaCalentar name="areaCalendar" inputId="calendar-12h" [(ngModel)]="dates" [showTime]="true" [hourFormat]="12" />
-                    
-                    </div>
-    
-                </p-fieldset>
-        
-                
-                
-        </div>
-   
         
         <p-button styleClass="center-btn" label="Book" icon="pi pi-check"></p-button>
         

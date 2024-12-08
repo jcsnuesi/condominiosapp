@@ -1,7 +1,7 @@
 <div class="layout-topbar">
     <a class="layout-topbar-logo" routerLink="">
         <img src="assets/layout/images/{{layoutService.config.colorScheme === 'light' ? 'logo-dark' : 'logo-white'}}.svg" alt="logo">
-        <span>SAKAI 2.0</span>
+        <span>CondApp</span>
     </a>
 
         
@@ -26,34 +26,26 @@
 
     <p-toast></p-toast>
     <!-- <button pButton type="button" (click)="menu.toggle($event)" icon="pi pi-bars" label="Show"></button> -->
-     <div class="d-flex">
-                          
-         <div>
-            <div>
+<div class="main-avatar">
+    <div>
+    
+        <div class="p-text-bold" style="text-align: right;">{{fullname}}</div>
+        <div class="p-text-bold" style="text-align: right;">{{role}}</div>
+    
+    </div>
+    <p-menu #menu [model]="items" [popup]="true"></p-menu>
+    <button pButton type="button" class="p-link layout-topbar-button" (click)="menu.toggle($event)">
 
-                <span class="p-text-bold">Amy Elsner</span>
-                
-            </div>
-            <div style="text-align: center;">
+        <i class="pi pi-user" *ngIf="!identity"></i>
 
-                <span class="p-text-bold">{{identity.company}}</span>
-            </div>
-         
-                
-     
-          </div>  
-          
-            <p-menu #menu [model]="items" [popup]="true"></p-menu>
-            <button pButton type="button" class="p-link layout-topbar-button" (click)="menu.toggle($event)">
-            
-                <i class="pi pi-user" *ngIf="!identity"></i>
-            
-                <p-avatar *ngIf="identity" image="https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png"
-                    styleClass="mr-2" size="large" shape="circle" />
-            
-            
-            </button>
-        </div>
+        <p-avatar *ngIf="identity" image="https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png"
+            styleClass="mr-2" size="large" shape="circle" /> </button>
+    
+
+    
+
+
+</div>
         <!-- <button class="p-link layout-topbar-button" [routerLink]="'/documentation'">
             <i class="pi pi-cog"></i>
             <span>Settings</span>

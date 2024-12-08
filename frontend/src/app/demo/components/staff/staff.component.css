@@ -1,4 +1,6 @@
-
+#margen{
+    margin-bottom: 30px;
+}
 .avatar{
 
     display: flex;
@@ -150,6 +152,13 @@ border: 0 none;
         
 ::ng-deep .p-panel-title {
 color: #495057;
+}
+
+
+::ng-deep .p-tabview-nav {
+
+    margin-bottom: 20px;
+
 }
 
 /* 

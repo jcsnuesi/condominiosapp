@@ -21,7 +21,7 @@ export class User {
         public email_contact: string,
         public phone_contact: string,      
         public phone_contact2: string,      
-        public role_contact: string,
+        public role: string,
         public terms: boolean 
     ){}
 

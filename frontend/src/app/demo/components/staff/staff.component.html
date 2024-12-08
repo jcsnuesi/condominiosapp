@@ -1,192 +1,190 @@
 
+<div *ngIf="staffVisibleBackBtn">
+
+    <p-button (click)="backToDashboard()" label="Back" icon="pi pi-arrow-left"></p-button>
+    <app-booking-area></app-booking-area>
+
+</div>
 
 <p-toast position="bottom-right" key="br" />
 <p-confirmDialog />
 <div class="staff-section">
 
     <p-tabView>
-        <p-tabPanel header="All">
-
-            <p-card header="GENERAL">
-              
-            <p-table #dt 
-            [value]="propertyDetailsVar" 
-            [(selection)]="staffSelected" 
-            dataKey="_id" 
-            [rowHover]="true" 
-            [rows]="10"
-            [showCurrentPageReport]="true" 
-            [rowsPerPageOptions]="[10, 25, 50]" 
-            [loading]="loading" 
-            [paginator]="true"
-            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [filterDelay]="0"
-            [globalFilterFields]="globalFilters">
-                <ng-template pTemplate="caption">
-                    
-                    
-                    <div class="flex justify-content-between">
-                        <div class="btns">
-
-                            <div class="btn-clear">
-                                <p-button [outlined]="true" icon="pi pi-filter-slash" label="Clear" (onClick)="clear(dt)"  />
-
-                            </div>
-                            <div class="btn-f">
-                                <p-button [outlined]="true" severity="danger" icon="pi pi-times-circle" label="Inactive account" (onClick)="deleteStaff()" [disabled]="staffSelected.length === 0" />
-
-                            </div>
-                            
-                        </div>
-                        <p-iconField iconPosition="left">
-                            <span class="p-input-icon-left ml-auto">
-                                <i class="pi pi-search"></i>
-                        
-                            <input pInputText type="text" [(ngModel)]="searchValue"
-                                (input)="dt.filterGlobal($event.target.value, 'contains')" placeholder="Keyboard Search" />
-                            </span>
-                        </p-iconField>
-                    </div>
-                </ng-template>
-                <ng-template pTemplate="header">
-                    <tr>
-                        <th style="width: 4rem">
-                            <p-tableHeaderCheckbox />
-                        </th>
-                     
-                        <th pSortableColumn="fullname" style="min-width: 14rem">
-                            <div class="flex justify-content-between align-items-center">
-                                Fullname
-                                <p-sortIcon field="fullname" />
-                                <p-columnFilter type="text" field="fullname" display="menu" class="ml-auto" />
-                            </div>
-                        </th>
-                        <th pSortableColumn="phone" style="min-width: 8rem">
-                            <div class="flex justify-content-between align-items-center">
-                                Phone
-                                <p-sortIcon field="phone" />
-                                <p-columnFilter type="text" field="phone" display="menu" class="ml-auto" />
-                            </div>
-                        </th>
-                        <th pSortableColumn="gender" style="min-width: 4rem">
-                            <div class="flex justify-content-between align-items-center">
-                                Gender
-                                <p-sortIcon field="gender" />
-                                <p-columnFilter type="text" field="gender" display="menu" class="ml-auto" />
-                            </div>
-                        </th>
-                        <th pSortableColumn="condo_id" style="min-width: 10rem">
-                            <div class="flex justify-content-between align-items-center">
-                                Condominium name
-                                <p-sortIcon field="condo_id" />
-                                <p-columnFilter type="text" field="condo_id" display="menu" class="ml-auto" />
-                            </div>
-                        </th>
-                        <th pSortableColumn="government_id" style="min-width: 10rem">
-                            <div class="flex justify-content-between align-items-center">
-                                Government ID
-                                <p-sortIcon field="government_id" />
-                                <p-columnFilter type="text" field="government_id" display="menu" class="ml-auto" />
-                            </div>
-                        </th>
-                        <th pSortableColumn="position" style="min-width: 10rem">
-                            <div class="flex justify-content-between align-items-center">
-                                Role
-                                <p-sortIcon field="position" />
-                                <p-columnFilter type="text" field="position" display="menu" class="ml-auto" />
-                            </div>
-                        </th>
-              
-                        
-                        <th pSortableColumn="createdAt" style="min-width: 10rem">
-                            <div class="flex justify-content-between align-items-center">
-                                Start date
-                                <p-sortIcon field="createdAt" />
-                                <p-columnFilter type="date" field="createdAt" display="menu" class="ml-auto" />
-                            </div>
-                        </th>
+        <p-tabPanel header="All" #margen>
+         
+                <p-card header="GENERAL">
                 
-                        <th pSortableColumn="status" style="min-width: 10rem">
-                            <div class="flex justify-content-between align-items-center">
-                                Status
-                                <p-sortIcon field="status" />
-                                <p-columnFilter field="status" matchMode="equals" display="menu" class="ml-auto">
-                                    <ng-template pTemplate="filter" let-value let-filter="filterCallback">
-                                        <p-dropdown [ngModel]="value" [options]="statuses" (onChange)="filter($event.value)"
-                                            placeholder="Any">
-                                            <ng-template let-option pTemplate="item">
-                                                <p-tag [value]="option.label" [severity]="getSeverity(option.label)" />
-                                            </ng-template>
-                                        </p-dropdown>
-                                    </ng-template>
-                                </p-columnFilter>
+                    <p-table #dt [value]="propertyDetailsVar" [(selection)]="staffSelected" dataKey="_id" [rowHover]="true" [rows]="10"
+                        [showCurrentPageReport]="true" [rowsPerPageOptions]="[10, 25, 50]" [loading]="loading" [paginator]="true"
+                        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [filterDelay]="0"
+                        [globalFilterFields]="globalFilters">
+                        <ng-template pTemplate="caption">
+                
+                            <div class="flex justify-content-between">
+                                <div class="btns">
+                
+                                    <div class="btn-clear">
+                                        <p-button [outlined]="true" icon="pi pi-filter-slash" label="Clear" (onClick)="clear(dt)" />
+                
+                                    </div>
+                                    <div class="btn-f">
+                                        <p-button [outlined]="true" severity="danger" icon="pi pi-times-circle" label="Inactive account"
+                                            (onClick)="deleteStaff()" [disabled]="staffSelected.length === 0" />
+                
+                                    </div>
+                
+                                </div>
+                                <p-iconField iconPosition="left">
+                                    <span class="p-input-icon-left ml-auto">
+                                        <i class="pi pi-search"></i>
+                
+                                        <input pInputText type="text" [(ngModel)]="searchValue"
+                                            (input)="dt.filterGlobal($event.target.value, 'contains')" placeholder="Keyboard Search" />
+                                    </span>
+                                </p-iconField>
                             </div>
-                        </th>
-                  
-                        <th style="width: 5rem"></th>
-                    </tr>
-                </ng-template>
-                <ng-template pTemplate="body" let-staff>
-                    <tr class="p-selectable-row">
-                        <td>
-                            <p-tableCheckbox [value]="staff" />
-                        </td>
-                        <td>
-                            <span class="p-column-title" >Fullname</span>
-                            <img class="avata-tbl" [alt]="staff?.fullname"
-                                src="{{url + 'avatar-staff/'+staff.avatar }}" width="45px" height="45px"
-                                style="vertical-align: middle" />
-                            <span class="ml-1 vertical-align-middle">{{staff.fullname | titlecase}}</span>
-                        </td>      
-                   
-                        <td>
-                            <span class="p-column-title">Phone</span>
-                            {{ staff?.phone }}
-                        </td>
-                        <td>
-                            <span class="p-column-title">Gender</span>
-                            {{genderFormat(staff.gender) }}
-                        </td>
-                        <td>
-                            <span class="p-column-title">Codominium name</span>
-                            {{ staff.condo_id | titlecase}}
-                        </td>
-                        <td>
-                            <span class="p-column-title">Government ID</span>
-                            {{ staff.government_id }}
-                        </td>
-                        <td>
-                            <span class="p-column-title">Role</span>
-                            {{ staff.position | titlecase}}
-                        </td>
-                      
-                        
-                        <td>
-                            <span class="p-column-title">Start date</span>
-                            {{ staff.createdAt | date : 'MM/dd/yyyy' }}
-                        </td>
-                      
-                        
-                        <td>
-                            <span class="p-column-title">Status</span>
-                            <p-tag [value]="staff.status" [severity]="getSeverity(staff.status)" />
-                        </td>
-                        
-                        
-                        <td style="text-align: center">
-                            <p-button severity="secondary" (click)="showDialog(staff)"  icon="pi pi-cog" />
-                        </td>
-                 
-                    </tr>
-                </ng-template>
-                <ng-template pTemplate="emptymessage">
-                    <tr>
-                        <td colspan="8">No customers found.</td>
-                    </tr>
-                </ng-template>
-            </p-table>
-
-     
-            </p-card>
+                        </ng-template>
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <th style="width: 4rem">
+                                    <p-tableHeaderCheckbox />
+                                </th>
+                
+                                <th pSortableColumn="fullname" style="min-width: 14rem">
+                                    <div class="flex justify-content-between align-items-center">
+                                        Fullname
+                                        <p-sortIcon field="fullname" />
+                                        <p-columnFilter type="text" field="fullname" display="menu" class="ml-auto" />
+                                    </div>
+                                </th>
+                                <th pSortableColumn="phone" style="min-width: 8rem">
+                                    <div class="flex justify-content-between align-items-center">
+                                        Phone
+                                        <p-sortIcon field="phone" />
+                                        <p-columnFilter type="text" field="phone" display="menu" class="ml-auto" />
+                                    </div>
+                                </th>
+                                <th pSortableColumn="gender" style="min-width: 4rem">
+                                    <div class="flex justify-content-between align-items-center">
+                                        Gender
+                                        <p-sortIcon field="gender" />
+                                        <p-columnFilter type="text" field="gender" display="menu" class="ml-auto" />
+                                    </div>
+                                </th>
+                                <th pSortableColumn="condo_id" style="min-width: 10rem">
+                                    <div class="flex justify-content-between align-items-center">
+                                        Condominium name
+                                        <p-sortIcon field="condo_id" />
+                                        <p-columnFilter type="text" field="condo_id" display="menu" class="ml-auto" />
+                                    </div>
+                                </th>
+                                <th pSortableColumn="government_id" style="min-width: 10rem">
+                                    <div class="flex justify-content-between align-items-center">
+                                        Government ID
+                                        <p-sortIcon field="government_id" />
+                                        <p-columnFilter type="text" field="government_id" display="menu" class="ml-auto" />
+                                    </div>
+                                </th>
+                                <th pSortableColumn="position" style="min-width: 10rem">
+                                    <div class="flex justify-content-between align-items-center">
+                                        Role
+                                        <p-sortIcon field="position" />
+                                        <p-columnFilter type="text" field="position" display="menu" class="ml-auto" />
+                                    </div>
+                                </th>
+                
+                
+                                <th pSortableColumn="createdAt" style="min-width: 10rem">
+                                    <div class="flex justify-content-between align-items-center">
+                                        Start date
+                                        <p-sortIcon field="createdAt" />
+                                        <p-columnFilter type="date" field="createdAt" display="menu" class="ml-auto" />
+                                    </div>
+                                </th>
+                
+                                <th pSortableColumn="status" style="min-width: 10rem">
+                                    <div class="flex justify-content-between align-items-center">
+                                        Status
+                                        <p-sortIcon field="status" />
+                                        <p-columnFilter field="status" matchMode="equals" display="menu" class="ml-auto">
+                                            <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                                                <p-dropdown [ngModel]="value" [options]="statuses" (onChange)="filter($event.value)"
+                                                    placeholder="Any">
+                                                    <ng-template let-option pTemplate="item">
+                                                        <p-tag [value]="option.label" [severity]="getSeverity(option.label)" />
+                                                    </ng-template>
+                                                </p-dropdown>
+                                            </ng-template>
+                                        </p-columnFilter>
+                                    </div>
+                                </th>
+                
+                                <th style="width: 5rem"></th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-staff>
+                            <tr class="p-selectable-row">
+                                <td>
+                                    <p-tableCheckbox [value]="staff" />
+                                </td>
+                                <td>
+                                    <span class="p-column-title">Fullname</span>
+                                    <img class="avata-tbl" [alt]="staff?.fullname" src="{{url + 'avatar-staff/'+staff.avatar }}"
+                                        width="45px" height="45px" style="vertical-align: middle" />
+                                    <span class="ml-1 vertical-align-middle">{{staff.fullname | titlecase}}</span>
+                                </td>
+                
+                                <td>
+                                    <span class="p-column-title">Phone</span>
+                                    {{ staff?.phone }}
+                                </td>
+                                <td>
+                                    <span class="p-column-title">Gender</span>
+                                    {{genderFormat(staff.gender) }}
+                                </td>
+                                <td>
+                                    <span class="p-column-title">Codominium name</span>
+                                    {{ staff.condo_id | titlecase}}
+                                </td>
+                                <td>
+                                    <span class="p-column-title">Government ID</span>
+                                    {{ staff.government_id }}
+                                </td>
+                                <td>
+                                    <span class="p-column-title">Role</span>
+                                    {{ staff.position | titlecase}}
+                                </td>
+                
+                
+                                <td>
+                                    <span class="p-column-title">Start date</span>
+                                    {{ staff.createdAt | date : 'MM/dd/yyyy' }}
+                                </td>
+                
+                
+                                <td>
+                                    <span class="p-column-title">Status</span>
+                                    <p-tag [value]="staff.status" [severity]="getSeverity(staff.status)" />
+                                </td>
+                
+                
+                                <td style="text-align: center">
+                                    <p-button severity="secondary" (click)="showDialog(staff)" icon="pi pi-cog" />
+                                </td>
+                
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="emptymessage">
+                            <tr>
+                                <td colspan="8">No customers found.</td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                
+                
+                </p-card>
+       
         </p-tabPanel>
         <p-tabPanel header="Create Staff">  
             

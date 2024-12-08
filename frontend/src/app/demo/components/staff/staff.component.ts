@@ -125,6 +125,8 @@ export class StaffComponent implements OnInit, AfterViewInit {
   public previwImage: any;
   public statusApi:boolean;
 
+  public staffVisibleBackBtn: boolean;
+
   @ViewChild('genderRef') genderDropDown!: ElementRef;
   @ViewChild('positionRef') genderPositionRef!: ElementRef;
   @ViewChild('buildingRef') buildingRef!: ElementRef;
@@ -153,6 +155,7 @@ export class StaffComponent implements OnInit, AfterViewInit {
 
     this.previwImage =  '../../../assets/noimage.jpeg';
     this.loadingCondo = true;
+    this.staffVisibleBackBtn = false;
 
     this.genderOptions = [
       { label: "Male", code:"male"},
@@ -209,12 +212,10 @@ export class StaffComponent implements OnInit, AfterViewInit {
         {label: 'Maintenance', code: 'maintenance'},
         {label: 'Receptionist', code: 'receptionist'},
         {label: 'Cleaning', code: 'vleaning'},
-      { label: 'Accounting', code: 'accounting'},
+        {label: 'Accounting', code: 'accounting'},
         {label: 'Gardener', code: 'gardener'}
         
     ]
-
-    
 
     // table settings
     this.globalFilters = [
@@ -237,11 +238,9 @@ export class StaffComponent implements OnInit, AfterViewInit {
       'position': 'Position',
       'status': 'Status',
       'createdAt': 'Start Date'
-    }
-    
+    }    
 
   }
-
 
   ngAfterViewInit() {
     
@@ -268,8 +267,35 @@ export class StaffComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-    this.getAdminsProperties();
-    this.getStaffList();
+
+    let condominioInfo = JSON.parse(localStorage.getItem('property'));
+    // Obtiene el id del condominio
+    this._route.params.subscribe(params => {
+
+      let condoId = params['id'];
+    
+      if (condoId != undefined){
+        // Carga la lista de staff por condominio
+        this.condo_id = condoId;
+        this.getStaffByCondoId();
+        this.condominioList = [{
+          label: condominioInfo.alias.toUpperCase(), 
+          code: condominioInfo._id
+        }]       
+        this.loadingCondo = false;
+        
+  
+      }else{
+        // Carga la tabla de staff con todos los registros que existe por administrador componente
+        this.getStaffList();  
+        // Carga la lista de todos condominios de este administrador
+        this.getAdminsProperties();
+
+    
+
+      }      
+
+    });
   }
 
   clear(dt:any) {
@@ -277,11 +303,61 @@ export class StaffComponent implements OnInit, AfterViewInit {
     
   }
 
-  genderFormat(genderRaw:any):string{
-    
-  
-    return this._formatFunctions.genderPipe(genderRaw);
+  backToDashboard(){
+    this._router.navigate(['/home', this.condo_id ]);
+  }
 
+  public condo_id: string;
+  
+  // Carga los staff por condominio
+  getStaffByCondoId() {
+
+    this.loading = true;
+    this.staffVisibleBackBtn = true;
+
+    this._staffService.getStaffByCondo(this.token, this.condo_id).subscribe({
+
+      next: (response) => {
+
+        if (response.status == 'success') {
+
+          this.propertyDetailsVar = response.message.map((staff) => {
+            return {
+              _id: staff._id,
+              fullname: staff?.name + ' ' + staff?.lastname,
+              phone: staff.phone,
+              gender: staff.gender,
+              government_id: staff.government_id,
+              createdBy: staff.createdBy,
+              condo_id: staff.condo_id?.alias ?? 'No Condo',
+              position: staff.position,
+              email: staff.email,
+              status: staff.status,
+              createdAt: staff.createdAt,
+              avatar: staff.avatar
+
+            }
+          });
+
+          this.loading = false;
+
+          console.log('STAFF---->:', response.message);
+        }
+
+      },
+      error: (error) => {
+        console.log(error);
+      }
+        
+          
+    });
+
+    
+  }
+
+  genderFormat(genderRaw:any):string{
+      
+    return this._formatFunctions.genderPipe(genderRaw);
 
   }
 
@@ -314,34 +390,14 @@ export class StaffComponent implements OnInit, AfterViewInit {
 
   }
 
+  // Carga los staff por administradora
   getStaffList(){
 
     this._staffService.getStaff(this.token, this.loginInfo._id).subscribe({
       next: (response) => {
 
-        if(response.status == 'success'){
+        if(response.status == 'success'){          
 
-
-          // StaffInfo = {
-          //   _id: string;
-          //   createdBy?: string;
-          //   condo_id: string;
-          //   name: string;
-          //   lastname: string;
-          //   gender: string;
-          //   government_id: string;
-          //   phone: string;
-          //   position: string;
-          //   email: string;
-          //   password?: string;
-          //   password_verify: string;
-          //   dob: '';
-          //   createdAt?: string;
-          //   updatedAt?: string;
-          //   avatar?: string;
-          //   fullname?: string;
-
-          // };
           this.propertyDetailsVar = response.message.map((staff) => {
             return {
               _id: staff._id,
@@ -358,8 +414,7 @@ export class StaffComponent implements OnInit, AfterViewInit {
               avatar: staff.avatar
               
             }
-          });
-          
+          });          
         
           this.loading = false;
         }
@@ -380,11 +435,7 @@ export class StaffComponent implements OnInit, AfterViewInit {
 
   }
 
-  onStatusChange(value:string){
- console.log('STATUS:', value);
-    this.dataToUpdate.statusStaff = value;
-
-  }
+  
 
   onUpload(event:any){
 
@@ -422,10 +473,8 @@ export class StaffComponent implements OnInit, AfterViewInit {
           'position',
           'gender'
         ]        
-        // console.log("******************************************")
-        // console.log(this.staffInfo)
 
-       // Id of the company
+        
         this.staffInfo.createdBy = this.loginInfo._id;
  
         for (const key in this.staffInfo) {
@@ -437,8 +486,6 @@ export class StaffComponent implements OnInit, AfterViewInit {
         }
 
       }
-      
-      
 
         this._staffService.create(formSfaff, this.token).subscribe({
           next: (response) => {
@@ -447,10 +494,6 @@ export class StaffComponent implements OnInit, AfterViewInit {
 
               form.reset();
               this.getStaffList();
-             
-            
-              
-            
             }
           },
           error: (error) => {
@@ -505,7 +548,7 @@ export class StaffComponent implements OnInit, AfterViewInit {
           this._messageService.add({ severity: 'success', summary: 'Confirmed', detail: 'Staff successfully updated!', key: 'br', life: 3000 });
           this.visibleStaff = false;
           form.reset();
-          this.getStaffList();
+          this.staffPipe(response);
         }
 
       },
@@ -596,7 +639,6 @@ export class StaffComponent implements OnInit, AfterViewInit {
 
 }
 
-
   getAdminsProperties() {
 
     this.loadingCondo = true;
@@ -630,6 +672,7 @@ export class StaffComponent implements OnInit, AfterViewInit {
 
   deleteStaff() {
 
+   
     this._confirmationService.confirm({
       target: event.target as EventTarget,
       message: 'Are you sure that you want to proceed?',
@@ -639,15 +682,14 @@ export class StaffComponent implements OnInit, AfterViewInit {
       rejectIcon: "pi pi-times",
       acceptButtonStyleClass: "p-button-danger",
       accept: () => {
-
+        console.log("STAFF SELECTED:", this.staffSelected);
         this._staffService.deleteStaff(this.token, this.staffSelected).subscribe({
           next: (response) => {
             
-            if (response.status == 'success') {
-              
-              this._messageService.add({ severity: 'success', summary: 'Deletion confirmation', detail: 'Staff successfully deleted!', key: 'br', life: 3000 });
-              this.getStaffList();
+            if(response.status == 'success'){
+              this._messageService.add({ severity: 'success', summary: 'Staff inactived', detail: 'Staff was successfully inactivated', key: 'br', life: 3000 });
             }
+            this.staffPipe(response);
           },
           error: (error) => {
             this._messageService.add({ severity: 'error', summary: 'Error', detail: 'Staff was not deleted!', key: 'br', life: 3000 });
@@ -661,10 +703,22 @@ export class StaffComponent implements OnInit, AfterViewInit {
       }
     });
 
+
+  }
+
   
+  staffPipe(response:any){
 
- 
+    if (response.status == 'success') {
 
+  
+      if (this.condo_id != undefined) {
+        this.getStaffByCondoId();
+      } else {
+
+        this.getStaffList();
+      }
+    }
   }
   
   

@@ -12,6 +12,7 @@ import { ActivatedRoute } from '@angular/router';
 @Component({
     selector: 'app-topbar',
     templateUrl: './app.topbar.component.html',
+    styleUrls: ['./style.css'],
     providers: [MessageService, CondominioService]
 })
 export class AppTopBarComponent implements DoCheck, OnInit {
@@ -40,7 +41,9 @@ export class AppTopBarComponent implements DoCheck, OnInit {
         private _router: Router,
         private _condominioService:CondominioService,
         private _activatedRoute: ActivatedRoute
-        ) {}
+        ) {
+        this.identity = this._userService.getIdentity()
+        }
        
         urlChecker(){
          
@@ -51,12 +54,19 @@ export class AppTopBarComponent implements DoCheck, OnInit {
         }
         
    
-        
+        public fullname:string = '';
+        public role:string = '';
         ngOnInit(): void {
+
+            const objUser = Object.keys(this.identity) 
+            const userValideKey = ['ownerName','name']
+            
+            this.role = this.identity?.company ?? this.identity?.role
+            this.fullname = objUser.find((userkey) => userValideKey.includes(userkey)) != undefined ? this._userService.getIdentity().ownerName + ' ' + this._userService.getIdentity().lastname  : (this._userService.getIdentity().role).toUpperCase()
+
             
 
-            this.identity = this._userService.getIdentity()
-             console.log("Topbar:", this._userService.getToken())
+            console.log("Topbar:", this.identity )
       
           
             this.items = [
