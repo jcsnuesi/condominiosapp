@@ -336,16 +336,18 @@ var StaffController = {
        
     },
     deleteBatch: async function (req, res) {
-        const userIds = req.body; // Extraer los IDs de los usuarios a eliminar del cuerpo de la solicitud
-
     
-        if (!Array.isArray(userIds) || userIds.length === 0) {
-            return res.status(400).send({ message: 'No se proporcionaron IDs válidos' });
-        }
-
         try {
+
+            const updateData = req.body;
+            const userIds = updateData.map(user => user._id); // Extraer los IDs de los usuarios a eliminar del cuerpo de la solicitud
+
+
+            if (!Array.isArray(updateData) || userIds.length === 0) {
+                return res.status(400).send({ message: 'No se proporcionaron IDs válidos' });
+            }
             // Realizar la eliminación por lotes
-            const result = await Staff.findOneAndUpdate({ _id: { $in: userIds } }, { status: 'inactive' }, { new: true });
+            const result = await Staff.updateMany({ _id: { $in: userIds } }, { status: 'inactive' }, { new: true });
 
             if (result.deletedCount === 0) {
                 return res.status(404).send({ 
@@ -365,26 +367,59 @@ var StaffController = {
             return res.status(500).send({ message: 'Error en la petición' });
         }
     },
-    getStaffByAdmin:async function(req,res){
+    getStaffByCondoId:async function(req,res){
      
         let _id = req.params.id
-        
+   
         Staff.find({           
-            createdBy: _id
+            condo_id: _id
         }).populate('condo_id', 'alias')
         .exec((err, staffs) => {
 
           
-            if (err || !staffs) {
-                
+            if (err || !staffs) {                
 
                 return res.status(501).send({
 
                     status: "error",
                     message: "Staffs was not found"
                 })
-            }         
-            
+            }  
+                
+           // Ocultamos la password
+            for (const index in staffs) {
+             
+                staffs[index].password = undefined
+
+             }
+                       
+            return res.status(200).send({
+
+                status: "success",
+                message: staffs
+            })
+
+        })
+    
+    },
+    getStaffByAdmin:async function(req,res){
+     
+        let _id = req.params.id
+   
+        Staff.find({           
+            createdBy: _id
+        }).populate('condo_id', 'alias')
+        .exec((err, staffs) => {
+
+          
+            if (err || !staffs) {                
+
+                return res.status(501).send({
+
+                    status: "error",
+                    message: "Staffs was not found"
+                })
+            }  
                 
            // Ocultamos la password
             for (const index in staffs) {

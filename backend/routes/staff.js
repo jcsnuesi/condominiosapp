@@ -13,6 +13,7 @@ var md_upload = multipart({ uploadDir: './uploads/staff' });
 // GET
 
 router.get('/staffs/:id', md_auth.authenticated, StaffController.getStaffByAdmin)
+router.get('/staff-by-condo/:id', md_auth.authenticated, StaffController.getStaffByCondoId)
 router.get('/avatar-staff/:avatar',  StaffController.getAvatar)
 
 // POST
