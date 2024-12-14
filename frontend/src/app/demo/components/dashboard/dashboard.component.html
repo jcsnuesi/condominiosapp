@@ -1,14 +1,5 @@
 
-    <div *ngIf="bookingVisible">
-    
-        <div style="margin-bottom: 15px;">
-
-            <p-button  (click)="allBooking()" label="Back" icon="pi pi-arrow-left"></p-button>
-        </div>
-        <app-booking-area></app-booking-area>
-    
-    </div>
-   <div class="grid" *ngIf="!bookingVisible">
+   <div class="grid" >
 
     <div class="col-12 lg:col-6 xl:col-3">
         <div class="card mb-0">
@@ -65,8 +56,14 @@
         </div>
     </div>
 
+    <div *ngIf="bookingVisible">
+
+        
+        <app-booking-area></app-booking-area>
     
-    <div class="col-12 xl:col-6">
+    </div>
+    
+    <div *ngIf="!bookingVisible" class="col-12 xl:col-6">
         <div class="card">
             <h5>Sales Overview</h5>
             <p-chart type="bar" [data]="data" [options]="options"></p-chart>

@@ -3,7 +3,7 @@ import { Component, AfterViewInit, EventEmitter, OnInit, Output, Input, ViewChil
 import { CommonModule } from '@angular/common';
 import { BrowserModule } from '@angular/platform-browser';
 import { CalendarModule } from 'primeng/calendar';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { FieldsetModule } from 'primeng/fieldset';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { DropdownModule } from 'primeng/dropdown';
@@ -11,20 +11,42 @@ import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { HasPermissionsDirective } from 'src/app/has-permissions.directive';
+import { PanelModule } from 'primeng/panel';
+import { UserService } from '../../service/user.service';
+import { InputTextModule } from 'primeng/inputtext';
+import { RadioButtonModule } from 'primeng/radiobutton';
 
-type AreaFormat = {
+
+type BookingType = {
   memberId: string;
+  bookedBy: string;
+  unit: string;  
+  condoId: string;
   areaId: string;
-  areaName: string;
-  chosenDate: Date;
-  chosenTime: string;  
+  checkIn: string;
+  checkOut: string;  
+  status?: string;
 
+  
+
+}
+
+type Guest = {
+  fullname: string;
+  email: string;
+  phone: string;
+  dateArrival: string;
+  condoId: string;
+  notifingType: string;
+  notifing: string;
 }
 
 @Component({
   selector: 'app-booking-area',
   standalone: true,
-  imports: [
+  imports: [ 
+    InputTextModule,
+    RadioButtonModule,
     HasPermissionsDirective,
     CommonModule,
     CalendarModule,
@@ -34,7 +56,8 @@ type AreaFormat = {
     DropdownModule,
     ButtonModule,
     TableModule,
-    TagModule 
+    TagModule ,
+    PanelModule
   ],
   templateUrl: './booking-area.component.html',
   styleUrl: './booking-area.component.css'
@@ -42,30 +65,111 @@ type AreaFormat = {
 export class BookingAreaComponent implements OnInit {
 
   public dates: Date[] = [];
-  public selectedArea: string;
+  public selectedArea: any[];
   public areaOptions: any[] = [];
-  public bookingInfo:any[];
+  public bookingInfo:BookingType[];
+  public guestInfo: Guest;
 
   public condoOptions: any[];
   public selectedCondo: any[];
+  public identity: any;
+  public loading: boolean;
+  public bookingHistory: any[];
+  public valRadio: string = '';
+  public notifingOptions: any[]; 
+ 
   
   
- constructor() { 
+  constructor(private _userService: UserService) { 
 
-   this.bookingInfo =[ {
-    bookedBy: 'John Doe',
-    unit: 'Apto 101',
-    areaName: 'Piscina',
-    chosenDate: new Date(),
-    chosenTime: '10:00 AM',
-    chosenEndTime: '11:00 AM',
-    status: 'Scheduled'
-   }]
+   this.bookingInfo = [ {
+     memberId:'',
+     bookedBy: '',
+     unit: '',
+     condoId: '',
+     areaId: '',
+     checkIn: '',
+     checkOut: '',
+     status: ''
+   }];
+
+    this.guestInfo = {
+      fullname: '',
+      email: '',
+      phone: '',
+      dateArrival: '',
+      condoId: '',
+      notifingType: '',
+      notifing: ''
+    };
+
+    this.identity = this._userService.getIdentity()
+
+    this.condoOptions = [];
+    this.areaOptions = [];
+    this.loading = true;
+    this.notifingOptions = [{ label: "Email" }, { label: "None" }];
+    
+ 
+
+    // console.log("GET IDENTITY:", this.identity)
  }
  
  ngOnInit(): void {
-    this.areasAvailable();
+   
+   this.getPropertyType();
+    // console.log('Booking Area Component');
  }
+
+  actionChosen() {
+    console.log('Action Chosen:', this.valRadio)
+  }
+
+   
+  getPropertyType() {
+
+    this.identity.propertyDetails.find((property) => {
+
+      this.condoOptions.push({
+        label: (property.addressId.alias).toUpperCase(), 
+        code: property.addressId._id
+      })
+      
+    })
+  }
+
+  getAreaInfo(event: NgForm) {
+    //  { label: 'DON ALONSO I', code: '65483be3a3d1607fea43e833' }
+    let areaObj = event.value;
+ 
+    this.identity.propertyDetails.forEach((area, index) => {
+
+      if (area.addressId._id === areaObj.code && area.addressId.socialAreas.length > 0) {
+
+        this.areaOptions = area.addressId.socialAreas.map((areaFound) => {
+          return {label:areaFound, code: areaFound};
+        })
+
+      }
+    
+
+    });
+  }
+
+  public checkOutMgs:any;
+  validateDates(form: NgForm) {
+    const checkIn = form.controls['checkIn'].value;
+    const checkOut = form.controls['checkOut'].value;
+    if (checkIn && checkOut && checkIn >= checkOut) {
+      form.controls['checkOut'].setErrors({ invalidDate: true });
+      form.controls['checkIn'].setErrors({ invalidDate: true });
+      this.checkOutMgs = 'Check Out date must be greater than Check In date';
+    } else {
+      this.checkOutMgs = false;
+      form.controls['checkOut'].setErrors(null);
+      form.controls['checkIn'].setErrors(null);
+    }
+  }
 
   ngAfterViewInit() {
 
@@ -76,7 +180,14 @@ export class BookingAreaComponent implements OnInit {
   
     
   }
+
+  submitBooking(form: any) {
+    console.log('Booking Info:', this.bookingInfo)
+  }
   
+  submitGuest(form: any) {
+    console.log('Guest Info:', this.guestInfo)
+  }
   areasAvailable(){
 
    

@@ -1,150 +1,307 @@
-<div class="card booking-responsive">
-        <div class="areas-positions">
+<div class="booking-responsive">   
+    
+    <p-panel header="Booking" >
+
+        <p-fieldset legend="Choose action">
         
-        
-            <p-fieldset legend="Condominium">
-        
-                <div style="display: block;margin-right:18px;">
-        
-                    <label for="areas-available-label">Choose condominium:</label>
-                    <div></div>
-                    <p-dropdown name="areasOption" id="areas-available-label" [options]="condoOptions"
-                        [(ngModel)]="selectedCondo" optionLabel="name" placeholder="Areas available" />
+            <div class="radio-container">
+                <div class="field-radiobutton">
+                    <p-radioButton name="bookAction" value="guest" [(ngModel)]="valRadio" id="guest-label"></p-radioButton>
+                    <label for="guest-label">Annouce a guest</label>
                 </div>
-        
-        
-            </p-fieldset>
-            <p-fieldset legend="Avaiable areas">
-        
-                <div style="display: block;margin-right:18px;">
-        
-                    <label for="areas-available-label">Choose an area:</label>
-                    <div></div>
-                    <p-dropdown name="areasOption" id="areas-available-label" [options]="areaOptions" [(ngModel)]="selectedArea"
-                        optionLabel="name" placeholder="Areas available" />
+                <div class="field-radiobutton">
+                    <p-radioButton name="bookAction"  value="bookingAct" [(ngModel)]="valRadio" id="city1"></p-radioButton>
+                    <label for="city1">Make a booking</label>
                 </div>
+            </div>
         
-        
-            </p-fieldset>
-        
-            <p-fieldset legend="Pick date/time">
-        
-        
-                <div style="display: block;">
-        
-                    <label for="pickDataLabel"> Date / Time </label>
-                    <div></div>
-                    <p-calendar #areaCalentar name="areaCalendar" inputId="calendar-12h" [(ngModel)]="dates" [showTime]="true"
-                        [hourFormat]="12" />
-        
+        </p-fieldset>
+
+        <div class="show-form" *ngIf="valRadio == 'guest'">
+            <form #guestForm="ngForm" (ngSubmit)="submitGuest(guestForm)" *appHasPermissions="'owner'" >
+         
+    
+                <div class="guest-info">
+    
+                    <div class="form-group">
+                        <label for="condo-label">Choose condo:</label>
+                        <p-dropdown #condoOption="ngModel" name="condoOption" (onChange)="getAreaInfo($event)" id="areas-available-label"
+                            [options]="condoOptions" [(ngModel)]="guestInfo.condoId" optionLabel="label" placeholder="Areas available"
+                            required />
+                    </div>
+    
+                    <div class="form-group">
+                        <label for="guest-label">Guest fullname:</label>
+                        <input type="text" pInputText #guestName="ngModel" name="guestName" id="guest-label" [(ngModel)]="guestInfo.fullname" required/>
+    
+                        <span *ngIf="guestName.touched && guestName.invalid" class="p-error">This field is required.</span>
+                    </div>
+                 
+                    <div class="form-group">
+                        <label for="phone-label">Phone:</label>
+                        <input type="text" pInputText #phone="ngModel" name="phone" id="phone-label" [(ngModel)]="guestInfo.phone"
+                        maxlength="11" required/>
+    
+                        <span *ngIf="phone.touched && phone.invalid" class="p-error">This field is required.</span>
+                    </div>
+                 
+                    <div class="form-group">
+                        <label for="notify-label">Choose notification method (optional):</label>
+                        <p-dropdown #notifyOptions="ngModel" name="notifyOptions" id="notify-label"
+                            [options]="notifingOptions" [(ngModel)]="guestInfo.notifingType" optionLabel="label" placeholder="Areas available" />
+                        <span *ngIf="notifyOptions.touched && notifyOptions.invalid" class="p-error">This field is required.</span>
+                    </div>
+    
+                    <div class="form-group"  *ngIf="guestInfo.notifingType.length != 0 && guestInfo.notifingType.label != 'None'">
+                        <label for="type-notyfication-label">Type {{guestInfo.notifingType.label}}:</label>
+                        <input type="text" pInputText 
+                        #typeNotification="ngModel" 
+                        name="typeNotification" id="type-notyfication-label"
+                            [(ngModel)]="guestInfo.notifing"                         
+                            />                
+                            
+                        <span *ngIf="typeNotification.touched && typeNotification.invalid" class="p-error">This field is required.</span>
+                    </div>
+    
+                    <div class="form-group">
+                        <label for="arrive-label">Choose arrival date:</label>
+                       
+                        <p-calendar id="arrive-label" 
+                        #dateArrival="ngModel" 
+                        name="dateArrival" 
+                        inputId="calendar-12h" 
+                        [(ngModel)]="guestInfo.dateArrival"
+                        [showTime]="true"                    
+                        [hourFormat]="12" 
+                        dateFormat="mm-dd-yy"
+                            required />
+                        <span *ngIf="dateArrival.touched && dateArrival.invalid" class="p-error">This field is required.</span>
+                                          
+                    </div>
+    
                 </div>
-        
-            </p-fieldset>
-        
-        
-        
+                <div class="btn-submit">
+                    <p-button type="submit" label="Submit Guest" icon="pi pi-check" [disabled]="guestForm.invalid"></p-button>
+    
+                </div>
+            </form>
+            
+
         </div>
-</div>
-
-
-<div class="card">
-
+        <div class="show-form" *ngIf="valRadio == 'bookingAct'"> 
+            <form #bookingForm="ngForm" style="text-align: center;" *appHasPermissions="'owner'">
+               
+            
+                <div class="areas-positions">
+                    <p-fieldset legend="Condominium">
+            
+                        <div style="display: block;margin-right:18px;">
+            
+                      
+                            <div></div>
+                            <p-dropdown 
+                            #condoOption="ngModel" 
+                            name="condoOption" 
+                             (onChange)="getAreaInfo($event)"
+                            id="areas-available-label" 
+                            [options]="condoOptions"
+                            [(ngModel)]="bookingInfo.condoId" 
+                            optionLabel="label" 
+                            placeholder="Areas available" />
+                        </div>
+            
+            
+                    </p-fieldset>
+                    <p-fieldset legend="Available areas">
+            
+                        <div style="display: block;margin-right:18px;">
+            
+                            <div></div>
+                            <p-dropdown 
+                            #areaOption="ngModel"
+                            name="areaOption" 
+                            id="areas-available-label" 
+                            [options]="areaOptions"                           
+                                [(ngModel)]="bookingInfo.areaId" 
+                                optionLabel="label" 
+                                placeholder="Areas available" 
+                                [disabled]="this.areaOptions.length == 0"/>
+                        </div>
+            
+            
+                    </p-fieldset>
+            
+                    <p-fieldset legend="Check in date/time">        
+            
+                        <div style="display: block;">
+            
+                            <div></div>
+                            <p-calendar 
+                            #checkIn="ngModel" 
+                            name="checkIn" 
+                            inputId="calendar-12h" 
+                            [(ngModel)]="bookingInfo.checkIn"
+                            [showTime]="true" 
+                             (ngModelChange)="validateDates(bookingForm)"
+                            [hourFormat]="12"
+                             dateFormat="mm-dd-yy"  required/>
+                            <span *ngIf="checkIn.touched && checkIn.invalid" class="p-error">This field is required.</span>
+            
+                        </div>
+            
+                    </p-fieldset>       
+                    <p-fieldset legend="Check out date/time">        
+            
+                        <div style="display: block;">
+            
+                            <div></div>
+                            <p-calendar 
+                            #checkOut="ngModel" 
+                            name="checkOut" 
+                            inputId="calendar-12h" 
+                            [(ngModel)]="bookingInfo.checkOut"
+                            [showTime]="true" 
+                            (ngModelChange)="validateDates(bookingForm)"
+                            [hourFormat]="12"
+                             dateFormat="mm-dd-yy"  required/>
+            
+                        </div>
     
-    <form #bookingForm="ngForm" style="text-align: center;" *appHasPermissions="'owner'">
-        
-    
-        
-        <p-button styleClass="center-btn" label="Book" icon="pi pi-check"></p-button>
-        
-    </form>
-
-
-    <div class="tbl-reservations">
-    
-        <p-fieldset legend="Filters" >
-
-            <div class="filters">
-    
-                <div class="f-dates d-block">
-                    <label for="date-label">Pick a date</label>
-        
-                    <p-calendar #areaCalentar name="f-date" inputId="calendar-12h" [(ngModel)]="dates" [showTime]="true"
-                        [hourFormat]="12" />
-    
-                </div>
-    
-                <div class="f-unit">
-                    <label for="unit-label">Unit</label>
-                    <p-dropdown name="f-unit" id="unit-label" [options]="areaOptions" [(ngModel)]="selectedArea"
-                        optionLabel="name" placeholder="Areas available" />
-                </div>
-    
-                <div class="f-area">
-                    <label for="area-label">Area</label>
-                    <p-dropdown name="f-area" id="area-label" [options]="areaOptions" [(ngModel)]="selectedArea"
-                        optionLabel="name" placeholder="Areas available" />
-                </div>
-    
-                <div class="f-status">
-                    <label for="status-label">Status</label>
-                    <p-dropdown name="f-status" id="status-label" [options]="areaOptions" [(ngModel)]="selectedArea"
-                        optionLabel="name" placeholder="Areas available" />
-                </div>
-    
-                <div class="f-btn">
-                    <label style="color: white;">btn</label>
-                    <p-button label="Reset" icon="pi pi-refresh"></p-button>
+                        <span *ngIf="checkOut.touched && checkOut.invalid" class="p-error">This field is required.</span>
+                    
+                        
+                    </p-fieldset>       
+            
                 </div>
                 
+                <div class="p-error" *ngIf="checkOutMgs">{{checkOutMgs}}</div>
+                <div class="btn-submit">
 
-            </div>
+                    <p-button styleClass="center-btn"  (click)="submitBooking(bookingForm)"  label="Book" icon="pi pi-check" [disabled]="bookingForm.invalid"></p-button>
+                </div>
             
-        </p-fieldset>
-        
-        <div class="mt-4"></div>
-        <p-table  [value]="bookingInfo" [paginator]="true" [rows]="5" [rowsPerPageOptions]="[5,10,20]">
+            </form>
 
-            <ng-template pTemplate="caption">
-            
-                <h5 class="m-0">Booking list</h5>
-            
-            </ng-template>
-            <ng-template pTemplate="header">
-                <tr>
-                    <th>Booked by</th>
-                    <th>Unit</th>
-                    <th>Area</th>
-                    <th>Date</th>
-                    <th>Time Start</th>
-                    <th>Time End</th>
-                    <th>Status</th>
-                </tr>
-            </ng-template>
-            <ng-template pTemplate="body" let-info>
-                <tr>
-                    <td>{{info.bookedBy}}</td>
-                    <td>{{info.unit}}</td>
-                    <td>{{info.areaName}}</td>
-                    <td>{{info.chosenDate}}</td>
-                    <td>{{info.chosenTime}}</td>
-                    <td>{{info.chosenEndTime}}</td>
-                    
-                    
-                    <td>
-                    <p-tag [value]="info.status" [rounded]="true" />                        
-                    </td>
-                    <td *appHasPermissions="'owner'">
-                        <p-button icon="pi pi-pencil" styleClass="p-button-rounded p-button-text" (click)="editBooking(info)"></p-button>
-                        <p-button icon="pi pi-trash" styleClass="p-button-rounded p-button-text" (click)="deleteBooking(info)"></p-button>
-                    </td>
-                </tr>
-            </ng-template>
-        </p-table>
-        
-    </div>
-    
+        </div>
+    </p-panel>
 
-    
-
-    
 </div>
+
+<p-panel header="Booking history">
+    <div class="tbl-reservations">
+    
+     
+    <p-table #dtBooking 
+    [value]="bookingHistory" 
+    dataKey="id" 
+    [rows]="10" 
+    [rowsPerPageOptions]="[10, 25, 50]" 
+    [loading]="loading"
+        [paginator]="true" [globalFilterFields]="['fullname', 'unit', 'area','checkin', 'checkout','status']">
+        <ng-template #caption>
+            <div class="flex">
+                <p-button label="Clear" [outlined]="true" icon="pi pi-filter-slash" (click)="clear(dtBooking)" />
+                <p-iconfield iconPosition="left" class="ml-auto">
+                    <p-inputicon>
+                        <i class="pi pi-search"></i>
+                    </p-inputicon>
+                    <input pInputText type="text" (input)="dtBooking.filterGlobal($event.target.value, 'contains')"
+                        placeholder="Search keyword" />
+                </p-iconfield>
+            </div>
+        </ng-template>
+        <ng-template #header>
+            <tr>
+                <th style="min-width:15rem">
+                    <div class="flex items-center">
+                        Fullname
+                        <p-columnFilter type="text" field="fullname" display="menu" />
+                    </div>
+                </th>
+                <th style="min-width:15rem">
+                    <div class="flex items-center">
+                        Unit
+                        <p-columnFilter type="text" field="unit" display="menu" />
+                    </div>
+                </th>
+                <th style="min-width:15rem">
+                    <div class="flex items-center">
+                        Area
+                        <p-columnFilter type="text" field="area" display="menu" />
+                    </div>
+                </th>
+              
+                
+                <th style="min-width:10rem">
+                    <div class="flex items-center">
+                        Check in
+                        <p-columnFilter type="date" field="checkin" display="menu" />
+                    </div>
+                </th>
+                
+                <th style="min-width:10rem">
+                    <div class="flex items-center">
+                        Check out
+                        <p-columnFilter type="date" field="checkout" display="menu" />
+                    </div>
+                </th>     
+                
+                <th style="min-width:10rem">
+                    <div class="flex items-center">
+                        Status
+                        <p-columnFilter field="status" matchMode="equals" display="menu">
+                            <ng-template #filter let-value let-filter="filterCallback">
+                                <p-dropdown [(ngModel)]="value" [options]="statuses" (onChange)="filter($event.value)"
+                                    placeholder="Any">
+                                    <ng-template let-option #item>
+                                        <p-tag [value]="option.value" [severity]="getSeverity(option.label)" />
+                                    </ng-template>
+                                </p-dropdown>
+                            </ng-template>
+                        </p-columnFilter>
+                    </div>
+                </th>     
+                
+                <th style="width: 3rem">
+                    <div class="flex items-center">
+                        Settings                     
+                    </div>
+                </th>
+            </tr>
+        </ng-template>
+        <ng-template #body let-bookingInfo>
+            <tr>
+                <td>
+                    {{ bookingInfo.fullname }}
+                </td>
+           
+                <td>
+                    {{ bookingInfo.unit }}
+                </td>
+                <td>
+                    {{ bookingInfo.area }}
+                </td>
+                <td>
+                    {{ bookingInfo.checkIn }}
+                </td>
+        
+                <td>
+                    {{ bookingInfo.checkOut }}
+                </td>
+                <td>
+                <p-tag [value]="bookingInfo.status" [severity]="getSeverity(bookingInfo.status)" />
+                
+                </td>
+        
+                
+        </ng-template>
+        <ng-template #emptymessage>
+            <tr>
+                <td colspan="7">No customers found.</td>
+            </tr>
+        </ng-template>
+    </p-table>
+    </div>
+</p-panel>
+
+

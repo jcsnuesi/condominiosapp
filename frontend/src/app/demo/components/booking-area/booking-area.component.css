@@ -1,4 +1,33 @@
 
+.radio-container{
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+.guest-info {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    /* Espacio entre los inputs */
+}
+.guest-info .form-group {
+    flex: 1 1 calc(50% - 1rem);
+    /* Cada input ocupa el 50% del ancho menos el espacio del gap */
+    box-sizing: border-box;
+    /* Asegura que el padding y el border se incluyan en el ancho total */
+}
+
+@media screen and (max-width: 768px) {
+    .guest-info .form-group {
+        flex: 1 1 100%;
+        /* En pantallas pequeñas, cada input ocupa el 100% del ancho */
+    }
+}
+.headFormat{
+    background-color: rgba(240, 255, 255, 0.786);
+}
 .areas-positions {
     display: flex;
     gap: 1rem;
@@ -44,6 +73,8 @@
 
 label{
     display: block;
+    margin-top: 15px;
+    margin-bottom: 15px;
 }
 
 ::ng-deep .p-fieldset .p-fieldset-legend {
@@ -54,16 +85,33 @@ label{
     font-weight: 700;
     border-radius: 4px;
 }
+.btn-submit{
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+.booking-responsive{
+        margin-bottom: 15px;
+}
+
+::ng-deep .p-inputtext {
+    width: 100%;
+}
+::ng-deep .p-calendar {
+    width: 100%;
+}
+::ng-deep .p-dropdown{
+    width: 100%;
+}
 
 @media screen and (max-width: 500px) {
     .booking-responsive {
-            display: block;
- 
-            /* Centra verticalmente */
+            display: block; 
             padding: 15px;
-            /* Espacio interno */
             width: 100%;
-            /* Asegura el ajuste completo */
+        
+           
         }
 }
 

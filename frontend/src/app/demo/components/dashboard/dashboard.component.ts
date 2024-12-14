@@ -20,7 +20,8 @@ import { OwnerModel } from '../../models/owner.model';
     providers: [
         CondominioService,
         UserService,
-        MessageService, ConfirmationService],
+        MessageService, 
+        ConfirmationService],
     styleUrls: ['./dashboard.css']
 })
  export class DashboardComponent implements OnInit, OnDestroy {
@@ -60,6 +61,7 @@ import { OwnerModel } from '../../models/owner.model';
     public data: any;
     public bookingVisible: boolean;
     public totalBooked: number = 0;
+    public condoOptions: any[];
 
    
     constructor(
@@ -87,20 +89,26 @@ import { OwnerModel } from '../../models/owner.model';
         this.formValidation = this.ownerObj.apartmentsUnit != '' && this.ownerObj.parkingsQty != '' && this.ownerObj.isRenting != '' ? false  :  true
         this.image = '../../assets/noimage2.jpeg'
         
+        this.condoOptions = [];
+     
+       
         
         this.apiUnitResponse = false
         this.messageApiResponse = {message:'', severity:''}
         this.visible_owner = false;
         this.areaSocial = false;
 
-    
+   
+        
         this.formData = new FormData()
 
     }
 
 
+
+
     handleButtonClick(event: Event) {
-        console.log('Button clicked!', event);
+        // console.log('Button clicked!', event);
     }
 
     @Output() propertyInfoEvent: EventEmitter<any> = new EventEmitter();
@@ -271,7 +279,7 @@ import { OwnerModel } from '../../models/owner.model';
 
                             this.customers = unitList.units_ownerId
                            
-                            console.log(this.customers)
+                            // console.log(this.customers)
 
                         }
 
@@ -299,6 +307,8 @@ import { OwnerModel } from '../../models/owner.model';
       
         return unitList.join(", ") 
     }
+
+
 
 
     ngOnInit() {
@@ -579,9 +589,9 @@ import { OwnerModel } from '../../models/owner.model';
 
         }
 
-        this.formData.forEach((value, key) => {
-            console.log(key + ' ' + value)
-        })
+        // this.formData.forEach((value, key) => {
+        //     console.log(key + ' ' + value)
+        // })
 
     }
 
