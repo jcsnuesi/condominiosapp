@@ -13,7 +13,7 @@ let Family = require('../models/family');
 const occupant = require('../models/occupant');
 const verifying = new verifyDataParam();
 let validator = require('validator');
-let emailVerification = require('../service/emailVerification');
+let emailVerification = require('../service/verificators');
 const { getAvatar } = require('./condominio');
 const fs = require('fs');
 const paths = require('path');
@@ -34,7 +34,7 @@ const password = generatePassword.generate({
  
 var ownerAndSubController = {
 
-    emailVerification: function (req, res) {
+    emailVerification:  function (req, res) {
 
         Owner.findOne({ email: req.params.email }, (err, userFound) => {
 
@@ -84,6 +84,7 @@ var ownerAndSubController = {
 
         })
     },
+   
 
     createSingleOwner: async function (req, res) {
 
@@ -869,7 +870,7 @@ var ownerAndSubController = {
             })
         // 654af792af898fdd1ea3a266
 
-    },
+    }
 
 };
 

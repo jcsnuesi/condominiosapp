@@ -3,20 +3,26 @@
 var mongoose = require('mongoose')
 var Schema = mongoose.Schema
 
-var reserveSchema =  Schema({
+const GuestSchema = new Schema({
+    fullname: { type: String, required: true },
+    phone: { type: String, required: true },
+    notificationType: { type: String, required: true },
+    verificationCode: { type: String, required: true }
+});
 
-    
-    ownerid: { type: mongoose.Schema.Types.ObjectId, ref:'Owner'},
-    subownerid: { type: mongoose.Schema.Types.ObjectId, ref: 'SubOwner'},
-    address: { type: mongoose.Schema.Types.ObjectId, ref: 'Address', required: true },
+var reserveSchema = Schema({
+
+    memberId: { type:String, required: true },   
+    guest: [GuestSchema],
+    comments: { type: String },
+    condoId: { type: mongoose.Schema.Types.ObjectId, ref: 'Condo', required: true },
     apartmentUnit: { type: String, required: true },
-    areaToReserve: { type: String, required: true },
-    startReservationDate: { type: Date, required: true },
-    endReservationDate: { type: Date, required: true },
-    owner: { type: mongoose.Schema.Types.ObjectId, ref:'Owner'},
-    subowner: { type: mongoose.Schema.Types.ObjectId, ref: 'SubOwner' },
-    admin: { type: mongoose.Schema.Types.ObjectId, ref: 'Admin' },
+    areaToReserve: { type: String},
+    checkIn: { type: Date, required: true },
+    checkOut: { type: Date },    
     status: { type: String, default: 'Reserved', required:true },
+    visitorNumber: { type: Number }
+    
     
 
 }, { timestamps: true })

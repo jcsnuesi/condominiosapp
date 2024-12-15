@@ -11,7 +11,7 @@ let errorHandler = require('../error/errorHandler')
 let checkExtensions = require('../service/extensions')
 const { v4: uuidv4 } = require('uuid');
 const verifyClass = require('../service/verifyParamData')
-const sendEmailVerification = require('../service/emailVerification')
+const sendEmailVerification = require('../service/verificators')
 const generatePassword = require('generate-password');
 // Generar una contraseña con opciones específicas
 const password = generatePassword.generate({

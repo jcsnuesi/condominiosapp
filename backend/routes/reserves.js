@@ -21,7 +21,7 @@ router.get('/findReservation/:apartment/:addressId', md_auth.authenticated, Rese
 
 
 // POST
-router.post('/booking', md_auth.authenticated, ReserveController.createBooking)
+router.post('/create-booking', md_auth.authenticated, ReserveController.createBooking)
 // router.post('/createUserByOwner', md_auth.authenticated, UserController.createUserByOwner)
 // router.post('/login', UserController.login)
 

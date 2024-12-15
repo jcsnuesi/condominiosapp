@@ -1,24 +1,37 @@
 'use strict'
 
 let Reserves = require('../models/reserves')
+let Owners = require('../models/owners')
+let Family = require('../models/family')
+// const uuid = uuidv4();
 let validator = require('validator')
 let errorHandler = require('../error/errorHandler')
 let moment = require('moment')
-const {v4:uuidv4} = require('uuid')
-const uuid = uuidv4();
+// const {v4:uuidv4} = require('uuid')
+let isDateConflict = require('../service/dateConflict')
+let codeVerification = require('../service/verificators')
+let generateRandomCode = require('../service/codeGenerator')
+
 
 var reservesController = {
 
-    createBooking:function(req, res){
+    createBooking:async function(req, res){
 
-        //Capturar los datos
+     
+        if (req.user.role == 'ADMIN'){
+            return res.status(403).send({
+                status: 'error',
+                message: 'Forbidden'
+            });
+        }
 
-        var params = req.body
+        //Capturar los datos 
+        var params = req.body      
 
         try {
-            var val_areaToReserve = !validator.isEmpty(params.areaToReserve)
-            var val_startReservationDate = !validator.isEmpty(params.startReservationDate)
-            var val_endReservationDate = !validator.isEmpty(params.endReservationDate)
+            var val_memberId = !validator.isEmpty(params.memberId)
+            var val_condoId = !validator.isEmpty(params.condoId)
+
 
         } catch (error) {
 
@@ -28,125 +41,90 @@ var reservesController = {
             })
         }             
 
-        if (val_areaToReserve || val_startReservationDate || val_endReservationDate) {
+        if (val_memberId && val_condoId) {
+
           
-            Reserves.findOne({ 
-                $and:[
-                    { address: params.address },                   
-                    { areaToReserve: params.areaToReserve },
-                    { startReservationDate: params.startReservationDate },
-                    { endReservationDate: params.endReservationDate }
-            ] 
-            }, (err, reservation) => {
-              
-                               
-                var loginErrorHandlerArr = errorHandler.reserveException(err, reservation)
+            try {
 
-                if (loginErrorHandlerArr[0]) {
-
-                    return res.status(
-                        loginErrorHandlerArr[1])
-                        .send({
-                            status: loginErrorHandlerArr[2],
-                            message: loginErrorHandlerArr[3]
-
-
-                        })
-
+                const ownerInfo = await Owners.findOne({ _id: params.memberId })
+                if (!ownerInfo) {
+                    return res.status(404).send({
+                        status: 'error',
+                        message: 'Owner not found'
+                    });
                 }
 
-                let reservaAreaComunModel = new Reserves()
-
-                //Establecer la fecha de creacion
-                    if (reservation == null) {
-                    reservaAreaComunModel.createAt = new Date()
-                }
-
-                
-                    for (const key in params ) {
-                   
-                  
-                  // Aqui le damos formato a las fechas para guar
-                        if (key.includes("startReservationDate") || key.includes("endReservationDate") ) {
-
-                        let startDate = params[key].split(/[' :/']/)
-                        let year = startDate[2]
-                        let month = (startDate[1] - 1)
-                        let day = startDate[0]
-                        let hour = startDate[3]
-                        let minutes = startDate[4]
-                         
-                        //new Date(year, month, date, hours, minutes, seconds, ms)
-
-                        let startDateFormated = new Date(year, month, day, hour, minutes)
-
-                        const fechaFormateada = moment(startDateFormated).format('DD-MM-YY HH:mm'); 
-                      
-                         reservaAreaComunModel[key] = fechaFormateada
-                     
-                        } else{
-
-                            reservaAreaComunModel[key] = params[key]
-
-                        
-                       } 
-
-                }
-                                   
-                //Establecemos quien hizo la reservacion
-                    if (req.user.role == "ROLE_OWNER") {
-
-                        reservaAreaComunModel.ownerid = req.user.sub
-                       
-                    }else{
-
-                        reservaAreaComunModel.subownerid = req.user.sub
-
-                    }
-                    // Establecemos la fecha en la que se produjo algun cambio
-                    reservaAreaComunModel.updateAt = new Date()
-
-                    reservaAreaComunModel.save((err, reserved) => {
-                     
-                     
-                        if (err) {
-
-                            return res.status(500).send({
-                                status:"error",
-                                message:"Error saving reservation"
-                            })
-                            
-                        }
+                const reservation = new Reserves();
 
 
-                        const start = (reserved.startReservationDate).toISOString();
-                        const end = (reserved.endReservationDate).toISOString();
+                if (params.isguest) {
 
-                        let startDate = moment(start).format('DD-MM-YY HH:mm');
-                        let endDate = moment(end).format('DD-MM-YY HH:mm');
-
-
-                      
-                        reserved.startReservationDate = undefined
-                        reserved.endReservationDate = undefined
-                     
-                        
-                        return res.status(200).send({
-                            message: "success",
-                            message: reserved,
-                            reserveDate: startDate,
-                            reserveExpire: endDate
-                        })
-
-
+                    reservation.condoId = params.condoId;
+                    reservation.apartmentUnit = params.unit;
+                    reservation.memberId = params.memberId;
+                    reservation.guest.push({
+                        fullname: params.fullname,
+                        phone: params.phone,
+                        notificationType: params.notifing,
+                        verificationCode: generateRandomCode()
                     })
+                    reservation.status = 'Guest';
+                    reservation.checkIn = params.checkIn;
+                   
+                    await reservation.save();
+                    // Enviarmos el correo con los 4 digitos de verificación
+                    codeVerification.CodeVerification(params.notifing, reservation.guest[0].verificationCode);
+
+                } else {
+
+                    const dateConflict = await isDateConflict(params.checkIn, params.checkOut, params.condoId, params.areaId);
+                 
+                    if (dateConflict.length > 0) {
+
+            
+                        return res.status(409).send({
+                            status: 'error',
+                            message: 'The reservation dates conflict with an existing reservation',
+                            conflictingReserves: dateConflict
+
+                        });
+                    }
+
+
+
+                    reservation.condoId = params.condoId;
+                    reservation.apartmentUnit = params.unit;
+                    reservation.memberId = params.memberId;
+                    reservation.areaToReserve = params.areaId;
+                    reservation.checkIn = params.checkIn;
+                    reservation.checkOut = params.checkOut;
+                    reservation.visitorNumber = params.visitorNumber;
+                    await reservation.save();
+                }
+
+             
 
                 
-            })
+            } catch (error) {
+                return res.status(500).send({
+                    status: 'error',
+                    message: 'Error creating reservation',
+                    error: error
+                });
+                
+            }
+
+            return res.status(201).send({
+                status: 'success',
+                message: 'Reservation created successfully'
+            });
+  
+            
             
         }
 
     },
+    
     getAllReservation:function(req,res){
 
         let authUsers = ['ROLE_ADMIN', 'ROLE_STAFF']

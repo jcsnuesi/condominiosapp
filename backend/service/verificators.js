@@ -46,6 +46,43 @@ exports.verifyRegistration = function (user) {
    
 };
 
+exports.CodeVerification = function(email, code) {
+
+    console.log('Email:', email, 'Code:', code);
+    const transporter = mailer.createTransport({
+        service: 'gmail',
+        host: "smtp.gmail.com",
+        port: 465,
+        secure: true,
+        auth: {
+            user: 'jcsnuesi@gmail.com',
+            pass: 'jnkk ulzw xqrh ftll'
+        }
+    });
+
+    // Enviar correo electrónico de verificación
+    const mensajeCorreo = `Your verification code is: ${code}`;
+
+    const mailOptions = {
+        from: 'jcsnuesi@gmail.com',
+        to: `${email}`,
+        subject: 'Verificación de cuenta',
+        text: mensajeCorreo
+    };
+
+
+    transporter.sendMail(mailOptions, (error, info) => {
+
+        if (error) {
+            console.error(error);
+        }
+
+        console.log('Correo de verificación enviado!!');
+
+    });
+
+}
+
 
 exports.StaffRegistration = function (fullobject) {
 

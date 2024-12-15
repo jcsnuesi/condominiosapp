@@ -46,7 +46,7 @@ var OwnerSchema = Schema({
     emailVerified: { type: Boolean, default: false },
     id_number: {
         type: String, required: true, max: 11, min: 11, unique: true
-},
+    },
     id_image_front: { type: String },
     id_image_back: { type: String }
    

@@ -308,13 +308,15 @@ var controller = {
             })
         } 
 
-
+        
         if (val_email && val_password) {
 
             const userFound = await Promise.all([
                 Admin.findOne({ email_company: params.email }),
                 Staff.findOne({ email: params.email }),
-                Owner.findOne({ email: params.email }).populate("propertyDetails.addressId", "alias type phone street_1 street_2 sector_name city province zipcode country  status createdAt createdBy").populate('familyAccount', 'name lastname gender email phone status permission addressId')
+                Owner.findOne({ email: params.email })
+                    .populate("propertyDetails.addressId", "socialAreas alias type phone street_1 street_2 sector_name city province zipcode country  status createdAt createdBy")
+                .populate('familyAccount', 'name lastname gender email phone status permission addressId')
                 ,
                 Family.findOne({ email: params.email }),
             ])
