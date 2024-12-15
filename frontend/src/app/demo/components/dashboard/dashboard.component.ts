@@ -15,7 +15,7 @@ import { MessageService } from 'primeng/api';
 import { OwnerModel } from '../../models/owner.model';
 
 
-@Component({
+@Component({ 
     templateUrl: './dashboard.component.html',
     providers: [
         CondominioService,

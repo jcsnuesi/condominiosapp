@@ -11,12 +11,20 @@
     flex-wrap: wrap;
     gap: 1rem;
     /* Espacio entre los inputs */
+        margin-bottom: 30px;
 }
 .guest-info .form-group {
     flex: 1 1 calc(50% - 1rem);
     /* Cada input ocupa el 50% del ancho menos el espacio del gap */
     box-sizing: border-box;
     /* Asegura que el padding y el border se incluyan en el ancho total */
+  
+}
+::ng-deep .p-fieldset {
+    background:  #f6fdff;
+}
+.block{
+    padding: 15px;
 }
 
 @media screen and (max-width: 768px) {
@@ -36,10 +44,12 @@
     margin-bottom: 1rem;
 }
  
-::ng-deep .center-btn {
+/* ::ng-deep .center-btn {
     width: 30% !important;
 
-}
+} */
+
+
 
 .filters {
     display: flex;
@@ -89,7 +99,7 @@ label{
     display: flex;
     justify-content: flex-end;
     margin-top: 15px;
-    margin-bottom: 15px;
+    /* margin-bottom: 15px; */
 }
 .booking-responsive{
         margin-bottom: 15px;

@@ -1,8 +1,11 @@
 <div class="booking-responsive">   
-    
+     
+    <p-toast />
+    <p-confirmDialog />
+
     <p-panel header="Booking" >
 
-        <p-fieldset legend="Choose action">
+        <p-fieldset id="bg-legend" legend="Choose action">
         
             <div class="radio-container">
                 <div class="field-radiobutton">
@@ -18,17 +21,22 @@
         </p-fieldset>
 
         <div class="show-form" *ngIf="valRadio == 'guest'">
-            <form #guestForm="ngForm" (ngSubmit)="submitGuest(guestForm)" *appHasPermissions="'owner'" >
-         
+            <form #guestForm="ngForm" *appHasPermissions="'owner'" >         
     
-                <div class="guest-info">
-    
+                <div class="guest-info">    
                     <div class="form-group">
                         <label for="condo-label">Choose condo:</label>
                         <p-dropdown #condoOption="ngModel" name="condoOption" (onChange)="getAreaInfo($event)" id="areas-available-label"
                             [options]="condoOptions" [(ngModel)]="guestInfo.condoId" optionLabel="label" placeholder="Areas available"
                             required />
                     </div>
+
+                        <div class="form-group">
+                            <label for="unitOption-labels">Choose unit:</label>
+                            <p-dropdown id="unitOption-labels" #unitOptionsg="ngModel" name="unitOptionsg" [options]="unitOption"
+                                [(ngModel)]="guestInfo.unit" optionLabel="label" [disabled]="unitOption.length == 0" required />
+                        </div>
+
     
                     <div class="form-group">
                         <label for="guest-label">Guest fullname:</label>
@@ -45,6 +53,7 @@
                         <span *ngIf="phone.touched && phone.invalid" class="p-error">This field is required.</span>
                     </div>
                  
+            
                     <div class="form-group">
                         <label for="notify-label">Choose notification method (optional):</label>
                         <p-dropdown #notifyOptions="ngModel" name="notifyOptions" id="notify-label"
@@ -70,7 +79,7 @@
                         #dateArrival="ngModel" 
                         name="dateArrival" 
                         inputId="calendar-12h" 
-                        [(ngModel)]="guestInfo.dateArrival"
+                        [(ngModel)]="guestInfo.checkIn"
                         [showTime]="true"                    
                         [hourFormat]="12" 
                         dateFormat="mm-dd-yy"
@@ -78,108 +87,117 @@
                         <span *ngIf="dateArrival.touched && dateArrival.invalid" class="p-error">This field is required.</span>
                                           
                     </div>
+
+                    <div class="form-group">
+                        <label for="comment-label">Comment (optional):</label>
+                      
+                            <textarea rows="5" 
+                            cols="30" 
+                            pInputTextarea 
+                              #comment="ngModel" 
+                              name="comment" 
+                              id="comment-label" 
+                              [(ngModel)]="guestInfo.comments" >
+                            </textarea>
+                    
+                        <span *ngIf="comment.touched && comment.invalid" class="p-error">This field is required.</span>
+                    </div>
     
                 </div>
                 <div class="btn-submit">
-                    <p-button type="submit" label="Submit Guest" icon="pi pi-check" [disabled]="guestForm.invalid"></p-button>
+                    <p-button type="submit" (click)="submit(guestForm)" label="Submit Guest" icon="pi pi-check" [disabled]="guestForm.invalid" />
     
                 </div>
             </form>
-            
+   
 
         </div>
-        <div class="show-form" *ngIf="valRadio == 'bookingAct'"> 
-            <form #bookingForm="ngForm" style="text-align: center;" *appHasPermissions="'owner'">
-               
-            
-                <div class="areas-positions">
-                    <p-fieldset legend="Condominium">
-            
-                        <div style="display: block;margin-right:18px;">
-            
-                      
-                            <div></div>
-                            <p-dropdown 
-                            #condoOption="ngModel" 
-                            name="condoOption" 
-                             (onChange)="getAreaInfo($event)"
-                            id="areas-available-label" 
-                            [options]="condoOptions"
+        <div class="show-form" *ngIf="valRadio == 'bookingAct'">             
+            <form #bookingForm="ngForm" *appHasPermissions="'owner'">
+                
+                    <div class="guest-info">
+
+                        <div class="form-group">
+
+                            <label for="condo-label">Choose condominium:</label>
+                            
+                            <p-dropdown #condoOption="ngModel" name="condoOption"
+                            id="condo-label" 
+                            (onChange)="getAreaInfo($event)" 
+                            id="areas-available-label"
+                            [options]="condoOptions" 
                             [(ngModel)]="bookingInfo.condoId" 
                             optionLabel="label" 
-                            placeholder="Areas available" />
+                            placeholder="Areas available"
+                                required />
                         </div>
-            
-            
-                    </p-fieldset>
-                    <p-fieldset legend="Available areas">
-            
-                        <div style="display: block;margin-right:18px;">
-            
-                            <div></div>
-                            <p-dropdown 
-                            #areaOption="ngModel"
-                            name="areaOption" 
-                            id="areas-available-label" 
-                            [options]="areaOptions"                           
-                                [(ngModel)]="bookingInfo.areaId" 
-                                optionLabel="label" 
-                                placeholder="Areas available" 
-                                [disabled]="this.areaOptions.length == 0"/>
-                        </div>
-            
-            
-                    </p-fieldset>
-            
-                    <p-fieldset legend="Check in date/time">        
-            
-                        <div style="display: block;">
-            
-                            <div></div>
-                            <p-calendar 
-                            #checkIn="ngModel" 
-                            name="checkIn" 
-                            inputId="calendar-12h" 
-                            [(ngModel)]="bookingInfo.checkIn"
-                            [showTime]="true" 
-                             (ngModelChange)="validateDates(bookingForm)"
-                            [hourFormat]="12"
-                             dateFormat="mm-dd-yy"  required/>
-                            <span *ngIf="checkIn.touched && checkIn.invalid" class="p-error">This field is required.</span>
-            
-                        </div>
-            
-                    </p-fieldset>       
-                    <p-fieldset legend="Check out date/time">        
-            
-                        <div style="display: block;">
-            
-                            <div></div>
-                            <p-calendar 
-                            #checkOut="ngModel" 
-                            name="checkOut" 
-                            inputId="calendar-12h" 
-                            [(ngModel)]="bookingInfo.checkOut"
-                            [showTime]="true" 
-                            (ngModelChange)="validateDates(bookingForm)"
-                            [hourFormat]="12"
-                             dateFormat="mm-dd-yy"  required/>
-            
-                        </div>
-    
-                        <span *ngIf="checkOut.touched && checkOut.invalid" class="p-error">This field is required.</span>
-                    
+                       
                         
-                    </p-fieldset>       
-            
-                </div>
-                
-                <div class="p-error" *ngIf="checkOutMgs">{{checkOutMgs}}</div>
-                <div class="btn-submit">
+                    <div class="form-group">
+                        <label for="unitOption-label">Choose unit:</label>
+                        <p-dropdown                         
+                        id="unitOption-label" 
+                        #unitOptions="ngModel" 
+                        name="unitOptions" 
+                        [options]="unitOption"
+                            [(ngModel)]="bookingInfo.unit" 
+                            optionLabel="label"
+                             [disabled]="unitOption.length == 0"
+                             required
+                           />
+                    </div>
 
-                    <p-button styleClass="center-btn"  (click)="submitBooking(bookingForm)"  label="Book" icon="pi pi-check" [disabled]="bookingForm.invalid"></p-button>
-                </div>
-            
+                    <div class="form-group">
+                        <label for="areaOption-label">Choose area:</label>
+                        <p-dropdown #areaOption="ngModel" name="areaOption" id="areaOption-label" [options]="areaOptions"
+                            [(ngModel)]="bookingInfo.areaId" optionLabel="label" placeholder="Areas available"
+                            [disabled]="areaOptions.length == 0" />
+                    </div>
+                
+                      
+                    <div class="form-group">
+                        <label for="checkIn-label">Check In (date/time):</label>
+                        <p-calendar #checkIn="ngModel" id="checkIn-label" name="checkIn" inputId="calendar-12h" [(ngModel)]="bookingInfo.checkIn"
+                            [showTime]="true" (ngModelChange)="validateDates(bookingForm)" [hourFormat]="12" dateFormat="mm-dd-yy"
+                            required />
+                        <span *ngIf="checkIn.touched && checkIn.invalid" class="p-error">This field is required.</span>
+                    
+                    </div>
+                      
+                    <div class="form-group">
+                        <label for="checkOut-label">Expire date: (date/time):</label>
+                        <p-calendar #checkOut="ngModel" name="checkOut" id="checkOut-label" inputId="calendar-12h" [(ngModel)]="bookingInfo.checkOut"
+                            [showTime]="true" (ngModelChange)="validateDates(bookingForm)" [hourFormat]="12" dateFormat="mm-dd-yy"
+                            required />
+                    
+                        <span *ngIf="checkOut.touched && checkOut.invalid" class="p-error">This field is required.</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="checkOut-label">Visitors' qtys:</label>
+                        <p-inputNumber
+                        #visitors="ngModel"
+                        name="visitors" 
+                        [(ngModel)]="bookingInfo.visitorNumber" 
+                         mode="decimal" 
+                        inputId="withoutgrouping" 
+                        [useGrouping]="false"  
+                        [min]="0"
+                        [max]="10" />
+                    </div>
+                
+                
+                    </div>
+             
+                    <div class="p-error" *ngIf="checkOutMgs">{{checkOutMgs}}
+                    </div>
+                    <hr>
+                    <div class="btn-submit">    
+                        <p-button styleClass="center-btn"  (click)="submit(bookingForm)"  label="Book" icon="pi pi-check" [disabled]="bookingForm.invalid" />                            
+                    </div>
+                         
+              
+                    
             </form>
 
         </div>
@@ -187,7 +205,7 @@
 
 </div>
 
-<p-panel header="Booking history">
+<p-panel header="Booking History">
     <div class="tbl-reservations">
     
      
