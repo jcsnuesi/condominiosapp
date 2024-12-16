@@ -20,8 +20,12 @@ export class BookingServiceService {
                                   .set('Authorization', token);
     return this._http.post(this.url + 'create-booking', params, {headers: headers});
 
-
   }
  
+  getBooking(token: any, id: any): Observable<any> {
+    let headers = new HttpHeaders().set('Authorization', token);
+    return this._http.get(this.url + 'get-bookings/' + id , {headers: headers});
+    
+  }
   
 }

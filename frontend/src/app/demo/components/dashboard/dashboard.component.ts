@@ -4,7 +4,7 @@ import { Product } from '../../api/product';
 import { ProductService } from '../../service/product.service';
 import { Subscription } from 'rxjs';
 import { LayoutService } from 'src/app/layout/service/app.layout.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CondominioService } from '../../service/condominios.service';
 import { UserService } from '../../service/user.service';
 import { CookieService } from 'ngx-cookie-service';
@@ -62,6 +62,7 @@ import { OwnerModel } from '../../models/owner.model';
     public bookingVisible: boolean;
     public totalBooked: number = 0;
     public condoOptions: any[];
+    public idroute: string;
 
    
     constructor(
@@ -74,7 +75,8 @@ import { OwnerModel } from '../../models/owner.model';
         private _cookieService: CookieService,
         private _config: PrimeNGConfig,
         private _messageService: MessageService,
-        private _confirmationService: ConfirmationService) {
+        private _confirmationService: ConfirmationService,
+        private _router: Router,) {
         this.subscription = this.layoutService.configUpdate$.subscribe(() => {
             this.initChart();
         });
@@ -88,8 +90,9 @@ import { OwnerModel } from '../../models/owner.model';
         this.ownerObj = new OwnerModel('' ,'', '', '', '','', '', '', '', '', '', '', '','','','')
         this.formValidation = this.ownerObj.apartmentsUnit != '' && this.ownerObj.parkingsQty != '' && this.ownerObj.isRenting != '' ? false  :  true
         this.image = '../../assets/noimage2.jpeg'
-        
+      
         this.condoOptions = [];
+        this.idroute = this.identity._id
      
        
         
@@ -149,8 +152,10 @@ import { OwnerModel } from '../../models/owner.model';
 
         if (this.bookingVisible) {
             this.bookingVisible = false;
+            this._router.navigate([''])
         } else {
             this.bookingVisible = true;
+            this._router.navigate(['start/', this.identity._id])
         }
 
     }

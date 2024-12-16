@@ -21,6 +21,9 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { InputNumberModule } from 'primeng/inputnumber';
+import { Router, ActivatedRoute } from '@angular/router';
+import { FormatFunctions } from 'src/app/pipes/formating_text';
+import { DialogModule } from 'primeng/dialog';
 
 type BookingType = {
   memberId: string;
@@ -50,6 +53,7 @@ type Guest = {
   selector: 'app-booking-area',
   standalone: true,
   imports: [ 
+    DialogModule,
     ToastModule,
     InputNumberModule,
     ConfirmDialogModule,
@@ -71,7 +75,8 @@ type Guest = {
   providers: [UserService, 
     BookingServiceService, 
     MessageService, 
-    ConfirmationService],
+    ConfirmationService,
+    FormatFunctions],
   templateUrl: './booking-area.component.html',
   styleUrl: './booking-area.component.css'
 })
@@ -93,19 +98,22 @@ export class BookingAreaComponent implements OnInit {
   
   public token: string;
   public identity: any;
+  public headerStatus:any[];
 
-  
- 
-  
+  public selectedRow: any[];
+  public visibleDialog: boolean = false;
+
   
   constructor(
     private _userService: UserService,
     private _bookingService: BookingServiceService,
     private _messageService: MessageService,
-    private _confirmationService: ConfirmationService
+    private _confirmationService: ConfirmationService,
+    private _router: Router,
+    private _route: ActivatedRoute,
+    private _format: FormatFunctions
 
-  ) { 
-      
+  ) {       
     
     this.identity = this._userService.getIdentity()
     this.token = this._userService.getToken();
@@ -121,6 +129,8 @@ export class BookingAreaComponent implements OnInit {
       visitorNumber: 0,
     };
 
+    this.headerStatus = [{ label: 'Reserved', value: 'Reserved' }, { label: 'Cancelled', value: 'Cancelled' }, { label: 'Guest', value: 'Guest' }];
+
     this.guestInfo = {
       memberId: '',
       fullname: '',  
@@ -133,6 +143,7 @@ export class BookingAreaComponent implements OnInit {
     };
 
     this.condoOptions = [];
+    this.selectedRow = [];
     this.areaOptions = [];
     this.unitOption = [];
     this.loading = true;
@@ -145,6 +156,15 @@ export class BookingAreaComponent implements OnInit {
  ngOnInit(): void {
    
    this.getPropertyType();
+   this._route.params.subscribe(params => {
+    let idUser = params['id'];
+    // console.log('ID:', idUser)
+    if(idUser) {
+      this.getAllBookings(idUser);
+    }
+   });
+
+
     // console.log('Booking Area Component');
  }
 
@@ -173,7 +193,7 @@ export class BookingAreaComponent implements OnInit {
 
       }
       
-      console.log('Property this.unitOption-->:', this.identity)
+      // console.log('Property this.unitOption-->:', this.identity)
       
     })
 
@@ -257,27 +277,102 @@ export class BookingAreaComponent implements OnInit {
           next: (response) => {
 
             if(response.status === 'success') {
+
               this._messageService.add({ severity: 'success', summary: 'Success', detail: 'Booking was successful', life: 5000 });
               form.reset();
               this.guestInfo.notifingType = '';
-
             }
-            console.log('Booking Response:', response)
+            // console.log('Booking Response:', response)
           },
-          error: (error) => {
-            this._messageService.add({ severity: 'error', summary: 'Error', detail: 'An error occurred while booking', life: 5000 });
-            console.log('Booking Error:', error)
+          error: (errors) => {
+            this._messageService.add({ severity: 'error', summary: 'Error', detail: errors.error.message, life:10000 });
+            // console.log('Booking Error:', errors.error)
           }
         });
        
       },
       reject: () => {
-        this._messageService.add({severity:'info', summary:'Rejected', detail:'You have rejected the booking'});
+        this._messageService.add({severity:'info', 
+          summary:'Rejected', 
+          detail:'You have rejected the booking'});
       }
     });
+  
+  }
+
+  getAllBookings(id) {
+
+        
+    this._bookingService.getBooking(this.token, id).subscribe({
+      next: (response) => {
+        // this.bookingHistory = response.booking;
+        if (response.status === 'success') {
+          let allBookinInfo = response.message;
+          console.log('Booking History:***************>', allBookinInfo)
+          try {
+            
+            this.bookingHistory = allBookinInfo.map((booking) => {
+              return {
+                id: booking._id,
+                guest: booking?.guest,
+                condoName: booking.condoId.alias,
+                unit: booking.apartmentUnit,
+                area: booking?.areaToReserve ?? 'N/A',
+                checkIn: this._format.dateTimeFormat(booking.checkIn) ,
+                checkOut: this._format.dateTimeFormat(booking?.checkOut) ?? 'N/A',
+                status: booking.status,
+                visitorNumber: booking?.visitorNumber ?? 0,
+                verified: Boolean(booking.guestCode)
+              }
+            });
+          } catch (error) {
+
+            console.log('Error:', error)           
+          }
+          
+          
+          this.loading = false;
+ 
+        }
+
+      },
+      error: (errors) => {
+        this._messageService.add({ severity: 'error', summary: 'Error', detail: errors.error.message, life:10000 });
+        // console.log('Booking Error:', errors.error)
+      }
+    });
+  }
+
+  showDialog(customer:any){
+
     
 
-  
+    if (customer.status === 'Guest') {
+      let guestInfo = customer.guest[0];
+      this.guestInfo = {
+        memberId:this.identity._id,
+        fullname: guestInfo.fullname,  
+        unit: customer.unit,  
+        phone: guestInfo.phone,
+        checkIn: customer.checkIn,
+        condoId: customer.condoName,
+        notifingType: guestInfo.notifingType,
+        notifing: guestInfo.notifing
+      }
+    }
+    this.visibleDialog = true;
+  }
+  getSeverity(status:string){
+    let statuses = status.toLowerCase()
+
+    if (statuses === 'reserved') {
+      return 'success';
+    } else if (statuses === 'cancelled') {
+      return 'danger';
+    } else {
+      return 'info';
+    }
+    
   }
   areasAvailable(){
   

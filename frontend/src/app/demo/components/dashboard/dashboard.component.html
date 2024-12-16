@@ -10,11 +10,12 @@
                     </span>
                     <div class="text-900 font-medium text-2xl">{{totalBooked}}</div>
                 </div>
-                <div (click)="allBooking()"
+                
+                <a [routerLink]="['booking-area/',idroute]"
                     class="change-icon flex align-items-center justify-content-center bg-orange-100 border-round"
                     [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
                     <i class="pi pi-calendar-minus text-orange-500 text-xl"></i>
-                </div>
+                </a>
             </div>
             <span class="text-green-500 font-medium">%52+ </span>
             <span class="text-500">since last week</span>
@@ -128,7 +129,7 @@
      
 </div>
 
-<div class="container">
+<!-- <div class="container">
 
     <app-booking-area *ngIf="bookingVisible"></app-booking-area>
-</div>
+</div> -->

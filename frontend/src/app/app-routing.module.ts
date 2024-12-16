@@ -10,6 +10,7 @@ import { HomeComponent } from './demo/components/home/home.component';
 import { FamilyMemberComponent } from './demo/components/family-member/family-member.component';
 import { InvoiceHistoryComponent } from './demo/components/invoice-history/invoice-history.component';
 import { StaffComponent } from './demo/components/staff/staff.component';
+import { DashboardComponent } from './demo/components/dashboard/dashboard.component';
 
 
 @NgModule({
@@ -34,7 +35,9 @@ import { StaffComponent } from './demo/components/staff/staff.component';
                     { path: 'family-members', canActivate: [UserGuard], component: FamilyMemberComponent },                    
                     { path: 'invoice-history/:condoId', canActivate: [UserGuard], component: InvoiceHistoryComponent },
                     {path:'staff', canActivate: [UserGuard], component: StaffComponent},
-                    {path:'staff/:id', canActivate: [UserGuard], component: StaffComponent}
+                    {path:'staff/:id', canActivate: [UserGuard], component: StaffComponent}                    
+          
+                    
                     
 
                 ]
