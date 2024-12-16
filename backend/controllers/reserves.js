@@ -90,8 +90,6 @@ var reservesController = {
                         });
                     }
 
-
-
                     reservation.condoId = params.condoId;
                     reservation.apartmentUnit = params.unit;
                     reservation.memberId = params.memberId;
@@ -102,14 +100,11 @@ var reservesController = {
                     await reservation.save();
                 }
 
-             
-
-                
-            } catch (error) {
+            } catch (errors) {
                 return res.status(500).send({
                     status: 'error',
                     message: 'Error creating reservation',
-                    error: error
+                    error: errors
                 });
                 
             }
@@ -123,76 +118,47 @@ var reservesController = {
             
         }
 
-    },
-    
-    getAllReservation:function(req,res){
+    },    
+    getAllBookingByCondoAndUnit:async function(req,res){
 
-        let authUsers = ['ROLE_ADMIN', 'ROLE_STAFF']
-        
-        if (!authUsers.includes(req.user.role)) {
+        let id = req.params.id
+        // let unit = req.params.unit
 
+        if(id != req.user.sub){
             return res.status(403).send({
-
                 status: 'error',
-                message: 'Forbbiden'
-            })
-            
-        }
-      
-        Reserves.find()
-            .populate("ownerid", "name lastname email phone1")
-            .populate("subownerid","name lastname email phone1")
-            .populate('owner', 'name lastname email')
-            .populate('subowner', 'name lastname email')
-            .populate('admin', 'name lastname email')
-            .populate('address','alias phone1 street_1 sector_name province city country')
-            .exec((err,reservations) => {
-            
-            
-            if (err != null || reservations == null || reservations.length == 0) {
-                
-                return res.status(500).send({
-
-                    status:'error',
-                    message:'Error fetching data'
-                })
-            }
-
-                var data_obj_response = {}
-                var doc_pipeline = []
-
-            //Darle formate a la fecha, horas
-                reservations.forEach((element, index) => {
-                    
-                    Object.keys(element._doc).forEach((cols, indx) => {
-                      
-
-                        if (cols.includes("startReservationDate") || cols.includes("endReservationDate")) {
-                             
-                            let dateFormatted = moment(reservations[cols]).format('DD-MM-YY HH:mm'); 
-                            
-                            data_obj_response[cols] = dateFormatted
-                            
-                            
-                        }else{
-
-                            data_obj_response[cols] = element[cols]
-                          
-                        }                    
-                       
-                    })
-                    doc_pipeline.push(data_obj_response)
-
+                message: 'Forbidden'
             });
-           
+        }
+
+        let reservations = null;
+       
+        try {
+
+             reservations = await Reserves.find({ memberId: id })               
+            .populate('condoId', 'alias phone1 street_1 sector_name province city country')
+            .exec();
+
+            if (reservations.length == 0) {
+                return res.status(404).send({
+                    status: 'error',
+                    message: 'No reservations found'
+                });
+                                   
+            }
             
-            return res.status(200).send({
-
-                status: 'success',
-                message: doc_pipeline
-            })
-
-        })
+        } catch (error) {
+            console.error(error);
+            return res.status(500).send({
+                status: 'error',
+                message: 'Error fetching data'
+            });
+        }
+         
+        return res.status(200).send({
+            status: 'success',
+            message: reservations
+        });
         
     },
     getReservationByBooker: function(req, res){

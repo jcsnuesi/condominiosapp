@@ -13,8 +13,9 @@ var md_upload = multipart({ uploadDir: './uploads/users' });
 
 // GET
 
-router.get('/allReservation', md_auth.authenticated, ReserveController.getAllReservation)
+// router.get('/allReservation', md_auth.authenticated, ReserveController.getAllReservation)
 router.get('/findReservation/:apartment/:addressId', md_auth.authenticated, ReserveController.getReservationByBooker)
+router.get('/get-bookings/:id', md_auth.authenticated, ReserveController.getAllBookingByCondoAndUnit)
 
 // // Buscar usuario por propietario
 // router.get('/ownerUsers', md_auth.authenticated, UserController.getUsersByOwner)
