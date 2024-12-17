@@ -9,11 +9,11 @@
         
             <div class="radio-container">
                 <div class="field-radiobutton">
-                    <p-radioButton name="bookAction" value="guest" [(ngModel)]="valRadio" id="guestRadio"></p-radioButton>
+                    <p-radioButton name="bookAction" (onClick)="updateBookingObj()" value="guest" [(ngModel)]="valRadio" id="guestRadio"></p-radioButton>
                     <label for="guestRadio">Annouce a guest</label>
                 </div>
                 <div class="field-radiobutton">
-                    <p-radioButton name="bookAction"  value="bookingAct" [(ngModel)]="valRadio" id="bookingRadio"></p-radioButton>
+                    <p-radioButton (onClick)="updateBookingObj()" name="bookAction"  value="bookingAct" [(ngModel)]="valRadio" id="bookingRadio"></p-radioButton>
                     <label for="bookingRadio">Make a booking</label>
                 </div>
             </div>
@@ -27,27 +27,27 @@
                     <div class="form-group">
                         <label for="condo-label">Choose condo:</label>
                         <p-dropdown #condoOption="ngModel" name="condoOption" (onChange)="getAreaInfo($event)" id="areas-available-label"
-                            [options]="condoOptions" [(ngModel)]="guestInfo.condoId" optionLabel="label" placeholder="Areas available"
+                            [options]="condoOptions" [(ngModel)]="bookingInfo.condoId" optionLabel="label" placeholder="Areas available"
                             required />
                     </div>
 
                         <div class="form-group">
                             <label for="unitOption-labels">Choose unit:</label>
                             <p-dropdown id="unitOption-labels" #unitOptionsg="ngModel" name="unitOptionsg" [options]="unitOption"
-                                [(ngModel)]="guestInfo.unit" optionLabel="label" [disabled]="unitOption.length == 0" required />
+                                [(ngModel)]="bookingInfo.unit" optionLabel="label" [disabled]="unitOption.length == 0" required />
                         </div>
 
     
                     <div class="form-group">
                         <label for="guest-label">Guest fullname:</label>
-                        <input type="text" pInputText #guestName="ngModel" name="guestName" id="guest-label" [(ngModel)]="guestInfo.fullname" required/>
+                        <input type="text" pInputText #guestName="ngModel" name="guestName" id="guest-label" [(ngModel)]="bookingInfo.fullname" required/>
     
                         <span *ngIf="guestName.touched && guestName.invalid" class="p-error">This field is required.</span>
                     </div>
                  
                     <div class="form-group">
                         <label for="phone-label">Phone:</label>
-                        <input type="text" pInputText #phone="ngModel" name="phone" id="phone-label" [(ngModel)]="guestInfo.phone"
+                        <input type="text" pInputText #phone="ngModel" name="phone" id="phone-label" [(ngModel)]="bookingInfo.phone"
                         maxlength="11" required/>
     
                         <span *ngIf="phone.touched && phone.invalid" class="p-error">This field is required.</span>
@@ -57,16 +57,16 @@
                     <div class="form-group">
                         <label for="notify-label">Choose notification method (optional):</label>
                         <p-dropdown #notifyOptions="ngModel" name="notifyOptions" id="notify-label"
-                            [options]="notifingOptions" [(ngModel)]="guestInfo.notifingType" optionLabel="label" placeholder="Areas available" />
+                            [options]="notifingOptions" [(ngModel)]="bookingInfo.notifingType" optionLabel="label" placeholder="Areas available" />
                         <span *ngIf="notifyOptions.touched && notifyOptions.invalid" class="p-error">This field is required.</span>
                     </div>
     
-                    <div class="form-group"  *ngIf="guestInfo.notifingType.length != 0 && guestInfo.notifingType.label != 'None'">
-                        <label for="type-notyfication-label">Type {{guestInfo.notifingType.label}}:</label>
+                    <div class="form-group"  *ngIf="bookingInfo.notifingType.length != 0 && bookingInfo.notifingType.label != 'None'">
+                        <label for="type-notyfication-label">Type {{bookingInfo.notifingType.label}}:</label>
                         <input type="text" pInputText 
                         #typeNotification="ngModel" 
                         name="typeNotification" id="type-notyfication-label"
-                            [(ngModel)]="guestInfo.notifing"                         
+                            [(ngModel)]="bookingInfo.notifing"                         
                             />                
                             
                         <span *ngIf="typeNotification.touched && typeNotification.invalid" class="p-error">This field is required.</span>
@@ -79,7 +79,7 @@
                         #dateArrival="ngModel" 
                         name="dateArrival" 
                         inputId="calendar-12h" 
-                        [(ngModel)]="guestInfo.checkIn"
+                        [(ngModel)]="bookingInfo.checkIn"
                         [showTime]="true"                    
                         [hourFormat]="12" 
                         dateFormat="mm-dd-yy"
@@ -97,7 +97,7 @@
                               #comment="ngModel" 
                               name="comment" 
                               id="comment-label" 
-                              [(ngModel)]="guestInfo.comments" >
+                              [(ngModel)]="bookingInfo.comments" >
                             </textarea>
                     
                         <span *ngIf="comment.touched && comment.invalid" class="p-error">This field is required.</span>
@@ -221,13 +221,14 @@
             <ng-template pTemplate="caption">
                 <div class="flex justify-content-between">
                     <p-button [outlined]="true" icon="pi pi-filter-slash" label="Clear" (onClick)="clear(dt)" />
-                    <p-iconField iconPosition="left">
-                        <p-inputIcon>
-                            <i class="pi pi-search"></i>
-                        </p-inputIcon>
+                <p-iconField iconPosition="left">
+                    <span class="p-input-icon-left ml-auto">
+                        <i class="pi pi-search"></i>
+                
                         <input pInputText type="text" [(ngModel)]="searchValue"
                             (input)="dt.filterGlobal($event.target.value, 'contains')" placeholder="Keyboard Search" />
-                    </p-iconField>
+                    </span>
+                </p-iconField>
                 </div>
             </ng-template>
             <ng-template pTemplate="header">
@@ -260,14 +261,14 @@
                     
                     <th pSortableColumn="date" style="min-width: 10rem">
                         <div class="flex justify-content-between align-items-center">
-                            Date
+                            check in
                             <p-sortIcon field="checkIn" />
                             <p-columnFilter type="date" field="checkIn" display="menu" class="ml-auto" />
                         </div>
                     </th>
                     <th pSortableColumn="date" style="min-width: 10rem">
                         <div class="flex justify-content-between align-items-center">
-                            Date
+                            check out
                             <p-sortIcon field="date" />
                             <p-columnFilter type="date" field="checkOut" display="menu" class="ml-auto" />
                         </div>
@@ -351,9 +352,140 @@
     </div>
 </p-panel>
 
-<p-dialog header="Header" [modal]="true" [(visible)]="visibleDialog" [style]="{ width: '50rem' }"
+<p-dialog header="Settings" [modal]="true" [(visible)]="visibleDialog" [style]="{ width: '50rem' }"
     [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" [maximizable]="true">
-    <p>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit...
-    </p>
+    
+    <div class="booking-data-container">
+
+        <div class="form-group">
+
+            <label for="condo-apt-label">Choose condominium:</label>
+            <p-dropdown 
+          
+            #condoOption_apt="ngModel" 
+            name="condoOption_apt" 
+            id="condo-apt-label" 
+            [options]="condoOptions"
+            [(ngModel)]="bookingInfoApt.condoId" 
+            optionLabel="label" 
+            required />
+        </div>
+
+        <div class="form-group">
+            <label for="unitOption-apt-label">Choose unit:</label>
+            <p-dropdown 
+            #unitOptions_apt="ngModel" 
+            name="unitOptions_apt" 
+            id="unitOption-apt-label" 
+            [options]="unitOption"
+            [(ngModel)]="bookingInfoApt.unit" 
+            optionLabel="label"         
+            required />
+        </div>
+
+        <div class="form-group" *ngIf="bookingInfoApt.checkOut != null">
+            <label for="areaOption-apt-label" >Choose area:</label>
+            <p-dropdown     
+            #areaOption_apt="ngModel" 
+            name="areaOption_apt" 
+            id="areaOption-apt-label" 
+            [options]="areaOptions"
+            [(ngModel)]="bookingInfoApt.areaId" 
+            optionLabel="label" 
+            placeholder="Areas available"
+            [disabled]="areaOptions.length == 0" />
+        </div>
+
+        </div>
+
+        <div class="booking-data-container">
+
+            <div class="form-group">
+                <label for="checkIn-label">Check In (date/time):</label>
+                <p-calendar #checkIn="ngModel" 
+                id="checkIn-label" 
+                name="checkIn" 
+                inputId="calendar-12h" 
+                [(ngModel)]="bookingInfoApt.checkIn"
+                [showTime]="true" 
+                [hourFormat]="12" 
+                dateFormat="mm-dd-yy"
+                required />
+            </div>  
+
+            <div class="form-group" *ngIf="bookingInfoApt.checkOut != null">
+  
+                <label for="checkOut-label">Expire date: (date/time):</label>
+                <p-calendar #checkOut="ngModel" 
+                name="checkOut" 
+                id="checkOut-label" 
+                inputId="calendar-12h" 
+                [(ngModel)]="bookingInfoApt.checkOut"
+                [showTime]="true" 
+                [hourFormat]="24" 
+                dateFormat="dd-mm-yy"
+                required  />
+            </div>  
+
+            <div class="merged-container">
+
+                <div class="form-grouped">
+                    <label for="checkOut-label">Visitors' qtys:</label>
+                    <p-inputNumber
+                    #visitors="ngModel"
+                    name="visitors" 
+                    [(ngModel)]="bookingInfoApt.visitorNumber" 
+                    mode="decimal" 
+                    inputId="withoutgrouping" 
+                    [useGrouping]="false"  
+                    [min]="0"
+                    [max]="10" />
+                </div>
+                <div class="form-grouped">
+                    <label for="status-apt-label">Status:</label>
+                    <p-dropdown [ngModel]="bookingInfoApt.status" 
+                    [options]="headerStatus"
+                     optionLabel="label"     
+                     placeholder="Any">
+                        <ng-template let-option pTemplate="item">
+                            <p-tag [value]="option.label" [severity]="getSeverity(option.label)" />
+                        </ng-template>
+                    </p-dropdown>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="form-group">
+            <label for="comment-apt-label">Comment (optional):</label>
+        
+            <textarea rows="5" cols="30" pInputTextarea #comment_apt="ngModel" name="comment_apt" id="comment-apt-label"
+                [(ngModel)]="bookingInfoApt.comments">
+                                    </textarea>
+        
+            <span *ngIf="comment_apt.touched && comment_apt.invalid" class="p-error">This field is required.</span>
+        </div>
+       
+
+        <div class="booking-data-container">
+   
+        <div class="btn-add-1">
+            <p>Notify visitor by email</p>
+            <p-button label="Add visitors" severity="success"  icon="pi pi-check" (click)="addVisitor()" />
+        </div>
+
+            <div *ngFor="let input of inputData; let i = index">
+                <div class="container-component">
+                    <input pInputText [(ngModel)]="inputValues[i]"  placeholder="Escribe algo" />
+                    <p-button label="remove" severity="danger" icon="pi pi-times" (click)="removeInput(i)" />
+
+                </div>
+            </div>
+        </div>
+
+ 
+<hr>
+        <div class="btn-add">
+            <p-button label="Update" icon="pi pi-check" (click)="update()" />
+        </div>
 </p-dialog>

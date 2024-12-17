@@ -49,7 +49,14 @@
 
 } */
 
-
+.merged-container{
+    display: flex;
+    
+  
+}
+.form-grouped{
+width: 100%;
+}
 
 .filters {
     display: flex;
@@ -126,3 +133,22 @@ label{
 }
 
 
+.booking-data-container{
+
+    margin-top: 15px;
+}
+.btn-add-1{
+    margin-bottom: 15px;
+}
+.btn-add{
+    margin-top: 20px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.container-component{
+    display: flex;
+    padding-top:20px;
+    padding-bottom: 10px;
+    padding-right: 5px;
+}
