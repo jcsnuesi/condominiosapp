@@ -23,7 +23,7 @@ import { ToastModule } from 'primeng/toast';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormatFunctions } from 'src/app/pipes/formating_text';
-import { DialogModule } from 'primeng/dialog';
+import { DialogModule, Dialog } from 'primeng/dialog';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { format, parse, parseISO } from 'date-fns';
@@ -103,6 +103,7 @@ export class BookingAreaComponent implements OnInit {
 
   public selectedRow: any[];
   public visibleDialog: boolean = false;
+  public searchValue: string = '';
 
   
   constructor(
@@ -138,7 +139,9 @@ export class BookingAreaComponent implements OnInit {
 
     
 
-    this.headerStatus = [{ label: 'Reserved', value: 'Reserved' }, { label: 'Cancelled', value: 'Cancelled' }, { label: 'Guest', value: 'Guest' }];
+    this.headerStatus = [{ label: 'Reserved', code: 'Reserved' }, 
+      { label: 'Cancelled', code: 'Cancelled' }, 
+      { label: 'Guest', code: 'Guest' }];
 
     
     this.condoOptions = [];
@@ -184,6 +187,10 @@ export class BookingAreaComponent implements OnInit {
     // console.log('Booking Area Component');
  }
 
+  clear(dt: any) {
+    dt.clear();
+    this.searchValue = '';
+  }
   actionChosen() {
 
    
@@ -247,23 +254,30 @@ export class BookingAreaComponent implements OnInit {
 
   public checkOutMgs:any;
   validateDates(form: NgForm) {
-    const checkIn = form.controls['checkIn'].value;
-    const checkOut = form.controls['checkOut'].value;
 
-    if (checkIn && checkOut && checkIn > checkOut) {
+    let checkIn = form.controls['checkIn'].value;
+    let checkOut = form?.controls['checkOut']?.value ;
+
+    const today = new Date();
+    // today.setHours(0, 0, 0, 0); 
+
+    if (checkIn && checkOut && checkIn > checkOut ) {
       form.controls['checkOut'].setErrors({ invalidDate: true });
       form.controls['checkIn'].setErrors({ invalidDate: true });
       this.checkOutMgs = 'Check Out date must be greater than Check In date';
-    } else {
+    } else if (checkIn < today && Boolean(checkIn)) {
+      form.controls['checkIn'].setErrors({ invalidDate: true })       
+      this.checkOutMgs = 'Check In date cannot be in the past';
+    
+    }
+     else {
       this.checkOutMgs = false;
-      form.controls['checkOut'].setErrors(null);
+     
       form.controls['checkIn'].setErrors(null);
+      form.controls['checkOut']?.setErrors(null);
     }
   }
 
-  
-
-  
   
   submit(form: any) {
     
@@ -306,6 +320,7 @@ export class BookingAreaComponent implements OnInit {
               this._messageService.add({ severity: 'success', summary: 'Success', detail: 'Booking was successful', life: 5000 });
               form.reset();
               this.bookingInfo.notifingType = '';
+              this.getAllBookings(this.identity._id);
             }
             // console.log('Booking Response:', response)
           },
@@ -335,11 +350,11 @@ export class BookingAreaComponent implements OnInit {
           let allBookinInfo = response.message;
           
           try {
-            
+                        
             this.bookingHistory = allBookinInfo.map((booking) => {
               return {
                 id: booking._id,
-                guest: booking?.guest[0],
+                guest: booking?.guest,
                 condoName: booking.condoId.alias,
                 unit: booking.apartmentUnit,
                 area: booking?.areaToReserve ?? 'N/A',
@@ -371,8 +386,8 @@ export class BookingAreaComponent implements OnInit {
   }
 
 
-  public inputData: string[] = [];
-  public inputValues: string[] = [];
+  // public inputData: string[] = [];
+  public inputValues: Array<{ notificationType: string, fullname: string, phone: string }> = [{ notificationType: '', fullname: '', phone: '' }];
 
 
   parseDate(dateString: string): Date {
@@ -393,26 +408,42 @@ export class BookingAreaComponent implements OnInit {
 
   addVisitor() {
    
-    this.inputData.push('');   
-    this.inputValues.push('');
+    // this.inputData.push('');   
+    this.inputValues.push({ notificationType: '', fullname: '', phone: '' });
+    }
+
+    loadVisitorArray(guestList: any) {   
+  
+    
+      if (guestList.length == 0) {
+        // this.inputData = [];
+        this.inputValues = [];        
+      }else{      
+        // guestList.forEach((guest: any) => (
+        //   this.inputData.push('')
+        // ));        
+        this.inputValues = guestList;
+      }
+     
     }
 
   public datoss:any;
   removeInput(id:number){
-    this.inputData.splice(id, 1)
+    // this.inputData.splice(id, 1)
     this.inputValues.splice(id, 1)
   }
 
   public bookingInfoApt: any;
   showDialog(customer:any){
-    
-    console.log("customer------>", customer)
-    console.log("areaOptions------>", this.areaOptions)
+    // Limpiar el array de visitantes
+ 
+    this.loadVisitorArray(customer.guest)
  
     let guestInfo = customer.guest;
     this.getAreaInfo(customer.area)
 
     this.bookingInfoApt = {
+      id: customer.id,
       memberId: this.identity._id,
       fullname: guestInfo?.fullname,
       unit: { label: customer.unit, code: customer.unit },
@@ -424,15 +455,25 @@ export class BookingAreaComponent implements OnInit {
       notifingType: guestInfo?.notifingType,
       notifing: guestInfo?.notifing,
       visitorNumber: customer?.visitorNumber,
-      status: { label: customer.status, value: customer.status } ,
+      status: { label: customer.status, code: this.headerStatus.find((status_result) => 
+        (status_result.label).toLowerCase() === 
+        (customer.status).toLowerCase()).code } ,
       comments: customer?.comments,
-      notifyMany:[]
-
+      guest:[]
     }
     this.visibleDialog = true;
+
+    
+
     this.cdr.detectChanges();
 
   }
+
+  onStatusChange(event: any) {
+    this.bookingInfoApt.status = event;
+
+  }
+  
   getSeverity(status:string){
     let statuses = status.toLowerCase()
 
@@ -446,8 +487,7 @@ export class BookingAreaComponent implements OnInit {
     
   }
   areasAvailable(){
-  
-    
+
     let areasJson = JSON.parse(localStorage.getItem('property')) 
 
     if (areasJson.socialAreas
@@ -461,29 +501,52 @@ export class BookingAreaComponent implements OnInit {
 
     }
 
-    update(){
+  update(){
 
       let data = {...this.bookingInfoApt}
-      data.notifyMany = this.inputValues
-      let unitlabel = this.bookingInfoApt.unit.label
-      let condoIdlabel = this.bookingInfoApt.condoId.label
+      data.guest = this.inputValues
+      let unitlabel = this.bookingInfoApt.unit.code
+      let condoIdlabel = this.bookingInfoApt.condoId.code
       let areaIdlabel = this.bookingInfoApt.areaId.label
-      let statuslabel = this.bookingInfoApt.status.value
+      let statuslabel = this.bookingInfoApt.status.code
 
       data.unit = unitlabel;
       data.condoId = condoIdlabel;
       data.areaId = areaIdlabel;
       data.status = statuslabel;
+ 
+    // console.log('Booking Response//////////////////:', this.bookingInfoApt)
+    //   return
 
-      console.log("SELECTIONS:", data)
-      console.log("this.bookingInfoApt.status:", this.bookingInfoApt.status)
-
-
-   
-
+    this._confirmationService.confirm({
+      message: 'Are you sure you want to update this booking?',
+      header: 'Confirmation',
+      icon: 'pi pi-exclamation-triangle',
+      rejectButtonStyleClass: "p-button-text",
+      accept: () => {
+        this._bookingService.update(this.token, data).subscribe({
+          next: (response) => {
+            if(response.status === 'success') {
+              this._messageService.add({ severity: 'success', summary: 'Success', detail: 'Booking was successful', life: 5000 });
+              this.visibleDialog = false;
+              this.getAllBookings(this.identity._id);
+            }
+          },
+          error: (errors) => {
+            this._messageService.add({ severity: 'error', summary: 'Error', detail: errors.error.message, life:10000 });
+            // console.log('Booking Error:', errors.error)
+          }
+        });
+      },
+      reject: () => {
+        this._messageService.add({severity:'info', 
+          summary:'Rejected', 
+          detail:'You have rejected the booking'});
+      }
+    });      // console.log("SELECTIONS:", data)
+     
     }
   
-
   
   
 }

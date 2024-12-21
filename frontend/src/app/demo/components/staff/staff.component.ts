@@ -273,29 +273,67 @@ export class StaffComponent implements OnInit, AfterViewInit {
     this._route.params.subscribe(params => {
 
       let condoId = params['id'];
+      let ownerId = params['ownerId'];
+      console.log('CONDOID:', ownerId);
+
+      if(ownerId != undefined){
+   
+        this.ownerId = ownerId;
+        this.getStaffByOwerCondo();
+      }
     
       if (condoId != undefined){
         // Carga la lista de staff por condominio
         this.condo_id = condoId;
         this.getStaffByCondoId();
         this.condominioList = [{
-          label: condominioInfo.alias.toUpperCase(), 
-          code: condominioInfo._id
+          label: condominioInfo?.alias.toUpperCase(), 
+          code: condominioInfo?._id
         }]       
-        this.loadingCondo = false;
-        
+        this.loadingCondo = false;        
   
-      }else{
+      } else if (condoId == undefined && ownerId == undefined){
         // Carga la tabla de staff con todos los registros que existe por administrador componente
         this.getStaffList();  
         // Carga la lista de todos condominios de este administrador
         this.getAdminsProperties();
 
-    
-
       }      
 
     });
+  }
+  public ownerId: string;
+  getStaffByOwerCondo(){
+
+    this._staffService.getStaffByOwnerCondo(this.token, this.ownerId).subscribe({
+      next: (response) => {
+        console.log('STAFF-*****getStaffByOwnerCondo********>:', response);
+        if (response.status == 'success') {
+
+          this.propertyDetailsVar = response.message.map((staff) => {
+            return {
+              _id: staff._id,
+              fullname: staff?.name + ' ' + staff?.lastname,
+              phone: staff.phone,
+              gender: staff.gender,
+              government_id: staff.government_id,
+              createdBy: staff.createdBy,
+              condo_id: staff.condo_id?.alias ?? 'No Condo',
+              position: staff.position,
+              email: staff.email,
+              status: staff.status,
+              createdAt: staff.createdAt,
+              avatar: staff.avatar
+
+            }
+          });
+
+          this.loading = false;
+        }
+    },error: (error) => {
+      console.log(error);
+    }
+  });
   }
 
   clear(dt:any) {
@@ -318,7 +356,7 @@ export class StaffComponent implements OnInit, AfterViewInit {
     this._staffService.getStaffByCondo(this.token, this.condo_id).subscribe({
 
       next: (response) => {
-
+        console.log('STAFF->:', response);
         if (response.status == 'success') {
 
           this.propertyDetailsVar = response.message.map((staff) => {

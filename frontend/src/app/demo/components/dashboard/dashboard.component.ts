@@ -13,7 +13,7 @@ import { dateTimeFormatter } from '../../service/datetime.service';
 import { global } from '../../service/global.service';
 import { MessageService } from 'primeng/api';
 import { OwnerModel } from '../../models/owner.model';
-
+import { BookingServiceService } from '../../service/booking-service.service';
 
 @Component({ 
     templateUrl: './dashboard.component.html',
@@ -63,7 +63,6 @@ import { OwnerModel } from '../../models/owner.model';
     public totalBooked: number = 0;
     public condoOptions: any[];
     public idroute: string;
-
    
     constructor(
        
@@ -76,7 +75,8 @@ import { OwnerModel } from '../../models/owner.model';
         private _config: PrimeNGConfig,
         private _messageService: MessageService,
         private _confirmationService: ConfirmationService,
-        private _router: Router,) {
+        private _router: Router,
+        private _bookingService: BookingServiceService) {
         this.subscription = this.layoutService.configUpdate$.subscribe(() => {
             this.initChart();
         });
@@ -93,21 +93,124 @@ import { OwnerModel } from '../../models/owner.model';
       
         this.condoOptions = [];
         this.idroute = this.identity._id
-     
-       
-        
+             
         this.apiUnitResponse = false
         this.messageApiResponse = {message:'', severity:''}
         this.visible_owner = false;
         this.areaSocial = false;
 
-   
+    
         
         this.formData = new FormData()
 
     }
 
 
+    ngOnInit() {
+
+        this.propertyObj = JSON.parse(localStorage.getItem('property'))
+        this.onInitInfo()
+        
+        this.genderOption = [
+            { name: 'Male', gender: 'm' },
+            { name: 'Female', gender: 'f' }
+        ];
+
+        this.parkingOptions = []
+
+        for (let index = 1; index < 5; index++) {
+
+            this.parkingOptions.push(index)
+
+        }
+
+        this.isRentOptions = [
+            { name: 'Yes', code: true },
+            { name: 'No', code: false }
+        ]
+
+        this.property_typeOptions = [
+            { "name": "House", code: "house" },
+            { "name": "Apartment", code: "apartment" },
+            { "name": "Condo", code: "condo" },
+            { "name": "Townhouse", code: "townhouse" },
+            { "name": "Villa", code: "villa" },
+            { "name": "Penthouse", code: "penthouse" },
+        ]
+
+        const documentStyle = getComputedStyle(document.documentElement);
+
+        const textColor = documentStyle.getPropertyValue('--text-color');
+
+        const textColorSecondary = documentStyle.getPropertyValue('--text-color-secondary');
+
+        const surfaceBorder = documentStyle.getPropertyValue('--surface-border');
+
+
+        this.data = {
+            labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+            datasets: [
+                {
+                    label: 'My First dataset',
+                    backgroundColor: documentStyle.getPropertyValue('--blue-500'),
+                    borderColor: documentStyle.getPropertyValue('--blue-500'),
+                    data: [65, 59, 80, 81, 56, 55, 40]
+                },
+                {
+                    label: 'My Second dataset',
+                    backgroundColor: documentStyle.getPropertyValue('--pink-500'),
+                    borderColor: documentStyle.getPropertyValue('--pink-500'),
+                    data: [28, 48, 40, 19, 86, 27, 90]
+                }
+            ]
+        };
+
+        this.options = {
+            maintainAspectRatio: false,
+            aspectRatio: 0.8,
+            plugins: {
+                legend: {
+                    labels: {
+                        color: textColor
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: {
+                        color: textColorSecondary,
+                        font: {
+                            weight: 500
+                        }
+                    },
+                    grid: {
+                        color: surfaceBorder,
+                        drawBorder: false
+                    }
+                },
+                y: {
+                    ticks: {
+                        color: textColorSecondary
+                    },
+                    grid: {
+                        color: surfaceBorder,
+                        drawBorder: false
+                    }
+                }
+
+            }
+        };
+
+        this.items = [
+            { label: 'Add New', icon: 'pi pi-fw pi-plus' },
+            { label: 'Remove', icon: 'pi pi-fw pi-minus' }
+        ];
+
+        this.loadCarsLazy()
+
+
+
+    }
 
 
     handleButtonClick(event: Event) {
@@ -119,6 +222,23 @@ import { OwnerModel } from '../../models/owner.model';
     propertyData(data) {
         // emit data to parent component
         this.propertyInfoEvent.emit(data);
+    }
+
+    loadCarsLazy() {
+        this._bookingService.getBooking(this.token, this.identity._id).subscribe({
+
+            next: (response) => {
+
+                if (response.status == 'success') {
+                    this.totalBooked = response.message.length
+                } else {
+                    this.totalBooked = 0
+                }
+            },
+            error: (error) => {
+                console.log(error)
+            }
+        })
     }
 
     public indexStepper: number = 0;
@@ -315,113 +435,6 @@ import { OwnerModel } from '../../models/owner.model';
 
 
 
-
-    ngOnInit() {
-
-        this.propertyObj = JSON.parse(localStorage.getItem('property'))
-
-        this.onInitInfo()
-     
-        
-
-        this.genderOption = [
-            { name: 'Male', gender: 'm' },
-            { name: 'Female', gender: 'f' }
-        ];
-
-        this.parkingOptions = []
-
-        for (let index = 1; index < 5; index++) {
-
-            this.parkingOptions.push(index)
-
-        }
-
-        this.isRentOptions = [
-            { name: 'Yes', code: true },
-            { name: 'No', code: false }
-        ]
-
-        this.property_typeOptions = [
-            {"name": "House", code:"house" }, 
-            { "name": "Apartment", code:"apartment"}, 
-            { "name": "Condo" , code:"condo" }, 
-            { "name": "Townhouse" , code:"townhouse" }, 
-            { "name": "Villa", code:"villa" },  
-            { "name": "Penthouse" , code:"penthouse" }, 
-          ]
-            
-        const documentStyle = getComputedStyle(document.documentElement);
-
-        const textColor = documentStyle.getPropertyValue('--text-color');
-
-        const textColorSecondary = documentStyle.getPropertyValue('--text-color-secondary');
-
-        const surfaceBorder = documentStyle.getPropertyValue('--surface-border');
-      
-
-        this.data = {
-            labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
-            datasets: [
-                {
-                    label: 'My First dataset',
-                    backgroundColor: documentStyle.getPropertyValue('--blue-500'),
-                    borderColor: documentStyle.getPropertyValue('--blue-500'),
-                    data: [65, 59, 80, 81, 56, 55, 40]
-                },
-                {
-                    label: 'My Second dataset',
-                    backgroundColor: documentStyle.getPropertyValue('--pink-500'),
-                    borderColor: documentStyle.getPropertyValue('--pink-500'),
-                    data: [28, 48, 40, 19, 86, 27, 90]
-                }
-            ]
-        };
-
-        this.options = {
-            maintainAspectRatio: false,
-            aspectRatio: 0.8,
-            plugins: {
-                legend: {
-                    labels: {
-                        color: textColor
-                    }
-                }
-            },
-            scales: {
-                x: {
-                    ticks: {
-                        color: textColorSecondary,
-                        font: {
-                            weight: 500
-                        }
-                    },
-                    grid: {
-                        color: surfaceBorder,
-                        drawBorder: false
-                    }
-                },
-                y: {
-                    ticks: {
-                        color: textColorSecondary
-                    },
-                    grid: {
-                        color: surfaceBorder,
-                        drawBorder: false
-                    }
-                }
-
-            }
-        };
-
-        this.items = [
-            { label: 'Add New', icon: 'pi pi-fw pi-plus' },
-            { label: 'Remove', icon: 'pi pi-fw pi-minus' }
-        ];
-
-       
-
-    }
 
 
     

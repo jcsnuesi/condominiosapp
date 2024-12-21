@@ -99,6 +99,12 @@ export class StaffService{
        
         return this._http.get(this.url + 'staff-by-condo/' + condo_id, {headers:header})
     }
+    getStaffByOwnerCondo(token: string, condo_id:string): Observable<any>{
+
+        let header = new HttpHeaders().set('Content-Type', 'application/json').set('Authorization', token)
+       
+        return this._http.get(this.url + 'staff-by-condo-owner/' + condo_id, {headers:header})
+    }
 
     verifyPassword(token: string, password: any): Observable<any>{
         let params = JSON.stringify(password)

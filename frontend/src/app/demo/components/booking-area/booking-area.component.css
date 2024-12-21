@@ -148,7 +148,17 @@ label{
 
 .container-component{
     display: flex;
-    padding-top:20px;
+    justify-content: space-between;
+    padding-top:10px;
     padding-bottom: 10px;
     padding-right: 5px;
+  
+}
+
+.form-group-guest{
+    width: 100%;
+    margin: 5px;
+}
+.btn-size-guest{
+    margin-left: 6px;
 }
