@@ -51,3 +51,16 @@ exports.emailVerification = function (info) {
 
 
 }
+exports.guestVerification = function(info){
+
+    var payload = {
+        id: info._id,
+        fullname: info.fullname,
+        email: info.notificationType,
+        phone: info.phone,
+        iat: moment().unix(),
+        exp: moment().add(24, 'hours').unix
+    }
+
+    return jwt.encode(payload, secret)
+}

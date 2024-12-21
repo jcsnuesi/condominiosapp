@@ -11,6 +11,10 @@ let moment = require('moment')
 let isDateConflict = require('../service/dateConflict')
 let codeVerification = require('../service/verificators')
 let generateRandomCode = require('../service/codeGenerator')
+let bcrypt = require('bcrypt')
+let saltRounds = 10;
+let verifyGuest = require('../service/jwt')
+
 
 
 var reservesController = {
@@ -42,7 +46,6 @@ var reservesController = {
         }             
 
         if (val_memberId && val_condoId) {
-
           
             try {
 
@@ -56,9 +59,8 @@ var reservesController = {
 
                 const reservation = new Reserves();
 
-
                 if (params.isguest) {
-
+                   
                     reservation.condoId = params.condoId;
                     reservation.apartmentUnit = params.unit;
                     reservation.memberId = params.memberId;
@@ -66,11 +68,14 @@ var reservesController = {
                         fullname: params.fullname,
                         phone: params.phone,
                         notificationType: params.notifing,
-                        verificationCode: generateRandomCode()
+                        verificationCode: generateRandomCode(),
+                        verify: false,
+                        guest_token: verifyGuest.guestVerification(params)
                     })
                     reservation.status = 'Guest';
                     reservation.checkIn = params.checkIn;
                    
+       
                     await reservation.save();
                     // Enviarmos el correo con los 4 digitos de verificación
                     codeVerification.CodeVerification(params.notifing, reservation.guest[0].verificationCode);
@@ -122,7 +127,7 @@ var reservesController = {
     getAllBookingByCondoAndUnit:async function(req,res){
 
         let id = req.params.id
-        // let unit = req.params.unit
+
 
         if(id != req.user.sub){
             return res.status(403).send({
@@ -231,18 +236,19 @@ var reservesController = {
 
 
     },
-    updateReservation:function(req, res){
+    updateReservation:async function(req, res){
 
         let params = req.body
+        
 
         try {
 
-            var areaToReserve_val = !validator.isEmpty(params.areaToReserve)
-            var startReservationDate_val = !validator.isEmpty(params.startReservationDate)
-            var endReservationDate_val = !validator.isEmpty(params.endReservationDate)
-            var address_val = !validator.isEmpty(params.address)
-            var apartmentUnit_val = !validator.isEmpty(params.apartmentUnit)
-            var id_reservation_val = !validator.isEmpty(params.id_reservation)
+            var val_memberId = !validator.isEmpty(params.memberId)
+            var val_checkIn = !validator.isEmpty(params.checkIn)
+            var val_unit = !validator.isEmpty(params.unit)
+            var val_status = !validator.isEmpty(params.status)
+   
+         
             
         } catch (error) {
 
@@ -254,36 +260,72 @@ var reservesController = {
             
         }
 
-        if (areaToReserve_val && startReservationDate_val && 
-            endReservationDate_val && address_val && apartmentUnit_val && id_reservation_val) {
-            
-             // ROLE_OWNER          
-            let user_role = req.user.role.substring(5).toLowerCase()
+        if (val_memberId && 
+            val_checkIn && 
+            val_unit && 
+            val_status ) {
 
-            params[user_role] = req.user.sub
+                
           
-
-         
           
-            Reserves.findOneAndUpdate({ _id: params.id_reservation }, params, {new:true}, (err, dataUpdated) => {
+            try {
 
-                var reservationErrorHandlerArr = errorHandler.newUser(err, dataUpdated)
-
-                if (reservationErrorHandlerArr[0]) {
-
-
-                    return res.status(
-                        reservationErrorHandlerArr[1])
-                        .send({
-                            status: reservationErrorHandlerArr[2],
-                            message: reservationErrorHandlerArr[3]
-
-
-                        })
-
+                var book_var = await Reserves.findOne({ _id: params.id })
+              
+                if (!book_var){
+                    return res.status(404).send({
+                        status: "error",
+                        message: "Reservation not found"
+                    })
                 }
 
-            })
+                if (book_var.status == 'Expired') {
+                    return res.status(409).send({
+                        status: "error",
+                        message: "Reservation expired"
+                    })
+                }
+
+                if (Array.isArray(params?.guest) && params.guest.length > 0) {
+        
+                    for (const element of params.guest) {
+
+                        try {
+
+                            if (Boolean(book_var.guest.find(x => x._id == element._id))) {
+                                continue;
+                            }else {
+
+                                element.verificationCode = generateRandomCode();
+                                codeVerification.CodeVerification(element.notificationType, element.verificationCode);
+
+                                element.verificationCode = await bcrypt.hash(`${element.verificationCode}`, saltRounds);
+                                element.verify = false;
+                                element.guest_token = verifyGuest.guestVerification(element);
+                            }
+                         
+                        } catch (error) {
+                            console.error('Error hashing verification code:', error);
+                        }
+                    }
+                }
+
+               const bookingUpdated = await Reserves.findOneAndUpdate({ _id: params.id }, params, {new:true}).exec()
+
+               return res.status(200).send({                
+                    status: "success",
+                    message: bookingUpdated
+               });
+                
+            } catch (error) {
+
+                return res.status(500).send({
+
+                    status: "error",
+                    message: "Error updating reservation"
+                })
+                
+            }
             
         } else {
 

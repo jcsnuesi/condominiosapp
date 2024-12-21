@@ -1,4 +1,4 @@
-'use strict'
+'use strict' 
 
 let validator = require('validator')
 let bcrypt = require('bcrypt')

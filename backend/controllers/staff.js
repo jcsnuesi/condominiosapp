@@ -13,6 +13,8 @@ const { v4: uuidv4 } = require('uuid');
 const verifyClass = require('../service/verifyParamData')
 const sendEmailVerification = require('../service/verificators')
 const generatePassword = require('generate-password');
+const Owner = require('../models/owners');
+const Family = require('../models/family');
 // Generar una contraseña con opciones específicas
 const password = generatePassword.generate({
     length: 8,       // Longitud de la contraseña
@@ -367,15 +369,48 @@ var StaffController = {
             return res.status(500).send({ message: 'Error en la petición' });
         }
     },
-    getStaffByCondoId:async function(req,res){
+    getStaffByOwnerAndCondoId:async function(req,res){
+
+        let _user = req.params.ownerId
+        const user = await Promise.all([Owner.findOne({ _id: _user }).exec(),
+        Family.find({ _id: _user }).exec()])
+
+      
+        const condosId = user.map((userinfo) => {
+            return userinfo.propertyDetails
+        
+        });
+
+        
+        let [obj1, ...resto] = condosId.flat(2)
+        
+        console.log(obj1)
+        return
+        try {
+
+         
+
+          
+
+            console.log(condosId)
+
+            
+        } catch (error) {
+            console.log(error)
+            
+        }
+       
+        
+    }
+    ,getStaffByCondoId:async function(req,res){
      
         let _id = req.params.id
-   
+        
         Staff.find({           
             condo_id: _id
         }).populate('condo_id', 'alias')
-        .exec((err, staffs) => {
-
+          .exec((err, staffs) => {
+     
           
             if (err || !staffs) {                
 

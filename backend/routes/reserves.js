@@ -28,7 +28,7 @@ router.post('/create-booking', md_auth.authenticated, ReserveController.createBo
 
 // PUT
 
-router.put('/updateReservation', md_auth.authenticated, ReserveController.updateReservation)
+router.put('/update-booking', md_auth.authenticated, ReserveController.updateReservation)
 // router.put('/updateOwnersUsers', [md_auth.authenticated, md_upload], UserController.updateOwnersUsers)
 
 // // DELETE

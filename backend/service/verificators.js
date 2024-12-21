@@ -48,7 +48,7 @@ exports.verifyRegistration = function (user) {
 
 exports.CodeVerification = function(email, code) {
 
-    console.log('Email:', email, 'Code:', code);
+  
     const transporter = mailer.createTransport({
         service: 'gmail',
         host: "smtp.gmail.com",
@@ -61,7 +61,7 @@ exports.CodeVerification = function(email, code) {
     });
 
     // Enviar correo electrónico de verificación
-    const mensajeCorreo = `Your verification code is: ${code}`;
+    const mensajeCorreo = `Your guest verification code is: ${code}`;
 
     const mailOptions = {
         from: 'jcsnuesi@gmail.com',

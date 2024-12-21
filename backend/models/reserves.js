@@ -1,15 +1,18 @@
 'use strict'
 
 const { max } = require('moment');
-var mongoose = require('mongoose')
+var mongoose = require('mongoose');
+const { verify } = require('../controllers/users');
 var Schema = mongoose.Schema
 
-const GuestSchema = new Schema({
+const GuestSchema = {
     fullname: { type: String, required: true },
     phone: { type: String, required: true },
     notificationType: { type: String, required: true },
-    verificationCode: { type: String, required: true }
-});
+    verificationCode: { type: String, required: true },
+    verify: { type: Boolean },
+    guest_token: { type: String, required: true }
+};
 
 var reserveSchema = Schema({
 

@@ -15,7 +15,7 @@ var FamilySchema = Schema({
     phone: { type: String, required: true },
     status: { type: String, default: 'active' },
     role: { type: String, default: 'FAMILY' },
-    addressId: [{
+    propertyDetails: [{
         _id: false,
         condominioId: { type: mongoose.Schema.Types.ObjectId, ref: 'Condominium' },
         unit: { type: String, required: true },
