@@ -29,8 +29,15 @@
 ::ng-deep .p-tabview-nav{
     margin-bottom: 20px;
 }
-::ng-deep .p-dropdown {
+::ng-deep #pn_id_104 {
     width: 100%;
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
+}
+
+.img-border-radius{
+    border-radius: 50%;
+    border:#dbdbdb solid 1px;
+    width: 250px;
+    height: 230px;
 }

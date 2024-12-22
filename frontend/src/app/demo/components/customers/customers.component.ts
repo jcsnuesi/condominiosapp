@@ -231,7 +231,7 @@ dateFormat(customer:any){
 
   phones_number_func(customer){
 
-    console.log("customer PHONEEE", customer)
+  
     var full_phone_num = ''
     if ((customer.phone[-1] != undefined)) {
   

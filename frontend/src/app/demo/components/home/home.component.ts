@@ -41,6 +41,7 @@ import { FormatFunctions } from 'src/app/pipes/formating_text';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { Router } from '@angular/router';
 import { StaffService } from '../../service/staff.service';
+import { BookingServiceService } from '../../service/booking-service.service';
 
 type FamilyAccess = {
 
@@ -152,7 +153,8 @@ export class HomeComponent implements OnInit {
     private _invoiceService: InvoiceService,
     private _formatFunctions: FormatFunctions,
     private _router: Router,
-    private _staffService: StaffService
+    private _staffService: StaffService,
+    private _bookingService: BookingServiceService
   ){
 
     this.items = [
@@ -211,12 +213,31 @@ export class HomeComponent implements OnInit {
 
   }
 
-  allBooking(){
+  ngOnInit() {
+
+    // INIT INFO 
+    this.onInitInfo()
+    this.getStaffByCondoId();
+    this.loadBookingCard()
+
+  } 
+
+  seeBooking(){
+
+    this._router.navigate(['/bookings', this.condoId]);
+
+    // this._router.navigate(['/home/bookings', this.condoId], { queryParams: { condoId: true } })
+    // console.log(this.bookingVisible)
 
     if(this.bookingVisible){
       this.bookingVisible = false;
     }else{
       this.bookingVisible = true;
+      this._activatedRoute.queryParamMap.subscribe((params) => {
+        if(params.has('booking')){
+          this.bookingVisible = true;
+        }
+      });
     }
   
   }
@@ -225,16 +246,9 @@ export class HomeComponent implements OnInit {
       
       this._router.navigate(['/staff', this.getCondoId()._id])
   }
+  
 
-
-  ngOnInit() {
-
-    // INIT INFO 
-    this.onInitInfo() 
-    this.getStaffByCondoId();
-    
-
-  } 
+ 
 
 
   procesarFactura(event){
@@ -282,11 +296,13 @@ export class HomeComponent implements OnInit {
   }
 
   public totalBooked:number = 0;
+  public condoId: string; 
   onInitInfo() {
 
     this._activatedRoute.params.subscribe(param => {
 
       let id = param['id'];
+      this.condoId = id;
 
 
       if (id != undefined) {
@@ -304,10 +320,7 @@ export class HomeComponent implements OnInit {
               this.dateFormatted = dateTimeFormatter(unitList.createdAt)
 
               this.propertyData(unitList)
-              // Total de booking - falta implementar la funcion de booking para cargcar el total de booking
-              this.totalBooked =  0;
-              console.log("unitList", unitList)
-            
+                        
               this.getInvoiceByCondoFunc(unitList)
               this.customers = unitList.units_ownerId
 
@@ -326,6 +339,8 @@ export class HomeComponent implements OnInit {
 
 
     })
+
+    console.log(this.identity._id, this.condoId);
   }
 
 
@@ -358,6 +373,25 @@ export class HomeComponent implements OnInit {
 
   }
 
+  loadBookingCard() {
+    this._bookingService.getBooking(this.token, this.condoId).subscribe({
+
+      next: (response) => {
+
+        console.log("response:--------------->", response)
+
+        if (response.status == 'success') {
+          this.totalBooked = response.message.length
+        } else {
+          this.totalBooked = 0
+        }
+      },
+      error: (error) => {
+        console.log(error)
+      }
+    })
+  }
+
   showOwnerDialog(events) {
     let genderDict = {M:'Male', F:'Female'}
     this.ownerObj = {...events}
@@ -384,9 +418,11 @@ export class HomeComponent implements OnInit {
       
     }
 
-
   }
 
+  see(event){
+    console.log(event)
+  }
   closeDialog(): void {
     this.visible_owner = false;
 

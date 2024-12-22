@@ -11,6 +11,7 @@ import { FamilyMemberComponent } from './demo/components/family-member/family-me
 import { InvoiceHistoryComponent } from './demo/components/invoice-history/invoice-history.component';
 import { StaffComponent } from './demo/components/staff/staff.component';
 import { DashboardComponent } from './demo/components/dashboard/dashboard.component';
+import { BookingAreaComponent } from './demo/components/booking-area/booking-area.component';
 
 
 @NgModule({
@@ -20,7 +21,12 @@ import { DashboardComponent } from './demo/components/dashboard/dashboard.compon
                 path: '', component: AppLayoutComponent,
                 canActivate: [UserGuard],
                 children: [
-                    { path: 'home/:id', canActivate: [UserGuard], component:  HomeComponent },
+                    {
+                        path: 'home/:id', 
+                        canActivate: [UserGuard], 
+                        component: HomeComponent
+                    },
+                    { path: 'bookings/:condoId', component: BookingAreaComponent },
                     { path: '', canActivate: [UserGuard],  loadChildren: () => import('./demo/components/dashboard/dashboard.module').then(m => m.DashboardModule) },
                     { path: 'uikit', loadChildren: () => import('./demo/components/uikit/uikit.module').then(m => m.UIkitModule) },
                     { path: 'utilities', loadChildren: () => import('./demo/components/utilities/utilities.module').then(m => m.UtilitiesModule) },
@@ -34,7 +40,7 @@ import { DashboardComponent } from './demo/components/dashboard/dashboard.compon
                     { path: 'usermanagement', canActivate: [UserGuard], component: CreateUserComponent },
                     { path: 'family-members', canActivate: [UserGuard], component: FamilyMemberComponent },                    
                     { path: 'invoice-history/:condoId', canActivate: [UserGuard], component: InvoiceHistoryComponent },
-                    {path:'staff', canActivate: [UserGuard], component: StaffComponent},
+                    // {path:'staff', canActivate: [UserGuard], component: StaffComponent},
                     {path:'staff/:id', canActivate: [UserGuard], component: StaffComponent}
                     // ,   
                     // { path:'booking-area/:admin/:user', canActivate: [UserGuard], component: StaffComponent}                    

@@ -208,7 +208,7 @@ import { StaffService } from '../../service/staff.service';
             { label: 'Remove', icon: 'pi pi-fw pi-minus' }
         ];
 
-        this.loadCarsLazy();
+        this.loadBookingCard();
         this.getStaffQty();
 
 
@@ -244,7 +244,7 @@ import { StaffService } from '../../service/staff.service';
         this.propertyInfoEvent.emit(data);
     }
 
-    loadCarsLazy() {
+    loadBookingCard() {
         this._bookingService.getBooking(this.token, this.identity._id).subscribe({
 
             next: (response) => {

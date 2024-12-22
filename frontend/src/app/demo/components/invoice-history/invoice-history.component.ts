@@ -144,14 +144,27 @@ export class InvoiceHistoryComponent implements OnInit {
       { label: 'Pending', value: 'pending' }
     ]
 
-    this.propertyDetailsVar = [];
+
   }
 
 
  ngOnInit() {
 
-   this.getInvoiceHistory()
-   this.convertImageToBase64() 
+   this._activateRoute.params.subscribe(params => {
+
+     this.idCondo = params['condoId'];
+     console.log("idCondo:--->", this.idCondo)
+
+     if (this.idCondo != undefined) {
+       this.getInvoiceHistory()
+       this.convertImageToBase64() 
+
+     }
+
+
+   });
+
+ 
  
 }
 
@@ -193,75 +206,73 @@ getPaymentStatus(payment_status: string) {
     }
 }
 
-public idCondo: string;
-public dateOptions:any[];
-public propertyDetailsVar: any[];
+  public idCondo: string;
+  public dateOptions:any[];
+  public propertyDetailsVar: any[] = [];
   getInvoiceHistory() {
 
-    this._activateRoute.params.subscribe(params => {
+  
+    this._invoiceService.getInvoiceByCondo(this.token, this.idCondo).subscribe({
+      next: (res) => {
 
-      let condoId = params['condoId'];
-      this.idCondo = condoId;
+        if (res.status == 'success') {
+          console.log("res success----------:>", res)
+          this.propertyDetailsVar = res.invoices.map((invoice) => {
 
-      this._invoiceService.getInvoiceByCondo(this.token, condoId).subscribe({
-        next: (res) => {
+            this.tableBody = {
+              fullname: '',
+              phone: '',
+              unit: '',
+              invoice_issue: '',
+              invoice_amount: 0,
+              invoice_status: '',
+              paymentStatus: '',
+              _id: '',
+              alias: '',
+              email: ''
 
-          if(res.status == 'success') {
-            
-            this.propertyDetailsVar =  res.invoices.map((invoice) => {
-              
-              this.tableBody = {
-                fullname: '',
-                phone: '',
-                unit: '',
-                invoice_issue: '',
-                invoice_amount: 0,
-                invoice_status: '',
-                paymentStatus: '',
-                _id: '',
-                alias: '',
-                email: ''
-                
-              }
+            }
 
-             invoice.invoice_issue = new Date(<Date>invoice.invoice_issue);
-             
-             invoice.ownerId.propertyDetails.map((property) => {
-               invoice.unit = property.condominium_unit;
-             });
+            invoice.invoice_issue = new Date(<Date>invoice.invoice_issue);
 
-             this.tableBody.fullname = invoice.ownerId.ownerName + ' ' + invoice.ownerId.lastname; 
-             this.tableBody.unit = invoice.unit;
-             this.tableBody.phone = invoice.ownerId.phone;
-             this.tableBody.invoice_issue = invoice.invoice_issue;
-             this.tableBody.invoice_amount = invoice.invoice_amount;
-             this.tableBody.invoice_status = invoice.invoice_status;
-             this.tableBody.paymentStatus = invoice.paymentStatus;
-             this.tableBody.alias = invoice.condominiumId.alias;         
-             this.tableBody._id = invoice._id;
-             this.tableBody.email = invoice.ownerId.email;
-              
-             return this.tableBody;
+            invoice.ownerId.propertyDetails.map((property) => {
+              invoice.unit = property.condominium_unit;
             });
-            
-            // console.log("tbl_invoice:", this.propertyDetailsVar)
-            
-            // this.dateOptions = this.tbl_invoice.map((invoice) => {
-            //   return {label: invoice.date, value: invoice.date}
-            // })
-            this.loading = false;            
-          }
-          
 
-        },
-        error: (err) => { 
-          console.log(err);
+            this.tableBody.fullname = invoice.ownerId.ownerName + ' ' + invoice.ownerId.lastname;
+            this.tableBody.unit = invoice.unit;
+            this.tableBody.phone = invoice.ownerId.phone;
+            this.tableBody.invoice_issue = invoice.invoice_issue;
+            this.tableBody.invoice_amount = invoice.invoice_amount;
+            this.tableBody.invoice_status = invoice.invoice_status;
+            this.tableBody.paymentStatus = invoice.paymentStatus;
+            this.tableBody.alias = invoice.condominiumId.alias;
+            this.tableBody._id = invoice._id;
+            this.tableBody.email = invoice.ownerId.email;
+
+            return this.tableBody;
+          });
+
+          // console.log("tbl_invoice:", this.propertyDetailsVar)
+
+          // this.dateOptions = this.tbl_invoice.map((invoice) => {
+          //   return {label: invoice.date, value: invoice.date}
+          // })
+          this.loading = false;
+        } else {
+          this.loading = false;
+          this.propertyDetailsVar = [];
         }
 
-      })
 
-    });
+      },
+      error: (err) => {
+        console.log(err);
+        this.loading = false;
+        this.propertyDetailsVar = [];
+      }
 
+    })
    
   }
 
@@ -305,7 +316,7 @@ public propertyDetailsVar: any[];
 
 
   convertImageToBase64() {
-    this._http.get('./assets/noimage2.jpeg', { responseType: 'blob' }).subscribe((blob) => {
+    this._http.get('./assets/noimage.jpeg', { responseType: 'blob' }).subscribe((blob) => {
       const reader = new FileReader();
 
       reader.onloadend = () => {

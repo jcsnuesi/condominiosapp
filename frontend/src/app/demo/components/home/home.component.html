@@ -1,14 +1,8 @@
 
 
-<div *ngIf="bookingVisible">
-
-    <p-button (click)="allBooking()" label="Back" icon="pi pi-arrow-left"></p-button>
-    <app-booking-area ></app-booking-area>
-
-</div> 
 
  
-<div class="grid" *ngIf="!bookingVisible"> 
+<div class="grid" *ngIf="!bookingVisible" > 
 
     <div   class="col-12 lg:col-6 xl:col-3">
         <div class="card">
@@ -44,14 +38,14 @@
             <div class="flex justify-content-between mb-3">
                 <div>
                     <span class="block text-500 font-medium mb-3">
-                        Social Area booking
+                        Bookings
                     </span>
                     <div class="text-900 font-medium text-2xl">{{totalBooked}}</div>
                 </div>
-                <div (click)="allBooking()" class="change-icon flex align-items-center justify-content-center bg-orange-100 border-round"
+                <a (click)="seeBooking()" class="change-icon flex align-items-center justify-content-center bg-orange-100 border-round"
                     [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
                     <i class="pi pi-calendar-minus text-orange-500 text-xl"></i>
-                </div>
+            </a>
             </div>
             <span class="text-green-500 font-medium">%52+ </span>
             <span class="text-500">since last week</span>
@@ -363,7 +357,7 @@
     
                             <div class="col-md-6">
                                 <p style="text-align: center;">
-                                    <img [src]="image" alt="" width="181px" height="200px">
+                                    <img [src]="image" class="img-border-radius" alt="" >
     
                                     <p-fileUpload mode="basic" chooseLabel="Choose image" name="demo[]"
                                         url="https://www.primefaces.org/cdn/api/upload.php" accept="image/*"

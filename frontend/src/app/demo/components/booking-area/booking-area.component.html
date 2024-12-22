@@ -1,3 +1,10 @@
+<div  *appHasPermissions="'admin'"   style="margin-bottom: 15px;">
+
+    <p-button (click)="back()" label="Back" icon="pi pi-arrow-left"></p-button>
+ 
+
+</div> 
+
 <div class="booking-responsive" *appHasPermissions="'owner'">   
       
     <p-toast />
@@ -302,7 +309,7 @@
                         </div>
                     </th>
          
-                    <th style="width: 5rem" *appHasPermissions="'owner'"></th>
+                    <th style="width: 5rem"></th>
                 </tr>
             </ng-template>
             <ng-template pTemplate="body" let-customer>
@@ -339,7 +346,7 @@
                         <i class="pi"
                             [ngClass]="{ 'text-green-500 pi-check-circle': customer.verified, 'text-red-500 pi-times-circle': !customer.verified }"></i>
                     </td>
-                    <td style="text-align: center" *appHasPermissions="'owner'">
+                    <td style="text-align: center" >
                         <p-button severity="secondary" (click)="showDialog(customer)" icon="pi pi-cog" />
                     </td>
                 </tr>
@@ -364,7 +371,8 @@
             <div class="form-group">
     
                 <label for="condo-apt-label">Choose condominium:</label>
-                <p-dropdown               
+                <p-dropdown   
+                 [disabled]="identity.role != 'OWNER'"            
                 #condoOption_apt="ngModel" 
                 name="condoOption_apt" 
                 id="condo-apt-label" 
@@ -377,6 +385,7 @@
             <div class="form-group">
                 <label for="unitOption-apt-label">Choose unit:</label>
                 <p-dropdown 
+                 [disabled]="identity.role != 'OWNER'"
                 #unitOptions_apt="ngModel" 
                 name="unitOptions_apt" 
                 id="unitOption-apt-label" 
@@ -388,7 +397,8 @@
     
             <div class="form-group" *ngIf="bookingInfoApt.checkOut != null">
                 <label for="areaOption-apt-label" >Choose area:</label>
-                <p-dropdown     
+                <p-dropdown 
+         
                 #areaOption_apt="ngModel" 
                 name="areaOption_apt" 
                 id="areaOption-apt-label" 
@@ -396,7 +406,7 @@
                 [(ngModel)]="bookingInfoApt.areaId" 
                 optionLabel="label" 
                 placeholder="Areas available"
-                [disabled]="areaOptions.length == 0" />
+                [disabled]="areaOptions.length == 0 || identity.role != 'OWNER'" />
             </div>
     
             </div>
@@ -405,6 +415,7 @@
                 <div class="form-group">
                     <label for="checkIn-label">Check In (date/time):</label>
                     <p-calendar 
+                     [disabled]="identity.role != 'OWNER'"
                     #checkIn="ngModel" 
                     name="checkIn" 
                     id="checkIn-label" 
@@ -425,6 +436,7 @@
       
                     <label for="checkOut-label">Expire date: (date/time):</label>
                     <p-calendar 
+                     [disabled]="identity.role != 'OWNER'"
                     #checkOut="ngModel" 
                     name="checkOut" 
                     id="checkOut-label" 
@@ -454,6 +466,7 @@
                     <div class="form-grouped">
                         <label for="status-apt-label">Status:</label>
                         <p-dropdown 
+                        [disabled]="identity.role != 'OWNER'"     
                          (ngModelChange)="onStatusChange($event)"
                         [options]="headerStatus"
                         #statusOption_apt="ngModel"
@@ -473,7 +486,7 @@
             <div class="form-group">
                 <label for="comment-apt-label">Comment (optional):</label>
             
-                <textarea rows="5" cols="30" pInputTextarea #comment_apt="ngModel" name="comment_apt" id="comment-apt-label"
+                <textarea   [disabled]="identity.role != 'OWNER'"      rows="5" cols="30" pInputTextarea #comment_apt="ngModel" name="comment_apt" id="comment-apt-label"
                     [(ngModel)]="bookingInfoApt.comments">
                                         </textarea>
             
@@ -485,7 +498,7 @@
        
             <div class="btn-add-1">
                 <p>Notify visitor by email</p>
-                <p-button label="Add visitors" severity="success"  icon="pi pi-check" (click)="addVisitor()" />
+                <p-button label="Add visitors" severity="success"  icon="pi pi-check" (click)="addVisitor()"  *appHasPermissions="'owner'" />
             </div>
     
             <div *ngFor="let input of inputValues; let i = index">
@@ -495,11 +508,11 @@
                             <label for="label-nameg">Fullname:</label>
                                 <input pInputText 
                                 [(ngModel)]="input.fullname" 
-                                name="fullname" placeholder="Guest's Fullname" required  [ngModelOptions]="{standalone: true}"/>
+                                name="fullname" placeholder="Guest's Fullname" required  [ngModelOptions]="{standalone: true}"  [disabled]="identity.role != 'OWNER'"/>
                         </div>
                         <div class="form-group-guest">
                             <label for="label-nameg">Phone (optional):</label>
-                            <input  name="phone" pInputText [(ngModel)]="input.phone"  placeholder="Guest's  phone number"  [ngModelOptions]="{standalone: true}"/>
+                            <input  name="phone" pInputText [(ngModel)]="input.phone"  placeholder="Guest's  phone number"  [ngModelOptions]="{standalone: true}"  [disabled]="identity.role != 'OWNER'"/>
                             
                         </div>
                     </div>
@@ -509,7 +522,7 @@
                             <input pInputText 
                             name="notificationType"
                             [(ngModel)]="input.notificationType" 
-                            placeholder="Guest's email address" />
+                            placeholder="Guest's email address"  [disabled]="identity.role != 'OWNER'" />
                             <p-button class="btn-size-guest" label="remove" severity="danger" icon="pi pi-times" (click)="removeInput(i)" required  [ngModelOptions]="{standalone: true}"/>
                         </div>
                          
@@ -521,7 +534,7 @@
 
  
 <hr>
-        <div class="btn-add">
+        <div class="btn-add" *appHasPermissions="'owner'"> 
             <p-button label="Update" icon="pi pi-check" (click)="update()" [disabled]="updateBookingForm.invalid" />
         </div>
 </p-dialog>
