@@ -50,8 +50,8 @@ export class HasPermissionsDirective {
     
     let has_perms = false; 
     let currentUser = new Array(this.identity.role);
-    console.log("permissionsFound", currentUser);
-    console.log("this.identity", this.identity);
+    // console.log("permissionsFound", currentUser);
+    // console.log("this.identity", this.identity);
 
 
     if(this.identity && this.identity.role) {

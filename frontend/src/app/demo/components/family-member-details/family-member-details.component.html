@@ -52,7 +52,7 @@ dataKey="_id" [tableStyle]="{ 'min-width': '60rem' }" [expandedRowKeys]="expande
             </td>
 
             <td>
-                <img [src]="'https://cdn-icons-png.freepik.com/512/10100/10100091.png'"
+                <img src="https://cdn-icons-png.freepik.com/512/10100/10100091.png"
                     [alt]="property.name" width="50" class="shadow-4" />
             </td>
             <td>{{ property.name}}</td>
@@ -80,7 +80,7 @@ dataKey="_id" [tableStyle]="{ 'min-width': '60rem' }" [expandedRowKeys]="expande
                         </th>
                         <th pSortableColumn="unit">Unit <p-sortIcon field="unit" /></th>
                         <th pSortableColumn="family_status">Authorization <p-sortIcon field="family_status" /></th>         
-                        <th>Action</th>         
+                        <th *appHasPermissions="'owner'">Action</th>         
                     </tr>
                 </ng-template>
                 <ng-template pTemplate="body" let-info>
@@ -93,12 +93,13 @@ dataKey="_id" [tableStyle]="{ 'min-width': '60rem' }" [expandedRowKeys]="expande
                             [severity]="getSeverity(info.family_status)" />
                         </td>
                        
-                        <td><p-button type="button"  [severity]="getSeverityAuth(info.family_status)" (click)="authSetting(property,info)" [label]="getLabelAuth(info.family_status)" /></td>
+                        <td *appHasPermissions="'owner'">
+                            <p-button type="button"  [severity]="getSeverityAuth(info.family_status)" (click)="authSetting(property,info)" [label]="getLabelAuth(info.family_status)" /></td>
                     </tr>
                 </ng-template>
                 <ng-template pTemplate="emptymessage">
                     <tr>
-                        <td colspan="6">There are no order for this product yet.</td>
+                        <td colspan="6">There are no properties for this user.</td>
             </tr>
                 </ng-template>
             </p-table>

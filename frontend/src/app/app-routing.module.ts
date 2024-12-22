@@ -35,7 +35,9 @@ import { DashboardComponent } from './demo/components/dashboard/dashboard.compon
                     { path: 'family-members', canActivate: [UserGuard], component: FamilyMemberComponent },                    
                     { path: 'invoice-history/:condoId', canActivate: [UserGuard], component: InvoiceHistoryComponent },
                     {path:'staff', canActivate: [UserGuard], component: StaffComponent},
-                    {path:'staff/:id', canActivate: [UserGuard], component: StaffComponent}                    
+                    {path:'staff/:id', canActivate: [UserGuard], component: StaffComponent}
+                    // ,   
+                    // { path:'booking-area/:admin/:user', canActivate: [UserGuard], component: StaffComponent}                    
           
                     
                     

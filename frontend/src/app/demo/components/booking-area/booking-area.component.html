@@ -1,11 +1,11 @@
-<div class="booking-responsive">   
-     
+<div class="booking-responsive" *appHasPermissions="'owner'">   
+      
     <p-toast />
     <p-confirmDialog />
 
     <p-panel header="Booking" >
 
-        <p-fieldset id="bg-legend" legend="Choose action">
+        <p-fieldset id="bg-legend" legend="Choose action" >
         
             <div class="radio-container">
                 <div class="field-radiobutton">
@@ -226,8 +226,7 @@
                     <p-button [outlined]="true" icon="pi pi-filter-slash" label="Clear" (onClick)="clear(dt)" />
                 <p-iconField iconPosition="left">
                     <span class="p-input-icon-left ml-auto">
-                        <i class="pi pi-search"></i>
-                
+                        <i class="pi pi-search"></i>                
                         <input pInputText type="text" [(ngModel)]="searchValue"
                             (input)="dt.filterGlobal($event.target.value, 'contains')" placeholder="Keyboard Search" />
                     </span>
@@ -303,7 +302,7 @@
                         </div>
                     </th>
          
-                    <th style="width: 5rem"></th>
+                    <th style="width: 5rem" *appHasPermissions="'owner'"></th>
                 </tr>
             </ng-template>
             <ng-template pTemplate="body" let-customer>
@@ -340,14 +339,14 @@
                         <i class="pi"
                             [ngClass]="{ 'text-green-500 pi-check-circle': customer.verified, 'text-red-500 pi-times-circle': !customer.verified }"></i>
                     </td>
-                    <td style="text-align: center">
+                    <td style="text-align: center" *appHasPermissions="'owner'">
                         <p-button severity="secondary" (click)="showDialog(customer)" icon="pi pi-cog" />
                     </td>
                 </tr>
             </ng-template>
             <ng-template pTemplate="emptymessage">
                 <tr>
-                    <td colspan="8">No customers found.</td>
+                    <td colspan="8">No bookings found.</td>
                 </tr>
             </ng-template>
         </p-table>
@@ -365,8 +364,7 @@
             <div class="form-group">
     
                 <label for="condo-apt-label">Choose condominium:</label>
-                <p-dropdown 
-              
+                <p-dropdown               
                 #condoOption_apt="ngModel" 
                 name="condoOption_apt" 
                 id="condo-apt-label" 

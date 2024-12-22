@@ -57,7 +57,7 @@ export class FamilyMemberDetailsComponent implements OnInit {
   public familyMemberDetails: FamilyMemberDetails;
   public nodata: boolean;
   public tableInfo: any;
-  @Input() reciving: string;
+  public userId: string;
 
 
     constructor(
@@ -92,7 +92,16 @@ export class FamilyMemberDetailsComponent implements OnInit {
 
     ngOnInit(): void {
 
-      this.getFamilyMemberDetails(); 
+      
+      this._routeActivated.queryParams.subscribe(params => {
+        this.userId = params['userid'];
+        console.log("this.userId:", this.userId);
+
+        if(this.userId){
+
+          this.getFamilyMemberDetails();
+        }
+      });
 
     }
 
@@ -100,7 +109,7 @@ export class FamilyMemberDetailsComponent implements OnInit {
   public expandedRows = {};
     getFamilyMemberDetails() {
      
-      this._userService.getFamiliesByOwnerId(this.token, this.reciving).subscribe({
+      this._userService.getFamiliesByOwnerId(this.token, this.userId).subscribe({
         next: res =>{
           
           this.nodata = true;

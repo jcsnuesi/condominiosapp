@@ -146,7 +146,7 @@ export class PaymentsHistoryComponent implements OnInit {
     this.dynamicHeaders = { id: 'id', fullname: 'Fullname', units: 'Units', phone: 'Phone', amounts: 'Amounts', invoice_issue_date: 'Invoice Issue Date', invoice_due_date: 'Invoice Due Date', status: 'Status', actions: 'Actions' }; 
       
       this.getInvoiceByOwner();
-    this.convertImageToBase64();
+
   }
 
  
@@ -240,17 +240,7 @@ export class PaymentsHistoryComponent implements OnInit {
   public logoBase64: any;
 
   
-  convertImageToBase64() {
-    this._http.get('./assets/noimage2.jpeg', { responseType: 'blob' }).subscribe((blob) => {
-      const reader = new FileReader();
-      
-      reader.onloadend = () => {
-        this.logoBase64 = reader.result as string;
-    
-      };
-      reader.readAsDataURL(blob);
-    });
-  }
+  
  
 
 

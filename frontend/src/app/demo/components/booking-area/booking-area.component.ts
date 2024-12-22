@@ -172,17 +172,25 @@ export class BookingAreaComponent implements OnInit {
   }
  
  ngOnInit(): void {
-   
-   this.getPropertyType();
-   this._route.params.subscribe(params => {
-    let idUser = params['id'];
-    // console.log('ID:', idUser)
-    if(idUser) {
+
+  this._route.queryParams.subscribe(params => {
+    let idUser = params['userid'];
+    console.log('userid--------->:', idUser)
+    if (idUser) {
       this.getAllBookings(idUser);
+    }else{
+      this._route.params.subscribe(params => {
+        let idUser = params['ownerId'];
+        console.log('ID:', idUser)
+        // console.log('ID:', idUser)
+        if (idUser) {
+          this.getPropertyType();
+          this.getAllBookings(idUser);
+        }
+      });
     }
-   });
-
-
+  })
+   
 
     // console.log('Booking Area Component');
  }
@@ -191,13 +199,8 @@ export class BookingAreaComponent implements OnInit {
     dt.clear();
     this.searchValue = '';
   }
-  actionChosen() {
-
-   
-    
-    console.log('Action Chosen:', this.valRadio)
-  }
-
+ 
+  
    
   getPropertyType() {
 
@@ -223,8 +226,6 @@ export class BookingAreaComponent implements OnInit {
     
   }
 
-
-  
 
   getAreaInfo(event: any) {
 
@@ -302,7 +303,7 @@ export class BookingAreaComponent implements OnInit {
     data.condoId = condominioId;
     data.unit = unitId;
     data.areaId = areaId;
-    console.log('Booking Response:----->', data)
+    // console.log('Booking Response:----->', data)
 
     
     this._confirmationService.confirm({
@@ -368,7 +369,7 @@ export class BookingAreaComponent implements OnInit {
               }
               
             });
-            console.log('Booking History:***************>', this.bookingHistory)
+            // console.log('Booking History:***************>', this.bookingHistory)
           } catch (error) {
 
             console.log('Error:', error)           
@@ -380,6 +381,7 @@ export class BookingAreaComponent implements OnInit {
       },
       error: (errors) => {
         this._messageService.add({ severity: 'error', summary: 'Error', detail: errors.error.message, life:10000 });
+        this.loading = false; 
         // console.log('Booking Error:', errors.error)
       }
     });

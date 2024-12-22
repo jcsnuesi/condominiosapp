@@ -106,7 +106,7 @@
                 <ng-template pTemplate="body" let-customer>
                     <tr>
                         <td style="width: 15%; min-width: 5rem;">
-                            <img src="{{url + 'owner-avatar/' +customer.avatar}}" class="shadow-4" alt="" width="50"
+                            <img src="{{url + 'owner-avatar/' + customer.avatar}}" class="shadow-4" alt="" width="50"
                                 style="border-radius: 5px;">
                         </td>
                         <td style="width: 35%; min-width: 7rem;">
@@ -347,11 +347,12 @@
 
     </p-dialog>
 
-    <!-- Modal owners -->
+    <!-- Modal owners details -->
 
-    <p-dialog header="Resident details" classminw="" [modal]="true" [(visible)]="visible_owner"
-      [style]="{ width: maximized ? '100vw' : '50rem', height: maximized ? '100vh' : 'auto' }" 
-    [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"  [maximizable]="true">
+    <p-dialog header="Resident details" [modal]="true" [(visible)]="visible_owner"
+     
+   [maximizable]="true"
+     (onHide)="closeDialog()">
 
         <p-tabView>
             <p-tabPanel header="Basic info">
@@ -411,14 +412,15 @@
                                         <p-inputGroupAddon>
                                             <i class="pi pi-android"></i>
                                         </p-inputGroupAddon>
+
+                                    <p-dropdown                                 
+                                        [ngClass]="{'ng-valid input-success':gender_apt.valid, 'ng-invalid ng-dirty':(gender_apt.touched && !gender_apt.dirty)}"
+                                        #gender_apt="ngModel" 
+                                        name="gender_apt" 
+                                        [options]="genderOptions" 
+                                        [(ngModel)]="ownerObj.gender" optionLabel="label"
+                                            required />
     
-                                        <select class="form-select form-control" name="gender" #gender="ngModel"
-                                            [(ngModel)]="ownerObj.gender" required>
-    
-                                            <option [value]="option.gender" *ngFor="let option of genderOption">
-                                                {{option.name}}</option>
-    
-                                        </select>
                                     </p-inputGroup>
     
                                 </div>
@@ -523,9 +525,8 @@
 
 
         
-                    <app-family-member-details *ngIf="visible_owner" [reciving]="ownerObj._id" ></app-family-member-details>
-
-                </form>
+                    <app-family-member-details *ngIf="visible_owner" [receiving]="ownerObj._id" ></app-family-member-details>
+    </form>
             </p-tabPanel>
             <p-tabPanel header="Payments history" >
         
@@ -536,7 +537,7 @@
           
                    
             </p-tabPanel>
-            <p-tabPanel header="Bookings"   [style]="{ width: '50rem', height: '50rem' }"  >
+            <p-tabPanel header="Bookings"  [style]="{ width: '50rem', height: '50rem' }"  >
         
          
                 <app-booking-area *ngIf="visible_owner" ></app-booking-area>

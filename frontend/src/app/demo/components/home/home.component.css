@@ -26,3 +26,11 @@
     margin-top: 10px;
     margin-bottom: 10px;
 }
+::ng-deep .p-tabview-nav{
+    margin-bottom: 20px;
+}
+::ng-deep .p-dropdown {
+    width: 100%;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}

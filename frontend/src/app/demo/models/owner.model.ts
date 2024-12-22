@@ -5,7 +5,7 @@ export class OwnerModel{
         public avatar: string,
         public ownerName: string,
         public lastname: string,
-        public gender: string,
+        public gender: any,
         public dob: string,
         public phone: string,
         public phone2: string,

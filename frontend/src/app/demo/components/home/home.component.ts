@@ -138,7 +138,7 @@ export class HomeComponent implements OnInit {
   public bookingVisible:boolean;
   public chartVisible:boolean;
   public stafflistNumber:number;
-
+  public genderOptions: Array<{ label: string}>;
 
   @ViewChild(InviceGeneraterComponent) invoiceGenerator: InviceGeneraterComponent;
 
@@ -169,10 +169,10 @@ export class HomeComponent implements OnInit {
     this.identity = this._userService.getIdentity()
     this.token = this._userService.getToken()
     
-    this.genderOption = [
-      { name: 'Male', gender: 'm' },
-      { name: 'Female', gender: 'f' }
-    ];
+    // this.genderOption = [
+    //   { name: 'Male', gender: 'm' },
+    //   { name: 'Female', gender: 'f' }
+    // ];
 
     this.isRentOptions = [
       { name: 'Yes', code: true },
@@ -203,10 +203,11 @@ export class HomeComponent implements OnInit {
     this.messageApiResponse = { message: '', severity: '' }
     // this.apiUnitResponse = false
 
-    this.genderModel = [
-      { name: 'Female', code: 'F' },
-      { name: 'Male', code: 'M' }
+    this.genderOptions = [
+      { label: "Male"},
+      { label: "Female"}
     ];
+
 
   }
 
@@ -253,6 +254,8 @@ export class HomeComponent implements OnInit {
     this.propertyInfoEvent.emit(data);
   }
 
+
+
   unitFormatOnInit(unit) {
     var unitList = []
     for (let index = 0; index < unit.length; index++) {
@@ -263,13 +266,14 @@ export class HomeComponent implements OnInit {
     return unitList.join(", ")
   }
 
-  public userDialog: boolean;
-  
+
+  public userDialog: boolean;  
   openNew() {
     this.userDialog = true;
 
 
   }
+
 
   hideDialog() {
     this.userDialog = false;
@@ -324,6 +328,7 @@ export class HomeComponent implements OnInit {
     })
   }
 
+
   onSelect(file: any) {
 
     const reader = new FileReader();
@@ -338,10 +343,13 @@ export class HomeComponent implements OnInit {
     this.ownerObj.avatar = file.files[0]
 
   }
+
+
   getSeverity(severity: string) {
     return severity == 'active' ? 'success' : 'danger';
 
   }
+
 
   showDialog() {
     this.visible = true;
@@ -351,13 +359,21 @@ export class HomeComponent implements OnInit {
   }
 
   showOwnerDialog(events) {
-    this.ownerObj = events  
-    this.maximized = true; 
+    let genderDict = {M:'Male', F:'Female'}
+    this.ownerObj = {...events}
+    this.ownerObj.gender = {label:genderDict[(events.gender).toUpperCase()]}
+
+    this.maximized = false; 
    
     this.image = this.url + 'owner-avatar/' + events.avatar
     this.visible_owner = true;
+    this._router.navigate([],
+      { 
+        queryParams: { userid: events._id } ,
+       queryParamsHandling: 'merge' 
+      } );
 
-    
+ 
     if (this.identity._id == events._id) {
 
       this.passwordOwner = true
@@ -369,6 +385,15 @@ export class HomeComponent implements OnInit {
     }
 
 
+  }
+
+  closeDialog(): void {
+    this.visible_owner = false;
+
+    this._router.navigate([], {
+      queryParams: { userid: null },
+      queryParamsHandling: 'merge',
+    });
   }
 
   onSubmitUnit() {
