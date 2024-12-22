@@ -265,8 +265,6 @@ var reservesController = {
             val_unit && 
             val_status ) {
 
-                
-          
           
             try {
 

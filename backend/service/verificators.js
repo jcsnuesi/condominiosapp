@@ -97,7 +97,7 @@ exports.StaffRegistration = function (fullobject) {
         secure: true,
         auth: {
             user: 'jcsnuesi@gmail.com',
-            pass: 'wamy arbl bnhc kvwp'
+            pass: 'jnkk ulzw xqrh ftll'
         }
     });
 

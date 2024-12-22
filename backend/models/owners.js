@@ -27,7 +27,7 @@ var OwnerSchema = Schema({
     propertyDetails: [
         {
             _id: false,          
-            condominioId: {                 
+            addressId: {                 
                 type: mongoose.Schema.Types.ObjectId, 
                 ref: 'Condominium', 
                 required: true

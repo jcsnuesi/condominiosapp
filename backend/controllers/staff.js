@@ -50,30 +50,30 @@ var StaffController = {
             })
 
         }
-
-        // Image settings
-
-        let avatarPath = req.files.avatar.path
-        let avatarFullname = avatarPath.split("\\")[2]
-        params.avatar = avatarFullname
-
        
-        //verificar la extension de archivo enviado sea tipo imagen
-        var imgFormatAccepted = checkExtensions.confirmExtension(req)
+        // Image settings
+        if (Boolean(req.files != undefined) && Object.keys(req.files).length != 0) {
+            let avatarPath = req.files.avatar.path
+            let avatarFullname = avatarPath.split("\\")[2]
+            params.avatar = avatarFullname
 
-        if (imgFormatAccepted == false) {
+            //verificar la extension de archivo enviado sea tipo imagen
+            var imgFormatAccepted = checkExtensions.confirmExtension(req)
 
-            return res.status(400).send({
+            if (imgFormatAccepted == false) {
 
-                status: "bad request",
-                message: "System just accept image format '.jpg', '.jpeg', '.gif', '.png'"
-            })
+                return res.status(400).send({
+
+                    status: "bad request",
+                    message: "System just accept image format '.jpg', '.jpeg', '.gif', '.png'"
+                })
+            }
+
         }
 
      
         if (val_name && val_lastname && val_email  && val_phone) {
-            
-                   
+                               
             Staff.findOne({
                 $or: [
 
@@ -84,8 +84,7 @@ var StaffController = {
                 ]
             }, async (err, staffound) => {
 
-                
-            
+              
                 var errorHandlerArr = errorHandler.errorRegisteringUser(err, staffound, params)
 
                 if (errorHandlerArr[0]) {
@@ -98,48 +97,24 @@ var StaffController = {
 
                         })
 
-                }
-
-             
-
-                var staffAcc = new Staff()               
-              
-                for (const key in params) {
-
-                   if (key == 'password' || key == 'permissions'){
-                        continue;
-                    } 
-
-                    if(typeof params[key] == 'string'){
-
-                        staffAcc[key] = params[key].toLowerCase() 
-                    }else{
-                        staffAcc[key] = params[key]
-                    }
-
-                }
-
-            
-                // Se le asigna el id del admin que lo creo
-                staffAcc.createdBy = req.user.sub              
-
-                // // Se asignan los permisos
-                // const permission = params.permissions.split(',')
-                // permission.pop()              
-                // permission.forEach(element => {
-                //     staffAcc.permissions.push(element)
-                // })
-                
-                // if (Boolean(req.files.avatar != undefined ) ) {
-                //     staffAcc['avatar'] = (req.files['avatar'].path.split('\\'))[2]
-                // }
-
-                staffAcc.password = await bcrypt.hash(password, saltRounds)
-             
-                
+                }             
                
-                staffAcc.save(async (err, staffSaved) => {
 
+                const newStaff = new Staff({
+                    name: (params.name).toLowerCase(),
+                    lastname: (params.lastname).toLowerCase(),
+                    gender: (params.gender).toLowerCase(),
+                    government_id: (params.government_id).toLowerCase(),
+                    email: (params.email).toLowerCase(),
+                    password: await bcrypt.hash(password, saltRounds),
+                    phone: (params.phone).toLowerCase(),
+                    position: (params.position).toLowerCase(),
+                    condo_id: params.condo_id,
+                    createdBy: req.user.sub
+                })               
+                       
+                newStaff.save(async (err, staffSaved) => {
+                  
                     if (err) {
 
                         return res.status(501).send({
@@ -369,37 +344,64 @@ var StaffController = {
             return res.status(500).send({ message: 'Error en la petición' });
         }
     },
-    getStaffByOwnerAndCondoId:async function(req,res){
+    getStaffByOwnerAndCondoId: async function(req,res){
+        let _user = req.params.ownerId;
 
-        let _user = req.params.ownerId
-        const user = await Promise.all([Owner.findOne({ _id: _user }).exec(),
-        Family.find({ _id: _user }).exec()])
-
-      
-        const condosId = user.map((userinfo) => {
-            return userinfo.propertyDetails
-        
-        });
-
-        
-        let [obj1, ...resto] = condosId.flat(2)
-        
-        console.log(obj1)
-        return
         try {
 
-         
+            const [family, owner] = await Promise.all([
+                Family.findOne({ _id: _user })
+                    .populate({
+                        path: 'propertyDetails.addressId',
+                        select: '_id alias',
+                    }),
+                Owner.findOne({ _id: _user })
+                    .populate({
+                        path: 'propertyDetails.addressId',
+                        select: '_id alias',
+                    })
+            ]);
 
-          
+            // Filtrar los resultados no nulos
+            let userFilter = [family, owner].filter(data => data !== null);
 
-            console.log(condosId)
+            // Asegurarse de que userFilter no esté vacío
+            if (userFilter.length === 0) {
+                return res.status(404).send({
+                    status: 'error',
+                    message: 'No user found'
+                });
+            }
 
-            
+            // Obtener la información del personal
+            const staffInfo = await Staff.find()
+
+            // En este map, se filtran los detalles de la propiedad que coinciden con el ID de la propiedad del usuario
+            let propertyDetails = staffInfo.map((obj) => {
+                return userFilter[0].propertyDetails.filter((detail) => detail.addressId._id.toString() == obj.condo_id.toString())
+            });
+
+            // Filtrar los resultados no nulos
+            const condoFound = propertyDetails.filter((detail) => detail.length > 0);
+
+            // Aplanar el array de resultados
+            const condoFlat = condoFound.flat(2);
+
+            // Filtrar los resultados por condo_id y devolver la información del personal
+            const staffInfoFound = await Staff.find({ condo_id: { $in: condoFlat.map((detail) => detail.addressId._id.toString()) } }).populate('condo_id', 'alias');   
+
+            return res.status(200).send({
+                status: 'success',
+                message: staffInfoFound
+            });
+
         } catch (error) {
-            console.log(error)
-            
+            return res.status(500).send({
+                status: 'error',
+                message: 'Server error',
+                error: error
+            });
         }
-       
         
     }
     ,getStaffByCondoId:async function(req,res){

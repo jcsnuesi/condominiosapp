@@ -6,7 +6,6 @@ var Schema = mongoose.Schema
  
 var StaffSchema = Schema({
 
-
     avatar: { type: String, default: 'noimage.jpeg' },
     name: { type: String, required: true },
     lastname: { type: String, required: true },
@@ -19,7 +18,7 @@ var StaffSchema = Schema({
     status: { type: String, default:'active' },
     condo_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Condominium' },
     role: { type: String, default: 'STAFF' },
-    permissions: [{ type: String, required: true }],
+    permissions: [{ type: String}],
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'Admin' },
 
 }, { timestamps :true})

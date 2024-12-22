@@ -15,9 +15,10 @@ var FamilySchema = Schema({
     phone: { type: String, required: true },
     status: { type: String, default: 'active' },
     role: { type: String, default: 'FAMILY' },
-    propertyDetails: [{
+    propertyDetails: [
+        {
         _id: false,
-        condominioId: { type: mongoose.Schema.Types.ObjectId, ref: 'Condominium' },
+            addressId: { type: mongoose.Schema.Types.ObjectId, ref: 'Condominium' },
         unit: { type: String, required: true },
         family_status: { type: String, default: 'authorized' },
         lastUpdate: { type: Date, default: Date.now },
