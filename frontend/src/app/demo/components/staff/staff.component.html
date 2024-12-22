@@ -1,7 +1,7 @@
 
-<div *ngIf="staffVisibleBackBtn">
+<div *ngIf="staffVisibleBackBtn" >
 
-    <p-button (click)="backToDashboard()" label="Back" icon="pi pi-arrow-left"></p-button>
+    <p-button *appHasPermissions="'admin'" (click)="backToDashboard()" label="Back" icon="pi pi-arrow-left"></p-button>
     <app-booking-area></app-booking-area>
 
 </div>
@@ -29,8 +29,8 @@
                 
                                     </div>
                                     <div class="btn-f">
-                                        <p-button [outlined]="true" severity="danger" icon="pi pi-times-circle" label="Inactive account"
-                                            (onClick)="deleteStaff()" [disabled]="staffSelected.length === 0" />
+                                        <p-button [outlined]="true" severity="danger" icon="pi pi-times-circle" label="Inactive account"                                         (onClick)="deleteStaff()" 
+                                        [disabled]="staffSelected.length === 0" *appHasPermissions="'admin'" />
                 
                                     </div>
                 
@@ -58,7 +58,7 @@
                                         <p-columnFilter type="text" field="fullname" display="menu" class="ml-auto" />
                                     </div>
                                 </th>
-                                <th pSortableColumn="phone" style="min-width: 8rem">
+                                <th *appHasPermissions="'admin'" pSortableColumn="phone" style="min-width: 8rem">
                                     <div class="flex justify-content-between align-items-center">
                                         Phone
                                         <p-sortIcon field="phone" />
@@ -79,7 +79,7 @@
                                         <p-columnFilter type="text" field="condo_id" display="menu" class="ml-auto" />
                                     </div>
                                 </th>
-                                <th pSortableColumn="government_id" style="min-width: 10rem">
+                                <th *appHasPermissions="'admin'" pSortableColumn="government_id" style="min-width: 10rem">
                                     <div class="flex justify-content-between align-items-center">
                                         Government ID
                                         <p-sortIcon field="government_id" />
@@ -120,7 +120,7 @@
                                     </div>
                                 </th>
                 
-                                <th style="width: 5rem"></th>
+                                <th style="width: 5rem" ></th>
                             </tr>
                         </ng-template>
                         <ng-template pTemplate="body" let-staff>
@@ -135,7 +135,7 @@
                                     <span class="ml-1 vertical-align-middle">{{staff.fullname | titlecase}}</span>
                                 </td>
                 
-                                <td>
+                                <td *appHasPermissions="'admin'" >
                                     <span class="p-column-title">Phone</span>
                                     {{ staff?.phone }}
                                 </td>
@@ -147,8 +147,8 @@
                                     <span class="p-column-title">Codominium name</span>
                                     {{ staff.condo_id | titlecase}}
                                 </td>
-                                <td>
-                                    <span class="p-column-title">Government ID</span>
+                                <td *appHasPermissions="'admin'"> 
+                                    <span class="p-column-title"  >Government ID</span>
                                     {{ staff.government_id }}
                                 </td>
                                 <td>
@@ -170,7 +170,7 @@
                 
                 
                                 <td style="text-align: center">
-                                    <p-button severity="secondary" (click)="showDialog(staff)" icon="pi pi-cog" />
+                                    <p-button severity="secondary" (click)="showDialog(staff)" icon="pi pi-cog" *appHasPermissions="'admin'" />
                                 </td>
                 
                             </tr>
@@ -186,7 +186,7 @@
                 </p-card>
        
         </p-tabPanel>
-        <p-tabPanel header="Create Staff">  
+        <p-tabPanel header="Create Staff" *appHasPermissions="'admin'">  
             
             <div class="createBoox-size">
 
@@ -478,11 +478,11 @@
            
            
         </p-tabPanel>
-        <p-tabPanel header="Settings">
+        <!-- <p-tabPanel header="Settings">
             <p>
                 At vero eos et accusamus et iusto odio dignissimos...
             </p>
-        </p-tabPanel>
+        </p-tabPanel> -->
     </p-tabView>
 </div>
 

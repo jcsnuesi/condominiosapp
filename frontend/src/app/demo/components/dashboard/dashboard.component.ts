@@ -14,6 +14,7 @@ import { global } from '../../service/global.service';
 import { MessageService } from 'primeng/api';
 import { OwnerModel } from '../../models/owner.model';
 import { BookingServiceService } from '../../service/booking-service.service';
+import { StaffService } from '../../service/staff.service';
 
 @Component({ 
     templateUrl: './dashboard.component.html',
@@ -76,7 +77,8 @@ import { BookingServiceService } from '../../service/booking-service.service';
         private _messageService: MessageService,
         private _confirmationService: ConfirmationService,
         private _router: Router,
-        private _bookingService: BookingServiceService) {
+        private _bookingService: BookingServiceService,
+        private _staffService: StaffService) {
         this.subscription = this.layoutService.configUpdate$.subscribe(() => {
             this.initChart();
         });
@@ -206,10 +208,28 @@ import { BookingServiceService } from '../../service/booking-service.service';
             { label: 'Remove', icon: 'pi pi-fw pi-minus' }
         ];
 
-        this.loadCarsLazy()
+        this.loadCarsLazy();
+        this.getStaffQty();
 
 
 
+    }
+
+    public totalStaff: number = 0;
+    getStaffQty() {
+        this._staffService.getStaffByOwnerCondo(this.token, this.identity._id).subscribe({
+            next: (response) => {
+                console.log(response)
+                if (response.status == 'success') {
+                    this.totalStaff = response.message.length
+                } else {
+                    this.totalBooked = 0
+                }
+            },
+            error: (error) => {
+                console.log(error)
+            }
+        });
     }
 
 

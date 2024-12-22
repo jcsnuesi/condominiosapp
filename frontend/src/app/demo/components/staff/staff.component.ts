@@ -30,6 +30,7 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { FileUploadModule } from 'primeng/fileupload';
 import { global } from '../../service/global.service';
+import { HasPermissionsDirective } from 'src/app/has-permissions.directive';
 
 type StaffInfo = {
   _id: string;
@@ -80,9 +81,9 @@ type StaffInfo = {
     DatePipe,
     FloatLabelModule,
     CalendarModule,
-    CurrencyPipe,
     PanelModule,
-    ConfirmDialogModule
+    ConfirmDialogModule,
+    HasPermissionsDirective
   ],
   providers: [
     UserService,
@@ -303,11 +304,12 @@ export class StaffComponent implements OnInit, AfterViewInit {
     });
   }
   public ownerId: string;
+  
   getStaffByOwerCondo(){
 
     this._staffService.getStaffByOwnerCondo(this.token, this.ownerId).subscribe({
       next: (response) => {
-        console.log('STAFF-*****getStaffByOwnerCondo********>:', response);
+     
         if (response.status == 'success') {
 
           this.propertyDetailsVar = response.message.map((staff) => {
@@ -532,6 +534,7 @@ export class StaffComponent implements OnInit, AfterViewInit {
 
               form.reset();
               this.getStaffList();
+              this.previwImage = '../../../assets/noimage.jpeg';
             }
           },
           error: (error) => {

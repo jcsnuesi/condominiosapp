@@ -10,7 +10,7 @@ import { StaffComponent } from '../staff/staff.component';
         { path: 'start', component: DashboardComponent },
         { path: 'start/:id', component: DashboardComponent },
         {path: 'booking-area/:id', component: BookingAreaComponent},
-        { path: 'staff/:ownerId', component: StaffComponent }
+        { path: 'staff-regular/:ownerId', component: StaffComponent }
     ])],
     exports: [RouterModule]
 })
