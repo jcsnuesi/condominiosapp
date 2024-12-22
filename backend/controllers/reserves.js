@@ -127,15 +127,6 @@ var reservesController = {
     getAllBookingByCondoAndUnit:async function(req,res){
 
         let id = req.params.id
-
-
-        if(id != req.user.sub){
-            return res.status(403).send({
-                status: 'error',
-                message: 'Forbidden'
-            });
-        }
-
         let reservations = null;
        
         try {
@@ -166,76 +157,76 @@ var reservesController = {
         });
         
     },
-    getReservationByBooker: function(req, res){
+    // getReservationByBooker: function(req, res){
 
-        let aparmentNum = req.params.apartment
-        let addressId = req.params.addressId
+    //     let aparmentNum = req.params.apartment
+    //     let addressId = req.params.addressId
       
-        try {
+    //     try {
 
-            var val_apt = !validator.isEmpty(aparmentNum)
-            var val_address_id = !validator.isEmpty(addressId)
+    //         var val_apt = !validator.isEmpty(aparmentNum)
+    //         var val_address_id = !validator.isEmpty(addressId)
             
-        } catch (error) {
+    //     } catch (error) {
             
-            return res.status(500).send({
+    //         return res.status(500).send({
 
-                status:"error",
-                message:"Fill out all fields (required)"
+    //             status:"error",
+    //             message:"Fill out all fields (required)"
                 
-            })
-        }
+    //         })
+    //     }
 
        
-        if (val_apt && val_address_id) {
+    //     if (val_apt && val_address_id) {
 
-            Reserves.find({
-                $and:[
-                    { address: addressId },
-                    { apartmentUnit: aparmentNum }
+    //         Reserves.find({
+    //             $and:[
+    //                 { address: addressId },
+    //                 { apartmentUnit: aparmentNum }
                     
-                ]
-            })
-                .populate('ownerid', 'name lastname email')
-                .populate('subownerid', 'name lastname email')
-                .populate('owner', 'name lastname email')
-                .populate('subowner', 'name lastname email')
-                .populate('admin', 'name lastname email')
-                .populate('address', 'alias street_1 sector_name province city country')
+    //             ]
+    //         })
+    //             .populate('ownerid', 'name lastname email')
+    //             .populate('subownerid', 'name lastname email')
+    //             .populate('owner', 'name lastname email')
+    //             .populate('subowner', 'name lastname email')
+    //             .populate('admin', 'name lastname email')
+    //             .populate('address', 'alias street_1 sector_name province city country')
         
-                .exec( (err, reservationFound) => {
+    //             .exec( (err, reservationFound) => {
 
-                var reservationErrorHandlerArr = errorHandler.newUser(err, reservationFound)
+    //             var reservationErrorHandlerArr = errorHandler.newUser(err, reservationFound)
                    
                 
-                if (reservationErrorHandlerArr[0]) {
+    //             if (reservationErrorHandlerArr[0]) {
 
                   
-                    return res.status(
-                        reservationErrorHandlerArr[1])
-                        .send({
-                            status: reservationErrorHandlerArr[2],
-                            message: reservationErrorHandlerArr[3]
+    //                 return res.status(
+    //                     reservationErrorHandlerArr[1])
+    //                     .send({
+    //                         status: reservationErrorHandlerArr[2],
+    //                         message: reservationErrorHandlerArr[3]
 
 
-                        })
+    //                     })
 
-                }
+    //             }
 
-            })
+    //         })
             
-        }else{
+    //     }else{
 
-            return res.status(400).send({
+    //         return res.status(400).send({
 
-                status: "error",
-                message: "Fill out all fields (required)"
-            })
+    //             status: "error",
+    //             message: "Fill out all fields (required)"
+    //         })
 
-        }
+    //     }
 
 
-    },
+    // },
     updateReservation:async function(req, res){
 
         let params = req.body

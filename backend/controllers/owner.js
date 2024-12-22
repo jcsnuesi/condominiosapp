@@ -506,24 +506,15 @@ var ownerAndSubController = {
 
         })
     },
-    getFamilyByOwnerId: function(req, res) {
-      
-            if (req.user.role.toLowerCase() != 'admin') {
-    
-                return res.status(403).send({
-    
-                    status: "forbidden",
-                    message: "You are not authorized"
-                })
-    
-            }
+    getFamilyByOwnerId: function(req, res) {      
+   
 
         let params = req.params.id
         
-        Family.find({ ownerId: '66f84833006341d7843b4127' })
+        Family.find({ ownerId: params })
         .populate(
             {
-                path: 'addressId.condominioId', // Especificamos el campo que deseamos popular
+                path: 'propertyDetails.addressId', // Especificamos el campo que deseamos popular
                 model: 'Condominium',
                 select: 'alias type phone street_1 street_2 sector_name city province zipcode country socialAreas'
             }
@@ -544,10 +535,7 @@ var ownerAndSubController = {
                     message: "Family not found"
                 })
             }
-
-           
-             
-            
+        
             return res.status(200).send({
                 status: "success",
                 message: familyFound
@@ -831,7 +819,7 @@ var ownerAndSubController = {
         console.log(req.params.avatar)
         var file = req.params.avatar
         var path_file = './uploads/owner/' + file
-
+        console.log("path_file", path_file)
         if (fs.existsSync(path_file)) {
 
             return res.sendFile(paths.resolve(path_file))
