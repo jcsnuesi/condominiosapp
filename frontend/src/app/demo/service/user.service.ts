@@ -1,160 +1,153 @@
-import { Injectable, EventEmitter, Output } from "@angular/core";
-import {HttpClient, HttpHeaders} from '@angular/common/http';
-import {Observable} from 'rxjs';
-import { global } from "./global.service";
-import { CookieService } from "ngx-cookie-service";
+import { Injectable, EventEmitter, Output } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { global } from './global.service';
+import { CookieService } from 'ngx-cookie-service';
 
-
-@Injectable(
-    { providedIn: 'root' }
-)
-export class UserService{
-
-    public url:string;
-    public static identity:any;
-    public token:string;
-    public cookieInfo:any;
+@Injectable({ providedIn: 'root' })
+export class UserService {
+    public url: string;
+    public static identity: any;
+    public token: string;
+    public cookieInfo: any;
     public static role: string;
- 
+
     @Output() disparador: EventEmitter<string> = new EventEmitter<string>();
     @Output() customEvent: EventEmitter<string> = new EventEmitter<string>();
 
-
-    constructor(
-        private _http: HttpClient,
-        private _cookies: CookieService){
-
-        this.url = global.url
-
+    constructor(private _http: HttpClient, private _cookies: CookieService) {
+        this.url = global.url;
     }
 
-   create(user:FormData, token:string):Observable<any>{
+    create(user: FormData, token: string): Observable<any> {
+        let header = new HttpHeaders().set('Authorization', token);
 
-        let header = new HttpHeaders().set('Authorization',token)
-      
-        return this._http.post(this.url + 'createAccount', user,{headers:header})
-
-
+        return this._http.post(this.url + 'createAccount', user, {
+            headers: header,
+        });
     }
 
-    login(user:any, token:boolean):Observable<any>{
-
-      
+    login(user: any, token: boolean): Observable<any> {
         if (token) {
-            
-            user.gettoken = true
+            user.gettoken = true;
         }
 
-        let param = JSON.stringify(user)
+        let param = JSON.stringify(user);
 
-       
-        let header = new HttpHeaders().set('Content-Type', 'application/json')
+        let header = new HttpHeaders().set('Content-Type', 'application/json');
 
-        return this._http.post(this.url + 'login', param, { headers: header })
+        return this._http.post(this.url + 'login', param, { headers: header });
     }
 
-    getIdentity(){
-  
-        return JSON.parse(this._cookies.get('identity') ||  'false')
-
-    }    
-
-    getToken(){
-
-        return this._cookies.get('token')
-    }
-    
-
-  
-    getAdmins(token:string):Observable<any>{
-
-        let header = new HttpHeaders().set('Content-Type', 'application/json').set('authorization', token)
-
-        return this._http.get(this.url + 'admins',{headers:header})
+    getIdentity() {
+        return JSON.parse(this._cookies.get('identity') || 'false');
     }
 
-    updateUser(token: string, user: FormData):Observable<any>{
-
-        let header = new HttpHeaders().set('Authorization',token)
-
-        return this._http.put(this.url + 'update-account', user,{headers:header})
+    getToken() {
+        return this._cookies.get('token');
     }
 
-    deleteUser(token:string, user:any):Observable<any>{
+    getAdmins(token: string): Observable<any> {
+        let header = new HttpHeaders()
+            .set('Content-Type', 'application/json')
+            .set('authorization', token);
 
-        let param = JSON.stringify(user)
-
-       
-        let header = new HttpHeaders().set('Content-Type', 'application/json').set('Authorization',token)
-
-        return this._http.put(this.url + 'inactive-account', param, {headers:header})
+        return this._http.get(this.url + 'admins', { headers: header });
     }
 
-    reactiveAccount(token: string, info: any): Observable<any>{
+    updateUser(token: string, user: FormData): Observable<any> {
+        let header = new HttpHeaders().set('Authorization', token);
 
-        let params = JSON.stringify(info)
-        let header = new HttpHeaders().set('Content-Type', 'application/json').set('Authorization', token)
-
-        return this._http.put(this.url + 'reactiveAccount', params, {headers:header})
+        return this._http.put(this.url + 'update-account', user, {
+            headers: header,
+        });
     }
 
+    deleteUser(token: string, user: any): Observable<any> {
+        let param = JSON.stringify(user);
+
+        let header = new HttpHeaders()
+            .set('Content-Type', 'application/json')
+            .set('Authorization', token);
+
+        return this._http.put(this.url + 'inactive-account', param, {
+            headers: header,
+        });
+    }
+
+    reactiveAccount(token: string, info: any): Observable<any> {
+        let params = JSON.stringify(info);
+        let header = new HttpHeaders()
+            .set('Content-Type', 'application/json')
+            .set('Authorization', token);
+
+        return this._http.put(this.url + 'reactiveAccount', params, {
+            headers: header,
+        });
+    }
 
     // Family methods
 
-    createFamily(token: string, family: any): Observable<any>{
+    createFamily(token: string, family: any): Observable<any> {
+        let header = new HttpHeaders().set('Authorization', token);
 
-        let header = new HttpHeaders().set('Authorization', token)
-
-        return this._http.post(this.url + 'create-family', family, {headers:header})
+        return this._http.post(this.url + 'create-family', family, {
+            headers: header,
+        });
     }
 
-    getFamilies(token: string): Observable<any>{
+    getFamilies(token: string): Observable<any> {
+        let header = new HttpHeaders().set('Authorization', token);
 
-        let header = new HttpHeaders().set('Authorization', token)
-       
-        return this._http.get(this.url + 'get-family', {headers:header})
+        return this._http.get(this.url + 'get-family', { headers: header });
     }
 
+    getFamiliesById(token: string, id): Observable<any> {
+        let header = new HttpHeaders().set('Authorization', token);
 
-    getFamiliesById(token: string, id): Observable<any>{
-
-        let header = new HttpHeaders().set('Authorization', token)
-       
-        return this._http.get(this.url + 'family-member-details/' + id, {headers:header})
+        return this._http.get(this.url + 'family-member-details/' + id, {
+            headers: header,
+        });
     }
 
     getFamiliesByOwnerId(token: string, id: string): Observable<any> {
+        let header = new HttpHeaders().set('Authorization', token);
 
-        let header = new HttpHeaders().set('Authorization', token)
-
-        return this._http.get(this.url + 'get-familyMembers/' + id, { headers: header })
+        return this._http.get(this.url + 'get-familyMembers/' + id, {
+            headers: header,
+        });
     }
 
-    updateFamilyAuth(token: string, info: any): Observable<any>{
+    updateFamilyAuth(token: string, info: any): Observable<any> {
+        let header = new HttpHeaders()
+            .set('Content-Type', 'application/json')
+            .set('Authorization', token);
 
-        let header = new HttpHeaders().set('Content-Type','application/json').set('Authorization', token)
-
-        return this._http.put(this.url + 'update-family-auth', info, {headers:header})
+        return this._http.put(this.url + 'update-family-auth', info, {
+            headers: header,
+        });
     }
 
     // End - Family methods
 
-    getPropertyByOwner(token: string): Observable<any>{
+    // Get all logged user's properties
+    getPropertyByOwner(token: string): Observable<any> {
+        let header = new HttpHeaders()
+            .set('Content-Type', 'application/json')
+            .set('Authorization', token);
 
-        let header = new HttpHeaders().set('Content-Type', 'application/json').set('Authorization', token)
-
-        return this._http.get(this.url + 'condominioByOwnerId', {headers:header})
+        return this._http.get(this.url + 'condominioByOwnerId', {
+            headers: header,
+        });
     }
-    
-    addNewProperty(token: string, property: any): Observable<any>{
 
-        let header = new HttpHeaders().set('Content-Type', 'application/json').set('Authorization', token)
+    addNewProperty(token: string, property: any): Observable<any> {
+        let header = new HttpHeaders()
+            .set('Content-Type', 'application/json')
+            .set('Authorization', token);
 
-        return this._http.put(this.url + 'add-prop-family', property, {headers:header})
-
-
+        return this._http.put(this.url + 'add-prop-family', property, {
+            headers: header,
+        });
     }
-    
-
-    
 }

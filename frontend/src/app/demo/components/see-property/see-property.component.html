@@ -1,81 +1,126 @@
-<div class="card"> 
-    <p-table #dt1 
-    [value]="properties" dataKey="_id" 
-    [rows]="4" 
-    [showCurrentPageReport]="true"
-    [rowsPerPageOptions]="[4, 25, 50]" 
-    [loading]="loading" 
-    [paginator]="true"
-    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
-    [globalFilterFields]="['company', 'email_company','status', 'country', 'phone']">
-
+<div class="card">
+    <p-table
+        #dt1
+        [value]="properties"
+        dataKey="_id"
+        [rows]="4"
+        [showCurrentPageReport]="true"
+        [rowsPerPageOptions]="[4, 25, 50]"
+        [loading]="loading"
+        [paginator]="true"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+        [globalFilterFields]="[
+            'company',
+            'email_company',
+            'status',
+            'country',
+            'phone'
+        ]"
+    >
         <ng-template pTemplate="caption">
             <div class="flex">
-                <button pButton label="Clear" class="p-button-outlined" icon="pi pi-filter-slash"
-                    (click)="clear(dt1)"></button>
+                <button
+                    pButton
+                    label="Clear"
+                    class="p-button-outlined"
+                    icon="pi pi-filter-slash"
+                    (click)="clear(dt1)"
+                ></button>
                 <span class="p-input-icon-left ml-auto">
                     <i class="pi pi-search"></i>
-                    <input pInputText type="text" (input)="dt1.filterGlobal($event.target.value, 'contains')"
-                        placeholder="Search keyword" class="p-inputtext p-component p-element" />
+                    <input
+                        pInputText
+                        type="text"
+                        (input)="
+                            dt1.filterGlobal($event.target.value, 'contains')
+                        "
+                        placeholder="Search keyword"
+                        class="p-inputtext p-component p-element"
+                    />
                 </span>
             </div>
         </ng-template>
         <ng-template pTemplate="header">
             <p-toast></p-toast>
 
-
             <tr>
-                <th style="min-width:15rem">
+                <th style="min-width: 15rem">
                     <div class="flex align-items-center">
                         Property Alias
-                        <p-columnFilter type="text" field="company" display="menu"></p-columnFilter>
+                        <p-columnFilter
+                            type="text"
+                            field="company"
+                            display="menu"
+                        ></p-columnFilter>
                     </div>
                 </th>
-                <th style="min-width:15rem">
+                <th style="min-width: 15rem">
                     <div class="flex align-items-center">
                         Address
-                        <p-columnFilter *ngIf="loginInfo.role == 'SUPERUSER'" type="text" field="email_company"
-                            display="menu"></p-columnFilter>
+                        <p-columnFilter
+                            *ngIf="loginInfo.role == 'SUPERUSER'"
+                            type="text"
+                            field="email_company"
+                            display="menu"
+                        ></p-columnFilter>
                     </div>
                 </th>
-                <th style="min-width:15rem">
-                    <div class="flex align-items-center">
-                        Phone number
-                    </div>
+                <th style="min-width: 15rem">
+                    <div class="flex align-items-center">Phone number</div>
                 </th>
-                <th style="min-width:15rem">
-                    <div class="flex align-items-center">
-                        Monthly payment
-                    </div>
+                <th style="min-width: 15rem">
+                    <div class="flex align-items-center">Monthly payment</div>
                 </th>
-                <th style="min-width:10rem">
+                <th style="min-width: 10rem">
                     <div class="flex align-items-center">
                         Created at
-                        <p-columnFilter type="text" field="createdAt" display="menu"></p-columnFilter>
+                        <p-columnFilter
+                            type="text"
+                            field="createdAt"
+                            display="menu"
+                        ></p-columnFilter>
                     </div>
                 </th>
-                <th style="min-width:10rem">
+                <th style="min-width: 10rem">
                     <div class="flex align-items-center">
                         Country
-                        <p-columnFilter type="text" field="country" display="menu"></p-columnFilter>
+                        <p-columnFilter
+                            type="text"
+                            field="country"
+                            display="menu"
+                        ></p-columnFilter>
                     </div>
                 </th>
-                <th style="min-width:10rem">
+                <th style="min-width: 10rem">
                     <div class="flex align-items-center">
                         Status
-                        <p-columnFilter field="status" matchMode="equals" display="menu">
-
-                            <ng-template pTemplate="filter" let-value let-filter="filterCallback">
-
-                                <p-dropdown [ngModel]="value" [options]="statuses" (onChange)="filter($event.value)"
-                                    placeholder="Any">
-
+                        <p-columnFilter
+                            field="status"
+                            matchMode="equals"
+                            display="menu"
+                        >
+                            <ng-template
+                                pTemplate="filter"
+                                let-value
+                                let-filter="filterCallback"
+                            >
+                                <p-dropdown
+                                    [ngModel]="value"
+                                    [options]="statuses"
+                                    (onChange)="filter($event.value)"
+                                    placeholder="Any"
+                                >
                                     <ng-template let-option pTemplate="item">
-                                        <p-tag [value]="option.label"
-                                            [severity]="_userService.getSeverity(option.label)"></p-tag>
+                                        <p-tag
+                                            [value]="option.label"
+                                            [severity]="
+                                                _userService.getSeverity(
+                                                    option.label
+                                                )
+                                            "
+                                        ></p-tag>
                                     </ng-template>
                                 </p-dropdown>
-
                             </ng-template>
                         </p-columnFilter>
                     </div>
@@ -84,71 +129,99 @@
                 <th style="width: 3rem" *ngIf="loginInfo.role == 'SUPERUSER'">
                     <div class="flex align-items-center">
                         Verified
-                        <p-columnFilter type="boolean" field="verified" display="menu"></p-columnFilter>
+                        <p-columnFilter
+                            type="boolean"
+                            field="verified"
+                            display="menu"
+                        ></p-columnFilter>
                     </div>
                 </th>
 
-
                 <th style="width: 3rem">
-                    <div class="flex align-items-center">
-                        Configurations
-
-                    </div>
+                    <div class="flex align-items-center">See more</div>
                 </th>
             </tr>
         </ng-template>
         <ng-template pTemplate="body" let-property>
             <tr>
                 <td>
-                    <img [alt]="property.avatar" [src]="url +'avatarCondominios/'+ property.avatar" width="32"
-                        style="vertical-align: middle" />
+                    <img
+                        [alt]="property.avatar"
+                        [src]="url + 'avatarCondominios/' + property.avatar"
+                        width="32"
+                        style="vertical-align: middle"
+                    />
                     <span class="ml-1 vertical-align-middle">
-                        {{propertyName(property.alias)}}
+                        {{ propertyName(property.alias) }}
                     </span>
                 </td>
                 <td>
-                    {{full_address_func(property)}}
+                    {{ full_address_func(property) }}
                 </td>
                 <td>
-
-                    {{property.phone}}
-
-
+                    {{ property.phone }}
                 </td>
                 <td>
-
-                    {{property.mPayment | currency:'USD':'symbol':'1.2-2'}}
-
+                    {{
+                        property.mPayment
+                            | currency : "USD" : "symbol" : "1.2-2"
+                    }}
                 </td>
                 <td>
                     {{ fechaCreacion(property.createdAt) }}
                 </td>
                 <td>
-                    <img src="https://primefaces.org/cdn/primeng/images/demo/flag/flag_placeholder.png"
-                        class="flag flag-do" style="width: 20px" />
-                    <span class="ml-1 vertical-align-middle">{{ "Dominican Republic" }}</span>
+                    <img
+                        src="https://primefaces.org/cdn/primeng/images/demo/flag/flag_placeholder.png"
+                        class="flag flag-do"
+                        style="width: 20px"
+                    />
+                    <span class="ml-1 vertical-align-middle">{{
+                        "Dominican Republic"
+                    }}</span>
                 </td>
 
                 <td>
-                    <p-tag [value]="property.status == 'active' ? 'Active' : 'Suspended'"
-                        [severity]="property.status == 'active' ? 'success' : 'danger' "></p-tag>
-
+                    <p-tag
+                        [value]="
+                            property.status == 'active' ? 'Active' : 'Suspended'
+                        "
+                        [severity]="
+                            property.status == 'active' ? 'success' : 'danger'
+                        "
+                    ></p-tag>
                 </td>
                 <td class="text-center" *ngIf="loginInfo.role == 'SUPERUSER'">
-                    <i class="pi"
-                        [ngClass]="{ 'text-green-500 pi-check-circle': property.verified, 'text-red-500 pi-times-circle': !property.verified }"></i>
+                    <i
+                        class="pi"
+                        [ngClass]="{
+                            'text-green-500 pi-check-circle': property.verified,
+                            'text-red-500 pi-times-circle': !property.verified
+                        }"
+                    ></i>
                 </td>
-                <td >
-                    <button  *appHasRole="'admin'" pButton type="button" icon="pi pi-eye" class="p-button-rounded p-button-text"
-                        (click)="goToDashboard(property)"></button>
+                <td>
+                    <button
+                        *appHasRole="'admin'"
+                        pButton
+                        type="button"
+                        severity="secondary"
+                        [outlined]="true"
+                        icon="pi pi-eye"
+                        class="border-1 border-round"
+                        (click)="goToDashboard(property)"
+                    ></button>
 
-                    <button *appHasRole="'owner'" pButton type="button" icon="pi pi-eye" class="p-button-rounded p-button-text"
-                        (click)="ownerDialogDetails()"></button>
+                    <button
+                        *appHasRole="'owner'"
+                        pButton
+                        type="button"
+                        icon="pi pi-eye"
+                        class="p-button-rounded p-button-text"
+                        (click)="ownerDialogDetails()"
+                    ></button>
                 </td>
-
             </tr>
-
-
         </ng-template>
 
         <ng-template pTemplate="emptymessage">
@@ -157,35 +230,40 @@
             </tr>
         </ng-template>
     </p-table>
-  
-    <!-- FOR OWNER ROLE -->
-    <p-dialog header="Property details" 
-    [modal]="true" 
-    [(visible)]="visible" 
-    [style]="{ width: '50rem' }"
-    [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" 
-    [maximizable]="true">
-       
-    <p-table *appHasRole="'owner'" [value]="customers" [paginator]="true" [rows]="5" [tableStyle]="{ 'min-width': '50rem' }"
-        [rowsPerPageOptions]="[5, 10, 20]">
-        <ng-template pTemplate="header">
-            <tr>
-                <th style="width:25%">Name</th>
-                <th style="width:25%">Country</th>
-                <th style="width:25%">Company</th>
-                <th style="width:25%">Representative</th>
-            </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-customer>
-            <tr>
-                <td>{{ customer.name }}</td>
-                <td>{{ customer.country.name }}</td>
-                <td>{{ customer.company }}</td>
-                <td>{{ customer.representative.name }}</td>
-            </tr>
-        </ng-template>
-    </p-table>
-    </p-dialog>
-    
 
+    <!-- FOR OWNER ROLE -->
+    <p-dialog
+        header="Property details"
+        [modal]="true"
+        [(visible)]="visible"
+        [style]="{ width: '50rem' }"
+        [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
+        [maximizable]="true"
+    >
+        <p-table
+            *appHasRole="'owner'"
+            [value]="customers"
+            [paginator]="true"
+            [rows]="5"
+            [tableStyle]="{ 'min-width': '50rem' }"
+            [rowsPerPageOptions]="[5, 10, 20]"
+        >
+            <ng-template pTemplate="header">
+                <tr>
+                    <th style="width: 25%">Name</th>
+                    <th style="width: 25%">Country</th>
+                    <th style="width: 25%">Company</th>
+                    <th style="width: 25%">Representative</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-customer>
+                <tr>
+                    <td>{{ customer.name }}</td>
+                    <td>{{ customer.country.name }}</td>
+                    <td>{{ customer.company }}</td>
+                    <td>{{ customer.representative.name }}</td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </p-dialog>
 </div>

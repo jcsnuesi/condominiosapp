@@ -1,0 +1,21 @@
+.upload-img {
+    width: 160px;
+    height: 160px;
+    cursor: pointer;
+    border-radius: 300px;
+    border: solid 1px #e0e0e0;
+}
+
+.padding-set {
+    padding: 12px;
+}
+
+::ng-deep .p-dropdown {
+    width: 100%;
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
+}
+
+.marginclass {
+    margin-bottom: 15px;
+}

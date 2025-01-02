@@ -26,15 +26,15 @@ import { InvoiceService } from '../../service/invoice.service';
 import { FormatFunctions } from '../../../pipes/formating_text';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
-import * as pdfMake from 'pdfmake/build/pdfmake';
+// import * as pdfMake from 'pdfmake/build/pdfmake';
 import { HttpClient } from '@angular/common/http';
-import * as pdfFonts from 'pdfmake/build/vfs_fonts';
+// import * as pdfFonts from 'pdfmake/build/vfs_fonts';
 import { PipesModuleModule } from 'src/app/pipes/pipes-module.module';
 import { Router } from '@angular/router';
 import { FamilyMemberDetailsComponent } from '../family-member-details/family-member-details.component';
 
 
-(pdfMake as any).vfs = pdfFonts.pdfMake.vfs;
+// (pdfMake as any).vfs = pdfFonts.pdfMake.vfs;
 
 
 type tableData = {

@@ -1,38 +1,33 @@
-
-
-
- 
-<div class="grid" *ngIf="!bookingVisible" > 
-
-    <div   class="col-12 lg:col-6 xl:col-3">
+<div class="grid" *ngIf="!bookingVisible">
+    <div class="col-12 lg:col-6 xl:col-3">
         <div class="card">
             <div class="flex justify-content-between mb-3">
-                <div> 
+                <div>
                     <span class="block text-500 font-medium mb-3">
                         Total units
                     </span>
-                    <div class="text-900 font-medium text-2xl">{{units}}</div>
+                    <div class="text-900 font-medium text-2xl">{{ units }}</div>
                 </div>
 
-                    <div class="flex align-items-center justify-content-center bg-blue-100 border-round icon-plus-changer" 
-                    (click)="showDialog()"  
-                    [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
-                        <i class="pi pi-plus text-blue-500 text-xl " ></i>
-                     
-                    </div>
-
+                <div
+                    class="flex align-items-center justify-content-center bg-blue-100 border-round icon-plus-changer"
+                    (click)="showDialog()"
+                    [ngStyle]="{ width: '2.5rem', height: '2.5rem' }"
+                >
+                    <i class="pi pi-plus text-blue-500 text-xl"></i>
+                </div>
             </div>
             <span class="text-500">Member since: </span>
-            <span class="text-green-500 font-medium">{{dateFormatted}} </span>
+            <span class="text-green-500 font-medium">{{ dateFormatted }} </span>
         </div>
     </div>
 
     <!-- Invoice generater -->
 
-        <app-invice-generater (facturaGenerada)="procesarFactura($event)" />
-        
+    <app-invice-generater (facturaGenerada)="procesarFactura($event)" />
+
     <!--END  Invoice generater -->
-    
+
     <div class="col-12 lg:col-6 xl:col-3">
         <div class="card mb-0">
             <div class="flex justify-content-between mb-3">
@@ -40,12 +35,17 @@
                     <span class="block text-500 font-medium mb-3">
                         Bookings
                     </span>
-                    <div class="text-900 font-medium text-2xl">{{totalBooked}}</div>
+                    <div class="text-900 font-medium text-2xl">
+                        {{ totalBooked }}
+                    </div>
                 </div>
-                <a (click)="seeBooking()" class="change-icon flex align-items-center justify-content-center bg-orange-100 border-round"
-                    [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
+                <a
+                    (click)="seeBooking()"
+                    class="change-icon flex align-items-center justify-content-center bg-orange-100 border-round"
+                    [ngStyle]="{ width: '2.5rem', height: '2.5rem' }"
+                >
                     <i class="pi pi-calendar-minus text-orange-500 text-xl"></i>
-            </a>
+                </a>
             </div>
             <span class="text-green-500 font-medium">%52+ </span>
             <span class="text-500">since last week</span>
@@ -54,16 +54,25 @@
     <div class="col-12 lg:col-6 xl:col-3">
         <div class="card mb-0">
             <div class="flex justify-content-between mb-3">
-                <div >
-                    <span class="block text-500 font-medium mb-3">Staff list</span>
-                    <div class="text-900 font-medium text-2xl">{{stafflistNumber}}</div>
+                <div>
+                    <span class="block text-500 font-medium mb-3"
+                        >Staff list</span
+                    >
+                    <div class="text-900 font-medium text-2xl">
+                        {{ stafflistNumber }}
+                    </div>
                 </div>
-                <div (click)="seeStaff()" class="flex align-items-center justify-content-center bg-cyan-100 border-round change-icon"
-                    [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
+                <div
+                    (click)="seeStaff()"
+                    class="flex align-items-center justify-content-center bg-cyan-100 border-round change-icon"
+                    [ngStyle]="{ width: '2.5rem', height: '2.5rem' }"
+                >
                     <i class="pi pi-users text-cyan-500 text-2xl"></i>
                 </div>
             </div>
-            <span class="text-green-500 font-medium">{{activeStaffQty}} </span>
+            <span class="text-green-500 font-medium"
+                >{{ activeStaffQty }}
+            </span>
             <span class="text-500">staff active</span>
         </div>
     </div>
@@ -71,11 +80,15 @@
         <div class="card mb-0">
             <div class="flex justify-content-between mb-3">
                 <div>
-                    <span class="block text-500 font-medium mb-3">Comments</span>
+                    <span class="block text-500 font-medium mb-3"
+                        >Comments</span
+                    >
                     <div class="text-900 font-medium text-2xl">152 Unread</div>
                 </div>
-                <div class="flex align-items-center justify-content-center bg-purple-100 border-round"
-                    [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
+                <div
+                    class="flex align-items-center justify-content-center bg-purple-100 border-round"
+                    [ngStyle]="{ width: '2.5rem', height: '2.5rem' }"
+                >
                     <i class="pi pi-comment text-purple-500 text-xl"></i>
                 </div>
             </div>
@@ -88,32 +101,55 @@
     <div class="col-12 xl:col-6">
         <div class="card">
             <h5>Residents list</h5>
-            <p-table [value]="customers" [paginator]="true" [rows]="5" responsiveLayout="scroll">
+            <p-table
+                [value]="customers"
+                [paginator]="true"
+                [rows]="5"
+                responsiveLayout="scroll"
+            >
                 <ng-template pTemplate="header">
                     <tr>
                         <th>Picture</th>
-                        <th pSortableColumn="ownerName">Fullname <p-sortIcon field="fullname"></p-sortIcon></th>
-                        <th pSortableColumn="unit">Unit <p-sortIcon field="unit"></p-sortIcon></th>
+                        <th pSortableColumn="ownerName">
+                            Fullname <p-sortIcon field="fullname"></p-sortIcon>
+                        </th>
+                        <th pSortableColumn="unit">
+                            Unit <p-sortIcon field="unit"></p-sortIcon>
+                        </th>
                         <th>View</th>
                     </tr>
                 </ng-template>
                 <ng-template pTemplate="body" let-customer>
                     <tr>
-                        <td style="width: 15%; min-width: 5rem;">
-                            <img src="{{url + 'owner-avatar/' + customer.avatar}}" class="shadow-4" alt="" width="50"
-                                style="border-radius: 5px;">
+                        <td style="width: 15%; min-width: 5rem">
+                            <img
+                                src="{{
+                                    url + 'owner-avatar/' + customer.avatar
+                                }}"
+                                class="shadow-4"
+                                alt=""
+                                width="50"
+                                style="border-radius: 5px"
+                            />
                         </td>
-                        <td style="width: 35%; min-width: 7rem;">
-                            {{customer.ownerName + ' ' + customer.lastname | uppercase}}
+                        <td style="width: 35%; min-width: 7rem">
+                            {{
+                                customer.name + " " + customer.lastname
+                                    | uppercase
+                            }}
                         </td>
-                        <td style="width: 35%; min-width: 8rem;">
-                            {{unitFormatOnInit(customer.propertyDetails)}}
-
+                        <td style="width: 35%; min-width: 8rem">
+                            {{ unitFormatOnInit(customer.propertyDetails) }}
                         </td>
-                        <td style="width: 15%;">
-                            <button pButton pRipple type="button" (click)="showOwnerDialog(customer)"
+                        <td style="width: 15%">
+                            <button
+                                pButton
+                                pRipple
+                                type="button"
+                                (click)="showOwnerDialog(customer)"
                                 icon="pi pi-search"
-                                class="p-button p-component p-button-text p-button-icon-only"></button>
+                                class="p-button p-component p-button-text p-button-icon-only"
+                            ></button>
                         </td>
                     </tr>
                 </ng-template>
@@ -123,86 +159,159 @@
             <div class="flex justify-content-between align-items-center mb-5">
                 <h5>Best Selling Products</h5>
                 <div>
-                    <button pButton type="button" icon="pi pi-ellipsis-v"
-                        class="p-button-rounded p-button-text p-button-plain" (click)="menu.toggle($event)"></button>
+                    <button
+                        pButton
+                        type="button"
+                        icon="pi pi-ellipsis-v"
+                        class="p-button-rounded p-button-text p-button-plain"
+                        (click)="menu.toggle($event)"
+                    ></button>
                     <p-menu #menu [popup]="true" [model]="items"></p-menu>
                 </div>
             </div>
             <ul class="list-none p-0 m-0">
-                <li class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
+                <li
+                    class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4"
+                >
                     <div>
-                        <span class="text-900 font-medium mr-2 mb-1 md:mb-0">Space T-Shirt</span>
+                        <span class="text-900 font-medium mr-2 mb-1 md:mb-0"
+                            >Space T-Shirt</span
+                        >
                         <div class="mt-1 text-600">Clothing</div>
                     </div>
                     <div class="mt-2 md:mt-0 flex align-items-center">
-                        <div class="surface-300 border-round overflow-hidden w-10rem lg:w-6rem"
-                            [ngStyle]="{height: '8px'}">
-                            <div class="bg-orange-500 h-full" [ngStyle]="{width: '50%'}"></div>
+                        <div
+                            class="surface-300 border-round overflow-hidden w-10rem lg:w-6rem"
+                            [ngStyle]="{ height: '8px' }"
+                        >
+                            <div
+                                class="bg-orange-500 h-full"
+                                [ngStyle]="{ width: '50%' }"
+                            ></div>
                         </div>
-                        <span class="text-orange-500 ml-3 font-medium">%50</span>
+                        <span class="text-orange-500 ml-3 font-medium"
+                            >%50</span
+                        >
                     </div>
                 </li>
-                <li class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
+                <li
+                    class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4"
+                >
                     <div>
-                        <span class="text-900 font-medium mr-2 mb-1 md:mb-0">Portal Sticker</span>
+                        <span class="text-900 font-medium mr-2 mb-1 md:mb-0"
+                            >Portal Sticker</span
+                        >
                         <div class="mt-1 text-600">Accessories</div>
                     </div>
-                    <div class="mt-2 md:mt-0 ml-0 md:ml-8 flex align-items-center">
-                        <div class="surface-300 border-round overflow-hidden w-10rem lg:w-6rem"
-                            [ngStyle]="{height: '8px'}">
-                            <div class="bg-cyan-500 h-full" [ngStyle]="{width: '16%'}"></div>
+                    <div
+                        class="mt-2 md:mt-0 ml-0 md:ml-8 flex align-items-center"
+                    >
+                        <div
+                            class="surface-300 border-round overflow-hidden w-10rem lg:w-6rem"
+                            [ngStyle]="{ height: '8px' }"
+                        >
+                            <div
+                                class="bg-cyan-500 h-full"
+                                [ngStyle]="{ width: '16%' }"
+                            ></div>
                         </div>
                         <span class="text-cyan-500 ml-3 font-medium">%16</span>
                     </div>
                 </li>
-                <li class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
+                <li
+                    class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4"
+                >
                     <div>
-                        <span class="text-900 font-medium mr-2 mb-1 md:mb-0">Supernova Sticker</span>
+                        <span class="text-900 font-medium mr-2 mb-1 md:mb-0"
+                            >Supernova Sticker</span
+                        >
                         <div class="mt-1 text-600">Accessories</div>
                     </div>
-                    <div class="mt-2 md:mt-0 ml-0 md:ml-8 flex align-items-center">
-                        <div class="surface-300 border-round overflow-hidden w-10rem lg:w-6rem"
-                            [ngStyle]="{height: '8px'}">
-                            <div class="bg-pink-500 h-full" [ngStyle]="{width: '67%'}"></div>
+                    <div
+                        class="mt-2 md:mt-0 ml-0 md:ml-8 flex align-items-center"
+                    >
+                        <div
+                            class="surface-300 border-round overflow-hidden w-10rem lg:w-6rem"
+                            [ngStyle]="{ height: '8px' }"
+                        >
+                            <div
+                                class="bg-pink-500 h-full"
+                                [ngStyle]="{ width: '67%' }"
+                            ></div>
                         </div>
                         <span class="text-pink-500 ml-3 font-medium">%67</span>
                     </div>
                 </li>
-                <li class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
+                <li
+                    class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4"
+                >
                     <div>
-                        <span class="text-900 font-medium mr-2 mb-1 md:mb-0">Wonders Notebook</span>
+                        <span class="text-900 font-medium mr-2 mb-1 md:mb-0"
+                            >Wonders Notebook</span
+                        >
                         <div class="mt-1 text-600">Office</div>
                     </div>
-                    <div class="mt-2 md:mt-0 ml-0 md:ml-8 flex align-items-center">
-                        <div class="surface-300 border-round overflow-hidden w-10rem lg:w-6rem"
-                            [ngStyle]="{height: '8px'}">
-                            <div class="bg-green-500 h-full" [ngStyle]="{width: '35%'}"></div>
+                    <div
+                        class="mt-2 md:mt-0 ml-0 md:ml-8 flex align-items-center"
+                    >
+                        <div
+                            class="surface-300 border-round overflow-hidden w-10rem lg:w-6rem"
+                            [ngStyle]="{ height: '8px' }"
+                        >
+                            <div
+                                class="bg-green-500 h-full"
+                                [ngStyle]="{ width: '35%' }"
+                            ></div>
                         </div>
                         <span class="text-green-500 ml-3 font-medium">%35</span>
                     </div>
                 </li>
-                <li class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
+                <li
+                    class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4"
+                >
                     <div>
-                        <span class="text-900 font-medium mr-2 mb-1 md:mb-0">Mat Black Case</span>
+                        <span class="text-900 font-medium mr-2 mb-1 md:mb-0"
+                            >Mat Black Case</span
+                        >
                         <div class="mt-1 text-600">Accessories</div>
                     </div>
-                    <div class="mt-2 md:mt-0 ml-0 md:ml-8 flex align-items-center">
-                        <div class="surface-300 border-round overflow-hidden w-10rem lg:w-6rem"
-                            [ngStyle]="{height: '8px'}">
-                            <div class="bg-purple-500 h-full" [ngStyle]="{width: '75%'}"></div>
+                    <div
+                        class="mt-2 md:mt-0 ml-0 md:ml-8 flex align-items-center"
+                    >
+                        <div
+                            class="surface-300 border-round overflow-hidden w-10rem lg:w-6rem"
+                            [ngStyle]="{ height: '8px' }"
+                        >
+                            <div
+                                class="bg-purple-500 h-full"
+                                [ngStyle]="{ width: '75%' }"
+                            ></div>
                         </div>
-                        <span class="text-purple-500 ml-3 font-medium">%75</span>
+                        <span class="text-purple-500 ml-3 font-medium"
+                            >%75</span
+                        >
                     </div>
                 </li>
-                <li class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
+                <li
+                    class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4"
+                >
                     <div>
-                        <span class="text-900 font-medium mr-2 mb-1 md:mb-0">Robots T-Shirt</span>
+                        <span class="text-900 font-medium mr-2 mb-1 md:mb-0"
+                            >Robots T-Shirt</span
+                        >
                         <div class="mt-1 text-600">Clothing</div>
                     </div>
-                    <div class="mt-2 md:mt-0 ml-0 md:ml-8 flex align-items-center">
-                        <div class="surface-300 border-round overflow-hidden w-10rem lg:w-6rem"
-                            [ngStyle]="{height: '8px'}">
-                            <div class="bg-teal-500 h-full" [ngStyle]="{width: '40%'}"></div>
+                    <div
+                        class="mt-2 md:mt-0 ml-0 md:ml-8 flex align-items-center"
+                    >
+                        <div
+                            class="surface-300 border-round overflow-hidden w-10rem lg:w-6rem"
+                            [ngStyle]="{ height: '8px' }"
+                        >
+                            <div
+                                class="bg-teal-500 h-full"
+                                [ngStyle]="{ width: '40%' }"
+                            ></div>
                         </div>
                         <span class="text-teal-500 ml-3 font-medium">%40</span>
                     </div>
@@ -212,160 +321,197 @@
     </div>
 
     <div class="col-12 xl:col-6">
-   
         <div class="card">
-
             <div class="d-flex">
                 <p-inputGroup>
-                    <div class="flex align-items-center justify-content-center bg-gray-100 border-round icon-plus-changer mr-3"
-                    (click)="invoiceHistory()" [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
-                    <i class="pi pi-history text-gray-500 text-xl"></i>   
+                    <div
+                        class="flex align-items-center justify-content-center bg-gray-100 border-round icon-plus-changer mr-3"
+                        (click)="invoiceHistory()"
+                        [ngStyle]="{ width: '2.5rem', height: '2.5rem' }"
+                    >
+                        <i class="pi pi-history text-gray-500 text-xl"></i>
                     </div>
                     <span class="alingText">Invoice history</span>
-                    
+
                     <div class="ml-3"></div>
-                    <div class="flex align-items-center justify-content-center bg-green-100 border-round icon-plus-changer mr-3"
-                        (click)="openInvoiceGenerator()" [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
+                    <div
+                        class="flex align-items-center justify-content-center bg-green-100 border-round icon-plus-changer mr-3"
+                        (click)="openInvoiceGenerator()"
+                        [ngStyle]="{ width: '2.5rem', height: '2.5rem' }"
+                    >
                         <i class="pi pi-money-bill text-green-500 text-xl"></i>
-                    
                     </div>
                     <span class="alingText">Invoice generator</span>
-                  
                 </p-inputGroup>
-
             </div>
-           
+
             <div class="divider"></div>
-          
+
             <h5>Monthly Payment</h5>
             <p-progressSpinner *ngIf="!chartVisible" ariaLabel="loading" />
-            <p-chart type="bar" *ngIf="chartVisible" [data]="dataChart" [options]="options"></p-chart>
+            <p-chart
+                type="bar"
+                *ngIf="chartVisible"
+                [data]="dataChart"
+                [options]="options"
+            ></p-chart>
         </div>
-
 
         <div class="card">
             <div class="flex align-items-center justify-content-between mb-4">
                 <h5>Notifications</h5>
                 <div>
-                    <button pButton type="button" icon="pi pi-ellipsis-v"
-                        class="p-button-rounded p-button-text p-button-plain" (click)="menu.toggle($event)"></button>
+                    <button
+                        pButton
+                        type="button"
+                        icon="pi pi-ellipsis-v"
+                        class="p-button-rounded p-button-text p-button-plain"
+                        (click)="menu.toggle($event)"
+                    ></button>
                     <p-menu #menu [popup]="true" [model]="items"></p-menu>
                 </div>
             </div>
 
             <span class="block text-600 font-medium mb-3">TODAY</span>
             <ul class="p-0 mx-0 mt-0 mb-4 list-none">
-                <li class="flex align-items-center py-2 border-bottom-1 surface-border">
+                <li
+                    class="flex align-items-center py-2 border-bottom-1 surface-border"
+                >
                     <div
-                        class="w-3rem h-3rem flex align-items-center justify-content-center bg-blue-100 border-circle mr-3 flex-shrink-0">
+                        class="w-3rem h-3rem flex align-items-center justify-content-center bg-blue-100 border-circle mr-3 flex-shrink-0"
+                    >
                         <i class="pi pi-dollar text-xl text-blue-500"></i>
                     </div>
-                    <span class="text-900 line-height-3">Richard Jones
-                        <span class="text-700"> has purchased a blue t-shirt for <span
-                                class="text-blue-500">79$</span></span>
+                    <span class="text-900 line-height-3"
+                        >Richard Jones
+                        <span class="text-700">
+                            has purchased a blue t-shirt for
+                            <span class="text-blue-500">79$</span></span
+                        >
                     </span>
                 </li>
                 <li class="flex align-items-center py-2">
                     <div
-                        class="w-3rem h-3rem flex align-items-center justify-content-center bg-orange-100 border-circle mr-3 flex-shrink-0">
+                        class="w-3rem h-3rem flex align-items-center justify-content-center bg-orange-100 border-circle mr-3 flex-shrink-0"
+                    >
                         <i class="pi pi-download text-xl text-orange-500"></i>
                     </div>
-                    <span class="text-700 line-height-3">Your request for withdrawal of <span
-                            class="text-blue-500 font-medium">2500$</span> has been initiated.</span>
+                    <span class="text-700 line-height-3"
+                        >Your request for withdrawal of
+                        <span class="text-blue-500 font-medium">2500$</span> has
+                        been initiated.</span
+                    >
                 </li>
             </ul>
 
             <span class="block text-600 font-medium mb-3">YESTERDAY</span>
             <ul class="p-0 m-0 list-none">
-                <li class="flex align-items-center py-2 border-bottom-1 surface-border">
+                <li
+                    class="flex align-items-center py-2 border-bottom-1 surface-border"
+                >
                     <div
-                        class="w-3rem h-3rem flex align-items-center justify-content-center bg-blue-100 border-circle mr-3 flex-shrink-0">
+                        class="w-3rem h-3rem flex align-items-center justify-content-center bg-blue-100 border-circle mr-3 flex-shrink-0"
+                    >
                         <i class="pi pi-dollar text-xl text-blue-500"></i>
                     </div>
-                    <span class="text-900 line-height-3">Keyser Wick
-                        <span class="text-700"> has purchased a black jacket for <span
-                                class="text-blue-500">59$</span></span>
+                    <span class="text-900 line-height-3"
+                        >Keyser Wick
+                        <span class="text-700">
+                            has purchased a black jacket for
+                            <span class="text-blue-500">59$</span></span
+                        >
                     </span>
                 </li>
-                <li class="flex align-items-center py-2 border-bottom-1 surface-border">
+                <li
+                    class="flex align-items-center py-2 border-bottom-1 surface-border"
+                >
                     <div
-                        class="w-3rem h-3rem flex align-items-center justify-content-center bg-pink-100 border-circle mr-3 flex-shrink-0">
+                        class="w-3rem h-3rem flex align-items-center justify-content-center bg-pink-100 border-circle mr-3 flex-shrink-0"
+                    >
                         <i class="pi pi-question text-xl text-pink-500"></i>
                     </div>
-                    <span class="text-900 line-height-3">Jane Davis<span class="text-700"> has posted a new questions
-                            about your product.</span></span>
+                    <span class="text-900 line-height-3"
+                        >Jane Davis<span class="text-700">
+                            has posted a new questions about your product.</span
+                        ></span
+                    >
                 </li>
             </ul>
         </div>
 
-        <div>
-
-
-        </div>
-
+        <div></div>
     </div>
-
 
     <!-- <router-outlet></router-outlet> -->
 
     <!--START MODAL-->
-    <p-dialog [(visible)]="visible"  [modal]="true" [style]="{width: '100vw', height: '100vh'}"  [maximizable]="true">
-
-
+    <p-dialog
+        [(visible)]="visible"
+        (onHide)="closeDialogRegistration()"
+        [modal]="true"
+        [maximizable]="true"
+    >
         <ng-template pTemplate="header">
             <span class="font-semibold text-xl w-100">
-                <!-- {{ getModalContent().title}} -->
+                <h2>Register owner</h2>
             </span>
+            <hr />
         </ng-template>
-
 
         <p-tabView>
             <p-tabPanel header="Create single unit">
-
-
-                <app-owner-registration></app-owner-registration>
-
+                <app-owner-registration
+                    *ngIf="visible"
+                ></app-owner-registration>
             </p-tabPanel>
             <p-tabPanel header="Create multiple units">
-
-                <p-fileUpload mode="basic" chooseLabel="Choose image" name="demo[]"
-                    url="https://www.primefaces.org/cdn/api/upload.php" accept="image/*" maxlengthFileSize="1000000"
-                    (onSelect)="onSelect($event)">
+                <p-fileUpload
+                    mode="basic"
+                    chooseLabel="Choose image"
+                    name="demo[]"
+                    url="https://www.primefaces.org/cdn/api/upload.php"
+                    accept="image/*"
+                    maxlengthFileSize="1000000"
+                    (onSelect)="onSelect($event)"
+                >
                 </p-fileUpload>
-
             </p-tabPanel>
-
-
         </p-tabView>
-
-
     </p-dialog>
 
     <!-- Modal owners details -->
 
-    <p-dialog header="Resident details" [modal]="true" [(visible)]="visible_owner"
-     
-   [maximizable]="true"
-     (onHide)="closeDialog()">
-
+    <p-dialog
+        header="Resident details"
+        [modal]="true"
+        [(visible)]="visible_owner"
+        [maximizable]="true"
+        (onHide)="closeDialog()"
+    >
         <p-tabView>
             <p-tabPanel header="Basic info">
                 <form #basicInfo="ngForm">
-                    <div style="display: flex;justify-content: center;">
-                        
+                    <div style="display: flex; justify-content: center">
                         <div class="w-30rem">
-    
                             <div class="col-md-6">
-                                <p style="text-align: center;">
-                                    <img [src]="image" class="img-border-radius" alt="" >
-    
-                                    <p-fileUpload mode="basic" chooseLabel="Choose image" name="demo[]"
-                                        url="https://www.primefaces.org/cdn/api/upload.php" accept="image/*"
-                                        maxlengthFileSize="1000000" (onSelect)="onSelect($event)">
+                                <p style="text-align: center">
+                                    <img
+                                        [src]="image"
+                                        class="img-border-radius"
+                                        alt=""
+                                    />
+
+                                    <p-fileUpload
+                                        mode="basic"
+                                        chooseLabel="Choose image"
+                                        name="demo[]"
+                                        url="https://www.primefaces.org/cdn/api/upload.php"
+                                        accept="image/*"
+                                        maxlengthFileSize="1000000"
+                                        (onSelect)="onSelect($event)"
+                                    >
                                     </p-fileUpload>
-    
                                 </p>
-    
                             </div>
                             <div class="w-100">
                                 <h4>Basic info:</h4>
@@ -374,176 +520,262 @@
                                         <p-inputGroupAddon>
                                             <i class="pi pi-user"></i>
                                         </p-inputGroupAddon>
-    
-                                        <input pInputText
-                                            [ngClass]="{'input-success':ownerName.valid, 'input-error ':(ownerName.touched && !ownerName.dirty)}"
-                                            #ownerName="ngModel" [(ngModel)]="ownerObj.ownerName" name="ownerName"
-                                            type="text" maxlength="30" required placeholder="Name: Jose Rodolfo" />
-    
+
+                                        <input
+                                            pInputText
+                                            [ngClass]="{
+                                                'input-success':
+                                                    ownerName.valid,
+                                                'input-error ':
+                                                    ownerName.touched &&
+                                                    !ownerName.dirty
+                                            }"
+                                            #ownerName="ngModel"
+                                            [(ngModel)]="ownerObj.ownerName"
+                                            name="ownerName"
+                                            type="text"
+                                            maxlength="30"
+                                            required
+                                            placeholder="Name: Jose Rodolfo"
+                                        />
                                     </p-inputGroup>
-    
-                                    <small *ngIf="ownerName.touched && !ownerName.valid" class="p-error">Required.</small>
+
+                                    <small
+                                        *ngIf="
+                                            ownerName.touched &&
+                                            !ownerName.valid
+                                        "
+                                        class="p-error"
+                                        >Required.</small
+                                    >
                                 </div>
-    
+
                                 <div class="col-md-6 w-100 mt-3">
                                     <p-inputGroup>
                                         <p-inputGroupAddon>
                                             <i class="pi pi-user"></i>
                                         </p-inputGroupAddon>
-    
-                                        <input pInputText
-                                            [ngClass]="{'input-success':lastnameOW.valid, 'input-error ':(lastnameOW.touched && !lastnameOW.dirty)}"
-                                            #lastnameOW="ngModel" [(ngModel)]="ownerObj.lastname" name="lastnameOW"
-                                            type="text" maxlength="30" required placeholder="Name: Rogers Martins" />
-    
+
+                                        <input
+                                            pInputText
+                                            [ngClass]="{
+                                                'input-success':
+                                                    lastnameOW.valid,
+                                                'input-error ':
+                                                    lastnameOW.touched &&
+                                                    !lastnameOW.dirty
+                                            }"
+                                            #lastnameOW="ngModel"
+                                            [(ngModel)]="ownerObj.lastname"
+                                            name="lastnameOW"
+                                            type="text"
+                                            maxlength="30"
+                                            required
+                                            placeholder="Name: Rogers Martins"
+                                        />
                                     </p-inputGroup>
-    
-                                    <small *ngIf="ownerName.touched && !ownerName.valid" class="p-error">Required.</small>
+
+                                    <small
+                                        *ngIf="
+                                            ownerName.touched &&
+                                            !ownerName.valid
+                                        "
+                                        class="p-error"
+                                        >Required.</small
+                                    >
                                 </div>
-    
+
                                 <div class="col-md-6 w-100 mt-3">
                                     <p-inputGroup>
                                         <p-inputGroupAddon>
                                             <i class="pi pi-android"></i>
                                         </p-inputGroupAddon>
 
-                                    <p-dropdown                                 
-                                        [ngClass]="{'ng-valid input-success':gender_apt.valid, 'ng-invalid ng-dirty':(gender_apt.touched && !gender_apt.dirty)}"
-                                        #gender_apt="ngModel" 
-                                        name="gender_apt" 
-                                        [options]="genderOptions" 
-                                        [(ngModel)]="ownerObj.gender" optionLabel="label"
-                                            required />
-    
+                                        <p-dropdown
+                                            [ngClass]="{
+                                                'ng-valid input-success':
+                                                    gender_apt.valid,
+                                                'ng-invalid ng-dirty':
+                                                    gender_apt.touched &&
+                                                    !gender_apt.dirty
+                                            }"
+                                            #gender_apt="ngModel"
+                                            name="gender_apt"
+                                            [options]="genderOptions"
+                                            [(ngModel)]="ownerObj.gender"
+                                            optionLabel="label"
+                                            required
+                                        />
                                     </p-inputGroup>
-    
                                 </div>
-    
+
                                 <div class="col-md-6 w-100 mt-3">
-    
-    
                                     <p-inputGroup>
                                         <p-inputGroupAddon>
                                             <i class="pi pi-mobile"></i>
                                         </p-inputGroupAddon>
-    
-                                        <input pInputText
-                                            [ngClass]="{'input-success':phone.valid, 'input-error ':(phone.touched && !phone.dirty)}"
-                                            #phone="ngModel" [(ngModel)]="ownerObj.phone" name="phone" type="text"
-                                            maxlength="15" required placeholder="8496587417" pattern="^[0-9]+" />
-    
+
+                                        <input
+                                            pInputText
+                                            [ngClass]="{
+                                                'input-success': phone.valid,
+                                                'input-error ':
+                                                    phone.touched &&
+                                                    !phone.dirty
+                                            }"
+                                            #phone="ngModel"
+                                            [(ngModel)]="ownerObj.phone"
+                                            name="phone"
+                                            type="text"
+                                            maxlength="15"
+                                            required
+                                            placeholder="8496587417"
+                                            pattern="^[0-9]+"
+                                        />
                                     </p-inputGroup>
-    
-                                    <small *ngIf="phone.touched && !phone.valid" class="p-error">Required.</small>
-    
+
+                                    <small
+                                        *ngIf="phone.touched && !phone.valid"
+                                        class="p-error"
+                                        >Required.</small
+                                    >
                                 </div>
-    
+
                                 <div class="col-md-6 w-100 mt-3">
-    
                                     <p-inputGroup>
                                         <p-inputGroupAddon>
                                             <i class="pi pi-check-circle"></i>
-    
                                         </p-inputGroupAddon>
-    
-                                        <input pInputText #id_number="ngModel"
-                                            [ngClass]="{'input-success':id_number.valid, 'input-error ':(id_number.touched && !id_number.dirty)}"
-                                            [(ngModel)]="ownerObj.id_number" name="id_number" type="text"
-                                            placeholder="Personal id (No dashes)" maxlength="11" pattern="^[0-9]+"
-                                            required />
-    
+
+                                        <input
+                                            pInputText
+                                            #id_number="ngModel"
+                                            [ngClass]="{
+                                                'input-success':
+                                                    id_number.valid,
+                                                'input-error ':
+                                                    id_number.touched &&
+                                                    !id_number.dirty
+                                            }"
+                                            [(ngModel)]="ownerObj.id_number"
+                                            name="id_number"
+                                            type="text"
+                                            placeholder="Personal id (No dashes)"
+                                            maxlength="11"
+                                            pattern="^[0-9]+"
+                                            required
+                                        />
                                     </p-inputGroup>
-    
                                 </div>
-    
+
                                 <div class="col-md-6 w-100 mt-3">
                                     <p-inputGroup>
                                         <p-inputGroupAddon>
                                             <i class="pi pi-envelope"></i>
-    
                                         </p-inputGroupAddon>
-    
-                                        <input pInputText #email="ngModel" [(ngModel)]="ownerObj.email"
-                                            [ngClass]="{'input-success': email.valid, 'input-error ':(email.touched && !email.dirty)}"
-                                            name="email" type="text" maxlength="50"
+
+                                        <input
+                                            pInputText
+                                            #email="ngModel"
+                                            [(ngModel)]="ownerObj.email"
+                                            [ngClass]="{
+                                                'input-success': email.valid,
+                                                'input-error ':
+                                                    email.touched &&
+                                                    !email.dirty
+                                            }"
+                                            name="email"
+                                            type="text"
+                                            maxlength="50"
                                             pattern="[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}"
-                                            placeholder="correo@email.com" required />
-    
+                                            placeholder="correo@email.com"
+                                            required
+                                        />
                                     </p-inputGroup>
-                                    <small *ngIf="email.touched && !email.valid" class="p-error">Required.</small>
+                                    <small
+                                        *ngIf="email.touched && !email.valid"
+                                        class="p-error"
+                                        >Required.</small
+                                    >
                                 </div>
-    
-                                <div class="col-md-6 w-100 mt-3" *ngIf="passwordOwner">
+
+                                <div
+                                    class="col-md-6 w-100 mt-3"
+                                    *ngIf="passwordOwner"
+                                >
                                     <p-inputGroup>
                                         <p-inputGroupAddon>
                                             <i class="pi pi-lock"></i>
-    
                                         </p-inputGroupAddon>
-    
-                                        <input pInputText #password="ngModel" [(ngModel)]="ownerObj.email"
-                                            [ngClass]="{'input-success': password.valid, 'input-error ':(password.touched && !email.dirty)}"
-                                            name="password" type="password" maxlength="12" pattern="[a-zA-Z0-9._-]"
-                                            placeholder="Password" required />
-    
+
+                                        <input
+                                            pInputText
+                                            #password="ngModel"
+                                            [(ngModel)]="ownerObj.email"
+                                            [ngClass]="{
+                                                'input-success': password.valid,
+                                                'input-error ':
+                                                    password.touched &&
+                                                    !email.dirty
+                                            }"
+                                            name="password"
+                                            type="password"
+                                            maxlength="12"
+                                            pattern="[a-zA-Z0-9._-]"
+                                            placeholder="Password"
+                                            required
+                                        />
                                     </p-inputGroup>
-                                    <small *ngIf="password.touched && !password.valid" class="p-error">Required.</small>
+                                    <small
+                                        *ngIf="
+                                            password.touched && !password.valid
+                                        "
+                                        class="p-error"
+                                        >Required.</small
+                                    >
                                 </div>
-    
+
                                 <div class="col-md-6 w-100 mt-3">
-    
                                     <p-toast />
                                     <p-confirmDialog />
-                                    <p-button (onClick)="confirmUpdate($event)" icon="pi pi-check" label="Update"
+                                    <p-button
+                                        (onClick)="confirmUpdate($event)"
+                                        icon="pi pi-check"
+                                        label="Update"
                                         status="primary"
-                                        [disabled]="!ownerName.valid || !phone.valid  || !lastnameOW.valid" />
-    
-    
+                                        [disabled]="
+                                            !ownerName.valid ||
+                                            !phone.valid ||
+                                            !lastnameOW.valid
+                                        "
+                                    />
                                 </div>
-    
                             </div>
-    
                         </div>
-
-
                     </div>
-                   
-
-
-
                 </form>
             </p-tabPanel>
-           
- 
+
             <p-tabPanel header="Authorized users">
                 <form #basicInfo="ngForm" (ngSubmit)="onUpdate()">
-
-
-        
-                    <app-family-member-details *ngIf="visible_owner" [receiving]="ownerObj._id" ></app-family-member-details>
-    </form>
+                    <app-family-member-details
+                        *ngIf="visible_owner"
+                        [receiving]="ownerObj._id"
+                    ></app-family-member-details>
+                </form>
             </p-tabPanel>
-            <p-tabPanel header="Payments history" >
-        
-
-                
-            <app-payments-history *ngIf="visible_owner"  [ownerIdInput]="ownerObj._id" ></app-payments-history>
-                
-          
-                   
+            <p-tabPanel header="Payments history">
+                <app-payments-history
+                    *ngIf="visible_owner"
+                    [ownerIdInput]="ownerObj._id"
+                ></app-payments-history>
             </p-tabPanel>
-            <p-tabPanel header="Bookings"  [style]="{ width: '50rem', height: '50rem' }"  >
-        
-         
-                <app-booking-area *ngIf="visible_owner" ></app-booking-area>
-               
-          
-                   
+            <p-tabPanel
+                header="Bookings"
+                [style]="{ width: '50rem', height: '50rem' }"
+            >
+                <app-booking-area *ngIf="visible_owner"></app-booking-area>
             </p-tabPanel>
         </p-tabView>
-
     </p-dialog>
-
-
-
-
 </div>

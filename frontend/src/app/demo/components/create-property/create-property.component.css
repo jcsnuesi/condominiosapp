@@ -1,14 +1,21 @@
 .custom-file-upload {
-    display: inline-block;
+    display: flex;
+    justify-content: center;
     cursor: pointer;
     padding: 6px 12px;
 }
+.input-error {
+    border: 1px solid red;
+}
+::ng-deep .input-error-dropdown .p-dropdown {
+    border: 1px solid red;
+}
 
 .upload-img {
-    width:250px;
-    height: 180px;
+    width: 160px;
+    height: 160px;
     cursor: pointer;
-    border-radius: 5px;
+    border-radius: 300px;
     border: solid 1px #e0e0e0;
 }
 
@@ -19,23 +26,41 @@
     align-items: center;
     /* Centra verticalmente */
     height: 100%;
-   
+
     /* Asegúrate de que el div ocupe el 100% de la altura disponible */
 }
-
-/* .addressProperty {
-   
+.prop-details {
+    display: block;
+}
+.addressProperty {
     padding: 12px;
+}
 
+.addressProperty label {
+    display: block;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.addressProperty input {
+    display: block;
+
+    width: 100%;
+}
+/* .addr-margin {
+    margin-top: 10px;
+}
+label {
+    margin-bottom: 10px;
 } */
-::ng-deep .p-dropdown{
+::ng-deep .p-dropdown {
     width: 100% !important;
 }
 
-::ng-deep  .p-multiselect {
+::ng-deep .p-multiselect {
     width: 100% !important;
 }
-::ng-deep .p-calendar{
+::ng-deep .p-calendar {
     width: 100% !important;
 }
 
@@ -46,11 +71,11 @@
 
 } */
 
-label{
+/* label {
     padding-top: 8px;
     padding-bottom: 8px;
-}
-
+} */
+/* 
 input {
     width: 100%;
     padding-top: 9px;
@@ -59,8 +84,4 @@ input {
     display: inline-block;
     border: 1px solid #ccc;
     box-sizing: border-box;
-}
-
-.input-error {
-    border: 1px solid red;
-}
+} */

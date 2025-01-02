@@ -1,9 +1,7 @@
-export class OwnerModel{
-
+export class OwnerModel {
     constructor(
-        public _id: string,
         public avatar: string,
-        public ownerName: string,
+        public name: string,
         public lastname: string,
         public gender: any,
         public dob: string,
@@ -16,7 +14,6 @@ export class OwnerModel{
         public id_number: string,
         public propertyType: string,
         public isRenting: string,
-        public password: string,
-        
-    ){}
+        public password: string
+    ) {}
 }
