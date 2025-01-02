@@ -22,7 +22,6 @@ var AdminSchema = Schema({
     avatar: { type: String },
     company: { type: String, required: true },
     rnc: { type: String },
-    staff: [{ type: mongoose.Schema.Types.ObjectId, ref:'Staff' }],
     admins: [{ type: mongoose.Schema.Types.ObjectId, ref:'Administrators' }],
     phone: [],    
     street_1: { type: String, required: true },

@@ -7,7 +7,7 @@ let path = require('path')
 let fs = require('fs')
 let jwtoken = require('../service/jwt')
 let checkExtensions = require('../service/extensions')
-let verifyDataParam = require('../service/verifyParamData')
+let VerifyData = require('../service/verifyParamData')
 let userCreaterModel = require('../models/userCreater')
 let errorHandler = require('../error/errorHandler')
 let Admin = require('../models/admin')
@@ -21,7 +21,8 @@ const { throws } = require('assert');
 const uuid = require('uuid')
 const mailer = require('nodemailer')
 var jwebtoken = require('../service/jwt')
-var Family = require('../models/family')
+var Family = require('../models/family');
+
 
 var controller = {
 
@@ -99,42 +100,28 @@ var controller = {
     createUser: async function (req, res) {
 
         var params = req.body        
-             
-        const verifying = new verifyDataParam()
+          
+        const verifying = new VerifyData()
      
         try {
             
             var val_password = !validator.isEmpty(params.password)
-            var val_phone = verifying.phonesConverter(params)
+            var val_phone = verifying.phonesTransformation(params.phone)
             var val_terms = !validator.isEmpty(toString(params.terms))
-            var val_email = verifying.hasEmail(params)
-
-            if (val_phone.name == 'Error' || val_email.name == 'Error') {
-
-                return res.status(400).send({
-
-                    status: "bad request",
-                    message: "All fields required",
-                    details: {
-                       phone_valitation: val_phone.message,
-                        email_valitation: val_email.message
-                    }
-                })
-                
-            }
-
+            var val_email =  validator.isEmail(params.email_company)
            
         } catch (error) {
 
             return res.status(400).send({
 
                 status: "bad request",
-                message: "All fields required",
-                details: val_phone.message
+                message: "All fields required"
+                
             })
 
         }
 
+       
              
         //verificar la extension de archivo enviado sea tipo imagen
         var imgFormatAccepted = checkExtensions.confirmExtension(req)

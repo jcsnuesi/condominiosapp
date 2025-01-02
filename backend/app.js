@@ -29,7 +29,7 @@ app.use(cors())
 app.use(bodyparser.urlencoded({extended:false}))
 app.use(bodyparser.json())
 
-app.use('/api', user_routes)
+app.use('/api', user_routes  )
 app.use('/api', property_routes)
 app.use('/api', task_routes)
 app.use('/api', guest_routes)
