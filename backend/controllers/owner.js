@@ -522,27 +522,48 @@ var ownerAndSubController = {
       });
   },
   update: function (req, res) {
-    const allow = ["owner", "occupant"];
+    // if (!allow.includes(req.user.role.toLowerCase())) {
+    //   return res.status(403).send({
+    //     status: "forbidden",
+    //     message: "Not authorized",
+    //   });
+    // }
 
-    if (!allow.includes(req.user.role.toLowerCase())) {
-      return res.status(403).send({
-        status: "forbidden",
-        message: "Not authorized",
+    // Si el usuario envia un archivo de imagen, se guarda en el servidor y se le asigna el nombre a la propiedad avatar
+
+    const allow = ["owner", "family"];
+    var params = req.body;
+    var user = { owner: Owner, family: Family };
+
+    if (Boolean(req.files.avatar)) {
+      let { path, ...res } = req.files.avatar;
+      params.avatar = path.split("\\")[2];
+    }
+
+    //verificar la extension de archivo enviado sea tipo imagen
+    var imgFormatAccepted = checkExtensions.confirmExtension(req);
+
+    if (imgFormatAccepted == false) {
+      return res.status(400).send({
+        status: "bad request",
+        message: "Files allows '.jpg', '.jpeg', '.gif', '.png'",
       });
     }
 
-    var params = req.body;
-    var user = { owner: Owner, occupant: Occupant };
+    user[params.role.toLowerCase()].findOne(
+      { _id: params._id },
+      async (err, userFound) => {
+        if (err || !userFound) {
+          await fs.unlink(`./uploads/owner/${params.avatar}`);
+        }
 
-    user[params.account].findOne(
-      { email: req.user.email },
-      (err, userFound) => {
         if (err) {
           return res.status(500).send({
             status: "error",
             message: "Server error, try again",
           });
         }
+
         if (!userFound) {
           return res.status(404).send({
             status: "error",
@@ -550,97 +571,67 @@ var ownerAndSubController = {
           });
         }
 
+        delete params.propertyDetails;
+
         for (const key in params) {
-          userFound[key] = key != "id_number" ? params[key] : userFound[key];
+          if (params.password) {
+            userFound.password = await bcrypt.hash(params.password, saltRounds);
+          } else {
+            userFound[key] = params[key].toLowerCase();
+          }
         }
 
-        user[params.account].findOneAndUpdate(
-          { email: req.user.email },
-          userFound,
-          { new: true },
-          (err, updated) => {
-            if (err) {
-              return res.status(500).send({
-                status: "error",
-                message: "Server error updating, try again",
-              });
-            }
+        try {
+          await user[params.role.toLowerCase()].findOneAndUpdate(
+            { _id: params._id },
+            userFound,
+            { new: true }
+          );
+        } catch (error) {
+          return res.status(500).send({
+            status: "error",
+            message: "Missing params to update this user",
+            error: error,
+          });
+        }
 
-            if (!updated) {
-              return res.status(304).send({
-                status: "error",
-                message:
-                  "User was not updated, check all field out and try again",
-              });
-            }
-
-            return res.status(200).send({
-              status: "success",
-              message: updated,
-            });
-          }
-        );
+        return res.status(200).send({
+          status: "success",
+          message: "User updated successfully",
+        });
       }
     );
   },
-  deleteOccupantByOwner: function (req, res) {
-    const allow = ["owner", "occupant"];
-
-    if (!allow.includes(req.user.role.toLowerCase())) {
-      return res.status(403).send({
-        status: "forbidden",
-        message: "Not authorized",
-      });
-    }
+  updateProperties: function (req, res) {},
+  deactivatedUser: async function (req, res) {
+    // if (req.user.role.toLowerCase() != "admin") {
+    //   return res.status(403).send({
+    //     status: "forbidden",
+    //     message: "Not authorized",
+    //   });
+    // }
 
     var params = req.body;
 
-    Owner.findOne({ _id: req.user.sub }, async (err, owerFound) => {
-      var errorHandlerArr = errorHandler.loginExceptions(err, owerFound);
+    var user = { owner: Owner, family: Family };
 
-      if (errorHandlerArr[0]) {
-        return res.status(errorHandlerArr[1]).send({
-          status: errorHandlerArr[2],
-          message: errorHandlerArr[3],
-        });
-      }
-
-      var queriesResponses = owerFound.occupantId.map(
-        async (occupants, index) => {
-          if (occupants.occupant == params.id) {
-            const ownerOccupant = await Occupant.findOne({ _id: params.id });
-            ownerOccupant.status = "inactive";
-            owerFound.occupantId.splice(index, 1);
-
-            return await Promise.all([
-              Occupant.findOneAndUpdate({ _id: params.id }, ownerOccupant, {
-                new: true,
-              }),
-              Owner.findOneAndUpdate({ _id: req.user.sub }, owerFound, {
-                new: true,
-              }),
-            ]).then(([acc, ow]) => {
-              return acc;
-            });
-          }
-
-          return [false];
-        }
+    try {
+      await Owner.findOneAndUpdate(
+        { _id: params._id },
+        { status: params.status },
+        { new: true }
       );
-
-      if (queriesResponses[0] == false) {
-        return res.status(501).send({
-          status: "error",
-          message: "Occupant was not deleted, try again",
-        });
-      }
-
-      const occupantDel = await queriesResponses[0];
-
-      return res.status(200).send({
-        status: "success",
-        message: occupantDel,
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send({
+        status: "error",
+        message: "Server error, try again",
       });
+    }
+
+    return res.status(200).send({
+      status: "success",
+      message: "User deleted successfully",
     });
   },
   getAvatar: function (req, res) {

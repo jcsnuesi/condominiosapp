@@ -416,11 +416,12 @@ var Condominium_Controller = {
   },
   getBuildingDetails: function (req, res) {
     Condominium.findById(req.params.id)
-      .populate(
-        "units_ownerId",
-        `
-            avatar name lastname gender email phone id_number status role familyAccount propertyDetails.addressId propertyDetails.condominium_unit propertyDetails.parkingsQty propertyDetails.isRenting propertyDetails.occupantId propertyDetails.createdAt `
-      )
+      .populate({
+        path: "units_ownerId",
+        match: { status: "active" },
+        select:
+          "avatar name lastname gender email phone id_number status role familyAccount propertyDetails.addressId propertyDetails.condominium_unit propertyDetails.parkingsQty propertyDetails.isRenting propertyDetails.occupantId propertyDetails.createdAt",
+      })
       .exec((err, condominiumFound) => {
         var errorHandlerArr = errorHandler.newUser(err, condominiumFound);
 
