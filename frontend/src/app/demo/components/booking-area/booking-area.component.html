@@ -1,243 +1,386 @@
-<div  *appHasPermissions="'admin'"   style="margin-bottom: 15px;">
-
+<div *appHasPermissions="'admin'" style="margin-bottom: 15px">
     <p-button (click)="back()" label="Back" icon="pi pi-arrow-left"></p-button>
- 
+</div>
 
-</div> 
-
-<div class="booking-responsive" *appHasPermissions="'owner'">   
-      
+<div class="booking-responsive" *appHasPermissions="'owner'">
     <p-toast />
     <p-confirmDialog />
 
-    <p-panel header="Booking" >
-
-        <p-fieldset id="bg-legend" legend="Choose action" >
-        
+    <p-panel header="Booking">
+        <p-fieldset id="bg-legend" legend="Choose action">
             <div class="radio-container">
                 <div class="field-radiobutton">
-                    <p-radioButton name="bookAction" (onClick)="updateBookingObj()" value="guest" [(ngModel)]="valRadio" id="guestRadio"></p-radioButton>
+                    <p-radioButton
+                        name="bookAction"
+                        (onClick)="updateBookingObj()"
+                        value="guest"
+                        [(ngModel)]="valRadio"
+                        id="guestRadio"
+                    ></p-radioButton>
                     <label for="guestRadio">Annouce a guest</label>
                 </div>
                 <div class="field-radiobutton">
-                    <p-radioButton (onClick)="updateBookingObj()" name="bookAction"  value="bookingAct" [(ngModel)]="valRadio" id="bookingRadio"></p-radioButton>
+                    <p-radioButton
+                        (onClick)="updateBookingObj()"
+                        name="bookAction"
+                        value="bookingAct"
+                        [(ngModel)]="valRadio"
+                        id="bookingRadio"
+                    ></p-radioButton>
                     <label for="bookingRadio">Make a booking</label>
                 </div>
             </div>
-        
         </p-fieldset>
 
         <div class="show-form" *ngIf="valRadio == 'guest'">
-            <form #guestForm="ngForm" *appHasPermissions="'owner'" >         
-    
-                <div class="guest-info">    
+            <form #guestForm="ngForm" *appHasPermissions="'owner'">
+                <div class="guest-info">
                     <div class="form-group">
                         <label for="condo-label">Choose condo:</label>
-                        <p-dropdown #condoOption="ngModel" name="condoOption" (onChange)="getAreaInfo($event)" id="areas-available-label"
-                            [options]="condoOptions" [(ngModel)]="bookingInfo.condoId" optionLabel="label" placeholder="Areas available"
-                            required />
+                        <p-dropdown
+                            #condoOption="ngModel"
+                            name="condoOption"
+                            (onChange)="getAreaInfo($event)"
+                            id="areas-available-label"
+                            [options]="condoOptions"
+                            [(ngModel)]="bookingInfo.condoId"
+                            optionLabel="label"
+                            placeholder="Areas available"
+                            required
+                        />
                     </div>
 
-                        <div class="form-group">
-                            <label for="unitOption-labels">Choose unit:</label>
-                            <p-dropdown id="unitOption-labels" #unitOptionsg="ngModel" name="unitOptionsg" [options]="unitOption"
-                                [(ngModel)]="bookingInfo.unit" optionLabel="label" [disabled]="unitOption.length == 0" required />
-                        </div>
+                    <div class="form-group">
+                        <label for="unitOption-labels">Choose unit:</label>
+                        <p-dropdown
+                            id="unitOption-labels"
+                            #unitOptionsg="ngModel"
+                            name="unitOptionsg"
+                            [options]="unitOption"
+                            [(ngModel)]="bookingInfo.unit"
+                            optionLabel="label"
+                            [disabled]="unitOption.length == 0"
+                            required
+                        />
+                    </div>
 
-    
                     <div class="form-group">
                         <label for="guest-label">Guest fullname:</label>
-                        <input type="text" pInputText #guestName="ngModel" name="guestName" id="guest-label" [(ngModel)]="bookingInfo.fullname" required/>
-    
-                        <span *ngIf="guestName.touched && guestName.invalid" class="p-error">This field is required.</span>
+                        <input
+                            type="text"
+                            pInputText
+                            #guestName="ngModel"
+                            name="guestName"
+                            id="guest-label"
+                            [(ngModel)]="bookingInfo.fullname"
+                            required
+                        />
+
+                        <span
+                            *ngIf="guestName.touched && guestName.invalid"
+                            class="p-error"
+                            >This field is required.</span
+                        >
                     </div>
-                 
+
                     <div class="form-group">
                         <label for="phone-label">Phone:</label>
-                        <input type="text" pInputText #phone="ngModel" name="phone" id="phone-label" [(ngModel)]="bookingInfo.phone"
-                        maxlength="11" required/>
-    
-                        <span *ngIf="phone.touched && phone.invalid" class="p-error">This field is required.</span>
+                        <input
+                            type="text"
+                            pInputText
+                            #phone="ngModel"
+                            name="phone"
+                            id="phone-label"
+                            [(ngModel)]="bookingInfo.phone"
+                            maxlength="11"
+                            required
+                        />
+
+                        <span
+                            *ngIf="phone.touched && phone.invalid"
+                            class="p-error"
+                            >This field is required.</span
+                        >
                     </div>
-                 
-            
+
                     <div class="form-group">
-                        <label for="notify-label">Choose notification method (optional):</label>
-                        <p-dropdown #notifyOptions="ngModel" name="notifyOptions" id="notify-label"
-                            [options]="notifingOptions" [(ngModel)]="bookingInfo.notifingType" optionLabel="label" placeholder="Areas available" />
-                        <span *ngIf="notifyOptions.touched && notifyOptions.invalid" class="p-error">This field is required.</span>
+                        <label for="notify-label"
+                            >Choose notification method (optional):</label
+                        >
+                        <p-dropdown
+                            #notifyOptions="ngModel"
+                            name="notifyOptions"
+                            id="notify-label"
+                            [options]="notifingOptions"
+                            [(ngModel)]="bookingInfo.notifingType"
+                            optionLabel="label"
+                            placeholder="Areas available"
+                        />
+                        <span
+                            *ngIf="
+                                notifyOptions.touched && notifyOptions.invalid
+                            "
+                            class="p-error"
+                            >This field is required.</span
+                        >
                     </div>
-    
-                    <div class="form-group"  *ngIf="bookingInfo.notifingType.length != 0 && bookingInfo.notifingType.label != 'None'">
-                        <label for="type-notyfication-label">Type {{bookingInfo.notifingType.label}}:</label>
-                        <input type="text" pInputText 
-                        #typeNotification="ngModel" 
-                        name="typeNotification" id="type-notyfication-label"
-                            [(ngModel)]="bookingInfo.notifing"                         
-                            />                
-                            
-                        <span *ngIf="typeNotification.touched && typeNotification.invalid" class="p-error">This field is required.</span>
+
+                    <div
+                        class="form-group"
+                        *ngIf="
+                            bookingInfo.notifingType.length != 0 &&
+                            bookingInfo.notifingType.label != 'None'
+                        "
+                    >
+                        <label for="type-notyfication-label"
+                            >Type {{ bookingInfo.notifingType.label }}:</label
+                        >
+                        <input
+                            type="text"
+                            pInputText
+                            #typeNotification="ngModel"
+                            name="typeNotification"
+                            id="type-notyfication-label"
+                            [(ngModel)]="bookingInfo.notifing"
+                        />
+
+                        <span
+                            *ngIf="
+                                typeNotification.touched &&
+                                typeNotification.invalid
+                            "
+                            class="p-error"
+                            >This field is required.</span
+                        >
                     </div>
-    
+
                     <div class="form-group">
                         <label for="arrive-label">Choose arrival date:</label>
-                       
-                        <p-calendar id="arrive-label" 
-                        #dateArrival="ngModel" 
-                        name="dateArrival" 
-                        inputId="calendar-12h" 
-                        [(ngModel)]="bookingInfo.checkIn"
-                        [showTime]="true"                    
-                        [hourFormat]="12" 
-                        dateFormat="mm-dd-yy"
-                            required />
-                        <span *ngIf="dateArrival.touched && dateArrival.invalid" class="p-error">This field is required.</span>
-                                          
+
+                        <p-calendar
+                            id="arrive-label"
+                            #dateArrival="ngModel"
+                            name="dateArrival"
+                            inputId="calendar-12h"
+                            [(ngModel)]="bookingInfo.checkIn"
+                            [showTime]="true"
+                            [hourFormat]="12"
+                            dateFormat="mm-dd-yy"
+                            required
+                        />
+                        <span
+                            *ngIf="dateArrival.touched && dateArrival.invalid"
+                            class="p-error"
+                            >This field is required.</span
+                        >
                     </div>
 
                     <div class="form-group">
                         <label for="comment-label">Comment (optional):</label>
-                      
-                            <textarea rows="5" 
-                            cols="30" 
-                            pInputTextarea 
-                              #comment="ngModel" 
-                              name="comment" 
-                              id="comment-label" 
-                              [(ngModel)]="bookingInfo.comments" >
-                            </textarea>
-                    
-                        <span *ngIf="comment.touched && comment.invalid" class="p-error">This field is required.</span>
+
+                        <textarea
+                            rows="5"
+                            cols="30"
+                            pInputTextarea
+                            #comment="ngModel"
+                            name="comment"
+                            id="comment-label"
+                            [(ngModel)]="bookingInfo.comments"
+                        >
+                        </textarea>
+
+                        <span
+                            *ngIf="comment.touched && comment.invalid"
+                            class="p-error"
+                            >This field is required.</span
+                        >
                     </div>
-    
                 </div>
                 <div class="btn-submit">
-                    <p-button type="submit" (click)="submit(guestForm)" label="Submit Guest" icon="pi pi-check" [disabled]="guestForm.invalid" />
-    
+                    <p-button
+                        type="submit"
+                        (click)="submit(guestForm)"
+                        label="Submit Guest"
+                        icon="pi pi-check"
+                        [disabled]="guestForm.invalid"
+                    />
                 </div>
             </form>
-   
-
         </div>
-        <div class="show-form" *ngIf="valRadio == 'bookingAct'">             
+        <div class="show-form" *ngIf="valRadio == 'bookingAct'">
             <form #bookingForm="ngForm" *appHasPermissions="'owner'">
-                
-                    <div class="guest-info">
+                <div class="guest-info">
+                    <div class="form-group">
+                        <label for="condo-label">Choose condominium:</label>
 
-                        <div class="form-group">
-
-                            <label for="condo-label">Choose condominium:</label>
-                            
-                            <p-dropdown #condoOption="ngModel" name="condoOption"
-                            id="condo-label" 
-                            (onChange)="getAreaInfo($event)" 
+                        <p-dropdown
+                            #condoOption="ngModel"
+                            name="condoOption"
+                            id="condo-label"
+                            (onChange)="getAreaInfo($event)"
                             id="areas-available-label"
-                            [options]="condoOptions" 
-                            [(ngModel)]="bookingInfo.condoId" 
-                            optionLabel="label" 
+                            [options]="condoOptions"
+                            [(ngModel)]="bookingInfo.condoId"
+                            optionLabel="label"
                             placeholder="Areas available"
-                                required />
-                        </div>
-                       
-                        
+                            required
+                        />
+                    </div>
+
                     <div class="form-group">
                         <label for="unitOption-label">Choose unit:</label>
-                        <p-dropdown                         
-                        id="unitOption-label" 
-                        #unitOptions="ngModel" 
-                        name="unitOptions" 
-                        [options]="unitOption"
-                            [(ngModel)]="bookingInfo.unit" 
+                        <p-dropdown
+                            id="unitOption-label"
+                            #unitOptions="ngModel"
+                            name="unitOptions"
+                            [options]="unitOption"
+                            [(ngModel)]="bookingInfo.unit"
                             optionLabel="label"
-                             [disabled]="unitOption.length == 0"
-                             required
-                           />
+                            [disabled]="unitOption.length == 0"
+                            required
+                        />
                     </div>
 
                     <div class="form-group">
                         <label for="areaOption-label">Choose area:</label>
-                        <p-dropdown #areaOption="ngModel" name="areaOption" id="areaOption-label" [options]="areaOptions"
-                            [(ngModel)]="bookingInfo.areaId" optionLabel="label" placeholder="Areas available"
-                            [disabled]="areaOptions.length == 0" />
+                        <p-dropdown
+                            #areaOption="ngModel"
+                            name="areaOption"
+                            id="areaOption-label"
+                            [options]="areaOptions"
+                            [(ngModel)]="bookingInfo.areaId"
+                            optionLabel="label"
+                            placeholder="Areas available"
+                            [disabled]="areaOptions.length == 0"
+                        />
                     </div>
-                
-                      
+
                     <div class="form-group">
                         <label for="checkIn-label">Check In (date/time):</label>
-                        <p-calendar #checkIn="ngModel" id="checkIn-label" name="checkIn" inputId="calendar-12h" [(ngModel)]="bookingInfo.checkIn"
-                            [showTime]="true" (ngModelChange)="validateDates(bookingForm)" [hourFormat]="12" dateFormat="mm-dd-yy"
-                            required />
-                        <span *ngIf="checkIn.touched && checkIn.invalid" class="p-error">This field is required.</span>
-                    
+                        <p-calendar
+                            #checkIn="ngModel"
+                            id="checkIn-label"
+                            name="checkIn"
+                            inputId="calendar-12h"
+                            [(ngModel)]="bookingInfo.checkIn"
+                            [showTime]="true"
+                            (ngModelChange)="validateDates(bookingForm)"
+                            [hourFormat]="12"
+                            dateFormat="mm-dd-yy"
+                            required
+                        />
+                        <span
+                            *ngIf="checkIn.touched && checkIn.invalid"
+                            class="p-error"
+                            >This field is required.</span
+                        >
                     </div>
-                      
+
                     <div class="form-group">
-                        <label for="checkOut-label">Expire date: (date/time):</label>
-                        <p-calendar #checkOut="ngModel" name="checkOut" id="checkOut-label" inputId="calendar-12h" [(ngModel)]="bookingInfo.checkOut"
-                            [showTime]="true" (ngModelChange)="validateDates(bookingForm)" [hourFormat]="12" dateFormat="mm-dd-yy"
-                            required />
-                    
-                        <span *ngIf="checkOut.touched && checkOut.invalid" class="p-error">This field is required.</span>
+                        <label for="checkOut-label"
+                            >Expire date: (date/time):</label
+                        >
+                        <p-calendar
+                            #checkOut="ngModel"
+                            name="checkOut"
+                            id="checkOut-label"
+                            inputId="calendar-12h"
+                            [(ngModel)]="bookingInfo.checkOut"
+                            [showTime]="true"
+                            (ngModelChange)="validateDates(bookingForm)"
+                            [hourFormat]="12"
+                            dateFormat="mm-dd-yy"
+                            required
+                        />
+
+                        <span
+                            *ngIf="checkOut.touched && checkOut.invalid"
+                            class="p-error"
+                            >This field is required.</span
+                        >
                     </div>
 
                     <div class="form-group">
                         <label for="checkOut-label">Visitors' qtys:</label>
                         <p-inputNumber
-                        #visitors="ngModel"
-                        name="visitors" 
-                        [(ngModel)]="bookingInfo.visitorNumber" 
-                         mode="decimal" 
-                        inputId="withoutgrouping" 
-                        [useGrouping]="false"  
-                        [min]="0"
-                        [max]="10" />
+                            #visitors="ngModel"
+                            name="visitors"
+                            [(ngModel)]="bookingInfo.visitorNumber"
+                            mode="decimal"
+                            inputId="withoutgrouping"
+                            [useGrouping]="false"
+                            [min]="0"
+                            [max]="10"
+                        />
                     </div>
-                
-                
-                    </div>
-             
-                    <div class="p-error" *ngIf="checkOutMgs">{{checkOutMgs}}
-                    </div>
-                    <hr>
-                    <div class="btn-submit">    
-                        <p-button styleClass="center-btn"  (click)="submit(bookingForm)"  label="Book" icon="pi pi-check" [disabled]="bookingForm.invalid" />                            
-                    </div>
-                         
-              
-                    
-            </form>
+                </div>
 
+                <div class="p-error" *ngIf="checkOutMgs">{{ checkOutMgs }}</div>
+                <hr />
+                <div class="btn-submit">
+                    <p-button
+                        styleClass="center-btn"
+                        (click)="submit(bookingForm)"
+                        label="Book"
+                        icon="pi pi-check"
+                        [disabled]="bookingForm.invalid"
+                    />
+                </div>
+            </form>
         </div>
     </p-panel>
-
 </div>
 
 <p-panel header="Booking History">
     <div class="tbl-reservations">
-    
-        <p-table 
-        #dt 
-        [value]="bookingHistory" 
-        [(selection)]="selectedRow" 
-        dataKey="id" 
-        [rowHover]="true" 
-        [rows]="10"
-        [showCurrentPageReport]="true" 
-        [rowsPerPageOptions]="[10, 25, 50]" 
-        [loading]="loading" 
-        [paginator]="true"
-        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [filterDelay]="0"
-        [globalFilterFields]="['condoName', 'unit', 'area','checkIn','checkOut', 'status','verified']">
+        <p-table
+            #dt
+            [value]="bookingHistory"
+            [(selection)]="selectedRow"
+            dataKey="id"
+            [rowHover]="true"
+            [rows]="10"
+            [showCurrentPageReport]="true"
+            [rowsPerPageOptions]="[10, 25, 50]"
+            [loading]="loading"
+            [paginator]="true"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+            [filterDelay]="0"
+            [globalFilterFields]="[
+                'condoName',
+                'unit',
+                'area',
+                'checkIn',
+                'checkOut',
+                'status',
+                'verified'
+            ]"
+        >
             <ng-template pTemplate="caption">
                 <div class="flex justify-content-between">
-                    <p-button [outlined]="true" icon="pi pi-filter-slash" label="Clear" (onClick)="clear(dt)" />
-                <p-iconField iconPosition="left">
-                    <span class="p-input-icon-left ml-auto">
-                        <i class="pi pi-search"></i>                
-                        <input pInputText type="text" [(ngModel)]="searchValue"
-                            (input)="dt.filterGlobal($event.target.value, 'contains')" placeholder="Keyboard Search" />
-                    </span>
-                </p-iconField>
+                    <p-button
+                        [outlined]="true"
+                        icon="pi pi-filter-slash"
+                        label="Clear"
+                        (onClick)="clear(dt)"
+                    />
+                    <p-iconField iconPosition="left">
+                        <span class="p-input-icon-left ml-auto">
+                            <i class="pi pi-search"></i>
+                            <input
+                                pInputText
+                                type="text"
+                                [(ngModel)]="searchValue"
+                                (input)="
+                                    dt.filterGlobal(
+                                        $event.target.value,
+                                        'contains'
+                                    )
+                                "
+                                placeholder="Keyboard Search"
+                            />
+                        </span>
+                    </p-iconField>
                 </div>
             </ng-template>
             <ng-template pTemplate="header">
@@ -246,69 +389,131 @@
                         <p-tableHeaderCheckbox />
                     </th>
                     <th pSortableColumn="condoName" style="min-width: 14rem">
-                        <div class="flex justify-content-between align-items-center">
+                        <div
+                            class="flex justify-content-between align-items-center"
+                        >
                             Condo name
                             <p-sortIcon field="condoName" />
-                            <p-columnFilter type="text" field="condoName" display="menu" class="ml-auto" />
+                            <p-columnFilter
+                                type="text"
+                                field="condoName"
+                                display="menu"
+                                class="ml-auto"
+                            />
                         </div>
                     </th>
                     <th pSortableColumn="unit" style="min-width: 14rem">
-                        <div class="flex justify-content-between align-items-center">
+                        <div
+                            class="flex justify-content-between align-items-center"
+                        >
                             Unit
                             <p-sortIcon field="unit" />
-                            <p-columnFilter type="text" field="unit" display="menu" class="ml-auto" />
+                            <p-columnFilter
+                                type="text"
+                                field="unit"
+                                display="menu"
+                                class="ml-auto"
+                            />
                         </div>
                     </th>
                     <th pSortableColumn="area" style="min-width: 14rem">
-                        <div class="flex justify-content-between align-items-center">
+                        <div
+                            class="flex justify-content-between align-items-center"
+                        >
                             Area
                             <p-sortIcon field="area" />
-                            <p-columnFilter type="text" field="area" display="menu" class="ml-auto" />
+                            <p-columnFilter
+                                type="text"
+                                field="area"
+                                display="menu"
+                                class="ml-auto"
+                            />
                         </div>
                     </th>
-                
-                    
+
                     <th pSortableColumn="checkIn" style="min-width: 10rem">
-                        <div class="flex justify-content-between align-items-center">
+                        <div
+                            class="flex justify-content-between align-items-center"
+                        >
                             check in
                             <p-sortIcon field="checkIn" />
-                            <p-columnFilter type="date" field="checkIn" display="menu" class="ml-auto" />
+                            <p-columnFilter
+                                type="date"
+                                field="checkIn"
+                                display="menu"
+                                class="ml-auto"
+                            />
                         </div>
                     </th>
                     <th pSortableColumn="checkOut" style="min-width: 10rem">
-                        <div class="flex justify-content-between align-items-center">
+                        <div
+                            class="flex justify-content-between align-items-center"
+                        >
                             check out
                             <p-sortIcon field="checkOut" />
-                            <p-columnFilter type="date" field="checkOut" display="menu" class="ml-auto" />
+                            <p-columnFilter
+                                type="date"
+                                field="checkOut"
+                                display="menu"
+                                class="ml-auto"
+                            />
                         </div>
                     </th>
-             
-                    
+
                     <th pSortableColumn="status" style="min-width: 10rem">
-                        <div class="flex justify-content-between align-items-center">
+                        <div
+                            class="flex justify-content-between align-items-center"
+                        >
                             Status
                             <p-sortIcon field="status" />
-                            <p-columnFilter field="status" matchMode="equals" display="menu" class="ml-auto">
-                                <ng-template pTemplate="filter" let-value let-filter="filterCallback">
-                                    <p-dropdown [ngModel]="value" [options]="headerStatus" (onChange)="filter($event.value)"
-                                        placeholder="Any">
-                                        <ng-template let-option pTemplate="item">
-                                            <p-tag [value]="option.label" [severity]="getSeverity(option.label)" />
+                            <p-columnFilter
+                                field="status"
+                                matchMode="equals"
+                                display="menu"
+                                class="ml-auto"
+                            >
+                                <ng-template
+                                    pTemplate="filter"
+                                    let-value
+                                    let-filter="filterCallback"
+                                >
+                                    <p-dropdown
+                                        [ngModel]="value"
+                                        [options]="headerStatus"
+                                        (onChange)="filter($event.value)"
+                                        placeholder="Any"
+                                    >
+                                        <ng-template
+                                            let-option
+                                            pTemplate="item"
+                                        >
+                                            <p-tag
+                                                [value]="option.label"
+                                                [severity]="
+                                                    getSeverity(option.label)
+                                                "
+                                            />
                                         </ng-template>
                                     </p-dropdown>
                                 </ng-template>
                             </p-columnFilter>
                         </div>
                     </th>
-                    <th pSortableColumn="area" style="width:12%">
-                        <div class="flex justify-content-between align-items-center">
+                    <th pSortableColumn="area" style="width: 12%">
+                        <div
+                            class="flex justify-content-between align-items-center"
+                        >
                             Verified
                             <p-sortIcon field="area" />
-                         
-                            <p-columnFilter type="boolean" field="verified"  class="ml-auto" />
+
+                            <p-columnFilter
+                                type="boolean"
+                                field="verified"
+                                class="ml-auto"
+                            />
                         </div>
                     </th>
-         
+
                     <th style="width: 5rem"></th>
                 </tr>
             </ng-template>
@@ -327,7 +532,7 @@
                     </td>
                     <td>
                         <span class="p-column-title">Area</span>
-                        {{ customer.area | titlecase}}
+                        {{ customer.area | titlecase }}
                     </td>
                     <td>
                         <span class="p-column-title">Check in date</span>
@@ -336,18 +541,32 @@
                     <td>
                         <span class="p-column-title">Check out date</span>
                         {{ customer.checkOut }}
-                    </td>     
-              
+                    </td>
+
                     <td>
                         <span class="p-column-title">Status</span>
-                        <p-tag [value]="customer.status" [severity]="getSeverity(customer.status)" />
+                        <p-tag
+                            [value]="customer.status"
+                            [severity]="getSeverity(customer.status)"
+                        />
                     </td>
                     <td>
-                        <i class="pi"
-                            [ngClass]="{ 'text-green-500 pi-check-circle': customer.verified, 'text-red-500 pi-times-circle': !customer.verified }"></i>
+                        <i
+                            class="pi"
+                            [ngClass]="{
+                                'text-green-500 pi-check-circle':
+                                    customer.verified,
+                                'text-red-500 pi-times-circle':
+                                    !customer.verified
+                            }"
+                        ></i>
                     </td>
-                    <td style="text-align: center" >
-                        <p-button severity="secondary" (click)="showDialog(customer)" icon="pi pi-cog" />
+                    <td style="text-align: center">
+                        <p-button
+                            severity="secondary"
+                            (click)="showDialog(customer)"
+                            icon="pi pi-cog"
+                        />
                     </td>
                 </tr>
             </ng-template>
@@ -357,101 +576,106 @@
                 </tr>
             </ng-template>
         </p-table>
-     
     </div>
 </p-panel>
 
-<p-dialog #dialog_guest header="Settings" [modal]="true" [(visible)]="visibleDialog" [style]="{ width: '50rem' }"
-    [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" [maximizable]="true">
-    
-    <form #updateBookingForm="ngForm" >
-
+<p-dialog
+    #dialog_guest
+    header="Settings"
+    [modal]="true"
+    [(visible)]="visibleDialog"
+    [style]="{ width: '50rem' }"
+    [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
+    [maximizable]="true"
+>
+    <form #updateBookingForm="ngForm">
         <div class="booking-data-container">
-    
             <div class="form-group">
-    
                 <label for="condo-apt-label">Choose condominium:</label>
-                <p-dropdown   
-                 [disabled]="identity.role != 'OWNER'"            
-                #condoOption_apt="ngModel" 
-                name="condoOption_apt" 
-                id="condo-apt-label" 
-                [options]="condoOptions"
-                [(ngModel)]="bookingInfoApt.condoId" 
-                optionLabel="label" 
-                required />
+                <p-dropdown
+                    [disabled]="identity.role != 'OWNER'"
+                    #condoOption_apt="ngModel"
+                    name="condoOption_apt"
+                    id="condo-apt-label"
+                    [options]="condoOptions"
+                    [(ngModel)]="bookingInfoApt.condoId"
+                    optionLabel="label"
+                    required
+                />
             </div>
-    
+
             <div class="form-group">
                 <label for="unitOption-apt-label">Choose unit:</label>
-                <p-dropdown 
-                 [disabled]="identity.role != 'OWNER'"
-                #unitOptions_apt="ngModel" 
-                name="unitOptions_apt" 
-                id="unitOption-apt-label" 
-                [options]="unitOption"
-                [(ngModel)]="bookingInfoApt.unit" 
-                optionLabel="label"         
-                required />
+                <p-dropdown
+                    [disabled]="identity.role != 'OWNER'"
+                    #unitOptions_apt="ngModel"
+                    name="unitOptions_apt"
+                    id="unitOption-apt-label"
+                    [options]="unitOption"
+                    [(ngModel)]="bookingInfoApt.unit"
+                    optionLabel="label"
+                    required
+                />
             </div>
-    
+
             <div class="form-group" *ngIf="bookingInfoApt.checkOut != null">
-                <label for="areaOption-apt-label" >Choose area:</label>
-                <p-dropdown 
-         
-                #areaOption_apt="ngModel" 
-                name="areaOption_apt" 
-                id="areaOption-apt-label" 
-                [options]="areaOptions"
-                [(ngModel)]="bookingInfoApt.areaId" 
-                optionLabel="label" 
-                placeholder="Areas available"
-                [disabled]="areaOptions.length == 0 || identity.role != 'OWNER'" />
+                <label for="areaOption-apt-label">Choose area:</label>
+                <p-dropdown
+                    #areaOption_apt="ngModel"
+                    name="areaOption_apt"
+                    id="areaOption-apt-label"
+                    [options]="areaOptions"
+                    [(ngModel)]="bookingInfoApt.areaId"
+                    optionLabel="label"
+                    placeholder="Areas available"
+                    [disabled]="
+                        areaOptions.length == 0 || identity.role != 'OWNER'
+                    "
+                />
             </div>
-    
-            </div>
-    
-            <div class="booking-data-container">    
-                <div class="form-group">
-                    <label for="checkIn-label">Check In (date/time):</label>
-                    <p-calendar 
-                     [disabled]="identity.role != 'OWNER'"
-                    #checkIn="ngModel" 
-                    name="checkIn" 
-                    id="checkIn-label" 
-                    inputId="calendar-12h" 
+        </div>
+
+        <div class="booking-data-container">
+            <div class="form-group">
+                <label for="checkIn-label">Check In (date/time):</label>
+                <p-calendar
+                    [disabled]="identity.role != 'OWNER'"
+                    #checkIn="ngModel"
+                    name="checkIn"
+                    id="checkIn-label"
+                    inputId="calendar-12h"
                     [(ngModel)]="bookingInfoApt.checkIn"
-                    (ngModelChange)="validateDates(updateBookingForm)" 
-                    [showTime]="true" 
-                    [hourFormat]="12" 
+                    (ngModelChange)="validateDates(updateBookingForm)"
+                    [showTime]="true"
+                    [hourFormat]="12"
                     dateFormat="mm-dd-yy"
-                    required />
-                        
-                    <span class="p-error" *ngIf="checkOutMgs">
-                        {{checkOutMgs}}
-                    </span>
-                </div>  
-    
-                <div class="form-group" *ngIf="bookingInfoApt.checkOut != null">
-      
-                    <label for="checkOut-label">Expire date: (date/time):</label>
-                    <p-calendar 
-                     [disabled]="identity.role != 'OWNER'"
-                    #checkOut="ngModel" 
-                    name="checkOut" 
-                    id="checkOut-label" 
-                    inputId="calendar-12h" 
+                    required
+                />
+
+                <span class="p-error" *ngIf="checkOutMgs">
+                    {{ checkOutMgs }}
+                </span>
+            </div>
+
+            <div class="form-group" *ngIf="bookingInfoApt.checkOut != null">
+                <label for="checkOut-label">Expire date: (date/time):</label>
+                <p-calendar
+                    [disabled]="identity.role != 'OWNER'"
+                    #checkOut="ngModel"
+                    name="checkOut"
+                    id="checkOut-label"
+                    inputId="calendar-12h"
                     [(ngModel)]="bookingInfoApt.checkOut"
-                    (ngModelChange)="validateDates(updateBookingForm)" 
-                    [showTime]="true" 
-                    [hourFormat]="24" 
+                    (ngModelChange)="validateDates(updateBookingForm)"
+                    [showTime]="true"
+                    [hourFormat]="24"
                     dateFormat="dd-mm-yy"
-                    required  />
-                </div>  
-    
-                <div class="merged-container">
-    
-                    <!-- <div class="form-grouped">
+                    required
+                />
+            </div>
+
+            <div class="merged-container">
+                <!-- <div class="form-grouped">
                         <label for="checkOut-label">Visitors' qtys:</label>
                         <p-inputNumber
                         #visitors="ngModel"
@@ -463,78 +687,122 @@
                         [min]="0"
                         [max]="10" />
                     </div> -->
-                    <div class="form-grouped">
-                        <label for="status-apt-label">Status:</label>
-                        <p-dropdown 
-                        [disabled]="identity.role != 'OWNER'"     
-                         (ngModelChange)="onStatusChange($event)"
+                <div class="form-grouped">
+                    <label for="status-apt-label">Status:</label>
+                    <p-dropdown
+                        [disabled]="identity.role != 'OWNER'"
+                        (ngModelChange)="onStatusChange($event)"
                         [options]="headerStatus"
                         #statusOption_apt="ngModel"
                         name="statusOption_apt"
-                        [ngModel]="bookingInfoApt.status" 
-                         optionLabel="label"     
-                         placeholder="Any">
-                            <ng-template let-option pTemplate="item">
-                                <p-tag [value]="option.label" [severity]="getSeverity(option.label)" />
-                            </ng-template>
-                        </p-dropdown>
-                    </div>
+                        [ngModel]="bookingInfoApt.status"
+                        optionLabel="label"
+                        placeholder="Any"
+                    >
+                        <ng-template let-option pTemplate="item">
+                            <p-tag
+                                [value]="option.label"
+                                [severity]="getSeverity(option.label)"
+                            />
+                        </ng-template>
+                    </p-dropdown>
                 </div>
-    
             </div>
-    
-            <div class="form-group">
-                <label for="comment-apt-label">Comment (optional):</label>
-            
-                <textarea   [disabled]="identity.role != 'OWNER'"      rows="5" cols="30" pInputTextarea #comment_apt="ngModel" name="comment_apt" id="comment-apt-label"
-                    [(ngModel)]="bookingInfoApt.comments">
-                                        </textarea>
-            
-                <span *ngIf="comment_apt.touched && comment_apt.invalid" class="p-error">This field is required.</span>
-            </div>
-           
-    
-            <div class="booking-data-container">
-       
+        </div>
+
+        <div class="form-group">
+            <label for="comment-apt-label">Comment (optional):</label>
+
+            <textarea
+                [disabled]="identity.role != 'OWNER'"
+                rows="5"
+                cols="30"
+                pInputTextarea
+                #comment_apt="ngModel"
+                name="comment_apt"
+                id="comment-apt-label"
+                [(ngModel)]="bookingInfoApt.comments"
+            >
+            </textarea>
+
+            <span
+                *ngIf="comment_apt.touched && comment_apt.invalid"
+                class="p-error"
+                >This field is required.</span
+            >
+        </div>
+
+        <div class="booking-data-container">
             <div class="btn-add-1">
                 <p>Notify visitor by email</p>
-                <p-button label="Add visitors" severity="success"  icon="pi pi-check" (click)="addVisitor()"  *appHasPermissions="'owner'" />
+                <p-button
+                    label="Add visitors"
+                    severity="success"
+                    icon="pi pi-check"
+                    (click)="addVisitor()"
+                    *appHasPermissions="'owner'"
+                />
             </div>
-    
+
             <div *ngFor="let input of inputValues; let i = index">
-                   <hr>
-                    <div class="container-component">
-                        <div class="form-group-guest">
-                            <label for="label-nameg">Fullname:</label>
-                                <input pInputText 
-                                [(ngModel)]="input.fullname" 
-                                name="fullname" placeholder="Guest's Fullname" required  [ngModelOptions]="{standalone: true}"  [disabled]="identity.role != 'OWNER'"/>
-                        </div>
-                        <div class="form-group-guest">
-                            <label for="label-nameg">Phone (optional):</label>
-                            <input  name="phone" pInputText [(ngModel)]="input.phone"  placeholder="Guest's  phone number"  [ngModelOptions]="{standalone: true}"  [disabled]="identity.role != 'OWNER'"/>
-                            
-                        </div>
+                <hr />
+                <div class="container-component">
+                    <div class="form-group-guest">
+                        <label for="label-nameg">Fullname:</label>
+                        <input
+                            pInputText
+                            [(ngModel)]="input.fullname"
+                            name="fullname"
+                            placeholder="Guest's Fullname"
+                            required
+                            [ngModelOptions]="{ standalone: true }"
+                            [disabled]="identity.role != 'OWNER'"
+                        />
                     </div>
-                    <div >
-                        <label for="label-nameg">Email:</label>
-                        <div style="display: flex;width:100%">                        
-                            <input pInputText 
+                    <div class="form-group-guest">
+                        <label for="label-nameg">Phone (optional):</label>
+                        <input
+                            name="phone"
+                            pInputText
+                            [(ngModel)]="input.phone"
+                            placeholder="Guest's  phone number"
+                            [ngModelOptions]="{ standalone: true }"
+                            [disabled]="identity.role != 'OWNER'"
+                        />
+                    </div>
+                </div>
+                <div>
+                    <label for="label-nameg">Email:</label>
+                    <div style="display: flex; width: 100%">
+                        <input
+                            pInputText
                             name="notificationType"
-                            [(ngModel)]="input.notificationType" 
-                            placeholder="Guest's email address"  [disabled]="identity.role != 'OWNER'" />
-                            <p-button class="btn-size-guest" label="remove" severity="danger" icon="pi pi-times" (click)="removeInput(i)" required  [ngModelOptions]="{standalone: true}"/>
-                        </div>
-                         
+                            [(ngModel)]="input.notificationType"
+                            placeholder="Guest's email address"
+                            [disabled]="identity.role != 'OWNER'"
+                        />
+                        <p-button
+                            class="btn-size-guest"
+                            label="remove"
+                            severity="danger"
+                            icon="pi pi-times"
+                            (click)="removeInput(i)"
+                            required
+                            [ngModelOptions]="{ standalone: true }"
+                        />
                     </div>
                 </div>
             </div>
-
+        </div>
     </form>
 
- 
-<hr>
-        <div class="btn-add" *appHasPermissions="'owner'"> 
-            <p-button label="Update" icon="pi pi-check" (click)="update()" [disabled]="updateBookingForm.invalid" />
-        </div>
+    <hr />
+    <div class="btn-add" *appHasPermissions="'owner'">
+        <p-button
+            label="Update"
+            icon="pi pi-check"
+            (click)="update()"
+            [disabled]="updateBookingForm.invalid"
+        />
+    </div>
 </p-dialog>

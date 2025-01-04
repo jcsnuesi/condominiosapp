@@ -1,5 +1,14 @@
-
-import { Component, AfterViewInit, EventEmitter, OnInit, ViewChild, ViewContainerRef, ComponentRef, Renderer2, ChangeDetectorRef } from '@angular/core';
+import {
+    Component,
+    AfterViewInit,
+    EventEmitter,
+    OnInit,
+    ViewChild,
+    ViewContainerRef,
+    ComponentRef,
+    Renderer2,
+    ChangeDetectorRef,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BrowserModule } from '@angular/platform-browser';
 import { CalendarModule } from 'primeng/calendar';
@@ -28,558 +37,564 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { format, parse, parseISO } from 'date-fns';
 
-
 type BookingType = {
-  fullname?: string;
-  phone?: string;
-  memberId: any;
-  unit: any;  
-  condoId: any;
-  areaId?: any;
-  checkIn: string;
-  checkOut?: string;  
-  status?: string;
-  comments?: string;
-  visitorNumber?: number;
-  notifingType?: string;
-  notifing?: string;
-}
-
-
+    fullname?: string;
+    phone?: string;
+    memberId: any;
+    unit: any;
+    condoId: any;
+    areaId?: any;
+    checkIn: string;
+    checkOut?: string;
+    status?: string;
+    comments?: string;
+    visitorNumber?: number;
+    notifingType?: string;
+    notifing?: string;
+};
 
 @Component({
-  selector: 'app-booking-area',
-  standalone: true,
-  imports: [ 
-    IconFieldModule,
-    InputIconModule,
-    DialogModule,
-    ToastModule,
-    InputNumberModule,
-    ConfirmDialogModule,
-    InputTextareaModule,
-    InputTextModule,
-    RadioButtonModule,
-    HasPermissionsDirective,
-    CommonModule,
-    CalendarModule,
-    FormsModule, 
-    FieldsetModule,
-    FloatLabelModule,
-    DropdownModule,
-    ButtonModule,
-    TableModule,
-    TagModule ,
-    PanelModule
-  ],
-  providers: [UserService, 
-    BookingServiceService, 
-    MessageService, 
-    ConfirmationService,
-    FormatFunctions],
-  templateUrl: './booking-area.component.html',
-  styleUrl: './booking-area.component.css'
+    selector: 'app-booking-area',
+    standalone: true,
+    imports: [
+        IconFieldModule,
+        InputIconModule,
+        DialogModule,
+        ToastModule,
+        InputNumberModule,
+        ConfirmDialogModule,
+        InputTextareaModule,
+        InputTextModule,
+        RadioButtonModule,
+        HasPermissionsDirective,
+        CommonModule,
+        CalendarModule,
+        FormsModule,
+        FieldsetModule,
+        FloatLabelModule,
+        DropdownModule,
+        ButtonModule,
+        TableModule,
+        TagModule,
+        PanelModule,
+    ],
+    providers: [
+        UserService,
+        BookingServiceService,
+        MessageService,
+        ConfirmationService,
+        FormatFunctions,
+    ],
+    templateUrl: './booking-area.component.html',
+    styleUrl: './booking-area.component.css',
 })
 export class BookingAreaComponent implements OnInit {
+    public dates: Date[];
+    public selectedArea: any[];
+    public areaOptions: any[];
+    public bookingInfo: BookingType;
 
-  public dates: Date[];
-  public selectedArea: any[];
-  public areaOptions: any[];
-  public bookingInfo:BookingType;
+    public condoOptions: any[];
+    public selectedCondo: any[];
+    public unitOption: any[];
+    public loading: boolean;
+    public bookingHistory: any[];
+    public valRadio: string = '';
+    public notifingOptions: any[];
 
-  
+    public token: string;
+    public identity: any;
+    public headerStatus: any[];
 
-  public condoOptions: any[];
-  public selectedCondo: any[];
-  public unitOption: any[];
-  public loading: boolean;
-  public bookingHistory: any[];
-  public valRadio: string = '';
-  public notifingOptions: any[]; 
-  
-  public token: string;
-  public identity: any;
-  public headerStatus:any[];
+    public selectedRow: any[];
+    public visibleDialog: boolean = false;
+    public searchValue: string = '';
+    public bookingId: string;
 
-  public selectedRow: any[];
-  public visibleDialog: boolean = false;
-  public searchValue: string = '';
-  public bookingId: string;
+    constructor(
+        private _userService: UserService,
+        private _bookingService: BookingServiceService,
+        private _messageService: MessageService,
+        private _confirmationService: ConfirmationService,
+        private _router: Router,
+        private _route: ActivatedRoute,
+        private _format: FormatFunctions,
+        private cdr: ChangeDetectorRef
+    ) {
+        this.identity = this._userService.getIdentity();
+        this.token = this._userService.getToken();
 
-  
-  constructor(
-    private _userService: UserService,
-    private _bookingService: BookingServiceService,
-    private _messageService: MessageService,
-    private _confirmationService: ConfirmationService,
-    private _router: Router,
-    private _route: ActivatedRoute,
-    private _format: FormatFunctions,
-    private cdr: ChangeDetectorRef
+        this.bookingInfo = {
+            memberId: '',
+            unit: '',
+            condoId: '',
+            areaId: '',
+            checkIn: '',
+            checkOut: '',
+            status: '',
+            visitorNumber: 0,
+            notifingType: '',
+            notifing: '',
+            phone: '',
+            fullname: '',
+        };
 
+        this.headerStatus = [
+            { label: 'Reserved', code: 'Reserved' },
+            { label: 'Cancelled', code: 'Cancelled' },
+            { label: 'Guest', code: 'Guest' },
+        ];
 
-  ) {       
-    
-    this.identity = this._userService.getIdentity()
-    this.token = this._userService.getToken();
+        this.condoOptions = [];
+        this.selectedRow = [];
+        this.areaOptions = [];
+        this.unitOption = [];
+        this.loading = true;
+        this.notifingOptions = [{ label: 'Email' }, { label: 'None' }];
+        this.bookingInfoApt = {};
 
-    this.bookingInfo = {
-      memberId: '',
-      unit: '',
-      condoId: '',
-      areaId: '',
-      checkIn: '',
-      checkOut: '',
-      status: '',
-      visitorNumber: 0,
-      notifingType: '',
-      notifing: '',
-      phone: '',
-      fullname: ''
-    };
-
-    
-
-    this.headerStatus = [{ label: 'Reserved', code: 'Reserved' }, 
-      { label: 'Cancelled', code: 'Cancelled' }, 
-      { label: 'Guest', code: 'Guest' }];
-
-    
-    this.condoOptions = [];
-    this.selectedRow = [];
-    this.areaOptions = [];
-    this.unitOption = [];
-    this.loading = true;
-    this.notifingOptions = [{ label: "Email" }, { label: "None" }];
-    this.bookingInfoApt = {};
-
-    // console.log("GET IDENTITY:", this.identity)
- }
-  updateBookingObj(){
-    this.bookingInfo = {
-      memberId: '',
-      unit: '',
-      condoId: '',
-      areaId: '',
-      checkIn: '',
-      checkOut: '',
-      status: '',
-      visitorNumber: 0,
-      notifingType: '',
-      notifing: '',
-      phone: '',
-      fullname: ''
-    };
-  }
- 
- ngOnInit(): void {
-
-  this._route.queryParams.subscribe(params => {
-    let idUser = params['userid'];
-   
-    if (idUser != undefined) {
-      this.bookingId = idUser;
-      this.getAllBookings(this.bookingId);
-    }else{
-
-      this._route.params.subscribe(params => {
-        let idUser = params['ownerId'];
-        let condoId = params['condoId'];
-     
-        console.log('ID:', idUser)
-        console.log('condoId ID:', condoId)
-        // console.log('ID:', idUser)
-        if (idUser != undefined) {
-          this.bookingId = idUser;
-          this.getPropertyType();
-          this.getAllBookings(this.bookingId);
-        }
-
-        if (condoId != undefined) {
-          this.bookingId = condoId;
-          this.getAllBookings(this.bookingId);    
-          // this.getPropertyType();    
-        }
-      });
+        // console.log("GET IDENTITY:", this.identity)
     }
-  })
-   
-
-    // console.log('Booking Area Component');
- }
-
-  back(){
-    this._router.navigate(['/home', this.bookingId]);
-  }
-
-  clear(dt: any) {
-    dt.clear();
-    this.searchValue = '';
-  }
- 
-  
-   
-  getPropertyType() {
-
-    this.identity.propertyDetails.find((property) => {
-
-      this.condoOptions.push({
-        label: (property.addressId.alias).toUpperCase(), 
-        code: property.addressId._id
-      })   
-      
-      if (Boolean(property.condominium_unit)) {
-        this.unitOption.push({
-          label: property.condominium_unit,
-          code: property.condominium_unit
-        })
-
-      }
-      
-      // console.log('Property this.unitOption-->:', this.identity)
-      
-    })
-
-    
-  }
-
-
-  getAreaInfo(event: any) {
-
-    //  { label: 'DON ALONSO I', code: '65483be3a3d1607fea43e833' }    
-    let areaObj = event.value;
- 
-    this.identity.propertyDetails.forEach((area, index) => {
-
-      if (Boolean(areaObj == undefined)){
-
-        this.areaOptions = area.addressId.socialAreas.map((areaFound) => {
-          
-          return { label: areaFound.toUpperCase(), code: areaFound.toUpperCase() }
-        })
-
-      }else if(area.addressId._id === areaObj.code && area.addressId.socialAreas.length > 0) {
-
-        this.areaOptions = area.addressId.socialAreas.map((areaFound) => {
-          return {label:areaFound, code: areaFound};
-        })
-
-      }
-    
-
-    });
-  }
-
-  public checkOutMgs:any;
-  validateDates(form: NgForm) {
-
-    let checkIn = form.controls['checkIn'].value;
-    let checkOut = form?.controls['checkOut']?.value ;
-
-    const today = new Date();
-    // today.setHours(0, 0, 0, 0); 
-
-    if (checkIn && checkOut && checkIn > checkOut ) {
-      form.controls['checkOut'].setErrors({ invalidDate: true });
-      form.controls['checkIn'].setErrors({ invalidDate: true });
-      this.checkOutMgs = 'Check Out date must be greater than Check In date';
-    } else if (checkIn < today && Boolean(checkIn)) {
-      form.controls['checkIn'].setErrors({ invalidDate: true })       
-      this.checkOutMgs = 'Check In date cannot be in the past';
-    
+    updateBookingObj() {
+        this.bookingInfo = {
+            memberId: '',
+            unit: '',
+            condoId: '',
+            areaId: '',
+            checkIn: '',
+            checkOut: '',
+            status: '',
+            visitorNumber: 0,
+            notifingType: '',
+            notifing: '',
+            phone: '',
+            fullname: '',
+        };
     }
-     else {
-      this.checkOutMgs = false;
-     
-      form.controls['checkIn'].setErrors(null);
-      form.controls['checkOut']?.setErrors(null);
-    }
-  }
 
-  
-  submit(form: any) {
-    
-    let data = null;
-    let message = null;
-    data = { ...this.bookingInfo };
-    
-    if(this.valRadio === 'guest') {
-      data.isguest = true;
-      message = 'Are you sure you want to make this action?';
-    }else{
-    
-      data.isguest = false;
-      message = 'Are you sure you want to book this area?';
-    } 
+    ngOnInit(): void {
+        this._route.queryParams.subscribe((params) => {
+            let idUser = params['userid'];
 
-    let condominioId = data.condoId?.code
-    let unitId = data.unit?.code
-    let areaId = data.areaId?.code
-    
-    data.memberId = this.identity._id;
-    data.condoId = condominioId;
-    data.unit = unitId;
-    data.areaId = areaId;
-    // console.log('Booking Response:----->', data)
+            if (idUser != undefined) {
+                this.bookingId = idUser;
+                this.getAllBookings(this.bookingId);
+            } else {
+                this._route.params.subscribe((params) => {
+                    let idUser = params['ownerId'];
+                    let condoId = params['condoId'];
 
-    
-    this._confirmationService.confirm({
-      message: message,
-      header: 'Confirmation',
-      icon: 'pi pi-exclamation-triangle',
-      rejectButtonStyleClass: "p-button-text",
-      accept: () => {
+                    // console.log('ID:', idUser)
+                    if (idUser != undefined) {
+                        this.bookingId = idUser;
+                        this.getPropertyType();
+                        this.getAllBookings(this.bookingId);
+                    }
 
-        this._bookingService.createBooking(this.token, data).subscribe({
-          next: (response) => {
-
-            if(response.status === 'success') {
-
-              this._messageService.add({ severity: 'success', summary: 'Success', detail: 'Booking was successful', life: 5000 });
-              form.reset();
-              this.bookingInfo.notifingType = '';
-              this.getAllBookings(this.bookingId);
+                    if (condoId != undefined) {
+                        this.bookingId = condoId;
+                        this.getAllBookings(this.bookingId);
+                        // this.getPropertyType();
+                    }
+                });
             }
-            // console.log('Booking Response:', response)
-          },
-          error: (errors) => {
-            this._messageService.add({ severity: 'error', summary: 'Error', detail: errors.error.message, life:10000 });
-            // console.log('Booking Error:', errors.error)
-          }
         });
-       
-      },
-      reject: () => {
-        this._messageService.add({severity:'info', 
-          summary:'Rejected', 
-          detail:'You have rejected the booking'});
-      }
-    });
-  
-  }
 
-  getAllBookings(id) {
+        // console.log('Booking Area Component');
+    }
 
-        
-    this._bookingService.getBooking(this.token, id).subscribe({
-      next: (response) => {
-        // this.bookingHistory = response.booking;
-        if (response.status === 'success') {
-          let allBookinInfo = response.message;
-          
-          try {
-                        
-            this.bookingHistory = allBookinInfo.map((booking) => {
-              return {
-                id: booking._id,
-                guest: booking?.guest,
-                condoName: booking.condoId.alias,
-                condoId: booking.condoId._id,
-                unit: booking.apartmentUnit,
-                area: booking?.areaToReserve ?? 'N/A',
-                checkIn: this._format.dateTimeFormat(booking.checkIn),
-                checkOut: this._format.dateTimeFormat(booking?.checkOut) ?? 'N/A',
-                status: booking.status,
-                visitorNumber: booking?.visitorNumber ?? 0,
-                verified: Boolean(booking.guestCode),              
-                comments: booking?.comments          
-                
-              }
-              
+    back() {
+        this._router.navigate(['/home', this.bookingId]);
+    }
+
+    clear(dt: any) {
+        dt.clear();
+        this.searchValue = '';
+    }
+
+    getPropertyType() {
+        this.identity.propertyDetails.find((property) => {
+            this.condoOptions.push({
+                label: property.addressId.alias.toUpperCase(),
+                code: property.addressId._id,
             });
-            // console.log('Booking History:***************>', this.bookingHistory)
-          } catch (error) {
 
-            console.log('Error:', error)           
-          }
-          
-          this.loading = false; 
-        }else{
-          this.loading = false;
+            if (Boolean(property.condominium_unit)) {
+                this.unitOption.push({
+                    label: property.condominium_unit,
+                    code: property.condominium_unit,
+                });
+            }
+
+            // console.log('Property this.unitOption-->:', this.identity)
+        });
+    }
+
+    getAreaInfo(event: any) {
+        //  { label: 'DON ALONSO I', code: '65483be3a3d1607fea43e833' }
+        let areaObj = event.value;
+
+        this.identity.propertyDetails.forEach((area, index) => {
+            if (Boolean(areaObj == undefined)) {
+                this.areaOptions = area.addressId.socialAreas.map(
+                    (areaFound) => {
+                        return {
+                            label: areaFound.toUpperCase(),
+                            code: areaFound.toUpperCase(),
+                        };
+                    }
+                );
+            } else if (
+                area.addressId._id === areaObj.code &&
+                area.addressId.socialAreas.length > 0
+            ) {
+                this.areaOptions = area.addressId.socialAreas.map(
+                    (areaFound) => {
+                        return { label: areaFound, code: areaFound };
+                    }
+                );
+            }
+        });
+    }
+
+    public checkOutMgs: any;
+    validateDates(form: NgForm) {
+        let checkIn = form.controls['checkIn'].value;
+        let checkOut = form?.controls['checkOut']?.value;
+
+        const today = new Date();
+        // today.setHours(0, 0, 0, 0);
+
+        if (checkIn && checkOut && checkIn > checkOut) {
+            form.controls['checkOut'].setErrors({ invalidDate: true });
+            form.controls['checkIn'].setErrors({ invalidDate: true });
+            this.checkOutMgs =
+                'Check Out date must be greater than Check In date';
+        } else if (checkIn < today && Boolean(checkIn)) {
+            form.controls['checkIn'].setErrors({ invalidDate: true });
+            this.checkOutMgs = 'Check In date cannot be in the past';
+        } else {
+            this.checkOutMgs = false;
+
+            form.controls['checkIn'].setErrors(null);
+            form.controls['checkOut']?.setErrors(null);
+        }
+    }
+
+    submit(form: any) {
+        let data = null;
+        let message = null;
+        data = { ...this.bookingInfo };
+
+        if (this.valRadio === 'guest') {
+            data.isguest = true;
+            message = 'Are you sure you want to make this action?';
+        } else {
+            data.isguest = false;
+            message = 'Are you sure you want to book this area?';
         }
 
-      },
-      error: (errors) => {
-        this._messageService.add({ severity: 'error', summary: 'Error', detail: errors.error.message, life:10000 });
-            this.loading = false; 
-        // console.log('Booking Error:', errors.error)
-      }
-    });
-  }
+        let condominioId = data.condoId?.code;
+        let unitId = data.unit?.code;
+        let areaId = data.areaId?.code;
 
+        data.memberId = this.identity._id;
+        data.condoId = condominioId;
+        data.unit = unitId;
+        data.areaId = areaId;
+        // console.log('Booking Response:----->', data)
 
-  // public inputData: string[] = [];
-  public inputValues: Array<{ notificationType: string, fullname: string, phone: string }> = [{ notificationType: '', fullname: '', phone: '' }];
-
-
-  parseDate(dateString: string): Date {
-
-    if (Boolean(dateString == undefined)) {
-      return null;
-    }
-    // Detecta el formato de la fecha y la convierte en un objeto Date
-    if (dateString.includes('T')) {
-      // Formato ISO
-      return parseISO(dateString);
-    } else {
-      // Formato dd-MM-yyyy HH:mm
-      return parse(dateString, 'dd-MM-yyyy HH:mm', new Date());
-    }
-  }
-
-
-  addVisitor() {
-   
-    // this.inputData.push('');   
-    this.inputValues.push({ notificationType: '', fullname: '', phone: '' });
-    }
-
-    loadVisitorArray(guestList: any) {   
-  
-    
-      if (guestList.length == 0) {
-        // this.inputData = [];
-        this.inputValues = [];        
-      }else{      
-        // guestList.forEach((guest: any) => (
-        //   this.inputData.push('')
-        // ));        
-        this.inputValues = guestList;
-      }
-     
-    }
-
-  public datoss:any;
-  removeInput(id:number){
-    // this.inputData.splice(id, 1)
-    this.inputValues.splice(id, 1)
-  }
-
-  public bookingInfoApt: any;
-  showDialog(customer:any){
-    // Limpiar el array de visitantes
-    let customerData = {...customer};
-    this.loadVisitorArray(customerData.guest)
-    console.log('Customer Data:', customerData)
- 
-    let guestInfo = customerData.guest;
-   
-   
-    if (this.identity.role !== 'ADMIN') {
-
-      this.getAreaInfo(customerData.area)
-    }else{
-      this.areaOptions = [{ label: (customerData?.area).toUpperCase(), code: (customerData?.area).toUpperCase() }];
-      this.condoOptions = [{ label: (customerData.condoName).toUpperCase(), code: customerData.condoId }];
-      this.unitOption = [{ label: customerData.unit, code: customerData.unit }];
-    }
-
-    this.bookingInfoApt = {
-      id: customerData.id,
-      memberId: this.identity._id,
-      fullname: guestInfo?.fullname,
-      unit: { label: customerData.unit, code: customerData.unit },
-      phone: guestInfo?.phone,
-      checkIn: this.parseDate(customerData.checkIn) ?? 'N/A',
-      checkOut: customer?.checkOut != 'N/A' ? this.parseDate(customerData?.checkOut) : null,
-      condoId: { label: (customerData.condoName).toUpperCase(), code: this.condoOptions.find((condo) => (condo.label).toLowerCase() === (customerData.condoName).toLowerCase()).code },
-      areaId: { label: (customerData?.area).toUpperCase(), code: (customerData?.area).toUpperCase() },
-      notifingType: guestInfo?.notifingType,
-      notifing: guestInfo?.notifing,
-      visitorNumber: customerData?.visitorNumber,
-      status: {
-        label: customerData.status, code: this.headerStatus.find((status_result) => 
-        (status_result.label).toLowerCase() === 
-          (customerData.status).toLowerCase()).code } ,
-      comments: customerData?.comments,
-      guest:[]
-    }
-    this.visibleDialog = true;
-
-    
-
-    this.cdr.detectChanges();
-
-  }
-
-  onStatusChange(event: any) {
-    this.bookingInfoApt.status = event;
-
-  }
-  
-  getSeverity(status:string){
-    let statuses = status.toLowerCase()
-
-    if (statuses === 'reserved') {
-      return 'success';
-    } else if (statuses === 'cancelled') {
-      return 'danger';
-    } else {
-      return 'info';
-    }
-    
-  }
-  areasAvailable(){
-
-    let areasJson = JSON.parse(localStorage.getItem('property')) 
-
-    if (areasJson.socialAreas
-      && areasJson.socialAreas.length > 0) {
-
-      areasJson.socialAreas.forEach((area, index) => {
-        this.areaOptions.push({ label: area, name: area });
-      });
-      }
-
-
-    }
-
-  update(){
-
-      let data = {...this.bookingInfoApt}
-      data.guest = this.inputValues
-      let unitlabel = this.bookingInfoApt.unit.code
-      let condoIdlabel = this.bookingInfoApt.condoId.code
-      let areaIdlabel = this.bookingInfoApt.areaId.label
-      let statuslabel = this.bookingInfoApt.status.code
-
-      data.unit = unitlabel;
-      data.condoId = condoIdlabel;
-      data.areaId = areaIdlabel;
-      data.status = statuslabel;
- 
-    // console.log('Booking Response//////////////////:', this.bookingInfoApt)
-    //   return
-
-    this._confirmationService.confirm({
-      message: 'Are you sure you want to update this booking?',
-      header: 'Confirmation',
-      icon: 'pi pi-exclamation-triangle',
-      rejectButtonStyleClass: "p-button-text",
-      accept: () => {
-        this._bookingService.update(this.token, data).subscribe({
-          next: (response) => {
-            if(response.status === 'success') {
-              this._messageService.add({ severity: 'success', summary: 'Success', detail: 'Booking was successful', life: 5000 });
-              this.visibleDialog = false;
-              this.getAllBookings(this.identity._id);
-            }
-          },
-          error: (errors) => {
-            this._messageService.add({ severity: 'error', summary: 'Error', detail: errors.error.message, life:10000 });
-            // console.log('Booking Error:', errors.error)
-          }
+        this._confirmationService.confirm({
+            message: message,
+            header: 'Confirmation',
+            icon: 'pi pi-exclamation-triangle',
+            rejectButtonStyleClass: 'p-button-text',
+            accept: () => {
+                this._bookingService.createBooking(this.token, data).subscribe({
+                    next: (response) => {
+                        if (response.status === 'success') {
+                            this._messageService.add({
+                                severity: 'success',
+                                summary: 'Success',
+                                detail: 'Booking was successful',
+                                life: 5000,
+                            });
+                            form.reset();
+                            this.bookingInfo.notifingType = '';
+                            this.getAllBookings(this.bookingId);
+                        }
+                        // console.log('Booking Response:', response)
+                    },
+                    error: (errors) => {
+                        this._messageService.add({
+                            severity: 'error',
+                            summary: 'Error',
+                            detail: errors.error.message,
+                            life: 10000,
+                        });
+                        // console.log('Booking Error:', errors.error)
+                    },
+                });
+            },
+            reject: () => {
+                this._messageService.add({
+                    severity: 'info',
+                    summary: 'Rejected',
+                    detail: 'You have rejected the booking',
+                });
+            },
         });
-      },
-      reject: () => {
-        this._messageService.add({severity:'info', 
-          summary:'Rejected', 
-          detail:'You have rejected the booking'});
-      }
-    });      // console.log("SELECTIONS:", data)
-     
     }
-  
-  
-  
+
+    getAllBookings(id) {
+        this._bookingService.getBooking(this.token, id).subscribe({
+            next: (response) => {
+                // this.bookingHistory = response.booking;
+                if (response.status === 'success') {
+                    let allBookinInfo = response.message;
+
+                    try {
+                        this.bookingHistory = allBookinInfo.map((booking) => {
+                            return {
+                                id: booking._id,
+                                guest: booking?.guest,
+                                condoName: booking.condoId.alias,
+                                condoId: booking.condoId._id,
+                                unit: booking.apartmentUnit,
+                                area: booking?.areaToReserve ?? 'N/A',
+                                checkIn: this._format.dateTimeFormat(
+                                    booking.checkIn
+                                ),
+                                checkOut:
+                                    this._format.dateTimeFormat(
+                                        booking?.checkOut
+                                    ) ?? 'N/A',
+                                status: booking.status,
+                                visitorNumber: booking?.visitorNumber ?? 0,
+                                verified: Boolean(booking.guestCode),
+                                comments: booking?.comments,
+                            };
+                        });
+                        // console.log('Booking History:***************>', this.bookingHistory)
+                    } catch (error) {
+                        console.log('Error:', error);
+                    }
+
+                    this.loading = false;
+                } else {
+                    this.loading = false;
+                }
+            },
+            error: (errors) => {
+                this._messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: errors.error.message,
+                    life: 10000,
+                });
+                this.loading = false;
+                // console.log('Booking Error:', errors.error)
+            },
+        });
+    }
+
+    // public inputData: string[] = [];
+    public inputValues: Array<{
+        notificationType: string;
+        fullname: string;
+        phone: string;
+    }> = [{ notificationType: '', fullname: '', phone: '' }];
+
+    parseDate(dateString: string): Date {
+        if (Boolean(dateString == undefined)) {
+            return null;
+        }
+        // Detecta el formato de la fecha y la convierte en un objeto Date
+        if (dateString.includes('T')) {
+            // Formato ISO
+            return parseISO(dateString);
+        } else {
+            // Formato dd-MM-yyyy HH:mm
+            return parse(dateString, 'dd-MM-yyyy HH:mm', new Date());
+        }
+    }
+
+    addVisitor() {
+        // this.inputData.push('');
+        this.inputValues.push({
+            notificationType: '',
+            fullname: '',
+            phone: '',
+        });
+    }
+
+    loadVisitorArray(guestList: any) {
+        if (guestList.length == 0) {
+            // this.inputData = [];
+            this.inputValues = [];
+        } else {
+            // guestList.forEach((guest: any) => (
+            //   this.inputData.push('')
+            // ));
+            this.inputValues = guestList;
+        }
+    }
+
+    public datoss: any;
+    removeInput(id: number) {
+        // this.inputData.splice(id, 1)
+        this.inputValues.splice(id, 1);
+    }
+
+    public bookingInfoApt: any;
+    showDialog(customer: any) {
+        // Limpiar el array de visitantes
+        let customerData = { ...customer };
+        this.loadVisitorArray(customerData.guest);
+        console.log('Customer Data:', customerData);
+
+        let guestInfo = customerData.guest;
+
+        if (this.identity.role !== 'ADMIN') {
+            this.getAreaInfo(customerData.area);
+        } else {
+            this.areaOptions = [
+                {
+                    label: (customerData?.area).toUpperCase(),
+                    code: (customerData?.area).toUpperCase(),
+                },
+            ];
+            this.condoOptions = [
+                {
+                    label: customerData.condoName.toUpperCase(),
+                    code: customerData.condoId,
+                },
+            ];
+            this.unitOption = [
+                { label: customerData.unit, code: customerData.unit },
+            ];
+        }
+
+        this.bookingInfoApt = {
+            id: customerData.id,
+            memberId: this.identity._id,
+            fullname: guestInfo?.fullname,
+            unit: { label: customerData.unit, code: customerData.unit },
+            phone: guestInfo?.phone,
+            checkIn: this.parseDate(customerData.checkIn) ?? 'N/A',
+            checkOut:
+                customer?.checkOut != 'N/A'
+                    ? this.parseDate(customerData?.checkOut)
+                    : null,
+            condoId: {
+                label: customerData.condoName.toUpperCase(),
+                code: this.condoOptions.find(
+                    (condo) =>
+                        condo.label.toLowerCase() ===
+                        customerData.condoName.toLowerCase()
+                ).code,
+            },
+            areaId: {
+                label: (customerData?.area).toUpperCase(),
+                code: (customerData?.area).toUpperCase(),
+            },
+            notifingType: guestInfo?.notifingType,
+            notifing: guestInfo?.notifing,
+            visitorNumber: customerData?.visitorNumber,
+            status: {
+                label: customerData.status,
+                code: this.headerStatus.find(
+                    (status_result) =>
+                        status_result.label.toLowerCase() ===
+                        customerData.status.toLowerCase()
+                ).code,
+            },
+            comments: customerData?.comments,
+            guest: [],
+        };
+        this.visibleDialog = true;
+
+        this.cdr.detectChanges();
+    }
+
+    onStatusChange(event: any) {
+        this.bookingInfoApt.status = event;
+    }
+
+    getSeverity(status: string) {
+        let statuses = status.toLowerCase();
+
+        if (statuses === 'reserved') {
+            return 'success';
+        } else if (statuses === 'cancelled') {
+            return 'danger';
+        } else {
+            return 'info';
+        }
+    }
+    areasAvailable() {
+        let areasJson = JSON.parse(localStorage.getItem('property'));
+
+        if (areasJson.socialAreas && areasJson.socialAreas.length > 0) {
+            areasJson.socialAreas.forEach((area, index) => {
+                this.areaOptions.push({ label: area, name: area });
+            });
+        }
+    }
+
+    update() {
+        let data = { ...this.bookingInfoApt };
+        data.guest = this.inputValues;
+        let unitlabel = this.bookingInfoApt.unit.code;
+        let condoIdlabel = this.bookingInfoApt.condoId.code;
+        let areaIdlabel = this.bookingInfoApt.areaId.label;
+        let statuslabel = this.bookingInfoApt.status.code;
+
+        data.unit = unitlabel;
+        data.condoId = condoIdlabel;
+        data.areaId = areaIdlabel;
+        data.status = statuslabel;
+
+        // console.log('Booking Response//////////////////:', this.bookingInfoApt)
+        //   return
+
+        this._confirmationService.confirm({
+            message: 'Are you sure you want to update this booking?',
+            header: 'Confirmation',
+            icon: 'pi pi-exclamation-triangle',
+            rejectButtonStyleClass: 'p-button-text',
+            accept: () => {
+                this._bookingService.update(this.token, data).subscribe({
+                    next: (response) => {
+                        if (response.status === 'success') {
+                            this._messageService.add({
+                                severity: 'success',
+                                summary: 'Success',
+                                detail: 'Booking was successful',
+                                life: 5000,
+                            });
+                            this.visibleDialog = false;
+                            this.getAllBookings(this.identity._id);
+                        }
+                    },
+                    error: (errors) => {
+                        this._messageService.add({
+                            severity: 'error',
+                            summary: 'Error',
+                            detail: errors.error.message,
+                            life: 10000,
+                        });
+                        // console.log('Booking Error:', errors.error)
+                    },
+                });
+            },
+            reject: () => {
+                this._messageService.add({
+                    severity: 'info',
+                    summary: 'Rejected',
+                    detail: 'You have rejected the booking',
+                });
+            },
+        }); // console.log("SELECTIONS:", data)
+    }
 }

@@ -1,3 +1,5 @@
+<p-toast />
+<p-confirmDialog />
 <div class="grid" *ngIf="!bookingVisible">
     <div class="col-12 lg:col-6 xl:col-3">
         <div class="card">
@@ -139,7 +141,7 @@
                             }}
                         </td>
                         <td style="width: 35%; min-width: 8rem">
-                            {{ unitFormatOnInit(customer.propertyDetails) }}
+                            {{ customer.condominium_unit }}
                         </td>
                         <td style="width: 15%">
                             <button
@@ -491,9 +493,11 @@
         <p-tabView>
             <p-tabPanel header="Basic info">
                 <form #basicInfo="ngForm">
-                    <div style="display: flex; justify-content: center">
-                        <div class="w-30rem">
-                            <div class="col-md-6">
+                    <div
+                        class="padding-set border-2 border-dashed surface-border border-round surface-ground justify-content-center font-medium"
+                    >
+                        <div class="w-30rem padding-set">
+                            <div class="col-md-6 mb-4">
                                 <p style="text-align: center">
                                     <img
                                         [src]="image"
@@ -514,7 +518,6 @@
                                 </p>
                             </div>
                             <div class="w-100">
-                                <h4>Basic info:</h4>
                                 <div class="col-md-6 w-100">
                                     <p-inputGroup>
                                         <p-inputGroupAddon>
@@ -531,7 +534,7 @@
                                                     !ownerName.dirty
                                             }"
                                             #ownerName="ngModel"
-                                            [(ngModel)]="ownerObj.ownerName"
+                                            [(ngModel)]="ownerObj.name"
                                             name="ownerName"
                                             type="text"
                                             maxlength="30"
@@ -735,13 +738,23 @@
                                     >
                                 </div>
 
-                                <div class="col-md-6 w-100 mt-3">
-                                    <p-toast />
-                                    <p-confirmDialog />
+                                <div class="flex justify-content-between mt-4">
                                     <p-button
                                         (onClick)="confirmUpdate($event)"
                                         icon="pi pi-check"
                                         label="Update"
+                                        status="primary"
+                                        [disabled]="
+                                            !ownerName.valid ||
+                                            !phone.valid ||
+                                            !lastnameOW.valid
+                                        "
+                                    />
+                                    <p-button
+                                        (onClick)="delAccount(ownerObj)"
+                                        icon="pi pi-check"
+                                        label="Delete account"
+                                        severity="danger"
                                         status="primary"
                                         [disabled]="
                                             !ownerName.valid ||

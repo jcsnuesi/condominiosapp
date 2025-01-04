@@ -1,32 +1,25 @@
-.change-icon:hover{
-   
+.change-icon:hover {
     cursor: pointer;
     border: rgb(249, 181, 57) 1px solid;
 }
 
-.icon-plus-changer:hover{
-
+.icon-plus-changer:hover {
     cursor: pointer;
     border: rgb(198, 200, 203) 1px solid;
-    
-
 }
-.alingText{
+.alingText {
     display: flex;
     justify-content: center;
     align-items: center;
     font-size: 18px;
-  
-      
-     
 }
 
-.divider{
+.divider {
     border-top: 1px solid #d6d2d2;
     margin-top: 10px;
     margin-bottom: 10px;
 }
-::ng-deep .p-tabview-nav{
+::ng-deep .p-tabview-nav {
     margin-bottom: 20px;
 }
 ::ng-deep #pn_id_104 {
@@ -35,9 +28,18 @@
     border-bottom-left-radius: 0;
 }
 
-.img-border-radius{
+.img-border-radius {
     border-radius: 50%;
-    border:#dbdbdb solid 1px;
+    border: #dbdbdb solid 1px;
     width: 250px;
     height: 230px;
+}
+::ng-deep .p-dropdown {
+    width: 100%;
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
+}
+
+.padding-set {
+    padding: 12px;
 }

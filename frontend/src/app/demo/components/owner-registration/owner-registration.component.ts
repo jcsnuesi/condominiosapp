@@ -243,7 +243,6 @@ export class OwnerRegistrationComponent implements OnInit {
             ) {
                 formData.append(key, this.ownerObj[key].code);
             } else if (key === 'avatar') {
-                console.log('Avatar:', this.ownerObj.avatar);
                 formData.append(
                     key,
                     Boolean(this.ownerObj.avatar != undefined)

@@ -49,6 +49,7 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { Router } from '@angular/router';
 import { StaffService } from '../../service/staff.service';
 import { BookingServiceService } from '../../service/booking-service.service';
+import { OwnerServiceService } from '../../service/owner-service.service';
 
 type FamilyAccess = {
     avatar: string;
@@ -104,6 +105,7 @@ type FamilyAccess = {
         InvoiceService,
         FormatFunctions,
         StaffService,
+        OwnerServiceService,
     ],
 })
 export class HomeComponent implements OnInit {
@@ -121,7 +123,6 @@ export class HomeComponent implements OnInit {
     private token: string;
     public genderOption: any;
     public passwordOwner: boolean;
-    public formData = new FormData();
     public messageApiResponse: { message: string; severity: string };
     public apiUnitResponse: boolean;
     public isRentOptions: any[];
@@ -155,7 +156,8 @@ export class HomeComponent implements OnInit {
         private _formatFunctions: FormatFunctions,
         private _router: Router,
         private _staffService: StaffService,
-        private _bookingService: BookingServiceService
+        private _bookingService: BookingServiceService,
+        private _ownerService: OwnerServiceService
     ) {
         this.items = [
             { label: 'Add New', icon: 'pi pi-fw pi-plus' },
@@ -186,11 +188,6 @@ export class HomeComponent implements OnInit {
         this.url = global.url;
         this.identity = this._userService.getIdentity();
         this.token = this._userService.getToken();
-
-        // this.genderOption = [
-        //   { name: 'Male', gender: 'm' },
-        //   { name: 'Female', gender: 'f' }
-        // ];
 
         this.isRentOptions = [
             { name: 'Yes', code: true },
@@ -308,7 +305,7 @@ export class HomeComponent implements OnInit {
                     (response) => {
                         if (response.status == 'success') {
                             var unitList = response.message;
-                            console.log('PROPERTY --->', unitList);
+
                             localStorage.setItem(
                                 'property',
                                 JSON.stringify(unitList)
@@ -324,6 +321,14 @@ export class HomeComponent implements OnInit {
 
                             this.getInvoiceByCondoFunc(unitList);
                             this.customers = unitList.units_ownerId;
+
+                            this.customers.forEach((owner) => {
+                                owner.condominium_unit = owner.propertyDetails
+                                    .map((property) => {
+                                        return property.condominium_unit;
+                                    })
+                                    .join(', ');
+                            });
                         }
                     },
                     (error) => {
@@ -391,15 +396,26 @@ export class HomeComponent implements OnInit {
         });
     }
 
+    titleCase(str) {
+        return str
+            .toLowerCase()
+            .split(' ')
+            .map(function (word) {
+                return word.charAt(0).toUpperCase() + word.slice(1);
+            })
+            .join(' ');
+    }
+
     showOwnerDialog(events) {
-        let genderDict = { M: 'Male', F: 'Female' };
-        this.ownerObj = { ...events };
+        let info = { ...events };
+        this.ownerObj = info;
+        this.ownerObj.name = this.titleCase(info.name);
+        this.ownerObj.lastname = this.titleCase(info.lastname);
         this.ownerObj.gender = {
-            label: genderDict[events.gender.toUpperCase()],
+            label: this.titleCase(info.gender),
         };
 
         this.maximized = false;
-
         this.image = this.url + 'owner-avatar/' + events.avatar;
         this.visible_owner = true;
         this._router.navigate([], {
@@ -414,9 +430,9 @@ export class HomeComponent implements OnInit {
         }
     }
 
-    see(event) {
-        console.log(event);
-    }
+    // see(event) {
+    //     console.log(event);
+    // }
     closeDialog(): void {
         this.visible_owner = false;
 
@@ -481,6 +497,7 @@ export class HomeComponent implements OnInit {
     confirmUpdate(event: Event) {
         this._confirmationService.confirm({
             target: event.target as EventTarget,
+            header: 'Confirmation',
             message: 'Please confirm to proceed moving forward.',
             icon: 'pi pi-exclamation-circle',
             acceptIcon: 'pi pi-check mr-1',
@@ -490,13 +507,6 @@ export class HomeComponent implements OnInit {
             rejectButtonStyleClass: 'p-button-outlined p-button-sm',
             acceptButtonStyleClass: 'p-button-sm',
             accept: () => {
-                this._messageService.add({
-                    severity: 'info',
-                    summary: 'Confirmed',
-                    detail: 'You have accepted',
-                    life: 3000,
-                });
-
                 this.onUpdate();
             },
             reject: () => {
@@ -511,22 +521,49 @@ export class HomeComponent implements OnInit {
     }
 
     onUpdate() {
-        this.formData.append(
-            'avatar',
-            this.ownerObj.avatar != null ? this.ownerObj.avatar : 'noimage.jpeg'
-        );
+        const formData = new FormData();
 
         for (const key in this.ownerObj) {
             if (
-                key == 'avatar' ||
-                key == 'propertyDetails' ||
-                key == 'familyAccount'
+                typeof this.ownerObj[key] === 'object' &&
+                Boolean(this.ownerObj[key].label != undefined)
             ) {
-                continue;
+                formData.append(key, this.ownerObj[key].label);
+            } else if (key === 'avatar') {
+                formData.append(key, this.ownerObj.avatar);
             } else {
-                this.formData.append(key, this.ownerObj[key]);
+                formData.append(key, this.ownerObj[key]);
             }
         }
+
+        // formData.forEach((value, key) => {
+        //     console.log(key + ' ' + value);
+        // });
+
+        // return;
+
+        this._ownerService.updateOwner(this.token, formData).subscribe({
+            next: (response) => {
+                if (response.status == 'success') {
+                    this._messageService.add({
+                        severity: 'success',
+                        summary: 'User Updated',
+                        detail: 'You have updated this user',
+                        life: 5000,
+                    });
+                    this.closeDialogRegistration();
+                }
+            },
+            error: (error) => {
+                this._messageService.add({
+                    severity: 'error',
+                    summary: 'User was not updated',
+                    detail: 'There was a problem on the server',
+                    life: 5000,
+                });
+                console.log(error);
+            },
+        });
     }
 
     getCondoId() {
@@ -726,6 +763,60 @@ export class HomeComponent implements OnInit {
             });
     }
 
+    delAccount(data: any) {
+        this._confirmationService.confirm({
+            target: event.target as EventTarget,
+            header: 'Confirmation',
+            message: 'Do you want to delete this profile?',
+            icon: 'pi pi-exclamation-circle',
+            acceptIcon: 'pi pi-check mr-1',
+            rejectIcon: 'pi pi-times mr-1',
+            acceptLabel: 'Confirm',
+            rejectLabel: 'Cancel',
+            rejectButtonStyleClass: 'p-button-text',
+            acceptButtonStyleClass: 'p-button-danger  p-button-sm',
+            accept: () => {
+                this._ownerService
+                    .deactivateOwner(this.token, {
+                        _id: data._id,
+                        status: 'inactive',
+                    })
+                    .subscribe({
+                        next: (response) => {
+                            if (response.status == 'success') {
+                                this._messageService.add({
+                                    severity: 'success',
+                                    summary: 'Profile Deleted',
+                                    detail: 'You have deleted this profile',
+                                    life: 3000,
+                                });
+                                this.closeDialogRegistration();
+                                this.visible_owner = false;
+                            }
+                        },
+                        error: (error) => {
+                            this._messageService.add({
+                                severity: 'error',
+                                summary: 'Action was not completed',
+                                detail: 'There is a problem on the server',
+                                life: 3000,
+                            });
+                            console.log(error);
+                        },
+                    });
+
+                console.log(data);
+            },
+            reject: () => {
+                this._messageService.add({
+                    severity: 'error',
+                    summary: 'Profile not deleted',
+                    detail: 'You have rejected',
+                    life: 3000,
+                });
+            },
+        });
+    }
     invoiceHistory() {
         let condoId = this.getCondoId();
 
