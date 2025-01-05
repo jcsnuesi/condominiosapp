@@ -21,6 +21,7 @@ var OwnerSchema = Schema(
     phone2: { type: String },
     email: { type: String, required: true, unique: true },
     password: { type: String },
+    first_password_changed: { type: Boolean, default: false },
     propertyDetails: [
       {
         _id: false,

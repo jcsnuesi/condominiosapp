@@ -8,6 +8,8 @@ var moment = require("moment");
 const cron = require("node-cron");
 var validation = require("validator");
 const PDFDocument = require("pdfkit");
+const Owner = require("../models/owners");
+const { model } = require("mongoose");
 
 var invoiceController = {
   createInvoice: async function (req, res) {
@@ -23,70 +25,64 @@ var invoiceController = {
     var params = req.body;
 
     /* Refactorizar metodo invoice:
-    1. Se requiere crear numero de factura al crearla
-    2. Crear metodo para confirmar que no esta duplicada la factura
+    1. Se requiere crear numero de factura al crearla - Done!
+    2. Crear metodo para confirmar que no esta duplicada la factura - Done!
 
 */
-    return;
 
     try {
-      var validate_invoice_issue = !validation.isEmpty(params.issueDate);
-      var validate_invoiceOwner = !validation.isEmpty(params.invoiceOwner);
-      var validate_invoice_amount = !validation.isEmpty(
-        params.amounts.toString()
-      );
+      !validation.isEmpty(params.issueDate);
+      !validation.isEmpty(params.ownerId);
+      !validation.isEmpty(params.condominiumId);
+      !validation.isEmpty(params.paymentDescription);
+      !validation.isEmpty(params.amount);
     } catch (error) {
+      console.log(error);
       return res.status(500).send({
         status: "error",
         message: "Error in the request. Try again.",
       });
     }
 
-    if (
-      validate_invoice_issue &&
-      validate_invoiceOwner &&
-      validate_invoice_amount
-    ) {
-      try {
-        let invoice = [];
+    let invoices = await Invoice.find({ ownerId: params.invoiceOwner });
 
-        params.invoiceOwnerSelected.forEach((element) => {
-          const invoiceDoc = new Invoice({
-            invoice_issue: new Date(params.issueDate),
-            invoice_due: new Date(params.dueDate),
-            invoice_amount: params.amounts,
-            invoice_description: params.paymentDescriptionSelected[0].value,
-            condominiumId: params.condominiumId,
-            unit: params.invoiceOwnerSelected[0].label.split("-")[1],
-            ownerId: element.value,
-            createdBy: req.user.sub,
-          });
+    let invoiceFound = invoices.filter(
+      (invoice) =>
+        invoice.ownerId === params.ownerId &&
+        invoice.issueDate.toString().split("T")[0] === params.issueDate &&
+        invoice.paymentDescription === params.paymentDescription
+    );
 
-          invoice.push(invoiceDoc);
-        });
-
-        // guardo la factura
-
-        await Invoice.insertMany(invoice);
-
-        return res.status(200).send({
-          status: "success",
-          message: "Invoice created successfully.",
-          invoice: invoice,
-        });
-      } catch (error) {
-        return res.status(500).send({
-          status: "error",
-          message: "Error creating invoice. Try again.",
-          error_found: error,
-        });
-      }
-    } else {
+    if (invoiceFound.length > 0) {
       return res.status(400).send({
         status: "error",
-        message: "Data is missing. Try again.",
+        message: "Invoice already exists.",
       });
     }
+
+    const newInvoice = new Invoice();
+
+    for (const key in params) {
+      newInvoice[key] = params[key];
+    }
+
+    newInvoice.createdBy = req.user.sub;
+
+    try {
+      await newInvoice.save();
+    } catch (error) {
+      console.log(error);
+      console.log(error);
+      return res.status(500).send({
+        status: "error",
+        message: "Error creating invoice. Try again.",
+      });
+    }
+
+    return res.status(200).send({
+      status: "success",
+      message: "Invoice created successfully.",
+    });
   },
   generateInvoice: async function (req, res) {
     // Generar facturas automáticamente el primer día de cada mes
@@ -302,10 +298,11 @@ var invoiceController = {
     var params = req.params.id;
 
     Invoice.find({ condominiumId: params })
-      .populate(
-        "ownerId",
-        "ownerName lastname email phone id_number propertyDetails"
-      )
+      .populate({
+        path: "ownerId",
+        model: "Owner",
+        select: "name lastname email phone id_number propertyDetails",
+      })
       .populate(
         "condominiumId",
         "alias phone street_1 street_2 sector_name city province country"

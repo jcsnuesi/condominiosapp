@@ -403,7 +403,7 @@ var Condominium_Controller = {
   },
 
   getCondominiumsByAdmin: function (req, res) {
-    Condominium.find({ createdBy: req.params.id }, (err, condominiumFound) => {
+    Condominium.find({ createdBy: req.user.sub }, (err, condominiumFound) => {
       var errorHandlerArr = errorHandler.newUser(err, condominiumFound);
 
       if (errorHandlerArr[0]) {

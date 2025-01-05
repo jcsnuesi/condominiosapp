@@ -396,7 +396,7 @@ var ownerAndSubController = {
 
     Family.find({ ownerId: params })
       .populate({
-        path: "propertyDetails.addressId", // Especificamos el campo que deseamos popular
+        path: "propertyDetails.addressId",
         model: "Condominium",
         select:
           "alias type phone street_1 street_2 sector_name city province zipcode country socialAreas",
@@ -522,16 +522,17 @@ var ownerAndSubController = {
       });
   },
   update: function (req, res) {
-    // if (!allow.includes(req.user.role.toLowerCase())) {
-    //   return res.status(403).send({
-    //     status: "forbidden",
-    //     message: "Not authorized",
-    //   });
-    // }
+    const allow = ["owner", "family"];
+
+    if (!allow.includes(req.user.role.toLowerCase())) {
+      return res.status(403).send({
+        status: "forbidden",
+        message: "Not authorized",
+      });
+    }
 
     // Si el usuario envia un archivo de imagen, se guarda en el servidor y se le asigna el nombre a la propiedad avatar
 
-    const allow = ["owner", "family"];
     var params = req.body;
     var user = { owner: Owner, family: Family };
 
@@ -576,6 +577,7 @@ var ownerAndSubController = {
         for (const key in params) {
           if (params.password) {
             userFound.password = await bcrypt.hash(params.password, saltRounds);
+            userFound.first_password_changed = true;
           } else {
             userFound[key] = params[key].toLowerCase();
           }
@@ -587,6 +589,7 @@ var ownerAndSubController = {
             userFound,
             { new: true }
           );
+          delete userFound.password;
         } catch (error) {
           return res.status(500).send({
             status: "error",
@@ -598,6 +601,7 @@ var ownerAndSubController = {
         return res.status(200).send({
           status: "success",
           message: "User updated successfully",
+          user_updated: userFound,
         });
       }
     );
@@ -650,7 +654,10 @@ var ownerAndSubController = {
   },
 
   getCondominiumByOwnerId: function (req, res) {
-    Owner.find({ _id: req.user.sub })
+    const user = { owner: Owner, family: Family };
+
+    user[req.user.role.toLowerCase()]
+      .find({ _id: req.user.sub })
       .populate(
         "propertyDetails.addressId",
         "avatar alias phone street_1 street_2 sector_name city province zipcode country socialAreas mPayment status mPayment createdAt"
@@ -665,7 +672,6 @@ var ownerAndSubController = {
           });
         }
       });
-    // 654af792af898fdd1ea3a266
   },
 };
 
