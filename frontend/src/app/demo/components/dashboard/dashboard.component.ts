@@ -76,6 +76,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     public totalBooked: number = 0;
     public condoOptions: any[];
     public idroute: string;
+    public first_password: boolean = false;
+    public changePasswordDialog: boolean = false;
 
     constructor(
         private productService: ProductService,
@@ -132,13 +134,18 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.messageApiResponse = { message: '', severity: '' };
         this.visible_owner = false;
         this.areaSocial = false;
-
-        this.formData = new FormData();
+        this.first_password =
+            this.identity.first_password_changed == false ? true : false;
     }
 
     ngOnInit() {
         this.propertyObj = JSON.parse(localStorage.getItem('property'));
         this.onInitInfo();
+
+        this._router.navigate([], {
+            queryParams: { userid: this.idroute },
+            queryParamsHandling: 'merge',
+        });
 
         this.genderOption = [
             { name: 'Male', gender: 'm' },
@@ -248,13 +255,30 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.getStaffQty();
     }
 
+    passwordChanged(event: boolean) {
+        if (event) {
+            this.first_password = false;
+            this._messageService.add({
+                severity: 'info',
+                summary: 'Success',
+                detail: 'Password Changed successfully!',
+                life: 3000,
+            });
+        } else {
+            this._messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Password was not Changed',
+                life: 3000,
+            });
+        }
+    }
     public totalStaff: number = 0;
     getStaffQty() {
         this._staffService
             .getStaffByOwnerCondo(this.token, this.identity._id)
             .subscribe({
                 next: (response) => {
-                    console.log(response);
                     if (response.status == 'success') {
                         this.totalStaff = response.message.length;
                     } else {
@@ -297,33 +321,33 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     public indexStepper: number = 0;
 
-    confirmNewOwner(event: Event) {
-        this._confirmationService.confirm({
-            target: event.target as EventTarget,
-            message: 'Are you sure that you want to proceed?',
-            header: 'Confirmation',
-            icon: 'pi pi-exclamation-triangle',
-            acceptIcon: 'none',
-            rejectIcon: 'none',
-            rejectButtonStyleClass: 'p-button-text',
-            accept: () => {
-                this._messageService.add({
-                    severity: 'info',
-                    summary: 'Confirmed',
-                    detail: 'You have accepted',
-                });
-                this.onSubmitUnit();
-            },
-            reject: () => {
-                this._messageService.add({
-                    severity: 'error',
-                    summary: 'Rejected',
-                    detail: 'You have rejected',
-                    life: 3000,
-                });
-            },
-        });
-    }
+    // confirmNewOwner(event: Event) {
+    //     this._confirmationService.confirm({
+    //         target: event.target as EventTarget,
+    //         message: 'Are you sure that you want to proceed?',
+    //         header: 'Confirmation',
+    //         icon: 'pi pi-exclamation-triangle',
+    //         acceptIcon: 'none',
+    //         rejectIcon: 'none',
+    //         rejectButtonStyleClass: 'p-button-text',
+    //         accept: () => {
+    //             this._messageService.add({
+    //                 severity: 'info',
+    //                 summary: 'Confirmed',
+    //                 detail: 'You have accepted',
+    //             });
+    //             this.onSubmitUnit();
+    //         },
+    //         reject: () => {
+    //             this._messageService.add({
+    //                 severity: 'error',
+    //                 summary: 'Rejected',
+    //                 detail: 'You have rejected',
+    //                 life: 3000,
+    //             });
+    //         },
+    //     });
+    // }
 
     allBooking() {
         if (this.bookingVisible) {
@@ -335,58 +359,58 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }
     }
 
-    onSubmitUnit() {
-        const formData = new FormData();
+    // onSubmitUnit() {
+    //     const formData = new FormData();
 
-        formData.append(
-            'avatar',
-            this.ownerObj.avatar != null ? this.ownerObj.avatar : 'noimage.jpeg'
-        );
+    //     formData.append(
+    //         'avatar',
+    //         this.ownerObj.avatar != null ? this.ownerObj.avatar : 'noimage.jpeg'
+    //     );
 
-        formData.append('ownerName', this.ownerObj.name);
-        formData.append('lastname', this.ownerObj.lastname);
-        formData.append('gender', this.ownerObj.gender);
-        formData.append('id_number', this.ownerObj.id_number);
-        // formData.append('dob', this.ownerObj.phone2)
-        formData.append('phone', this.ownerObj.phone);
-        formData.append('phone2', this.ownerObj.phone2);
-        formData.append('email', this.ownerObj.email);
-        formData.append('addressId', this.ownerObj.addressId);
-        formData.append('apartmentUnit', this.ownerObj.apartmentsUnit);
-        formData.append('parkingsQty', this.ownerObj.parkingsQty);
-        formData.append('isRenting', this.ownerObj.isRenting);
+    //     formData.append('ownerName', this.ownerObj.name);
+    //     formData.append('lastname', this.ownerObj.lastname);
+    //     formData.append('gender', this.ownerObj.gender);
+    //     formData.append('id_number', this.ownerObj.id_number);
+    //     // formData.append('dob', this.ownerObj.phone2)
+    //     formData.append('phone', this.ownerObj.phone);
+    //     formData.append('phone2', this.ownerObj.phone2);
+    //     formData.append('email', this.ownerObj.email);
+    //     formData.append('addressId', this.ownerObj.addressId);
+    //     formData.append('apartmentUnit', this.ownerObj.apartmentsUnit);
+    //     formData.append('parkingsQty', this.ownerObj.parkingsQty);
+    //     formData.append('isRenting', this.ownerObj.isRenting);
 
-        this._condominioService.createOwner(this.token, formData).subscribe({
-            next: (response) => {
-                if (response.status == 'success') {
-                    this.messageApiResponse.message = response.message;
-                    this.messageApiResponse.severity = 'success';
-                    this.apiUnitResponse = true;
-                } else {
-                    this.messageApiResponse.message = response.message;
-                    this.messageApiResponse.severity = 'danger';
-                    this.apiUnitResponse = true;
-                }
-            },
-            error: (error) => {
-                this._messageService.add({
-                    severity: 'warn',
-                    summary: 'Message for server',
-                    detail: 'Unit was not Created',
-                    life: 3000,
-                });
-                console.log(error);
-            },
-            complete: () => {
-                this._messageService.add({
-                    severity: 'success',
-                    summary: 'Success',
-                    detail: 'Unit Created',
-                    life: 3000,
-                });
-            },
-        });
-    }
+    //     this._condominioService.createOwner(this.token, formData).subscribe({
+    //         next: (response) => {
+    //             if (response.status == 'success') {
+    //                 this.messageApiResponse.message = response.message;
+    //                 this.messageApiResponse.severity = 'success';
+    //                 this.apiUnitResponse = true;
+    //             } else {
+    //                 this.messageApiResponse.message = response.message;
+    //                 this.messageApiResponse.severity = 'danger';
+    //                 this.apiUnitResponse = true;
+    //             }
+    //         },
+    //         error: (error) => {
+    //             this._messageService.add({
+    //                 severity: 'warn',
+    //                 summary: 'Message for server',
+    //                 detail: 'Unit was not Created',
+    //                 life: 3000,
+    //             });
+    //             console.log(error);
+    //         },
+    //         complete: () => {
+    //             this._messageService.add({
+    //                 severity: 'success',
+    //                 summary: 'Success',
+    //                 detail: 'Unit Created',
+    //                 life: 3000,
+    //             });
+    //         },
+    //     });
+    // }
 
     alertStatus() {
         if (this.apiUnitResponse) {
@@ -435,7 +459,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     onInitInfo() {
         this._activatedRoute.params.subscribe((param) => {
-            let id = param['id'];
+            let id = param['userid'];
 
             if (id != undefined) {
                 this._condominioService.getBuilding(id, this.token).subscribe(
@@ -452,7 +476,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
                             this.customers = unitList.units_ownerId;
 
-                            // console.log(this.customers)
+                            console.log('CUSTOMER--->', this.customers);
                         }
                     },
                     (error) => {

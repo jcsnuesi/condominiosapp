@@ -50,6 +50,7 @@ import { Router } from '@angular/router';
 import { StaffService } from '../../service/staff.service';
 import { BookingServiceService } from '../../service/booking-service.service';
 import { OwnerServiceService } from '../../service/owner-service.service';
+import { HasPermissionsDirective } from 'src/app/has-permissions.directive';
 
 type FamilyAccess = {
     avatar: string;
@@ -67,6 +68,7 @@ type FamilyAccess = {
     selector: 'app-home',
     standalone: true,
     imports: [
+        HasPermissionsDirective,
         DividerModule,
         ProgressSpinnerModule,
         BookingAreaComponent,
@@ -236,26 +238,31 @@ export class HomeComponent implements OnInit {
         this.loadBookingCard();
     }
 
-    seeBooking() {
-        this._router.navigate(['/bookings', this.condoId]);
+    // seeBooking() {
+    //     this._router.navigate(['/bookings', this.condoId]);
 
-        // this._router.navigate(['/home/bookings', this.condoId], { queryParams: { condoId: true } })
-        // console.log(this.bookingVisible)
+    //     // this._router.navigate(['/home/bookings', this.condoId], { queryParams: { condoId: true } })
+    //     // console.log(this.bookingVisible)
 
-        if (this.bookingVisible) {
-            this.bookingVisible = false;
-        } else {
-            this.bookingVisible = true;
-            this._activatedRoute.queryParamMap.subscribe((params) => {
-                if (params.has('booking')) {
-                    this.bookingVisible = true;
-                }
-            });
-        }
-    }
+    //     if (this.bookingVisible) {
+    //         this.bookingVisible = false;
+    //     } else {
+    //         this.bookingVisible = true;
+
+    //         this._router.navigate(['/bookings'], {
+    //             queryParams: { condo_id: this.condoId },
+    //             queryParamsHandling: 'merge',
+    //         });
+    //         // this._activatedRoute.queryParamMap.subscribe((params) => {
+    //         //     if (params.has('booking')) {
+    //         //         this.bookingVisible = true;
+    //         //     }
+    //         // });
+    //     }
+    // }
 
     seeStaff() {
-        this._router.navigate(['/staff', this.getCondoId()._id]);
+        this._router.navigate(['/staff', this.condoId]);
     }
 
     procesarFactura(event) {
@@ -299,6 +306,7 @@ export class HomeComponent implements OnInit {
         this._activatedRoute.params.subscribe((param) => {
             let id = param['id'];
             this.condoId = id;
+            console.log('ID:', id);
 
             if (id != undefined) {
                 this._condominioService.getBuilding(id, this.token).subscribe(
@@ -337,8 +345,6 @@ export class HomeComponent implements OnInit {
                 );
             }
         });
-
-        console.log(this.identity._id, this.condoId);
     }
 
     onSelect(file: any) {
@@ -566,16 +572,14 @@ export class HomeComponent implements OnInit {
         });
     }
 
-    getCondoId() {
-        return JSON.parse(localStorage.getItem('property'));
-    }
+    // getCondoId() {
+    //     return JSON.parse(localStorage.getItem('property'));
+    // }
 
     public activeStaffQty: number;
     // Carga los staff por condominio
     getStaffByCondoId() {
-        let condoId = this.getCondoId();
-
-        this._staffService.getStaffByCondo(this.token, condoId._id).subscribe({
+        this._staffService.getStaffByCondo(this.token, this.condoId).subscribe({
             next: (response) => {
                 if (response.status == 'success') {
                     this.activeStaffQty = response.message.filter(
@@ -591,24 +595,23 @@ export class HomeComponent implements OnInit {
     }
 
     getInvoiceByCondoFunc(cantidadOwner) {
-        let condoId = this.getCondoId();
+        //
 
         this._invoiceService
-            .getInvoiceByCondo(this.token, condoId._id)
+            .getInvoiceByCondo(this.token, this.condoId)
             .subscribe({
                 next: (response) => {
-                    if (cantidadOwner.units_ownerId.length != undefined) {
+                    if (
+                        response.invoices.length > 0 &&
+                        response.status == 'success'
+                    ) {
                         this.chartVisible = true;
-                    }
 
-                    if (response.status == 'success') {
                         let invoiceResp = response.invoices;
-
                         // GRAPH VARIABLES
                         const documentStyle = getComputedStyle(
                             document.documentElement
                         );
-
                         const textColor =
                             documentStyle.getPropertyValue('--text-color');
 
@@ -619,47 +622,6 @@ export class HomeComponent implements OnInit {
 
                         const surfaceBorder =
                             documentStyle.getPropertyValue('--surface-border');
-
-                        let paidData = {};
-                        let unpaidData = {};
-
-                        invoiceResp.forEach((element) => {
-                            let {
-                                invoice_amount,
-                                invoice_status,
-                                paymentStatus,
-                                invoice_paid_date,
-                                invoice_issue,
-                            } = element;
-
-                            if (
-                                typeof invoice_paid_date === 'string' &&
-                                invoice_paid_date != null
-                            ) {
-                                let monthName =
-                                    this._formatFunctions.getMonthName(
-                                        parseInt(
-                                            invoice_paid_date.split(/[-T]/)[1]
-                                        )
-                                    );
-
-                                if (paidData[monthName] == undefined) {
-                                    paidData[monthName] = 0;
-                                }
-                                paidData[monthName] = paidData[monthName] + 1;
-                            } else {
-                                let monthNameUnpaid =
-                                    this._formatFunctions.getMonthName(
-                                        parseInt(invoice_issue.split(/[-T]/)[1])
-                                    );
-
-                                if (unpaidData[monthNameUnpaid] == undefined) {
-                                    unpaidData[monthNameUnpaid] = 0;
-                                }
-                                unpaidData[monthNameUnpaid] =
-                                    unpaidData[monthNameUnpaid] + 1;
-                            }
-                        });
 
                         this.dataChart = {
                             labels: [
@@ -703,6 +665,42 @@ export class HomeComponent implements OnInit {
                                 },
                             ],
                         };
+                        let paidData = {};
+                        let unpaidData = {};
+                        invoiceResp.forEach((element) => {
+                            let {
+                                invoice_amount,
+                                invoice_status,
+                                paymentStatus,
+                                invoice_paid_date,
+                                issueDate,
+                            } = element;
+
+                            if (invoice_paid_date != null) {
+                                let monthName =
+                                    this._formatFunctions.getMonthName(
+                                        parseInt(
+                                            invoice_paid_date.split(/[-T]/)[1]
+                                        )
+                                    );
+
+                                if (paidData[monthName] == undefined) {
+                                    paidData[monthName] = 0;
+                                }
+                                paidData[monthName] = paidData[monthName] + 1;
+                            } else {
+                                let monthNameUnpaid =
+                                    this._formatFunctions.getMonthName(
+                                        parseInt(issueDate.split(/[-T]/)[1])
+                                    );
+
+                                if (unpaidData[monthNameUnpaid] == undefined) {
+                                    unpaidData[monthNameUnpaid] = 0;
+                                }
+                                unpaidData[monthNameUnpaid] =
+                                    unpaidData[monthNameUnpaid] + 1;
+                            }
+                        });
 
                         for (const key in paidData) {
                             this.dataChart.datasets[0].data[
@@ -818,8 +816,6 @@ export class HomeComponent implements OnInit {
         });
     }
     invoiceHistory() {
-        let condoId = this.getCondoId();
-
-        this._router.navigate(['/invoice-history', condoId._id]);
+        this._router.navigate(['/invoice-history', this.condoId]);
     }
 }

@@ -52,16 +52,14 @@ export class PropertiesComponent implements OnInit {
     }
 
     getCondominios() {
-        this._condominioService
-            .getPropertyByAdminId(this.token, UserService.identity._id)
-            .subscribe(
-                (response) => {
-                    this.products = response.message;
-                },
-                (error) => {
-                    console.log(error);
-                }
-            );
+        this._condominioService.getPropertyByAdminId(this.token).subscribe(
+            (response) => {
+                this.products = response.message;
+            },
+            (error) => {
+                console.log(error);
+            }
+        );
     }
 
     units(id: string) {

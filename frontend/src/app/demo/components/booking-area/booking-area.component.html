@@ -258,8 +258,8 @@
                     <div class="form-group">
                         <label for="checkIn-label">Check In (date/time):</label>
                         <p-calendar
-                            #checkIn="ngModel"
                             id="checkIn-label"
+                            #checkIn="ngModel"
                             name="checkIn"
                             inputId="calendar-12h"
                             [(ngModel)]="bookingInfo.checkIn"
@@ -782,6 +782,7 @@
                             [disabled]="identity.role != 'OWNER'"
                         />
                         <p-button
+                            [disabled]="identity.role != 'OWNER'"
                             class="btn-size-guest"
                             label="remove"
                             severity="danger"
@@ -797,12 +798,12 @@
     </form>
 
     <hr />
-    <div class="btn-add" *appHasPermissions="'owner'">
+    <div class="btn-add">
         <p-button
             label="Update"
             icon="pi pi-check"
             (click)="update()"
-            [disabled]="updateBookingForm.invalid"
+            [disabled]="updateBookingForm.invalid || identity.role != 'OWNER'"
         />
     </div>
 </p-dialog>

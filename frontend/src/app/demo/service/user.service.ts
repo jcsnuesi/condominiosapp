@@ -130,17 +130,6 @@ export class UserService {
 
     // End - Family methods
 
-    // Get all logged user's properties
-    getPropertyByOwner(token: string): Observable<any> {
-        let header = new HttpHeaders()
-            .set('Content-Type', 'application/json')
-            .set('Authorization', token);
-
-        return this._http.get(this.url + 'condominioByOwnerId', {
-            headers: header,
-        });
-    }
-
     addNewProperty(token: string, property: any): Observable<any> {
         let header = new HttpHeaders()
             .set('Content-Type', 'application/json')

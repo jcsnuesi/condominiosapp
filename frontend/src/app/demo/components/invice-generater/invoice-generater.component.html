@@ -62,12 +62,12 @@
                 >Choose who the invoice belongs to</label
             >
             <div class="mt-2"></div>
-            <p-multiSelect
+            <p-dropdown
                 (onClick)="onClickInvoiceOwnerMultiSelect()"
                 #invoiceOwnerMultiSelect="ngModel"
                 name="invoiceOwnerMultiSelect"
                 [options]="ownerSelected"
-                [(ngModel)]="invoiceInfo.invoiceOwner"
+                [(ngModel)]="invoiceInfo.ownerId"
                 optionLabel="label"
                 placeholder="Select Description..."
                 [disabled]="invoiceSetup"
@@ -79,7 +79,7 @@
                 >Payment description</label
             >
             <div class="mt-2"></div>
-            <p-multiSelect
+            <p-dropdown
                 #paymentDescriptionMultiSelect="ngModel"
                 name="paymentDescriptionMultiSelect"
                 [options]="paymentDescriptionSelected"
@@ -100,7 +100,7 @@
                 type="text"
                 #amount="ngModel"
                 name="amount"
-                [(ngModel)]="invoiceInfo.amounts"
+                [(ngModel)]="invoiceInfo.amount"
                 id="amountLabel"
                 [disabled]="invoiceSetup"
             />

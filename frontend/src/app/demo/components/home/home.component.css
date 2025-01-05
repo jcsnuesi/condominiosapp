@@ -22,11 +22,6 @@
 ::ng-deep .p-tabview-nav {
     margin-bottom: 20px;
 }
-::ng-deep #pn_id_104 {
-    width: 100%;
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-}
 
 .img-border-radius {
     border-radius: 50%;
@@ -42,4 +37,11 @@
 
 .padding-set {
     padding: 12px;
+}
+
+::ng-deep #pn_id_26,
+::ng-deep #pn_id_28 {
+    width: 100%;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
 }

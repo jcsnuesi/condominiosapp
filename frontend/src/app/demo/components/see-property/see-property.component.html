@@ -58,7 +58,6 @@
                     <div class="flex align-items-center">
                         Address
                         <p-columnFilter
-                            *ngIf="loginInfo.role == 'SUPERUSER'"
                             type="text"
                             field="email_company"
                             display="menu"
@@ -126,7 +125,7 @@
                     </div>
                 </th>
 
-                <th style="width: 3rem" *ngIf="loginInfo.role == 'SUPERUSER'">
+                <!-- <th style="width: 3rem">
                     <div class="flex align-items-center">
                         Verified
                         <p-columnFilter
@@ -135,7 +134,7 @@
                             display="menu"
                         ></p-columnFilter>
                     </div>
-                </th>
+                </th> -->
 
                 <th style="width: 3rem">
                     <div class="flex align-items-center">See more</div>
@@ -191,15 +190,14 @@
                         "
                     ></p-tag>
                 </td>
-                <td class="text-center" *ngIf="loginInfo.role == 'SUPERUSER'">
+                <!-- <td class="text-center">
                     <i
-                        class="pi"
                         [ngClass]="{
                             'text-green-500 pi-check-circle': property.verified,
                             'text-red-500 pi-times-circle': !property.verified
                         }"
                     ></i>
-                </td>
+                </td> -->
                 <td>
                     <button
                         *appHasRole="'admin'"

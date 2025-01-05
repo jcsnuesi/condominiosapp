@@ -15,215 +15,198 @@ import { ButtonModule } from 'primeng/button';
 import { HasPermissionsDirective } from 'src/app/has-permissions.directive';
 import { HasRoleDirective } from 'src/app/has-role.directive';
 import { FormatFunctions } from '../../../pipes/formating_text';
- 
+import { OwnerServiceService } from '../../service/owner-service.service';
+
 @Component({
-  selector: 'app-see-property',  
-  templateUrl: './see-property.component.html',
-  styleUrls: ['./see-property.component.scss'],
-  standalone: true,
-  imports: [
-    CommonModule,
-    DialogModule,
-    TabMenuModule,
-    TagModule,
-    TableModule,
-    ButtonModule,
-    HasRoleDirective
-    
-  ],
-  providers: [UserService, CondominioService, MessageService, FormatFunctions]  
+    selector: 'app-see-property',
+    templateUrl: './see-property.component.html',
+    styleUrls: ['./see-property.component.scss'],
+    standalone: true,
+    imports: [
+        CommonModule,
+        DialogModule,
+        TabMenuModule,
+        TagModule,
+        TableModule,
+        ButtonModule,
+        HasRoleDirective,
+    ],
+    providers: [
+        UserService,
+        CondominioService,
+        MessageService,
+        FormatFunctions,
+        OwnerServiceService,
+    ],
 })
+export class SeePropertyComponent implements OnInit {
+    private token: string = this._userService.getToken();
+    public sendDataToModal: any;
+    public customers: any[] = [];
+    public url: string;
+    public selectedCustomers: any;
+    public loading: boolean;
+    public identity: any;
+    public header_changer: string;
+    public addressInfo: any[] = [];
 
-export class SeePropertyComponent implements OnInit, DoCheck {
+    sortOptions: SelectItem[] = [];
 
-  private token: string = this._userService.getToken()
-  public sendDataToModal: any;
-  public customers: any[] = [];
-  public url: string;
-  public selectedCustomers: any;
-  public loading: boolean;
-  public loginInfo: any;
-  public header_changer: string;
-  public addressInfo: any[] = [];
+    sortOrder: number = 0;
 
-  sortOptions: SelectItem[] = [];
+    sortField: string = '';
 
-  sortOrder: number = 0;
+    sourceCities: any[] = [];
 
-  sortField: string = '';
+    targetCities: any[] = [];
 
-  sourceCities: any[] = [];
+    orderCities: any[] = [];
 
-  targetCities: any[] = [];
+    public layout: string;
+    public statuses!: any[];
+    public representatives: any;
+    public visible: boolean = false;
+    public modify: boolean;
+    public items: any[] = [];
+    public activeItem: any;
+    messageEvent: any;
+    public status: string;
+    public properties: any;
 
-  orderCities: any[] = [];
+    constructor(
+        private _router: Router,
+        public _userService: UserService,
+        private _condominioService: CondominioService,
+        private _format: FormatFunctions,
+        private _ownerServiceService: OwnerServiceService
+    ) {
+        this.url = global.url;
 
-  public layout: string;
-  public statuses!: any[];
-  public representatives: any;
-  public visible: boolean = false;
-  public modify: boolean;
-  public items: any[] = [];
-  public activeItem: any;
-  messageEvent: any;
-  public status: string
-  public identity: any;
-  public properties: any;
- 
+        this.statuses = [
+            { label: 'Active', value: 'active' },
+            { label: 'Suspended', value: 'suspended' },
+        ];
 
-  constructor(
-    private _router: Router,
-    public _userService: UserService,
-    private _condominioService: CondominioService,
-    private _format: FormatFunctions,
-   ) {
+        this.identity = this._userService.getIdentity();
+        this.loading = true;
+    }
 
-    this.url = global.url
+    ngOnInit() {
+        this.getAdminsProperties();
+    }
 
-    this.statuses = [
-      { label: 'Active', value: 'active' },
-      { label: 'Suspended', value: 'suspended' },
+    // ngDoCheck(): void {
 
-    ];
+    //   UserService.identity = this.getValues()
 
-    this.loginInfo = this._userService.getIdentity()
- 
-  }
+    // }
 
+    public datosUpdating: any;
 
-  ngOnInit() {
+    // setValues(data) {
+    //     this.datosUpdating = data;
+    // }
 
-    this.loading = true
-    this.getAdminsProperties()
- 
-  }
+    // getValues() {
 
-  ngDoCheck(): void {
+    //   return this.datosUpdating
+    // }
 
-    UserService.identity = this.getValues()
+    goToDashboard(event: any) {
+        this._router.navigate(['home/', event._id]);
+    }
 
-  }
+    clear(table: Table) {
+        table.clear();
+    }
 
-  public datosUpdating: any;
+    fechaCreacion(fecha) {
+        return this._format.dateFormat(fecha);
+    }
 
-  setValues(data) {
+    getAdminsProperties() {
+        console.log('Identity---?:', this.identity);
+        switch (this.identity.role) {
+            case 'ADMIN':
+                this._condominioService
+                    .getPropertyByAdminId(this.token)
+                    .subscribe({
+                        next: (response) => {
+                            this.loading = false;
 
-    this.datosUpdating = data
-  }
+                            if (response.status == 'success') {
+                                this.properties = response.message;
+                            }
+                        },
+                        error: (error) => {
+                            console.log(error);
+                        },
+                        complete: () => {
+                            console.log('See property completed!');
+                        },
+                    });
+                break;
 
-  getValues() {
+            case 'OWNER':
+                this._ownerServiceService
+                    .getPropertyByOwner(this.token)
+                    .subscribe({
+                        next: (response) => {
+                            this.properties = [];
+                            this.loading = false;
 
-    return this.datosUpdating
-  }
+                            if (response.status == 'success') {
+                                response.message[0].propertyDetails.forEach(
+                                    (element) => {
+                                        console.log('ELEMENT:', element);
+                                        this.properties.push({
+                                            avatar: element.addressId.avatar,
+                                            alias: element.addressId.alias,
+                                            phone: element.addressId.phone,
+                                            address: element.addressId.address,
+                                            city: element.addressId.city,
+                                            country: element.addressId.country,
+                                            province:
+                                                element.addressId.province,
+                                            sector_name:
+                                                element.addressId.sector_name,
+                                            street_1:
+                                                element.addressId.street_1,
+                                            street_2:
+                                                element.addressId.street_2,
+                                            createdAt: this._format.dateFormat(
+                                                element.addressId.createdAt
+                                            ),
+                                            property_id: element.addressId._id,
+                                            status: element.addressId.status,
+                                            mPayment:
+                                                element.addressId.mPayment,
+                                        });
+                                    }
+                                );
+                            }
+                        },
+                        error: (error) => {
+                            console.log('For owner propuse:', error);
+                        },
+                        complete: () => {
+                            console.log('See OWNER property completed!');
+                        },
+                    });
 
-  goToDashboard(event: any) {
-
-    
-    this._router.navigate(['home/', event._id])
-
-  }
-
-  clear(table: Table) {
-    table.clear();
-  }
-
-  fechaCreacion(fecha) {
-      
-      return this._format.dateFormat(fecha)
-  }
-
-  
-
-  getAdminsProperties(){
-
-
-    switch (this.loginInfo.role) {
-     
-      case 'ADMIN':
-       
-      this._condominioService.getPropertyByAdminId(this.token, this.loginInfo._id).subscribe({
-          next: (response) => {
-            this.loading = false;
-       
-            if (response.status == 'success') {
-              this.properties = response.message;
-           
-
-            }
-          },
-          error: (error) => {
-            console.log(error);
-          },
-          complete: () => {
-            console.log('See property completed!')
-          }
-        });
-        break;
-    
-      case 'OWNER':
-
-        this._userService.getPropertyByOwner(this.token).subscribe({
-        next: (response) => {
-          
-          this.properties = [];
-          this.loading = false;
-          
-          if (response.status == 'success') {
-
-            response.message[0].propertyDetails.forEach((element) => {
-             console.log('ELEMENT:', element)
-              this.properties.push({
-                avatar: element.addressId.avatar,
-                alias: element.addressId.alias,
-                phone: element.addressId.phone,
-                address: element.addressId.address,
-                city: element.addressId.city,
-                country: element.addressId.country,
-                province: element.addressId.province,
-                sector_name: element.addressId.sector_name,
-                street_1: element.addressId.street_1,
-                street_2: element.addressId.street_2,
-                createdAt: this._format.dateFormat(element.addressId.createdAt) ,
-                property_id: element.addressId._id,
-                status: element.addressId.status,
-                mPayment: element.addressId.mPayment
-              });
-            });
-           
-
-          }
-        },
-        error: (error) => {
-          console.log('For owner propuse:',error);
-        },
-        complete: () => {
-          console.log('See OWNER property completed!')
+                break;
         }
-      })
+    }
 
-        break;
-    }    
-  
-  }
- 
+    ownerDialogDetails() {
+        this.visible = true;
+    }
 
-  ownerDialogDetails(){
-      
-      this.visible = true;
-  }
+    full_address_func(customer) {
+        return `${customer.street_1}, ${customer.street_2}, ${customer.sector_name}, ${customer.city}, ${customer.province}, ${customer.country}`;
+    }
 
-  full_address_func(customer) {
-    
-    return `${customer.street_1}, ${customer.street_2}, ${customer.sector_name}, ${customer.city}, ${customer.province}, ${customer.country}`
-
-  }
-
-  propertyName(alias){
-
-    return alias.toUpperCase()
-  }
-
-
-  
-
+    propertyName(alias) {
+        return alias.toUpperCase();
+    }
 }

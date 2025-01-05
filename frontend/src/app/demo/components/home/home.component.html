@@ -42,7 +42,7 @@
                     </div>
                 </div>
                 <a
-                    (click)="seeBooking()"
+                    [routerLink]="['/bookings', condoId]"
                     class="change-icon flex align-items-center justify-content-center bg-orange-100 border-round"
                     [ngStyle]="{ width: '2.5rem', height: '2.5rem' }"
                 >
@@ -64,13 +64,13 @@
                         {{ stafflistNumber }}
                     </div>
                 </div>
-                <div
-                    (click)="seeStaff()"
+                <a
+                    [routerLink]="['/staff', condoId]"
                     class="flex align-items-center justify-content-center bg-cyan-100 border-round change-icon"
                     [ngStyle]="{ width: '2.5rem', height: '2.5rem' }"
                 >
                     <i class="pi pi-users text-cyan-500 text-2xl"></i>
-                </div>
+                </a>
             </div>
             <span class="text-green-500 font-medium"
                 >{{ activeStaffQty }}
@@ -738,7 +738,10 @@
                                     >
                                 </div>
 
-                                <div class="flex justify-content-between mt-4">
+                                <div
+                                    *appHasPermissions="'owner'"
+                                    class="flex justify-content-between mt-4"
+                                >
                                     <p-button
                                         (onClick)="confirmUpdate($event)"
                                         icon="pi pi-check"

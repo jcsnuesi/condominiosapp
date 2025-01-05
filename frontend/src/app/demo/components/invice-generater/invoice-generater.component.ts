@@ -16,7 +16,6 @@ import { DropdownModule } from 'primeng/dropdown';
 import { HasPermissionsDirective } from 'src/app/has-permissions.directive';
 import { TableModule } from 'primeng/table';
 import { UserService } from '../../service/user.service';
-import { MultiSelectModule } from 'primeng/multiselect';
 import { CardModule } from 'primeng/card';
 import { TagModule } from 'primeng/tag';
 import { ButtonModule } from 'primeng/button';
@@ -31,10 +30,10 @@ import { InputTextareaModule } from 'primeng/inputtextarea';
 
 type InvoiceDetails = {
     issueDate: Date | string;
-    amounts: number;
+    amount: number;
     description?: string;
     condominiumId: string;
-    invoiceOwner: Array<{ label: string; value: string }>;
+    ownerId: Array<{ label: string; value: string }>;
     paymentDescription: Array<{ label: string; value: string }>;
 };
 
@@ -58,7 +57,6 @@ type UpdateInvoiceInfo = {
         ButtonModule,
         TagModule,
         CardModule,
-        MultiSelectModule,
         ConfirmDialogModule,
         TableModule,
         DropdownModule,
@@ -118,10 +116,10 @@ export class InviceGeneraterComponent {
 
         this.invoiceInfo = {
             issueDate: '',
-            amounts: 0,
+            amount: 0,
             description: '',
             condominiumId: '',
-            invoiceOwner: [],
+            ownerId: [],
             paymentDescription: [],
         };
 
@@ -165,7 +163,7 @@ export class InviceGeneraterComponent {
                         this.onHide();
                     } else {
                         this.facturaGenerada.emit({
-                            severity: 'danger',
+                            severity: 'error',
                             summary: 'Fail',
                             detail: 'Invoice was not updated.',
                         });
@@ -198,29 +196,6 @@ export class InviceGeneraterComponent {
             });
             return propertyInfo;
         });
-        console.log('INVOICE OWNER:*----->', this.ownerSelected);
-        // for (let i = 0; i < this.condoInfo.units_ownerId.length; i++) {
-        //     let ownerInfo =
-        //         this.condoInfo.units_ownerId[i].name +
-        //         ' ' +
-        //         this.condoInfo.units_ownerId[i].lastname;
-        //     let propertyInfo = '';
-
-        //     for (
-        //         let index = 0;
-        //         index < this.condoInfo.units_ownerId[i].propertyDetails.length;
-        //         index++
-        //     ) {
-        //         propertyInfo +=
-        //             this.condoInfo.units_ownerId[i].propertyDetails[index]
-        //                 .condominium_unit + ' ';
-        //     }
-        //     this.invoiceInfo.invoiceOwner.push({
-        //         label: `${ownerInfo.toUpperCase()} - ${propertyInfo.toUpperCase()}`,
-        //         value: this.condoInfo.units_ownerId[i]._id,
-        //     });
-        // }
-        // this.invoiceInfo.invoiceOwner = this.invoiceBelongsTo;
     }
 
     saveInvoice() {
@@ -236,15 +211,8 @@ export class InviceGeneraterComponent {
             }
         }
 
-        if (this.invoiceInfo.invoiceOwner.length > 1) {
-            return this.facturaGenerada.emit({
-                severity: 'error',
-                summary: 'Fail',
-                detail: 'You can only select one owner.',
-                life: 5000,
-            });
-        }
-
+        // console.log('INVOICE data:*----->', data);
+        // return;
         this.confirmationService.confirm({
             message: 'Are you sure you want to do this action?',
             header: 'Confirm',
@@ -265,7 +233,7 @@ export class InviceGeneraterComponent {
                             this.onHide();
                         } else {
                             this.facturaGenerada.emit({
-                                severity: 'danger',
+                                severity: 'error',
                                 summary: 'Unsuccessful!',
                                 detail: 'Invoice was not generated.',
                             });
@@ -273,7 +241,7 @@ export class InviceGeneraterComponent {
                     },
                     error: (error) => {
                         this.facturaGenerada.emit({
-                            severity: 'danger',
+                            severity: 'error',
                             summary: 'Unsuccessful!',
                             detail: 'Invoice was not generated.',
                         });
@@ -342,9 +310,9 @@ export class InviceGeneraterComponent {
 
         this.invoiceInfo = {
             issueDate: '',
-            amounts: 0,
-            condominiumId: '',
-            invoiceOwner: [],
+            amount: 0,
+            condominiumId: this.condoInfo._id,
+            ownerId: [],
             paymentDescription: [],
         };
     }

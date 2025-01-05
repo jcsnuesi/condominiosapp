@@ -36,6 +36,7 @@ import { DialogModule, Dialog } from 'primeng/dialog';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { format, parse, parseISO } from 'date-fns';
+import { OwnerServiceService } from '../../service/owner-service.service';
 
 type BookingType = {
     fullname?: string;
@@ -84,6 +85,7 @@ type BookingType = {
         MessageService,
         ConfirmationService,
         FormatFunctions,
+        OwnerServiceService,
     ],
     templateUrl: './booking-area.component.html',
     styleUrl: './booking-area.component.css',
@@ -94,9 +96,9 @@ export class BookingAreaComponent implements OnInit {
     public areaOptions: any[];
     public bookingInfo: BookingType;
 
-    public condoOptions: any[];
+    public condoOptions: Array<{ label: string; code: string }>;
+    public unitOption: Array<{ label: string; code: string }>;
     public selectedCondo: any[];
-    public unitOption: any[];
     public loading: boolean;
     public bookingHistory: any[];
     public valRadio: string = '';
@@ -119,7 +121,8 @@ export class BookingAreaComponent implements OnInit {
         private _router: Router,
         private _route: ActivatedRoute,
         private _format: FormatFunctions,
-        private cdr: ChangeDetectorRef
+        private cdr: ChangeDetectorRef,
+        private _ownerService: OwnerServiceService
     ) {
         this.identity = this._userService.getIdentity();
         this.token = this._userService.getToken();
@@ -145,10 +148,10 @@ export class BookingAreaComponent implements OnInit {
             { label: 'Guest', code: 'Guest' },
         ];
 
-        this.condoOptions = [];
+        this.condoOptions = [{ label: '', code: '' }];
         this.selectedRow = [];
         this.areaOptions = [];
-        this.unitOption = [];
+        this.unitOption = [{ label: '', code: '' }];
         this.loading = true;
         this.notifingOptions = [{ label: 'Email' }, { label: 'None' }];
         this.bookingInfoApt = {};
@@ -173,34 +176,22 @@ export class BookingAreaComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        this._route.queryParams.subscribe((params) => {
-            let idUser = params['userid'];
-
-            if (idUser != undefined) {
-                this.bookingId = idUser;
-                this.getAllBookings(this.bookingId);
-            } else {
-                this._route.params.subscribe((params) => {
-                    let idUser = params['ownerId'];
-                    let condoId = params['condoId'];
-
-                    // console.log('ID:', idUser)
-                    if (idUser != undefined) {
-                        this.bookingId = idUser;
+        this._route.params.subscribe((params) => {
+            let id_ = params['ownerId'] ?? params['condoId'];
+            console.log('ID:', id_);
+            if (id_ != undefined) {
+                this.bookingId = id_;
+                switch (this.identity.role) {
+                    case 'ADMIN':
+                        this.getAllBookings(id_);
+                        break;
+                    case 'OWNER':
                         this.getPropertyType();
-                        this.getAllBookings(this.bookingId);
-                    }
-
-                    if (condoId != undefined) {
-                        this.bookingId = condoId;
-                        this.getAllBookings(this.bookingId);
-                        // this.getPropertyType();
-                    }
-                });
+                        this.getAllBookings(id_);
+                        break;
+                }
             }
         });
-
-        // console.log('Booking Area Component');
     }
 
     back() {
@@ -212,29 +203,41 @@ export class BookingAreaComponent implements OnInit {
         this.searchValue = '';
     }
 
+    public propertyDetails: any[] = [];
     getPropertyType() {
-        this.identity.propertyDetails.find((property) => {
-            this.condoOptions.push({
-                label: property.addressId.alias.toUpperCase(),
-                code: property.addressId._id,
-            });
+        this._ownerService.getPropertyByOwner(this.token).subscribe({
+            next: (res) => {
+                if (res.status === 'success') {
+                    res.message.forEach((prop) => {
+                        prop.propertyDetails.forEach((property) => {
+                            this.propertyDetails.push(property);
+                            this.condoOptions.push({
+                                label: property.addressId.alias.toUpperCase(),
+                                code: property.addressId._id,
+                            });
 
-            if (Boolean(property.condominium_unit)) {
-                this.unitOption.push({
-                    label: property.condominium_unit,
-                    code: property.condominium_unit,
-                });
-            }
+                            if (Boolean(property.condominium_unit)) {
+                                this.unitOption.push({
+                                    label: property.condominium_unit,
+                                    code: property.condominium_unit,
+                                });
+                            }
 
-            // console.log('Property this.unitOption-->:', this.identity)
+                            // console.log('Property this.unitOption-->:', this.identity)
+                        });
+                    });
+                }
+            },
+            error: (err) => {
+                console.log('Error:', err);
+            },
         });
     }
 
     getAreaInfo(event: any) {
-        //  { label: 'DON ALONSO I', code: '65483be3a3d1607fea43e833' }
         let areaObj = event.value;
 
-        this.identity.propertyDetails.forEach((area, index) => {
+        this.propertyDetails.forEach((area, index) => {
             if (Boolean(areaObj == undefined)) {
                 this.areaOptions = area.addressId.socialAreas.map(
                     (areaFound) => {
@@ -263,7 +266,6 @@ export class BookingAreaComponent implements OnInit {
         let checkOut = form?.controls['checkOut']?.value;
 
         const today = new Date();
-        // today.setHours(0, 0, 0, 0);
 
         if (checkIn && checkOut && checkIn > checkOut) {
             form.controls['checkOut'].setErrors({ invalidDate: true });
@@ -375,7 +377,10 @@ export class BookingAreaComponent implements OnInit {
                                 comments: booking?.comments,
                             };
                         });
-                        // console.log('Booking History:***************>', this.bookingHistory)
+                        console.log(
+                            'Booking History:***************>',
+                            this.bookingHistory
+                        );
                     } catch (error) {
                         console.log('Error:', error);
                     }
@@ -451,18 +456,20 @@ export class BookingAreaComponent implements OnInit {
         // Limpiar el array de visitantes
         let customerData = { ...customer };
         this.loadVisitorArray(customerData.guest);
-        console.log('Customer Data:', customerData);
 
         let guestInfo = customerData.guest;
 
         if (this.identity.role !== 'ADMIN') {
             this.getAreaInfo(customerData.area);
-        } else {
             this.areaOptions = [
                 {
                     label: (customerData?.area).toUpperCase(),
                     code: (customerData?.area).toUpperCase(),
                 },
+            ];
+        } else {
+            this.unitOption = [
+                { label: customerData.unit, code: customerData.unit },
             ];
             this.condoOptions = [
                 {
@@ -470,11 +477,9 @@ export class BookingAreaComponent implements OnInit {
                     code: customerData.condoId,
                 },
             ];
-            this.unitOption = [
-                { label: customerData.unit, code: customerData.unit },
-            ];
         }
 
+        console.log('Customer Data:', customerData);
         this.bookingInfoApt = {
             id: customerData.id,
             memberId: this.identity._id,
@@ -488,11 +493,7 @@ export class BookingAreaComponent implements OnInit {
                     : null,
             condoId: {
                 label: customerData.condoName.toUpperCase(),
-                code: this.condoOptions.find(
-                    (condo) =>
-                        condo.label.toLowerCase() ===
-                        customerData.condoName.toLowerCase()
-                ).code,
+                code: customerData.condoId,
             },
             areaId: {
                 label: (customerData?.area).toUpperCase(),
@@ -513,7 +514,6 @@ export class BookingAreaComponent implements OnInit {
             guest: [],
         };
         this.visibleDialog = true;
-
         this.cdr.detectChanges();
     }
 

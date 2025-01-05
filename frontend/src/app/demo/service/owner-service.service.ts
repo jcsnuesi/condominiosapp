@@ -43,4 +43,15 @@ export class OwnerServiceService {
             headers: header,
         });
     }
+
+    // Get all logged user's properties
+    getPropertyByOwner(token: string): Observable<any> {
+        let header = new HttpHeaders()
+            .set('Content-Type', 'application/json')
+            .set('Authorization', token);
+
+        return this._http.get(this.url + 'condominioByOwnerId', {
+            headers: header,
+        });
+    }
 }
