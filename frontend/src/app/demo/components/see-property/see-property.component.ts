@@ -16,6 +16,10 @@ import { HasPermissionsDirective } from 'src/app/has-permissions.directive';
 import { HasRoleDirective } from 'src/app/has-role.directive';
 import { FormatFunctions } from '../../../pipes/formating_text';
 import { OwnerServiceService } from '../../service/owner-service.service';
+import { ChangePasswordComponent } from '../change-password/change-password.component';
+import { ConfirmationService } from 'primeng/api';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
     selector: 'app-see-property',
@@ -30,6 +34,9 @@ import { OwnerServiceService } from '../../service/owner-service.service';
         TableModule,
         ButtonModule,
         HasRoleDirective,
+        ChangePasswordComponent,
+        ConfirmDialogModule,
+        ToastModule,
     ],
     providers: [
         UserService,
@@ -37,6 +44,7 @@ import { OwnerServiceService } from '../../service/owner-service.service';
         MessageService,
         FormatFunctions,
         OwnerServiceService,
+        ConfirmationService,
     ],
 })
 export class SeePropertyComponent implements OnInit {
@@ -72,13 +80,17 @@ export class SeePropertyComponent implements OnInit {
     messageEvent: any;
     public status: string;
     public properties: any;
+    public changePasswordDialog: boolean = false;
+    public delProperty: boolean;
 
     constructor(
         private _router: Router,
         public _userService: UserService,
         private _condominioService: CondominioService,
         private _format: FormatFunctions,
-        private _ownerServiceService: OwnerServiceService
+        private _ownerServiceService: OwnerServiceService,
+        private _confirmationService: ConfirmationService,
+        private _messageService: MessageService
     ) {
         this.url = global.url;
 
@@ -89,28 +101,38 @@ export class SeePropertyComponent implements OnInit {
 
         this.identity = this._userService.getIdentity();
         this.loading = true;
+        this.delProperty = false;
     }
 
     ngOnInit() {
         this.getAdminsProperties();
     }
 
-    // ngDoCheck(): void {
+    public data: any;
+    deletePropertyFunc(property: any) {
+        this.delProperty = true;
+        this.data = property;
+    }
 
-    //   UserService.identity = this.getValues()
-
-    // }
-
-    public datosUpdating: any;
-
-    // setValues(data) {
-    //     this.datosUpdating = data;
-    // }
-
-    // getValues() {
-
-    //   return this.datosUpdating
-    // }
+    passwordChanged(event: boolean) {
+        if (event) {
+            this.delProperty = false;
+            this._messageService.add({
+                severity: 'success',
+                summary: 'Success',
+                detail: 'Property deleted successfully!',
+                life: 3000,
+            });
+            this.getAdminsProperties();
+        } else {
+            this._messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Password was not Changed',
+                life: 3000,
+            });
+        }
+    }
 
     goToDashboard(event: any) {
         this._router.navigate(['home/', event._id]);
@@ -125,7 +147,6 @@ export class SeePropertyComponent implements OnInit {
     }
 
     getAdminsProperties() {
-        console.log('Identity---?:', this.identity);
         switch (this.identity.role) {
             case 'ADMIN':
                 this._condominioService

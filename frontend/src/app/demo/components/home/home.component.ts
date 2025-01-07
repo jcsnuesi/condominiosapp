@@ -51,6 +51,7 @@ import { StaffService } from '../../service/staff.service';
 import { BookingServiceService } from '../../service/booking-service.service';
 import { OwnerServiceService } from '../../service/owner-service.service';
 import { HasPermissionsDirective } from 'src/app/has-permissions.directive';
+import { NotificationComponent } from '../notification/notification.component';
 
 type FamilyAccess = {
     avatar: string;
@@ -68,6 +69,7 @@ type FamilyAccess = {
     selector: 'app-home',
     standalone: true,
     imports: [
+        NotificationComponent,
         HasPermissionsDirective,
         DividerModule,
         ProgressSpinnerModule,
@@ -236,33 +238,6 @@ export class HomeComponent implements OnInit {
         this.onInitInfo();
         this.getStaffByCondoId();
         this.loadBookingCard();
-    }
-
-    // seeBooking() {
-    //     this._router.navigate(['/bookings', this.condoId]);
-
-    //     // this._router.navigate(['/home/bookings', this.condoId], { queryParams: { condoId: true } })
-    //     // console.log(this.bookingVisible)
-
-    //     if (this.bookingVisible) {
-    //         this.bookingVisible = false;
-    //     } else {
-    //         this.bookingVisible = true;
-
-    //         this._router.navigate(['/bookings'], {
-    //             queryParams: { condo_id: this.condoId },
-    //             queryParamsHandling: 'merge',
-    //         });
-    //         // this._activatedRoute.queryParamMap.subscribe((params) => {
-    //         //     if (params.has('booking')) {
-    //         //         this.bookingVisible = true;
-    //         //     }
-    //         // });
-    //     }
-    // }
-
-    seeStaff() {
-        this._router.navigate(['/staff', this.condoId]);
     }
 
     procesarFactura(event) {
@@ -436,9 +411,6 @@ export class HomeComponent implements OnInit {
         }
     }
 
-    // see(event) {
-    //     console.log(event);
-    // }
     closeDialog(): void {
         this.visible_owner = false;
 

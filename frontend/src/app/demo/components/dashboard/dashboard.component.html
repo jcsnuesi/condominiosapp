@@ -2,7 +2,15 @@
 <app-change-password
     [changePasswordDialog]="first_password"
     (passwordChanged)="passwordChanged($event)"
+    [componentHeader]="'Update your password.'"
+    [componentMessage]="'Confirm your new password.'"
 ></app-change-password>
+
+<p-messages
+    [(value)]="propertyInactive"
+    [enableService]="false"
+    [closable]="false"
+/>
 
 <div class="grid">
     <div class="col-12 lg:col-6 xl:col-3">
@@ -18,7 +26,7 @@
                 </div>
 
                 <a
-                    [routerLink]="['booking-area/', idroute]"
+                    [routerLink]="['/booking-area', idroute]"
                     class="change-icon flex align-items-center justify-content-center bg-orange-100 border-round"
                     [ngStyle]="{ width: '2.5rem', height: '2.5rem' }"
                 >

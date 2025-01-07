@@ -94,22 +94,24 @@ export class FormatFunctions {
         return fullDate;
     }
 
-    dateTimeFormat(date: string): any {
+    dateTimeFormat(date: Date): string {
         if (date === null || date === undefined) {
             return null;
         }
-        //2023-11-05T19:32:38.422Z
-        var longDate = date.split(/[-T:.]/);
 
-        var year = longDate[0];
-        var month = longDate[1];
-        var day = longDate[2];
-        var hour = longDate[3];
-        var minute = longDate[4];
+        const dateObj = new Date(date);
 
-        const fullDate =
-            day + '-' + month + '-' + year + ' ' + hour + ':' + minute;
-        return fullDate;
+        const day = dateObj.getDate().toString().padStart(2, '0');
+        const month = (dateObj.getMonth() + 1).toString().padStart(2, '0');
+        const year = dateObj.getFullYear();
+
+        let hours = dateObj.getHours();
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12;
+        hours = hours ? hours : 12; // Convierte 0 a 12
+        const minutes = dateObj.getMinutes().toString().padStart(2, '0');
+
+        return `${month}-${day}-${year} ${hours}:${minutes} ${ampm}`;
     }
 
     genderPipe(gender: string): string {

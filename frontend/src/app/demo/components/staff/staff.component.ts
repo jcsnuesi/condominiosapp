@@ -291,7 +291,6 @@ export class StaffComponent implements OnInit, AfterViewInit {
         this._route.params.subscribe((params) => {
             let condoId = params['id'];
             let ownerId = params['ownerId'];
-            console.log('CONDOID:', ownerId);
 
             if (ownerId != undefined) {
                 this.ownerId = ownerId;
@@ -418,7 +417,7 @@ export class StaffComponent implements OnInit, AfterViewInit {
     showDialog(info: any) {
         this.visibleStaff = true;
         this.passwordMatch = false;
-        this.dataToUpdate = {};
+        // this.dataToUpdate = {};
 
         let { ...res } = info;
 
@@ -520,6 +519,12 @@ export class StaffComponent implements OnInit, AfterViewInit {
                         formSfaff.append(key, this.staffInfo[key]);
                     }
                 }
+
+                // formSfaff.forEach((key, value) => {
+                //     console.log(key, ' : ', value);
+                // });
+
+                // return;
 
                 this._staffService.create(formSfaff, this.token).subscribe({
                     next: (response) => {

@@ -9,6 +9,7 @@ import { OwnerServiceService } from '../../service/owner-service.service';
 import { ConfirmationService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { CookieService } from 'ngx-cookie-service';
+import { CondominioService } from '../../service/condominios.service';
 
 type Password = {
     password: string;
@@ -26,7 +27,12 @@ type Password = {
         PasswordModule,
         ConfirmDialogModule,
     ],
-    providers: [UserService, OwnerServiceService, ConfirmationService],
+    providers: [
+        UserService,
+        OwnerServiceService,
+        ConfirmationService,
+        CondominioService,
+    ],
     templateUrl: './change-password.component.html',
     styleUrl: './change-password.component.css',
 })
@@ -34,16 +40,21 @@ export class ChangePasswordComponent {
     public passval: boolean = true;
     public password: Password;
     public passMessage: string = '';
-    private identity: any;
+    public identity: any;
     private token: any;
+
     @Input() changePasswordDialog: boolean = false;
     @Output() passwordChanged = new EventEmitter<boolean>();
+    @Input() componentHeader: string = '';
+    @Input() componentMessage: string = '';
+    @Input() data: any;
 
     constructor(
         private _userService: UserService,
         private _ownerService: OwnerServiceService,
         private _confirmationService: ConfirmationService,
-        private _cookieService: CookieService
+        private _cookieService: CookieService,
+        private _condominioService: CondominioService
     ) {
         this.password = {
             password: '',
@@ -52,6 +63,7 @@ export class ChangePasswordComponent {
 
         this.identity = this._userService.getIdentity();
         this.token = this._userService.getToken();
+        console.log('deleteProperty changePassword', this.componentHeader);
     }
 
     verifyPasswordInput(confirmPassword: any) {
@@ -78,7 +90,7 @@ export class ChangePasswordComponent {
         this._confirmationService.confirm({
             target: event.target as EventTarget,
             header: 'Confirmation',
-            message: 'Are you sure that you want to change your password?',
+            message: 'Are you sure that you want to do this action?',
             icon: 'pi pi-exclamation-circle',
             acceptIcon: 'pi pi-check mr-1',
             rejectIcon: 'pi pi-times mr-1',
@@ -87,10 +99,48 @@ export class ChangePasswordComponent {
             rejectButtonStyleClass: 'p-button-outlined p-button-sm',
             acceptButtonStyleClass: 'p-button-sm',
             accept: () => {
-                this.updatePassword();
+                if (this.identity.role === 'ADMIN') {
+                    this.deletePropertyByAdmin();
+                } else {
+                    this.updatePassword();
+                }
             },
             reject: () => {
                 console.log('reject');
+            },
+        });
+    }
+
+    deletePropertyByAdmin() {
+        let user = {
+            email: this.identity.email_company,
+            password: this.password.password,
+        };
+
+        this._userService.login(user, true).subscribe({
+            next: (response) => {
+                if (response.token) {
+                    this._condominioService
+                        .deletePropertyWithAuth(this.token, this.data._id)
+                        .subscribe({
+                            next: (response) => {
+                                if (response.status === 'success') {
+                                    this.changePasswordDialog = false;
+                                    this.emitChange();
+                                }
+                                console.log('response-------->', response);
+                            },
+                            error: (error) => {
+                                console.log('error', error);
+                            },
+                        });
+                } else {
+                    console.log('response-------->', response);
+                }
+                console.log('response-------->', response);
+            },
+            error: (error) => {
+                console.log('error', error);
             },
         });
     }

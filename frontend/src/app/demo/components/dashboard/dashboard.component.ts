@@ -27,6 +27,9 @@ import { MessageService } from 'primeng/api';
 import { OwnerModel } from '../../models/owner.model';
 import { BookingServiceService } from '../../service/booking-service.service';
 import { StaffService } from '../../service/staff.service';
+import { OwnerServiceService } from '../../service/owner-service.service';
+import { MessagesModule } from 'primeng/messages';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
     templateUrl: './dashboard.component.html',
@@ -35,6 +38,9 @@ import { StaffService } from '../../service/staff.service';
         UserService,
         MessageService,
         ConfirmationService,
+        OwnerServiceService,
+        MessagesModule,
+        ToastModule,
     ],
     styleUrls: ['./dashboard.css'],
 })
@@ -78,6 +84,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     public idroute: string;
     public first_password: boolean = false;
     public changePasswordDialog: boolean = false;
+    public messagesNoProperty: any;
+    @Output() propertyInfoEvent: EventEmitter<any> = new EventEmitter();
 
     constructor(
         private productService: ProductService,
@@ -91,7 +99,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
         private _confirmationService: ConfirmationService,
         private _router: Router,
         private _bookingService: BookingServiceService,
-        private _staffService: StaffService
+        private _staffService: StaffService,
+        private _ownerService: OwnerServiceService
     ) {
         this.subscription = this.layoutService.configUpdate$.subscribe(() => {
             this.initChart();
@@ -129,24 +138,24 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
         this.condoOptions = [];
         this.idroute = this.identity._id;
-
+        console.log('ID--->', this.idroute);
         this.apiUnitResponse = false;
         this.messageApiResponse = { message: '', severity: '' };
         this.visible_owner = false;
         this.areaSocial = false;
         this.first_password =
             this.identity.first_password_changed == false ? true : false;
+        this.propertyInactive = [];
     }
 
     ngOnInit() {
         this.propertyObj = JSON.parse(localStorage.getItem('property'));
-        this.onInitInfo();
-
         this._router.navigate([], {
             queryParams: { userid: this.idroute },
             queryParamsHandling: 'merge',
         });
 
+        this.onInitInfo();
         this.genderOption = [
             { name: 'Male', gender: 'm' },
             { name: 'Female', gender: 'f' },
@@ -291,11 +300,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
             });
     }
 
-    handleButtonClick(event: Event) {
-        // console.log('Button clicked!', event);
-    }
-
-    @Output() propertyInfoEvent: EventEmitter<any> = new EventEmitter();
+    // handleButtonClick(event: Event) {
+    //     // console.log('Button clicked!', event);
+    // }
 
     propertyData(data) {
         // emit data to parent component
@@ -321,34 +328,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     public indexStepper: number = 0;
 
-    // confirmNewOwner(event: Event) {
-    //     this._confirmationService.confirm({
-    //         target: event.target as EventTarget,
-    //         message: 'Are you sure that you want to proceed?',
-    //         header: 'Confirmation',
-    //         icon: 'pi pi-exclamation-triangle',
-    //         acceptIcon: 'none',
-    //         rejectIcon: 'none',
-    //         rejectButtonStyleClass: 'p-button-text',
-    //         accept: () => {
-    //             this._messageService.add({
-    //                 severity: 'info',
-    //                 summary: 'Confirmed',
-    //                 detail: 'You have accepted',
-    //             });
-    //             this.onSubmitUnit();
-    //         },
-    //         reject: () => {
-    //             this._messageService.add({
-    //                 severity: 'error',
-    //                 summary: 'Rejected',
-    //                 detail: 'You have rejected',
-    //                 life: 3000,
-    //             });
-    //         },
-    //     });
-    // }
-
     allBooking() {
         if (this.bookingVisible) {
             this.bookingVisible = false;
@@ -358,59 +337,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
             this._router.navigate(['start/', this.identity._id]);
         }
     }
-
-    // onSubmitUnit() {
-    //     const formData = new FormData();
-
-    //     formData.append(
-    //         'avatar',
-    //         this.ownerObj.avatar != null ? this.ownerObj.avatar : 'noimage.jpeg'
-    //     );
-
-    //     formData.append('ownerName', this.ownerObj.name);
-    //     formData.append('lastname', this.ownerObj.lastname);
-    //     formData.append('gender', this.ownerObj.gender);
-    //     formData.append('id_number', this.ownerObj.id_number);
-    //     // formData.append('dob', this.ownerObj.phone2)
-    //     formData.append('phone', this.ownerObj.phone);
-    //     formData.append('phone2', this.ownerObj.phone2);
-    //     formData.append('email', this.ownerObj.email);
-    //     formData.append('addressId', this.ownerObj.addressId);
-    //     formData.append('apartmentUnit', this.ownerObj.apartmentsUnit);
-    //     formData.append('parkingsQty', this.ownerObj.parkingsQty);
-    //     formData.append('isRenting', this.ownerObj.isRenting);
-
-    //     this._condominioService.createOwner(this.token, formData).subscribe({
-    //         next: (response) => {
-    //             if (response.status == 'success') {
-    //                 this.messageApiResponse.message = response.message;
-    //                 this.messageApiResponse.severity = 'success';
-    //                 this.apiUnitResponse = true;
-    //             } else {
-    //                 this.messageApiResponse.message = response.message;
-    //                 this.messageApiResponse.severity = 'danger';
-    //                 this.apiUnitResponse = true;
-    //             }
-    //         },
-    //         error: (error) => {
-    //             this._messageService.add({
-    //                 severity: 'warn',
-    //                 summary: 'Message for server',
-    //                 detail: 'Unit was not Created',
-    //                 life: 3000,
-    //             });
-    //             console.log(error);
-    //         },
-    //         complete: () => {
-    //             this._messageService.add({
-    //                 severity: 'success',
-    //                 summary: 'Success',
-    //                 detail: 'Unit Created',
-    //                 life: 3000,
-    //             });
-    //         },
-    //     });
-    // }
 
     alertStatus() {
         if (this.apiUnitResponse) {
@@ -457,32 +383,72 @@ export class DashboardComponent implements OnInit, OnDestroy {
     public selectedGenero: any[];
     public isRentOptions: any[];
 
+    public propertyInactive: any[];
     onInitInfo() {
-        this._activatedRoute.params.subscribe((param) => {
+        //     setTimeout(() => {
+
+        //     }
+        // 5000)
+        this._activatedRoute.queryParams.subscribe((param) => {
             let id = param['userid'];
 
             if (id != undefined) {
-                this._condominioService.getBuilding(id, this.token).subscribe(
-                    (response) => {
-                        if (response.status == 'success') {
-                            var unitList = { ...response.message };
-                            this.units = unitList.units_ownerId.length;
+                if (this.identity.role == 'ADMIN') {
+                    this._condominioService
+                        .getBuilding(id, this.token)
+                        .subscribe(
+                            (response) => {
+                                console.log('unitList', response);
+                                if (response.status == 'success') {
+                                    var unitList = { ...response.message };
+                                    this.units = unitList.units_ownerId.length;
 
-                            this.dateFormatted = dateTimeFormatter(
-                                unitList.createdAt
-                            );
+                                    this.dateFormatted = dateTimeFormatter(
+                                        unitList.createdAt
+                                    );
 
-                            this.propertyData(unitList);
+                                    // this.propertyData(unitList);
 
-                            this.customers = unitList.units_ownerId;
+                                    this.customers = unitList.units_ownerId;
 
-                            console.log('CUSTOMER--->', this.customers);
-                        }
-                    },
-                    (error) => {
-                        console.log(error);
-                    }
-                );
+                                    console.log('CUSTOMER--->', this.customers);
+                                }
+                            },
+                            (error) => {
+                                console.log(error);
+                            }
+                        );
+                } else {
+                    // Mejorar este metodo para que se cargue todos los condominios de un usuario
+                    // y se muestre en el dashboard el estado de cada condominio
+                    // corregir el interval para que se ejecute cada cierto tiempo sin que recargue el message
+                    setInterval(() => {
+                        this._ownerService
+                            .getPropertyByOwner(this.token)
+                            .subscribe((response) => {
+                                if (response.status == 'success') {
+                                    let unitList = response.message[0];
+
+                                    this.propertyInactive =
+                                        unitList.propertyDetails.map((unit) => {
+                                            if (
+                                                unit.addressId.status ==
+                                                'inactive'
+                                            ) {
+                                                return {
+                                                    severity: 'error',
+                                                    summary:
+                                                        'Inactive Property',
+                                                    detail: `You have an inactive property ${unit.addressId.alias.toUpperCase()}, please contact the administrator to activate it.`,
+                                                };
+                                            }
+
+                                            return null;
+                                        });
+                                }
+                            });
+                    }, 5000);
+                }
             }
         });
     }

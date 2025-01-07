@@ -68,4 +68,18 @@ export class CondominioService {
             headers: header,
         });
     }
+
+    deletePropertyWithAuth(token: string, id: string): Observable<any> {
+        let header = new HttpHeaders()
+            .set('Content-Type', 'application/json')
+            .set('Authorization', token);
+
+        return this._http.put(
+            this.url + 'admin-deleteProperty/' + id,
+            {},
+            {
+                headers: header,
+            }
+        );
+    }
 }
