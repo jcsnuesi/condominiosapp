@@ -312,44 +312,39 @@ var Condominium_Controller = {
       });
     }
   },
-  CondominiumDelete: function (req, res) {
-    let condominiumId = req.body;
+  CondominiumDelete: async function (req, res) {
+    const condoId = req.params.id;
 
-    try {
-      var id_validation = !validator.isEmpty(condominiumId.id);
-    } catch (error) {
-      return res.status(401).send({
+    if (!condoId) {
+      return res.status(400).send({
         status: "error",
-        message: "Some entries have mistakes.",
+        message: "Condominium ID is required",
       });
     }
 
-    if (id_validation) {
-      Condominium.findOneAndDelete(
-        { _id: condominiumId.id },
-        (err, condominiumDeleted) => {
-          var loginErrorHandlerArr = errorHandler.loginExceptions(
-            err,
-            condominiumDeleted
-          );
-
-          if (loginErrorHandlerArr[0]) {
-            return res.status(loginErrorHandlerArr[1]).send({
-              status: loginErrorHandlerArr[2],
-              message: loginErrorHandlerArr[3],
-            });
-          }
-
-          return res.status(200).send({
-            status: "succes",
-            condominium_deleted: condominiumDeleted,
-          });
-        }
+    try {
+      const condominiumDeleted = await Condominium.findByIdAndUpdate(
+        condoId,
+        { status: "inactive" },
+        { new: true }
       );
-    } else {
-      return res.status(401).send({
+
+      if (!condominiumDeleted) {
+        return res.status(404).send({
+          status: "error",
+          message: "Condominium not found",
+        });
+      }
+
+      return res.status(200).send({
+        status: "success",
+        condominium_deleted: condominiumDeleted,
+      });
+    } catch (error) {
+      return res.status(500).send({
         status: "error",
-        message: "Fill fiels out properly.",
+        message: "Error updating condominium status",
+        error: error.message,
       });
     }
   },
@@ -403,16 +398,19 @@ var Condominium_Controller = {
   },
 
   getCondominiumsByAdmin: function (req, res) {
-    Condominium.find({ createdBy: req.user.sub }, (err, condominiumFound) => {
-      var errorHandlerArr = errorHandler.newUser(err, condominiumFound);
+    Condominium.find(
+      { $and: [{ createdBy: req.user.sub }, { status: "active" }] },
+      (err, condominiumFound) => {
+        var errorHandlerArr = errorHandler.newUser(err, condominiumFound);
 
-      if (errorHandlerArr[0]) {
-        return res.status(errorHandlerArr[1]).send({
-          status: errorHandlerArr[2],
-          message: errorHandlerArr[3],
-        });
+        if (errorHandlerArr[0]) {
+          return res.status(errorHandlerArr[1]).send({
+            status: errorHandlerArr[2],
+            message: errorHandlerArr[3],
+          });
+        }
       }
-    });
+    );
   },
   getBuildingDetails: function (req, res) {
     Condominium.findById(req.params.id)
@@ -423,14 +421,17 @@ var Condominium_Controller = {
           "avatar name lastname gender email phone id_number status role familyAccount propertyDetails.addressId propertyDetails.condominium_unit propertyDetails.parkingsQty propertyDetails.isRenting propertyDetails.occupantId propertyDetails.createdAt",
       })
       .exec((err, condominiumFound) => {
-        var errorHandlerArr = errorHandler.newUser(err, condominiumFound);
-
-        if (errorHandlerArr[0]) {
-          return res.status(errorHandlerArr[1]).send({
-            status: errorHandlerArr[2],
-            message: errorHandlerArr[3],
+        if (err || !condominiumFound) {
+          return res.status(404).send({
+            status: "error",
+            message: "Condominium not found",
           });
         }
+
+        return res.status(200).send({
+          status: "success",
+          condominium: condominiumFound,
+        });
       });
   },
 

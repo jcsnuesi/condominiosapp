@@ -1,177 +1,129 @@
-'use strict'
- 
-var jwt = require('jwt-simple');
-var moment = require('moment');
+"use strict";
+
+var jwt = require("jwt-simple");
+var moment = require("moment");
 var secret = "clave-nueva-para-cleanning-2023";
 
-module.exports.authenticated = function(req, res, next) {
- 
+module.exports.authenticated = function (req, res, next) {
+  if (!req.headers.authorization) {
+    return res.status(403).send({
+      message: "You don't have the corresponding authentication.",
+    });
+  }
 
-    if (!req.headers.authorization) {
- 
-        return res.status(403).send({
+  //Limpiar el token y quitar comillar
 
-            message: "You don't have the corresponding authentication."
-        })
-        
+  let token = req.headers.authorization.replace(/['"]+/g, "");
+
+  try {
+    var payload = jwt.decode(token, secret);
+
+    //Comprobar si el token han expirado
+
+    if (payload.exp <= moment().unix()) {
+      return res.status(404).send({
+        message: "El token ha expirado.",
+      });
     }
+  } catch (error) {
+    return res.status(404).send({
+      message: "El token no es valido.",
+    });
+  }
 
-      //Limpiar el token y quitar comillar
+  //Adjuntar usuario identificado a la request
 
-      let token = req.headers.authorization.replace(/['"]+/g, '')
-        
-      try {
-         
-          var payload = jwt.decode(token, secret)
-          
-          //Comprobar si el token han expirado
+  req.user = payload;
 
-          if (payload.exp <= moment().unix()) {
+  //Pasar a la accion
 
-              return res.status(404).send({
-                  message: "El token ha expirado."
-              })
-
-            }
-
-        
-      } catch (error) {
-
-
-          return res.status(404).send({
-              message: "El token no es valido."
-          })
-        
-      }
-
-    //Adjuntar usuario identificado a la request
-
-    req.user = payload;
-
-    //Pasar a la accion
-
-    next();
-
-}
+  next();
+};
 
 exports.emailOwnerRegistration = function (req, res, next) {
+  try {
+    const token = req.headers.authorization.replace(/['"]+/g, "");
 
-    try {
+    var payload = jwt.decode(token, secret);
 
-        const token = req.headers.authorization.replace(/['"]+/g, '')
+    //Comprobar si el token han expirado
 
-        var payload = jwt.decode(token, secret)
-
-        //Comprobar si el token han expirado
-
-        if (payload.exp <= moment().unix()) {
-
-            return res.status(404).send({
-                message: "El token ha expirado."
-            })
-
-        }
-
-
-    } catch (error) {
-
-
-        return res.status(404).send({
-            message: "El token no es valido."
-        })
-
+    if (payload.exp <= moment().unix()) {
+      return res.status(404).send({
+        message: "El token ha expirado.",
+      });
     }
+  } catch (error) {
+    return res.status(404).send({
+      message: "El token no es valido.",
+    });
+  }
 
-    //Adjuntar usuario identificado a la request
+  //Adjuntar usuario identificado a la request
 
-    req.ownerTokenDecoded = payload;
+  req.ownerTokenDecoded = payload;
 
-    next();
+  next();
+};
 
-}
+exports.emailToken = function (req, res, next) {
+  try {
+    const token = req.params.id;
 
-exports.emailToken = function (req, res, next){
+    var payload = jwt.decode(token, secret);
 
-    try {
+    //Comprobar si el token han expirado
 
-        const token = req.params.id
-
-        var payload = jwt.decode(token, secret)
-
-        //Comprobar si el token han expirado
-
-        if (payload.exp <= moment().unix()) {
-
-            return res.status(404).send({
-                message: "El token ha expirado."
-            })
-
-        }
-        
-
-    } catch (error) {
-
-
-        return res.status(404).send({
-            message: "El token no es valido."
-        })
-
+    if (payload.exp <= moment().unix()) {
+      return res.status(404).send({
+        message: "El token ha expirado.",
+      });
     }
+  } catch (error) {
+    return res.status(404).send({
+      message: "El token no es valido.",
+    });
+  }
 
-    //Adjuntar usuario identificado a la request
+  //Adjuntar usuario identificado a la request
 
-    req.emailTokensVelidation = payload;
+  req.emailTokensVelidation = payload;
 
-    next();
+  next();
+};
 
-}
+exports.guestToken = function (req, res, next) {
+  if (!req.headers.authorization) {
+    return res.status(403).send({
+      message: "You don't have the corresponding authentication.",
+    });
+  }
 
-exports.guestToken = function(req, res, next){
+  //Limpiar el token y quitar comillar
 
+  let token = req.headers.authorization.replace(/['"]+/g, "");
 
-    if (!req.headers.authorization) {
+  try {
+    var payload = jwt.decode(token, secret);
 
-        return res.status(403).send({
+    //Comprobar si el token han expirado
 
-            message: "You don't have the corresponding authentication."
-        })
-
+    if (payload.exp <= moment().unix()) {
+      return res.status(404).send({
+        message: "El token ha expirado.",
+      });
     }
+  } catch (error) {
+    return res.status(404).send({
+      message: "El token no es valido.",
+    });
+  }
 
-    //Limpiar el token y quitar comillar
+  //Adjuntar usuario identificado a la request
 
-    let token = req.headers.authorization.replace(/['"]+/g, '')
+  req.user = payload;
 
-    try {
+  //Pasar a la accion
 
-        var payload = jwt.decode(token, secret)
-
-        //Comprobar si el token han expirado
-
-        if (payload.exp <= moment().unix()) {
-
-            return res.status(404).send({
-                message: "El token ha expirado."
-            })
-
-        }
-
-
-    } catch (error) {
-
-
-        return res.status(404).send({
-            message: "El token no es valido."
-        })
-
-    }
-
-    //Adjuntar usuario identificado a la request
-
-    req.user = payload;
-
-    //Pasar a la accion
-
-    next();
-
-}
+  next();
+};

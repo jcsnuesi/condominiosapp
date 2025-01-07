@@ -1,8 +1,9 @@
 "use strict";
 
 let Reserves = require("../models/reserves");
-let Owners = require("../models/owners");
+let Owner = require("../models/owners");
 let Family = require("../models/family");
+let Condo = require("../models/condominio");
 // const uuid = uuidv4();
 let validator = require("validator");
 let errorHandler = require("../error/errorHandler");
@@ -17,18 +18,10 @@ let verifyGuest = require("../service/jwt");
 
 var reservesController = {
   createBooking: async function (req, res) {
-    if (req.user.role == "ADMIN") {
-      return res.status(403).send({
-        status: "error",
-        message: "Forbidden",
-      });
-    }
-
     //Capturar los datos
     var params = req.body;
 
     try {
-      var val_memberId = !validator.isEmpty(params.memberId);
       var val_condoId = !validator.isEmpty(params.condoId);
     } catch (error) {
       return res.status(400).send({
@@ -37,10 +30,14 @@ var reservesController = {
       });
     }
 
-    if (val_memberId && val_condoId) {
+    if (val_condoId) {
       try {
-        const ownerInfo = await Owners.findOne({ _id: params.memberId });
-        if (!ownerInfo) {
+        var user = { OWNER: Owner, FAMILY: Family };
+
+        const userInfo = await user[req.user.role].findOne({
+          _id: req.user.sub,
+        });
+        if (!userInfo) {
           return res.status(404).send({
             status: "error",
             message: "Owner not found",
@@ -52,7 +49,9 @@ var reservesController = {
         if (params.isguest) {
           reservation.condoId = params.condoId;
           reservation.apartmentUnit = params.unit;
-          reservation.memberId = params.memberId;
+          reservation.memberId = req.user.sub;
+          reservation.bookingName = userInfo.name + " " + userInfo.lastname;
+          reservation.phone = userInfo.phone;
           reservation.guest.push({
             fullname: params.fullname,
             phone: params.phone,
@@ -90,7 +89,9 @@ var reservesController = {
 
           reservation.condoId = params.condoId;
           reservation.apartmentUnit = params.unit;
-          reservation.memberId = params.memberId;
+          reservation.memberId = req.user.sub;
+          reservation.bookingName = userInfo.name + " " + userInfo.lastname;
+          reservation.phone = userInfo.phone;
           reservation.areaToReserve = params.areaId;
           reservation.checkIn = params.checkIn;
           reservation.checkOut = params.checkOut;
@@ -115,15 +116,33 @@ var reservesController = {
   getAllBookingByCondoAndUnit: async function (req, res) {
     let id = req.params.id;
     let reservations = null;
+    let query = {};
+    let condosId = [];
 
     try {
-      reservations = await Reserves.find({
-        $or: [{ memberId: req.user.sub }, { condoId: id }],
-      })
+      // Construir query según el rol del usuario
+      if (req.user.role === "ADMIN" || req.user.role === "STAFF") {
+        // Administradores pueden ver todas las reservas del condominio
+        let admin = await Condo.find({
+          createdBy: req.user.sub,
+        });
+        admin.forEach((element) => {
+          condosId.push(element._id);
+        });
+
+        query = { condoId: { $in: condosId } };
+      } else {
+        // Usuarios normales solo ven sus propias reservas
+        query = { memberId: req.user.sub };
+      }
+
+      // Ejecutar la consulta
+      reservations = await Reserves.find(query)
         .populate(
           "condoId",
           "alias phone1 street_1 sector_name province city country"
         )
+        .populate("memberId", "name lastname email") // Agregamos información del miembro
         .exec();
 
       if (reservations.length == 0) {
@@ -132,6 +151,11 @@ var reservesController = {
           message: "No reservations found",
         });
       }
+
+      return res.status(200).send({
+        status: "success",
+        message: reservations,
+      });
     } catch (error) {
       console.error(error);
       return res.status(500).send({
@@ -139,11 +163,6 @@ var reservesController = {
         message: "Error fetching data",
       });
     }
-
-    return res.status(200).send({
-      status: "success",
-      message: reservations,
-    });
   },
   // getReservationByBooker: function(req, res){
 

@@ -8,19 +8,19 @@ let router = express.Router();
 
 var multipart = require("connect-multiparty");
 var md_upload = multipart({ uploadDir: "./uploads/properties" });
-var adminAuth = require("../middleware/userAuth");
+var { authenticated, adminAuth } = require("../middleware/middleware_bundle");
 // GET
 
 router.get(
   "/condominios",
-  md_auth.authenticated,
+  authenticated,
   condominioController.getCondominiumByAdmin
 );
 
 router.get("/condominioById", condominioController.getCondominiumById);
 router.get(
   "/condominioByAdmin",
-  md_auth.authenticated,
+  authenticated,
   condominioController.getCondominiumsByAdmin
 );
 router.get("/buildingDetail/:id", condominioController.getBuildingDetails);
@@ -28,7 +28,7 @@ router.get("/avatarCondominios/:avatar", condominioController.getAvatar);
 
 router.get(
   "/condominio-page/:page",
-  md_auth.authenticated,
+  authenticated,
   condominioController.CondominiumPagination
 );
 
@@ -36,12 +36,12 @@ router.get(
 
 router.post(
   "/create-condominio",
-  [md_auth.authenticated, md_upload, adminAuth.adminAuth],
+  [authenticated, md_upload, adminAuth],
   condominioController.createCondominium
 );
 router.post(
   "/create-Apartment",
-  md_auth.authenticated,
+  authenticated,
   condominioController.createApartment
 );
 
@@ -49,16 +49,16 @@ router.post(
 
 router.put(
   "/updateCondominio",
-  md_auth.authenticated,
+  authenticated,
   condominioController.CondominiumUpdate
 );
 
-// DELETE
-
-router.delete(
-  "/deleteproperty",
-  md_auth.authenticated,
+router.put(
+  "/admin-deleteProperty/:id",
+  [authenticated, adminAuth],
   condominioController.CondominiumDelete
 );
+
+// DELETE
 
 module.exports = router;

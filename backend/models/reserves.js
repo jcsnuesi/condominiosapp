@@ -17,6 +17,8 @@ const GuestSchema = {
 var reserveSchema = Schema(
   {
     memberId: { type: String, required: true },
+    bookingName: { type: String, required: true },
+    phone: { type: String, required: true },
     guest: [GuestSchema],
     comments: { type: String },
     condoId: {

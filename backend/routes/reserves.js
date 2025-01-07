@@ -1,38 +1,63 @@
-'use strict'
+"use strict";
 
-var express = require('express')
-var ReserveController = require('../controllers/reserves')
+var express = require("express");
+var ReserveController = require("../controllers/reserves");
 
+var router = express.Router();
+var {
+  authenticated,
+  ownerAuth,
+  checkAvailability,
+  validateBookingData,
+} = require("../middleware/middleware_bundle");
 
-var router = express.Router()
-var md_auth = require('../middleware/auth')
+var multipart = require("connect-multiparty");
+var md_upload = multipart({ uploadDir: "./uploads/users" });
 
-var multipart = require('connect-multiparty');
-var md_upload = multipart({ uploadDir: './uploads/users' });
-
+/**
+ * Middleware para validar la disponibilidad de la reserva:
+ * - Verifica que la fecha de inicio y fin no se solapen con otras reservas existentes
+ * - Verifica que la fecha de inicio sea posterior a la fecha actual
+ * - Verifica que la unidad/amenidad esté disponible para reservar
+ */
 
 // GET
 
 // router.get('/allReservation', md_auth.authenticated, ReserveController.getAllReservation)
 // router.get('/findReservation/:apartment/:addressId', md_auth.authenticated, ReserveController.getReservationByBooker)
-router.get('/get-bookings/:id', md_auth.authenticated, ReserveController.getAllBookingByCondoAndUnit)
+router.get(
+  "/get-bookings/:id",
+  authenticated,
+  ReserveController.getAllBookingByCondoAndUnit
+);
 
 // // Buscar usuario por propietario
 // router.get('/ownerUsers', md_auth.authenticated, UserController.getUsersByOwner)
 
-
 // POST
-router.post('/create-booking', md_auth.authenticated, ReserveController.createBooking)
+router.post(
+  "/create-booking",
+  [authenticated, ownerAuth, checkAvailability, validateBookingData],
+  ReserveController.createBooking
+);
 // router.post('/createUserByOwner', md_auth.authenticated, UserController.createUserByOwner)
 // router.post('/login', UserController.login)
 
 // PUT
 
-router.put('/update-booking', md_auth.authenticated, ReserveController.updateReservation)
+router.put(
+  "/update-booking",
+  authenticated,
+  ReserveController.updateReservation
+);
 // router.put('/updateOwnersUsers', [md_auth.authenticated, md_upload], UserController.updateOwnersUsers)
 
 // // DELETE
 
-router.delete('/deleteReservation/:id', md_auth.authenticated, ReserveController.deleteReservation)
+router.delete(
+  "/deleteReservation/:id",
+  authenticated,
+  ReserveController.deleteReservation
+);
 
-module.exports = router
+module.exports = router;

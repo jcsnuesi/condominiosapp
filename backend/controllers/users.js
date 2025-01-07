@@ -173,12 +173,10 @@ var controller = {
           }
 
           if (user.terms == false)
-            return res
-              .status(403)
-              .send({
-                status: "forbidden",
-                message: "Terms must be accept to complete the contract",
-              });
+            return res.status(403).send({
+              status: "forbidden",
+              message: "Terms must be accept to complete the contract",
+            });
 
           bcrypt.hash(params.password, saltRounds, (err, hash) => {
             user.password = hash;
