@@ -286,10 +286,9 @@ export class StaffComponent implements OnInit, AfterViewInit {
     }
 
     ngOnInit(): void {
-        let condominioInfo = JSON.parse(localStorage.getItem('property'));
         // Obtiene el id del condominio
         this._route.params.subscribe((params) => {
-            let condoId = params['id'];
+            let condoId = params['id']; // comparte variable admin y owner
             let ownerId = params['ownerId'];
 
             if (ownerId != undefined) {
@@ -301,12 +300,12 @@ export class StaffComponent implements OnInit, AfterViewInit {
                 // Carga la lista de staff por condominio
                 this.condo_id = condoId;
                 this.getStaffByCondoId();
-                this.condominioList = [
-                    {
-                        label: condominioInfo?.alias.toUpperCase(),
-                        code: condominioInfo?._id,
-                    },
-                ];
+                // this.condominioList = [
+                //     {
+                //         label: condominioInfo?.alias.toUpperCase(),
+                //         code: condoId,
+                //     },
+                // ];
                 this.loadingCondo = false;
             } else if (condoId == undefined && ownerId == undefined) {
                 // Carga la tabla de staff con todos los registros que existe por administrador componente
@@ -373,7 +372,6 @@ export class StaffComponent implements OnInit, AfterViewInit {
             .getStaffByCondo(this.token, this.condo_id)
             .subscribe({
                 next: (response) => {
-                    console.log('STAFF->:', response);
                     if (response.status == 'success') {
                         this.propertyDetailsVar = response.message.map(
                             (staff) => {

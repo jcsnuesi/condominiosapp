@@ -85,6 +85,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     public first_password: boolean = false;
     public changePasswordDialog: boolean = false;
     public messagesNoProperty: any;
+    public totalUnits: number;
     @Output() propertyInfoEvent: EventEmitter<any> = new EventEmitter();
 
     constructor(
@@ -150,10 +151,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.propertyObj = JSON.parse(localStorage.getItem('property'));
-        this._router.navigate([], {
-            queryParams: { userid: this.idroute },
-            queryParamsHandling: 'merge',
-        });
+        // this._router.navigate([], {
+        //     queryParams: { userid: this.idroute },
+        //     queryParamsHandling: 'merge',
+        // });
 
         this.onInitInfo();
         this.genderOption = [
@@ -262,6 +263,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
         this.loadBookingCard();
         this.getStaffQty();
+    }
+
+    showDialogAllUnits() {
+        console.log('showDialogAllUnits');
     }
 
     passwordChanged(event: boolean) {
@@ -385,70 +390,68 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     public propertyInactive: any[];
     onInitInfo() {
-        //     setTimeout(() => {
+        this._activatedRoute.params.subscribe((param) => {
+            let id = param['dashid']; // admin id or owner id
+            let refPath = Object.keys(param)[0];
 
-        //     }
-        // 5000)
-        this._activatedRoute.queryParams.subscribe((param) => {
-            let id = param['userid'];
-
+            if (this.identity.role == 'ADMIN') {
+                id = id + '.' + refPath;
+            }
+            console.log('ID refPath--->', id);
             if (id != undefined) {
-                if (this.identity.role == 'ADMIN') {
-                    this._condominioService
-                        .getBuilding(id, this.token)
-                        .subscribe(
-                            (response) => {
-                                console.log('unitList', response);
-                                if (response.status == 'success') {
-                                    var unitList = { ...response.message };
-                                    this.units = unitList.units_ownerId.length;
+                this._condominioService.getBuilding(id, this.token).subscribe({
+                    next: (response) => {
+                        if (response.status == 'success') {
+                            var unitList = response.message;
+                            this.units = unitList.units_ownerId.length;
 
-                                    this.dateFormatted = dateTimeFormatter(
-                                        unitList.createdAt
-                                    );
+                            this.dateFormatted = dateTimeFormatter(
+                                unitList.createdAt
+                            );
 
-                                    // this.propertyData(unitList);
+                            // this.propertyData(unitList);
 
-                                    this.customers = unitList.units_ownerId;
+                            this.customers = unitList.units_ownerId;
 
-                                    console.log('CUSTOMER--->', this.customers);
-                                }
-                            },
-                            (error) => {
-                                console.log(error);
-                            }
-                        );
-                } else {
-                    // Mejorar este metodo para que se cargue todos los condominios de un usuario
-                    // y se muestre en el dashboard el estado de cada condominio
-                    // corregir el interval para que se ejecute cada cierto tiempo sin que recargue el message
-                    setInterval(() => {
-                        this._ownerService
-                            .getPropertyByOwner(this.token)
-                            .subscribe((response) => {
-                                if (response.status == 'success') {
-                                    let unitList = response.message[0];
+                            console.log('CUSTOMER--->', this.customers);
+                        }
+                    },
+                    error: (error) => {
+                        console.log(error);
+                    },
+                });
+                // if (this.identity.role == 'ADMIN') {
 
-                                    this.propertyInactive =
-                                        unitList.propertyDetails.map((unit) => {
-                                            if (
-                                                unit.addressId.status ==
-                                                'inactive'
-                                            ) {
-                                                return {
-                                                    severity: 'error',
-                                                    summary:
-                                                        'Inactive Property',
-                                                    detail: `You have an inactive property ${unit.addressId.alias.toUpperCase()}, please contact the administrator to activate it.`,
-                                                };
-                                            }
+                // } else {
+                //     // Mejorar este metodo para que se cargue todos los condominios de un usuario
+                //     // y se muestre en el dashboard el estado de cada condominio
+                //     // corregir el interval para que se ejecute cada cierto tiempo sin que recargue el message
+                //     // setInterval(() => {
 
-                                            return null;
-                                        });
-                                }
-                            });
-                    }, 5000);
-                }
+                //     // }, 5000);
+                //     this._ownerService
+                //         .getPropertyByOwner(this.token)
+                //         .subscribe((response) => {
+                //             if (response.status == 'success') {
+                //                 let unitList = response.message[0];
+
+                //                 this.propertyInactive =
+                //                     unitList.propertyDetails.map((unit) => {
+                //                         if (
+                //                             unit.addressId.status == 'inactive'
+                //                         ) {
+                //                             return {
+                //                                 severity: 'error',
+                //                                 summary: 'Inactive Property',
+                //                                 detail: `You have an inactive property ${unit.addressId.alias.toUpperCase()}, please contact the administrator for more information.`,
+                //                             };
+                //                         }
+
+                //                         return null;
+                //                     });
+                //             }
+                //         });
+                // }
             }
         });
     }

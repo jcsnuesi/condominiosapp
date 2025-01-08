@@ -9,8 +9,8 @@ import { StaffComponent } from '../staff/staff.component';
         RouterModule.forChild([
             { path: '', component: DashboardComponent },
             { path: 'start', component: DashboardComponent },
-            { path: 'start/:id', component: DashboardComponent },
-            { path: 'booking-area/:ownerId', component: BookingAreaComponent },
+            { path: 'start/:dashid', component: DashboardComponent },
+            { path: 'booking-area/:dashid', component: BookingAreaComponent },
             { path: 'staff-regular/:ownerId', component: StaffComponent },
         ]),
     ],

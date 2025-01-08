@@ -64,7 +64,10 @@ export class LoginComponent {
                                     expires: expiryTime,
                                 });
 
-                                this._route.navigate(['/start']);
+                                this._route.navigate([
+                                    '/start',
+                                    login.message._id,
+                                ]);
                             }
                         });
                 } else {

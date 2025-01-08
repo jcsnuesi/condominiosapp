@@ -148,7 +148,7 @@
                 <th style="width: 3rem">
                     <div class="flex align-items-center">See more</div>
                 </th>
-                <th style="width: 3rem">
+                <th style="width: 3rem" *appHasRole="'admin'">
                     <div class="flex align-items-center">Delete</div>
                 </th>
             </tr>
@@ -232,9 +232,8 @@
                         (click)="goToDashboard(property)"
                     ></button>
                 </td>
-                <td>
+                <td *appHasRole="'admin'">
                     <button
-                        *appHasRole="'admin'"
                         pButton
                         type="button"
                         severity="danger"

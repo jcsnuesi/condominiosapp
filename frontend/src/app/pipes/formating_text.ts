@@ -82,6 +82,15 @@ export class FormatFunctions {
     upper(string: string): string {
         return string.toUpperCase();
     }
+    titleCase(text: string): string {
+        if (!text) return text;
+
+        return text
+            .toLowerCase()
+            .split(' ')
+            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
+    }
 
     dateFormat2(date: string): any {
         //2023-11-05T19:32:38.422Z

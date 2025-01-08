@@ -23,12 +23,12 @@ import { BookingAreaComponent } from './demo/components/booking-area/booking-are
                     canActivate: [UserGuard],
                     children: [
                         {
-                            path: 'home/:id',
+                            path: 'home/:homeid',
                             canActivate: [UserGuard],
                             component: HomeComponent,
                         },
                         {
-                            path: 'bookings/:condoId',
+                            path: 'bookings/:homeid',
                             component: BookingAreaComponent,
                         },
                         {
@@ -115,7 +115,11 @@ import { BookingAreaComponent } from './demo/components/booking-area/booking-are
                             canActivate: [UserGuard],
                             component: InvoiceHistoryComponent,
                         },
-                        // {path:'staff', canActivate: [UserGuard], component: StaffComponent},
+                        {
+                            path: 'staff',
+                            canActivate: [UserGuard],
+                            component: StaffComponent,
+                        },
                         {
                             path: 'staff/:id',
                             canActivate: [UserGuard],

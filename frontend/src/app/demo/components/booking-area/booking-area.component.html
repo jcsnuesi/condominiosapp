@@ -1,5 +1,10 @@
 <div *appHasPermissions="'admin'" style="margin-bottom: 15px">
-    <p-button (click)="back()" label="Back" icon="pi pi-arrow-left"></p-button>
+    <p-button
+        (click)="back()"
+        *ngIf="pathId == 'homeid'"
+        label="Back"
+        icon="pi pi-arrow-left"
+    ></p-button>
 </div>
 
 <div class="booking-responsive" *appHasPermissions="'owner'">

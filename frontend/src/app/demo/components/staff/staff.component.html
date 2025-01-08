@@ -252,7 +252,12 @@
                         </tr>
                     </ng-template>
                     <ng-template pTemplate="body" let-staff>
-                        <tr class="p-selectable-row">
+                        <tr
+                            class="p-selectable-row"
+                            [ngClass]="{
+                                'inactive-row': staff.status === 'inactive'
+                            }"
+                        >
                             <td>
                                 <p-tableCheckbox [value]="staff" />
                             </td>
@@ -693,50 +698,6 @@
                                         >
                                     </div>
                                 </div>
-                                <!-- 
-                                <div class="staffInfo">
-                                
-                                    <div class="all-info">
-                                
-                                        <p-inputGroup>
-                                            <p-inputGroupAddon>
-                                                <i class="pi pi-key"></i>
-                                            </p-inputGroupAddon>
-                                
-                                            <p-password [ngClass]="{'ng-valid':this.passval, 'ng-invalid ng-dirty':!this.passval}" #password="ngModel"
-                                                [(ngModel)]="staffInfo.password" 
-                                                name="Password" minlength="10" maxlength="30" 
-                                                weakLabel="Too simple" 
-                                                mediumLabel="Average complexity" 
-                                                strongLabel="Complex password"
-                                                required placeholder="Password" />
-                                
-                                        </p-inputGroup>
-                                
-                                        <small *ngIf="password.touched && !password.valid" class="p-error">Required.</small>
-                                
-                                
-                                    </div>
-                                    <div class="all-info">
-                                
-                                        <p-inputGroup>
-                                            <p-inputGroupAddon>
-                                                <i class="pi pi-key"></i>
-                                            </p-inputGroupAddon>
-                                            <p-password [ngClass]="{'ng-valid':passval, 'ng-invalid ng-dirty':!passval}"
-                                                #password_verify="ngModel" [(ngModel)]="staffInfo.password_verify" name="password_verify" maxlength="30"
-                                                required placeholder="Re-type Password" (keyup)="verifyPasswordInput($event)" />
-                                
-                                        </p-inputGroup>
-                                
-                                        <small [ngClass]="{'passmsg-success':passval, 'passmsg-error':!passval}">{{passMessage}}</small>
-                                
-                                
-                                    </div>
-                                
-                                
-                                  
-                                </div> -->
                             </p-panel>
 
                             <div class="btn-staff">

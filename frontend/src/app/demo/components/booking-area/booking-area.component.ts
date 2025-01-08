@@ -154,6 +154,7 @@ export class BookingAreaComponent implements OnInit {
             { label: 'Reserved', code: 'Reserved' },
             { label: 'Cancelled', code: 'Cancelled' },
             { label: 'Guest', code: 'Guest' },
+            { label: 'Expired', code: 'expired' },
         ];
 
         this.condoOptions = [{ label: '', code: '' }];
@@ -181,24 +182,17 @@ export class BookingAreaComponent implements OnInit {
             fullname: '',
         };
     }
-
+    public pathId: string;
     ngOnInit(): void {
         this._route.params.subscribe((params) => {
-            let id_ = params['ownerId'] ?? params['condoId'];
+            this.bookingId = params['homeid'] ?? params['dashid'];
+            this.pathId = Object.keys(params)[0];
 
-            if (id_ != undefined) {
-                this.bookingId = id_;
-                switch (this.identity.role) {
-                    case 'ADMIN':
-                        this.getAllBookings(id_);
-                        setInterval(() => {
-                            this.getAllBookings(id_);
-                        }, 20000);
-                        break;
-                    case 'OWNER':
-                        this.getPropertyType();
-                        this.getAllBookings(id_);
-                        break;
+            console.log('paramId--->', this.pathId);
+            if (this.bookingId) {
+                this.getAllBookings(this.bookingId);
+                if (this.identity.role != 'ADMIN') {
+                    this.getPropertyType();
                 }
             }
         });
@@ -215,6 +209,7 @@ export class BookingAreaComponent implements OnInit {
 
     public propertyDetails: any[] = [];
     getPropertyType() {
+        /**Este metodo obtiene las propiedades del propietario y carga el dropdown de condominios*/
         this._ownerService.getPropertyByOwner(this.token).subscribe({
             next: (res) => {
                 if (res.status === 'success') {
@@ -291,13 +286,6 @@ export class BookingAreaComponent implements OnInit {
                     ? currentMinutes
                     : currentMinutes + (15 - remainder);
 
-            // Ajustar la hora si los minutos redondeados llegan a 60
-            // console.log(
-            //     'Fecha currentMinutes:',
-            //     currentMinutes,
-            //     'ajustedMinutes',
-            //     adjustedMinutes
-            // );
             if (currentMinutes > 45) {
                 date.setMinutes(0);
                 date.setHours(date.getHours() + 1);
@@ -418,7 +406,15 @@ export class BookingAreaComponent implements OnInit {
         });
     }
 
-    getAllBookings(id) {
+    getAllBookings(paramId: string) {
+        /**Este metodo obtiene las reservas del condominio*/
+        let id = null;
+        if (this.identity.role === 'ADMIN') {
+            id = paramId + '.' + this.pathId;
+        } else {
+            id = paramId;
+        }
+        console.log('id path--->', id);
         this._bookingService.getBooking(this.token, id).subscribe({
             next: (response) => {
                 // this.bookingHistory = response.booking;
@@ -569,7 +565,7 @@ export class BookingAreaComponent implements OnInit {
             notifing: guestInfo?.notifing,
             visitorNumber: customerData?.visitorNumber,
             status: {
-                label: customerData.status,
+                label: this._format.titleCase(customerData.status),
                 code: this.headerStatus.find(
                     (status_result) =>
                         status_result.label.toLowerCase() ===
@@ -596,6 +592,8 @@ export class BookingAreaComponent implements OnInit {
             return 'success';
         } else if (statuses === 'cancelled') {
             return 'danger';
+        } else if (statuses === 'expired') {
+            return 'warning';
         } else {
             return 'info';
         }

@@ -14,6 +14,32 @@
 
 <div class="grid">
     <div class="col-12 lg:col-6 xl:col-3">
+        <div class="card">
+            <div class="flex justify-content-between mb-3">
+                <div>
+                    <span class="block text-500 font-medium mb-3">
+                        Total units
+                    </span>
+                    <div class="text-900 font-medium text-2xl">
+                        {{ totalUnits }}
+                    </div>
+                </div>
+
+                <div
+                    class="flex align-items-center justify-content-center bg-blue-100 border-round icon-plus-changer"
+                    (click)="showDialogAllUnits()"
+                    [ngStyle]="{ width: '2.5rem', height: '2.5rem' }"
+                >
+                    <i class="pi pi-plus text-blue-500 text-xl"></i>
+                </div>
+            </div>
+            <!-- Recomendacion: poner el porcentaje de unidades que estan al dia con sus pagos -->
+            <!-- <span class="text-500">Updated: </span>
+            <span class="text-green-500 font-medium">{{ dateFormatted }} </span> -->
+        </div>
+    </div>
+
+    <div class="col-12 lg:col-6 xl:col-3">
         <div class="card mb-0">
             <div class="flex justify-content-between mb-3">
                 <div>

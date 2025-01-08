@@ -277,18 +277,20 @@ export class HomeComponent implements OnInit {
 
     public totalBooked: number = 0;
     public condoId: string;
+
     onInitInfo() {
         this._activatedRoute.params.subscribe((param) => {
-            let id = param['id'];
+            let id = param['homeid'];
+
             this.condoId = id;
             console.log('ID:', id);
 
             if (id != undefined) {
                 this._condominioService.getBuilding(id, this.token).subscribe(
                     (response) => {
+                        console.log('UNIT LIST:', response);
                         if (response.status == 'success') {
-                            var unitList = response.message;
-
+                            var unitList = response.condominium;
                             localStorage.setItem(
                                 'property',
                                 JSON.stringify(unitList)

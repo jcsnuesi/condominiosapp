@@ -133,6 +133,9 @@
 ::ng-deep .p-tabview-nav {
     margin-bottom: 20px;
 }
+::ng-deep .p-datatable .p-datatable-tbody > tr.inactive-row {
+    background-color: #f8d7da;
+}
 
 /* 
 ::ng-deep #pn_id_45{
