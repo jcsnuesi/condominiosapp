@@ -4,9 +4,6 @@ var validator = require("validator");
 var fs = require("fs");
 var path = require("path");
 let bcrypt = require("bcrypt");
-let saltRounds = 10;
-var Staff = require("../models/staff");
-var Admin = require("../models/admin");
 let errorHandler = require("../error/errorHandler");
 let checkExtensions = require("../service/extensions");
 const { v4: uuidv4 } = require("uuid");
@@ -15,6 +12,9 @@ const sendEmailVerification = require("../service/verificators");
 const generatePassword = require("generate-password");
 const Owner = require("../models/owners");
 const Family = require("../models/family");
+const Admin = require("../models/admin");
+const Staff = require("../models/staff");
+let saltRounds = 10;
 // Generar una contraseña con opciones específicas
 const password = generatePassword.generate({
   length: 8, // Longitud de la contraseña
@@ -159,7 +159,6 @@ var StaffController = {
             staffParams.password,
             saltRounds
           );
-          console.log("passChecked", staffParams.password);
         } else {
           return res.status(400).send({
             status: "error",
@@ -282,63 +281,39 @@ var StaffController = {
     }
   },
   getStaffByOwnerAndCondoId: async function (req, res) {
-    let _user = req.params.ownerId;
+    let _user = req.params.id;
+    let query = {};
 
     try {
-      const [family, owner] = await Promise.all([
-        Family.findOne({ _id: _user }).populate({
-          path: "propertyDetails.addressId",
-          select: "_id alias",
-        }),
-        Owner.findOne({ _id: _user }).populate({
-          path: "propertyDetails.addressId",
-          select: "_id alias",
-        }),
-      ]);
+      const user = { owner: Owner, family: Family, admin: Admin };
+      const userFound = await user[req.user.role.toLowerCase()].findById(_user);
+      if (userFound.role == "ADMIN") {
+        query["createdBy"] = userFound._id;
+      } else {
+        query["condo_id"] = {
+          $in: userFound.propertyDetails.map(
+            (property) => property.addressId._id
+          ),
+        };
+      }
+      const StaffFound = await Staff.find(query);
 
-      // Filtrar los resultados no nulos
-      let userFilter = [family, owner].filter((data) => data !== null);
-
-      // Asegurarse de que userFilter no esté vacío
-      if (userFilter.length === 0) {
+      if (StaffFound.length == 0) {
         return res.status(404).send({
           status: "error",
-          message: "No user found",
+          message: "Staffs was not found",
         });
       }
 
-      // Obtener la información del personal
-      const staffInfo = await Staff.find();
-
-      // En este map, se filtran los detalles de la propiedad que coinciden con el ID de la propiedad del usuario
-      let propertyDetails = staffInfo.map((obj) => {
-        return userFilter[0].propertyDetails.filter(
-          (detail) => detail.addressId._id.toString() == obj.condo_id.toString()
-        );
-      });
-
-      // Filtrar los resultados no nulos
-      const condoFound = propertyDetails.filter((detail) => detail.length > 0);
-
-      // Aplanar el array de resultados
-      const condoFlat = condoFound.flat(2);
-
-      // Filtrar los resultados por condo_id y devolver la información del personal
-      const staffInfoFound = await Staff.find({
-        condo_id: {
-          $in: condoFlat.map((detail) => detail.addressId._id.toString()),
-        },
-      }).populate("condo_id", "alias");
-
       return res.status(200).send({
         status: "success",
-        message: staffInfoFound,
+        message: StaffFound,
       });
-    } catch (error) {
+    } catch (err) {
       return res.status(500).send({
         status: "error",
         message: "Server error",
-        error: error,
+        error: err,
       });
     }
   },

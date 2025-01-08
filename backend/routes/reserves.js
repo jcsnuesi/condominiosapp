@@ -19,6 +19,7 @@ var md_upload = multipart({ uploadDir: "./uploads/users" });
  * - Verifica que la fecha de inicio y fin no se solapen con otras reservas existentes
  * - Verifica que la fecha de inicio sea posterior a la fecha actual
  * - Verifica que la unidad/amenidad esté disponible para reservar
+ * - Actualizar reservas expiradas
  */
 
 // GET

@@ -1,9 +1,10 @@
 "use strict";
 
-let Reserves = require("../models/reserves");
-let Owner = require("../models/owners");
-let Family = require("../models/family");
-let Condo = require("../models/condominio");
+const Reserves = require("../models/reserves");
+const Owner = require("../models/owners");
+const Family = require("../models/family");
+const Condo = require("../models/condominio");
+const Staff = require("../models/staff");
 // const uuid = uuidv4();
 let validator = require("validator");
 let errorHandler = require("../error/errorHandler");
@@ -114,37 +115,36 @@ var reservesController = {
     }
   },
   getAllBookingByCondoAndUnit: async function (req, res) {
-    let id = req.params.id;
+    let _id = req.params.id;
     let reservations = null;
     let query = {};
     let condosId = [];
-
+    let homeId = null;
+    // console.log(id);
+    // return;
     try {
-      // Construir query según el rol del usuario
-      if (req.user.role === "ADMIN" || req.user.role === "STAFF") {
+      // Construir query según el rol del usuario || req.user.role === "STAFF"
+      if (req.user.role === "ADMIN" && _id.includes(".home")) {
         // Administradores pueden ver todas las reservas del condominio
-        let admin = await Condo.find({
-          createdBy: req.user.sub,
-        });
-        admin.forEach((element) => {
-          condosId.push(element._id);
-        });
-
-        query = { condoId: { $in: condosId } };
-      } else {
+        homeId = _id.split(".")[0];
+        query = { condoId: homeId };
+      } else if (req.user.role == "STAFF") {
+        query = { condoId: _id };
+      } else if (req.user.role == "OWNER" || req.user.role == "FAMILY") {
         // Usuarios normales solo ven sus propias reservas
-        query = { memberId: req.user.sub };
+        query = { memberId: _id };
       }
 
       // Ejecutar la consulta
-      reservations = await Reserves.find(query)
-        .populate(
-          "condoId",
-          "alias phone1 street_1 sector_name province city country"
-        )
-        .populate("memberId", "name lastname email") // Agregamos información del miembro
-        .exec();
-
+      if (Reserves.find(query)) {
+        reservations = await Reserves.find(query)
+          .populate({
+            model: "Condominium",
+            path: "condoId",
+            select: "alias phone1 street_1 sector_name province city country",
+          })
+          .exec();
+      }
       if (reservations.length == 0) {
         return res.status(404).send({
           status: "error",
@@ -164,71 +164,7 @@ var reservesController = {
       });
     }
   },
-  // getReservationByBooker: function(req, res){
 
-  //     let aparmentNum = req.params.apartment
-  //     let addressId = req.params.addressId
-
-  //     try {
-
-  //         var val_apt = !validator.isEmpty(aparmentNum)
-  //         var val_address_id = !validator.isEmpty(addressId)
-
-  //     } catch (error) {
-
-  //         return res.status(500).send({
-
-  //             status:"error",
-  //             message:"Fill out all fields (required)"
-
-  //         })
-  //     }
-
-  //     if (val_apt && val_address_id) {
-
-  //         Reserves.find({
-  //             $and:[
-  //                 { address: addressId },
-  //                 { apartmentUnit: aparmentNum }
-
-  //             ]
-  //         })
-  //             .populate('ownerid', 'name lastname email')
-  //             .populate('subownerid', 'name lastname email')
-  //             .populate('owner', 'name lastname email')
-  //             .populate('subowner', 'name lastname email')
-  //             .populate('admin', 'name lastname email')
-  //             .populate('address', 'alias street_1 sector_name province city country')
-
-  //             .exec( (err, reservationFound) => {
-
-  //             var reservationErrorHandlerArr = errorHandler.newUser(err, reservationFound)
-
-  //             if (reservationErrorHandlerArr[0]) {
-
-  //                 return res.status(
-  //                     reservationErrorHandlerArr[1])
-  //                     .send({
-  //                         status: reservationErrorHandlerArr[2],
-  //                         message: reservationErrorHandlerArr[3]
-
-  //                     })
-
-  //             }
-
-  //         })
-
-  //     }else{
-
-  //         return res.status(400).send({
-
-  //             status: "error",
-  //             message: "Fill out all fields (required)"
-  //         })
-
-  //     }
-
-  // },
   updateReservation: async function (req, res) {
     let params = req.body;
 

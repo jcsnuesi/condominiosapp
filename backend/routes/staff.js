@@ -1,29 +1,52 @@
-'use strict'
+"use strict";
 
-var express = require('express')
-var StaffController = require('../controllers/staff')
+var express = require("express");
+var StaffController = require("../controllers/staff");
 
-var router = express.Router() 
-var md_auth = require('../middleware/auth')
+var router = express.Router();
+var md_auth = require("../middleware/auth");
 
-
-var multipart = require('connect-multiparty');
-var md_upload = multipart({ uploadDir: './uploads/staff' });
+var multipart = require("connect-multiparty");
+var md_upload = multipart({ uploadDir: "./uploads/staff" });
+const {
+  authenticated,
+  adminAuth,
+  ownerAuth,
+} = require("../middleware/middleware_bundle");
 
 // GET
 
-router.get('/staffs/:id', md_auth.authenticated, StaffController.getStaffByAdmin)
-router.get('/staff-by-condo/:id', md_auth.authenticated, StaffController.getStaffByCondoId)
-router.get('/avatar-staff/:avatar',  StaffController.getAvatar)
-router.get('/staff-by-condo-owner/:ownerId', StaffController.getStaffByOwnerAndCondoId)
+router.get(
+  "/staffs/:id",
+  md_auth.authenticated,
+  StaffController.getStaffByAdmin
+);
+router.get(
+  "/staff-by-condo/:id",
+  md_auth.authenticated,
+  StaffController.getStaffByCondoId
+);
+router.get("/avatar-staff/:avatar", StaffController.getAvatar);
+router.get(
+  "/staff-by-condo-owner/:id",
+  [authenticated],
+  StaffController.getStaffByOwnerAndCondoId
+);
 
 // POST
 
-router.post('/create-staff', [md_auth.authenticated, md_upload], StaffController.createStaff)
-router.post('/verify-password-staff', md_auth.authenticated, StaffController.verifyPasswordStaff)
+router.post(
+  "/create-staff",
+  [md_auth.authenticated, md_upload],
+  StaffController.createStaff
+);
+router.post(
+  "/verify-password-staff",
+  md_auth.authenticated,
+  StaffController.verifyPasswordStaff
+);
 
 // // Buscar usuario por propietario
-
 
 // // POST
 // router.post('/createAccount', md_upload, UserController.createUser)
@@ -33,10 +56,14 @@ router.post('/verify-password-staff', md_auth.authenticated, StaffController.ver
 // // PUT
 
 // router.put('/updateAccount', [md_auth.authenticated, md_upload], UserController.update)
-router.put('/update-staff', [md_auth.authenticated, md_upload], StaffController.update)
+router.put(
+  "/update-staff",
+  [md_auth.authenticated, md_upload],
+  StaffController.update
+);
 
 // // DELETE
 
-router.put('/delete-staff', md_auth.authenticated, StaffController.deleteBatch)
+router.put("/delete-staff", md_auth.authenticated, StaffController.deleteBatch);
 
-module.exports = router
+module.exports = router;

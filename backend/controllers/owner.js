@@ -534,7 +534,6 @@ var ownerAndSubController = {
     // Si el usuario envia un archivo de imagen, se guarda en el servidor y se le asigna el nombre a la propiedad avatar
 
     var params = req.body;
-    var user = { owner: Owner, family: Family };
 
     if (Boolean(req.files.avatar)) {
       let { path, ...res } = req.files.avatar;
@@ -551,6 +550,7 @@ var ownerAndSubController = {
       });
     }
 
+    const user = { owner: Owner, family: Family };
     user[params.role.toLowerCase()].findOne(
       { _id: params._id },
       async (err, userFound) => {

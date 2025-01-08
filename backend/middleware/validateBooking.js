@@ -1,7 +1,6 @@
 "use strict";
 
 const Reserves = require("../models/reserves");
-const Booking = require("../models/reserves");
 
 exports.checkAvailability = async (req, res, next) => {
   try {
@@ -56,3 +55,31 @@ exports.validateBookingData = (req, res, next) => {
 
   next();
 };
+
+// Función para actualizar reservas vencidas
+exports.updateExpiredBookings = async () => {
+  try {
+    const currentDate = new Date();
+    console.log("currentDate--->", currentDate);
+
+    // Buscar reservas que ya pasaron su fecha de checkOut y aún están activas
+    const expiredBookings = await Reserves.find({
+      checkOut: { $lt: currentDate },
+      status: "Reserved",
+    });
+    console.log("currentDate--->", expiredBookings);
+
+    // Actualizar el estado de las reservas vencidas
+    for (const booking of expiredBookings) {
+      booking.status = "expired";
+      await Reserves.findByIdAndUpdate(booking._id, { status: "expired" });
+    }
+
+    console.log(`${expiredBookings.length} reservas vencidas actualizadas`);
+  } catch (error) {
+    console.error("Error al actualizar reservas vencidas:", error);
+  }
+};
+
+// Ejecutar la verificación cada 24 horas
+setInterval(exports.updateExpiredBookings, 24 * 60 * 60 * 1000);
