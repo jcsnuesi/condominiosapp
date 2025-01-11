@@ -14,6 +14,7 @@ const Owner = require("../models/owners");
 const Family = require("../models/family");
 const Admin = require("../models/admin");
 const Staff = require("../models/staff");
+const Condo = require("../models/condominio");
 let saltRounds = 10;
 // Generar una contraseña con opciones específicas
 const password = generatePassword.generate({
@@ -282,21 +283,33 @@ var StaffController = {
   },
   getStaffByOwnerAndCondoId: async function (req, res) {
     let _user = req.params.id;
+    var ref = null;
+    if (Boolean(_user.split(".")[1] == "homeId")) {
+      _user = _user.split(".")[0];
+      ref = "homeId";
+    }
+    console.log("USER ID---->:", _user);
     let query = {};
 
     try {
-      const user = { owner: Owner, family: Family, admin: Admin };
-      const userFound = await user[req.user.role.toLowerCase()].findById(_user);
-      if (userFound.role == "ADMIN") {
-        query["createdBy"] = userFound._id;
+      if (req.user.role == "ADMIN" && ref === null) {
+        query["createdBy"] = _user;
+      } else if (ref != null) {
+        query["condo_id"] = _user;
       } else {
+        const condo = await Condo.find();
+        const user_id = condo.filter((condo) =>
+          condo.units_ownerId.includes(_user) ? condo._id : null
+        );
         query["condo_id"] = {
-          $in: userFound.propertyDetails.map(
-            (property) => property.addressId._id
-          ),
+          $in: user_id,
         };
       }
-      const StaffFound = await Staff.find(query);
+      console.log("QUERY---->:", query);
+      const StaffFound = await Staff.find(query).populate(
+        "condo_id",
+        "alias phone"
+      );
 
       if (StaffFound.length == 0) {
         return res.status(404).send({
@@ -304,7 +317,10 @@ var StaffController = {
           message: "Staffs was not found",
         });
       }
-
+      // Ocultamos la password
+      StaffFound.forEach((staff) => {
+        staff.password = undefined;
+      });
       return res.status(200).send({
         status: "success",
         message: StaffFound,
@@ -316,32 +332,6 @@ var StaffController = {
         error: err,
       });
     }
-  },
-  getStaffByCondoId: async function (req, res) {
-    let _id = req.params.id;
-
-    Staff.find({
-      condo_id: _id,
-    })
-      .populate("condo_id", "alias")
-      .exec((err, staffs) => {
-        if (err || !staffs) {
-          return res.status(501).send({
-            status: "error",
-            message: "Staffs was not found",
-          });
-        }
-
-        // Ocultamos la password
-        for (const index in staffs) {
-          staffs[index].password = undefined;
-        }
-
-        return res.status(200).send({
-          status: "success",
-          message: staffs,
-        });
-      });
   },
   getStaffByAdmin: async function (req, res) {
     let _id = req.params.id;

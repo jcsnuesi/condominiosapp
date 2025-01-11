@@ -21,14 +21,10 @@ router.get(
   md_auth.authenticated,
   StaffController.getStaffByAdmin
 );
-router.get(
-  "/staff-by-condo/:id",
-  md_auth.authenticated,
-  StaffController.getStaffByCondoId
-);
+
 router.get("/avatar-staff/:avatar", StaffController.getAvatar);
 router.get(
-  "/staff-by-condo-owner/:id",
+  "/staff-by-condo-id/:id",
   [authenticated],
   StaffController.getStaffByOwnerAndCondoId
 );
