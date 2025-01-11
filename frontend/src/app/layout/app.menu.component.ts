@@ -17,9 +17,18 @@ export class AppMenuComponent implements OnInit {
         this.cookieValue = JSON.parse(this.cookieService.get('identity'));
     }
 
-    checkRole(role: string) {
+    checkRole(role: any) {
         if (this.cookieValue && Boolean(role !== undefined)) {
-            if (this.cookieValue.role.includes(role)) {
+            if (Array.isArray(role)) {
+                let roles = role.filter((r) => r === this.cookieValue.role);
+                if (roles && roles.length > 0) {
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+
+            if (role && this.cookieValue.role === role) {
                 return false;
             } else {
                 return true;
@@ -112,10 +121,10 @@ export class AppMenuComponent implements OnInit {
                     {
                         label: 'See Staff',
                         icon: 'pi pi-users',
-                        routerLink: ['/staff'],
+                        routerLink: ['/staff-regular', this.cookieValue._id],
                     },
                 ],
-                role: 'ADMIN',
+                role: ['ADMIN', 'OWNER'],
             },
 
             {

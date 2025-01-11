@@ -138,8 +138,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.image = '../../assets/noimage2.jpeg';
 
         this.condoOptions = [];
-        this.idroute = this.identity._id;
-        console.log('ID--->', this.idroute);
+
         this.apiUnitResponse = false;
         this.messageApiResponse = { message: '', severity: '' };
         this.visible_owner = false;
@@ -151,10 +150,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.propertyObj = JSON.parse(localStorage.getItem('property'));
-        // this._router.navigate([], {
-        //     queryParams: { userid: this.idroute },
-        //     queryParamsHandling: 'merge',
-        // });
 
         this.onInitInfo();
         this.genderOption = [

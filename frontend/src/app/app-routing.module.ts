@@ -116,12 +116,12 @@ import { BookingAreaComponent } from './demo/components/booking-area/booking-are
                             component: InvoiceHistoryComponent,
                         },
                         {
-                            path: 'staff',
+                            path: 'staff/:homeId',
                             canActivate: [UserGuard],
                             component: StaffComponent,
                         },
                         {
-                            path: 'staff/:id',
+                            path: 'staff-regular/:ownerId',
                             canActivate: [UserGuard],
                             component: StaffComponent,
                         },

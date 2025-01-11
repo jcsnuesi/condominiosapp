@@ -1,118 +1,116 @@
-import { Injectable, EventEmitter, Output } from "@angular/core";
-import {HttpClient, HttpHeaders} from '@angular/common/http';
-import {Observable} from 'rxjs';
-import { global } from "./global.service";
-import { CookieService } from "ngx-cookie-service";
+import { Injectable, EventEmitter, Output } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { global } from './global.service';
+import { CookieService } from 'ngx-cookie-service';
 
+@Injectable({ providedIn: 'root' })
+export class StaffService {
+    public url: string;
+    public static identity: any;
+    public token: string;
+    public cookieInfo: any;
 
-@Injectable(
-    { providedIn: 'root' }
-)
-export class StaffService{
-
-    public url:string;
-    public static identity:any;
-    public token:string;
-    public cookieInfo:any;
-   
-    constructor(
-        private _http: HttpClient,
-        private _cookies: CookieService){
-
-        this.url = global.url
-
+    constructor(private _http: HttpClient, private _cookies: CookieService) {
+        this.url = global.url;
     }
 
-    create(staff:FormData, token:string):Observable<any>{
-        
-        let header = new HttpHeaders()
-                        .set('Authorization',token)
-                    
-        return this._http.post(this.url + 'create-staff', staff,{headers:header})
+    create(staff: FormData, token: string): Observable<any> {
+        let header = new HttpHeaders().set('Authorization', token);
 
-
+        return this._http.post(this.url + 'create-staff', staff, {
+            headers: header,
+        });
     }
 
-    login(user:any, token:boolean):Observable<any>{
-
-      
+    login(user: any, token: boolean): Observable<any> {
         if (token) {
-            
-            user.gettoken = true
+            user.gettoken = true;
         }
 
-        let param = JSON.stringify(user)
+        let param = JSON.stringify(user);
 
-       
-        let header = new HttpHeaders().set('Content-Type', 'application/json')
+        let header = new HttpHeaders().set('Content-Type', 'application/json');
 
-        return this._http.post(this.url + 'login', param, { headers: header })
+        return this._http.post(this.url + 'login', param, { headers: header });
     }
 
-    getIdentityStaff(){
-  
-        return JSON.parse(this._cookies.get('identity') ||  'false')
-
-    }    
-
-    getTokenStaff(){
-
-        return this._cookies.get('token')
+    getIdentityStaff() {
+        return JSON.parse(this._cookies.get('identity') || 'false');
     }
-    
-    updateStaff(token: string, staff: any):Observable<any>{
+
+    getTokenStaff() {
+        return this._cookies.get('token');
+    }
+
+    updateStaff(token: string, staff: any): Observable<any> {
+        let header = new HttpHeaders().set('Authorization', token);
+
+        return this._http.put(this.url + 'update-staff', staff, {
+            headers: header,
+        });
+    }
+
+    deleteStaff(token: string, user: any): Observable<any> {
+        let param = JSON.stringify(user);
 
         let header = new HttpHeaders()
-            .set('Authorization', token)
+            .set('Content-Type', 'application/json')
+            .set('Authorization', token);
 
-        return this._http.put(this.url + 'update-staff', staff,{headers:header})
+        return this._http.put(this.url + 'delete-staff', param, {
+            headers: header,
+        });
     }
 
-    deleteStaff(token:string, user:any):Observable<any>{
+    reactiveStaff(token: string, info: any): Observable<any> {
+        let params = JSON.stringify(info);
+        let header = new HttpHeaders()
+            .set('Content-Type', 'application/json')
+            .set('Authorization', token);
 
-        let param = JSON.stringify(user)
-
-       
-        let header = new HttpHeaders().set('Content-Type', 'application/json').set('Authorization',token)
-
-        return this._http.put(this.url + 'delete-staff', param, {headers:header})
+        return this._http.put(this.url + 'reactiveAccount', params, {
+            headers: header,
+        });
     }
 
-    reactiveStaff(token: string, info: any): Observable<any>{
+    getStaff(token: string, company_id: string): Observable<any> {
+        let header = new HttpHeaders()
+            .set('Content-Type', 'application/json')
+            .set('Authorization', token);
 
-        let params = JSON.stringify(info)
-        let header = new HttpHeaders().set('Content-Type', 'application/json').set('Authorization', token)
-
-        return this._http.put(this.url + 'reactiveAccount', params, {headers:header})
+        return this._http.get(this.url + 'staffs/' + company_id, {
+            headers: header,
+        });
     }
 
-    getStaff(token: string, company_id:string): Observable<any>{
+    getStaffByCondo(token: string, condo_id: string): Observable<any> {
+        let header = new HttpHeaders()
+            .set('Content-Type', 'application/json')
+            .set('Authorization', token);
 
-        let header = new HttpHeaders().set('Content-Type', 'application/json').set('Authorization', token)
-       
-        return this._http.get(this.url + 'staffs/'+ company_id, {headers:header})
+        return this._http.get(this.url + 'staff-by-condo/' + condo_id, {
+            headers: header,
+        });
+    }
+    getStaffByOwnerCondo(token: string, condo_id: string): Observable<any> {
+        let header = new HttpHeaders()
+            .set('Content-Type', 'application/json')
+            .set('Authorization', token);
+
+        return this._http.get(this.url + 'staff-by-condo-id/' + condo_id, {
+            headers: header,
+        });
     }
 
-    getStaffByCondo(token: string, condo_id:string): Observable<any>{
+    verifyPassword(token: string, password: any): Observable<any> {
+        let params = JSON.stringify(password);
+        let header = new HttpHeaders()
+            .set('Content-Type', 'application/json')
+            .set('Authorization', token);
 
-        let header = new HttpHeaders().set('Content-Type', 'application/json').set('Authorization', token)
-       
-        return this._http.get(this.url + 'staff-by-condo/' + condo_id, {headers:header})
+        return this._http.post(this.url + 'verify-password-staff', params, {
+            headers: header,
+        });
     }
-    getStaffByOwnerCondo(token: string, condo_id:string): Observable<any>{
-
-        let header = new HttpHeaders().set('Content-Type', 'application/json').set('Authorization', token)
-       
-        return this._http.get(this.url + 'staff-by-condo-owner/' + condo_id, {headers:header})
-    }
-
-    verifyPassword(token: string, password: any): Observable<any>{
-        let params = JSON.stringify(password)
-        let header = new HttpHeaders().set('Content-Type', 'application/json').set('Authorization', token)
-
-        return this._http.post(this.url + 'verify-password-staff', params, {headers:header})
-    }
-
-
-    
 }

@@ -136,6 +136,7 @@ export class StaffComponent implements OnInit, AfterViewInit {
     public statusApi: boolean;
 
     public staffVisibleBackBtn: boolean;
+    public ownerId: string;
 
     @ViewChild('genderRef') genderDropDown!: ElementRef;
     @ViewChild('positionRef') genderPositionRef!: ElementRef;
@@ -285,72 +286,57 @@ export class StaffComponent implements OnInit, AfterViewInit {
         }
     }
 
+    public condoData: any;
     ngOnInit(): void {
         // Obtiene el id del condominio
         this._route.params.subscribe((params) => {
-            let condoId = params['id']; // comparte variable admin y owner
-            let ownerId = params['ownerId'];
-
-            if (ownerId != undefined) {
-                this.ownerId = ownerId;
-                this.getStaffByOwerCondo();
-            }
+            let condoId = Object.keys(params).includes('ownerId')
+                ? params['ownerId']
+                : params['homeId'] + '.' + 'homeId'; // comparte variable admin y owner
+            this.condoData = condoId;
 
             if (condoId != undefined) {
-                // Carga la lista de staff por condominio
-                this.condo_id = condoId;
-                this.getStaffByCondoId();
-                // this.condominioList = [
-                //     {
-                //         label: condominioInfo?.alias.toUpperCase(),
-                //         code: condoId,
-                //     },
-                // ];
-                this.loadingCondo = false;
-            } else if (condoId == undefined && ownerId == undefined) {
-                // Carga la tabla de staff con todos los registros que existe por administrador componente
-                this.getStaffList();
-                // Carga la lista de todos condominios de este administrador
+                this.getStaffByCondoId(condoId);
                 this.getAdminsProperties();
             }
         });
     }
-    public ownerId: string;
 
-    getStaffByOwerCondo() {
-        this._staffService
-            .getStaffByOwnerCondo(this.token, this.ownerId)
-            .subscribe({
-                next: (response) => {
-                    if (response.status == 'success') {
-                        this.propertyDetailsVar = response.message.map(
-                            (staff) => {
-                                return {
-                                    _id: staff._id,
-                                    fullname:
-                                        staff?.name + ' ' + staff?.lastname,
-                                    phone: staff.phone,
-                                    gender: staff.gender,
-                                    government_id: staff.government_id,
-                                    createdBy: staff.createdBy,
-                                    condo_id:
-                                        staff.condo_id?.alias ?? 'No Condo',
-                                    position: staff.position,
-                                    email: staff.email,
-                                    status: staff.status,
-                                    createdAt: staff.createdAt,
-                                    avatar: staff.avatar,
-                                };
-                            }
-                        );
+    getStaffByCondoId(id: string) {
+        this._staffService.getStaffByOwnerCondo(this.token, id).subscribe({
+            next: (response) => {
+                if (response.status == 'success') {
+                    this.propertyDetailsVar = response.message.map((staff) => {
+                        console.log('STAFF map---->:', staff);
+                        this.condominioList = [
+                            {
+                                label: staff.condo_id?.alias.toUpperCase(),
+                                code: staff.condo_id?._id,
+                            },
+                        ];
+                        return {
+                            _id: staff._id,
+                            fullname: staff?.name + ' ' + staff?.lastname,
+                            phone: staff.phone,
+                            gender: staff.gender,
+                            government_id: staff.government_id,
+                            createdBy: staff.createdBy,
+                            condo_id: staff.condo_id?.alias ?? 'No Condo',
+                            position: staff.position,
+                            email: staff.email,
+                            status: staff.status,
+                            createdAt: staff.createdAt,
+                            avatar: staff.avatar,
+                        };
+                    });
 
-                        this.loading = false;
-                    }
-                },
-                error: (error) => {
-                    console.log(error);
-                },
-            });
+                    this.loading = false;
+                }
+            },
+            error: (error) => {
+                console.log(error);
+            },
+        });
     }
 
     clear(dt: any) {
@@ -362,48 +348,6 @@ export class StaffComponent implements OnInit, AfterViewInit {
     }
 
     public condo_id: string;
-
-    // Carga los staff por condominio
-    getStaffByCondoId() {
-        this.loading = true;
-        this.staffVisibleBackBtn = true;
-
-        this._staffService
-            .getStaffByCondo(this.token, this.condo_id)
-            .subscribe({
-                next: (response) => {
-                    if (response.status == 'success') {
-                        this.propertyDetailsVar = response.message.map(
-                            (staff) => {
-                                return {
-                                    _id: staff._id,
-                                    fullname:
-                                        staff?.name + ' ' + staff?.lastname,
-                                    phone: staff.phone,
-                                    gender: staff.gender,
-                                    government_id: staff.government_id,
-                                    createdBy: staff.createdBy,
-                                    condo_id:
-                                        staff.condo_id?.alias ?? 'No Condo',
-                                    position: staff.position,
-                                    email: staff.email,
-                                    status: staff.status,
-                                    createdAt: staff.createdAt,
-                                    avatar: staff.avatar,
-                                };
-                            }
-                        );
-
-                        this.loading = false;
-
-                        console.log('STAFF---->:', response.message);
-                    }
-                },
-                error: (error) => {
-                    console.log(error);
-                },
-            });
-    }
 
     genderFormat(genderRaw: any): string {
         return this._formatFunctions.genderPipe(genderRaw);
@@ -440,40 +384,6 @@ export class StaffComponent implements OnInit, AfterViewInit {
         };
 
         this.previwImageEdit = this.url + 'avatar-staff/' + res.avatar;
-    }
-
-    // Carga los staff por administradora
-    getStaffList() {
-        this._staffService.getStaff(this.token, this.loginInfo._id).subscribe({
-            next: (response) => {
-                if (response.status == 'success') {
-                    this.propertyDetailsVar = response.message.map((staff) => {
-                        return {
-                            _id: staff._id,
-                            fullname: staff?.name + ' ' + staff?.lastname,
-                            phone: staff.phone,
-                            gender: staff.gender,
-                            government_id: staff.government_id,
-                            createdBy: staff.createdBy,
-                            condo_id: staff.condo_id?.alias ?? 'No Condo',
-                            position: staff.position,
-                            email: staff.email,
-                            status: staff.status,
-                            createdAt: staff.createdAt,
-                            avatar: staff.avatar,
-                        };
-                    });
-
-                    this.loading = false;
-                }
-            },
-            error: (error) => {
-                console.log(error);
-            },
-            complete: () => {
-                console.log('Request completed getStaffList!');
-            },
-        });
     }
 
     getSeverity(status: string) {
@@ -536,7 +446,6 @@ export class StaffComponent implements OnInit, AfterViewInit {
                             });
 
                             form.reset();
-                            this.getStaffList();
                             this.previwImage = '../../../assets/noimage.jpeg';
                         }
                     },
@@ -595,7 +504,6 @@ export class StaffComponent implements OnInit, AfterViewInit {
                     });
                     this.visibleStaff = false;
                     form.reset();
-                    this.staffPipe(response);
                 }
             },
             error: (error) => {
@@ -686,16 +594,34 @@ export class StaffComponent implements OnInit, AfterViewInit {
                 if (response.status == 'success') {
                     this.loadingCondo = false;
 
-                    this.condominioList = response.message.map((element) => {
-                        return {
-                            label: element.alias.toUpperCase(),
-                            code: element._id,
-                        };
-                    });
+                    if (this.condoData.split('.')[1] != undefined) {
+                        // Filtra solo el condominio que coincide con el ID de la URL
+                        this.condominioList = response.message
+                            .filter(
+                                (element) =>
+                                    element._id === this.condoData.split('.')[0]
+                            )
+                            .map((element) => {
+                                return {
+                                    label: element.alias.toUpperCase(),
+                                    code: element._id,
+                                };
+                            });
+                    } else {
+                        this.condominioList = response.message.map(
+                            (element) => {
+                                return {
+                                    label: element.alias.toUpperCase(),
+                                    code: element._id,
+                                };
+                            }
+                        );
+                    }
                 }
             },
             error: (error) => {
                 console.log(error);
+                this.loadingCondo = false;
             },
             complete: () => {
                 console.log('See property completed!');
@@ -727,7 +653,6 @@ export class StaffComponent implements OnInit, AfterViewInit {
                                     life: 3000,
                                 });
                             }
-                            this.staffPipe(response);
                         },
                         error: (error) => {
                             this._messageService.add({
@@ -753,13 +678,13 @@ export class StaffComponent implements OnInit, AfterViewInit {
         });
     }
 
-    staffPipe(response: any) {
-        if (response.status == 'success') {
-            if (this.condo_id != undefined) {
-                this.getStaffByCondoId();
-            } else {
-                this.getStaffList();
-            }
-        }
-    }
+    // staffPipe(response: any) {
+    //     if (response.status == 'success') {
+    //         if (this.condo_id != undefined) {
+    //             this.getStaffByCondoId();
+    //         } else {
+    //             this.getStaffList();
+    //         }
+    //     }
+    // }
 }
