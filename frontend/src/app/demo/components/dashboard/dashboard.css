@@ -5,29 +5,30 @@
 
 ::ng-deep .add-unit .p-button {
     background-color: rgb(135, 192, 239);
-    border-color:rgb(135, 192, 239);
-    
+    border-color: rgb(135, 192, 239);
 }
 
 .input-success {
-        border-color: green;
-    }
-    
-.input-error {
-
-border-color: red;
-
+    border-color: green;
 }
 
-.p-card .p-card-title{
+.input-error {
+    border-color: red;
+}
+
+.p-card .p-card-title {
     background-color: rgb(30, 216, 145);
 }
 
-.minw{
+.minw {
     min-width: 400px;
 }
 .change-icon:hover {
-
     cursor: pointer;
     border: rgb(249, 181, 57) 1px solid;
+}
+
+.icon-plus-changer:hover {
+    cursor: pointer;
+    border: rgb(198, 200, 203) 1px solid;
 }

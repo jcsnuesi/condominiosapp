@@ -137,6 +137,11 @@ export class StaffComponent implements OnInit, AfterViewInit {
 
     public staffVisibleBackBtn: boolean;
     public ownerId: string;
+    public dataToUpdate: any;
+    public previewGender: any;
+    public previwImageEdit: any;
+    public currentPasswordMsg: string;
+    public passwordMatch: boolean;
 
     @ViewChild('genderRef') genderDropDown!: ElementRef;
     @ViewChild('positionRef') genderPositionRef!: ElementRef;
@@ -287,13 +292,18 @@ export class StaffComponent implements OnInit, AfterViewInit {
     }
 
     public condoData: any;
+    public backBtnVisible: boolean;
+
     ngOnInit(): void {
         // Obtiene el id del condominio
         this._route.params.subscribe((params) => {
             let condoId = Object.keys(params).includes('ownerId')
                 ? params['ownerId']
-                : params['homeId'] + '.' + 'homeId'; // comparte variable admin y owner
+                : params['homeId'] + '_' + 'homeId'; // comparte variable admin y owner
             this.condoData = condoId;
+            this.backBtnVisible = Object.keys(params).includes('homeId')
+                ? true
+                : false;
 
             if (condoId != undefined) {
                 this.getStaffByCondoId(condoId);
@@ -344,7 +354,7 @@ export class StaffComponent implements OnInit, AfterViewInit {
     }
 
     backToDashboard() {
-        this._router.navigate(['/home', this.condo_id]);
+        this._router.navigate(['/home', this.condoData.split('.')[0]]);
     }
 
     public condo_id: string;
@@ -352,9 +362,6 @@ export class StaffComponent implements OnInit, AfterViewInit {
     genderFormat(genderRaw: any): string {
         return this._formatFunctions.genderPipe(genderRaw);
     }
-
-    public dataToUpdate: any;
-    public previewGender: any;
 
     showDialog(info: any) {
         this.visibleStaff = true;
@@ -477,8 +484,6 @@ export class StaffComponent implements OnInit, AfterViewInit {
         });
     }
 
-    public previwImageEdit: any;
-    public currentPasswordMsg: string;
     update(form: NgForm) {
         const formdata = new FormData();
 
@@ -492,39 +497,62 @@ export class StaffComponent implements OnInit, AfterViewInit {
             }
         }
 
-        this._staffService.updateStaff(this.token, formdata).subscribe({
-            next: (response) => {
-                if (response.status == 'success') {
-                    this._messageService.add({
-                        severity: 'success',
-                        summary: 'Confirmed',
-                        detail: 'Staff successfully updated!',
-                        key: 'br',
-                        life: 3000,
-                    });
-                    this.visibleStaff = false;
-                    form.reset();
-                }
+        this._confirmationService.confirm({
+            target: event.target as EventTarget,
+            header: 'Confirmation',
+            message: 'Please confirm to proceed moving forward.',
+            icon: 'pi pi-exclamation-circle',
+            acceptIcon: 'pi pi-check mr-1',
+            rejectIcon: 'pi pi-times mr-1',
+            acceptLabel: 'Confirm',
+            rejectLabel: 'Cancel',
+            rejectButtonStyleClass: 'p-button-outlined p-button-sm',
+            acceptButtonStyleClass: 'p-button-sm',
+            accept: () => {
+                this._staffService.updateStaff(this.token, formdata).subscribe({
+                    next: (response) => {
+                        if (response.status == 'success') {
+                            this._messageService.add({
+                                severity: 'success',
+                                summary: 'Confirmed',
+                                detail: 'Staff successfully updated!',
+                                key: 'br',
+                                life: 3000,
+                            });
+                            this.visibleStaff = false;
+                            form.reset();
+                            this.ngOnInit();
+                        }
+                    },
+                    error: (error) => {
+                        this._messageService.add({
+                            severity: 'error',
+                            summary: 'Error',
+                            detail: 'Staff was not updated!',
+                            key: 'br',
+                            life: 3000,
+                        });
+
+                        if (error.error.message == 'Password incorrect') {
+                            this.statusApi = true;
+                            this.currentPasswordMsg = error.error.message;
+                            setTimeout(() => {
+                                this.statusApi = false;
+                            }, 6000);
+                        }
+                    },
+                    complete: () => {
+                        console.log('Request completed!');
+                    },
+                });
             },
-            error: (error) => {
+            reject: () => {
                 this._messageService.add({
                     severity: 'error',
-                    summary: 'Error',
-                    detail: 'Staff was not updated!',
-                    key: 'br',
+                    summary: 'Rejected',
+                    detail: 'You have rejected',
                     life: 3000,
                 });
-
-                if (error.error.message == 'Password incorrect') {
-                    this.statusApi = true;
-                    this.currentPasswordMsg = error.error.message;
-                    setTimeout(() => {
-                        this.statusApi = false;
-                    }, 6000);
-                }
-            },
-            complete: () => {
-                console.log('Request completed!');
             },
         });
     }
@@ -543,8 +571,6 @@ export class StaffComponent implements OnInit, AfterViewInit {
             this.passval = false;
         }
     }
-
-    public passwordMatch: boolean;
 
     verifyPasswordAPI(confirmPassword: any) {
         let passwordInput = '';
@@ -588,7 +614,6 @@ export class StaffComponent implements OnInit, AfterViewInit {
 
     getAdminsProperties() {
         this.loadingCondo = true;
-
         this._condominioService.getPropertyByAdminId(this.token).subscribe({
             next: (response) => {
                 if (response.status == 'success') {
@@ -652,6 +677,7 @@ export class StaffComponent implements OnInit, AfterViewInit {
                                     key: 'br',
                                     life: 3000,
                                 });
+                                this.ngOnInit();
                             }
                         },
                         error: (error) => {
@@ -677,14 +703,4 @@ export class StaffComponent implements OnInit, AfterViewInit {
             },
         });
     }
-
-    // staffPipe(response: any) {
-    //     if (response.status == 'success') {
-    //         if (this.condo_id != undefined) {
-    //             this.getStaffByCondoId();
-    //         } else {
-    //             this.getStaffList();
-    //         }
-    //     }
-    // }
 }

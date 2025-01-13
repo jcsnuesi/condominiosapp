@@ -251,20 +251,19 @@
                                     <i class="pi pi-building"></i>
                                 </p-inputGroupAddon>
 
-                                <input
+                                <p-dropdown
                                     [ngClass]="{
                                         'input-success': apartmentsUnit.valid,
                                         'input-error ':
                                             apartmentsUnit.touched &&
                                             !apartmentsUnit.dirty
                                     }"
-                                    pInputText
                                     #apartmentsUnit="ngModel"
                                     [(ngModel)]="ownerObj.apartmentsUnit"
                                     name="apartmentsUnit"
-                                    type="text"
-                                    maxlength="11"
-                                    placeholder="307-B"
+                                    [options]="unitOptions"
+                                    optionLabel="label"
+                                    placeholder="Choose available unit..."
                                     required
                                 />
                             </p-inputGroup>
@@ -308,7 +307,7 @@
                                     <i class="pi pi-car"></i>
                                 </p-inputGroupAddon>
 
-                                <p-dropdown
+                                <p-inputNumber
                                     [ngClass]="{
                                         'ng-valid input-success': parking.valid,
                                         'ng-invalid ng-dirty':
@@ -317,10 +316,10 @@
                                     name="parking"
                                     #parking="ngModel"
                                     [(ngModel)]="ownerObj.parkingsQty"
-                                    [options]="parkingOptions"
-                                    optionLabel="label"
-                                    placeholder="Select gender..."
+                                    placeholder="Parking units..."
                                     required
+                                    inputId="integeronly"
+                                    [(ngModel)]="value1"
                                 />
                             </p-inputGroup>
                         </div>

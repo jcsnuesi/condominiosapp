@@ -1,3 +1,6 @@
+<p-toast />
+<p-confirmDialog />
+
 <p-card
     header="Success!"
     [style]="{
@@ -134,6 +137,94 @@
                                         pattern="^[0-9]+"
                                         placeholder="8095882222"
                                     />
+                                </div>
+
+                                <div class="addressProperty">
+                                    <label>Unit numbering type</label>
+                                    <div class="field-radiobutton">
+                                        <p-radioButton
+                                            name="numberingType"
+                                            value="numeric"
+                                            [(ngModel)]="numberingType"
+                                        ></p-radioButton>
+                                        <label>Numbers (1, 2, 3...)</label>
+                                    </div>
+                                    <div class="field-radiobutton">
+                                        <p-radioButton
+                                            name="numberingType"
+                                            value="padded"
+                                            [(ngModel)]="numberingType"
+                                        ></p-radioButton>
+                                        <label
+                                            >Numbers with zeros (001, 002,
+                                            003...)</label
+                                        >
+                                    </div>
+                                    <div class="field-radiobutton">
+                                        <p-radioButton
+                                            name="numberingType"
+                                            value="letters"
+                                            [(ngModel)]="numberingType"
+                                        ></p-radioButton>
+                                        <label>Letras (A, B, C...)</label>
+                                    </div>
+
+                                    <div
+                                        *ngIf="numberingType == 'letters'"
+                                        class="flex gap-2"
+                                    >
+                                        <input
+                                            pInputText
+                                            #fromLetters="ngModel"
+                                            placeholder="From A"
+                                            [(ngModel)]="fromLetter"
+                                            name="letterFrom"
+                                            pattern="[a-zA-Z]"
+                                            maxlength="1"
+                                            style="text-transform: uppercase"
+                                        />
+
+                                        <input
+                                            pInputText
+                                            [(ngModel)]="toLetter"
+                                            placeholder="To Z"
+                                            #letterTo="ngModel"
+                                            name="letterTo"
+                                            pattern="[a-zA-Z]"
+                                            maxlength="1"
+                                            style="text-transform: uppercase"
+                                        />
+                                    </div>
+
+                                    <div class="unit-range mt-3">
+                                        <label>Unit range</label>
+                                        <div class="flex gap-2">
+                                            <p-inputNumber
+                                                [(ngModel)]="startUnit"
+                                                placeholder="Desde"
+                                                name="startUnit"
+                                            ></p-inputNumber>
+                                            <p-inputNumber
+                                                [(ngModel)]="endUnit"
+                                                placeholder="Hasta"
+                                                name="endUnit"
+                                                (keyup)="previewUnits()"
+                                            ></p-inputNumber>
+                                        </div>
+                                    </div>
+
+                                    <div class="preview-units mt-2">
+                                        <label>Preview:</label>
+                                        <p
+                                            class="text-sm text-500"
+                                            *ngFor="
+                                                let unit of lettersFormatted;
+                                                let i = index
+                                            "
+                                        >
+                                            {{ i + 1 + " - " + unit }}
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
                         </div>

@@ -150,6 +150,23 @@ export class FamilyMemberComponent implements OnInit {
 
     public tblInfo: any;
     ngOnInit(): void {
+        /**
+         * Owner:
+         * Metodo para crear un family member
+         * Crear metodo que busque los datos de los family members por el id del propietario
+         * Metodo para modificar un family member
+         * Metodo para eliminar un family member
+         * Metodo para crear un unit
+         * Metodo para modificar un unit
+         * Metodo para eliminar un unit
+         *
+         *
+         * Admin:
+         * Crear metodo para obtener todas las propiedades por el id del admin
+         *
+         *
+         * Crear metodo que obtenga todas las propiedad
+         */
         this.getFamilies();
         // this.sendData();
     }

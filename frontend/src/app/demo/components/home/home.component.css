@@ -45,3 +45,8 @@
     border-top-left-radius: 5px;
     border-bottom-left-radius: 5px;
 }
+
+::ng-deep .justify-contents {
+    display: flex;
+    justify-content: center;
+}

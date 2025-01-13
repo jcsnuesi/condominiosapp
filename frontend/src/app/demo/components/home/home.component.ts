@@ -133,7 +133,7 @@ export class HomeComponent implements OnInit {
     public property_typeOptions: any[] = [];
     public units: number;
     public url: string;
-    public dateFormatted: string;
+    public card_unit_member_date: string;
     public authorizedUser: FamilyAccess[];
     public addressInfo: any;
     public nodata: boolean;
@@ -283,12 +283,11 @@ export class HomeComponent implements OnInit {
             let id = param['homeid'];
 
             this.condoId = id;
-            console.log('ID:', id);
 
             if (id != undefined) {
                 this._condominioService.getBuilding(id, this.token).subscribe(
                     (response) => {
-                        console.log('UNIT LIST:', response);
+                        console.log('CONDOMINIO', response);
                         if (response.status == 'success') {
                             var unitList = response.condominium;
                             localStorage.setItem(
@@ -297,7 +296,7 @@ export class HomeComponent implements OnInit {
                             );
                             this.units = unitList.units_ownerId.length;
 
-                            this.dateFormatted =
+                            this.card_unit_member_date =
                                 this._formatFunctions.dateFormat2(
                                     unitList.createdAt
                                 );
@@ -516,12 +515,6 @@ export class HomeComponent implements OnInit {
             }
         }
 
-        // formData.forEach((value, key) => {
-        //     console.log(key + ' ' + value);
-        // });
-
-        // return;
-
         this._ownerService.updateOwner(this.token, formData).subscribe({
             next: (response) => {
                 if (response.status == 'success') {
@@ -546,14 +539,12 @@ export class HomeComponent implements OnInit {
         });
     }
 
-    // getCondoId() {
-    //     return JSON.parse(localStorage.getItem('property'));
-    // }
-
     public activeStaffQty: number;
     // Carga los staff por condominio
     getStaffByCondoId() {
-        this._staffService.getStaffByCondo(this.token, this.condoId).subscribe({
+        let data = this.condoId + '_' + 'homeId'; // comparte variable admin y owner
+
+        this._staffService.getStaffByOwnerCondo(this.token, data).subscribe({
             next: (response) => {
                 if (response.status == 'success') {
                     this.activeStaffQty = response.message.filter(
@@ -569,78 +560,68 @@ export class HomeComponent implements OnInit {
     }
 
     getInvoiceByCondoFunc(cantidadOwner) {
-        //
-
         this._invoiceService
             .getInvoiceByCondo(this.token, this.condoId)
             .subscribe({
                 next: (response) => {
-                    if (
-                        response.invoices.length > 0 &&
-                        response.status == 'success'
-                    ) {
+                    // GRAPH VARIABLES
+                    const documentStyle = getComputedStyle(
+                        document.documentElement
+                    );
+                    const textColor =
+                        documentStyle.getPropertyValue('--text-color');
+
+                    const textColorSecondary = documentStyle.getPropertyValue(
+                        '--text-color-secondary'
+                    );
+
+                    const surfaceBorder =
+                        documentStyle.getPropertyValue('--surface-border');
+                    this.dataChart = {
+                        labels: [
+                            'January',
+                            'February',
+                            'March',
+                            'April',
+                            'May',
+                            'June',
+                            'July',
+                            'August',
+                            'September',
+                            'October',
+                            'November',
+                            'December',
+                        ],
+                        datasets: [
+                            {
+                                label: 'Paid',
+                                backgroundColor:
+                                    documentStyle.getPropertyValue(
+                                        '--blue-500'
+                                    ),
+                                borderColor:
+                                    documentStyle.getPropertyValue(
+                                        '--blue-500'
+                                    ),
+                                data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            },
+                            {
+                                label: 'Unpaid',
+                                backgroundColor:
+                                    documentStyle.getPropertyValue('--red-500'),
+                                borderColor:
+                                    documentStyle.getPropertyValue('--red-500'),
+                                data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            },
+                        ],
+                    };
+                    let paidData = {};
+                    let unpaidData = {};
+                    if (response.status == 'success') {
                         this.chartVisible = true;
 
                         let invoiceResp = response.invoices;
-                        // GRAPH VARIABLES
-                        const documentStyle = getComputedStyle(
-                            document.documentElement
-                        );
-                        const textColor =
-                            documentStyle.getPropertyValue('--text-color');
 
-                        const textColorSecondary =
-                            documentStyle.getPropertyValue(
-                                '--text-color-secondary'
-                            );
-
-                        const surfaceBorder =
-                            documentStyle.getPropertyValue('--surface-border');
-
-                        this.dataChart = {
-                            labels: [
-                                'January',
-                                'February',
-                                'March',
-                                'April',
-                                'May',
-                                'June',
-                                'July',
-                                'August',
-                                'September',
-                                'October',
-                                'November',
-                                'December',
-                            ],
-                            datasets: [
-                                {
-                                    label: 'Paid',
-                                    backgroundColor:
-                                        documentStyle.getPropertyValue(
-                                            '--blue-500'
-                                        ),
-                                    borderColor:
-                                        documentStyle.getPropertyValue(
-                                            '--blue-500'
-                                        ),
-                                    data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                                },
-                                {
-                                    label: 'Unpaid',
-                                    backgroundColor:
-                                        documentStyle.getPropertyValue(
-                                            '--red-500'
-                                        ),
-                                    borderColor:
-                                        documentStyle.getPropertyValue(
-                                            '--red-500'
-                                        ),
-                                    data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                                },
-                            ],
-                        };
-                        let paidData = {};
-                        let unpaidData = {};
                         invoiceResp.forEach((element) => {
                             let {
                                 invoice_amount,

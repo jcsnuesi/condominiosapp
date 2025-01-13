@@ -11,6 +11,7 @@ import {
     OnChanges,
     SimpleChanges,
     ElementRef,
+    Input,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BrowserModule } from '@angular/platform-browser';
@@ -116,6 +117,7 @@ export class BookingAreaComponent implements OnInit {
     public bookingId: string;
     public headerBooking: string;
     public today: Date;
+    @Input('showBackBtn') showBackBtn: boolean = false;
 
     constructor(
         private _userService: UserService,

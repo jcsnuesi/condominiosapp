@@ -12,57 +12,45 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { Router } from '@angular/router';
 import { FamilyMemberDetailsComponent } from '../family-member-details/family-member-details.component';
-
+import { PipesModuleModule } from 'src/app/pipes/pipes-module.module';
 
 @Component({
-  selector: 'app-dynamic-table',
-  standalone: true,
-  imports: [
-    FamilyMemberDetailsComponent,
-    PdfViewerModule,
-    TableModule,
-    CommonModule,
-    ConfirmDialogModule,
-    HasPermissionsDirective,
-    CardModule,
-    DialogModule,
-    ProgressSpinnerModule
-  ],
-  templateUrl: './dynamic-table.component.html',
-  styleUrl: './dynamic-table.component.css'
+    selector: 'app-dynamic-table',
+    standalone: true,
+    imports: [
+        PipesModuleModule,
+        FamilyMemberDetailsComponent,
+        PdfViewerModule,
+        TableModule,
+        CommonModule,
+        ConfirmDialogModule,
+        HasPermissionsDirective,
+        CardModule,
+        DialogModule,
+        ProgressSpinnerModule,
+    ],
+    templateUrl: './dynamic-table.component.html',
+    styleUrl: './dynamic-table.component.css',
 })
 export class DynamicTableComponent implements OnInit {
+    @Input() inputData!: any;
+    public nodata: boolean;
+    public bodyTableInfo: any;
+    public dynamicHeaders: any;
+    public _stringFormating: any;
+    public visible_dynamic: any;
+    public visible_spinner: any;
+    public header_modal_aux: any;
+    public pdfSrc: any;
+    // public familyMember: any;
+    public modalAuxInfo: any;
 
+    constructor(private confirmationService: ConfirmationService) {
+        this.nodata = false;
+    }
 
-  @Input() inputData!: any;
-  public nodata: boolean;
-  public bodyTableInfo: any;
-  public dynamicHeaders: any; 
-  public _stringFormating: any;
-  public visible_dynamic: any;
-  public visible_spinner: any;
-  public header_modal_aux: any;
-  public pdfSrc: any;
-  // public familyMember: any;
-  public modalAuxInfo: any;
-
-
-
-  constructor( private confirmationService: ConfirmationService) {
-    this.nodata = false;
-    
-   
-   }
-
-public tblInfo: any;
-ngOnInit() {
-
- 
-  console.log('Data recieved', this.inputData);
+    public tblInfo: any;
+    ngOnInit() {
+        console.log('Data recieved', this.inputData);
+    }
 }
-
-
-
-
-}
- 

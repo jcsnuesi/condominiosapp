@@ -27,6 +27,8 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { StepsModule } from 'primeng/steps';
 import { DropdownModule } from 'primeng/dropdown';
 import { CardModule } from 'primeng/card';
+import { ActivatedRoute, Router } from '@angular/router';
+import { InputNumberModule } from 'primeng/inputnumber';
 
 type MessageType = {
     severity?: string;
@@ -64,6 +66,7 @@ type MessageType = {
         ToastModule,
         FormsModule,
         CommonModule,
+        InputNumberModule,
     ],
     providers: [
         CondominioService,
@@ -86,6 +89,8 @@ export class OwnerRegistrationComponent implements OnInit {
     public parkingOptions: any;
     public property_typeOptions: any[] = [];
     public indexStepper: number = 0;
+    public condoOptions: any[] = [];
+    public unitOptions: any[] = [];
 
     public addreesDetails: {
         street_1: string;
@@ -116,7 +121,9 @@ export class OwnerRegistrationComponent implements OnInit {
         private _condominioService: CondominioService,
         private _userService: UserService,
         private _messageService: MessageService,
-        private _confirmationService: ConfirmationService
+        private _confirmationService: ConfirmationService,
+        private _router: Router,
+        private _activatedRoute: ActivatedRoute
     ) {
         this.token = this._userService.getToken();
         this.identity = this._userService.getIdentity();
@@ -167,18 +174,54 @@ export class OwnerRegistrationComponent implements OnInit {
         ];
     }
 
+    /**
+     * Este componente se encarga de registrar un nuevo owner.
+     *
+     *
+     * Quienes pueden crear un nuevo owner:
+     * 1. El rol admin
+     *
+     *
+     *
+     */
+    public homeId: string;
     ngOnInit(): void {
-        this.parkingOptions = [];
+        this._activatedRoute.params.subscribe((params) => {
+            this.homeId = params['homeid'];
+            console.log('dashId --------------->', params);
+            this.OnLoad(this.homeId);
+            this.reviewOwnerCard();
+        });
+    }
 
+    /**
+     * Metodo para obtener las unidades disponibles del condominio
+     * @param param  - id del condominio
+     */
+    OnLoad(param: string) {
+        this._condominioService.getBuilding(param, this.token).subscribe({
+            next: (response) => {
+                console.log(response);
+                if (response.status == 'success') {
+                    this.unitOptions = response.condominium.availableUnits.map(
+                        (units) => {
+                            return {
+                                label: units,
+                                code: units,
+                            };
+                        }
+                    );
+                }
+            },
+            error: (error) => {
+                console.log(error);
+            },
+        });
+    }
+
+    reviewOwnerCard() {
         let property = JSON.parse(localStorage.getItem('property'));
-
         this.ownerObj.propertyType = property.typeOfProperty.toUpperCase();
-
-        for (let index = 1; index < 5; index++) {
-            this.parkingOptions.push({ label: index, code: index });
-        }
-        // this.stepsOwner.start = 1;
-        console.log(this.propertyInfo, 'STEPS');
         // Address Details - Card
         this.ownerObj.addressId = property._id;
         this.addreesDetails.street_1 = property.street_1;
@@ -233,6 +276,15 @@ export class OwnerRegistrationComponent implements OnInit {
         this.indexStepper = 0;
         this.apiUnitResponse = false;
     }
+    /**
+     * Metodo para crear propiedad:
+     * Principal: Definir si vamos a crear un family member o una unidad
+     * 1.Tomamos el id del owner
+     * 2.Tomamos el id del condominio
+     * 3. Seleccionamos el condominio al que pertenece el owner
+     * 4. Si vamos agregar una nueva unidad, actualizamos el owner para que se registre la nueva unidad
+     * 5. Solo el rol owner puede registrar una nueva unidad
+     */
     onSubmitUnit() {
         const formData = new FormData();
 
@@ -278,6 +330,7 @@ export class OwnerRegistrationComponent implements OnInit {
                         item.detail = response.message;
                         item.severity = 'success';
                     });
+                    this.OnLoad(this.homeId);
                     this.indexStepper = 0;
                     this.image = '../../assets/noimage.jpeg';
                 } else {
@@ -309,8 +362,7 @@ export class OwnerRegistrationComponent implements OnInit {
     }
 
     reset(form: NgForm) {
-        console.log(form.reset());
-        // this.propertyInfo.reset();
+        form.reset();
     }
 
     alertStatus(form: NgForm) {

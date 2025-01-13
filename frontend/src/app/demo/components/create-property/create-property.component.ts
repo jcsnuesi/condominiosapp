@@ -13,12 +13,18 @@ import { CardModule } from 'primeng/card';
 import { RouterModule, Router } from '@angular/router';
 import { StepperModule } from 'primeng/stepper';
 import { CalendarModule } from 'primeng/calendar';
+import { RadioButtonModule } from 'primeng/radiobutton';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { ConfirmationService, MessageService } from 'primeng/api';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
     selector: 'app-create-property',
     standalone: true,
     imports: [
         CommonModule,
+        ToastModule,
         FormsModule,
         DropdownModule,
         InputTextModule,
@@ -29,10 +35,18 @@ import { CalendarModule } from 'primeng/calendar';
         RouterModule,
         StepperModule,
         CalendarModule,
+        RadioButtonModule,
+        InputNumberModule,
+        ConfirmDialogModule,
     ],
     templateUrl: './create-property.component.html',
     styleUrls: ['./create-property.component.css'],
-    providers: [CondominioService, UserService],
+    providers: [
+        CondominioService,
+        UserService,
+        ConfirmationService,
+        MessageService,
+    ],
 })
 export class CreatePropertyComponent implements OnInit {
     public condominioModel: Condominio;
@@ -45,12 +59,27 @@ export class CreatePropertyComponent implements OnInit {
     public status: any;
     public avatar: any;
     public token: string;
+    public identity: any;
+    public numberingType: string = 'numeric';
+    public numberingOptions = [
+        { label: 'Números (1, 2, 3...)', value: 'numeric' },
+        { label: 'Números con ceros (001, 002, 003...)', value: 'padded' },
+        { label: 'Letras (A, B, C...)', value: 'letters' },
+    ];
+    public startUnit: number = 1;
+    public endUnit: number = 1;
+    public totalUnits: number = 1;
+    public fromLetter: string = 'A';
+    public toLetter: string = 'Z';
+
     @ViewChild('fileInput') fileInput!: FileUpload;
 
     constructor(
         private _condominioService: CondominioService,
         private _userService: UserService,
-        private _router: Router
+        private _router: Router,
+        private _confirmationService: ConfirmationService,
+        private _messageService: MessageService
     ) {
         this.condominioModel = new Condominio(
             '',
@@ -68,15 +97,25 @@ export class CreatePropertyComponent implements OnInit {
             [],
             [],
             null,
-            new Date()
+            new Date(),
+            [],
+            ''
         );
 
         this.image = '../../assets/noimage.jpeg';
         this.token = this._userService.getToken();
+        this.identity = this._userService.getIdentity();
+        if (this.identity.role == 'ADMIN') {
+            this.condominioModel.user_id = this.identity._id;
+        } else {
+            this.condominioModel.user_id = this.identity.createdBy;
+        }
     }
 
     ngOnInit(): void {
         this.status = 'showForm';
+
+        this.lettersRangeVisible = false;
         this.condominioModel.country = 'Dominican Republic';
 
         this.condoType = [
@@ -94,6 +133,87 @@ export class CreatePropertyComponent implements OnInit {
             { areasOptions: 'Playground' },
             { areasOptions: 'Guest parking' },
         ];
+
+        this.lettersFormatted = [];
+    }
+
+    public lettersRangeVisible: boolean;
+    public lettersFormatted: any[] = [];
+
+    previewUnits(): void {
+        let previewUnits: any = null;
+
+        switch (this.numberingType) {
+            case 'numeric':
+                this.lettersFormatted = [];
+                this.condominioModel.unitFormat = [];
+                for (let i = this.startUnit; i <= this.endUnit; i++) {
+                    this.lettersFormatted.push(i + ', ');
+                    this.condominioModel.unitFormat.push(i + ', ');
+                }
+                break;
+            case 'padded':
+                this.condominioModel.unitFormat = [];
+                for (let i = this.startUnit; i <= this.endUnit; i++) {
+                    if (this.endUnit <= 99) {
+                        this.lettersFormatted.push(
+                            i.toString().padStart(3, '0') + ', '
+                        );
+                        this.condominioModel.unitFormat.push(
+                            i.toString().padStart(3, '0') + ', '
+                        );
+                    } else {
+                        this.lettersFormatted.push(i + ', ');
+                        this.condominioModel.unitFormat.push(i + ', ');
+                    }
+                }
+
+                break;
+            case 'letters':
+                let stopFindingWord = true;
+                this.lettersRangeVisible = true;
+
+                if (this.lettersRangeVisible) {
+                    let counter = 1;
+                    let letters = [];
+                    this.lettersFormatted = [];
+                    this.condominioModel.unitFormat = [];
+                    this.toLetter = this.toLetter.toUpperCase();
+
+                    while (stopFindingWord) {
+                        if (
+                            String.fromCharCode(64 + counter) === this.toLetter
+                        ) {
+                            stopFindingWord = false;
+                        }
+                        letters.push(String.fromCharCode(64 + counter));
+                        counter++;
+                    }
+
+                    for (const word of letters) {
+                        for (let index = 1; index <= this.endUnit; index++) {
+                            if (index === this.endUnit) {
+                                this.lettersFormatted.push(
+                                    word +
+                                        ' - ' +
+                                        1 +
+                                        '... ' +
+                                        word +
+                                        ' - ' +
+                                        index
+                                );
+                            }
+                            this.condominioModel.unitFormat.push(
+                                `${word} - ${index}`
+                            );
+                        }
+                    }
+                }
+
+                break;
+            default:
+                break;
+        }
     }
 
     triggerFileUpload() {
@@ -101,10 +221,13 @@ export class CreatePropertyComponent implements OnInit {
         this.fileInput.basicFileInput.nativeElement.click();
     }
 
-    // crear el modelo condominio *
-    // crear el formulario *
-    // enviar los datos a la api *
-    // recibir respuesta de la api *
+    /**
+     * Crear metodo para definir las numeraciones de las unidades:
+     *  En caso se que comience con 001, 002, 003, etc.
+     *  En caso se que comience con A, B, C, etc.
+     *  En caso se que comience con 1, 2, 3, etc.
+     * Crear el componente html para estas opciones
+     */
 
     reloadWindows() {
         this._router.navigate(['/create-property']);
@@ -121,15 +244,19 @@ export class CreatePropertyComponent implements OnInit {
 
     submit(condominiumForm: NgForm) {
         const formdata = new FormData();
-
         formdata.append(
             'avatar',
             this.avatar != null ? this.avatar : 'noimage.jpeg'
         );
+        formdata.append('user_id', this.condominioModel.user_id);
         formdata.append('alias', this.condominioModel.alias);
         formdata.append(
             'typeOfProperty',
             this.condominioModel.typeOfProperty.property
+        );
+        formdata.append(
+            'availableUnits',
+            JSON.stringify(this.condominioModel.unitFormat)
         );
         formdata.append('phone', this.condominioModel.phone);
         formdata.append('phone2', this.condominioModel.phone2);
@@ -148,22 +275,42 @@ export class CreatePropertyComponent implements OnInit {
         this.condominioModel.socialAreas.forEach((areas) => {
             formdata.append('socialAreas', areas.areasOptions);
         });
-
-        this._condominioService
-            .createCondominium(this.token, formdata)
-            .subscribe(
-                (response) => {
-                    if (response.status == 'success') {
-                        this.status = response.status;
-
-                        condominiumForm.reset();
-                    }
-                    console.log(response);
-                },
-                (error) => {
-                    console.error(error);
-                }
-            );
+        this._confirmationService.confirm({
+            header: 'Confirmation',
+            message: 'Please confirm to proceed moving forward.',
+            icon: 'pi pi-exclamation-circle',
+            acceptIcon: 'pi pi-check mr-1',
+            rejectIcon: 'pi pi-times mr-1',
+            acceptLabel: 'Confirm',
+            rejectLabel: 'Cancel',
+            rejectButtonStyleClass: 'p-button-outlined p-button-sm',
+            acceptButtonStyleClass: 'p-button-sm',
+            accept: () => {
+                this._condominioService
+                    .createCondominium(this.token, formdata)
+                    .subscribe(
+                        (response) => {
+                            if (response.status == 'success') {
+                                this.status = response.status;
+                                condominiumForm.reset();
+                                this.ngOnInit();
+                                this.status = 'success';
+                            }
+                        },
+                        (error) => {
+                            console.error(error);
+                        }
+                    );
+            },
+            reject: () => {
+                this._messageService.add({
+                    severity: 'error',
+                    summary: 'Rejected',
+                    detail: 'You have rejected',
+                    life: 3000,
+                });
+            },
+        });
     }
 
     onSelect(file: any) {

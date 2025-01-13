@@ -1,7 +1,7 @@
 <div *appHasPermissions="'admin'" style="margin-bottom: 15px">
     <p-button
         (click)="back()"
-        *ngIf="pathId == 'homeid'"
+        *ngIf="showBackBtn"
         label="Back"
         icon="pi pi-arrow-left"
     ></p-button>

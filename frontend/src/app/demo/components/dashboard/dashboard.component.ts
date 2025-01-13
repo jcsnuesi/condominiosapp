@@ -86,6 +86,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     public changePasswordDialog: boolean = false;
     public messagesNoProperty: any;
     public totalUnits: number;
+    public visibleCreateOwnerUnit: boolean = false;
     @Output() propertyInfoEvent: EventEmitter<any> = new EventEmitter();
 
     constructor(
@@ -260,7 +261,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.getStaffQty();
     }
 
-    showDialogAllUnits() {
+    showDialogCreateOwnerUnit() {
+        this.visibleCreateOwnerUnit = true;
         console.log('showDialogAllUnits');
     }
 
@@ -299,10 +301,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 },
             });
     }
-
-    // handleButtonClick(event: Event) {
-    //     // console.log('Button clicked!', event);
-    // }
 
     propertyData(data) {
         // emit data to parent component

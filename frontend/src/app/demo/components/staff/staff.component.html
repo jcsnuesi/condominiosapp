@@ -1,6 +1,5 @@
-<div *ngIf="staffVisibleBackBtn">
+<div style="padding: 10px" *ngIf="backBtnVisible">
     <p-button
-        *appHasPermissions="'admin'"
         (click)="backToDashboard()"
         label="Back"
         icon="pi pi-arrow-left"

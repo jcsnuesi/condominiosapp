@@ -33,9 +33,11 @@ import { CardsComponent } from '../cards/cards.component';
 import { BookingAreaComponent } from '../booking-area/booking-area.component';
 import { HasPermissionsDirective } from 'src/app/has-permissions.directive';
 import { ChangePasswordComponent } from '../change-password/change-password.component';
+import { DynamicTableComponent } from '../dynamic-table/dynamic-table.component';
 
 @NgModule({
     imports: [
+        DynamicTableComponent,
         HasPermissionsDirective,
         ChangePasswordComponent,
         BookingAreaComponent,
