@@ -284,11 +284,11 @@ var StaffController = {
   getStaffByOwnerAndCondoId: async function (req, res) {
     let _user = req.params.id;
     var ref = null;
-    if (Boolean(_user.split(".")[1] == "homeId")) {
-      _user = _user.split(".")[0];
+    if (Boolean(_user.split("_")[1] == "homeId")) {
+      _user = _user.split("_")[0];
       ref = "homeId";
     }
-    console.log("USER ID---->:", _user);
+
     let query = {};
 
     try {
@@ -301,11 +301,10 @@ var StaffController = {
         const user_id = condo.filter((condo) =>
           condo.units_ownerId.includes(_user) ? condo._id : null
         );
-        query["condo_id"] = {
-          $in: user_id,
-        };
+        query["condo_id"] = { $in: user_id };
+        query["status"] = "active";
       }
-      console.log("QUERY---->:", query);
+
       const StaffFound = await Staff.find(query).populate(
         "condo_id",
         "alias phone"

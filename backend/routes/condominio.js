@@ -20,7 +20,7 @@ router.get(
 router.get("/condominioById", condominioController.getCondominiumById);
 router.get(
   "/condominioByAdmin",
-  authenticated,
+  [authenticated, adminAuth],
   condominioController.getCondominiumsByAdmin
 );
 router.get("/buildingDetail/:id", condominioController.getBuildingDetails);

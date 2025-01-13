@@ -13,7 +13,7 @@ exports.authorization = function (req, res, next) {
 
 exports.adminAuth = function (req, res, next) {
   let params = req.user.role;
-  console.log("ADMIN AUTH:", params);
+
   const allowedRoles = ["ADMIN", "STAFF"];
 
   if (!allowedRoles.includes(params)) {

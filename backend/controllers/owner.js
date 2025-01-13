@@ -151,6 +151,15 @@ var ownerAndSubController = {
 
             await user.save();
             condominioFound.units_ownerId.push(user._id);
+            // Este código elimina la unidad asignada de la lista de unidades disponibles
+            // 1. Encuentra el índice de la unidad (params.apartmentsUnit) en el array availableUnits
+            // 2. Elimina 1 elemento en esa posición usando splice()
+            // Esto se hace porque una vez que se asigna una unidad a un propietario,
+            // ya no debe estar disponible para otros
+            condominioFound.availableUnits.splice(
+              condominioFound.availableUnits.indexOf(params.apartmentsUnit),
+              1
+            );
             await Condominio.findOneAndUpdate(
               { _id: params.addressId },
               condominioFound,

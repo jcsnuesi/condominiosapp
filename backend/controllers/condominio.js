@@ -52,7 +52,8 @@ var Condominium_Controller = {
         {
           $and: [
             { alias: condominiumParams.alias },
-            { phone: condominiumParams.phone },
+            { status: "active" },
+            { createdBy: condominiumParams.createdBy },
           ],
         },
         (err, condominioFound) => {
@@ -83,6 +84,11 @@ var Condominium_Controller = {
 
             delete condominiumParams.socialAreas;
           }
+
+          condominio.availableUnits = JSON.parse(
+            condominiumParams.availableUnits
+          );
+          delete condominiumParams.availableUnits;
 
           for (const key in condominiumParams) {
             condominio[key] =
@@ -418,7 +424,7 @@ var Condominium_Controller = {
         path: "units_ownerId",
         match: { status: "active" },
         select:
-          "avatar name lastname gender email phone id_number status role familyAccount propertyDetails.addressId propertyDetails.condominium_unit propertyDetails.parkingsQty propertyDetails.isRenting propertyDetails.occupantId propertyDetails.createdAt",
+          "availableUnits avatar name lastname gender email phone id_number status role familyAccount propertyDetails.addressId propertyDetails.condominium_unit propertyDetails.parkingsQty propertyDetails.isRenting propertyDetails.occupantId propertyDetails.createdAt",
       })
       .exec((err, condominiumFound) => {
         if (err || !condominiumFound) {
