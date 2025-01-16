@@ -147,40 +147,42 @@ export class InviceGeneraterComponent {
     }
 
     updateInvoice() {
-        this._condoService
-            .updateCondominium(this.token, this.updateInfo)
-            .subscribe({
-                next: (data) => {
-                    if (data.status === 'success') {
-                        // localStorage.setItem('property', JSON.stringify(data.property));
-                        // Emitimos el evento para que se actualie el toast de factura generada
-                        this.facturaGenerada.emit({
-                            severity: 'success',
-                            summary: 'Successfully!',
-                            detail: 'Invoice updated successfully!',
-                        });
-                        // Cerramos el dialogo de invoice
-                        this.onHide();
-                    } else {
-                        this.facturaGenerada.emit({
-                            severity: 'error',
-                            summary: 'Fail',
-                            detail: 'Invoice was not updated.',
-                        });
-                    }
-                },
-                error: (error) => {
+        const formData = new FormData();
+        formData.append('mPayment', this.updateInfo.mPayment.toString());
+        formData.append('paymentDate', this.updateInfo.paymentDate);
+        formData.append('id', this.updateInfo.id);
+        this._condoService.updateCondominium(this.token, formData).subscribe({
+            next: (data) => {
+                if (data.status === 'success') {
+                    // localStorage.setItem('property', JSON.stringify(data.property));
+                    // Emitimos el evento para que se actualie el toast de factura generada
                     this.facturaGenerada.emit({
-                        severity: 'danger',
+                        severity: 'success',
+                        summary: 'Successfully!',
+                        detail: 'Invoice updated successfully!',
+                    });
+                    // Cerramos el dialogo de invoice
+                    this.onHide();
+                } else {
+                    this.facturaGenerada.emit({
+                        severity: 'error',
                         summary: 'Fail',
                         detail: 'Invoice was not updated.',
                     });
-                    console.error('There was an error!', error);
-                },
-                complete: () => {
-                    console.log('Completed');
-                },
-            });
+                }
+            },
+            error: (error) => {
+                this.facturaGenerada.emit({
+                    severity: 'danger',
+                    summary: 'Fail',
+                    detail: 'Invoice was not updated.',
+                });
+                console.error('There was an error!', error);
+            },
+            complete: () => {
+                console.log('Completed');
+            },
+        });
     }
 
     onClickInvoiceOwnerMultiSelect() {

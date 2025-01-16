@@ -1,51 +1,83 @@
+<p-toast></p-toast>
 <div class="layout-topbar">
     <a class="layout-topbar-logo" routerLink="">
-        <img src="assets/layout/images/{{layoutService.config.colorScheme === 'light' ? 'logo-dark' : 'logo-white'}}.svg" alt="logo">
+        <img
+            src="assets/layout/images/{{
+                layoutService.config.colorScheme === 'light'
+                    ? 'logo-dark'
+                    : 'logo-white'
+            }}.svg"
+            alt="logo"
+        />
         <span>CondApp</span>
     </a>
 
-        
-
-    <button #menubutton class="p-link layout-menu-button layout-topbar-button" (click)="layoutService.onMenuToggle()">
+    <button
+        #menubutton
+        class="p-link layout-menu-button layout-topbar-button"
+        (click)="layoutService.onMenuToggle()"
+    >
         <i class="pi pi-bars"></i>
     </button>
-    <div>
-         {{item}}
-
+    <div
+        *ngIf="currentCondo.status"
+        style="font-size: 2.2rem; font-weight: bold"
+    >
+        {{
+            currentCondoInfo.typeOfProperty.label + " " + currentCondoInfo.alias
+        }}
     </div>
 
-    <button #topbarmenubutton class="p-link layout-topbar-menu-button layout-topbar-button" (click)="layoutService.showProfileSidebar()">
+    <button
+        #topbarmenubutton
+        class="p-link layout-topbar-menu-button layout-topbar-button"
+        (click)="layoutService.showProfileSidebar()"
+    >
         <i class="pi pi-ellipsis-v"></i>
     </button>
 
-    <div #topbarmenu class="layout-topbar-menu" [ngClass]="{'layout-topbar-menu-mobile-active': layoutService.state.profileSidebarVisible}">
-        <!-- <button class="p-link layout-topbar-button">
+    <div
+        #topbarmenu
+        class="layout-topbar-menu"
+        [ngClass]="{
+            'layout-topbar-menu-mobile-active':
+                layoutService.state.profileSidebarVisible
+        }"
+    >
+        <button
+            *appHasPermissions="'admin'"
+            class="p-link layout-topbar-button"
+        >
             <i class="pi pi-calendar"></i>
-            <span>Calendar</span>
-        </button> -->
+        </button>
+        <button
+            *appHasPermissions="'admin'"
+            class="p-link layout-topbar-button"
+            (click)="openSettings()"
+        >
+            <i class="pi pi-cog"></i>
+        </button>
 
-    <p-toast></p-toast>
-    <!-- <button pButton type="button" (click)="menu.toggle($event)" icon="pi pi-bars" label="Show"></button> -->
-<div class="main-avatar">
-    <div>
-    
-        <div class="p-text-bold" style="text-align: right;">{{fullname}}</div>
-        <div class="p-text-bold" style="text-align: right;">{{role}}</div>
-    
-    </div>
-    <p-menu #menu [model]="items" [popup]="true"></p-menu>
-    <button pButton type="button" class="p-link layout-topbar-button" (click)="menu.toggle($event)">
-
-        <i class="pi pi-user" *ngIf="!identity"></i>
-
-        <p-avatar *ngIf="identity" image="https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png"
-            styleClass="mr-2" size="large" shape="circle" /> </button>
-    
-
-    
-
-
-</div>
+        <div class="main-avatar">
+            <div>
+                <div class="p-text-bold" style="text-align: right">
+                    {{ fullname }}
+                </div>
+                <div class="p-text-bold" style="text-align: right">
+                    {{ role }}
+                </div>
+            </div>
+            <p-menu #menu [model]="items" [popup]="true"></p-menu>
+            <button
+                pButton
+                type="button"
+                class="p-link layout-topbar-button avatar-button"
+                (click)="menu.toggle($event)"
+            >
+                <p-avatar *ngIf="identity" image="{{ avatar }}" />
+                <i class="pi pi-user" *ngIf="!identity"></i>
+            </button>
+        </div>
         <!-- <button class="p-link layout-topbar-button" [routerLink]="'/documentation'">
             <i class="pi pi-cog"></i>
             <span>Settings</span>
@@ -57,3 +89,505 @@
         </button> -->
     </div>
 </div>
+
+<!-- Settings Dialog -->
+
+<p-dialog
+    *appHasPermissions="'admin'"
+    header="Settings"
+    [(visible)]="visible_settings"
+    [modal]="true"
+    [draggable]="false"
+    [resizable]="false"
+    [closable]="true"
+    (onHide)="resetStepper()"
+>
+    <form #condominiumForm="ngForm" (ngSubmit)="updateCondo(condominiumForm)">
+        <div class="card flex justify-content-center">
+            <p-stepper
+                [activeStep]="indexStepper"
+                (activeStepChange)="onStepChange($event)"
+            >
+                <p-stepperPanel header="Basic Info">
+                    <ng-template
+                        pTemplate="content"
+                        let-nextCallback="nextCallback"
+                        let-index="index"
+                    >
+                        <div class="flex flex-column">
+                            <div
+                                class="border-2 border-dashed surface-border border-round surface-ground justify-content-center font-medium"
+                            >
+                                <div class="d-block" style="padding: 12px">
+                                    <div class="custom-file-upload">
+                                        <img
+                                            [src]="image"
+                                            (click)="triggerFileUpload()"
+                                            alt="Upload Image"
+                                            class="upload-img"
+                                        />
+
+                                        <p-fileUpload
+                                            #fileInput
+                                            name="fileInput"
+                                            url="https://www.primefaces.org/cdn/api/upload.php"
+                                            maxlengthFileSize="1000000"
+                                            accept="image/*"
+                                            (onSelect)="onSelect($event)"
+                                            [customUpload]="true"
+                                            [auto]="true"
+                                            mode="basic"
+                                            hidden="true"
+                                        >
+                                        </p-fileUpload>
+                                    </div>
+
+                                    <div class="addressProperty">
+                                        <label htmlFor="aliaslabel"
+                                            >Property name</label
+                                        >
+                                        <input
+                                            [ngClass]="{
+                                                'input-error':
+                                                    alias.invalid &&
+                                                    (alias.dirty ||
+                                                        alias.touched)
+                                            }"
+                                            pInputText
+                                            #alias="ngModel"
+                                            name="alias"
+                                            [(ngModel)]="currentCondo.alias"
+                                            id="aliaslabel"
+                                            type="text"
+                                            maxlength="50"
+                                            required
+                                        />
+                                    </div>
+
+                                    <div class="addressProperty">
+                                        <label for="typeOfPropertylabel">
+                                            Property type
+                                        </label>
+                                        <p-dropdown
+                                            id="typeOfPropertylabel"
+                                            placeholder="Choose property's type"
+                                            [ngClass]="{
+                                                'input-error-dropdown':
+                                                    typeOfProperty.invalid &&
+                                                    (typeOfProperty.dirty ||
+                                                        typeOfProperty.touched)
+                                            }"
+                                            name="typeOfProperty"
+                                            #typeOfProperty="ngModel"
+                                            [(ngModel)]="
+                                                currentCondo.typeOfProperty
+                                            "
+                                            [options]="condoType"
+                                            optionLabel="label"
+                                            required
+                                        >
+                                        </p-dropdown>
+                                    </div>
+
+                                    <div class="addressProperty">
+                                        <label htmlFor="phone">Phone</label>
+                                        <input
+                                            [ngClass]="{
+                                                'input-error':
+                                                    phone.invalid &&
+                                                    (phone.dirty ||
+                                                        phone.touched)
+                                            }"
+                                            pInputText
+                                            #phone="ngModel"
+                                            [(ngModel)]="currentCondo.phone"
+                                            name="phone"
+                                            id="phone"
+                                            type="text"
+                                            maxlength="11"
+                                            pattern="^[0-9]+"
+                                            placeholder="8095882222"
+                                            required
+                                        />
+                                    </div>
+                                    <div class="addressProperty">
+                                        <label htmlFor="phone2">Phone 2</label>
+                                        <input
+                                            pInputText
+                                            #phone2="ngModel"
+                                            [(ngModel)]="currentCondo.phone2"
+                                            name="phone2"
+                                            id="phone2"
+                                            type="text"
+                                            pattern="^[0-9]+"
+                                            maxlength="11"
+                                            pattern="^[0-9]+"
+                                            placeholder="8095882222"
+                                        />
+                                    </div>
+
+                                    <div class="addressProperty">
+                                        <label
+                                            >Current property unit format</label
+                                        >
+
+                                        <p>
+                                            {{
+                                                currentCondo.propertyUnitFormat
+                                            }}
+                                        </p>
+                                    </div>
+                                    <!-- 
+                                    <div class="addressProperty">
+                                        <label>Unit numbering type</label>
+                                        <div class="field-radiobutton">
+                                            <p-radioButton
+                                                name="numberingType"
+                                                value="numeric"
+                                                [(ngModel)]="numberingType"
+                                            ></p-radioButton>
+                                            <label>Numbers (1, 2, 3...)</label>
+                                        </div>
+                                        <div class="field-radiobutton">
+                                            <p-radioButton
+                                                name="numberingType"
+                                                value="padded"
+                                                [(ngModel)]="numberingType"
+                                            ></p-radioButton>
+                                            <label
+                                                >Numbers with zeros (001, 002,
+                                                003...)</label
+                                            >
+                                        </div>
+                                        <div class="field-radiobutton">
+                                            <p-radioButton
+                                                name="numberingType"
+                                                value="letters"
+                                                [(ngModel)]="numberingType"
+                                            ></p-radioButton>
+                                            <label>Letters (A, B, C...)</label>
+                                        </div>
+
+                                        <div
+                                            *ngIf="numberingType == 'letters'"
+                                            class="flex gap-2"
+                                        >
+                                            <input
+                                                pInputText
+                                                #fromLetters="ngModel"
+                                                placeholder="From A"
+                                                [(ngModel)]="fromLetter"
+                                                name="letterFrom"
+                                                pattern="[a-zA-Z]"
+                                                maxlength="1"
+                                                style="
+                                                    text-transform: uppercase;
+                                                "
+                                            />
+
+                                            <input
+                                                pInputText
+                                                [(ngModel)]="toLetter"
+                                                placeholder="To Z"
+                                                #letterTo="ngModel"
+                                                name="letterTo"
+                                                pattern="[a-zA-Z]"
+                                                maxlength="1"
+                                                style="
+                                                    text-transform: uppercase;
+                                                "
+                                            />
+                                        </div>
+
+                                        <div class="unit-range mt-3">
+                                            <label>Unit range</label>
+                                            <div class="flex gap-2">
+                                                <p-inputNumber
+                                                    [(ngModel)]="startUnit"
+                                                    placeholder="Desde"
+                                                    name="startUnit"
+                                                ></p-inputNumber>
+                                                <p-inputNumber
+                                                    [(ngModel)]="endUnit"
+                                                    placeholder="Hasta"
+                                                    name="endUnit"
+                                                    (keyup)="previewUnits()"
+                                                ></p-inputNumber>
+                                            </div>
+                                        </div>
+
+                                        <div class="preview-units mt-2">
+                                            <label>Preview:</label>
+                                            <p
+                                                class="text-sm text-500"
+                                                *ngFor="
+                                                    let unit of lettersFormatted;
+                                                    let i = index
+                                                "
+                                            >
+                                                {{ i + 1 + " - " + unit }}
+                                            </p>
+                                        </div>
+                                    </div> -->
+                                </div>
+                            </div>
+                            <div class="flex pt-4 justify-content-end">
+                                <p-button
+                                    label="Next"
+                                    icon="pi pi-arrow-right"
+                                    iconPos="right"
+                                    (click)="nextCallback.emit()"
+                                    [disabled]="!alias.valid || !phone.valid"
+                                />
+                            </div>
+                        </div>
+                    </ng-template>
+                </p-stepperPanel>
+                <p-stepperPanel header="Address details">
+                    <ng-template
+                        pTemplate="content"
+                        let-prevCallback="prevCallback"
+                        let-nextCallback="nextCallback"
+                        let-index="index"
+                    >
+                        <div class="flex flex-column">
+                            <div
+                                class="border-2 border-dashed surface-border border-round surface-ground justify-content-center align-items-center font-medium"
+                            >
+                                <div class="d-block">
+                                    <div class="addressProperty">
+                                        <label for="street_1label"
+                                            >Address</label
+                                        >
+                                        <input
+                                            [ngClass]="{
+                                                'input-error':
+                                                    street_1.invalid &&
+                                                    (street_1.dirty ||
+                                                        street_1.touched)
+                                            }"
+                                            pInputText
+                                            id="street_1label"
+                                            #street_1="ngModel"
+                                            [(ngModel)]="currentCondo.street_1"
+                                            name="street_1"
+                                            maxlength="100"
+                                            required
+                                        />
+                                    </div>
+
+                                    <div class="addressProperty">
+                                        <label for="street_2label"
+                                            >Address 2 (Unit, Apt, House)</label
+                                        >
+
+                                        <input
+                                            pInputText
+                                            id="street_2label"
+                                            #street_2="ngModel"
+                                            [(ngModel)]="currentCondo.street_2"
+                                            name="street_2"
+                                            maxlength="50"
+                                        />
+                                    </div>
+
+                                    <div class="addressProperty">
+                                        <label for="sector_namelabel"
+                                            >Sector</label
+                                        >
+
+                                        <input
+                                            [ngClass]="{
+                                                'input-error':
+                                                    sector_name.invalid &&
+                                                    (sector_name.dirty ||
+                                                        sector_name.touched)
+                                            }"
+                                            pInputText
+                                            id="sector_namelabel"
+                                            #sector_name="ngModel"
+                                            [(ngModel)]="
+                                                currentCondo.sector_name
+                                            "
+                                            name="sector_name"
+                                            maxlength="50"
+                                            required
+                                        />
+                                    </div>
+
+                                    <div class="addressProperty">
+                                        <label for="citylabel">City</label>
+
+                                        <input
+                                            [ngClass]="{
+                                                'input-error':
+                                                    city.invalid &&
+                                                    (city.dirty || city.touched)
+                                            }"
+                                            pInputText
+                                            id="citylabel"
+                                            #city="ngModel"
+                                            [(ngModel)]="currentCondo.city"
+                                            name="city"
+                                            maxlength="50"
+                                            required
+                                        />
+                                    </div>
+
+                                    <div class="addressProperty">
+                                        <label for="provincelabel"
+                                            >Province</label
+                                        >
+
+                                        <input
+                                            [ngClass]="{
+                                                'input-error':
+                                                    province.invalid &&
+                                                    (province.dirty ||
+                                                        province.touched)
+                                            }"
+                                            pInputText
+                                            id="provincelabel"
+                                            #province="ngModel"
+                                            [(ngModel)]="currentCondo.province"
+                                            name="province"
+                                            maxlength="50"
+                                        />
+                                    </div>
+
+                                    <div class="addressProperty">
+                                        <label for="countrylabel">
+                                            Country
+                                        </label>
+
+                                        <input
+                                            pInputText
+                                            id="countrylabel"
+                                            #country="ngModel"
+                                            name="country"
+                                            [(ngModel)]="currentCondo.country"
+                                            maxlength="9"
+                                            readonly
+                                        />
+                                    </div>
+                                </div>
+
+                                <div class="d-block"></div>
+                            </div>
+                            <div class="flex pt-4 justify-content-between">
+                                <p-button
+                                    label="Back"
+                                    icon="pi pi-arrow-left"
+                                    (onClick)="prevCallback.emit()"
+                                />
+                                <p-button
+                                    label="Next"
+                                    icon="pi pi-arrow-right"
+                                    iconPos="right"
+                                    (onClick)="nextCallback.emit()"
+                                    [disabled]="
+                                        !street_1.valid ||
+                                        !sector_name.valid ||
+                                        !city.valid ||
+                                        !province.valid
+                                    "
+                                />
+                            </div>
+                        </div>
+                    </ng-template>
+                </p-stepperPanel>
+                <p-stepperPanel header="Property details">
+                    <ng-template
+                        pTemplate="content"
+                        let-prevCallback="prevCallback"
+                        let-index="index"
+                    >
+                        <div class="flex flex-column">
+                            <div
+                                class="border-2 border-dashed surface-border border-round surface-ground flex-auto flex justify-content-center align-items-center font-medium"
+                            >
+                                <div class="prop-details">
+                                    <div class="addressProperty">
+                                        <label for="socialAreaslabel">
+                                            Social areas
+                                        </label>
+                                        <p-multiSelect
+                                            class="addr-margin"
+                                            id="socialAreaslabel"
+                                            [options]="areas"
+                                            optionLabel="areasOptions"
+                                            #socialAreas="ngModel"
+                                            name="socialAreas"
+                                            [(ngModel)]="
+                                                currentCondo.socialAreas
+                                            "
+                                        />
+                                    </div>
+
+                                    <div class="addressProperty">
+                                        <label htmlFor="mPayment">
+                                            Monthly payment (per unit)
+                                        </label>
+                                        <input
+                                            pInputText
+                                            [ngClass]="{
+                                                'input-error':
+                                                    mPayment.invalid &&
+                                                    (mPayment.dirty ||
+                                                        mPayment.touched)
+                                            }"
+                                            id="mPayment"
+                                            #mPayment="ngModel"
+                                            [(ngModel)]="currentCondo.mPayment"
+                                            name="mPayment"
+                                            maxlength="6"
+                                            required
+                                        />
+                                    </div>
+                                    <div class="addressProperty">
+                                        <label htmlFor="paymentDate">
+                                            Invoice due date
+                                        </label>
+                                        <p-calendar
+                                            [ngClass]="{
+                                                'input-error':
+                                                    paymentDate.invalid &&
+                                                    (paymentDate.dirty ||
+                                                        paymentDate.touched)
+                                            }"
+                                            id="paymentDate"
+                                            #paymentDate="ngModel"
+                                            [(ngModel)]="
+                                                currentCondo.paymentDate
+                                            "
+                                            name="paymentDate"
+                                            format="dd/MM/yyyy"
+                                            [minDate]="today"
+                                            [appendTo]="'body'"
+                                            required
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex pt-4 justify-content-between">
+                                <p-button
+                                    label="Back"
+                                    icon="pi pi-arrow-left"
+                                    (onClick)="prevCallback.emit()"
+                                />
+                                <button
+                                    [disabled]="!condominiumForm.valid"
+                                    pButton
+                                    pRipple
+                                    label="Update"
+                                    class="p-button-success"
+                                ></button>
+                            </div>
+                        </div>
+                    </ng-template>
+                </p-stepperPanel>
+            </p-stepper>
+        </div>
+    </form>
+</p-dialog>

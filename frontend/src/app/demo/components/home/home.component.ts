@@ -5,6 +5,7 @@ import {
     Output,
     Input,
     ViewChild,
+    OnDestroy,
 } from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { CondominioService } from '../../service/condominios.service';
@@ -112,7 +113,7 @@ type FamilyAccess = {
         OwnerServiceService,
     ],
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, OnDestroy {
     public maximized: boolean;
     public customers: any[];
     public items!: any[];
@@ -139,8 +140,7 @@ export class HomeComponent implements OnInit {
     public nodata: boolean;
     public visible_dynamic: boolean;
     public genderModel: { name: string; code: string }[];
-    @Output() propertyInfoEvent: EventEmitter<any> = new EventEmitter();
-    ref: DynamicDialogRef;
+    // public ref: DynamicDialogRef;
     public bookingVisible: boolean;
     public chartVisible: boolean;
     public stafflistNumber: number;
@@ -148,6 +148,7 @@ export class HomeComponent implements OnInit {
 
     @ViewChild(InviceGeneraterComponent)
     invoiceGenerator: InviceGeneraterComponent;
+    @Output('homeEvent') homeEvent = new EventEmitter<any>();
 
     constructor(
         private _userService: UserService,
@@ -228,6 +229,7 @@ export class HomeComponent implements OnInit {
 
     ngOnInit() {
         // INIT INFO
+
         this.onInitInfo();
         this.getStaffByCondoId();
         this.loadBookingCard();
@@ -249,11 +251,6 @@ export class HomeComponent implements OnInit {
     // Open Invoice generater dialog
     openInvoiceGenerator() {
         this.invoiceGenerator.open();
-    }
-
-    propertyData(data) {
-        // emit data to parent component
-        this.propertyInfoEvent.emit(data);
     }
 
     unitFormatOnInit(unit) {
@@ -283,11 +280,10 @@ export class HomeComponent implements OnInit {
             let id = param['homeid'];
 
             this.condoId = id;
-
             if (id != undefined) {
                 this._condominioService.getBuilding(id, this.token).subscribe(
                     (response) => {
-                        console.log('CONDOMINIO', response);
+                        // console.log('CONDOMINIO', response);
                         if (response.status == 'success') {
                             var unitList = response.condominium;
                             localStorage.setItem(
@@ -301,7 +297,31 @@ export class HomeComponent implements OnInit {
                                     unitList.createdAt
                                 );
 
-                            this.propertyData(unitList);
+                            if (
+                                this.identity.role == 'ADMIN' ||
+                                this.identity.role == 'STAFF'
+                            ) {
+                                unitList.alias = this.titleCase(unitList.alias);
+                                unitList.typeOfProperty = {
+                                    label: this.titleCase(
+                                        unitList.typeOfProperty
+                                    ),
+                                };
+                                unitList.propertyUnitFormat =
+                                    typeof unitList.availableUnits[0] ==
+                                    'string'
+                                        ? 'Letters'
+                                        : 'Numbers';
+                                console.log(
+                                    'unitList.typeOfProperty',
+                                    unitList.typeOfProperty
+                                );
+                                const social = unitList.socialAreas.map((s) => {
+                                    return { areasOptions: s };
+                                });
+                                unitList.socialAreas = social;
+                                this.homeEvent.emit(unitList);
+                            }
 
                             this.getInvoiceByCondoFunc(unitList);
                             this.customers = unitList.units_ownerId;
@@ -364,7 +384,7 @@ export class HomeComponent implements OnInit {
     loadBookingCard() {
         this._bookingService.getBooking(this.token, this.condoId).subscribe({
             next: (response) => {
-                console.log('response:--------------->', response);
+                // console.log('response:--------------->', response);
 
                 if (response.status == 'success') {
                     this.totalBooked = response.message.length;
@@ -398,7 +418,7 @@ export class HomeComponent implements OnInit {
         };
 
         this.maximized = false;
-        this.image = this.url + 'owner-avatar/' + events.avatar;
+        this.image = this.url + 'main-avatar/owners/' + events.avatar;
         this.visible_owner = true;
         this._router.navigate([], {
             queryParams: { userid: events._id },
@@ -772,5 +792,11 @@ export class HomeComponent implements OnInit {
     }
     invoiceHistory() {
         this._router.navigate(['/invoice-history', this.condoId]);
+    }
+
+    ngOnDestroy(): void {
+        this.homeEvent.emit({
+            data: null,
+        });
     }
 }

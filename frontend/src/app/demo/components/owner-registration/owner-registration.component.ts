@@ -109,7 +109,6 @@ export class OwnerRegistrationComponent implements OnInit {
     };
     @ViewChild('unitFormUno') basicInfo: NgForm;
     @ViewChild('unitFormDos') propertyInfo: NgForm;
-    @ViewChild('stepperOw') stepsOwner: any;
     public items: any;
 
     public isRentOptions: { label: string; code: string }[] = [

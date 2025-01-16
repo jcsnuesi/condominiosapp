@@ -15,6 +15,6 @@ export class NotificationComponent implements OnInit {
     constructor() {}
 
     ngOnInit(): void {
-        console.log('NotificationComponent');
+        // console.log('NotificationComponent');
     }
 }

@@ -1,3 +1,79 @@
-.main-avatar{
+.main-avatar {
     display: flex;
+}
+
+.custom-file-upload {
+    display: flex;
+    justify-content: center;
+    cursor: pointer;
+    padding: 6px 12px;
+}
+
+.upload-img {
+    width: 160px;
+    height: 160px;
+    cursor: pointer;
+    border-radius: 300px;
+    border: solid 1px #e0e0e0;
+}
+
+.vertical-center {
+    display: flex;
+    justify-content: center;
+    /* Opcional: Centra horizontalmente */
+    align-items: center;
+    /* Centra verticalmente */
+    height: 100%;
+
+    /* Asegúrate de que el div ocupe el 100% de la altura disponible */
+}
+.prop-details {
+    display: block;
+}
+.addressProperty {
+    padding: 12px;
+}
+
+.addressProperty label {
+    display: block;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.addressProperty input {
+    display: block;
+
+    width: 100%;
+}
+
+::ng-deep .p-avatar > img {
+    border-radius: 50%;
+    width: 4rem;
+    height: 4rem;
+    padding: 0;
+}
+::ng-deep .p-avatar > img:hover {
+    border-radius: 50%;
+    width: 4rem;
+    height: 4rem;
+    padding: 0;
+    border: 1px solid #70f092;
+}
+
+::ng-deep .p-avatar {
+    border-radius: 50%;
+    width: 4rem;
+    height: 4rem;
+    padding: 0;
+}
+
+::ng-deep .p-dropdown {
+    width: 100% !important;
+}
+
+::ng-deep .p-multiselect {
+    width: 100% !important;
+}
+::ng-deep .p-calendar {
+    width: 100% !important;
 }

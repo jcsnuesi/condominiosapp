@@ -15,13 +15,23 @@ import { RouterModule } from '@angular/router';
 import { AppTopBarComponent } from './app.topbar.component';
 import { AppFooterComponent } from './app.footer.component';
 import { AppConfigModule } from './config/config.module';
-import { AppSidebarComponent } from "./app.sidebar.component";
-import { AppLayoutComponent } from "./app.layout.component";
+import { AppSidebarComponent } from './app.sidebar.component';
+import { AppLayoutComponent } from './app.layout.component';
 import { AvatarModule } from 'primeng/avatar';
 import { AvatarGroupModule } from 'primeng/avatargroup';
 import { MenuModule } from 'primeng/menu';
 import { ToastModule } from 'primeng/toast';
 import { CondominioService } from '../demo/service/condominios.service';
+import { DialogModule } from 'primeng/dialog';
+import { TabViewModule } from 'primeng/tabview';
+import { StepperModule } from 'primeng/stepper';
+import { FileUploadModule } from 'primeng/fileupload';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { DropdownModule } from 'primeng/dropdown';
+import { TabMenuModule } from 'primeng/tabmenu';
+import { HasPermissionsDirective } from '../has-permissions.directive';
+import { MultiSelectModule } from 'primeng/multiselect';
+import { CalendarModule } from 'primeng/calendar';
 
 @NgModule({
     declarations: [
@@ -30,9 +40,19 @@ import { CondominioService } from '../demo/service/condominios.service';
         AppFooterComponent,
         AppMenuComponent,
         AppSidebarComponent,
-        AppLayoutComponent
+        AppLayoutComponent,
     ],
     imports: [
+        MultiSelectModule,
+        CalendarModule,
+        HasPermissionsDirective,
+        TabMenuModule,
+        InputNumberModule,
+        DropdownModule,
+        FileUploadModule,
+        StepperModule,
+        TabViewModule,
+        DialogModule,
         BrowserModule,
         FormsModule,
         HttpClientModule,
@@ -48,9 +68,8 @@ import { CondominioService } from '../demo/service/condominios.service';
         AvatarModule,
         AvatarGroupModule,
         MenuModule,
-        ToastModule
-        
+        ToastModule,
     ],
-    exports: [AppLayoutComponent]
+    exports: [AppLayoutComponent],
 })
-export class AppLayoutModule { }
+export class AppLayoutModule {}

@@ -57,14 +57,13 @@ export class CondominioService {
         });
     }
 
-    updateCondominium(token: string, condominio: any): Observable<any> {
-        let params = JSON.stringify(condominio);
+    updateCondominium(
+        token: string,
+        condominioInfo: FormData
+    ): Observable<any> {
+        let header = new HttpHeaders().set('Authorization', token);
 
-        let header = new HttpHeaders()
-            .set('Content-Type', 'application/json')
-            .set('Authorization', token);
-
-        return this._http.put(this.url + 'updateCondominio', params, {
+        return this._http.put(this.url + 'updateCondominio', condominioInfo, {
             headers: header,
         });
     }
