@@ -570,8 +570,10 @@ var controller = {
     });
   },
   getAvatar: function (req, res) {
-    var imgName = req.params.fileName;
-    var paths = "./uploads/users/" + imgName;
+    var fileName = req.params.fileName;
+    var imgName = req.params.imgName;
+
+    var paths = "./uploads/" + fileName + "/" + imgName;
 
     if (fs.existsSync(paths)) {
       return res.sendFile(path.resolve(paths));

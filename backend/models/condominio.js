@@ -33,6 +33,11 @@ var CondominiumSchema = Schema(
     socialAreas: [{ type: String }],
     mPayment: { type: Number, required: true },
     paymentDate: { type: Date, required: true },
+    invoiceDueDate: {
+      type: Date,
+      required: true,
+      default: () => new Date(new Date().setMonth(new Date().getMonth() + 1)),
+    },
     status: { type: String, default: "active" },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,

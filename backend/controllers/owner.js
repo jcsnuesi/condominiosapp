@@ -648,7 +648,6 @@ var ownerAndSubController = {
     });
   },
   getAvatar: function (req, res) {
-    console.log(req.params.avatar);
     var file = req.params.avatar;
     var path_file = "./uploads/owner/" + file;
     console.log("path_file", path_file);

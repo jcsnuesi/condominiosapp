@@ -8,6 +8,7 @@ let errorHandler = require("../error/errorHandler");
 let checkExtensions = require("../service/extensions");
 let verifyParamData = require("../service/verifyParamData");
 let Owner = require("../models/owners");
+const Invoice = require("../models/invoice");
 
 var Condominium_Controller = {
   createCondominium: async function (req, res) {
@@ -249,72 +250,88 @@ var Condominium_Controller = {
       });
     });
   },
-  CondominiumUpdate: function (req, res) {
-    if (req.user.role != "ADMIN") {
-      return res.status(401).send({
-        status: "error",
-        message: "You don't have permission to update this Condominium.",
-      });
-    }
-
+  CondominiumUpdate: async function (req, res) {
+    // Si el usuario envia un archivo de imagen, se guarda en el servidor y se le asigna el nombre a la propiedad avatar
     let params = req.body;
 
-    try {
-      var imgFormatAccepted = checkExtensions.confirmExtension(params);
+    if (Boolean(req.files?.avatar)) {
+      let { path, ...res } = req.files.avatar;
+      pathName = path.split("\\")[2];
+      params.avatar = pathName;
+    }
 
-      if (imgFormatAccepted == false) {
-        return res.status(400).send({
-          status: "bad request",
-          message:
-            "System just accept images format 'jpg', 'jpeg', 'gif', 'png'",
+    let messages = "";
+
+    try {
+      // Verificar si hay cambios en paymentDate o mPayment
+      if (params.paymentDate || params.mPayment) {
+        const currentDate = new Date();
+        const currentMonth = currentDate.getMonth();
+        const currentYear = currentDate.getFullYear();
+
+        // Buscar facturas del mes actual
+        const existingInvoices = await Invoice.find({
+          condominiumId: params._id,
+          createdAt: {
+            $gte: new Date(
+              params.paymentDate
+                ? new Date(params.paymentDate).getFullYear()
+                : currentYear,
+              params.paymentDate
+                ? new Date(params.paymentDate).getMonth()
+                : currentMonth,
+              1
+            ),
+            $lt: new Date(
+              params.paymentDate
+                ? new Date(params.paymentDate).getFullYear()
+                : currentYear,
+              params.paymentDate
+                ? new Date(params.paymentDate).getMonth() + 1
+                : currentMonth + 1,
+              1
+            ),
+          },
+        });
+        if (existingInvoices.length > 0) {
+          messages =
+            "There are invoices in the current month, it will be updated for the next month";
+          // Si existen facturas, actualizar para el mes siguiente
+          const nextMonth = new Date(
+            currentYear,
+            currentMonth + 1,
+            params.paymentDate
+              ? new Date(params.paymentDate).getDate()
+              : existingInvoices[0].dueDate.getDate()
+          );
+          params.paymentDate = nextMonth;
+        }
+      }
+
+      // Actualizar el condominio
+      const condominiumUpdated = await Condominium.findByIdAndUpdate(
+        params._id,
+        params,
+        { new: true }
+      );
+
+      if (!condominiumUpdated) {
+        return res.status(404).send({
+          status: "error",
+          message: "Condominio no encontrado",
         });
       }
 
-      Condominium.findOne({ _id: params.id }, async (err, CondominiumFound) => {
-        var loginErrorHandlerArr = errorHandler.loginExceptions(
-          err,
-          CondominiumFound
-        );
-
-        if (loginErrorHandlerArr[0]) {
-          return res.status(loginErrorHandlerArr[1]).send({
-            status: loginErrorHandlerArr[2],
-            message: loginErrorHandlerArr[3],
-          });
-        }
-
-        for (const key in params) {
-          if (key == "socialAreas") {
-            let areas = params[key].split(",");
-
-            for (let index = 0; index < areas.length; index++) {
-              CondominiumFound[key].push(areas[index].trim());
-            }
-          } else {
-            CondominiumFound[key] = params[key];
-          }
-        }
-
-        var condominioUpdated = await Condominium.findOneAndUpdate(
-          { _id: params.id },
-          CondominiumFound,
-          { new: true }
-        ).populate(
-          "units_ownerId",
-          "avatar ownerName lastname gender email phone id_number status role familyAccount propertyDetails.addressId propertyDetails.condominium_unit propertyDetails.parkingsQty propertyDetails.isRenting propertyDetails.occupantId propertyDetails.createdAt"
-        );
-
-        return res.status(200).send({
-          status: "success",
-          message: "Condominium updated successfully.",
-          updated: condominioUpdated,
-        });
+      return res.status(200).send({
+        status: "success",
+        condominium: condominiumUpdated,
+        message: messages,
       });
     } catch (error) {
-      return res.status(401).send({
+      return res.status(500).send({
         status: "error",
-        message: "Some entries have mistakes.",
-        error: error,
+        message: "Error al actualizar el condominio",
+        error: error.message,
       });
     }
   },

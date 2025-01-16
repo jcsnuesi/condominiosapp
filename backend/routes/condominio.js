@@ -49,7 +49,7 @@ router.post(
 
 router.put(
   "/updateCondominio",
-  authenticated,
+  [authenticated, md_upload, adminAuth],
   condominioController.CondominiumUpdate
 );
 
