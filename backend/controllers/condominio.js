@@ -73,15 +73,11 @@ var Condominium_Controller = {
 
           var condominio = new Condominium();
 
-          if (
-            condominiumParams["socialAreas"] != null &&
-            condominiumParams["socialAreas"].includes(",")
-          ) {
+          // Convertir en socialAreas en un array
+          if (condominiumParams.socialAreas) {
             condominiumParams["socialAreas"]
               .split(",")
-              .forEach((areas) =>
-                condominio["socialAreas"].push(areas.toLowerCase())
-              );
+              .forEach((areas) => condominio["socialAreas"].push(areas));
 
             delete condominiumParams.socialAreas;
           }
@@ -307,6 +303,9 @@ var Condominium_Controller = {
           params.paymentDate = nextMonth;
         }
       }
+
+      const newSocialAreas = params.socialAreas.split(",");
+      params.socialAreas = newSocialAreas.map((area) => area);
 
       // Actualizar el condominio
       const condominiumUpdated = await Condominium.findByIdAndUpdate(

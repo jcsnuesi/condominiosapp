@@ -77,7 +77,6 @@ var ownerAndSubController = {
       );
     });
   },
-
   createSingleOwner: async function (req, res) {
     var params = req.body;
     let pathName = null;

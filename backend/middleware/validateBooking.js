@@ -4,12 +4,12 @@ const Reserves = require("../models/reserves");
 
 exports.checkAvailability = async (req, res, next) => {
   try {
-    const { areaToReserve, condoId, checkIn, checkOut } = req.body;
+    const { areaId, condoId, checkIn, checkOut } = req.body;
 
     // Verificar si existe una reserva que se solape
-    const existingBooking = await Booking.findOne({
-      condoId,
-      areaToReserve,
+    const existingBooking = await Reserves.findOne({
+      condoId: condoId,
+      areaId: areaId,
       $or: [
         {
           checkIn: { $lt: checkOut },
@@ -21,15 +21,16 @@ exports.checkAvailability = async (req, res, next) => {
     if (existingBooking) {
       return res.status(400).send({
         status: "error",
-        message: "El horario seleccionado no está disponible",
+        message: "The selected time slot is not available",
       });
     }
 
     next();
   } catch (error) {
+    console.log(error);
     return res.status(500).send({
       status: "error",
-      message: "Error al verificar disponibilidad",
+      message: "Error checking availability",
     });
   }
 };
