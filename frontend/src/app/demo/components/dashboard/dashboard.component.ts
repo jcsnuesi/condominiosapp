@@ -137,6 +137,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 ? false
                 : true;
         this.image = '../../assets/noimage2.jpeg';
+        this.idroute = this.identity._id;
 
         this.condoOptions = [];
 

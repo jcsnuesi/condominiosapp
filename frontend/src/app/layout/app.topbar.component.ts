@@ -7,6 +7,8 @@ import {
     Input,
     SimpleChanges,
     OnChanges,
+    Output,
+    EventEmitter,
 } from '@angular/core';
 import { LayoutService } from './service/app.layout.service';
 import { UserService } from '../demo/service/user.service';
@@ -41,7 +43,7 @@ type Condo = {
     mPayment: number;
     availableUnits: Array<any>;
     propertyUnitFormat: string;
-    paymentDate?: string;
+    paymentDate?: any;
 };
 
 @Component({
@@ -57,9 +59,9 @@ export class AppTopBarComponent implements OnInit, OnChanges {
     @ViewChild('topbarmenubutton') topbarMenuButton!: ElementRef;
     @ViewChild('fileInput') fileInput!: FileUpload;
     @ViewChild('topbarmenu') menu!: ElementRef;
-    @ViewChild('currentComponent') currentComponent!: ElementRef;
     @ViewChild('dialogUpdateCondoComponent') dialogUpdateCondo!: Stepper;
 
+    @Output() updateCondoInfo = new EventEmitter<any>();
     @Input() currentCondoInfo: Condo;
     public currentCondo: Condo;
 
@@ -177,7 +179,7 @@ export class AppTopBarComponent implements OnInit, OnChanges {
                 mPayment:
                     changes['currentCondoInfo'].currentValue.mPayment || 0,
                 paymentDate:
-                    changes['currentCondoInfo'].currentValue.paymentDate || '',
+                    changes['currentCondoInfo'].currentValue.paymentDate,
                 propertyUnitFormat:
                     changes['currentCondoInfo'].currentValue
                         .propertyUnitFormat || '',
@@ -266,7 +268,6 @@ export class AppTopBarComponent implements OnInit, OnChanges {
     resetStepper() {
         this.indexStepper = 0;
         this.visible_settings = false;
-        console.log('resetStepper', this.indexStepper);
     }
 
     updateCondo(condominiumForm: NgForm) {
@@ -295,13 +296,17 @@ export class AppTopBarComponent implements OnInit, OnChanges {
             .subscribe({
                 next: (res) => {
                     console.log('res', res);
-                    this.resetStepper();
-
-                    this._messageService.add({
-                        severity: 'success',
-                        summary: 'Success',
-                        detail: 'Data Updated',
-                    });
+                    if (res.status === 'success') {
+                        this.resetStepper();
+                        this._messageService.add({
+                            severity: 'success',
+                            summary: 'Success',
+                            detail: 'Data Updated',
+                        });
+                        this.updateCondoInfo.emit({
+                            data: 'topbar-updated',
+                        });
+                    }
                 },
                 error: (err) => {
                     this._messageService.add({

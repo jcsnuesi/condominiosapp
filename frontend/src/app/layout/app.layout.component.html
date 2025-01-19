@@ -1,5 +1,8 @@
 <div class="layout-wrapper" [ngClass]="containerClass">
-    <app-topbar [currentCondoInfo]="currentProperty"></app-topbar>
+    <app-topbar
+        [currentCondoInfo]="currentProperty"
+        (updateCondoInfo)="handleMenuEvent($event)"
+    ></app-topbar>
 
     <div class="layout-sidebar">
         <app-sidebar></app-sidebar>

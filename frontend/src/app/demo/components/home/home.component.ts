@@ -145,6 +145,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     public chartVisible: boolean;
     public stafflistNumber: number;
     public genderOptions: Array<{ label: string }>;
+    public updateDateFromTopbar: any;
 
     @ViewChild(InviceGeneraterComponent)
     invoiceGenerator: InviceGeneraterComponent;
@@ -312,14 +313,22 @@ export class HomeComponent implements OnInit, OnDestroy {
                                     'string'
                                         ? 'Letters'
                                         : 'Numbers';
-                                console.log(
-                                    'unitList.typeOfProperty',
-                                    unitList.typeOfProperty
+
+                                unitList.socialAreas = unitList.socialAreas.map(
+                                    (s) => {
+                                        return { areasOptions: s };
+                                    }
                                 );
-                                const social = unitList.socialAreas.map((s) => {
-                                    return { areasOptions: s };
-                                });
-                                unitList.socialAreas = social;
+                                unitList.paymentDate =
+                                    this._formatFunctions.dateFormat(
+                                        unitList.paymentDate
+                                    );
+                                // Sun Jan 19 2025
+                                //Sat Jan 18 2025 00:00:00 GMT-0400 (Atlantic Standard Time)
+                                unitList.paymentDate = new Date(
+                                    unitList.paymentDate
+                                );
+                                console.log(unitList);
                                 this.homeEvent.emit(unitList);
                             }
 
@@ -341,6 +350,10 @@ export class HomeComponent implements OnInit, OnDestroy {
                 );
             }
         });
+    }
+
+    handleCondoUpdate(event: any) {
+        this.onInitInfo();
     }
 
     onSelect(file: any) {
@@ -796,7 +809,24 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     ngOnDestroy(): void {
         this.homeEvent.emit({
-            data: null,
+            _id: '',
+            alias: '',
+            typeOfProperty: { label: '' },
+            phone: '',
+            phone2: '',
+            street_1: '',
+            street_2: '',
+            sector_name: '',
+            city: '',
+            province: '',
+            socialAreas: [],
+            mPayment: 0,
+            paymentDate: '',
+            propertyUnitFormat: '',
+            avatar: '',
+            status: false,
+            availableUnits: [],
+            country: '',
         });
     }
 }

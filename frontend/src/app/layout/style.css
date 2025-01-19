@@ -2,6 +2,12 @@
     display: flex;
 }
 
+::ng-deep .btn-update-topbar {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+}
+
 .custom-file-upload {
     display: flex;
     justify-content: center;

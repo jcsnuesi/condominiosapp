@@ -7,14 +7,17 @@ import {
     EventEmitter,
     Output,
     Input,
+    ElementRef,
 } from '@angular/core';
-import { NavigationEnd, Router } from '@angular/router';
+import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter, Subscription } from 'rxjs';
 import { LayoutService } from './service/app.layout.service';
 import { AppSidebarComponent } from './app.sidebar.component';
 import { AppTopBarComponent } from './app.topbar.component';
 import { CondominioService } from '../demo/service/condominios.service';
 import { DashboardComponent } from '../demo/components/dashboard/dashboard.component';
+import { HomeComponent } from '../demo/components/home/home.component';
+import { MenuService } from './app.menu.service';
 
 @Component({
     selector: 'app-layout',
@@ -23,6 +26,7 @@ import { DashboardComponent } from '../demo/components/dashboard/dashboard.compo
 })
 export class AppLayoutComponent implements OnDestroy {
     overlayMenuOpenSubscription: Subscription;
+    activeComponent: any;
 
     public menuOutsideClickListener: any;
 
@@ -32,7 +36,11 @@ export class AppLayoutComponent implements OnDestroy {
     @ViewChild(AppSidebarComponent) appSidebar!: AppSidebarComponent;
     @ViewChild(AppTopBarComponent) appTopbar!: AppTopBarComponent;
 
+    @ViewChild('currentComponent', { static: false })
+    currentComponent!: HomeComponent;
+
     constructor(
+        private menuService: MenuService,
         public layoutService: LayoutService,
         public renderer: Renderer2,
         public router: Router,
@@ -107,7 +115,15 @@ export class AppLayoutComponent implements OnDestroy {
             });
     }
 
+    public updateDateFromTopbar: any;
+    handleMenuEvent(event: any) {
+        this.getData.handleCondoUpdate(event);
+    }
+    public getData: any;
     dataCondoLoaded(data: any) {
+        this.activeComponent = data.homeEvent;
+        this.getData = data;
+
         if (data.homeEvent) {
             data.homeEvent.subscribe((data: any) => {
                 // console.log('Evento recibido:', data);
