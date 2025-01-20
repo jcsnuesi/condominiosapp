@@ -187,7 +187,7 @@ export class OwnerRegistrationComponent implements OnInit {
     ngOnInit(): void {
         this._activatedRoute.params.subscribe((params) => {
             this.homeId = params['homeid'];
-            console.log('dashId --------------->', params);
+
             this.OnLoad(this.homeId);
             this.reviewOwnerCard();
         });
@@ -202,6 +202,10 @@ export class OwnerRegistrationComponent implements OnInit {
             next: (response) => {
                 console.log(response);
                 if (response.status == 'success') {
+                    console.log(
+                        'response.condominium.availableUnits',
+                        response.condominium.availableUnits
+                    );
                     this.unitOptions = response.condominium.availableUnits.map(
                         (units) => {
                             return {
@@ -241,7 +245,6 @@ export class OwnerRegistrationComponent implements OnInit {
 
         reader.readAsDataURL(file.files[0]);
         this.ownerObj.avatar = file.files[0];
-        console.log('Avatar loaded:', typeof this.ownerObj.avatar);
     }
 
     confirmNewOwner(event: Event) {

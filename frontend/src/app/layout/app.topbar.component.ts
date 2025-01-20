@@ -280,7 +280,7 @@ export class AppTopBarComponent implements OnInit, OnChanges {
             ) {
                 if (key === 'typeOfProperty') {
                     formData.append(key, this.currentCondo[key].label);
-                } else if (key === 'socialAreas') {
+                } else if (key === 'socialAreas' || key === 'availableUnits') {
                     let areas = this.currentCondo[key]
                         .map((area) => area.areasOptions)
                         .join(',');

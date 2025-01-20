@@ -502,12 +502,8 @@ export class BookingAreaComponent implements OnInit {
 
     loadVisitorArray(guestList: any) {
         if (guestList.length == 0) {
-            // this.inputData = [];
             this.inputValues = [];
         } else {
-            // guestList.forEach((guest: any) => (
-            //   this.inputData.push('')
-            // ));
             this.inputValues = guestList;
         }
     }
@@ -546,7 +542,7 @@ export class BookingAreaComponent implements OnInit {
                 },
             ];
         }
-
+        // console.log('customerData.checkOut:', customerData?.checkOut);
         this.bookingInfoApt = {
             id: customerData.id,
             memberId: this.identity._id,
@@ -554,7 +550,10 @@ export class BookingAreaComponent implements OnInit {
             unit: { label: customerData.unit, code: customerData.unit },
             phone: guestInfo?.phone,
             checkIn: this._format.dateTimeFormat(customerData.checkIn),
-            checkOut: this._format.dateTimeFormat(customerData?.checkOut),
+            checkOut:
+                customerData?.checkOut != 'N/A'
+                    ? this._format.dateTimeFormat(customerData?.checkOut)
+                    : null,
             condoId: {
                 label: customerData.condoId.alias.toUpperCase(),
                 code: customerData.condoId._id,
@@ -578,7 +577,6 @@ export class BookingAreaComponent implements OnInit {
             guest: [],
         };
 
-        console.log('customerData.checkOut:', this.bookingInfoApt.checkOut);
         this.visibleDialog = true;
         this.cdr.detectChanges();
     }

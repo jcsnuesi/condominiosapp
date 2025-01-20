@@ -34,6 +34,7 @@ import { BookingAreaComponent } from '../booking-area/booking-area.component';
 import { HasPermissionsDirective } from 'src/app/has-permissions.directive';
 import { ChangePasswordComponent } from '../change-password/change-password.component';
 import { DynamicTableComponent } from '../dynamic-table/dynamic-table.component';
+import { FamilyMemberComponent } from '../family-member/family-member.component';
 
 @NgModule({
     imports: [
@@ -71,6 +72,7 @@ import { DynamicTableComponent } from '../dynamic-table/dynamic-table.component'
         DialogModule,
         OwnerRegistrationComponent,
         CardsComponent,
+        FamilyMemberComponent,
     ],
     exports: [StepperModule],
     declarations: [DashboardComponent],

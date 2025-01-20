@@ -260,11 +260,25 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
         this.loadBookingCard();
         this.getStaffQty();
+        this.loadUnitsCard();
+    }
+
+    loadUnitsCard() {
+        this._condominioService
+            .getUnits(this.token, this.identity._id)
+            .subscribe((response) => {
+                if (response.status == 'success') {
+                    this.totalUnits = response.units.length;
+                }
+            });
     }
 
     showDialogCreateOwnerUnit() {
-        this.visibleCreateOwnerUnit = true;
-        console.log('showDialogAllUnits');
+        if (this.identity.role == 'ADMIN') {
+            this._router.navigate(['/create-property']);
+        } else {
+            this.visibleCreateOwnerUnit = true;
+        }
     }
 
     passwordChanged(event: boolean) {

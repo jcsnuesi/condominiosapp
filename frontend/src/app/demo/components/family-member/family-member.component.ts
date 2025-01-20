@@ -28,19 +28,23 @@ import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { PipesModuleModule } from 'src/app/pipes/pipes-module.module';
 import { Router, RouterModule } from '@angular/router';
 import { FamilyMemberDetailsComponent } from '../family-member-details/family-member-details.component';
+import { TabViewModule } from 'primeng/tabview';
+import { global } from '../../service/global.service';
+import { CondominioService } from '../../service/condominios.service';
 
-interface FamilyMembers {
-    _id: string;
-    avatar: string;
-    fullname: string;
+type FamilyMember = {
+    addressId: string;
+    avatar?: string;
+    name: string;
+    lastname: string;
+    gender: string;
     email: string;
     phone: string;
-    addressInfo: any[];
-    role: string;
-    createdAt: string;
-    status: string;
-    actions: boolean;
-}
+    status?: string;
+    role?: string;
+    unit: string;
+    ownerId: string;
+};
 
 @Component({
     selector: 'app-family-member',
@@ -72,9 +76,10 @@ interface FamilyMembers {
         ToolbarModule,
         DialogModule,
         DynamicTableComponent,
+        TabViewModule,
     ],
-    templateUrl: '../dynamic-table/dynamic-table.component.html',
-    styleUrl: './family-member.component.scss',
+    templateUrl: './family-member.component.html',
+    styleUrl: './family-member.component.css',
     providers: [
         MessageService,
         ConfirmationService,
@@ -87,14 +92,13 @@ export class FamilyMemberComponent implements OnInit {
     public visible_spinner: boolean;
     public dynamicHeaders: any;
     public propertyDetailsUser: any;
-    public tableDataStructure!: FamilyMembers;
+    public familyMemberInfo!: FamilyMember;
     private token: string;
     public authorizedUser: any;
-    public propertyData: any;
     public selectedPermission!: Permissions[];
     public permission!: Permissions[];
     private identity: any;
-    public genderOptions: { name: string; code: string }[];
+    public genderOptions: { label: string; code: string }[];
     public propertySelected: any;
     public genderSelected: any;
     public visible_dynamic: boolean;
@@ -104,52 +108,75 @@ export class FamilyMemberComponent implements OnInit {
     @Input() ownerIdInput!: string;
     public dataToSend: [{ name: string; lastname: string }];
     public addressInfo: any;
-    public infoProperties: any[];
-    public bodyTableInfo: any[];
-    public headertbl = 'Family Members';
     public getSeverityColor: any;
     public _upperUfunction: any;
     public header_modal_aux = 'Family Member Details';
+    public image: string;
+    url: string;
+    public condoOptions: any;
+    public unitsOptions: { label: string; code: string }[];
 
     constructor(
         private messageService: MessageService,
         private confirmationService: ConfirmationService,
         private _userService: UserService,
         private _stringFormating: FormatFunctions,
-        private router: Router
+        private router: Router,
+        private _condoService: CondominioService
     ) {
         this.identity = this._userService.getIdentity();
         this.token = this._userService.getToken();
-        this.propertyData = [];
-        this.bodyTableInfo = [];
-        this.infoProperties = [];
+
+        this.url = global.url;
 
         this.genderOptions = [
-            { name: 'Male', code: 'M' },
-            { name: 'Female', code: 'F' },
+            { label: 'Male', code: 'M' },
+            { label: 'Female', code: 'F' },
         ];
 
-        this.dynamicHeaders = {
-            avatar: 'Avatar',
-            fullname: 'Fullname',
-            email: 'Email',
-            phone: 'Phone',
-            status: 'Status',
-            actions: 'actions',
+        console.log(this.identity);
+        this.familyMemberInfo = {
+            addressId: '',
+            avatar: '',
+            name: '',
+            lastname: '',
+            gender: '',
+            email: '',
+            phone: '',
+            status: '',
+            role: '',
+            unit: '',
+            ownerId: '',
         };
 
-        this.addProperty = {
-            _id: '',
-            addressId: '',
-        };
+        this.unitsOptions = [];
     }
 
     sendData() {
         return this.dataToSend;
     }
 
-    public tblInfo: any;
+    onSubmit() {
+        console.log(this.familyMemberInfo);
+    }
+
+    getCondoOptions() {
+        this.condoOptions = this.identity.propertyDetails.map((property) => {
+            this.unitsOptions.push({
+                label: property.condominium_unit,
+                code: property.condominium_unit,
+            });
+            return {
+                label: property.addressId.alias,
+                value: property.addressId._id,
+            };
+        });
+    }
+
     ngOnInit(): void {
+        this.image = this.url + 'main-avatar/owners/noimage.jpeg';
+        this.getCondoOptions();
+        // this.image = this.url + 'main-avatar/owners/' + events.avatar;
         /**
          * Owner:
          * Metodo para crear un family member
@@ -167,7 +194,6 @@ export class FamilyMemberComponent implements OnInit {
          *
          * Crear metodo que obtenga todas las propiedad
          */
-        this.getFamilies();
         // this.sendData();
     }
 
@@ -198,208 +224,22 @@ export class FamilyMemberComponent implements OnInit {
         // console.log(event)
     }
 
-    getFamilies() {
-        this._userService
-            .getFamiliesByOwnerId(this.token, this.ownerIdInput)
-            .subscribe({
-                next: (data) => {
-                    console.log(
-                        '****************ADDRESS INFO FOR ADMIN *****************'
-                    );
-                    console.log(data.message);
-
-                    if (data.status == 'success') {
-                        this.dataToSend = data.message;
-
-                        data.message.forEach((familyInfo, index) => {
-                            this.tableDataStructure = {
-                                _id: '',
-                                avatar: '',
-                                fullname: '',
-                                email: '',
-                                phone: '',
-                                addressInfo: [],
-                                role: '',
-                                createdAt: '',
-                                status: '',
-                                actions: true,
-                            };
-
-                            this.tableDataStructure._id = familyInfo._id;
-                            this.tableDataStructure.avatar = familyInfo.avatar;
-                            this.tableDataStructure.fullname =
-                                this._stringFormating.transform(
-                                    familyInfo.name
-                                ) +
-                                ' ' +
-                                this._stringFormating.transform(
-                                    familyInfo.lastname
-                                );
-                            this.tableDataStructure.phone = familyInfo.phone;
-                            this.tableDataStructure.email = familyInfo.email;
-                            this.tableDataStructure.status = familyInfo.status;
-                            this.tableDataStructure.addressInfo.push(
-                                familyInfo.addressId
-                            );
-                            this.bodyTableInfo.push(this.tableDataStructure);
-                            //  this.familyMemberDetails.push(familyMember.addressId)
-                        });
-                    }
-                },
-                error: (errors) => {
-                    console.error('There was an error!', errors);
-                },
-                complete: () => {
-                    console.log('Completed');
-                },
-            });
-
-        //  switch (this.identity.role) {
-        //   case 'OWNER':
-
-        //      this._userService.getFamilies(this.token).subscribe({
-        //        next: data => {
-
-        //          if (data.status == 'success') {
-
-        //            // Asignamos las propiedades al dropdown
-        //            for (let index = 0; index < this.identity.propertyDetails.length; index++) {
-        //              this.propertyData.push({ alias: this.identity.propertyDetails[index].addressId.alias, id: this.identity.propertyDetails[index].addressId._id })
-
-        //            }
-
-        //            this.addressInfo = [];
-
-        //            for (let i = 0; i < data.message.length; i++) {
-
-        //              data.message[i].addressId.forEach((element, index) => {
-
-        //                this.addressInfo.push({
-        //                  id__: data.message[i]._id,
-        //                  fullname: `${data.message[i].name} ${data.message[i].lastname}`,
-        //                  familyUserCreatedAt: this._stringFormating.dateFormat(data.message[i].createdAt),
-        //                  current_status: data.message[i].status,
-        //                  addressId: element.condominioId._id,
-        //                  alias: element.condominioId.alias,
-        //                  address: `${element.condominioId.street_1}, ${element.condominioId.street_2}, ${element.condominioId.sector_name}, ${element.condominioId.province}, ${element.condominioId.zipcode}, ${element.condominioId.country} `, createdAt: this._stringFormating.dateFormat(element.createdAt), authorized: element.family_status,
-        //                  total_properties: index + 1,
-        //                })
-
-        //              });
-
-        //            }
-
-        //            console.log("****************ADDRESS INFO*****************")
-        //            console.log(this.addressInfo)
-        //            this.nodata = data.message.length == 0 ? true : false;
-
-        //          }
-
-        //        },
-        //        error: errors => {
-        //          console.error('There was an error!', errors);
-        //        },
-        //        complete: () => {
-        //          console.log('Completed');
-        //        }
-
-        //      })
-
-        //     break;
-        //   case 'ADMIN':
-
-        //     //  console.log("INPUT RECEIVED", this.ownerIdInput)
-        //      this._userService.getFamiliesByOwnerId(this.token, this.ownerIdInput).subscribe({
-        //        next: data => {
-
-        //          console.log("****************ADDRESS INFO FOR ADMIN *****************")
-
-        //          if (data.status == 'success') {
-
-        //            this.dataToSend = data.message
-
-        //            data.message.forEach((familyMember, index) => {
-
-        //             this.tableDataStructure = {
-        //             avatar: '',
-        //             fullname: '',
-        //             email: '',
-        //             phone: '',
-        //             addressInfo: [],
-        //             role: '',
-        //             createdAt: '',
-        //             status: '',
-        //             actions: true
-        //             }
-
-        //               this.tableDataStructure.avatar = familyMember.avatar;
-        //               this.tableDataStructure.fullname = this._stringFormating.transform(familyMember.name) + ' ' + this._stringFormating. transform(familyMember.lastname)
-        //               this.tableDataStructure.phone = familyMember.phone
-        //               this.tableDataStructure.email = familyMember.email
-        //               this.tableDataStructure.status = familyMember.status
-        //               this.tableDataStructure.addressInfo.push(familyMember.addressId)
-        //               this.bodyTableInfo.push(this.tableDataStructure)
-        //             //  this.familyMemberDetails.push(familyMember.addressId)
-
-        //            })
-
-        //          }
-
-        //        },
-        //        error: errors => {
-        //          console.error('There was an error!', errors);
-        //        },
-        //        complete: () => {
-        //          console.log('Completed');
-        //        }
-
-        //      })
-
-        //     break;
-
-        //   default:
-        //     break;
-        //  }
-    }
-
     showDialogToAddProperty(familyMember: any) {
         this.visibleUpdate = true;
         this.addProperty._id = familyMember.id__;
     }
 
-    // saveUser(event: any) {
+    onSelect(file: any) {
+        const reader = new FileReader();
 
-    //   switch (event.label) {
-    //     case 'Create':
+        reader.onloadend = () => {
+            const base64Data = reader.result as string;
+            this.image = base64Data;
+        };
 
-    //       this.confirmationService.confirm({
-    //         message: 'Are you sure you want to create this user?',
-    //         header: 'Confirm',
-    //         icon: 'pi pi-exclamation-triangle',
-    //         accept: () => {
-
-    //         }
-    //       });
-
-    //       break;
-    //     case 'Update':
-
-    //       this.confirmationService.confirm({
-    //         message: 'Are you sure you want to update this user?',
-    //         header: 'Confirm',
-    //         icon: 'pi pi-exclamation-triangle',
-    //         accept: () => {
-
-    //           this.updateFamilyUser();
-
-    //         }
-    //       });
-
-    //       break;
-
-    //   }
-
-    // }
+        reader.readAsDataURL(file.files[0]);
+        this.familyMemberInfo.avatar = file.files[0];
+    }
 
     updateFamilyUser() {
         // this.addProperty.addressId = this.propertySelected.id;
@@ -439,7 +279,6 @@ export class FamilyMemberComponent implements OnInit {
                                         life: 3000,
                                     });
                                     this.visibleUpdate = false;
-                                    this.getFamilies();
                                 } else {
                                     this.messageService.add({
                                         severity: 'error',

@@ -29,15 +29,15 @@ export class CondominioService {
         });
     }
 
-    getPropertyByOwner(token: string): Observable<any> {
-        let header = new HttpHeaders()
-            .set('Content-Type', 'application/json')
-            .set('Authorization', token);
+    // getPropertyByOwner(token: string): Observable<any> {
+    //     let header = new HttpHeaders()
+    //         .set('Content-Type', 'application/json')
+    //         .set('Authorization', token);
 
-        return this._http.get(this.url + 'condominioByOwner', {
-            headers: header,
-        });
-    }
+    //     return this._http.get(this.url + 'condominioByOwner', {
+    //         headers: header,
+    //     });
+    // }
 
     getBuilding(id: string, token: string): Observable<any> {
         let header = new HttpHeaders()
@@ -80,5 +80,13 @@ export class CondominioService {
                 headers: header,
             }
         );
+    }
+
+    getUnits(token: string, id: string): Observable<any> {
+        let header = new HttpHeaders().set('Authorization', token);
+
+        return this._http.get(this.url + 'getUnits/' + id, {
+            headers: header,
+        });
     }
 }

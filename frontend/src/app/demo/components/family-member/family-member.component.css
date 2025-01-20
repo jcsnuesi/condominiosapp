@@ -1,0 +1,29 @@
+::ng-deep .justify-contents {
+    display: flex;
+    justify-content: center;
+}
+
+.padding-set {
+    padding: 12px;
+}
+
+.img-border-radius {
+    border-radius: 50%;
+    border: #dbdbdb solid 1px;
+    width: 150px;
+    height: 130px;
+}
+
+::ng-deep .dropdown-condo > .p-dropdown {
+    width: 100%;
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
+}
+
+::ng-deep .btn-auth-user-creation {
+    width: 100%;
+}
+
+.float-rigth {
+    float: right;
+}

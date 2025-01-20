@@ -116,7 +116,8 @@ export class AppLayoutComponent implements OnDestroy {
     }
 
     public updateDateFromTopbar: any;
-    handleMenuEvent(event: any) {
+    // Maneja el evento de actualización del condominio desde el topbar
+    handleCondoUpdateEvent(event: any) {
         this.getData.handleCondoUpdate(event);
     }
     public getData: any;
