@@ -20,7 +20,7 @@ exports.verifyRegistration = function (user) {
     \n
     ==== Credenciales de acceso ====
     Email: ${user.email} \n
-    Password: ${user.passwordTemp} \n
+    Password: ${user.password} \n
     `;
 
   const mailOptions = {

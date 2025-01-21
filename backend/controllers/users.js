@@ -245,10 +245,11 @@ var controller = {
         Admin.findOne({ email_company: params.email }),
         Staff.findOne({ email: params.email }),
         Owner.findOne({ email: params.email })
-          .populate(
-            "propertyDetails.addressId",
-            "socialAreas alias type phone street_1 street_2 sector_name city province zipcode country  status createdAt createdBy"
-          )
+          .populate({
+            path: "propertyDetails.addressId",
+            select:
+              "alias type phone street_1 street_2 sector_name city province zipcode country  status createdAt createdBy",
+          })
           .populate(
             "familyAccount",
             "name lastname gender email phone status permission addressId"

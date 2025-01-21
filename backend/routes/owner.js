@@ -6,7 +6,7 @@ let router = express.Router();
 let md_ws = require("../middleware/whatsappAuth");
 
 var multipart = require("connect-multiparty");
-var md_upload = multipart({ uploadDir: "./uploads/owner" });
+var md_upload = multipart({ uploadDir: "./uploads/owners" });
 
 router.get("/customers", md_auth.authenticated, ownerController.ownerByAdmin);
 router.get("/owner-avatar/:avatar", ownerController.getAvatar);
@@ -37,14 +37,14 @@ router.post(
   ownerController.createSingleOwner
 );
 
-// // invite owner
+// invite owner
 // router.post('/owner-register', [md_auth.authenticated], emailRegisterGenerator.emailOwnerRegister)
 
-router.post(
-  "/create-family",
-  [md_upload, md_auth.authenticated],
-  ownerController.secundaryAcc
-);
+// router.post(
+//   "/create-family",
+//   [md_upload, md_auth.authenticated],
+//   ownerController.secundaryAcc
+// );
 
 router.put(
   "/update-owner",

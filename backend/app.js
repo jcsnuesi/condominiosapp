@@ -20,6 +20,7 @@ var condominio_routes = require("./routes/condominio");
 var staff_routes = require("./routes/staff");
 var owner = require("./routes/owner");
 var super_user = require("./routes/super_user");
+const family_routes = require("./routes/family");
 
 //Middlewares
 app.use(morgan("dev"));
@@ -41,5 +42,6 @@ app.use("/api", personnel_routes);
 app.use("/api", condominio_routes);
 app.use("/api", owner);
 app.use("/api", super_user);
+app.use("/api", family_routes);
 
 module.exports = app;

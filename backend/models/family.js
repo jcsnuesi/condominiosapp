@@ -10,7 +10,7 @@ var FamilySchema = Schema(
     lastname: { type: String, required: true },
     gender: { type: String, required: true },
     email: { type: String, required: true },
-    password: { type: String, required: true },
+    password: { type: String },
     phone: { type: String, required: true },
     status: { type: String, default: "active" },
     role: { type: String, default: "FAMILY" },
@@ -29,6 +29,8 @@ var FamilySchema = Schema(
       ref: "Owner",
       required: true,
     },
+    accountAvailabilityDate: { type: Date },
+    accountExpirationDate: { type: Date },
   },
   { timestamps: true }
 );

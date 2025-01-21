@@ -7,7 +7,9 @@ var fs = require("fs");
 let errorHandler = require("../error/errorHandler");
 let checkExtensions = require("../service/extensions");
 let verifyParamData = require("../service/verifyParamData");
-let Owner = require("../models/owners");
+const Owner = require("../models/owners");
+const Admin = require("../models/admin");
+const Family = require("../models/family");
 const Invoice = require("../models/invoice");
 
 var Condominium_Controller = {
@@ -199,22 +201,22 @@ var Condominium_Controller = {
     }
   },
 
-  getCondominiumByAdmin: function (req, res) {
-    Condominium.find({ createdBy: req.user.sub })
-      .populate("createdBy", "company lastname email")
-      .exec((err, condominiumFound) => {
-        var errorHandlerArr = errorHandler.newUser(err, condominiumFound);
+  // getCondominiumByAdmin: function (req, res) {
+  //   Condominium.find({ createdBy: req.user.sub })
+  //     .populate("createdBy", "company lastname email")
+  //     .exec((err, condominiumFound) => {
+  //       var errorHandlerArr = errorHandler.newUser(err, condominiumFound);
 
-        if (errorHandlerArr[0]) {
-          return res.status(errorHandlerArr[1]).send({
-            status: errorHandlerArr[2],
-            message: errorHandlerArr[3],
-          });
-        }
-      });
+  //       if (errorHandlerArr[0]) {
+  //         return res.status(errorHandlerArr[1]).send({
+  //           status: errorHandlerArr[2],
+  //           message: errorHandlerArr[3],
+  //         });
+  //       }
+  //     });
 
-    // 654af792af898fdd1ea3a266
-  },
+  //   // 654af792af898fdd1ea3a266
+  // },
   getCondominiumById: function (req, res) {
     var params = req.body;
 
@@ -289,6 +291,7 @@ var Condominium_Controller = {
             ),
           },
         });
+
         if (existingInvoices.length > 0) {
           messages =
             "There are invoices in the current month, it will be updated for the next month";
@@ -306,6 +309,9 @@ var Condominium_Controller = {
 
       const newSocialAreas = params.socialAreas.split(",");
       params.socialAreas = newSocialAreas.map((area) => area);
+
+      const newAvailableUnits = params.availableUnits.split(",");
+      params.availableUnits = newAvailableUnits.map((unit) => unit);
 
       // Actualizar el condominio
       const condominiumUpdated = await Condominium.findByIdAndUpdate(
@@ -418,7 +424,6 @@ var Condominium_Controller = {
       });
     });
   },
-
   getCondominiumsByAdmin: function (req, res) {
     Condominium.find(
       { $and: [{ createdBy: req.user.sub }, { status: "active" }] },
@@ -434,13 +439,15 @@ var Condominium_Controller = {
       }
     );
   },
+
   getBuildingDetails: function (req, res) {
+    console.log("req.params.id", req.params.id);
     Condominium.findById(req.params.id)
       .populate({
         path: "units_ownerId",
         match: { status: "active" },
-        select:
-          "availableUnits avatar name lastname gender email phone id_number status role familyAccount propertyDetails.addressId propertyDetails.condominium_unit propertyDetails.parkingsQty propertyDetails.isRenting propertyDetails.occupantId propertyDetails.createdAt",
+        select: `availableUnits 
+        avatar name lastname gender email phone id_number status role familyAccount propertyDetails.addressId propertyDetails.condominium_unit propertyDetails.parkingsQty propertyDetails.isRenting propertyDetails.occupantId propertyDetails.createdAt`,
       })
       .exec((err, condominiumFound) => {
         if (err || !condominiumFound) {
@@ -467,6 +474,54 @@ var Condominium_Controller = {
       return res.status(404).send({
         status: "error",
         message: "Image does not exits",
+      });
+    }
+  },
+  getUnits: async function (req, res) {
+    const users = { owner: Owner, family: Family, admin: Admin };
+
+    try {
+      const id = req.params.id;
+      const user = await users[req.user.role.toLowerCase()].findById(id);
+
+      if (!user) {
+        return res.status(404).send({
+          status: "error",
+          message: "User not found",
+        });
+      }
+
+      let units = [];
+
+      if (user.role.toLowerCase() === "owner") {
+        // Buscar todas las unidades donde el owner está asignado
+        const condominiums = await Condominium.find({
+          units_ownerId: id,
+        }).select(
+          "name street_1 street_2 sector_name city province country availableUnits"
+        );
+
+        units = condominiums;
+      } else if (user.role.toLowerCase() === "admin") {
+        // Buscar todos los condominios creados por el admin
+        const condominiums = await Condominium.find({
+          createdBy: id,
+          status: "active",
+        }).select(
+          "name street_1 street_2 sector_name city province country availableUnits"
+        );
+
+        units = condominiums;
+      }
+
+      return res.status(200).send({
+        status: "success",
+        units: units,
+      });
+    } catch (error) {
+      return res.status(500).send({
+        status: "error",
+        message: error.message,
       });
     }
   },

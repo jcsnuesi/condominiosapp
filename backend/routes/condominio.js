@@ -11,11 +11,11 @@ var md_upload = multipart({ uploadDir: "./uploads/properties" });
 var { authenticated, adminAuth } = require("../middleware/middleware_bundle");
 // GET
 
-router.get(
-  "/condominios",
-  authenticated,
-  condominioController.getCondominiumByAdmin
-);
+// router.get(
+//   "/condominios",
+//   authenticated,
+//   condominioController.getCondominiumByAdmin
+// );
 
 router.get("/condominioById", condominioController.getCondominiumById);
 router.get(
@@ -25,6 +25,8 @@ router.get(
 );
 router.get("/buildingDetail/:id", condominioController.getBuildingDetails);
 router.get("/avatarCondominios/:avatar", condominioController.getAvatar);
+// Obtener todas las unidades del owner con el ownerId y tolos los condominios del admin con el adminId
+router.get("/getUnits/:id", [authenticated], condominioController.getUnits);
 
 router.get(
   "/condominio-page/:page",

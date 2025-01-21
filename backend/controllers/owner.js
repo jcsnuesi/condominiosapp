@@ -192,136 +192,128 @@ var ownerAndSubController = {
     }
   },
 
-  secundaryAcc: function (req, res) {
-    if (req.user.role.toLowerCase() != "owner") {
-      return res.status(403).send({
-        status: "forbidden",
-        message: "You are not authorized",
-      });
-    }
+  // secundaryAcc: function (req, res) {
+  //   var params = req.body;
 
-    var params = req.body;
+  //   if (req.user.email == params.email) {
+  //     return res.status(403).send({
+  //       status: "forbidden",
+  //       message: "Main account cannot be the same as the secondary account",
+  //     });
+  //   }
 
-    if (req.user.email == params.email) {
-      return res.status(403).send({
-        status: "forbidden",
-        message: "Main account cannot be the same as the secondary account",
-      });
-    }
+  //   try {
+  //     var val_email = validator.isEmail(params.email);
+  //     var val_phone = verifying.phonesTransformation(params.phone);
+  //   } catch (error) {
+  //     return res.status(400).send({
+  //       status: "bad request",
+  //       message: "All fields required",
+  //     });
+  //   }
 
-    try {
-      var val_email = validator.isEmail(params.email);
-      var val_password = !validator.isEmpty(params.password);
-      var val_phone = verifying.phonesTransformation(params.phone);
-    } catch (error) {
-      return res.status(400).send({
-        status: "bad request",
-        message: "All fields required",
-      });
-    }
+  //   //verificar la extension de archivo enviado sea tipo imagen
+  //   // var imgFormatAccepted = checkExtensions.confirmExtension(req)
 
-    //verificar la extension de archivo enviado sea tipo imagen
-    // var imgFormatAccepted = checkExtensions.confirmExtension(req)
+  //   // if (imgFormatAccepted == false) {
 
-    // if (imgFormatAccepted == false) {
+  //   //     return res.status(400).send({
 
-    //     return res.status(400).send({
+  //   //         status: "bad request",
+  //   //         message: "Files allows '.jpg', '.jpeg', '.gif', '.png'"
+  //   //     })
+  //   // }
 
-    //         status: "bad request",
-    //         message: "Files allows '.jpg', '.jpeg', '.gif', '.png'"
-    //     })
-    // }
+  //   if (val_email && val_password && val_phone) {
+  //     Family.findOne(
+  //       { $and: [{ email: params.email }, { phone: params.phone }] },
+  //       async (err, familyFound) => {
+  //         var errorHandlerArr = errorHandler.errorRegisteringUser(
+  //           err,
+  //           familyFound
+  //         );
 
-    if (val_email && val_password && val_phone) {
-      Family.findOne(
-        { $and: [{ email: params.email }, { phone: params.phone }] },
-        async (err, familyFound) => {
-          var errorHandlerArr = errorHandler.errorRegisteringUser(
-            err,
-            familyFound
-          );
+  //         if (errorHandlerArr[0]) {
+  //           return res.status(errorHandlerArr[1]).send({
+  //             status: "error",
+  //             message: errorHandlerArr[2],
+  //           });
+  //         }
 
-          if (errorHandlerArr[0]) {
-            return res.status(errorHandlerArr[1]).send({
-              status: "error",
-              message: errorHandlerArr[2],
-            });
-          }
+  //         if (familyFound) {
+  //           return res.status(500).send({
+  //             status: "error",
+  //             message: "Owner not updated",
+  //           });
+  //         }
 
-          if (familyFound) {
-            return res.status(500).send({
-              status: "error",
-              message: "Owner not updated",
-            });
-          }
+  //         var family_model = new Family();
 
-          var family_model = new Family();
+  //         for (const key in params) {
+  //           if (key == "password" || key == "addressId") {
+  //             continue;
+  //           } else {
+  //             family_model[key] = params[key].toLowerCase();
+  //           }
+  //         }
+  //         const fCondominioId = {
+  //           condominioId: "",
+  //         };
 
-          for (const key in params) {
-            if (key == "password" || key == "addressId") {
-              continue;
-            } else {
-              family_model[key] = params[key].toLowerCase();
-            }
-          }
-          const fCondominioId = {
-            condominioId: "",
-          };
+  //         fCondominioId.condominioId = params.addressId;
+  //         family_model.addressId.push(fCondominioId);
 
-          fCondominioId.condominioId = params.addressId;
-          family_model.addressId.push(fCondominioId);
+  //         // if (Object.keys(req.files).length != 0) {
+  //         //     family_model['avatar'] = (req.files['avatar'].path.split('\\'))[2]
+  //         // }
 
-          // if (Object.keys(req.files).length != 0) {
-          //     family_model['avatar'] = (req.files['avatar'].path.split('\\'))[2]
-          // }
+  //         try {
+  //           const tempPass = "12345678";
+  //           family_model.password = await bcrypt.hash(tempPass, saltRounds);
+  //           var newMember = await family_model.save();
 
-          try {
-            const tempPass = "12345678";
-            family_model.password = await bcrypt.hash(tempPass, saltRounds);
-            var newMember = await family_model.save();
+  //           const owner = await Owner.findOne({ _id: req.user.sub }).populate(
+  //             "propertyDetails.addressId",
+  //             "alias"
+  //           );
 
-            const owner = await Owner.findOne({ _id: req.user.sub }).populate(
-              "propertyDetails.addressId",
-              "alias"
-            );
+  //           // Buscarmos el id correspondiente a la propiedad que se le dara acceso
+  //           let addressInfo = owner.propertyDetails.filter(
+  //             (prop) => prop.addressId._id == params.addressId
+  //           )[0];
 
-            // Buscarmos el id correspondiente a la propiedad que se le dara acceso
-            let addressInfo = owner.propertyDetails.filter(
-              (prop) => prop.addressId._id == params.addressId
-            )[0];
+  //           // Alias del condominio
+  //           var { addressId } = addressInfo;
 
-            // Alias del condominio
-            var { addressId } = addressInfo;
+  //           owner.familyAccount.push(newMember._id);
+  //           await Owner.findOneAndUpdate({ _id: req.user.sub }, owner, {
+  //             new: true,
+  //           });
 
-            owner.familyAccount.push(newMember._id);
-            await Owner.findOneAndUpdate({ _id: req.user.sub }, owner, {
-              new: true,
-            });
+  //           family_model.passwordTemp = tempPass;
+  //           family_model.condominioName = addressId.alias;
+  //           emailVerification.verifyRegistration(family_model);
+  //           wsConfirmationMessage.sendWhatsappMessage(family_model);
+  //         } catch (error) {
+  //           return res.status(500).send({
+  //             status: "error",
+  //             message: "Missing params to create this user",
+  //           });
+  //         }
 
-            family_model.passwordTemp = tempPass;
-            family_model.condominioName = addressId.alias;
-            emailVerification.verifyRegistration(family_model);
-            wsConfirmationMessage.sendWhatsappMessage(family_model);
-          } catch (error) {
-            return res.status(500).send({
-              status: "error",
-              message: "Missing params to create this user",
-            });
-          }
-
-          return res.status(200).send({
-            status: "success",
-            message: newMember,
-          });
-        }
-      );
-    } else {
-      return res.status(500).send({
-        status: "error",
-        message: "Fill out all fields",
-      });
-    }
-  },
+  //         return res.status(200).send({
+  //           status: "success",
+  //           message: newMember,
+  //         });
+  //       }
+  //     );
+  //   } else {
+  //     return res.status(500).send({
+  //       status: "error",
+  //       message: "Fill out all fields",
+  //     });
+  //   }
+  // },
   authFamily: async function (req, res) {
     let params = req.body;
 
