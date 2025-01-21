@@ -182,8 +182,8 @@
                         >Keyser Wick
                         <span class="text-700">
                             has purchased a black jacket for
-                            <span class="text-blue-500">59$</span></span
-                        >
+                            <span class="text-blue-500">59$</span>
+                        </span>
                     </span>
                 </li>
                 <li
@@ -217,7 +217,10 @@
         <hr />
     </ng-template>
 
-    <app-family-member></app-family-member>
+    <app-family-member
+        (hideFamilyDialog)="hideFamilyDialogfunc($event)"
+        *ngIf="visibleCreateOwnerUnit"
+    ></app-family-member>
 </p-dialog>
 
 <!-- <div class="container">

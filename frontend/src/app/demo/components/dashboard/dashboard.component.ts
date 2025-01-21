@@ -87,6 +87,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     public messagesNoProperty: any;
     public totalUnits: number;
     public visibleCreateOwnerUnit: boolean = false;
+
     @Output() propertyInfoEvent: EventEmitter<any> = new EventEmitter();
 
     constructor(
@@ -130,6 +131,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             '',
             ''
         );
+
         this.formValidation =
             this.ownerObj.apartmentsUnit != '' &&
             this.ownerObj.parkingsQty != '' &&
@@ -273,6 +275,25 @@ export class DashboardComponent implements OnInit, OnDestroy {
             });
     }
 
+    hideFamilyDialogfunc(visible: boolean | { msg: string }) {
+        console.log('Hide family dialog', visible);
+        if (typeof visible === 'boolean') {
+            this.visibleCreateOwnerUnit = visible;
+            this._messageService.add({
+                severity: 'success',
+                summary: 'Member submited',
+                detail: 'Member Created Successfully!',
+                life: 8000,
+            });
+        } else {
+            this._messageService.add({
+                severity: 'error',
+                summary: 'Member was not created',
+                detail: `${visible.msg}`,
+                life: 8000,
+            });
+        }
+    }
     showDialogCreateOwnerUnit() {
         if (this.identity.role == 'ADMIN') {
             this._router.navigate(['/create-property']);

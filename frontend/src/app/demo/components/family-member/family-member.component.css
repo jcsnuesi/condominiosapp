@@ -1,4 +1,4 @@
-::ng-deep .justify-contents {
+.justify-contents {
     display: flex;
     justify-content: center;
 }
@@ -14,13 +14,19 @@
     height: 130px;
 }
 
-::ng-deep .dropdown-condo > .p-dropdown {
+.dropdown-condo > .p-dropdown {
     width: 100%;
     border-top-left-radius: 0px;
     border-bottom-left-radius: 0px;
 }
 
-::ng-deep .btn-auth-user-creation {
+.p-calendar > input:last-child {
+    width: 100%;
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
+}
+
+.btn-auth-user-creation {
     width: 100%;
 }
 

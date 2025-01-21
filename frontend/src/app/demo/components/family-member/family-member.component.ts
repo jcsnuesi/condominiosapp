@@ -1,4 +1,11 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import {
+    Component,
+    EventEmitter,
+    Input,
+    OnInit,
+    Output,
+    ViewEncapsulation,
+} from '@angular/core';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
 import { CommonModule } from '@angular/common';
@@ -26,30 +33,34 @@ import { FormatFunctions } from '../../../pipes/formating_text';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { PipesModuleModule } from 'src/app/pipes/pipes-module.module';
-import { Router, RouterModule } from '@angular/router';
+import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { FamilyMemberDetailsComponent } from '../family-member-details/family-member-details.component';
 import { TabViewModule } from 'primeng/tabview';
 import { global } from '../../service/global.service';
 import { CondominioService } from '../../service/condominios.service';
+import { CalendarModule } from 'primeng/calendar';
+import { FamilyServiceService } from '../../service/family-service.service';
 
 type FamilyMember = {
-    addressId: string;
+    addressId: { label: string; code: string };
     avatar?: string;
     name: string;
     lastname: string;
-    gender: string;
+    gender: { label: string; code: string };
     email: string;
     phone: string;
-    status?: string;
-    role?: string;
-    unit: string;
+    unit: { label: string; code: string };
     ownerId: string;
+    tempAccess?: { label: string; code: string };
+    accountAvailabilityDate?: Date;
+    accountExpirationDate?: Date;
 };
 
 @Component({
     selector: 'app-family-member',
     standalone: true,
     imports: [
+        CalendarModule,
         FamilyMemberDetailsComponent,
         RouterModule,
         PipesModuleModule,
@@ -85,7 +96,9 @@ type FamilyMember = {
         ConfirmationService,
         UserService,
         FormatFunctions,
+        FamilyServiceService,
     ],
+    encapsulation: ViewEncapsulation.None,
 })
 export class FamilyMemberComponent implements OnInit {
     public userDialog: boolean;
@@ -115,49 +128,63 @@ export class FamilyMemberComponent implements OnInit {
     url: string;
     public condoOptions: any;
     public unitsOptions: { label: string; code: string }[];
+    public tempAccountOptions: { label: string; code: string }[];
+    public tempAccountSelected: any = 'No';
+    public minDate: Date = new Date();
+    @Output() hideFamilyDialog: EventEmitter<boolean | {}> = new EventEmitter<
+        boolean | {}
+    >();
 
     constructor(
-        private messageService: MessageService,
-        private confirmationService: ConfirmationService,
+        private _messageService: MessageService,
+        private _confirmationService: ConfirmationService,
         private _userService: UserService,
-        private _stringFormating: FormatFunctions,
+        private _formatPipe: FormatFunctions,
         private router: Router,
-        private _condoService: CondominioService
+        private _activateRoute: ActivatedRoute,
+        private _condoService: CondominioService,
+        private _familyService: FamilyServiceService
     ) {
         this.identity = this._userService.getIdentity();
         this.token = this._userService.getToken();
 
         this.url = global.url;
+        this.hideFamilyDialog.emit(true);
 
         this.genderOptions = [
             { label: 'Male', code: 'M' },
             { label: 'Female', code: 'F' },
         ];
 
-        console.log(this.identity);
-        this.familyMemberInfo = {
-            addressId: '',
-            avatar: '',
-            name: '',
-            lastname: '',
-            gender: '',
-            email: '',
-            phone: '',
-            status: '',
-            role: '',
-            unit: '',
-            ownerId: '',
-        };
+        this.tempAccountOptions = [
+            { label: 'Yes', code: 'yes' },
+            { label: 'No', code: 'no' },
+        ];
+
+        this._activateRoute.params.subscribe((params) => {
+            let param = params['dashid'];
+
+            this.familyMemberInfo = {
+                addressId: { label: '', code: '' },
+                avatar: '',
+                name: '',
+                lastname: '',
+                gender: { label: '', code: '' },
+                email: '',
+                phone: '',
+                unit: { label: '', code: '' },
+                ownerId: param,
+                tempAccess: { label: 'No', code: 'no' },
+                accountAvailabilityDate: new Date(),
+                accountExpirationDate: new Date(),
+            };
+        });
 
         this.unitsOptions = [];
     }
 
     sendData() {
         return this.dataToSend;
-    }
-
-    onSubmit() {
-        console.log(this.familyMemberInfo);
     }
 
     getCondoOptions() {
@@ -168,7 +195,7 @@ export class FamilyMemberComponent implements OnInit {
             });
             return {
                 label: property.addressId.alias,
-                value: property.addressId._id,
+                code: property.addressId._id,
             };
         });
     }
@@ -176,6 +203,7 @@ export class FamilyMemberComponent implements OnInit {
     ngOnInit(): void {
         this.image = this.url + 'main-avatar/owners/noimage.jpeg';
         this.getCondoOptions();
+
         // this.image = this.url + 'main-avatar/owners/' + events.avatar;
         /**
          * Owner:
@@ -195,6 +223,76 @@ export class FamilyMemberComponent implements OnInit {
          * Crear metodo que obtenga todas las propiedad
          */
         // this.sendData();
+    }
+
+    onSubmit(form: NgForm) {
+        const formData = new FormData();
+        let checkDate = ['accountAvailabilityDate', 'accountExpirationDate'];
+
+        for (const key in this.familyMemberInfo) {
+            if (
+                this.familyMemberInfo[key] instanceof Object &&
+                Boolean(this.familyMemberInfo[key].code)
+            ) {
+                formData.append(key, this.familyMemberInfo[key].code);
+            } else if (checkDate.includes(key)) {
+                let dateLabelFound = checkDate.find((word) => word === key);
+                formData.append(
+                    key,
+                    this.familyMemberInfo[dateLabelFound].toISOString()
+                );
+            } else {
+                formData.append(key, this.familyMemberInfo[key]);
+            }
+        }
+
+        this._confirmationService.confirm({
+            header: 'Confirmation',
+            message: 'Please confirm to proceed moving forward.',
+            icon: 'pi pi-exclamation-circle',
+            acceptIcon: 'pi pi-check mr-1',
+            rejectIcon: 'pi pi-times mr-1',
+            acceptLabel: 'Confirm',
+            rejectLabel: 'Cancel',
+            rejectButtonStyleClass: 'p-button-outlined p-button-sm',
+            acceptButtonStyleClass: 'p-button-sm',
+            accept: () => {
+                this._familyService
+                    .createFamily(this.token, formData)
+                    .subscribe({
+                        next: (data) => {
+                            if (data.status == 'success') {
+                                this._messageService.add({
+                                    severity: 'success',
+                                    summary: 'Successful',
+                                    detail: 'New member Created',
+                                    life: 3000,
+                                });
+                                this.hideFamilyDialog.emit(false);
+                            } else {
+                                console.log(data);
+                                this.hideFamilyDialog.emit({
+                                    msg: data.message,
+                                });
+                            }
+                        },
+                        error: (error) => {
+                            console.log(error);
+                        },
+                        complete: () => {
+                            console.log('Create Family Completed');
+                        },
+                    });
+            },
+            reject: () => {
+                this._messageService.add({
+                    severity: 'error',
+                    summary: 'Rejected',
+                    detail: 'You have rejected',
+                    life: 3000,
+                });
+            },
+        });
     }
 
     statusOptions(status: string) {
@@ -255,14 +353,14 @@ export class FamilyMemberComponent implements OnInit {
         console.log('alreadyAdded.......', this.addProperty._id);
 
         if (familyFound) {
-            this.messageService.add({
+            this._messageService.add({
                 severity: 'error',
                 summary: 'Error',
                 detail: 'Address already added to this user!',
                 life: 3000,
             });
         } else {
-            this.confirmationService.confirm({
+            this._confirmationService.confirm({
                 message: 'Do you want to confirm this action?',
                 header: 'Confirm',
                 icon: 'pi pi-exclamation-triangle',
@@ -272,7 +370,7 @@ export class FamilyMemberComponent implements OnInit {
                         .subscribe({
                             next: (data) => {
                                 if (data.status == 'success') {
-                                    this.messageService.add({
+                                    this._messageService.add({
                                         severity: 'success',
                                         summary: 'Successful',
                                         detail: 'User Updated',
@@ -280,7 +378,7 @@ export class FamilyMemberComponent implements OnInit {
                                     });
                                     this.visibleUpdate = false;
                                 } else {
-                                    this.messageService.add({
+                                    this._messageService.add({
                                         severity: 'error',
                                         summary: 'Error',
                                         detail: data.message,
@@ -289,7 +387,7 @@ export class FamilyMemberComponent implements OnInit {
                                 }
                             },
                             error: (error) => {
-                                this.messageService.add({
+                                this._messageService.add({
                                     severity: 'error',
                                     summary: 'Error',
                                     detail: error.message,
@@ -302,7 +400,7 @@ export class FamilyMemberComponent implements OnInit {
                         });
                 },
                 reject: () => {
-                    this.messageService.add({
+                    this._messageService.add({
                         severity: 'error',
                         summary: 'Rejected',
                         detail: 'You have rejected this action',
