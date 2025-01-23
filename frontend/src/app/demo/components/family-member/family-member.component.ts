@@ -2,8 +2,10 @@ import {
     Component,
     EventEmitter,
     Input,
+    OnChanges,
     OnInit,
     Output,
+    SimpleChanges,
     ViewEncapsulation,
 } from '@angular/core';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
@@ -42,14 +44,14 @@ import { CalendarModule } from 'primeng/calendar';
 import { FamilyServiceService } from '../../service/family-service.service';
 
 type FamilyMember = {
-    addressId: { label: string; code: string };
+    addressId: Array<{ label: string; code: string }>;
     avatar?: string;
     name: string;
     lastname: string;
     gender: { label: string; code: string };
     email: string;
     phone: string;
-    unit: { label: string; code: string };
+    unit: Array<{ label: string; code: string }>;
     ownerId: string;
     tempAccess?: { label: string; code: string };
     accountAvailabilityDate?: Date;
@@ -100,7 +102,7 @@ type FamilyMember = {
     ],
     encapsulation: ViewEncapsulation.None,
 })
-export class FamilyMemberComponent implements OnInit {
+export class FamilyMemberComponent implements OnInit, OnChanges {
     public userDialog: boolean;
     public visible_spinner: boolean;
     public dynamicHeaders: any;
@@ -126,7 +128,7 @@ export class FamilyMemberComponent implements OnInit {
     public header_modal_aux = 'Family Member Details';
     public image: string;
     url: string;
-    public condoOptions: any;
+    public condoOptions: { label: string; code: string }[];
     public unitsOptions: { label: string; code: string }[];
     public tempAccountOptions: { label: string; code: string }[];
     public tempAccountSelected: any = 'No';
@@ -134,6 +136,7 @@ export class FamilyMemberComponent implements OnInit {
     @Output() hideFamilyDialog: EventEmitter<boolean | {}> = new EventEmitter<
         boolean | {}
     >();
+    @Input() memberInfoFromDetail: any;
 
     constructor(
         private _messageService: MessageService,
@@ -162,24 +165,25 @@ export class FamilyMemberComponent implements OnInit {
         ];
 
         this._activateRoute.params.subscribe((params) => {
-            let param = params['dashid'];
+            let param = params['id'];
 
             this.familyMemberInfo = {
-                addressId: { label: '', code: '' },
+                addressId: [{ label: '', code: '' }],
                 avatar: '',
                 name: '',
                 lastname: '',
                 gender: { label: '', code: '' },
                 email: '',
                 phone: '',
-                unit: { label: '', code: '' },
+                unit: [{ label: '', code: '' }],
                 ownerId: param,
                 tempAccess: { label: 'No', code: 'no' },
-                accountAvailabilityDate: new Date(),
-                accountExpirationDate: new Date(),
+                accountAvailabilityDate: null,
+                accountExpirationDate: null,
             };
         });
 
+        this.condoOptions = [];
         this.unitsOptions = [];
     }
 
@@ -200,6 +204,44 @@ export class FamilyMemberComponent implements OnInit {
         });
     }
 
+    ngOnChanges(changes: SimpleChanges): void {
+        let datos = this.memberInfoFromDetail.data;
+        // Eliminar las siguientes keys para evitar vueltas innecesarias en el bucle
+        delete datos.unit;
+        delete datos.createdAt;
+        delete datos.updatedAt;
+        delete datos.__v;
+
+        for (const key in datos) {
+            if (key === 'propertyDetails') {
+                datos[key].forEach((condo) => {
+                    this.familyMemberInfo.addressId.push({
+                        label: condo.addressId.alias,
+                        code: condo.addressId._id,
+                    });
+
+                    this.familyMemberInfo.unit.push({
+                        label: condo.condominium_unit,
+                        code: condo.condominium_unit,
+                    });
+                });
+            } else if (key === 'gender') {
+                this.genderSelected = {
+                    label: this._formatPipe.genderPipe(datos.gender),
+                    code: datos.gender,
+                };
+            } else {
+                if (
+                    Object.prototype.hasOwnProperty.call(
+                        this.familyMemberInfo,
+                        key
+                    )
+                ) {
+                    this.familyMemberInfo[key] = datos[key];
+                }
+            }
+        }
+    }
     ngOnInit(): void {
         this.image = this.url + 'main-avatar/owners/noimage.jpeg';
         this.getCondoOptions();
@@ -268,6 +310,10 @@ export class FamilyMemberComponent implements OnInit {
                                     detail: 'New member Created',
                                     life: 3000,
                                 });
+                                form.reset();
+                                this.image =
+                                    this.url +
+                                    'main-avatar/owners/noimage.jpeg';
                                 this.hideFamilyDialog.emit(false);
                             } else {
                                 console.log(data);

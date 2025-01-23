@@ -1,0 +1,17 @@
+<div class="card">
+    <p-tabView #tabViewController>
+        <p-tabPanel header="Create authorized member">
+            <app-family-member></app-family-member>
+        </p-tabPanel>
+        <p-tabPanel header="See All Members">
+            <app-family-member-details
+                (memberInfo)="memberInfoFromDetailsEvent($event)"
+            ></app-family-member-details>
+        </p-tabPanel>
+        <p-tabPanel *ngIf="memberInfoFromDetails.show" header="Member Settings">
+            <app-family-member
+                [memberInfoFromDetail]="memberInfoFromDetails"
+            ></app-family-member>
+        </p-tabPanel>
+    </p-tabView>
+</div>

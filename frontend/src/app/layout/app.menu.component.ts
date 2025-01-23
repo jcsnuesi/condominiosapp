@@ -110,7 +110,7 @@ export class AppMenuComponent implements OnInit {
                     {
                         label: 'Family members',
                         icon: 'pi pi-users',
-                        routerLink: ['/family-members'],
+                        routerLink: ['/family-area', this.cookieValue._id],
                     },
                 ],
                 role: 'OWNER',

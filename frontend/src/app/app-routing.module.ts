@@ -7,7 +7,7 @@ import { CreatePropertyComponent } from './demo/components/create-property/creat
 import { SeePropertyComponent } from './demo/components/see-property/see-property.component';
 import { CreateUserComponent } from './demo/components/create-user/create-user.component';
 import { HomeComponent } from './demo/components/home/home.component';
-import { FamilyMemberComponent } from './demo/components/family-member/family-member.component';
+import { FamilyAreaComponent } from './demo/components/family-area/family-area.component';
 import { InvoiceHistoryComponent } from './demo/components/invoice-history/invoice-history.component';
 import { StaffComponent } from './demo/components/staff/staff.component';
 import { DashboardComponent } from './demo/components/dashboard/dashboard.component';
@@ -106,9 +106,9 @@ import { BookingAreaComponent } from './demo/components/booking-area/booking-are
                             component: CreateUserComponent,
                         },
                         {
-                            path: 'family-members',
+                            path: 'family-area/:id',
                             canActivate: [UserGuard],
-                            component: FamilyMemberComponent,
+                            component: FamilyAreaComponent,
                         },
                         {
                             path: 'invoice-history/:condoId',

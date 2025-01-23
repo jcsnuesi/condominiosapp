@@ -512,7 +512,7 @@ export class HomeComponent implements OnInit, OnDestroy {
             header: 'Confirmation',
             message: 'Please confirm to proceed moving forward.',
             icon: 'pi pi-exclamation-circle',
-            acceptIcon: 'pi pi-check mr-1',
+            acceptIcon: 'pi pi-  mr-1',
             rejectIcon: 'pi pi-times mr-1',
             acceptLabel: 'Confirm',
             rejectLabel: 'Cancel',

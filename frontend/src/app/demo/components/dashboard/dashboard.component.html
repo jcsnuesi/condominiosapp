@@ -217,13 +217,10 @@
         <hr />
     </ng-template>
 
-    <app-family-member
-        (hideFamilyDialog)="hideFamilyDialogfunc($event)"
-        *ngIf="visibleCreateOwnerUnit"
-    ></app-family-member>
+    <app-family-area *ngIf="visibleCreateOwnerUnit"></app-family-area>
 </p-dialog>
 
 <!-- <div class="container">
-
+   (hideFamilyDialog)="hideFamilyDialogfunc($event)"
     <app-booking-area *ngIf="bookingVisible"></app-booking-area>
 </div> -->

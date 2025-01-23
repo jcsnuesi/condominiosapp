@@ -1,412 +1,384 @@
+<p-toast />
 <p-confirmDialog />
-<p-tabView>
-    <p-tabPanel header="Create authorized member">
-        <form #familyForm="ngForm" (ngSubmit)="onSubmit(familyForm)">
-            <div class="justify-contents">
-                <div
-                    class="padding-set border-2 border-dashed surface-border border-round surface-ground justify-contents font-medium w-30rem"
-                >
-                    <div class="w-30rem padding-set">
-                        <div class="col-md-6 mb-4">
-                            <p style="text-align: center">
-                                <img
-                                    [src]="image"
-                                    class="img-border-radius"
-                                    alt=""
+<form #familyForm="ngForm" (ngSubmit)="onSubmit(familyForm)">
+    <div class="justify-contents">
+        <div
+            class="padding-set border-2 border-dashed surface-border border-round surface-ground justify-contents font-medium w-30rem"
+        >
+            <div class="w-30rem padding-set">
+                <div class="col-md-6 mb-4">
+                    <p style="text-align: center">
+                        <img [src]="image" class="img-border-radius" alt="" />
+
+                        <p-fileUpload
+                            mode="basic"
+                            chooseLabel="Choose image"
+                            name="demo[]"
+                            url="https://www.primefaces.org/cdn/api/upload.php"
+                            accept="image/*"
+                            maxlengthFileSize="1000000"
+                            (onSelect)="onSelect($event)"
+                        >
+                        </p-fileUpload>
+                    </p>
+                </div>
+                <div class="w-100">
+                    <div class="col-md-6 w-100">
+                        <p-inputGroup>
+                            <p-inputGroupAddon>
+                                <i class="pi pi-user"></i>
+                            </p-inputGroupAddon>
+
+                            <input
+                                pInputText
+                                [ngClass]="{
+                                    'input-success': ownerName.valid,
+                                    'input-error ':
+                                        ownerName.touched && !ownerName.dirty
+                                }"
+                                #ownerName="ngModel"
+                                [(ngModel)]="familyMemberInfo.name"
+                                name="ownerName"
+                                type="text"
+                                maxlength="30"
+                                placeholder="Name: Jose Rodolfo"
+                                required
+                            />
+                        </p-inputGroup>
+
+                        <small
+                            *ngIf="ownerName.touched && !ownerName.valid"
+                            class="p-error"
+                            >Required.</small
+                        >
+                    </div>
+
+                    <div class="col-md-6 w-100 mt-3">
+                        <p-inputGroup>
+                            <p-inputGroupAddon>
+                                <i class="pi pi-user"></i>
+                            </p-inputGroupAddon>
+
+                            <input
+                                pInputText
+                                [ngClass]="{
+                                    'input-success': lastnameOW.valid,
+                                    'input-error ':
+                                        lastnameOW.touched && !lastnameOW.dirty
+                                }"
+                                #lastnameOW="ngModel"
+                                [(ngModel)]="familyMemberInfo.lastname"
+                                name="lastnameOW"
+                                type="text"
+                                maxlength="30"
+                                placeholder="Name: Rogers Martins"
+                                required
+                            />
+                        </p-inputGroup>
+
+                        <small
+                            *ngIf="lastnameOW.touched && !lastnameOW.valid"
+                            class="p-error"
+                            >Required.
+                        </small>
+                    </div>
+
+                    <div class="col-md-6 w-100 mt-3">
+                        <p-inputGroup>
+                            <p-inputGroupAddon>
+                                <i class="pi pi-android"></i>
+                            </p-inputGroupAddon>
+
+                            <p-dropdown
+                                [ngClass]="{
+                                    'ng-valid input-success': gender_apt.valid,
+                                    'ng-invalid ng-dirty':
+                                        gender_apt.touched && !gender_apt.dirty
+                                }"
+                                class="dropdown-condo"
+                                #gender_apt="ngModel"
+                                name="gender_apt"
+                                [options]="genderOptions"
+                                [(ngModel)]="familyMemberInfo.gender"
+                                optionLabel="label"
+                                placeholder="Select gender"
+                                required
+                            />
+                        </p-inputGroup>
+                    </div>
+
+                    <div class="col-md-6 w-100 mt-3">
+                        <p-inputGroup>
+                            <p-inputGroupAddon>
+                                <i class="pi pi-mobile"></i>
+                            </p-inputGroupAddon>
+
+                            <input
+                                pInputText
+                                [ngClass]="{
+                                    'input-success': phone.valid,
+                                    'input-error ':
+                                        phone.touched && !phone.dirty
+                                }"
+                                #phone="ngModel"
+                                [(ngModel)]="familyMemberInfo.phone"
+                                name="phone"
+                                type="text"
+                                maxlength="11"
+                                required
+                                placeholder="8496587417"
+                                pattern="^[0-9]+"
+                            />
+                        </p-inputGroup>
+
+                        <small
+                            *ngIf="phone.touched && !phone.valid"
+                            class="p-error"
+                            >Required.</small
+                        >
+                    </div>
+
+                    <!-- <div class="col-md-6 w-100 mt-3">
+                        <p-inputGroup>
+                            <p-inputGroupAddon>
+                                <i class="pi pi-check-circle"></i>
+                            </p-inputGroupAddon>
+
+                            <input
+                                pInputText
+                                #id_number="ngModel"
+                                [ngClass]="{
+                                    'input-success': id_number.valid,
+                                    'input-error ':
+                                        id_number.touched &&
+                                        !id_number.dirty
+                                }"
+                                [(ngModel)]="familyMemberInfo.id_number"
+                                name="id_number"
+                                type="text"
+                                placeholder="Personal id (No dashes)"
+                                maxlength="11"
+                                pattern="^[0-9]+"
+                                required
+                            />
+                        </p-inputGroup>
+                    </div> -->
+
+                    <div class="col-md-6 w-100 mt-3">
+                        <p-inputGroup>
+                            <p-inputGroupAddon>
+                                <i class="pi pi-envelope"></i>
+                            </p-inputGroupAddon>
+
+                            <input
+                                pInputText
+                                #email="ngModel"
+                                [(ngModel)]="familyMemberInfo.email"
+                                [ngClass]="{
+                                    'input-success': email.valid,
+                                    'input-error ':
+                                        email.touched && !email.dirty
+                                }"
+                                name="email"
+                                type="text"
+                                maxlength="50"
+                                pattern="[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}"
+                                placeholder="correo@email.com"
+                                required
+                            />
+                        </p-inputGroup>
+                        <small
+                            *ngIf="email.touched && !email.valid"
+                            class="p-error"
+                            >Required.</small
+                        >
+                    </div>
+
+                    <!-- 
+                    Nuevas variables -->
+
+                    <div class="col-md-6 w-100 mt-3">
+                        <p-inputGroup>
+                            <p-inputGroupAddon>
+                                <i class="pi pi-home"></i>
+                            </p-inputGroupAddon>
+                            <p-multiSelect
+                                [ngClass]="{
+                                    'ng-valid input-success': condo_id.valid,
+                                    'ng-invalid ng-dirty':
+                                        condo_id.touched && !condo_id.dirty
+                                }"
+                                class="dropdown-condo"
+                                #condo_id="ngModel"
+                                name="condo_id"
+                                [options]="condoOptions"
+                                [(ngModel)]="familyMemberInfo.addressId"
+                                optionLabel="label"
+                                placeholder="Select condominium..."
+                                required
+                            />
+                        </p-inputGroup>
+                    </div>
+
+                    <div class="col-md-6 w-100 mt-3">
+                        <p-inputGroup>
+                            <p-inputGroupAddon>
+                                <i class="pi pi-th-large"></i>
+                            </p-inputGroupAddon>
+                            <p-multiSelect
+                                [ngClass]="{
+                                    'ng-valid input-success': units.valid,
+                                    'ng-invalid ng-dirty':
+                                        units.touched && !units.dirty
+                                }"
+                                class="dropdown-condo"
+                                #units="ngModel"
+                                name="units"
+                                [options]="unitsOptions"
+                                [(ngModel)]="familyMemberInfo.unit"
+                                optionLabel="label"
+                                placeholder="Select unit..."
+                                required
+                            />
+                        </p-inputGroup>
+                    </div>
+
+                    <div class="col-md-6 w-100 mt-3">
+                        <p-inputGroup>
+                            <p-inputGroupAddon>
+                                <i class="pi pi-clock"></i>
+                            </p-inputGroupAddon>
+
+                            <p-dropdown
+                                [ngClass]="{
+                                    'ng-valid input-success': temp_access.valid,
+                                    'ng-invalid ng-dirty':
+                                        temp_access.touched &&
+                                        !temp_access.dirty
+                                }"
+                                class="dropdown-condo"
+                                #temp_access="ngModel"
+                                name="temp_access"
+                                [options]="tempAccountOptions"
+                                [(ngModel)]="familyMemberInfo.tempAccess"
+                                (onChange)="
+                                    tempAccountSelected = $event.value.label
+                                "
+                                optionLabel="label"
+                                placeholder="Is temporary account?"
+                                required
+                            />
+                        </p-inputGroup>
+                    </div>
+
+                    <div *ngIf="tempAccountSelected != 'No'">
+                        <div class="col-md-6 w-100 mt-3">
+                            <p-inputGroup>
+                                <p-inputGroupAddon>
+                                    <i class="pi pi-calendar-plus"></i>
+                                </p-inputGroupAddon>
+
+                                <p-calendar
+                                    class="input-no-borders"
+                                    #availabilityDate="ngModel"
+                                    name="availabilityDate"
+                                    inputId="calendar-12h"
+                                    [(ngModel)]="
+                                        familyMemberInfo.accountAvailabilityDate
+                                    "
+                                    [minDate]="minDate"
+                                    [showTime]="true"
+                                    [hourFormat]="12"
+                                    dateFormat="mm-dd-yy"
+                                    body="'append'"
+                                    required
                                 />
-
-                                <p-fileUpload
-                                    mode="basic"
-                                    chooseLabel="Choose image"
-                                    name="demo[]"
-                                    url="https://www.primefaces.org/cdn/api/upload.php"
-                                    accept="image/*"
-                                    maxlengthFileSize="1000000"
-                                    (onSelect)="onSelect($event)"
-                                >
-                                </p-fileUpload>
-                            </p>
+                            </p-inputGroup>
                         </div>
-                        <div class="w-100">
-                            <div class="col-md-6 w-100">
-                                <p-inputGroup>
-                                    <p-inputGroupAddon>
-                                        <i class="pi pi-user"></i>
-                                    </p-inputGroupAddon>
+                        <div class="col-md-6 w-100 mt-3">
+                            <p-inputGroup>
+                                <p-inputGroupAddon>
+                                    <i class="pi pi-calendar-minus"></i>
+                                </p-inputGroupAddon>
 
-                                    <input
-                                        pInputText
-                                        [ngClass]="{
-                                            'input-success': ownerName.valid,
-                                            'input-error ':
-                                                ownerName.touched &&
-                                                !ownerName.dirty
-                                        }"
-                                        #ownerName="ngModel"
-                                        [(ngModel)]="familyMemberInfo.name"
-                                        name="ownerName"
-                                        type="text"
-                                        maxlength="30"
-                                        placeholder="Name: Jose Rodolfo"
-                                        required
-                                    />
-                                </p-inputGroup>
-
-                                <small
-                                    *ngIf="
-                                        ownerName.touched && !ownerName.valid
+                                <p-calendar
+                                    class="input-no-borders"
+                                    #expirationDate="ngModel"
+                                    name="expirationDate"
+                                    inputId="calendar-12h"
+                                    [(ngModel)]="
+                                        familyMemberInfo.accountExpirationDate
                                     "
-                                    class="p-error"
-                                    >Required.</small
-                                >
-                            </div>
-
-                            <div class="col-md-6 w-100 mt-3">
-                                <p-inputGroup>
-                                    <p-inputGroupAddon>
-                                        <i class="pi pi-user"></i>
-                                    </p-inputGroupAddon>
-
-                                    <input
-                                        pInputText
-                                        [ngClass]="{
-                                            'input-success': lastnameOW.valid,
-                                            'input-error ':
-                                                lastnameOW.touched &&
-                                                !lastnameOW.dirty
-                                        }"
-                                        #lastnameOW="ngModel"
-                                        [(ngModel)]="familyMemberInfo.lastname"
-                                        name="lastnameOW"
-                                        type="text"
-                                        maxlength="30"
-                                        placeholder="Name: Rogers Martins"
-                                        required
-                                    />
-                                </p-inputGroup>
-
-                                <small
-                                    *ngIf="
-                                        lastnameOW.touched && !lastnameOW.valid
-                                    "
-                                    class="p-error"
-                                    >Required.
-                                </small>
-                            </div>
-
-                            <div class="col-md-6 w-100 mt-3">
-                                <p-inputGroup>
-                                    <p-inputGroupAddon>
-                                        <i class="pi pi-android"></i>
-                                    </p-inputGroupAddon>
-
-                                    <p-dropdown
-                                        [ngClass]="{
-                                            'ng-valid input-success':
-                                                gender_apt.valid,
-                                            'ng-invalid ng-dirty':
-                                                gender_apt.touched &&
-                                                !gender_apt.dirty
-                                        }"
-                                        class="dropdown-condo"
-                                        #gender_apt="ngModel"
-                                        name="gender_apt"
-                                        [options]="genderOptions"
-                                        [(ngModel)]="familyMemberInfo.gender"
-                                        optionLabel="label"
-                                        placeholder="Select gender"
-                                        required
-                                    />
-                                </p-inputGroup>
-                            </div>
-
-                            <div class="col-md-6 w-100 mt-3">
-                                <p-inputGroup>
-                                    <p-inputGroupAddon>
-                                        <i class="pi pi-mobile"></i>
-                                    </p-inputGroupAddon>
-
-                                    <input
-                                        pInputText
-                                        [ngClass]="{
-                                            'input-success': phone.valid,
-                                            'input-error ':
-                                                phone.touched && !phone.dirty
-                                        }"
-                                        #phone="ngModel"
-                                        [(ngModel)]="familyMemberInfo.phone"
-                                        name="phone"
-                                        type="text"
-                                        maxlength="11"
-                                        required
-                                        placeholder="8496587417"
-                                        pattern="^[0-9]+"
-                                    />
-                                </p-inputGroup>
-
-                                <small
-                                    *ngIf="phone.touched && !phone.valid"
-                                    class="p-error"
-                                    >Required.</small
-                                >
-                            </div>
-
-                            <!-- <div class="col-md-6 w-100 mt-3">
-                                <p-inputGroup>
-                                    <p-inputGroupAddon>
-                                        <i class="pi pi-check-circle"></i>
-                                    </p-inputGroupAddon>
-
-                                    <input
-                                        pInputText
-                                        #id_number="ngModel"
-                                        [ngClass]="{
-                                            'input-success': id_number.valid,
-                                            'input-error ':
-                                                id_number.touched &&
-                                                !id_number.dirty
-                                        }"
-                                        [(ngModel)]="familyMemberInfo.id_number"
-                                        name="id_number"
-                                        type="text"
-                                        placeholder="Personal id (No dashes)"
-                                        maxlength="11"
-                                        pattern="^[0-9]+"
-                                        required
-                                    />
-                                </p-inputGroup>
-                            </div> -->
-
-                            <div class="col-md-6 w-100 mt-3">
-                                <p-inputGroup>
-                                    <p-inputGroupAddon>
-                                        <i class="pi pi-envelope"></i>
-                                    </p-inputGroupAddon>
-
-                                    <input
-                                        pInputText
-                                        #email="ngModel"
-                                        [(ngModel)]="familyMemberInfo.email"
-                                        [ngClass]="{
-                                            'input-success': email.valid,
-                                            'input-error ':
-                                                email.touched && !email.dirty
-                                        }"
-                                        name="email"
-                                        type="text"
-                                        maxlength="50"
-                                        pattern="[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}"
-                                        placeholder="correo@email.com"
-                                        required
-                                    />
-                                </p-inputGroup>
-                                <small
-                                    *ngIf="email.touched && !email.valid"
-                                    class="p-error"
-                                    >Required.</small
-                                >
-                            </div>
-
-                            <!-- 
-                            Nuevas variables -->
-
-                            <div class="col-md-6 w-100 mt-3">
-                                <p-inputGroup>
-                                    <p-inputGroupAddon>
-                                        <i class="pi pi-home"></i>
-                                    </p-inputGroupAddon>
-
-                                    <p-dropdown
-                                        [ngClass]="{
-                                            'ng-valid input-success':
-                                                condo_id.valid,
-                                            'ng-invalid ng-dirty':
-                                                condo_id.touched &&
-                                                !condo_id.dirty
-                                        }"
-                                        class="dropdown-condo"
-                                        #condo_id="ngModel"
-                                        name="condo_id"
-                                        [options]="condoOptions"
-                                        [(ngModel)]="familyMemberInfo.addressId"
-                                        optionLabel="label"
-                                        placeholder="Select condominium..."
-                                        required
-                                    />
-                                </p-inputGroup>
-                            </div>
-
-                            <div class="col-md-6 w-100 mt-3">
-                                <p-inputGroup>
-                                    <p-inputGroupAddon>
-                                        <i class="pi pi-th-large"></i>
-                                    </p-inputGroupAddon>
-
-                                    <p-dropdown
-                                        [ngClass]="{
-                                            'ng-valid input-success':
-                                                units.valid,
-                                            'ng-invalid ng-dirty':
-                                                units.touched && !units.dirty
-                                        }"
-                                        class="dropdown-condo"
-                                        #units="ngModel"
-                                        name="units"
-                                        [options]="unitsOptions"
-                                        [(ngModel)]="familyMemberInfo.unit"
-                                        optionLabel="label"
-                                        placeholder="Select unit..."
-                                        required
-                                    />
-                                </p-inputGroup>
-                            </div>
-
-                            <div class="col-md-6 w-100 mt-3">
-                                <p-inputGroup>
-                                    <p-inputGroupAddon>
-                                        <i class="pi pi-clock"></i>
-                                    </p-inputGroupAddon>
-
-                                    <p-dropdown
-                                        [ngClass]="{
-                                            'ng-valid input-success':
-                                                temp_access.valid,
-                                            'ng-invalid ng-dirty':
-                                                temp_access.touched &&
-                                                !temp_access.dirty
-                                        }"
-                                        class="dropdown-condo"
-                                        #temp_access="ngModel"
-                                        name="temp_access"
-                                        [options]="tempAccountOptions"
-                                        [(ngModel)]="
-                                            familyMemberInfo.tempAccess
-                                        "
-                                        (onChange)="
-                                            tempAccountSelected =
-                                                $event.value.label
-                                        "
-                                        optionLabel="label"
-                                        placeholder="Is temporary account?"
-                                        required
-                                    />
-                                </p-inputGroup>
-                            </div>
-
-                            <div *ngIf="tempAccountSelected != 'No'">
-                                <div class="col-md-6 w-100 mt-3">
-                                    <p-inputGroup>
-                                        <p-inputGroupAddon>
-                                            <i class="pi pi-calendar-plus"></i>
-                                        </p-inputGroupAddon>
-
-                                        <p-calendar
-                                            class="input-no-borders"
-                                            #availabilityDate="ngModel"
-                                            name="availabilityDate"
-                                            inputId="calendar-12h"
-                                            [(ngModel)]="
-                                                familyMemberInfo.accountAvailabilityDate
-                                            "
-                                            [minDate]="minDate"
-                                            [showTime]="true"
-                                            [hourFormat]="12"
-                                            dateFormat="mm-dd-yy"
-                                            body="'append'"
-                                            required
-                                        />
-                                    </p-inputGroup>
-                                </div>
-                                <div class="col-md-6 w-100 mt-3">
-                                    <p-inputGroup>
-                                        <p-inputGroupAddon>
-                                            <i class="pi pi-calendar-minus"></i>
-                                        </p-inputGroupAddon>
-
-                                        <p-calendar
-                                            class="input-no-borders"
-                                            #expirationDate="ngModel"
-                                            name="expirationDate"
-                                            inputId="calendar-12h"
-                                            [(ngModel)]="
-                                                familyMemberInfo.accountExpirationDate
-                                            "
-                                            [minDate]="minDate"
-                                            [showTime]="true"
-                                            [hourFormat]="12"
-                                            dateFormat="mm-dd-yy"
-                                            required
-                                        />
-                                    </p-inputGroup>
-                                </div>
-                            </div>
-                            <!-- <div
-                                class="col-md-6 w-100 mt-3"
-                                *ngIf="passwordOwner"
-                            >
-                                <p-inputGroup>
-                                    <p-inputGroupAddon>
-                                        <i class="pi pi-lock"></i>
-                                    </p-inputGroupAddon>
-
-                                    <input
-                                        pInputText
-                                        #password="ngModel"
-                                        [(ngModel)]="familyMemberInfo.email"
-                                        [ngClass]="{
-                                            'input-success': password.valid,
-                                            'input-error ':
-                                                password.touched && !email.dirty
-                                        }"
-                                        name="password"
-                                        type="password"
-                                        maxlength="12"
-                                        pattern="[a-zA-Z0-9._-]"
-                                        placeholder="Password"
-                                        required
-                                    />
-                                </p-inputGroup>
-                                <small
-                                    *ngIf="password.touched && !password.valid"
-                                    class="p-error"
-                                    >Required.</small
-                                >
-                            </div> -->
-
-                            <div class="mt-3 float-rigth">
-                                <p-button
-                                    class="btn-auth-user-creation"
-                                    *appHasPermissions="'owner'"
-                                    icon="pi pi-check"
-                                    label="Create"
-                                    status="primary"
-                                    type="submit"
+                                    [minDate]="minDate"
+                                    [showTime]="true"
+                                    [hourFormat]="12"
+                                    dateFormat="mm-dd-yy"
+                                    required
                                 />
-
-                                <!-- <p-button
-                                    (onClick)="delAccount(familyMemberInfo)"
-                                    icon="pi pi-check"
-                                    label="Delete account"
-                                    severity="danger"
-                                    status="primary"
-                                    [disabled]="
-                                        !ownerName.valid ||
-                                        !phone.valid ||
-                                        !lastnameOW.valid
-                                    "
-                                /> -->
-                            </div>
+                            </p-inputGroup>
                         </div>
+                    </div>
+                    <!-- <div
+                        class="col-md-6 w-100 mt-3"
+                        *ngIf="passwordOwner"
+                    >
+                        <p-inputGroup>
+                            <p-inputGroupAddon>
+                                <i class="pi pi-lock"></i>
+                            </p-inputGroupAddon>
+
+                            <input
+                                pInputText
+                                #password="ngModel"
+                                [(ngModel)]="familyMemberInfo.email"
+                                [ngClass]="{
+                                    'input-success': password.valid,
+                                    'input-error ':
+                                        password.touched && !email.dirty
+                                }"
+                                name="password"
+                                type="password"
+                                maxlength="12"
+                                pattern="[a-zA-Z0-9._-]"
+                                placeholder="Password"
+                                required
+                            />
+                        </p-inputGroup>
+                        <small
+                            *ngIf="password.touched && !password.valid"
+                            class="p-error"
+                            >Required.</small
+                        >
+                    </div> -->
+
+                    <div
+                        class="mt-3 float-rigth"
+                        *ngIf="memberInfoFromDetail?.show"
+                    >
+                        <p-button
+                            class="btn-auth-user-creation"
+                            *appHasPermissions="'owner'"
+                            icon="pi pi-check"
+                            label="Create"
+                            status="primary"
+                            type="submit"
+                        />
+
+                        <!-- <p-button
+                            (onClick)="delAccount(familyMemberInfo)"
+                            icon="pi pi-check"
+                            label="Delete account"
+                            severity="danger"
+                            status="primary"
+                            [disabled]="
+                                !ownerName.valid ||
+                                !phone.valid ||
+                                !lastnameOW.valid
+                            "
+                        /> -->
                     </div>
                 </div>
             </div>
-        </form>
-    </p-tabPanel>
-
-    <p-tabPanel header="See authorized users">
-        <app-family-member-details
-            *ngIf="visible_dynamic"
-            [receiving]="familyMemberInfo._id"
-        ></app-family-member-details>
-    </p-tabPanel>
-</p-tabView>
+        </div>
+    </div>
+</form>

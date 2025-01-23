@@ -14,6 +14,12 @@
     height: 130px;
 }
 
+.dropdown-condo > .p-multiselect {
+    width: 100%;
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
+}
+
 .dropdown-condo > .p-dropdown {
     width: 100%;
     border-top-left-radius: 0px;

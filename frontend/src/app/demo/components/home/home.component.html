@@ -561,12 +561,9 @@
                 </p-tabPanel>
 
                 <p-tabPanel header="Authorized users">
-                    <form #basicInfo="ngForm" (ngSubmit)="onUpdate()">
-                        <app-family-member-details
-                            *ngIf="visible_owner"
-                            [receiving]="ownerObj._id"
-                        ></app-family-member-details>
-                    </form>
+                    <app-family-member-details
+                        *ngIf="visible_owner"
+                    ></app-family-member-details>
                 </p-tabPanel>
                 <p-tabPanel header="Payments history">
                     <app-payments-history

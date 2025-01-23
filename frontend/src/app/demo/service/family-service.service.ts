@@ -47,6 +47,13 @@ export class FamilyServiceService {
             headers: header,
         });
     }
+    getFamiliesByCondoId(token: string, id: string): Observable<any> {
+        let header = new HttpHeaders().set('Authorization', token);
+
+        return this._http.get(this.url + 'familyMembers-byCondo/' + id, {
+            headers: header,
+        });
+    }
 
     updateFamilyAuth(token: string, info: any): Observable<any> {
         let header = new HttpHeaders()

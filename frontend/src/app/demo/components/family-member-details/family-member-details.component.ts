@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { TableModule } from 'primeng/table';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -11,6 +11,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { FamilyServiceService } from '../../service/family-service.service';
+import { global } from '../../service/global.service';
 
 type FamilyMemberDetails = {
     id: string;
@@ -24,6 +25,7 @@ type FamilyMemberDetails = {
     status: string;
     memberSince?: string;
     createdAt?: string;
+    avatar?: string;
 };
 
 @Component({
@@ -39,7 +41,12 @@ type FamilyMemberDetails = {
         TagModule,
         ButtonModule,
     ],
-    providers: [UserService, FormatFunctions, MessageService],
+    providers: [
+        UserService,
+        FormatFunctions,
+        MessageService,
+        ConfirmationService,
+    ],
     templateUrl: './family-member-details.component.html',
     styleUrl: './family-member-details.component.scss',
 })
@@ -50,6 +57,9 @@ export class FamilyMemberDetailsComponent implements OnInit {
     public nodata: boolean;
     public tableInfo: any;
     public userId: string;
+    public identity: any;
+    public url: string;
+    @Output() memberInfo: EventEmitter<any> = new EventEmitter();
 
     constructor(
         private _router: Router,
@@ -60,7 +70,8 @@ export class FamilyMemberDetailsComponent implements OnInit {
         private _confirmationService: ConfirmationService,
         private _familyService: FamilyServiceService
     ) {
-        this.nodata = true;
+        this.nodata = false;
+        this.url = global.url;
 
         this.familyMemberDetails = {
             id: '',
@@ -74,16 +85,18 @@ export class FamilyMemberDetailsComponent implements OnInit {
             status: '',
             memberSince: '',
             createdAt: '',
+            avatar: '',
         };
 
         this.tableInfo = [];
         this.token = this._userService.getToken();
+        this.identity = this._userService.getIdentity();
     }
 
     ngOnInit(): void {
-        this._routeActivated.queryParams.subscribe((params) => {
-            this.userId = params['userid'];
-            console.log('this.userId:', this.userId);
+        this._routeActivated.params.subscribe((params) => {
+            this.userId = params['id'];
+            // console.log('this.userId:', this.userId);
 
             if (this.userId) {
                 this.getFamilyMemberDetails();
@@ -94,24 +107,45 @@ export class FamilyMemberDetailsComponent implements OnInit {
     public data: any;
     public expandedRows = {};
     getFamilyMemberDetails() {
-        this._familyService
-            .getFamiliesByOwnerId(this.token, this.userId)
-            .subscribe({
-                next: (res) => {
-                    this.nodata = true;
-                    if (res.status == 'success') {
-                        // console.log("************TABLE INFO************");
-                        // console.log(res.message);
-                        this.data = res.message;
-                    } else {
-                        this.nodata = false;
-                    }
-                },
-                error: (err) => {
-                    this.nodata = false;
-                    console.error(err);
-                },
-            });
+        if (this.identity.role == 'OWNER') {
+            this._familyService
+                .getFamiliesByOwnerId(this.token, this.userId)
+                .subscribe({
+                    next: (res) => {
+                        if (res.status == 'success') {
+                            this.nodata = false;
+                            // console.log('************TABLE INFO************');
+                            // console.log(res.message);
+                            this.data = res.message;
+                        } else {
+                            this.nodata = true;
+                        }
+                    },
+                    error: (err) => {
+                        this.nodata = true;
+                        console.error(err);
+                    },
+                });
+        } else if (this.identity.role == 'ADMIN') {
+            this._familyService
+                .getFamiliesByCondoId(this.token, this.userId)
+                .subscribe({
+                    next: (res) => {
+                        if (res.status == 'success') {
+                            this.nodata = false;
+
+                            // console.log(res.message);
+                            this.data = res.message;
+                        } else {
+                            this.nodata = true;
+                        }
+                    },
+                    error: (err) => {
+                        this.nodata = true;
+                        console.error(err);
+                    },
+                });
+        }
     }
 
     expandAll() {
@@ -139,25 +173,29 @@ export class FamilyMemberDetailsComponent implements OnInit {
     }
 
     getAddres(address: any) {
-        return `${address.condominioId.street_1}, 
-    ${address.condominioId.street_2}, 
-    ${address.condominioId.city},  
-    ${address.condominioId.state}
-    ${address.condominioId.province}
-    ${address.condominioId.country}
+        return `${address.addressId.street_1}, 
+    ${address.addressId.street_2}, 
+    ${address.addressId.city},  
+    ${address.addressId.sector_name}
+    ${address.addressId.province}
+    ${address.addressId.country}
     `;
     }
 
-    public id_member: string;
+    settingsMember(property: any) {
+        this.memberInfo.emit({ show: true, data: property });
+    }
 
-    authSetting(property: any, id_property: any) {
+    public id_member: string;
+    authSetting(propertyInfo: any) {
         this._confirmationService.confirm({
             header: 'Confirmation',
             message: 'Please confirm to proceed moving forward.',
             acceptIcon: 'pi pi-check mr-2',
             rejectIcon: 'pi pi-times mr-2',
             rejectButtonStyleClass: 'p-button-sm',
-            acceptButtonStyleClass: 'p-button-outlined p-button-sm',
+            acceptButtonStyleClass:
+                'p-button-outlined p-button-sm p-button-danger',
             accept: () => {
                 this._messageService.add({
                     severity: 'info',
@@ -165,12 +203,14 @@ export class FamilyMemberDetailsComponent implements OnInit {
                     detail: 'Authorization updated!',
                     life: 3000,
                 });
-                let authObject = {
-                    familyId: property._id,
-                    propertyId: id_property.condominioId._id,
-                    status: id_property.family_status,
-                };
-
+                let authObject = {};
+                // let authObject = {
+                //     familyId: propertyInfo._id,
+                //     propertyId: propertyInfo..condominioId._id,
+                //     status: id_property.family_status,
+                // };
+                console.log('authObject:', propertyInfo);
+                return;
                 this._familyService
                     .updateFamilyAuth(this.token, authObject)
                     .subscribe({
@@ -193,16 +233,17 @@ export class FamilyMemberDetailsComponent implements OnInit {
         });
     }
 
-    getSeverityAuth(status: string) {
-        if (status == 'active') {
+    getSeverityl(family_status: string) {
+        if (family_status == 'authorized') {
             return 'danger';
         } else {
             return 'primary';
         }
     }
 
-    getLabelAuth(status: string) {
-        if (status == 'active') {
+    getLabelAuth(family_status: string) {
+        // console.log('family_status:', status);
+        if (family_status == 'authorized') {
             return 'Unauthorize';
         } else {
             return 'Authorize';
