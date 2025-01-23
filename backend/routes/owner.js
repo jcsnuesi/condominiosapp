@@ -16,11 +16,7 @@ router.get(
   ownerController.getCondominiumByOwnerId
 );
 router.get("/get-family", md_auth.authenticated, ownerController.getFamily);
-router.get(
-  "/get-familyMembers/:id",
-  md_auth.authenticated,
-  ownerController.getFamilyByOwnerId
-);
+
 router.get(
   "/family-member-details/:id",
   md_auth.authenticated,
@@ -62,12 +58,6 @@ router.put(
   "/add-prop-family",
   md_auth.authenticated,
   ownerController.addFamilyProperty
-);
-
-router.put(
-  "/update-family-auth",
-  md_auth.authenticated,
-  ownerController.authFamily
 );
 
 module.exports = router;

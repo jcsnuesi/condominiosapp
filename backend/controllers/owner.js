@@ -314,93 +314,13 @@ var ownerAndSubController = {
   //     });
   //   }
   // },
-  authFamily: async function (req, res) {
-    let params = req.body;
 
-    // if (req.user.role.toLowerCase() != 'owner') {
-
-    //     return res.status(403).send({
-
-    //         status: "forbidden",
-    //         message: "You are not authorized"
-    //     })
-
-    // }
-
-    const familyMember = await Family.findOne({ _id: params.familyId });
-
-    familyMember.addressId.forEach((element, index) => {
-      let { condominioId } = element;
-
-      if (condominioId == params.propertyId) {
-        if (params.status === "inactive") {
-          element.family_status = "active";
-        } else {
-          element.family_status = "inactive";
-        }
-      }
-    });
-
-    try {
-      await Family.findOneAndUpdate({ _id: params.familyId }, familyMember, {
-        new: true,
-      });
-
-      return res.status(200).send({
-        status: "success",
-        message: familyMember,
-      });
-    } catch (error) {
-      return res.status(500).send({
-        status: "error",
-        message: "Server error, try again",
-      });
-    }
-  },
   getFamily: function (req, res) {
-    if (req.user.role.toLowerCase() != "owner") {
-      return res.status(403).send({
-        status: "forbidden",
-        message: "You are not authorized",
-      });
-    }
-
     Family.find({ ownerId: "66f84833006341d7843b4127" })
       .populate(
         "addressId.condominioId",
         "alias type phone street_1 street_2 sector_name city province zipcode country  status createdAt"
       )
-      .exec((err, familyFound) => {
-        if (err) {
-          return res.status(500).send({
-            status: "error",
-            message: "Server error, try again",
-          });
-        }
-
-        if (!familyFound) {
-          return res.status(404).send({
-            status: "error",
-            message: "Family not found",
-          });
-        }
-
-        return res.status(200).send({
-          status: "success",
-          message: familyFound,
-        });
-      });
-  },
-  getFamilyByOwnerId: function (req, res) {
-    let params = req.params.id;
-
-    Family.find({ ownerId: params })
-      .populate({
-        path: "propertyDetails.addressId",
-        model: "Condominium",
-        select:
-          "alias type phone street_1 street_2 sector_name city province zipcode country socialAreas",
-      })
       .exec((err, familyFound) => {
         if (err) {
           return res.status(500).send({

@@ -5,7 +5,7 @@ var Schema = mongoose.Schema;
 
 var FamilySchema = Schema(
   {
-    avatar: { type: String, default: "noimage1.jpeg" },
+    avatar: { type: String, default: "noimage.jpeg" },
     name: { type: String, required: true },
     lastname: { type: String, required: true },
     gender: { type: String, required: true },
@@ -18,7 +18,7 @@ var FamilySchema = Schema(
       {
         _id: false,
         addressId: { type: mongoose.Schema.Types.ObjectId, ref: "Condominium" },
-        unit: { type: String, required: true },
+        condominium_unit: { type: String, required: true },
         family_status: { type: String, default: "authorized" },
         lastUpdate: { type: Date, default: Date.now },
         createdAt: { type: Date, default: Date.now },
