@@ -13,7 +13,7 @@ import { FamilyAreaComponent } from '../family-area/family-area.component';
             { path: 'booking-area/:dashid', component: BookingAreaComponent },
             { path: 'staff-regular/:ownerId', component: StaffComponent },
             {
-                path: 'family-area/:id',
+                path: 'family-area/:dashid',
                 component: FamilyAreaComponent,
             },
         ]),

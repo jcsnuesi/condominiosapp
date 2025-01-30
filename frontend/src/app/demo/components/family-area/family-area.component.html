@@ -1,5 +1,9 @@
 <div class="card">
-    <p-tabView #tabViewController>
+    <p-tabView
+        #tabViewController
+        [(activeIndex)]="activeIndex"
+        (onChange)="onTabChange($event)"
+    >
         <p-tabPanel header="Create authorized member">
             <app-family-member></app-family-member>
         </p-tabPanel>

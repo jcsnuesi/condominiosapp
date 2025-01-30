@@ -95,8 +95,8 @@ export class FamilyMemberDetailsComponent implements OnInit {
 
     ngOnInit(): void {
         this._routeActivated.params.subscribe((params) => {
-            this.userId = params['id'];
-            // console.log('this.userId:', this.userId);
+            this.userId = params['dashid'];
+            // console.log('this.userId:', params);
 
             if (this.userId) {
                 this.getFamilyMemberDetails();
@@ -183,11 +183,12 @@ export class FamilyMemberDetailsComponent implements OnInit {
     }
 
     settingsMember(property: any) {
-        this.memberInfo.emit({ show: true, data: property });
+        let propertyData = { ...property };
+        this.memberInfo.emit({ show: true, data: propertyData });
     }
 
     public id_member: string;
-    authSetting(propertyInfo: any) {
+    authSetting(condoInfo: any, propertyInfo: any) {
         this._confirmationService.confirm({
             header: 'Confirmation',
             message: 'Please confirm to proceed moving forward.',
@@ -203,14 +204,13 @@ export class FamilyMemberDetailsComponent implements OnInit {
                     detail: 'Authorization updated!',
                     life: 3000,
                 });
-                let authObject = {};
-                // let authObject = {
-                //     familyId: propertyInfo._id,
-                //     propertyId: propertyInfo..condominioId._id,
-                //     status: id_property.family_status,
-                // };
-                console.log('authObject:', propertyInfo);
-                return;
+
+                let authObject = {
+                    familyId: propertyInfo._id,
+                    propertyId: condoInfo.addressId._id,
+                    status: condoInfo.family_status,
+                };
+
                 this._familyService
                     .updateFamilyAuth(this.token, authObject)
                     .subscribe({

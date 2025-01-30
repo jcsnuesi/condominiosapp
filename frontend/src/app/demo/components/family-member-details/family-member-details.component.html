@@ -147,7 +147,9 @@
                                         [severity]="
                                             getSeverityl(info.family_status)
                                         "
-                                        (click)="authSetting(property_info)"
+                                        (click)="
+                                            authSetting(info, property_info)
+                                        "
                                         [label]="
                                             info.family_status === 'authorized'
                                                 ? 'Unauthorize'

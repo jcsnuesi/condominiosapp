@@ -55,6 +55,14 @@ export class FamilyServiceService {
         });
     }
 
+    updateFamilyMember(token: string, info: FormData): Observable<any> {
+        let header = new HttpHeaders().set('Authorization', token);
+
+        return this._http.put(this.url + 'update-family-member', info, {
+            headers: header,
+        });
+    }
+
     updateFamilyAuth(token: string, info: any): Observable<any> {
         let header = new HttpHeaders()
             .set('Content-Type', 'application/json')

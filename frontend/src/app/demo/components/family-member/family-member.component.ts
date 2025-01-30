@@ -44,6 +44,7 @@ import { CalendarModule } from 'primeng/calendar';
 import { FamilyServiceService } from '../../service/family-service.service';
 
 type FamilyMember = {
+    memberId: string;
     addressId: Array<{ label: string; code: string }>;
     avatar?: string;
     name: string;
@@ -56,6 +57,7 @@ type FamilyMember = {
     tempAccess?: { label: string; code: string };
     accountAvailabilityDate?: Date;
     accountExpirationDate?: Date;
+    memberStatus?: { label: string; code: string };
 };
 
 @Component({
@@ -131,8 +133,11 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
     public condoOptions: { label: string; code: string }[];
     public unitsOptions: { label: string; code: string }[];
     public tempAccountOptions: { label: string; code: string }[];
+    public StatusOptions: { label: string; code: string }[];
     public tempAccountSelected: any = 'No';
     public minDate: Date = new Date();
+    public btn_label: string = 'Create';
+    public showOnUpdate: boolean = false;
     @Output() hideFamilyDialog: EventEmitter<boolean | {}> = new EventEmitter<
         boolean | {}
     >();
@@ -164,10 +169,16 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
             { label: 'No', code: 'no' },
         ];
 
+        this.StatusOptions = [
+            { label: 'Active', code: 'active' },
+            { label: 'Inactive', code: 'inactive' },
+        ];
+
         this._activateRoute.params.subscribe((params) => {
             let param = params['id'];
 
             this.familyMemberInfo = {
+                memberId: '',
                 addressId: [{ label: '', code: '' }],
                 avatar: '',
                 name: '',
@@ -180,11 +191,13 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
                 tempAccess: { label: 'No', code: 'no' },
                 accountAvailabilityDate: null,
                 accountExpirationDate: null,
+                memberStatus: { label: '', code: '' },
             };
         });
 
         this.condoOptions = [];
         this.unitsOptions = [];
+        this.image = this.url + 'main-avatar/owners/noimage.jpeg';
     }
 
     sendData() {
@@ -206,44 +219,61 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
 
     ngOnChanges(changes: SimpleChanges): void {
         let datos = this.memberInfoFromDetail.data;
+        this.btn_label = 'Update';
+        this.familyMemberInfo.memberId = datos._id;
+        this.familyMemberInfo.memberStatus = {
+            label: datos.status,
+            code: datos.status,
+        };
+        this.showOnUpdate = true;
         // Eliminar las siguientes keys para evitar vueltas innecesarias en el bucle
         delete datos.unit;
         delete datos.createdAt;
         delete datos.updatedAt;
         delete datos.__v;
 
-        for (const key in datos) {
-            if (key === 'propertyDetails') {
-                datos[key].forEach((condo) => {
-                    this.familyMemberInfo.addressId.push({
-                        label: condo.addressId.alias,
-                        code: condo.addressId._id,
-                    });
+        this.image = this.url + 'main-avatar/families/' + datos.avatar;
 
-                    this.familyMemberInfo.unit.push({
-                        label: condo.condominium_unit,
-                        code: condo.condominium_unit,
+        if (datos) {
+            for (const key in datos) {
+                if (key === 'propertyDetails') {
+                    datos[key].forEach((condo, index) => {
+                        console.log('condo----------->', condo);
+                        if (this.familyMemberInfo.addressId.length > 0) {
+                            this.familyMemberInfo.addressId = [];
+                            this.familyMemberInfo.unit = [];
+                        }
+                        this.familyMemberInfo.addressId.push({
+                            label: condo.addressId.alias,
+                            code: condo.addressId._id,
+                        });
+
+                        this.familyMemberInfo.unit.push({
+                            label: condo.condominium_unit,
+                            code: condo.condominium_unit,
+                        });
                     });
-                });
-            } else if (key === 'gender') {
-                this.genderSelected = {
-                    label: this._formatPipe.genderPipe(datos.gender),
-                    code: datos.gender,
-                };
-            } else {
-                if (
-                    Object.prototype.hasOwnProperty.call(
-                        this.familyMemberInfo,
-                        key
-                    )
-                ) {
-                    this.familyMemberInfo[key] = datos[key];
+                } else if (key === 'gender') {
+                    this.familyMemberInfo.gender = {
+                        label: this._formatPipe.genderPipe(datos.gender),
+                        code: datos.gender,
+                    };
+                } else {
+                    if (
+                        Object.prototype.hasOwnProperty.call(
+                            this.familyMemberInfo,
+                            key
+                        )
+                    ) {
+                        this.familyMemberInfo[key] = datos[key];
+                    }
                 }
             }
         }
+        // console.log('familyMemberInfo----------', this.familyMemberInfo);
+        // console.log('genderSelected**************', this.genderSelected);
     }
     ngOnInit(): void {
-        this.image = this.url + 'main-avatar/owners/noimage.jpeg';
         this.getCondoOptions();
 
         // this.image = this.url + 'main-avatar/owners/' + events.avatar;
@@ -267,26 +297,60 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
         // this.sendData();
     }
 
-    onSubmit(form: NgForm) {
+    chooseAction(form: NgForm) {
+        if (this.btn_label === 'Create') {
+            this.onSubmit(form);
+        } else {
+            this.updateFamilyUser();
+        }
+    }
+
+    formatFormData(): FormData {
         const formData = new FormData();
         let checkDate = ['accountAvailabilityDate', 'accountExpirationDate'];
 
         for (const key in this.familyMemberInfo) {
-            if (
-                this.familyMemberInfo[key] instanceof Object &&
-                Boolean(this.familyMemberInfo[key].code)
+            if (key === 'addressId' || key === 'unit') {
+                console.log(
+                    '(this.familyMemberInfo[key]/*/**',
+                    this.familyMemberInfo[key]
+                );
+                let joindata = '';
+                this.familyMemberInfo[key].forEach(
+                    (e) => (joindata += e.code + ',')
+                );
+                formData.append(key, joindata);
+            } else if (
+                Object.prototype.hasOwnProperty.call(
+                    this.familyMemberInfo[key],
+                    'code'
+                )
             ) {
                 formData.append(key, this.familyMemberInfo[key].code);
-            } else if (checkDate.includes(key)) {
+            } else if (
+                checkDate.includes(key) &&
+                this.familyMemberInfo.tempAccess.code === 'yes'
+            ) {
                 let dateLabelFound = checkDate.find((word) => word === key);
                 formData.append(
                     key,
                     this.familyMemberInfo[dateLabelFound].toISOString()
                 );
+            } else if (key == 'addressId' || key == 'unit') {
+                formData.append(
+                    key,
+                    JSON.stringify(this.familyMemberInfo[key])
+                );
             } else {
                 formData.append(key, this.familyMemberInfo[key]);
             }
         }
+
+        return formData;
+    }
+
+    onSubmit(form: NgForm) {
+        const formData = this.formatFormData();
 
         this._confirmationService.confirm({
             header: 'Confirmation',
@@ -341,6 +405,59 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
         });
     }
 
+    updateFamilyUser() {
+        const formData = this.formatFormData();
+
+        this._confirmationService.confirm({
+            message: 'Do you want to confirm this action?',
+            header: 'Confirm',
+            icon: 'pi pi-exclamation-triangle',
+            accept: () => {
+                this._familyService
+                    .updateFamilyMember(this.token, formData)
+                    .subscribe({
+                        next: (data) => {
+                            if (data.status == 'success') {
+                                this._messageService.add({
+                                    severity: 'success',
+                                    summary: 'Successful',
+                                    detail: 'User Updated',
+                                    life: 3000,
+                                });
+                                this.visibleUpdate = false;
+                            } else {
+                                this._messageService.add({
+                                    severity: 'error',
+                                    summary: 'Error',
+                                    detail: data.message,
+                                    life: 3000,
+                                });
+                            }
+                        },
+                        error: (error) => {
+                            this._messageService.add({
+                                severity: 'error',
+                                summary: 'Error',
+                                detail: error.message,
+                                life: 3000,
+                            });
+                        },
+                        complete: () => {
+                            console.log('Add new property Completed');
+                        },
+                    });
+            },
+            reject: () => {
+                this._messageService.add({
+                    severity: 'error',
+                    summary: 'Rejected',
+                    detail: 'You have rejected this action',
+                    life: 3000,
+                });
+            },
+        });
+    }
+
     statusOptions(status: string) {
         const statusAuth = { active: 'Authorized', inactive: 'Unauthorized' };
         return statusAuth[status];
@@ -383,77 +500,5 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
 
         reader.readAsDataURL(file.files[0]);
         this.familyMemberInfo.avatar = file.files[0];
-    }
-
-    updateFamilyUser() {
-        // this.addProperty.addressId = this.propertySelected.id;
-        // console.log("alreadyAdded", this.addProperty)
-
-        const familyFound = this.addressInfo.filter(
-            (family) =>
-                family.addressId === this.addProperty.addressId &&
-                family.id__ === this.addProperty._id
-        );
-
-        console.log('alreadyAdded', familyFound);
-        console.log('alreadyAdded.......', this.addProperty._id);
-
-        if (familyFound) {
-            this._messageService.add({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'Address already added to this user!',
-                life: 3000,
-            });
-        } else {
-            this._confirmationService.confirm({
-                message: 'Do you want to confirm this action?',
-                header: 'Confirm',
-                icon: 'pi pi-exclamation-triangle',
-                accept: () => {
-                    this._userService
-                        .addNewProperty(this.token, this.addProperty)
-                        .subscribe({
-                            next: (data) => {
-                                if (data.status == 'success') {
-                                    this._messageService.add({
-                                        severity: 'success',
-                                        summary: 'Successful',
-                                        detail: 'User Updated',
-                                        life: 3000,
-                                    });
-                                    this.visibleUpdate = false;
-                                } else {
-                                    this._messageService.add({
-                                        severity: 'error',
-                                        summary: 'Error',
-                                        detail: data.message,
-                                        life: 3000,
-                                    });
-                                }
-                            },
-                            error: (error) => {
-                                this._messageService.add({
-                                    severity: 'error',
-                                    summary: 'Error',
-                                    detail: error.message,
-                                    life: 3000,
-                                });
-                            },
-                            complete: () => {
-                                console.log('Add new property Completed');
-                            },
-                        });
-                },
-                reject: () => {
-                    this._messageService.add({
-                        severity: 'error',
-                        summary: 'Rejected',
-                        detail: 'You have rejected this action',
-                        life: 3000,
-                    });
-                },
-            });
-        }
     }
 }

@@ -6,6 +6,9 @@ import {
     SimpleChanges,
     ViewChild,
     viewChild,
+    ChangeDetectorRef,
+    AfterViewInit,
+    ElementRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FamilyMemberComponent } from '../family-member/family-member.component';
@@ -29,19 +32,69 @@ import { TabView } from 'primeng/tabview';
     templateUrl: './family-area.component.html',
     styleUrl: './family-area.component.scss',
 })
-export class FamilyAreaComponent {
+export class FamilyAreaComponent implements AfterViewInit {
     public urlId: string;
     public photos: any;
-    @ViewChild('tabViewController') memberTabEvent: TabView;
-    // public memberInfoFromDetails: any;
+    activeIndex: number = 0;
+    @ViewChild('tabViewController') memberTabEvent!: TabView;
     @Input() memberInfoFromDetails: { show: boolean; data: any };
-    constructor() {
+    @ViewChild('tabContainer', { read: ElementRef }) tabContainer!: ElementRef;
+
+    constructor(private cdr: ChangeDetectorRef) {
         this.memberInfoFromDetails = { show: false, data: {} };
     }
 
     memberInfoFromDetailsEvent(event: any) {
-        this.memberInfoFromDetails = event;
-        this.memberTabEvent.activeIndex = 2;
-        console.log('CLICKED', this.memberTabEvent);
+        this.memberInfoFromDetails = { ...event };
+        this.memberInfoFromDetails.show = true;
+        this.setTabViewIndex(2);
+    }
+    onTabChange(event: any) {
+        console.log('Tab changed to:', event.index);
+        if (event.index !== 2) {
+            this.memberInfoFromDetails = { show: false, data: {} };
+            this.activeIndex = event.index;
+            this.cdr.detectChanges();
+        } else {
+            this.activeIndex = event.index;
+            this.cdr.detectChanges();
+        }
+    }
+
+    setTabViewIndex(index: number) {
+        setTimeout(() => {
+            if (this.memberTabEvent && this.memberInfoFromDetails.show) {
+                if (this.tabContainer) {
+                    const focusableElements =
+                        this.tabContainer.nativeElement.querySelectorAll(
+                            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+                        );
+                    if (focusableElements.length > 0) {
+                        (focusableElements[0] as HTMLElement).blur(); // Remueve el foco
+                    }
+                }
+                console.log(`Cambiando a tab: ${index}`);
+                this.memberTabEvent.activeIndex = index;
+                this.onTabChange({ index });
+                this.cdr.detectChanges();
+            } else {
+                console.warn(
+                    'TabView aún no está listo. Intentando nuevamente...'
+                );
+                setTimeout(() => this.setTabViewIndex(index), 50); // Reintentar si aún no está listo
+            }
+        }, 0);
+    }
+
+    ngAfterViewInit() {
+        setTimeout(() => {
+            if (this.memberTabEvent) {
+                console.log('TabView está listo.');
+                this.cdr.detectChanges(); // Aseguramos que Angular lo detecte
+            } else {
+                console.warn('TabView aún no está disponible, reintentando...');
+                setTimeout(() => this.ngAfterViewInit(), 50); // Reintentamos si aún no está listo
+            }
+        });
     }
 }
