@@ -33,8 +33,13 @@ router.post(
 // PUT METHOD
 router.put(
   "/update-family-auth",
-  [authenticated, md_upload, ownerAuth],
+  [authenticated, ownerAuth],
   familyController.authFamily
+);
+router.put(
+  "/update-family-member",
+  [authenticated, md_upload, ownerAuth],
+  familyController.updateFamilyMember
 );
 
 module.exports = router;

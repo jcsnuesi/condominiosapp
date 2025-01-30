@@ -164,24 +164,35 @@ const familyController = {
   authFamily: async function (req, res) {
     let params = req.body;
 
-    const familyMember = await Family.findOne({ _id: params.familyId });
-
-    familyMember.addressId.forEach((element, index) => {
-      let { condominioId } = element;
-
-      if (condominioId == params.propertyId) {
-        if (params.status === "inactive") {
-          element.family_status = "active";
-        } else {
-          element.family_status = "inactive";
-        }
-      }
+    // Buscamos al miembro de la familia por el id de la familia y el id de la propiedad
+    const familyMember = await Family.findOne({
+      $and: [
+        { _id: params.familyId },
+        { "propertyDetails.addressId": { $in: [params.propertyId] } },
+      ],
     });
 
+    // Actualizamos el estado de la familia: autorizado o no autorizado
+    if (params.status === "authorized") {
+      familyMember.propertyDetails[0].family_status = "unauthorized";
+    } else {
+      familyMember.propertyDetails[0].family_status = "authorized";
+    }
+
     try {
-      await Family.findOneAndUpdate({ _id: params.familyId }, familyMember, {
-        new: true,
-      });
+      // Actualizamos el documento de la familia
+      await Family.findOneAndUpdate(
+        {
+          $and: [
+            { _id: params.familyId },
+            { "propertyDetails.addressId": { $in: [params.propertyId] } },
+          ],
+        },
+        familyMember,
+        {
+          new: true,
+        }
+      );
 
       return res.status(200).send({
         status: "success",
@@ -193,6 +204,31 @@ const familyController = {
         message: "Server error, try again",
       });
     }
+  },
+
+  updateFamilyMember: async function (req, res) {
+    let params = req.body;
+    console.log(params);
+    return;
+
+    try {
+      var val_familyId = !validator.isEmpty(params.familyId);
+      var val_addressId = !validator.isEmpty(params.addressId);
+      var val_ownerId = !validator.isEmpty(params.ownerId);
+    } catch (error) {
+      return res.status(200).send({
+        status: "error",
+        message: "Missing data to send",
+      });
+    }
+
+    if (val_familyId && val_addressId && val_ownerId) {
+      const member = await Family.findOne({
+        $and: [{ _id: params.familyId }, { ownerId: params.ownerId }],
+      });
+    }
+
+    console.log(params);
   },
 };
 

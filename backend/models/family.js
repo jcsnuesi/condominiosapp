@@ -29,8 +29,8 @@ var FamilySchema = Schema(
       ref: "Owner",
       required: true,
     },
-    accountAvailabilityDate: { type: Date },
-    accountExpirationDate: { type: Date },
+    accountAvailabilityDate: { type: Date, default: null },
+    accountExpirationDate: { type: Date, default: null },
   },
   { timestamps: true }
 );
