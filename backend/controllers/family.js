@@ -29,6 +29,8 @@ const familyController = {
       let { path, ...res } = req.files.avatar;
       params.avatar = path.split("\\")[2];
     }
+ 
+    
 
     try {
       var val_ownerId = !validator.isEmpty(params.ownerId);
@@ -208,15 +210,19 @@ const familyController = {
 
   updateFamilyMember: async function (req, res) {
     let params = req.body;
-    console.log(params);
-    return;
 
+    if (Boolean(req.files.avatar)) {
+      let { path, ...res } = req.files.avatar;
+      params.avatar = path.split("\\")[2];
+    }
+  
+    
     try {
-      var val_familyId = !validator.isEmpty(params.familyId);
+      var val_familyId = !validator.isEmpty(params.memberId);
       var val_addressId = !validator.isEmpty(params.addressId);
       var val_ownerId = !validator.isEmpty(params.ownerId);
     } catch (error) {
-      return res.status(200).send({
+      return res.status(500).send({
         status: "error",
         message: "Missing data to send",
       });
@@ -224,8 +230,92 @@ const familyController = {
 
     if (val_familyId && val_addressId && val_ownerId) {
       const member = await Family.findOne({
-        $and: [{ _id: params.familyId }, { ownerId: params.ownerId }],
+        $and: [{ _id: params.memberId }, { ownerId: params.ownerId }],
       });
+
+      // Si el miembro de la familia cambia a estatus inactivo, se desautoriza de todas las propiedades
+      //**
+      // En caso de que vuelva hacer activado, se debera autorizar nuevamente en las propiedades que desee
+      // */
+      if (params.memberStatus === "inactive") {
+        member.propertyDetails.forEach((property) => {
+          property.family_status = "unauthorized";
+        });
+
+        member.status = "inactive";
+      }else{
+        member.name = params.name;
+        member.lastname = params.lastname;
+        member.email = params.email;
+        member.gender = params.gender
+        member.phone = params.phone;
+
+        let propertyDetail = {               
+          addressId: "",
+          condominium_unit:  ""            
+         
+        }
+        let condos = params.addressId.split(",")
+        condos.pop()
+        let unitss = params.unit.split(",")
+        unitss.pop()
+
+        member.propertyDetails = []
+
+        propertyDetail.addressId = condos.find((con) =>  con)
+        member.propertyDetails.push(propertyDetail)
+       
+          
+       //  TERMINAR EL METODO PARA AGREGAR LAS UNIDADES Y LAS PROPIEDADES
+        console.log(condos)
+        // console.log(condos.pop())
+        // console.log(condos)
+        return 
+
+
+              params.addressId.split(",").splice(-1,1).forEach((condo, index) => {
+                params.unit.split(",").splice(-1,1).forEach((unt, index) => {
+                  if (index === 0) {
+                    propertyDetail.push({               
+                      addressId: element.condo,
+                      condominium_unit:  ""            
+                     
+                    }) = element;
+                  } else {
+                    propertyDetails.condominium_unit = element;
+                  }
+                });
+                
+              });
+             
+      }
+
+      try {
+        // Actualizamos el documento de la familia
+        await Family.findOneAndUpdate(
+          {
+            $and: [{ _id: params.memberId }, { ownerId: params.ownerId }],
+          },
+          member,
+          {
+            new: true,
+          }
+        );
+
+        return res.status(200).send({
+          status: "success",
+          message: member,
+        });
+      } catch (error) {
+
+        if (Boolean(req.files.avatar)) {
+          await fs.unlinkSync(path.resolve(req.files.avatar.path));
+        }
+        return res.status(500).send({
+          status: "error",
+          message: "Server error, try again",
+        });
+      }
     }
 
     console.log(params);
