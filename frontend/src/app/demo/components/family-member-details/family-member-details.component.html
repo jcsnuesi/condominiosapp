@@ -54,7 +54,11 @@
         let-expanded="expanded"
         let-rowIndex="rowIndex"
     >
-        <tr>
+        <tr
+            [attr.class]="
+                property.status === 'inactive' ? 'inactive-user' : 'active-user'
+            "
+        >
             <td>
                 <p-button
                     type="button"
@@ -86,7 +90,9 @@
             <td>
                 <p-tag
                     [value]="property.status"
-                    [severity]="getSeverity(property.status)"
+                    [severity]="
+                        property.status == 'active' ? 'success' : 'danger'
+                    "
                 />
             </td>
             <td>

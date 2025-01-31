@@ -133,7 +133,7 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
     public condoOptions: { label: string; code: string }[];
     public unitsOptions: { label: string; code: string }[];
     public tempAccountOptions: { label: string; code: string }[];
-    public StatusOptions: { label: string; code: string }[];
+    public statusOptions: { label: string; code: string }[];
     public tempAccountSelected: any = 'No';
     public minDate: Date = new Date();
     public btn_label: string = 'Create';
@@ -142,6 +142,7 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
         boolean | {}
     >();
     @Input() memberInfoFromDetail: any;
+    @Output() memberUpdated: EventEmitter<any> = new EventEmitter<any>();
 
     constructor(
         private _messageService: MessageService,
@@ -169,7 +170,7 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
             { label: 'No', code: 'no' },
         ];
 
-        this.StatusOptions = [
+        this.statusOptions = [
             { label: 'Active', code: 'active' },
             { label: 'Inactive', code: 'inactive' },
         ];
@@ -222,9 +223,10 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
         this.btn_label = 'Update';
         this.familyMemberInfo.memberId = datos._id;
         this.familyMemberInfo.memberStatus = {
-            label: datos.status,
+            label: this._formatPipe.titleCase(datos.status),
             code: datos.status,
         };
+
         this.showOnUpdate = true;
         // Eliminar las siguientes keys para evitar vueltas innecesarias en el bucle
         delete datos.unit;
@@ -238,7 +240,6 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
             for (const key in datos) {
                 if (key === 'propertyDetails') {
                     datos[key].forEach((condo, index) => {
-                        console.log('condo----------->', condo);
                         if (this.familyMemberInfo.addressId.length > 0) {
                             this.familyMemberInfo.addressId = [];
                             this.familyMemberInfo.unit = [];
@@ -311,10 +312,6 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
 
         for (const key in this.familyMemberInfo) {
             if (key === 'addressId' || key === 'unit') {
-                console.log(
-                    '(this.familyMemberInfo[key]/*/**',
-                    this.familyMemberInfo[key]
-                );
                 let joindata = '';
                 this.familyMemberInfo[key].forEach(
                     (e) => (joindata += e.code + ',')
@@ -410,8 +407,9 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
 
         this._confirmationService.confirm({
             message: 'Do you want to confirm this action?',
-            header: 'Confirm',
-            icon: 'pi pi-exclamation-triangle',
+            header: 'Update Confirmation',
+            icon: 'pi pi-sync',
+
             accept: () => {
                 this._familyService
                     .updateFamilyMember(this.token, formData)
@@ -421,10 +419,11 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
                                 this._messageService.add({
                                     severity: 'success',
                                     summary: 'Successful',
-                                    detail: 'User Updated',
+                                    detail: 'Member updated successfully',
                                     life: 3000,
                                 });
                                 this.visibleUpdate = false;
+                                this.memberUpdated.emit('updated');
                             } else {
                                 this._messageService.add({
                                     severity: 'error',
@@ -458,10 +457,10 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
         });
     }
 
-    statusOptions(status: string) {
-        const statusAuth = { active: 'Authorized', inactive: 'Unauthorized' };
-        return statusAuth[status];
-    }
+    // statusOptions(status: string) {
+    //     const statusAuth = { active: 'Authorized', inactive: 'Unauthorized' };
+    //     return statusAuth[status];
+    // }
 
     getSeverity(status) {
         const severityObj = { active: 'success', inactive: 'danger' };

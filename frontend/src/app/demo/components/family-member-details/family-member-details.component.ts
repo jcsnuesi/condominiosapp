@@ -48,7 +48,7 @@ type FamilyMemberDetails = {
         ConfirmationService,
     ],
     templateUrl: './family-member-details.component.html',
-    styleUrl: './family-member-details.component.scss',
+    styleUrl: './family-member-details.component.css',
 })
 export class FamilyMemberDetailsComponent implements OnInit {
     public token: string;

@@ -37,6 +37,7 @@ export class FamilyAreaComponent implements AfterViewInit {
     public photos: any;
     activeIndex: number = 0;
     @ViewChild('tabViewController') memberTabEvent!: TabView;
+    @ViewChild('familyMemberDetails') familyMemberDetailsView!: TabView;
     @Input() memberInfoFromDetails: { show: boolean; data: any };
     @ViewChild('tabContainer', { read: ElementRef }) tabContainer!: ElementRef;
 
@@ -61,6 +62,19 @@ export class FamilyAreaComponent implements AfterViewInit {
         }
     }
 
+    refreshModuleEvent() {
+        if (this.familyMemberDetailsView) {
+            const familyMemberDetailsComponent = this
+                .familyMemberDetailsView as any;
+            if (
+                familyMemberDetailsComponent &&
+                familyMemberDetailsComponent.onInit
+            ) {
+                familyMemberDetailsComponent.onInit();
+            }
+        }
+    }
+
     setTabViewIndex(index: number) {
         setTimeout(() => {
             if (this.memberTabEvent && this.memberInfoFromDetails.show) {
@@ -69,6 +83,7 @@ export class FamilyAreaComponent implements AfterViewInit {
                         this.tabContainer.nativeElement.querySelectorAll(
                             'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
                         );
+                    this.tabContainer.nativeElement.blur(); // Enfoca el contenedor
                     if (focusableElements.length > 0) {
                         (focusableElements[0] as HTMLElement).blur(); // Remueve el foco
                     }
@@ -90,6 +105,7 @@ export class FamilyAreaComponent implements AfterViewInit {
         setTimeout(() => {
             if (this.memberTabEvent) {
                 console.log('TabView está listo.');
+                // Remueve el foco
                 this.cdr.detectChanges(); // Aseguramos que Angular lo detecte
             } else {
                 console.warn('TabView aún no está disponible, reintentando...');

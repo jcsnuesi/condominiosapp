@@ -59,15 +59,12 @@ export class FormatFunctions {
             return 'danger';
         }
     }
-    getSeverity(invoice_status: string) {
-        if (invoice_status == 'new' || invoice_status == 'active') {
+    getSeverity(_status: string) {
+        if (_status == 'new' || _status == 'active') {
             return 'success';
-        } else if (invoice_status == 'pending') {
+        } else if (_status == 'pending') {
             return 'warning';
-        } else if (
-            invoice_status == 'overdue' ||
-            invoice_status == 'unactive'
-        ) {
+        } else if (_status == 'overdue' || _status == 'unactive') {
             return 'danger';
         } else {
             return 'info';

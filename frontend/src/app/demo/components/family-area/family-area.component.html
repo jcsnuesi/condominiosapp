@@ -9,12 +9,15 @@
         </p-tabPanel>
         <p-tabPanel header="See All Members">
             <app-family-member-details
+                #familyMemberDetails
                 (memberInfo)="memberInfoFromDetailsEvent($event)"
             ></app-family-member-details>
         </p-tabPanel>
         <p-tabPanel *ngIf="memberInfoFromDetails.show" header="Member Settings">
             <app-family-member
+                *ngIf="memberInfoFromDetails.show"
                 [memberInfoFromDetail]="memberInfoFromDetails"
+                (memberUpdated)="refreshModuleEvent()"
             ></app-family-member>
         </p-tabPanel>
     </p-tabView>
