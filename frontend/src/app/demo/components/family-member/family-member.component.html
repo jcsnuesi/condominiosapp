@@ -197,7 +197,7 @@
                     <!-- 
                     Nuevas variables -->
 
-                    <div class="col-md-6 w-100 mt-3">
+                    <!-- <div class="col-md-6 w-100 mt-3">
                         <p-inputGroup>
                             <p-inputGroupAddon>
                                 <i class="pi pi-home"></i>
@@ -218,14 +218,46 @@
                                 required
                             />
                         </p-inputGroup>
-                    </div>
+                    </div> -->
+                    <hr />
 
                     <div class="col-md-6 w-100 mt-3">
                         <p-inputGroup>
                             <p-inputGroupAddon>
-                                <i class="pi pi-th-large"></i>
+                                <i class="pi pi-home"></i>
                             </p-inputGroupAddon>
-                            <p-multiSelect
+                            <p-dropdown
+                                [ngClass]="{
+                                    'ng-valid input-success': condo_id.valid,
+                                    'ng-invalid ng-dirty':
+                                        condo_id.touched && !condo_id.dirty
+                                }"
+                                class="dropdown-condo"
+                                #condo_id="ngModel"
+                                name="condo_id"
+                                [options]="condoOptions"
+                                [(ngModel)]="familyMemberInfo.addressId"
+                                optionLabel="label"
+                                placeholder="Select condominium..."
+                            />
+                        </p-inputGroup>
+                        <div class="mt-5 text-right">
+                            <p-button
+                                label="Add"
+                                icon="pi pi-plus"
+                                class="p-button-success"
+                                severity="warning"
+                                (click)="addUnit(familyMemberInfo.addressId)"
+                            ></p-button>
+                        </div>
+                    </div>
+
+                    <!-- <div class="col-md-6 w-100 mt-3">
+                        <p-inputGroup>
+                            <p-inputGroupAddon>
+                                <i class="pi pi-home"></i>
+                            </p-inputGroupAddon>
+                            <p-dropdown
                                 [ngClass]="{
                                     'ng-valid input-success': units.valid,
                                     'ng-invalid ng-dirty':
@@ -241,8 +273,29 @@
                                 required
                             />
                         </p-inputGroup>
+
+                      
+                    </div> -->
+
+                    <div class="col-md-6 w-100 mt-3">
+                        <label for="condoList" class="w-30"
+                            >Authorized condominiums:</label
+                        >
+                        <div
+                            class="condoUnitAuth"
+                            *ngFor="let condo of condoFound"
+                        >
+                            <input
+                                class="authCondo"
+                                pInputText
+                                type="text"
+                                disabled
+                                [value]="condo.label"
+                            />
+                        </div>
                     </div>
 
+                    <hr />
                     <div class="col-md-6 w-100 mt-3">
                         <p-inputGroup>
                             <p-inputGroupAddon>
@@ -345,10 +398,7 @@
                         </div>
                     </div>
 
-                    <div
-                        class="mt-3 float-rigth"
-                        *ngIf="memberInfoFromDetail?.show"
-                    >
+                    <div class="mt-3 float-rigth">
                         <p-button
                             class="btn-auth-user-creation"
                             *appHasPermissions="'owner'"

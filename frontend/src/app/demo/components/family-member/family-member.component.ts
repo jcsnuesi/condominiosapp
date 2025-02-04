@@ -1,12 +1,14 @@
 import {
     Component,
     EventEmitter,
+    input,
     Input,
     OnChanges,
     OnInit,
     Output,
     SimpleChanges,
     ViewEncapsulation,
+    ChangeDetectorRef,
 } from '@angular/core';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
@@ -45,14 +47,13 @@ import { FamilyServiceService } from '../../service/family-service.service';
 
 type FamilyMember = {
     memberId: string;
-    addressId: Array<{ label: string; code: string }>;
+    addressId: { label: string; code: string };
     avatar?: string;
     name: string;
     lastname: string;
     gender: { label: string; code: string };
     email: string;
     phone: string;
-    unit: Array<{ label: string; code: string }>;
     ownerId: string;
     tempAccess?: { label: string; code: string };
     accountAvailabilityDate?: Date;
@@ -131,7 +132,6 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
     public image: string;
     url: string;
     public condoOptions: { label: string; code: string }[];
-    public unitsOptions: { label: string; code: string }[];
     public tempAccountOptions: { label: string; code: string }[];
     public statusOptions: { label: string; code: string }[];
     public tempAccountSelected: any = 'No';
@@ -152,7 +152,8 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
         private router: Router,
         private _activateRoute: ActivatedRoute,
         private _condoService: CondominioService,
-        private _familyService: FamilyServiceService
+        private _familyService: FamilyServiceService,
+        private cdr: ChangeDetectorRef
     ) {
         this.identity = this._userService.getIdentity();
         this.token = this._userService.getToken();
@@ -176,18 +177,17 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
         ];
 
         this._activateRoute.params.subscribe((params) => {
-            let param = params['id'];
+            let param = params['dashid'];
 
             this.familyMemberInfo = {
                 memberId: '',
-                addressId: [{ label: '', code: '' }],
+                addressId: { label: '', code: '' },
                 avatar: '',
                 name: '',
                 lastname: '',
                 gender: { label: '', code: '' },
                 email: '',
                 phone: '',
-                unit: [{ label: '', code: '' }],
                 ownerId: param,
                 tempAccess: { label: 'No', code: 'no' },
                 accountAvailabilityDate: null,
@@ -197,7 +197,6 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
         });
 
         this.condoOptions = [];
-        this.unitsOptions = [];
         this.image = this.url + 'main-avatar/owners/noimage.jpeg';
     }
 
@@ -207,15 +206,58 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
 
     getCondoOptions() {
         this.condoOptions = this.identity.propertyDetails.map((property) => {
-            this.unitsOptions.push({
-                label: property.condominium_unit,
-                code: property.condominium_unit,
-            });
             return {
-                label: property.addressId.alias,
+                label:
+                    property.addressId.alias +
+                    ' - (' +
+                    property.condominium_unit +
+                    ')',
                 code: property.addressId._id,
             };
         });
+    }
+
+    public condoFound: any = [];
+    addUnit(addressId) {
+        const dataCondo = this.condoOptions;
+
+        dataCondo.forEach((condo, index) => {
+            console.log('condo............', condo);
+
+            this.condoOptions.splice(index, 1);
+            this.condoFound.push({
+                label: condo.label,
+                code: condo.code,
+            });
+        });
+    }
+
+    fillCondoUnitDropdown(propertyDetail) {
+        // PROPIEDADES DEL OWNER (ADMIN)
+        let { propertyDetails, ...res } = propertyDetail.ownerId;
+        let addressIdListInMember = propertyDetail.propertyDetails;
+
+        // Comparar los arrays y devolver los elementos que sean diferentes
+        addressIdListInMember.forEach((property, index) => {
+            if (
+                propertyDetails.some(
+                    (owner_pro) =>
+                        owner_pro.addressId._id === property.addressId._id
+                )
+            ) {
+                this.condoFound.push({
+                    label:
+                        property.addressId.alias + ' - (' + property.unit + ')',
+                    code: property.addressId._id,
+                });
+
+                this.condoOptions.splice(index, 1);
+            }
+        });
+
+        this.cdr.detectChanges();
+        console.log('propertyDetails:', this.condoFound);
+        console.log('Different Properties:', this.condoOptions);
     }
 
     ngOnChanges(changes: SimpleChanges): void {
@@ -226,6 +268,7 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
             label: this._formatPipe.titleCase(datos.status),
             code: datos.status,
         };
+        this.fillCondoUnitDropdown(datos);
 
         this.showOnUpdate = true;
         // Eliminar las siguientes keys para evitar vueltas innecesarias en el bucle
@@ -233,28 +276,13 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
         delete datos.createdAt;
         delete datos.updatedAt;
         delete datos.__v;
+        delete datos.propertyDetails;
 
         this.image = this.url + 'main-avatar/families/' + datos.avatar;
 
         if (datos) {
             for (const key in datos) {
-                if (key === 'propertyDetails') {
-                    datos[key].forEach((condo, index) => {
-                        if (this.familyMemberInfo.addressId.length > 0) {
-                            this.familyMemberInfo.addressId = [];
-                            this.familyMemberInfo.unit = [];
-                        }
-                        this.familyMemberInfo.addressId.push({
-                            label: condo.addressId.alias,
-                            code: condo.addressId._id,
-                        });
-
-                        this.familyMemberInfo.unit.push({
-                            label: condo.condominium_unit,
-                            code: condo.condominium_unit,
-                        });
-                    });
-                } else if (key === 'gender') {
+                if (key === 'gender') {
                     this.familyMemberInfo.gender = {
                         label: this._formatPipe.genderPipe(datos.gender),
                         code: datos.gender,
@@ -274,6 +302,7 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
         // console.log('familyMemberInfo----------', this.familyMemberInfo);
         // console.log('genderSelected**************', this.genderSelected);
     }
+
     ngOnInit(): void {
         this.getCondoOptions();
 
@@ -308,40 +337,40 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
 
     formatFormData(): FormData {
         const formData = new FormData();
-        let checkDate = ['accountAvailabilityDate', 'accountExpirationDate'];
 
+        this.condoFound.forEach((condo) =>
+            formData.append('addressId', condo.code)
+        );
+        if (this.familyMemberInfo.tempAccess.code === 'yes') {
+            formData.append(
+                'accountAvailabilityDate',
+                this.familyMemberInfo['accountAvailabilityDate'].toISOString()
+            );
+            formData.append(
+                'accountExpirationDate',
+                this.familyMemberInfo['accountExpirationDate'].toISOString()
+            );
+        }
+
+        delete this.familyMemberInfo.addressId;
+        delete this.familyMemberInfo.accountAvailabilityDate;
+        delete this.familyMemberInfo.accountExpirationDate;
         for (const key in this.familyMemberInfo) {
-            if (key === 'addressId' || key === 'unit') {
-                let joindata = '';
-                this.familyMemberInfo[key].forEach(
-                    (e) => (joindata += e.code + ',')
-                );
-                formData.append(key, joindata);
-            } else if (
+            if (
                 Object.prototype.hasOwnProperty.call(
                     this.familyMemberInfo[key],
                     'code'
                 )
             ) {
                 formData.append(key, this.familyMemberInfo[key].code);
-            } else if (
-                checkDate.includes(key) &&
-                this.familyMemberInfo.tempAccess.code === 'yes'
-            ) {
-                let dateLabelFound = checkDate.find((word) => word === key);
-                formData.append(
-                    key,
-                    this.familyMemberInfo[dateLabelFound].toISOString()
-                );
-            } else if (key == 'addressId' || key == 'unit') {
-                formData.append(
-                    key,
-                    JSON.stringify(this.familyMemberInfo[key])
-                );
             } else {
                 formData.append(key, this.familyMemberInfo[key]);
             }
         }
+
+        formData.forEach((value, key) => {
+            console.log(key, ' : ', value);
+        });
 
         return formData;
     }

@@ -39,3 +39,13 @@
 .float-rigth {
     float: right;
 }
+
+.condoUnitAuth {
+    display: flex;
+    margin-top: 8px;
+}
+
+.authCondo {
+    width: 100%;
+    margin-right: 5px;
+}
