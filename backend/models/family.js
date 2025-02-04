@@ -18,10 +18,7 @@ var FamilySchema = Schema(
       {
         _id: false,
         addressId: { type: mongoose.Schema.Types.ObjectId, ref: "Condominium" },
-        condominium_unit: { type: String, required: true },
-        family_status: { type: String, default: "authorized" },
-        lastUpdate: { type: Date, default: Date.now },
-        createdAt: { type: Date, default: Date.now },
+        unit: { type: String, required: true },
       },
     ],
     ownerId: {

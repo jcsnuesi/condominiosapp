@@ -29,9 +29,8 @@ const familyController = {
       let { path, ...res } = req.files.avatar;
       params.avatar = path.split("\\")[2];
     }
- 
-    
 
+   
     try {
       var val_ownerId = !validator.isEmpty(params.ownerId);
       var val_addressId = !validator.isEmpty(params.addressId);
@@ -59,17 +58,27 @@ const familyController = {
         });
       }
 
+      let query = typeof params.addressId === 'string' ? [params.addressId] : params.addressId
+ 
+      const {  propertyDetails, ...ownerdata} = await Owner.findOne({
+        $and: [
+          { _id: params.ownerId },
+          { "propertyDetails.addressId": { $in: query } }
+        ]
+      });
+
+      let condoInfoId = {addressId:"", unit:""}
       const familyMember = new Family();
 
+      propertyDetails.forEach((property) => {
+        condoInfoId.addressId = property.addressId,
+        condoInfoId.unit = property.condominium_unit
+        familyMember.propertyDetails.push(condoInfoId)
+      });
+      
+      delete params.addressId;
       for (const key in params) {
-        if (key == "addressId") {
-          familyMember["propertyDetails"].push({
-            addressId: params.addressId,
-            unit: params.unit,
-          });
-        } else {
-          familyMember[key] = params[key];
-        }
+        familyMember[key] = params[key];
       }
 
       let newMember;
@@ -115,6 +124,16 @@ const familyController = {
         model: "Condominium",
         select:
           "alias type phone street_1 street_2 sector_name city province zipcode country socialAreas condominium_unit",
+      })   
+      .populate({
+        path: "ownerId",
+        model: "Owner",
+        select: "name lastname email propertyDetails",
+        populate: {
+          path: "propertyDetails.addressId",
+          model: "Condominium",
+          select: "alias type phone street_1 street_2 sector_name city province zipcode country socialAreas condominium_unit",
+        },
       })
       .exec((err, familyFound) => {
         if (err) {
