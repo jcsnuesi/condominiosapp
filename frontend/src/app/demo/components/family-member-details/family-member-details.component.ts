@@ -164,10 +164,6 @@ export class FamilyMemberDetailsComponent implements OnInit {
         this.expandedRows = {};
     }
 
-    getSeverity(status: string) {
-        return this._format.getSeverity(status);
-    }
-
     getMemberSince(date: string) {
         return this._format.dateFormat(date);
     }
@@ -198,13 +194,6 @@ export class FamilyMemberDetailsComponent implements OnInit {
             acceptButtonStyleClass:
                 'p-button-outlined p-button-sm p-button-danger',
             accept: () => {
-                this._messageService.add({
-                    severity: 'info',
-                    summary: 'Confirmed',
-                    detail: 'Authorization updated!',
-                    life: 3000,
-                });
-
                 let authObject = {
                     familyId: propertyInfo._id,
                     propertyId: condoInfo.addressId._id,
@@ -215,9 +204,31 @@ export class FamilyMemberDetailsComponent implements OnInit {
                     .updateFamilyAuth(this.token, authObject)
                     .subscribe({
                         next: (res) => {
-                            this.getFamilyMemberDetails();
+                            if (res.status == 'success') {
+                                this._messageService.add({
+                                    severity: 'info',
+                                    summary: 'Confirmed',
+                                    detail: 'Authorization updated!',
+                                    life: 3000,
+                                });
+
+                                this.getFamilyMemberDetails();
+                            } else {
+                                this._messageService.add({
+                                    severity: 'error',
+                                    summary: 'error',
+                                    detail: res.message,
+                                    life: 3000,
+                                });
+                            }
                         },
                         error: (err) => {
+                            this._messageService.add({
+                                severity: 'error',
+                                summary: 'error',
+                                detail: err.error.message,
+                                life: 3000,
+                            });
                             console.error(err);
                         },
                     });
@@ -231,22 +242,5 @@ export class FamilyMemberDetailsComponent implements OnInit {
                 });
             },
         });
-    }
-
-    getSeverityl(family_status: string) {
-        if (family_status == 'authorized') {
-            return 'danger';
-        } else {
-            return 'primary';
-        }
-    }
-
-    getLabelAuth(family_status: string) {
-        // console.log('family_status:', status);
-        if (family_status == 'authorized') {
-            return 'Unauthorize';
-        } else {
-            return 'Authorize';
-        }
     }
 }

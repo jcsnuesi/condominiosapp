@@ -136,13 +136,17 @@
                                 <td>
                                     {{ info.addressId.alias | uppercase }}
                                 </td>
-                                <td>{{ getAddres(info) | uppercase }}</td>
+                                <td style="width: 8vw">
+                                    {{ getAddres(info) | uppercase }}
+                                </td>
                                 <td>{{ info.unit | uppercase }}</td>
                                 <td>
                                     <p-tag
                                         [value]="info.family_status"
                                         [severity]="
-                                            getSeverity(info.family_status)
+                                            info.family_status === 'authorized'
+                                                ? 'success'
+                                                : 'danger'
                                         "
                                     />
                                 </td>
@@ -151,7 +155,9 @@
                                     <p-button
                                         type="button"
                                         [severity]="
-                                            getSeverityl(info.family_status)
+                                            info.family_status === 'authorized'
+                                                ? 'danger'
+                                                : 'success'
                                         "
                                         (click)="
                                             authSetting(info, property_info)

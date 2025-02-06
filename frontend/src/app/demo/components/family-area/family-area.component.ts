@@ -17,6 +17,7 @@ import { TabViewModule } from 'primeng/tabview';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { TabView } from 'primeng/tabview';
+import { MessageService } from 'primeng/api';
 
 @Component({
     selector: 'app-family-area',
@@ -29,6 +30,7 @@ import { TabView } from 'primeng/tabview';
         ToastModule,
         CommonModule,
     ],
+    providers: [MessageService],
     templateUrl: './family-area.component.html',
     styleUrl: './family-area.component.scss',
 })
@@ -37,12 +39,22 @@ export class FamilyAreaComponent implements AfterViewInit {
     public photos: any;
     activeIndex: number = 0;
     @ViewChild('tabViewController') memberTabEvent!: TabView;
+    @ViewChild(FamilyMemberDetailsComponent)
+    familyMemberD!: FamilyMemberDetailsComponent;
     @ViewChild('familyMemberDetails') familyMemberDetailsView!: TabView;
     @Input() memberInfoFromDetails: { show: boolean; data: any };
     @ViewChild('tabContainer', { read: ElementRef }) tabContainer!: ElementRef;
 
-    constructor(private cdr: ChangeDetectorRef) {
+    constructor(
+        private cdr: ChangeDetectorRef,
+        private _messageService: MessageService
+    ) {
         this.memberInfoFromDetails = { show: false, data: {} };
+    }
+
+    messageEvent(event: string) {
+        console.log('Evento recibido: ', event);
+        this.familyMemberD.ngOnInit();
     }
 
     memberInfoFromDetailsEvent(event: any) {
@@ -59,19 +71,6 @@ export class FamilyAreaComponent implements AfterViewInit {
         } else {
             this.activeIndex = event.index;
             this.cdr.detectChanges();
-        }
-    }
-
-    refreshModuleEvent() {
-        if (this.familyMemberDetailsView) {
-            const familyMemberDetailsComponent = this
-                .familyMemberDetailsView as any;
-            if (
-                familyMemberDetailsComponent &&
-                familyMemberDetailsComponent.onInit
-            ) {
-                familyMemberDetailsComponent.onInit();
-            }
         }
     }
 

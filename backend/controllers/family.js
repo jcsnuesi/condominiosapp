@@ -326,7 +326,6 @@ const familyController = {
           message: member,
         });
       } catch (error) {
-
         if (Boolean(req.files.avatar)) {
           await fs.unlinkSync(path.resolve(req.files.avatar.path));
         }

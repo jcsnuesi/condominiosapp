@@ -194,31 +194,6 @@
                         >
                     </div>
 
-                    <!-- 
-                    Nuevas variables -->
-
-                    <!-- <div class="col-md-6 w-100 mt-3">
-                        <p-inputGroup>
-                            <p-inputGroupAddon>
-                                <i class="pi pi-home"></i>
-                            </p-inputGroupAddon>
-                            <p-multiSelect
-                                [ngClass]="{
-                                    'ng-valid input-success': condo_id.valid,
-                                    'ng-invalid ng-dirty':
-                                        condo_id.touched && !condo_id.dirty
-                                }"
-                                class="dropdown-condo"
-                                #condo_id="ngModel"
-                                name="condo_id"
-                                [options]="condoOptions"
-                                [(ngModel)]="familyMemberInfo.addressId"
-                                optionLabel="label"
-                                placeholder="Select condominium..."
-                                required
-                            />
-                        </p-inputGroup>
-                    </div> -->
                     <hr />
 
                     <div class="col-md-6 w-100 mt-3">
@@ -233,10 +208,10 @@
                                         condo_id.touched && !condo_id.dirty
                                 }"
                                 class="dropdown-condo"
-                                #condo_id="ngModel"
+                                #condo_id
                                 name="condo_id"
                                 [options]="condoOptions"
-                                [(ngModel)]="familyMemberInfo.addressId"
+                                [(ngModel)]="condoOptions_"
                                 optionLabel="label"
                                 placeholder="Select condominium..."
                             />
@@ -247,7 +222,8 @@
                                 icon="pi pi-plus"
                                 class="p-button-success"
                                 severity="warning"
-                                (click)="addUnit(familyMemberInfo.addressId)"
+                                (click)="addUnit(condo_id.value)"
+                                [disabled]="btnDisabled"
                             ></p-button>
                         </div>
                     </div>
@@ -277,21 +253,31 @@
                       
                     </div> -->
 
-                    <div class="col-md-6 w-100 mt-3">
+                    <div
+                        class="col-md-6 w-100 mt-3"
+                        *ngIf="condoFound.length > 0"
+                    >
                         <label for="condoList" class="w-30"
                             >Authorized condominiums:</label
                         >
                         <div
                             class="condoUnitAuth"
-                            *ngFor="let condo of condoFound"
+                            *ngFor="let condo of condoFound; let i = index"
                         >
                             <input
                                 class="authCondo"
                                 pInputText
                                 type="text"
                                 disabled
+                                name="condoListInput"
                                 [value]="condo.label"
                             />
+                            <p-button
+                                *ngIf="condoFound.length > 1"
+                                icon="pi pi-times"
+                                severity="danger"
+                                (click)="removeUnit(i)"
+                            ></p-button>
                         </div>
                     </div>
 
@@ -398,15 +384,25 @@
                         </div>
                     </div>
 
-                    <div class="mt-3 float-rigth">
-                        <p-button
-                            class="btn-auth-user-creation"
-                            *appHasPermissions="'owner'"
-                            icon="pi pi-check"
-                            [label]="btn_label"
-                            status="primary"
-                            type="submit"
-                        />
+                    <div class="div-btn">
+                        <div *ngIf="showOnUpdate">
+                            <p-button
+                                *appHasPermissions="'owner'"
+                                icon="pi pi-times"
+                                label="Delete"
+                                severity="danger"
+                                (click)="deleteMember(familyMemberInfo)"
+                            />
+                        </div>
+                        <div class="div-btn-right">
+                            <p-button
+                                *appHasPermissions="'owner'"
+                                icon="pi pi-check"
+                                [label]="btn_label"
+                                status="primary"
+                                type="submit"
+                            />
+                        </div>
                     </div>
                 </div>
             </div>

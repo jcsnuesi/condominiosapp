@@ -47,7 +47,7 @@ import { FamilyServiceService } from '../../service/family-service.service';
 
 type FamilyMember = {
     memberId: string;
-    addressId: { label: string; code: string };
+    addressId: Array<{ label: string; code: string; unit: string }> | any;
     avatar?: string;
     name: string;
     lastname: string;
@@ -131,18 +131,19 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
     public header_modal_aux = 'Family Member Details';
     public image: string;
     url: string;
-    public condoOptions: { label: string; code: string }[];
+    public condoOptions: { label: string; code: string; unit: string }[];
     public tempAccountOptions: { label: string; code: string }[];
     public statusOptions: { label: string; code: string }[];
     public tempAccountSelected: any = 'No';
     public minDate: Date = new Date();
     public btn_label: string = 'Create';
     public showOnUpdate: boolean = false;
-    @Output() hideFamilyDialog: EventEmitter<boolean | {}> = new EventEmitter<
-        boolean | {}
-    >();
+    // @Output() hideFamilyDialog: EventEmitter<boolean | {}> = new EventEmitter<
+    //     boolean | {}
+    // >();
     @Input() memberInfoFromDetail: any;
-    @Output() memberUpdated: EventEmitter<any> = new EventEmitter<any>();
+
+    @Output() msgEvent: EventEmitter<any> = new EventEmitter<any>();
 
     constructor(
         private _messageService: MessageService,
@@ -159,7 +160,7 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
         this.token = this._userService.getToken();
 
         this.url = global.url;
-        this.hideFamilyDialog.emit(true);
+        // this.hideFamilyDialog.emit(true);
 
         this.genderOptions = [
             { label: 'Male', code: 'M' },
@@ -181,14 +182,14 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
 
             this.familyMemberInfo = {
                 memberId: '',
-                addressId: { label: '', code: '' },
+                addressId: [{ label: '', code: '', unit: '' }],
                 avatar: '',
                 name: '',
                 lastname: '',
                 gender: { label: '', code: '' },
                 email: '',
                 phone: '',
-                ownerId: param,
+                ownerId: param || '',
                 tempAccess: { label: 'No', code: 'no' },
                 accountAvailabilityDate: null,
                 accountExpirationDate: null,
@@ -196,7 +197,9 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
             };
         });
 
-        this.condoOptions = [];
+        this.condoOptions = [
+            { label: 'No properties available', code: '', unit: '' },
+        ];
         this.image = this.url + 'main-avatar/owners/noimage.jpeg';
     }
 
@@ -205,31 +208,29 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
     }
 
     getCondoOptions() {
-        this.condoOptions = this.identity.propertyDetails.map((property) => {
-            return {
-                label:
-                    property.addressId.alias +
-                    ' - (' +
-                    property.condominium_unit +
-                    ')',
-                code: property.addressId._id,
-            };
-        });
-    }
-
-    public condoFound: any = [];
-    addUnit(addressId) {
-        const dataCondo = this.condoOptions;
-
-        dataCondo.forEach((condo, index) => {
-            console.log('condo............', condo);
-
-            this.condoOptions.splice(index, 1);
-            this.condoFound.push({
-                label: condo.label,
-                code: condo.code,
-            });
-        });
+        if (this.memberInfoFromDetail) {
+            this.condoOptions = [
+                {
+                    label: 'No properties available',
+                    code: '',
+                    unit: '',
+                },
+            ];
+        } else {
+            this.condoOptions = this.identity.propertyDetails.map(
+                (property) => {
+                    return {
+                        label:
+                            property.addressId.alias +
+                            ' - (' +
+                            property.condominium_unit +
+                            ')',
+                        code: property.addressId._id,
+                        unit: property.condominium_unit,
+                    };
+                }
+            );
+        }
     }
 
     fillCondoUnitDropdown(propertyDetail) {
@@ -237,33 +238,46 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
         let { propertyDetails, ...res } = propertyDetail.ownerId;
         let addressIdListInMember = propertyDetail.propertyDetails;
 
-        // Comparar los arrays y devolver los elementos que sean diferentes
-        addressIdListInMember.forEach((property, index) => {
-            if (
-                propertyDetails.some(
-                    (owner_pro) =>
-                        owner_pro.addressId._id === property.addressId._id
-                )
-            ) {
+        this.condoOptions = propertyDetails.map((property) => {
+            let data = addressIdListInMember.filter(
+                (condo) =>
+                    condo.addressId._id === property.addressId._id &&
+                    condo.unit === property.condominium_unit
+            );
+
+            if (data.length > 0) {
                 this.condoFound.push({
                     label:
-                        property.addressId.alias + ' - (' + property.unit + ')',
+                        data[0].addressId.alias + ' - (' + data[0].unit + ')',
                     code: property.addressId._id,
+                    unit: property.condominium_unit,
                 });
+                this.familyMemberInfo.addressId = [...this.condoFound];
 
-                this.condoOptions.splice(index, 1);
+                console.log('carga de datos', this.familyMemberInfo.addressId);
+                return { label: '', code: '' };
+            } else {
+                return {
+                    label:
+                        property.alias +
+                        ' - (' +
+                        property.condominium_unit +
+                        ')',
+                    code: property._id,
+                    unit: property.condominium_unit,
+                };
             }
         });
 
-        this.cdr.detectChanges();
-        console.log('propertyDetails:', this.condoFound);
-        console.log('Different Properties:', this.condoOptions);
+        this.btnDisabled = this.condoOptions[0].label === '' ? true : false;
     }
 
     ngOnChanges(changes: SimpleChanges): void {
         let datos = this.memberInfoFromDetail.data;
         this.btn_label = 'Update';
         this.familyMemberInfo.memberId = datos._id;
+        this.familyMemberInfo.ownerId = datos.ownerId._id;
+        console.log('datos', this.familyMemberInfo.ownerId);
         this.familyMemberInfo.memberStatus = {
             label: this._formatPipe.titleCase(datos.status),
             code: datos.status,
@@ -277,6 +291,7 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
         delete datos.updatedAt;
         delete datos.__v;
         delete datos.propertyDetails;
+        delete datos.ownerId;
 
         this.image = this.url + 'main-avatar/families/' + datos.avatar;
 
@@ -299,7 +314,10 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
                 }
             }
         }
-        // console.log('familyMemberInfo----------', this.familyMemberInfo);
+        console.log(
+            'this.familyMemberInfo.gender ----------',
+            this.familyMemberInfo.gender
+        );
         // console.log('genderSelected**************', this.genderSelected);
     }
 
@@ -337,10 +355,25 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
 
     formatFormData(): FormData {
         const formData = new FormData();
-
-        this.condoFound.forEach((condo) =>
-            formData.append('addressId', condo.code)
+        console.log(
+            'this.familyMemberInfo.addressId --> formatFormData',
+            this.familyMemberInfo.addressId
         );
+        if (this.familyMemberInfo.addressId.length === 0) {
+            this._messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Please select a property',
+                life: 8000,
+                closable: true,
+            });
+            throw new Error('Please select a property');
+        } else {
+            this.familyMemberInfo.addressId.forEach((condo) =>
+                formData.append('addressId', condo.code)
+            );
+        }
+
         if (this.familyMemberInfo.tempAccess.code === 'yes') {
             formData.append(
                 'accountAvailabilityDate',
@@ -352,10 +385,14 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
             );
         }
 
-        delete this.familyMemberInfo.addressId;
-        delete this.familyMemberInfo.accountAvailabilityDate;
-        delete this.familyMemberInfo.accountExpirationDate;
         for (const key in this.familyMemberInfo) {
+            if (
+                key === 'addressId' ||
+                key === 'accountAvailabilityDate' ||
+                key === 'accountExpirationDate'
+            ) {
+                continue;
+            }
             if (
                 Object.prototype.hasOwnProperty.call(
                     this.familyMemberInfo[key],
@@ -368,9 +405,9 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
             }
         }
 
-        formData.forEach((value, key) => {
-            console.log(key, ' : ', value);
-        });
+        // formData.forEach((value, key) => {
+        //     console.log(key, ' : ', value);
+        // });
 
         return formData;
     }
@@ -394,22 +431,15 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
                     .subscribe({
                         next: (data) => {
                             if (data.status == 'success') {
-                                this._messageService.add({
-                                    severity: 'success',
-                                    summary: 'Successful',
-                                    detail: 'New member Created',
-                                    life: 3000,
-                                });
+                                // Dispatamos un output para que se active el toast
+                                this.msgEvent.emit('created');
+                                this.condoFound = [];
+                                this.getCondoOptions();
                                 form.reset();
                                 this.image =
                                     this.url +
                                     'main-avatar/owners/noimage.jpeg';
-                                this.hideFamilyDialog.emit(false);
-                            } else {
-                                console.log(data);
-                                this.hideFamilyDialog.emit({
-                                    msg: data.message,
-                                });
+                                // this.hideFamilyDialog.emit(false);
                             }
                         },
                         error: (error) => {
@@ -451,8 +481,8 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
                                     detail: 'Member updated successfully',
                                     life: 3000,
                                 });
-                                this.visibleUpdate = false;
-                                this.memberUpdated.emit('updated');
+
+                                this.msgEvent.emit('updated');
                             } else {
                                 this._messageService.add({
                                     severity: 'error',
@@ -486,10 +516,95 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
         });
     }
 
-    // statusOptions(status: string) {
-    //     const statusAuth = { active: 'Authorized', inactive: 'Unauthorized' };
-    //     return statusAuth[status];
-    // }
+    public condoOptions_: any = [{ label: '', code: '', unit: '' }];
+    deleteMember(familyMember) {
+        this._confirmationService.confirm({
+            message: 'Do you want to confirm this action?',
+            header: 'Delete Confirmation',
+            icon: 'pi pi-info-circle',
+            accept: () => {
+                this._familyService
+                    .deleteFamilyMember(this.token, familyMember.memberId)
+                    .subscribe({
+                        next: (data) => {
+                            console.log(data);
+                            if (data.status == 'success') {
+                                this._messageService.add({
+                                    severity: 'success',
+                                    summary: 'Successful',
+                                    detail: 'Member deleted successfully',
+                                    life: 3000,
+                                });
+
+                                this.msgEvent.emit('deleted');
+                            } else {
+                                this._messageService.add({
+                                    severity: 'error',
+                                    summary: 'Error',
+                                    detail: data.message,
+                                    life: 3000,
+                                });
+                            }
+                        },
+                        error: (error) => {
+                            this._messageService.add({
+                                severity: 'error',
+                                summary: 'Error',
+                                detail: error.message,
+                                life: 3000,
+                            });
+                        },
+                    });
+            },
+            reject: () => {
+                this._messageService.add({
+                    severity: 'error',
+                    summary: 'Rejected',
+                    detail: 'You have rejected this action',
+                    life: 3000,
+                });
+            },
+        });
+    }
+
+    public condoFound: any = [];
+    public btnDisabled: boolean = false;
+    addUnit(address) {
+        const dataCondo = { ...address };
+
+        let indexFound = this.condoOptions.findIndex(
+            (condo) =>
+                condo.code === dataCondo.code && condo.unit === dataCondo.unit
+        );
+
+        this.condoFound.push(this.condoOptions[indexFound]);
+        this.familyMemberInfo.addressId.push(this.condoOptions[indexFound]);
+
+        this.condoOptions.splice(indexFound, 1);
+
+        if (this.condoOptions.length === 0) {
+            this.btnDisabled = true;
+            this.condoOptions.push({
+                label: 'No properties available',
+                code: '',
+                unit: '',
+            });
+        }
+    }
+
+    removeUnit(index) {
+        if (this.condoOptions[0].code === '') {
+            this.condoOptions[0] = this.condoFound[index];
+            this.condoFound.splice(index, 1);
+            this.familyMemberInfo.addressId.splice(index, 1);
+        } else {
+            this.condoOptions.push(this.condoFound[index]);
+            this.condoFound.splice(index, 1);
+            this.familyMemberInfo.addressId.splice(index, 1);
+        }
+
+        this.btnDisabled = false;
+    }
 
     getSeverity(status) {
         const severityObj = { active: 'success', inactive: 'danger' };

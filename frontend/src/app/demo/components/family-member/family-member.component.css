@@ -31,13 +31,15 @@
     border-top-left-radius: 0px;
     border-bottom-left-radius: 0px;
 }
-
-.btn-auth-user-creation {
-    width: 100%;
+.div-btn {
+    display: flex;
+    margin-top: 40px;
 }
 
-.float-rigth {
-    float: right;
+.div-btn-right {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
 }
 
 .condoUnitAuth {

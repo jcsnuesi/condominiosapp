@@ -5,7 +5,9 @@
         (onChange)="onTabChange($event)"
     >
         <p-tabPanel header="Create authorized member">
-            <app-family-member></app-family-member>
+            <app-family-member
+                (msgEvent)="messageEvent($event)"
+            ></app-family-member>
         </p-tabPanel>
         <p-tabPanel header="See All Members">
             <app-family-member-details
@@ -17,7 +19,7 @@
             <app-family-member
                 *ngIf="memberInfoFromDetails.show"
                 [memberInfoFromDetail]="memberInfoFromDetails"
-                (memberUpdated)="refreshModuleEvent()"
+                (msgEvent)="messageEvent($event)"
             ></app-family-member>
         </p-tabPanel>
     </p-tabView>

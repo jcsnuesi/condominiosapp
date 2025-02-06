@@ -73,5 +73,17 @@ export class FamilyServiceService {
         });
     }
 
+    deleteFamilyMember(token: string, id: string): Observable<any> {
+        let header = new HttpHeaders()
+            .set('Content-Type', 'application/json')
+            .set('Authorization', token);
+
+        return this._http.put(this.url + 'delete-family-member/' + id, null, {
+            headers: header,
+            reportProgress: true,
+            observe: 'response',
+        });
+    }
+
     // End - Family methods
 }
