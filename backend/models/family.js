@@ -19,6 +19,7 @@ var FamilySchema = Schema(
         _id: false,
         addressId: { type: mongoose.Schema.Types.ObjectId, ref: "Condominium" },
         unit: { type: String, required: true },
+        family_status: { type: String, default: "authorized", required: true },
       },
     ],
     ownerId: {
@@ -28,6 +29,7 @@ var FamilySchema = Schema(
     },
     accountAvailabilityDate: { type: Date, default: null },
     accountExpirationDate: { type: Date, default: null },
+    delete: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

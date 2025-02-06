@@ -20,6 +20,7 @@ const password = generatePassword.generate({
 });
 const emailVerification = require("../service/verificators");
 const wsConfirmationMessage = require("./whatsappController");
+let checkExtensions = require("../service/extensions");
 
 const familyController = {
   createAccount: async (req, res) => {
@@ -30,7 +31,6 @@ const familyController = {
       params.avatar = path.split("\\")[2];
     }
 
-   
     try {
       var val_ownerId = !validator.isEmpty(params.ownerId);
       var val_addressId = !validator.isEmpty(params.addressId);
@@ -58,26 +58,31 @@ const familyController = {
         });
       }
 
-      let query = typeof params.addressId === 'string' ? [params.addressId] : params.addressId
- 
-      const {  propertyDetails, ...ownerdata} = await Owner.findOne({
+      let query =
+        typeof params.addressId === "string"
+          ? [params.addressId]
+          : params.addressId;
+
+      const { propertyDetails, ...ownerdata } = await Owner.findOne({
         $and: [
           { _id: params.ownerId },
-          { "propertyDetails.addressId": { $in: query } }
-        ]
+          { "propertyDetails.addressId": { $in: query } },
+        ],
       });
 
-      let condoInfoId = {addressId:"", unit:""}
+      let condoInfoId = { addressId: "", unit: "", family_status: "" };
       const familyMember = new Family();
 
       propertyDetails.forEach((property) => {
-        condoInfoId.addressId = property.addressId,
-        condoInfoId.unit = property.condominium_unit
-        familyMember.propertyDetails.push(condoInfoId)
+        (condoInfoId.addressId = property.addressId),
+          (condoInfoId.unit = property.condominium_unit);
+        condoInfoId.family_status = "authorized";
+        familyMember.propertyDetails.push(condoInfoId);
       });
-      
-      delete params.addressId;
+
       for (const key in params) {
+        if (key === "addressId" || key == "avatar") continue;
+
         familyMember[key] = params[key];
       }
 
@@ -116,7 +121,7 @@ const familyController = {
     let params = req.params.id;
 
     Family.find({
-      ownerId: params,
+      $and: [{ ownerId: params }, { delete: false }],
     })
       .select("-password")
       .populate({
@@ -124,7 +129,7 @@ const familyController = {
         model: "Condominium",
         select:
           "alias type phone street_1 street_2 sector_name city province zipcode country socialAreas condominium_unit",
-      })   
+      })
       .populate({
         path: "ownerId",
         model: "Owner",
@@ -132,7 +137,8 @@ const familyController = {
         populate: {
           path: "propertyDetails.addressId",
           model: "Condominium",
-          select: "alias type phone street_1 street_2 sector_name city province zipcode country socialAreas condominium_unit",
+          select:
+            "alias type phone street_1 street_2 sector_name city province zipcode country socialAreas condominium_unit",
         },
       })
       .exec((err, familyFound) => {
@@ -160,8 +166,12 @@ const familyController = {
     let params = req.params.condoId;
 
     const familyInfo = await Family.find({
-      "propertyDetails.addressId": { $in: [params] },
+      $and: [
+        { "propertyDetails.addressId": { $in: [params] } },
+        { delete: false },
+      ],
     })
+
       .select("-password")
       .populate({
         path: "propertyDetails.addressId",
@@ -192,6 +202,13 @@ const familyController = {
         { "propertyDetails.addressId": { $in: [params.propertyId] } },
       ],
     });
+
+    if (familyMember.status === "inactive") {
+      return res.status(200).send({
+        status: "error",
+        message: "Inactive user",
+      });
+    }
 
     // Actualizamos el estado de la familia: autorizado o no autorizado
     if (params.status === "authorized") {
@@ -229,13 +246,22 @@ const familyController = {
 
   updateFamilyMember: async function (req, res) {
     let params = req.body;
+    let allowExtension = ["jpg", "jpeg", "gif", "png"];
 
+    // Verificamos si se subió una imagen
     if (Boolean(req.files.avatar)) {
       let { path, ...res } = req.files.avatar;
-      params.avatar = path.split("\\")[2];
+      let extension = path.split(".")[1];
+      if (allowExtension.some((ext) => ext === extension)) {
+        params.avatar = path.split("\\")[2];
+      } else {
+        return res.status(500).send({
+          status: "error",
+          message: "Invalid file extension",
+        });
+      }
     }
-  
-    
+
     try {
       var val_familyId = !validator.isEmpty(params.memberId);
       var val_addressId = !validator.isEmpty(params.addressId);
@@ -248,6 +274,7 @@ const familyController = {
     }
 
     if (val_familyId && val_addressId && val_ownerId) {
+      // Buscamos al miembro de la familia por el id de la familia y el id del propietario
       const member = await Family.findOne({
         $and: [{ _id: params.memberId }, { ownerId: params.ownerId }],
       });
@@ -260,53 +287,29 @@ const familyController = {
         member.propertyDetails.forEach((property) => {
           property.family_status = "unauthorized";
         });
-
         member.status = "inactive";
-      }else{
+      } else {
+        member.avatar = params.avatar;
         member.name = params.name;
         member.lastname = params.lastname;
         member.email = params.email;
-        member.gender = params.gender
+        member.gender = params.gender;
         member.phone = params.phone;
+        member.status = "active";
 
-        let propertyDetail = {               
-          addressId: "",
-          condominium_unit:  ""            
-         
+        // Si el addressId es un string, se busca la propiedad y se asigna a la familia
+        if (typeof params.addressId === "string") {
+          let tempDetails = member.propertyDetails.filter(
+            (condo) => condo.addressId === params.addressId
+          );
+        } else {
+          // Si el addressId es un array, se busca las propiedades y se asigna a la familia
+          params.addressId.forEach((condoID, index) => {
+            member.propertyDetail = member.propertyDetails.filter(
+              (condo) => condo.addressId === condoID
+            );
+          });
         }
-        let condos = params.addressId.split(",")
-        condos.pop()
-        let unitss = params.unit.split(",")
-        unitss.pop()
-
-        member.propertyDetails = []
-
-        propertyDetail.addressId = condos.find((con) =>  con)
-        member.propertyDetails.push(propertyDetail)
-       
-          
-       //  TERMINAR EL METODO PARA AGREGAR LAS UNIDADES Y LAS PROPIEDADES
-        console.log(condos)
-        // console.log(condos.pop())
-        // console.log(condos)
-        return 
-
-
-              params.addressId.split(",").splice(-1,1).forEach((condo, index) => {
-                params.unit.split(",").splice(-1,1).forEach((unt, index) => {
-                  if (index === 0) {
-                    propertyDetail.push({               
-                      addressId: element.condo,
-                      condominium_unit:  ""            
-                     
-                    }) = element;
-                  } else {
-                    propertyDetails.condominium_unit = element;
-                  }
-                });
-                
-              });
-             
       }
 
       try {
@@ -337,6 +340,27 @@ const familyController = {
     }
 
     console.log(params);
+  },
+  hideFamilyMember: async function (req, res) {
+    const id = req.params.id;
+
+    try {
+      // Buscamos al miembro de la familia por el id de la familia y actualizamos el campos delete a true
+      const member = await Family.findById(id);
+      member.delete = true;
+      await Family.findByIdAndUpdate({ _id: id }, member, { new: true });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send({
+        status: "error",
+        message: "Server error, try again",
+      });
+    }
+
+    return res.status(200).send({
+      status: "success",
+      message: "Member deleted",
+    });
   },
 };
 

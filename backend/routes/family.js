@@ -41,5 +41,10 @@ router.put(
   [authenticated, md_upload, ownerAuth],
   familyController.updateFamilyMember
 );
+router.put(
+  "/delete-family-member/:id",
+  [authenticated, ownerAuth],
+  familyController.hideFamilyMember
+);
 
 module.exports = router;
