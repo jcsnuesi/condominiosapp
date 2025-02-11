@@ -441,7 +441,6 @@ var Condominium_Controller = {
   },
 
   getBuildingDetails: function (req, res) {
-    console.log("req.params.id", req.params.id);
     Condominium.findById(req.params.id)
       .populate({
         path: "units_ownerId",

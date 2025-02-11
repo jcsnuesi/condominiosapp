@@ -277,6 +277,10 @@ const familyController = {
       // Buscamos al miembro de la familia por el id de la familia y el id del propietario
       const member = await Family.findOne({
         $and: [{ _id: params.memberId }, { ownerId: params.ownerId }],
+      }).populate({
+        path: "ownerId",
+        model: "Owner",
+        select: "propertyDetails ",
       });
 
       // Si el miembro de la familia cambia a estatus inactivo, se desautoriza de todas las propiedades
@@ -295,13 +299,14 @@ const familyController = {
         member.email = params.email;
         member.gender = params.gender;
         member.phone = params.phone;
-        member.status = "active";
+        member.propertyDetails = [];
 
         // Si el addressId es un string, se busca la propiedad y se asigna a la familia
         if (typeof params.addressId === "string") {
-          let tempDetails = member.propertyDetails.filter(
-            (condo) => condo.addressId === params.addressId
-          );
+          member.propertyDetails.push({
+            addressId: params.addressId,
+            unit: params.unit,
+          });
         } else {
           // Si el addressId es un array, se busca las propiedades y se asigna a la familia
           params.addressId.forEach((condoID, index) => {
@@ -338,8 +343,6 @@ const familyController = {
         });
       }
     }
-
-    console.log(params);
   },
   hideFamilyMember: async function (req, res) {
     const id = req.params.id;
