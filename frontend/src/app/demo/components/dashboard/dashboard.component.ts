@@ -426,8 +426,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
             if (this.identity.role == 'ADMIN') {
                 id = id + '.' + refPath;
             }
-            console.log('ID refPath--->', id);
-            if (id != undefined) {
+            // console.log('ID refPath--->', id);
+            if (id != undefined && this.identity.role == 'ADMIN') {
                 this._condominioService.getBuilding(id, this.token).subscribe({
                     next: (response) => {
                         if (response.status == 'success') {
@@ -442,45 +442,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
                             this.customers = unitList.units_ownerId;
 
-                            console.log('CUSTOMER--->', this.customers);
+                            // console.log('CUSTOMER--->', this.customers);
+                        } else {
+                            console.log('Error--->', response);
                         }
                     },
                     error: (error) => {
                         console.log(error);
                     },
                 });
-                // if (this.identity.role == 'ADMIN') {
-
-                // } else {
-                //     // Mejorar este metodo para que se cargue todos los condominios de un usuario
-                //     // y se muestre en el dashboard el estado de cada condominio
-                //     // corregir el interval para que se ejecute cada cierto tiempo sin que recargue el message
-                //     // setInterval(() => {
-
-                //     // }, 5000);
-                //     this._ownerService
-                //         .getPropertyByOwner(this.token)
-                //         .subscribe((response) => {
-                //             if (response.status == 'success') {
-                //                 let unitList = response.message[0];
-
-                //                 this.propertyInactive =
-                //                     unitList.propertyDetails.map((unit) => {
-                //                         if (
-                //                             unit.addressId.status == 'inactive'
-                //                         ) {
-                //                             return {
-                //                                 severity: 'error',
-                //                                 summary: 'Inactive Property',
-                //                                 detail: `You have an inactive property ${unit.addressId.alias.toUpperCase()}, please contact the administrator for more information.`,
-                //                             };
-                //                         }
-
-                //                         return null;
-                //                     });
-                //             }
-                //         });
-                // }
             }
         });
     }

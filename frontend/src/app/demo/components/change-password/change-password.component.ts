@@ -63,7 +63,7 @@ export class ChangePasswordComponent {
 
         this.identity = this._userService.getIdentity();
         this.token = this._userService.getToken();
-        console.log('deleteProperty changePassword', this.componentHeader);
+        // console.log('deleteProperty changePassword', this.componentHeader);
     }
 
     verifyPasswordInput(confirmPassword: any) {

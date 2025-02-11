@@ -228,31 +228,6 @@
                         </div>
                     </div>
 
-                    <!-- <div class="col-md-6 w-100 mt-3">
-                        <p-inputGroup>
-                            <p-inputGroupAddon>
-                                <i class="pi pi-home"></i>
-                            </p-inputGroupAddon>
-                            <p-dropdown
-                                [ngClass]="{
-                                    'ng-valid input-success': units.valid,
-                                    'ng-invalid ng-dirty':
-                                        units.touched && !units.dirty
-                                }"
-                                class="dropdown-condo"
-                                #units="ngModel"
-                                name="units"
-                                [options]="unitsOptions"
-                                [(ngModel)]="familyMemberInfo.unit"
-                                optionLabel="label"
-                                placeholder="Select unit..."
-                                required
-                            />
-                        </p-inputGroup>
-
-                      
-                    </div> -->
-
                     <div
                         class="col-md-6 w-100 mt-3"
                         *ngIf="condoFound.length > 0"

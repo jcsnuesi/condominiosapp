@@ -251,43 +251,47 @@ export class StaffComponent implements OnInit, AfterViewInit {
     }
 
     ngAfterViewInit() {
-        const dropdownElement = this.genderDropDown.nativeElement
-            .querySelector('.p-inputwrapper')
-            .querySelector('.p-dropdown');
-        const dropdPositionRef = this.genderPositionRef.nativeElement
-            .querySelector('.p-inputwrapper')
-            .querySelector('.p-dropdown');
-        const dropdbuildingRef = this.buildingRef.nativeElement
-            .querySelector('.p-inputwrapper')
-            .querySelector('.p-dropdown');
-        const dropdeditGenderRef = this.editGenderRef.nativeElement
-            .querySelector('.p-inputwrapper')
-            .querySelector('.p-dropdown');
-        const dropdeditpositionRef = this.editpositionRef.nativeElement
-            .querySelector('.p-inputwrapper')
-            .querySelector('.p-dropdown');
-        const dropeditbuildingRef = this.editbuildingRef.nativeElement
-            .querySelector('.p-inputwrapper')
-            .querySelector('.p-dropdown');
-        const dropeditStatusRef = this.editStatusRef.nativeElement
-            .querySelector('.p-inputwrapper')
-            .querySelector('.p-dropdown');
+        if (this.genderDropDown) {
+            const dropdownElement = this.genderDropDown.nativeElement
+                .querySelector('.p-inputwrapper')
+                .querySelector('.p-dropdown');
+            const dropdPositionRef = this.genderPositionRef.nativeElement
+                .querySelector('.p-inputwrapper')
+                .querySelector('.p-dropdown');
+            const dropdbuildingRef = this.buildingRef.nativeElement
+                .querySelector('.p-inputwrapper')
+                .querySelector('.p-dropdown');
+            const dropdeditGenderRef = this.editGenderRef.nativeElement
+                .querySelector('.p-inputwrapper')
+                .querySelector('.p-dropdown');
+            const dropdeditpositionRef = this.editpositionRef.nativeElement
+                .querySelector('.p-inputwrapper')
+                .querySelector('.p-dropdown');
+            const dropeditbuildingRef = this.editbuildingRef.nativeElement
+                .querySelector('.p-inputwrapper')
+                .querySelector('.p-dropdown');
+            const dropeditStatusRef = this.editStatusRef.nativeElement
+                .querySelector('.p-inputwrapper')
+                .querySelector('.p-dropdown');
 
-        if (dropdownElement) {
-            [
-                dropeditStatusRef,
-                dropeditbuildingRef,
-                dropdeditpositionRef,
-                dropdownElement,
-                dropdPositionRef,
-                dropdbuildingRef,
-                dropdeditGenderRef,
-            ].forEach((element) => {
-                element.style.width = '100%';
-                element.style.borderRadius = '0';
-            });
-        } else {
-            console.error('Dropdown element not found inside the template.');
+            if (dropdownElement) {
+                [
+                    dropeditStatusRef,
+                    dropeditbuildingRef,
+                    dropdeditpositionRef,
+                    dropdownElement,
+                    dropdPositionRef,
+                    dropdbuildingRef,
+                    dropdeditGenderRef,
+                ].forEach((element) => {
+                    element.style.width = '100%';
+                    element.style.borderRadius = '0';
+                });
+            } else {
+                console.error(
+                    'Dropdown element not found inside the template.'
+                );
+            }
         }
     }
 
@@ -307,7 +311,10 @@ export class StaffComponent implements OnInit, AfterViewInit {
 
             if (condoId != undefined) {
                 this.getStaffByCondoId(condoId);
-                this.getAdminsProperties();
+
+                if (this.loginInfo.role == 'ADMIN') {
+                    this.getAdminsProperties();
+                }
             }
         });
     }
@@ -317,7 +324,6 @@ export class StaffComponent implements OnInit, AfterViewInit {
             next: (response) => {
                 if (response.status == 'success') {
                     this.propertyDetailsVar = response.message.map((staff) => {
-                        console.log('STAFF map---->:', staff);
                         this.condominioList = [
                             {
                                 label: staff.condo_id?.alias.toUpperCase(),
@@ -614,6 +620,7 @@ export class StaffComponent implements OnInit, AfterViewInit {
 
     getAdminsProperties() {
         this.loadingCondo = true;
+
         this._condominioService.getPropertyByAdminId(this.token).subscribe({
             next: (response) => {
                 if (response.status == 'success') {

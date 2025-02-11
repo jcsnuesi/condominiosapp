@@ -53,7 +53,7 @@ export class FamilyAreaComponent implements AfterViewInit {
     }
 
     messageEvent(event: string) {
-        console.log('Evento recibido: ', event);
+        // console.log('Evento recibido: ', event);
         this.familyMemberD.ngOnInit();
     }
 
@@ -63,7 +63,7 @@ export class FamilyAreaComponent implements AfterViewInit {
         this.setTabViewIndex(2);
     }
     onTabChange(event: any) {
-        console.log('Tab changed to:', event.index);
+        // console.log('Tab changed to:', event.index);
         if (event.index !== 2) {
             this.memberInfoFromDetails = { show: false, data: {} };
             this.activeIndex = event.index;
@@ -87,7 +87,7 @@ export class FamilyAreaComponent implements AfterViewInit {
                         (focusableElements[0] as HTMLElement).blur(); // Remueve el foco
                     }
                 }
-                console.log(`Cambiando a tab: ${index}`);
+                // console.log(`Cambiando a tab: ${index}`);
                 this.memberTabEvent.activeIndex = index;
                 this.onTabChange({ index });
                 this.cdr.detectChanges();
@@ -103,7 +103,7 @@ export class FamilyAreaComponent implements AfterViewInit {
     ngAfterViewInit() {
         setTimeout(() => {
             if (this.memberTabEvent) {
-                console.log('TabView está listo.');
+                // console.log('TabView está listo.');
                 // Remueve el foco
                 this.cdr.detectChanges(); // Aseguramos que Angular lo detecte
             } else {

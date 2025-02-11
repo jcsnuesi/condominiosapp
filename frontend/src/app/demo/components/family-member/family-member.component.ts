@@ -208,15 +208,7 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
     }
 
     getCondoOptions() {
-        if (this.memberInfoFromDetail) {
-            this.condoOptions = [
-                {
-                    label: 'No properties available',
-                    code: '',
-                    unit: '',
-                },
-            ];
-        } else {
+        if (!this.memberInfoFromDetail) {
             this.condoOptions = this.identity.propertyDetails.map(
                 (property) => {
                     return {
@@ -236,6 +228,7 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
     fillCondoUnitDropdown(propertyDetail) {
         // PROPIEDADES DEL OWNER (ADMIN)
         let { propertyDetails, ...res } = propertyDetail.ownerId;
+
         let addressIdListInMember = propertyDetail.propertyDetails;
 
         this.condoOptions = propertyDetails.map((property) => {
@@ -245,6 +238,8 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
                     condo.unit === property.condominium_unit
             );
 
+            console.log('carga de datos', data);
+
             if (data.length > 0) {
                 this.condoFound.push({
                     label:
@@ -252,22 +247,23 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
                     code: property.addressId._id,
                     unit: property.condominium_unit,
                 });
-                this.familyMemberInfo.addressId = [...this.condoFound];
+                this.familyMemberInfo.addressId = this.condoFound;
 
-                console.log('carga de datos', this.familyMemberInfo.addressId);
+                // console.log('carga de datos', this.familyMemberInfo.addressId);
                 return { label: '', code: '' };
             } else {
                 return {
                     label:
-                        property.alias +
+                        property.addressId.alias +
                         ' - (' +
                         property.condominium_unit +
                         ')',
-                    code: property._id,
+                    code: property.addressId._id,
                     unit: property.condominium_unit,
                 };
             }
         });
+        console.log('carga de datos #2', this.condoOptions);
 
         this.btnDisabled = this.condoOptions[0].label === '' ? true : false;
     }
@@ -355,10 +351,7 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
 
     formatFormData(): FormData {
         const formData = new FormData();
-        console.log(
-            'this.familyMemberInfo.addressId --> formatFormData',
-            this.familyMemberInfo.addressId
-        );
+
         if (this.familyMemberInfo.addressId.length === 0) {
             this._messageService.add({
                 severity: 'error',
@@ -369,9 +362,10 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
             });
             throw new Error('Please select a property');
         } else {
-            this.familyMemberInfo.addressId.forEach((condo) =>
-                formData.append('addressId', condo.code)
-            );
+            this.familyMemberInfo.addressId.forEach((condo) => {
+                formData.append('addressId', condo.code);
+                formData.append('unit', condo.unit);
+            });
         }
 
         if (this.familyMemberInfo.tempAccess.code === 'yes') {
