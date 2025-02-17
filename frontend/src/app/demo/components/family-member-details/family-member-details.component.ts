@@ -95,8 +95,13 @@ export class FamilyMemberDetailsComponent implements OnInit {
 
     ngOnInit(): void {
         this._routeActivated.params.subscribe((params) => {
-            this.userId = params['dashid'];
-            // console.log('this.userId:', params);
+            if (params['dashid']) {
+                this.userId = params['dashid'];
+            } else {
+                this._routeActivated.queryParams.subscribe((param) => {
+                    this.userId = param['userid'];
+                });
+            }
 
             if (this.userId) {
                 this.getFamilyMemberDetails();
@@ -107,45 +112,24 @@ export class FamilyMemberDetailsComponent implements OnInit {
     public data: any;
     public expandedRows = {};
     getFamilyMemberDetails() {
-        if (this.identity.role == 'OWNER') {
-            this._familyService
-                .getFamiliesByOwnerId(this.token, this.userId)
-                .subscribe({
-                    next: (res) => {
-                        if (res.status == 'success') {
-                            this.nodata = false;
-                            // console.log('************TABLE INFO************');
-                            // console.log(res.message);
-                            this.data = res.message;
-                        } else {
-                            this.nodata = true;
-                        }
-                    },
-                    error: (err) => {
+        this._familyService
+            .getFamiliesByOwnerId(this.token, this.userId)
+            .subscribe({
+                next: (res) => {
+                    if (res.status == 'success') {
+                        this.nodata = false;
+                        // console.log('************TABLE INFO************');
+                        // console.log(res.message);
+                        this.data = res.message;
+                    } else {
                         this.nodata = true;
-                        console.error(err);
-                    },
-                });
-        } else if (this.identity.role == 'ADMIN') {
-            this._familyService
-                .getFamiliesByCondoId(this.token, this.userId)
-                .subscribe({
-                    next: (res) => {
-                        if (res.status == 'success') {
-                            this.nodata = false;
-
-                            // console.log(res.message);
-                            this.data = res.message;
-                        } else {
-                            this.nodata = true;
-                        }
-                    },
-                    error: (err) => {
-                        this.nodata = true;
-                        console.error(err);
-                    },
-                });
-        }
+                    }
+                },
+                error: (err) => {
+                    this.nodata = true;
+                    console.error(err);
+                },
+            });
     }
 
     expandAll() {

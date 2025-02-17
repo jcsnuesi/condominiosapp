@@ -52,7 +52,7 @@ export class FamilyAreaComponent implements AfterViewInit {
         this.memberInfoFromDetails = { show: false, data: {} };
     }
 
-    messageEvent(event: string) {
+    messageEvent() {
         // console.log('Evento recibido: ', event);
         this.familyMemberD.ngOnInit();
     }

@@ -80,8 +80,6 @@ export class FamilyServiceService {
 
         return this._http.put(this.url + 'delete-family-member/' + id, null, {
             headers: header,
-            reportProgress: true,
-            observe: 'response',
         });
     }
 

@@ -328,7 +328,7 @@ export class HomeComponent implements OnInit, OnDestroy {
                                 unitList.paymentDate = new Date(
                                     unitList.paymentDate
                                 );
-                                console.log(unitList);
+
                                 this.homeEvent.emit(unitList);
                             }
 
@@ -421,8 +421,10 @@ export class HomeComponent implements OnInit, OnDestroy {
             .join(' ');
     }
 
+    public idOwner: string;
     showOwnerDialog(events) {
         let info = { ...events };
+        this.idOwner = events._id;
         this.ownerObj = info;
         this.ownerObj.name = this.titleCase(info.name);
         this.ownerObj.lastname = this.titleCase(info.lastname);
@@ -456,7 +458,6 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     onSubmitUnit() {
         const formData = new FormData();
-
         formData.append(
             'avatar',
             this.ownerObj.avatar != null ? this.ownerObj.avatar : 'noimage.jpeg'

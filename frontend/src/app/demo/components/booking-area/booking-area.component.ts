@@ -117,7 +117,7 @@ export class BookingAreaComponent implements OnInit {
     public bookingId: string;
     public headerBooking: string;
     public today: Date;
-    @Input('showBackBtn') showBackBtn: boolean = false;
+    @Input() getIdCondo: string;
 
     constructor(
         private _userService: UserService,
@@ -184,19 +184,21 @@ export class BookingAreaComponent implements OnInit {
             fullname: '',
         };
     }
-    public pathId: string;
+
     ngOnInit(): void {
         this._route.params.subscribe((params) => {
-            this.bookingId = params['homeid'] ?? params['dashid'];
-            this.pathId = Object.keys(params)[0];
+            // Capturar:
+            // Owner ID *****
 
-            console.log('paramId--->', this.pathId);
+            this.bookingId = params['dashid'];
             if (this.bookingId) {
                 this.getAllBookings(this.bookingId);
-                if (this.identity.role != 'ADMIN') {
-                    this.getPropertyType();
-                }
+                this.getPropertyType();
+            } else {
+                this.getAllBookings(this.getIdCondo);
             }
+            console.log('Booking ID:', this.bookingId);
+            console.log('getIdCondo ID:', this.getIdCondo);
         });
     }
 
@@ -410,14 +412,8 @@ export class BookingAreaComponent implements OnInit {
 
     getAllBookings(paramId: string) {
         /**Este metodo obtiene las reservas del condominio*/
-        let id = null;
-        if (this.identity.role === 'ADMIN') {
-            id = paramId + '.' + this.pathId;
-        } else {
-            id = paramId;
-        }
-        console.log('id path--->', id);
-        this._bookingService.getBooking(this.token, id).subscribe({
+
+        this._bookingService.getBooking(this.token, paramId).subscribe({
             next: (response) => {
                 // this.bookingHistory = response.booking;
                 if (response.status === 'success') {

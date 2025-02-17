@@ -28,7 +28,7 @@ import { BookingAreaComponent } from './demo/components/booking-area/booking-are
                             component: HomeComponent,
                         },
                         {
-                            path: 'bookings/:homeid',
+                            path: 'bookings/:dashid',
                             component: BookingAreaComponent,
                         },
                         {

@@ -360,7 +360,9 @@ export class StaffComponent implements OnInit, AfterViewInit {
     }
 
     backToDashboard() {
-        this._router.navigate(['/home', this.condoData.split('.')[0]]);
+        const id = this.condoData.split('_')[0];
+        console.log('BACK TO DASHBOARD', id);
+        this._router.navigate(['/home', id]);
     }
 
     public condo_id: string;

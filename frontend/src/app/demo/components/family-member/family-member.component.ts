@@ -279,6 +279,7 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
             code: datos.status,
         };
         this.fillCondoUnitDropdown(datos);
+        this.onDelFam = false;
 
         this.showOnUpdate = true;
         // Eliminar las siguientes keys para evitar vueltas innecesarias en el bucle
@@ -310,35 +311,10 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
                 }
             }
         }
-        console.log(
-            'this.familyMemberInfo.gender ----------',
-            this.familyMemberInfo.gender
-        );
-        // console.log('genderSelected**************', this.genderSelected);
     }
 
     ngOnInit(): void {
         this.getCondoOptions();
-
-        // this.image = this.url + 'main-avatar/owners/' + events.avatar;
-        /**
-         * Owner:
-         * Metodo para crear un family member
-         * Crear metodo que busque los datos de los family members por el id del propietario
-         * Metodo para modificar un family member
-         * Metodo para eliminar un family member
-         * Metodo para crear un unit
-         * Metodo para modificar un unit
-         * Metodo para eliminar un unit
-         *
-         *
-         * Admin:
-         * Crear metodo para obtener todas las propiedades por el id del admin
-         *
-         *
-         * Crear metodo que obtenga todas las propiedad
-         */
-        // this.sendData();
     }
 
     chooseAction(form: NgForm) {
@@ -399,10 +375,6 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
             }
         }
 
-        // formData.forEach((value, key) => {
-        //     console.log(key, ' : ', value);
-        // });
-
         return formData;
     }
 
@@ -426,6 +398,13 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
                         next: (data) => {
                             if (data.status == 'success') {
                                 // Dispatamos un output para que se active el toast
+
+                                this._messageService.add({
+                                    severity: 'success',
+                                    summary: 'Successful',
+                                    detail: 'Member created successfully',
+                                    life: 3000,
+                                });
                                 this.msgEvent.emit('created');
                                 this.condoFound = [];
                                 this.getCondoOptions();
@@ -511,6 +490,7 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
     }
 
     public condoOptions_: any = [{ label: '', code: '', unit: '' }];
+    public onDelFam: boolean = false;
     deleteMember(familyMember) {
         this._confirmationService.confirm({
             message: 'Do you want to confirm this action?',
@@ -521,7 +501,6 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
                     .deleteFamilyMember(this.token, familyMember.memberId)
                     .subscribe({
                         next: (data) => {
-                            console.log(data);
                             if (data.status == 'success') {
                                 this._messageService.add({
                                     severity: 'success',
@@ -529,7 +508,7 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
                                     detail: 'Member deleted successfully',
                                     life: 3000,
                                 });
-
+                                this.onDelFam = true;
                                 this.msgEvent.emit('deleted');
                             } else {
                                 this._messageService.add({
@@ -544,7 +523,7 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
                             this._messageService.add({
                                 severity: 'error',
                                 summary: 'Error',
-                                detail: error.message,
+                                detail: error.error.message,
                                 life: 3000,
                             });
                         },

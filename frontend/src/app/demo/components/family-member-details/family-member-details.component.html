@@ -45,7 +45,9 @@
             <th>Phone</th>
             <th>Member Since</th>
             <th>Status</th>
-            <th>Settings</th>
+            <th *ngIf="identity.role != 'ADMIN' && identity.role != 'STAFF'">
+                Settings
+            </th>
         </tr>
     </ng-template>
     <ng-template
@@ -97,6 +99,7 @@
             </td>
             <td>
                 <button
+                    *ngIf="identity.role != 'ADMIN' && identity.role != 'STAFF'"
                     (click)="settingsMember(property)"
                     class="p-panel-header-icon p-link mr-2"
                 >

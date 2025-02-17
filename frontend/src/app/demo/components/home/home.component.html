@@ -573,7 +573,7 @@
                 </p-tabPanel>
                 <p-tabPanel header="Bookings">
                     <app-booking-area
-                        [showBackBtn]
+                        [getIdCondo]="idOwner"
                         *ngIf="visible_owner"
                     ></app-booking-area>
                 </p-tabPanel>
