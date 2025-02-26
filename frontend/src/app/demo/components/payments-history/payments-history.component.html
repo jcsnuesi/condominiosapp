@@ -1,89 +1,84 @@
-<p-table #dt [value]="propertyDetailsUser" 
-[rows]="10" 
-[paginator]="true"
-[globalFilterFields]="['fullname',  'status']" 
-[tableStyle]="{ 'min-width': '75rem' }" 
-[rowHover]="true"
-    dataKey="id" 
+<p-table
+    #dt
+    [value]="propertyDetailsUser"
+    [rows]="10"
+    [paginator]="true"
+    [globalFilterFields]="['fullname', 'status']"
+    [tableStyle]="{ 'min-width': '75rem' }"
+    [rowHover]="true"
+    dataKey="id"
     currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
-    [showCurrentPageReport]="true">
-
+    [showCurrentPageReport]="true"
+>
     <ng-template pTemplate="caption">
         <div class="flex align-items-center justify-content-between">
             <h5 class="m-0">Manage Payments</h5>
-
         </div>
     </ng-template>
-    <ng-template pTemplate="header" >
+    <ng-template pTemplate="header">
         <tr>
-
-            <th pSortableColumn="fullname" style="min-width:15rem">
+            <th pSortableColumn="fullname" style="min-width: 15rem">
                 Fullname <p-sortIcon field="fullname" />
             </th>
-            <th>
-                Unit
-            </th>
-            <th>
-                Phone number
-            </th>
-            <th>
-                Monthly payment
-            </th>
-            <th>
-                Issue date
-            </th>
-            <th>
-               Due date
-            </th>
-            <th>
-                Payment method
-            </th>
-         
-            
-            <th>
-                Status <p-sortIcon field="status" />
-            </th>
-            <th>
-                Actions
-            </th>
+            <th>Unit</th>
+            <th>Phone number</th>
+            <th>Monthly payment</th>
+            <th>Issue date</th>
+            <th>Due date</th>
+            <th>Payment method</th>
 
+            <th>Status <p-sortIcon field="status" /></th>
+            <th>Actions</th>
         </tr>
     </ng-template>
     <ng-template pTemplate="body" let-owner>
         <tr>
-
             <td>
-                {{fullNameFormat(owner.ownerId) }}
+                {{ fullNameFormat(owner.ownerId) }}
             </td>
 
             <td>
                 {{ unitFormat(owner) }}
             </td>
             <td>
-                {{ owner.ownerId.phone}}
+                {{ owner.ownerId.phone }}
             </td>
             <td>
-                {{ owner.invoice_amount}}
+                {{ owner.invoice_amount }}
             </td>
             <td>
-                {{dateFormate(owner.invoice_issue) }}
-            </td> 
-            <td>
-                {{dateFormate(owner.invoice_due) }}
+                {{ dateFormate(owner.invoice_issue) }}
             </td>
             <td>
-                {{ owner.paymentMehtod}}
-            </td>
-           
-            
-            <td>
-                <p-tag [value]="owner.invoice_status" [severity]="getSeverity(owner.invoice_status)" />
+                {{ dateFormate(owner.invoice_due) }}
             </td>
             <td>
-                <p-button icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true" severity="success"
-                    (onClick)="editProduct(owner)" />
-                <p-button *HasPermissionsDirective="'owner'" icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true"
-                    (onClick)="deleteProduct(product)" />
+                {{ owner.paymentMehtod }}
+            </td>
+
+            <td>
+                <p-tag
+                    [value]="owner.invoice_status"
+                    [severity]="getSeverity(owner.invoice_status)"
+                />
+            </td>
+            <td>
+                <p-button
+                    icon="pi pi-pencil"
+                    class="mr-2"
+                    [rounded]="true"
+                    [outlined]="true"
+                    severity="success"
+                    (onClick)="editProduct(owner)"
+                />
+                <p-button
+                    *HasPermissionsDirective="'owner'"
+                    icon="pi pi-trash"
+                    severity="danger"
+                    [rounded]="true"
+                    [outlined]="true"
+                    (onClick)="deleteProduct(product)"
+                />
             </td>
         </tr>
     </ng-template>
@@ -93,4 +88,3 @@
         </div>
     </ng-template>
 </p-table>
-

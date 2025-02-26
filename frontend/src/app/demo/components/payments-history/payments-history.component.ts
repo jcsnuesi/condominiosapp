@@ -38,7 +38,7 @@ import { FamilyMemberDetailsComponent } from '../family-member-details/family-me
 type tableData = {
     id: string;
     fullname: string;
-    units: string;
+    unit: string;
     phone: string;
     email: string;
     amounts: number;
@@ -117,6 +117,7 @@ export class PaymentsHistoryComponent implements OnInit {
     public fullItem: any[];
     // public familyMember: any;
     public modalAuxInfo: any;
+    public logoBase64: string;
 
     constructor(
         private messageService: MessageService,
@@ -135,7 +136,7 @@ export class PaymentsHistoryComponent implements OnInit {
         this.dynamicHeaders = {
             id: 'id',
             fullname: 'Fullname',
-            units: 'Units',
+            unit: 'Unit',
             phone: 'Phone',
             amounts: 'Amounts',
             invoice_issue_date: 'Invoice Issue Date',
@@ -145,6 +146,8 @@ export class PaymentsHistoryComponent implements OnInit {
         };
 
         this.getInvoiceByOwner();
+        this.base64();
+        console.log('this.ownerIdInput', this.ownerIdInput);
     }
 
     getInvoiceByOwner() {
@@ -155,57 +158,31 @@ export class PaymentsHistoryComponent implements OnInit {
                     if (result.status == 'success') {
                         let invoice = result.invoices;
 
-                        for (
-                            let index = 0;
-                            index < result.invoices.length;
-                            index++
-                        ) {
-                            this.tableDataStructure = {
-                                id: invoice[index]._id,
-                                fullname: '',
-                                units: '',
-                                phone: '',
-                                email: '',
-                                amounts: 0,
-                                paymentMehtod: '',
-                                // isRent: false,
-                                invoice_issue_date: '',
-                                invoice_due_date: '',
-                                status: '',
-                                actions: false,
+                        this.bodyTableInfo = invoice.map((invoice) => {
+                            let fullname = `${invoice.ownerId.name} ${invoice.ownerId.lastname}`;
+                            return {
+                                id: invoice._id,
+                                fullname:
+                                    this._stringFormating.titleCase(fullname),
+                                unit: invoice.ownerId.propertyDetails[0]
+                                    .condominium_unit,
+                                phone: invoice.ownerId.phone,
+                                email: invoice.ownerId.email,
+                                amounts: invoice.amount,
+                                paymentMehtod: invoice.payment_method,
+                                invoice_issue_date:
+                                    this._stringFormating.dateFormat(
+                                        invoice.issueDate
+                                    ),
+                                invoice_due_date:
+                                    this._stringFormating.dateFormat(
+                                        invoice.issueDate
+                                    ),
+                                status: invoice.status,
+                                actions: true,
+                                propertyDetails: invoice,
                             };
-
-                            this.tableDataStructure.fullname =
-                                this._stringFormating.fullNameFormat(
-                                    invoice[index].ownerId
-                                );
-                            this.tableDataStructure.units =
-                                this._stringFormating.unitFormat(
-                                    invoice[index]
-                                );
-                            this.tableDataStructure.phone =
-                                invoice[index].ownerId.phone;
-                            this.tableDataStructure.email =
-                                invoice[index].ownerId.email;
-                            this.tableDataStructure.amounts =
-                                invoice[index].invoice_amount;
-                            this.tableDataStructure.paymentMehtod =
-                                invoice[index].payment_method;
-                            this.tableDataStructure.status =
-                                invoice[index].invoice_status;
-                            this.tableDataStructure.invoice_issue_date =
-                                this._stringFormating.dateFormat(
-                                    invoice[index].invoice_issue
-                                );
-                            this.tableDataStructure.invoice_due_date =
-                                this._stringFormating.dateFormat(
-                                    invoice[index].invoice_due
-                                );
-                            this.tableDataStructure.actions = true;
-
-                            this.bodyTableInfo.push(this.tableDataStructure);
-                        }
-                        console.log(this.bodyTableInfo);
+                        });
                     }
                 },
                 error: (error) => {
@@ -214,34 +191,32 @@ export class PaymentsHistoryComponent implements OnInit {
             });
     }
 
-    editItem(event: any) {
-        this._invoiceService.getInvoiceById(this.token, event.id).subscribe({
-            next: (result) => {
-                if (result.status == 'success') {
-                    this._invoiceService.genPDF(
-                        result.invoiceDetails,
-                        this.logoBase64
-                    );
-                } else {
-                    this.visible_spinner = false;
-                    this.messageService.add({
-                        severity: 'error',
-                        summary: 'Error',
-                        detail: 'Error al obtener la información de la factura',
-                    });
-                }
-            },
-            error: (error) => {
-                console.log('error', error);
-                this.visible_spinner = false;
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: 'Error al obtener la información de la factura',
-                });
-            },
-        });
+    base64() {
+        this._http
+            .get('assets/noimage.jpeg', { responseType: 'blob' })
+            .subscribe({
+                next: (result) => {
+                    var reader = new FileReader();
+                    reader.onloadend = () => {
+                        this.logoBase64 = reader.result.toString();
+                    };
+                    reader.readAsDataURL(result);
+                },
+                error: (error) => {
+                    console.log('error', error);
+                },
+            });
     }
 
-    public logoBase64: any;
+    editItem(event: any) {
+        let data = { ...event };
+
+        console.log('data....', event.propertyDetails.condominiumId.alias);
+
+        data['alias'] = event.propertyDetails.condominiumId.alias;
+        data['invoice_issue'] = event.invoice_issue_date;
+        data['invoice_due'] = event.invoice_due_date;
+
+        this._invoiceService.genPDF(data, this.logoBase64);
+    }
 }

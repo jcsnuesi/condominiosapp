@@ -20,6 +20,9 @@ import { ChangePasswordComponent } from '../change-password/change-password.comp
 import { ConfirmationService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
+import { TabViewModule } from 'primeng/tabview';
+import { FamilyMemberDetailsComponent } from '../family-member-details/family-member-details.component';
+import { PaymentsHistoryComponent } from '../payments-history/payments-history.component';
 
 @Component({
     selector: 'app-see-property',
@@ -27,6 +30,8 @@ import { ToastModule } from 'primeng/toast';
     styleUrls: ['./see-property.component.scss'],
     standalone: true,
     imports: [
+        FamilyMemberDetailsComponent,
+        PaymentsHistoryComponent,
         CommonModule,
         DialogModule,
         TabMenuModule,
@@ -37,6 +42,7 @@ import { ToastModule } from 'primeng/toast';
         ChangePasswordComponent,
         ConfirmDialogModule,
         ToastModule,
+        TabViewModule,
     ],
     providers: [
         UserService,
@@ -57,6 +63,7 @@ export class SeePropertyComponent implements OnInit {
     public identity: any;
     public header_changer: string;
     public addressInfo: any[] = [];
+    public datos: any[] = [];
 
     sortOptions: SelectItem[] = [];
 
@@ -105,7 +112,7 @@ export class SeePropertyComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.getAdminsProperties();
+        this.getProperties();
     }
 
     public data: any;
@@ -123,7 +130,7 @@ export class SeePropertyComponent implements OnInit {
                 detail: 'Property deleted successfully!',
                 life: 3000,
             });
-            this.getAdminsProperties();
+            this.getProperties();
         } else {
             this._messageService.add({
                 severity: 'error',
@@ -146,7 +153,7 @@ export class SeePropertyComponent implements OnInit {
         return this._format.dateFormat(fecha);
     }
 
-    getAdminsProperties() {
+    getProperties() {
         switch (this.identity.role) {
             case 'ADMIN':
                 this._condominioService
@@ -162,9 +169,6 @@ export class SeePropertyComponent implements OnInit {
                         error: (error) => {
                             console.log(error);
                         },
-                        complete: () => {
-                            console.log('See property completed!');
-                        },
                     });
                 break;
 
@@ -179,8 +183,9 @@ export class SeePropertyComponent implements OnInit {
                             if (response.status == 'success') {
                                 response.message[0].propertyDetails.forEach(
                                     (element) => {
-                                        console.log('ELEMENT:', element);
+                                        // console.log('ELEMENT:', element);
                                         this.properties.push({
+                                            _id: element.addressId._id,
                                             avatar: element.addressId.avatar,
                                             alias: element.addressId.alias,
                                             phone: element.addressId.phone,
@@ -219,12 +224,24 @@ export class SeePropertyComponent implements OnInit {
         }
     }
 
+    public ownerIdInput: string;
     ownerDialogDetails() {
         this.visible = true;
+        let id = this.identity._id ?? this.identity.ownerId;
+        this.ownerIdInput = id;
+        this._router.navigate([], {
+            queryParams: { userid: id, condoId: this.properties[0]._id },
+            queryParamsHandling: 'merge',
+        });
     }
 
     full_address_func(customer) {
         return `${customer.street_1}, ${customer.street_2}, ${customer.sector_name}, ${customer.city}, ${customer.province}, ${customer.country}`;
+    }
+
+    onHide() {
+        this.delProperty = false;
+        this._router.navigate([]);
     }
 
     propertyName(alias) {

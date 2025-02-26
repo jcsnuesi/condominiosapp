@@ -12,6 +12,7 @@ import { ToastModule } from 'primeng/toast';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { FamilyServiceService } from '../../service/family-service.service';
 import { global } from '../../service/global.service';
+import { TabViewModule } from 'primeng/tabview';
 
 type FamilyMemberDetails = {
     id: string;
@@ -32,6 +33,7 @@ type FamilyMemberDetails = {
     selector: 'app-family-member-details',
     standalone: true,
     imports: [
+        TabViewModule,
         ToastModule,
         ConfirmDialogModule,
         CommonModule,
@@ -93,8 +95,11 @@ export class FamilyMemberDetailsComponent implements OnInit {
         this.identity = this._userService.getIdentity();
     }
 
+    public seePropertyBool: boolean = false;
     ngOnInit(): void {
         this._routeActivated.params.subscribe((params) => {
+            this.seePropertyBool =
+                window.location.href.includes('see-property');
             if (params['dashid']) {
                 this.userId = params['dashid'];
             } else {
@@ -102,15 +107,20 @@ export class FamilyMemberDetailsComponent implements OnInit {
                     this.userId = param['userid'];
                 });
             }
-
+            // console.log('USER ID:', this.userId);
             if (this.userId) {
                 this.getFamilyMemberDetails();
+            }
+
+            if (this.seePropertyBool) {
+                this.userInProperty();
             }
         });
     }
 
     public data: any;
     public expandedRows = {};
+    public userByProperty: any[] = [];
     getFamilyMemberDetails() {
         this._familyService
             .getFamiliesByOwnerId(this.token, this.userId)
@@ -162,6 +172,50 @@ export class FamilyMemberDetailsComponent implements OnInit {
     `;
     }
 
+    clear(dt: any) {
+        dt.clear();
+    }
+
+    public datatable: any[] = [];
+    userInProperty() {
+        let condoId = this._routeActivated.snapshot.queryParams['condoId'];
+        this._familyService
+            .getFamiliesByCondoId(this.token, condoId)
+            .subscribe({
+                next: (res) => {
+                    // console.log('RES:', res);
+                    if (res.status == 'success') {
+                        // this.datatable = res.message;
+                        this.userId =
+                            this._routeActivated.snapshot.queryParams['userid'];
+                        this.datatable = res.message.map((item) => {
+                            let datos = item.propertyDetails.find(
+                                (f) => f.family_status
+                            );
+                            return {
+                                id: item._id,
+                                avatar: item.avatar,
+                                fullname: item.name + ' ' + item.lastname,
+                                email: item.email,
+                                phone: item.phone,
+                                status: item.status,
+                                family_status: datos.family_status,
+                                unit: datos.unit,
+                                _id: datos.addressId._id,
+                            };
+                        });
+                        // console.log('familyStatus:', this.datatable);
+                    }
+                },
+                error: (err) => {
+                    console.error(err);
+                },
+            });
+    }
+    getSeverity(status: string) {
+        return status == 'active' ? 'success' : 'danger';
+    }
+
     settingsMember(property: any) {
         let propertyData = { ...property };
         this.memberInfo.emit({ show: true, data: propertyData });
@@ -179,8 +233,10 @@ export class FamilyMemberDetailsComponent implements OnInit {
                 'p-button-outlined p-button-sm p-button-danger',
             accept: () => {
                 let authObject = {
-                    familyId: propertyInfo._id,
-                    propertyId: condoInfo.addressId._id,
+                    familyId: propertyInfo._id ?? propertyInfo,
+                    propertyId: Boolean(condoInfo.addressId)
+                        ? condoInfo.addressId._id
+                        : condoInfo._id,
                     status: condoInfo.family_status,
                 };
 
@@ -196,7 +252,11 @@ export class FamilyMemberDetailsComponent implements OnInit {
                                     life: 3000,
                                 });
 
-                                this.getFamilyMemberDetails();
+                                if (this.seePropertyBool) {
+                                    this.userInProperty();
+                                } else {
+                                    this.getFamilyMemberDetails();
+                                }
                             } else {
                                 this._messageService.add({
                                     severity: 'error',

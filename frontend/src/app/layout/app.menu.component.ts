@@ -143,6 +143,28 @@ export class AppMenuComponent implements OnInit {
                 ],
                 role: 'ADMIN',
             },
+            {
+                label: 'Partners',
+                items: [
+                    {
+                        label: 'See Partners',
+                        icon: 'pi pi-briefcase',
+                        routerLink: ['/staff-regular', this.cookieValue._id],
+                    },
+                ],
+                role: ['ADMIN'],
+            },
+            {
+                label: 'Documents',
+                items: [
+                    {
+                        label: 'Files',
+                        icon: 'pi pi-file',
+                        routerLink: ['/', this.cookieValue._id],
+                    },
+                ],
+                role: ['ADMIN', 'OWNER'],
+            },
         ];
     }
 }
