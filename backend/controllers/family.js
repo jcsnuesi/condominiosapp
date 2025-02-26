@@ -128,7 +128,7 @@ const familyController = {
         path: "propertyDetails.addressId",
         model: "Condominium",
         select:
-          "alias type phone street_1 street_2 sector_name city province zipcode country socialAreas condominium_unit",
+          "alias type phone street_1 street_2 sector_name city province zipcode country socialAreas condominium_unit status",
       })
       .populate({
         path: "ownerId",
@@ -171,7 +171,6 @@ const familyController = {
         { delete: false },
       ],
     })
-
       .select("-password")
       .populate({
         path: "propertyDetails.addressId",
@@ -352,6 +351,11 @@ const familyController = {
       const member = await Family.findById(id);
       member.delete = true;
       await Family.findByIdAndUpdate({ _id: id }, member, { new: true });
+
+      return res.status(200).send({
+        status: "success",
+        message: "Member deleted",
+      });
     } catch (error) {
       console.log(error);
       return res.status(500).send({
@@ -359,11 +363,6 @@ const familyController = {
         message: "Server error, try again",
       });
     }
-
-    return res.status(200).send({
-      status: "success",
-      message: "Member deleted",
-    });
   },
 };
 

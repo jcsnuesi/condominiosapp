@@ -19,7 +19,7 @@ router.get(
 );
 router.get(
   "/familyMembers-byCondo/:condoId",
-  [authenticated, adminAuth],
+  [authenticated, ownerAuth],
   familyController.getFamilyMemberByCondoId
 );
 
