@@ -53,6 +53,7 @@ import { BookingServiceService } from '../../service/booking-service.service';
 import { OwnerServiceService } from '../../service/owner-service.service';
 import { HasPermissionsDirective } from 'src/app/has-permissions.directive';
 import { NotificationComponent } from '../notification/notification.component';
+import { PropertiesByOwnerComponent } from '../properties-by-owner/properties-by-owner.component';
 
 type FamilyAccess = {
     avatar: string;
@@ -70,6 +71,7 @@ type FamilyAccess = {
     selector: 'app-home',
     standalone: true,
     imports: [
+        PropertiesByOwnerComponent,
         NotificationComponent,
         HasPermissionsDirective,
         DividerModule,
@@ -275,7 +277,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     public totalBooked: number = 0;
     public condoId: string;
-
+    public availableUnitsObject: any[] = [];
     onInitInfo() {
         this._activatedRoute.params.subscribe((param) => {
             let id = param['homeid'];
@@ -284,9 +286,38 @@ export class HomeComponent implements OnInit, OnDestroy {
             if (id != undefined) {
                 this._condominioService.getBuilding(id, this.token).subscribe(
                     (response) => {
-                        // console.log('CONDOMINIO', response);
                         if (response.status == 'success') {
                             var unitList = response.condominium;
+                            unitList['units'] = unitList.availableUnits.map(
+                                (unit) => {
+                                    return { label: unit };
+                                }
+                            );
+
+                            this.availableUnitsObject.push({
+                                ownerId: unitList.units_ownerId,
+                                addressId: unitList._id,
+                                alias: unitList.alias,
+                                units: unitList.units,
+                                typeOfProperty: unitList.typeOfProperty,
+                                full_address:
+                                    unitList.street_1 +
+                                    ', ' +
+                                    unitList.street_2 +
+                                    ', ' +
+                                    unitList.sector_name +
+                                    ', ' +
+                                    unitList.city +
+                                    ', ' +
+                                    unitList.province +
+                                    ', ' +
+                                    unitList.country,
+                            });
+
+                            // console.log(
+                            //     'this.availableUnitsObject',
+                            //     this.availableUnitsObject
+                            // );
                             localStorage.setItem(
                                 'property',
                                 JSON.stringify(unitList)
@@ -334,7 +365,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
                             this.getInvoiceByCondoFunc(unitList);
                             this.customers = unitList.units_ownerId;
-
+                            // console.log('CONDOMINIO------->', this.customers);
                             this.customers.forEach((owner) => {
                                 owner.condominium_unit = owner.propertyDetails
                                     .map((property) => {
@@ -424,7 +455,9 @@ export class HomeComponent implements OnInit, OnDestroy {
     public idOwner: string;
     showOwnerDialog(events) {
         let info = { ...events };
+
         this.idOwner = events._id;
+
         this.ownerObj = info;
         this.ownerObj.name = this.titleCase(info.name);
         this.ownerObj.lastname = this.titleCase(info.lastname);
@@ -462,11 +495,10 @@ export class HomeComponent implements OnInit, OnDestroy {
             'avatar',
             this.ownerObj.avatar != null ? this.ownerObj.avatar : 'noimage.jpeg'
         );
-        formData.append('ownerName', this.ownerObj.name);
+        formData.append('name', this.ownerObj.name);
         formData.append('lastname', this.ownerObj.lastname);
         formData.append('gender', this.ownerObj.gender);
         formData.append('id_number', this.ownerObj.id_number);
-        // formData.append('dob', this.ownerObj.phone2)
         formData.append('phone', this.ownerObj.phone);
         formData.append('phone2', this.ownerObj.phone2);
         formData.append('email', this.ownerObj.email);

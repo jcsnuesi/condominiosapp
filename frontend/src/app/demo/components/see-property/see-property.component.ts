@@ -174,7 +174,7 @@ export class SeePropertyComponent implements OnInit {
 
             case 'OWNER':
                 this._ownerServiceService
-                    .getPropertyByOwner(this.token)
+                    .getPropertyByOwner(this.token, this.identity._id)
                     .subscribe({
                         next: (response) => {
                             this.properties = [];

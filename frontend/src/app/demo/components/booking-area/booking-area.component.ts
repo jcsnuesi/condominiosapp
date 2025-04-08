@@ -14,9 +14,8 @@ import {
     Input,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { BrowserModule } from '@angular/platform-browser';
-import { CalendarModule } from 'primeng/calendar';
 import { FormsModule, NgForm } from '@angular/forms';
+import { CalendarModule } from 'primeng/calendar';
 import { FieldsetModule } from 'primeng/fieldset';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { DropdownModule } from 'primeng/dropdown';
@@ -39,7 +38,6 @@ import { FormatFunctions } from 'src/app/pipes/formating_text';
 import { DialogModule, Dialog } from 'primeng/dialog';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
-import { format, parse, parseISO } from 'date-fns';
 import { OwnerServiceService } from '../../service/owner-service.service';
 
 type BookingType = {
@@ -187,9 +185,6 @@ export class BookingAreaComponent implements OnInit {
 
     ngOnInit(): void {
         this._route.params.subscribe((params) => {
-            // Capturar:
-            // Owner ID *****
-
             this.bookingId = params['dashid'];
             if (this.bookingId) {
                 this.getAllBookings(this.bookingId);
@@ -197,8 +192,8 @@ export class BookingAreaComponent implements OnInit {
             } else {
                 this.getAllBookings(this.getIdCondo);
             }
-            console.log('Booking ID:', this.bookingId);
-            console.log('getIdCondo ID:', this.getIdCondo);
+            // console.log('Booking ID:', this.bookingId);
+            // console.log('getIdCondo ID:', this.getIdCondo);
         });
     }
 
@@ -214,33 +209,35 @@ export class BookingAreaComponent implements OnInit {
     public propertyDetails: any[] = [];
     getPropertyType() {
         /**Este metodo obtiene las propiedades del propietario y carga el dropdown de condominios*/
-        this._ownerService.getPropertyByOwner(this.token).subscribe({
-            next: (res) => {
-                if (res.status === 'success') {
-                    res.message.forEach((prop) => {
-                        prop.propertyDetails.forEach((property) => {
-                            this.propertyDetails.push(property);
-                            this.condoOptions.push({
-                                label: property.addressId.alias.toUpperCase(),
-                                code: property.addressId._id,
-                            });
-
-                            if (Boolean(property.condominium_unit)) {
-                                this.unitOption.push({
-                                    label: property.condominium_unit,
-                                    code: property.condominium_unit,
+        this._ownerService
+            .getPropertyByOwner(this.token, this.identity._id)
+            .subscribe({
+                next: (res) => {
+                    if (res.status === 'success') {
+                        res.message.forEach((prop) => {
+                            prop.propertyDetails.forEach((property) => {
+                                this.propertyDetails.push(property);
+                                this.condoOptions.push({
+                                    label: property.addressId.alias.toUpperCase(),
+                                    code: property.addressId._id,
                                 });
-                            }
 
-                            // console.log('Property this.unitOption-->:', this.identity)
+                                if (Boolean(property.condominium_unit)) {
+                                    this.unitOption.push({
+                                        label: property.condominium_unit,
+                                        code: property.condominium_unit,
+                                    });
+                                }
+
+                                // console.log('Property this.unitOption-->:', this.identity)
+                            });
                         });
-                    });
-                }
-            },
-            error: (err) => {
-                console.log('Error:', err);
-            },
-        });
+                    }
+                },
+                error: (err) => {
+                    console.log('Error:', err);
+                },
+            });
     }
 
     getAreaInfo(event: any) {
