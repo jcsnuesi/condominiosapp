@@ -441,7 +441,8 @@ var Condominium_Controller = {
   },
 
   getBuildingDetails: function (req, res) {
-    Condominium.findById(req.params.id)
+    let id = req.params.id;
+    Condominium.findById(id)
       .populate({
         path: "units_ownerId",
         match: { status: "active" },
@@ -495,7 +496,7 @@ var Condominium_Controller = {
       if (user.role.toLowerCase() === "owner") {
         // Buscar todas las unidades donde el owner está asignado
         const condominiums = await Condominium.find({
-          units_ownerId: id,
+          units_ownerId: { $in: [id] },
         }).select(
           "name street_1 street_2 sector_name city province country availableUnits"
         );

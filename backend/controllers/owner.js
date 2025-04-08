@@ -369,46 +369,42 @@ var ownerAndSubController = {
       message: familyMember,
     });
   },
-  addFamilyProperty: function (req, res) {
-    if (req.user.role.toLowerCase() != "owner") {
-      return res.status(403).send({
-        status: "forbidden",
-        message: "You are not authorized",
-      });
-    }
-
+  addOwnerUnit: async function (req, res) {
     var params = req.body;
+    console.log("params", params);
 
-    Family.findOne({ _id: params.id__ }, async (err, familyFound) => {
-      if (err) {
-        return res.status(500).send({
-          status: "error",
-          message: "Server error, try again",
-        });
-      }
-
-      if (!familyFound) {
-        return res.status(404).send({
-          status: "error",
-          message: "Family not found",
-        });
-      }
-
-      const fCondominioId = {
-        condominioId: "",
+    try {
+      let propertyDetails = {
+        addressId: params.addressId,
+        condominium_unit: params.unit,
+        parkingsQty: params.parkingsQty,
       };
 
-      fCondominioId.condominioId = params.addressId;
-      familyFound.addressId.push(fCondominioId);
-      await Family.findOneAndUpdate({ _id: params.__id }, familyFound, {
-        new: true,
-      });
-
+      await Owner.findOneAndUpdate(
+        { _id: params.ownerId },
+        { $push: { propertyDetails: propertyDetails } },
+        { new: true }
+      );
+      let condominio = await Condominio.findOne({ _id: params.addressId });
+      condominio.availableUnits.splice(
+        condominio.availableUnits.indexOf(params.unit),
+        1
+      );
+      await Condominio.findOneAndUpdate(
+        { _id: params.addressId },
+        { $set: { availableUnits: condominio.availableUnits } }
+      );
       return res.status(200).send({
         status: "success",
-        message: familyFound,
+        message: "Unit assigned successfully",
       });
-    });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send({
+        status: "error",
+        message: "Server error, try again",
+      });
+    }
   },
   ownerByAdmin: async function (req, res) {
     if (req.user.role.toLowerCase() != "admin") {
@@ -528,13 +524,6 @@ var ownerAndSubController = {
   },
   updateProperties: function (req, res) {},
   deactivatedUser: async function (req, res) {
-    // if (req.user.role.toLowerCase() != "admin") {
-    //   return res.status(403).send({
-    //     status: "forbidden",
-    //     message: "Not authorized",
-    //   });
-    // }
-
     var params = req.body;
 
     var user = { owner: Owner, family: Family };
@@ -574,20 +563,34 @@ var ownerAndSubController = {
 
   getCondominiumByOwnerId: function (req, res) {
     const user = { owner: Owner, family: Family };
+    let param = req.params.ownerId;
+    let userModel = "";
 
-    user[req.user.role.toLowerCase()]
-      .find({ _id: req.user.sub })
-      .populate(
-        "propertyDetails.addressId",
-        "avatar alias phone street_1 street_2 sector_name city province zipcode country socialAreas mPayment status mPayment createdAt"
-      )
+    if (param.includes("properties")) {
+      userModel = user["owner"];
+      param = param.split("-")[0];
+    } else {
+      userModel = user[req.user.role.toLowerCase()];
+      param = req.user.sub;
+    }
+
+    userModel
+      .find({ _id: param })
+      .select("-password")
+      .populate({
+        path: "propertyDetails.addressId",
+        model: "Condominium",
+        select:
+          " avatar alias phone street_1 street_2 sector_name city province zipcode country socialAreas mPayment status mPayment createdAt",
+      })
       .exec((err, condominiumFound) => {
         var errorHandlerArr = errorHandler.newUser(err, condominiumFound);
-
+        console.log("errorHandlerArr", condominiumFound);
         if (errorHandlerArr[0]) {
           return res.status(errorHandlerArr[1]).send({
             status: errorHandlerArr[2],
             message: errorHandlerArr[3],
+            errors: err,
           });
         }
       });

@@ -51,6 +51,8 @@ exports.emailVerification = function (info) {
 
 
 }
+
+
 exports.guestVerification = function(info){
 
     var payload = {

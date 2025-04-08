@@ -11,17 +11,17 @@ var md_upload = multipart({ uploadDir: "./uploads/owners" });
 router.get("/customers", md_auth.authenticated, ownerController.ownerByAdmin);
 router.get("/owner-avatar/:avatar", ownerController.getAvatar);
 router.get(
-  "/condominioByOwnerId",
+  "/condominioByOwnerId/:ownerId",
   md_auth.authenticated,
   ownerController.getCondominiumByOwnerId
 );
-router.get("/get-family", md_auth.authenticated, ownerController.getFamily);
+// router.get("/get-family", md_auth.authenticated, ownerController.getFamily);
 
-router.get(
-  "/family-member-details/:id",
-  md_auth.authenticated,
-  ownerController.getFamilyDetailsById
-);
+// router.get(
+//   "/family-member-details/:id",
+//   md_auth.authenticated,
+//   ownerController.getFamilyDetailsById
+// );
 
 // verify email
 router.get("/verify-email/:email", ownerController.emailVerification);
@@ -55,9 +55,9 @@ router.put(
 );
 
 router.put(
-  "/add-prop-family",
+  "/add-new-owner-unit",
   md_auth.authenticated,
-  ownerController.addFamilyProperty
+  ownerController.addOwnerUnit
 );
 
 module.exports = router;

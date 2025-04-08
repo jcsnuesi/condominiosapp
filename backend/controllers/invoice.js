@@ -138,7 +138,9 @@ var invoiceController = {
     });
   },
   getInvoices: function (req, res) {
-    var userId = req.params.id;
+    var userId = req.params.id.includes("properties")
+      ? req.params.id.split("-")[0]
+      : req.params.id;
 
     Invoice.find({ ownerId: userId })
       .populate({
@@ -153,6 +155,7 @@ var invoiceController = {
       )
       .exec((err, invoices) => {
         if (err) {
+          console.log(err);
           return res.status(500).send({
             status: "error",
             message: "Error in the request. Try again.",
