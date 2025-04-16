@@ -25,7 +25,6 @@ var OwnerSchema = Schema(
     first_password_changed: { type: Boolean, default: false },
     propertyDetails: [
       {
-        _id: false,
         addressId: {
           type: mongoose.Schema.Types.ObjectId,
           ref: "Condominium",

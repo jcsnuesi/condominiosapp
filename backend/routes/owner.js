@@ -47,6 +47,11 @@ router.put(
   [md_auth.authenticated, md_upload],
   ownerController.update
 );
+router.put(
+  "/update-owner-unit",
+  md_auth.authenticated,
+  ownerController.updateProperties
+);
 
 router.put(
   "/deactivate-owner",

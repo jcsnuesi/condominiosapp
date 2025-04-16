@@ -371,7 +371,8 @@ var ownerAndSubController = {
   },
   addOwnerUnit: async function (req, res) {
     var params = req.body;
-    console.log("params", params);
+    // console.log("params", params);
+    // return;
 
     try {
       let propertyDetails = {
@@ -385,14 +386,11 @@ var ownerAndSubController = {
         { $push: { propertyDetails: propertyDetails } },
         { new: true }
       );
-      let condominio = await Condominio.findOne({ _id: params.addressId });
-      condominio.availableUnits.splice(
-        condominio.availableUnits.indexOf(params.unit),
-        1
-      );
+
       await Condominio.findOneAndUpdate(
         { _id: params.addressId },
-        { $set: { availableUnits: condominio.availableUnits } }
+        { $pull: { availableUnits: params.unit } },
+        { new: true }
       );
       return res.status(200).send({
         status: "success",
@@ -522,11 +520,65 @@ var ownerAndSubController = {
       }
     );
   },
-  updateProperties: function (req, res) {},
+  updateProperties: async function (req, res) {
+    let params = req.body;
+    console.log("params", params);
+
+    try {
+      var val_ownerId = !validator.isEmpty(params.ownerId);
+      var val_propertyId = !validator.isEmpty(params.propertyId);
+      var val_unit = !validator.isEmpty(params.unit);
+      var val_newUnit = !validator.isEmpty(params.newUnit);
+    } catch (error) {
+      return res.status(500).send({
+        status: "error",
+        message: "Server error, try again",
+      });
+    }
+
+    if (val_ownerId && val_propertyId && val_unit && val_newUnit) {
+      try {
+        await Owner.findOneAndUpdate(
+          {
+            $and: [
+              { _id: params.ownerId },
+              { "propertyDetails.condominium_unit": params.unit },
+            ],
+          },
+          {
+            $set: {
+              "propertyDetails.$.condominium_unit": params.newUnit,
+            },
+          },
+          { new: true }
+        );
+        await Condominio.findOneAndUpdate(
+          { _id: params.propertyId },
+          { $pull: { availableUnits: params.newUnit } },
+          { new: true }
+        );
+        await Condominio.updateOne(
+          { _id: params.propertyId },
+          { $push: { availableUnits: params.unit } },
+          { new: true }
+        );
+
+        return res.status(200).send({
+          status: "success",
+          message: "Unit updated successfully",
+        });
+      } catch (error) {
+        return res.status(500).send({
+          status: "error",
+          message: "Server error, try again",
+        });
+      }
+    }
+  },
   deactivatedUser: async function (req, res) {
     var params = req.body;
 
-    var user = { owner: Owner, family: Family };
+    // var user = { owner: Owner, family: Family };
 
     try {
       await Owner.findOneAndUpdate(
@@ -581,7 +633,7 @@ var ownerAndSubController = {
         path: "propertyDetails.addressId",
         model: "Condominium",
         select:
-          " avatar alias phone street_1 street_2 sector_name city province zipcode country socialAreas mPayment status mPayment createdAt",
+          " avatar availableUnits alias phone street_1 street_2 sector_name city province zipcode country socialAreas mPayment status mPayment createdAt",
       })
       .exec((err, condominiumFound) => {
         var errorHandlerArr = errorHandler.newUser(err, condominiumFound);
