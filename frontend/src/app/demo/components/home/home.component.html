@@ -141,7 +141,7 @@
                         <td style="width: 35%; min-width: 7rem">
                             {{
                                 customer.name + " " + customer.lastname
-                                    | uppercase
+                                    | titlecase
                             }}
                         </td>
                         <td style="width: 35%; min-width: 8rem">
@@ -241,7 +241,7 @@
         <!-- Modal owners details -->
 
         <p-dialog
-            header="Resident details"
+            header="Resident Profile"
             [modal]="true"
             [(visible)]="visible_owner"
             [maximizable]="true"
@@ -249,6 +249,31 @@
             [contentStyle]="{ overflow: 'auto' }"
             (onHide)="closeDialog()"
         >
+            <app-header-widget class="col-span-12">
+                <div class="flex flex-col sm:flex-row items-center gap-6">
+                    <div class="flex flex-col sm:flex-row items-center gap-4">
+                        <img
+                            alt="avatar"
+                            [src]="image"
+                            class="avatarOwnerProfile"
+                        />
+                        <div>
+                            <span
+                                class="text-surface-900 dark:text-surface-0 font-bold text-4xl"
+                                style="color: black"
+                                >{{
+                                    ownerObj.name + " " + ownerObj.lastname
+                                }}</span
+                            >
+                            <p
+                                class="text-surface-600 dark:text-surface-200 m-0"
+                            >
+                                Last login was on 04/05/2022 at 10:24 am
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </app-header-widget>
             <p-tabView>
                 <p-tabPanel header="Basic info">
                     <form #basicInfo="ngForm">
@@ -314,7 +339,7 @@
                                         </div>
 
                                         <div class="col-md-6 w-100 mt-3">
-                                            <p-a>
+                                            <p-inputGroup>
                                                 <p-inputGroupAddon>
                                                     <i class="pi pi-user"></i>
                                                 </p-inputGroupAddon>
@@ -338,7 +363,7 @@
                                                     required
                                                     placeholder="Name: Rogers Martins"
                                                 />
-                                            </p-a>
+                                            </p-inputGroup>
 
                                             <small
                                                 *ngIf="
@@ -559,9 +584,9 @@
                 <p-tabPanel header="Properties">
                     <app-properties-by-owner
                         [ownerData]="idOwner"
-                        [propertyData]="availableUnitsObject"
                         *ngIf="visible_owner"
                     ></app-properties-by-owner>
+                    <!-- [propertyData]="availableUnitsObject" -->
                 </p-tabPanel>
 
                 <p-tabPanel header="Authorized users">

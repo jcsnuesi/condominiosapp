@@ -64,4 +64,14 @@ export class OwnerServiceService {
             headers: header,
         });
     }
+    updateUnitToOwner(token: string, data: any): Observable<any> {
+        let datos = JSON.stringify(data);
+
+        let header = new HttpHeaders()
+            .set('Content-Type', 'application/json')
+            .set('Authorization', token);
+        return this._http.put(this.url + 'update-owner-unit', datos, {
+            headers: header,
+        });
+    }
 }

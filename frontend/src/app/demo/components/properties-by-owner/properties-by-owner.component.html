@@ -1,3 +1,5 @@
+<p-toast />
+<p-confirmDialog />
 <div class="card">
     <div class="flex items-center justify-between mb-4">
         <span
@@ -29,70 +31,18 @@
     </div>
 
     <div class="contenido-properties">
-        <div class="tbl-properties">
-            <p-table
-                [value]="propertiesOwner"
-                [paginator]="true"
-                [rows]="5"
-                [tableStyle]="{ 'min-width': '50rem' }"
-                [rowsPerPageOptions]="[5, 10, 20]"
-            >
-                <ng-template pTemplate="header">
-                    <tr>
-                        <th style="width: 5%">#</th>
-                        <th pSortableColumn="alias" style="width: 20%">
-                            Property name <p-sortIcon field="alias" />
-                        </th>
-                        <th pSortableColumn="unit" style="width: 0.5%">
-                            Unit <p-sortIcon field="unit" />
-                        </th>
-                        <th pSortableColumn="address" style="width: 30%">
-                            Address <p-sortIcon field="address" />
-                        </th>
-                        <th
-                            pSortableColumn="pending_balance"
-                            style="width: 10%"
-                        >
-                            Pending Balance
-                            <p-sortIcon field="pending_balance" />
-                        </th>
-                        <th pSortableColumn="status" style="width: 10%">
-                            Status <p-sortIcon field="status" />
-                        </th>
-                    </tr>
-                </ng-template>
-
-                <ng-template pTemplate="body" let-data let-i="rowIndex">
-                    <tr>
-                        <td>{{ i + 1 }}</td>
-                        <td>{{ data.alias }}</td>
-                        <td>{{ data.unit }}</td>
-                        <td>{{ data.address | titlecase }}</td>
-                        <td>{{ data.pending_balance }}</td>
-                        <td>
-                            <p-tag
-                                [value]="data.status"
-                                [severity]="getSeverity(data.status)"
-                            />
-                        </td>
-                    </tr>
-                </ng-template>
-            </p-table>
-        </div>
-
-        <div *ngIf="showAvailableProperties" class="propertiesAvailable">
+        <div *ngIf="showAvailableProperties" class="propertiesAvailable mb-4">
             <span
                 class="font-semibold text-lg text-surface-900 dark:text-surface-0"
             >
                 Units availables
             </span>
 
+            <!-- *ngFor="let row of propertyData" -->
             <!-- Aqui va el for  *ngFor="let row of "-->
-
             <div class="border border-surface rounded-md h-[28rem]">
                 <div
                     class="div-content border-b border-surface text-surface-700 dark:text-surface-100 cursor-pointer hover:text-color"
-                    *ngFor="let row of propertyData"
                 >
                     <div class="col">
                         <div class="flex items-center gap-4">
@@ -111,10 +61,12 @@
                                 />
                             </p-avatar>
                             <div class="envoltorio">
-                                <span class="font-medium">{{ row.alias }}</span>
-                                <span class="text-sm">
-                                    {{ row.typeOfProperty?.label }}
-                                </span>
+                                <span class="font-medium">{{
+                                    unitAvilable.alias
+                                }}</span>
+                                <!-- <span class="text-sm">
+                                  {{ row.typeOfProperty?.label }}
+                              </span> -->
                             </div>
                         </div>
                     </div>
@@ -122,7 +74,7 @@
                         <div class="flex justify-between gap-4 flex-1">
                             <div class="envoltorio-z" style="flex-basis: 150%">
                                 <span class="font-medium">{{
-                                    row.full_address
+                                    unitAvilable.address | titlecase
                                 }}</span>
                             </div>
                         </div>
@@ -138,19 +90,13 @@
                             >
                                 <span class="font-medium">
                                     <p-dropdown
-                                        [ngClass]="{
-                                            'ng-valid input-success':
-                                                pro_availables.valid,
-                                            'ng-invalid ng-dirty':
-                                                pro_availables.touched &&
-                                                !pro_availables.dirty
-                                        }"
                                         #pro_availables="ngModel"
                                         name="pro_availables"
-                                        [options]="row.units"
+                                        [options]="unitAvilable.units"
                                         [(ngModel)]="propertiesSelected"
                                         optionLabel="label"
                                         placeholder="Unit"
+                                        required
                                     />
                                 </span>
                             </div>
@@ -160,19 +106,13 @@
                             >
                                 <span class="font-medium">
                                     <p-dropdown
-                                        [ngClass]="{
-                                            'ng-valid input-success':
-                                                parking.valid,
-                                            'ng-invalid ng-dirty':
-                                                parking.touched &&
-                                                !parking.dirty
-                                        }"
                                         #parking="ngModel"
                                         name="parking"
                                         [options]="parkingOptions"
                                         [(ngModel)]="parkingSelected"
                                         optionLabel="label"
                                         placeholder="Parking quantity"
+                                        required
                                     />
                                 </span>
                             </div>
@@ -182,6 +122,7 @@
                         <div class="flex justify-end">
                             <button
                                 pButton
+                                [loading]="loading"
                                 type="button"
                                 severity="secondary"
                                 [outlined]="true"
@@ -189,7 +130,7 @@
                                 class="p-button-rounded hover:bg-green-600 hover:border-green-600 hover:text-white"
                                 (click)="
                                     addProperty(
-                                        row,
+                                        unitAvilable,
                                         propertiesSelected,
                                         parkingSelected
                                     )
@@ -199,6 +140,135 @@
                     </div>
                 </div>
             </div>
+        </div>
+        <div class="tbl-properties">
+            <p-table
+                [value]="propertiesOwner"
+                [paginator]="true"
+                [rows]="5"
+                [tableStyle]="{ 'min-width': '50rem' }"
+                [rowsPerPageOptions]="[5, 10, 20]"
+            >
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="width: 5%">#</th>
+                        <th pSortableColumn="alias" style="width: 20%">
+                            Property name <p-sortIcon field="alias" />
+                        </th>
+                        <th pSortableColumn="unit" style="width: 10%">
+                            Unit <p-sortIcon field="unit" />
+                        </th>
+                        <th pSortableColumn="address" style="width: 30%">
+                            Address <p-sortIcon field="address" />
+                        </th>
+                        <th pSortableColumn="parkingsQty">
+                            Parking <p-sortIcon field="parkingsQty" />
+                        </th>
+                        <th
+                            pSortableColumn="pending_balance"
+                            style="width: 0.5%"
+                        >
+                            Pending Balance
+                            <p-sortIcon field="pending_balance" />
+                        </th>
+                        <th pSortableColumn="status" style="width: 10%">
+                            Status <p-sortIcon field="status" />
+                        </th>
+                        <th colspan="2" style="text-align: center">Actions</th>
+                    </tr>
+                </ng-template>
+
+                <ng-template pTemplate="body" let-data let-i="rowIndex">
+                    <tr>
+                        <td>{{ i + 1 }}</td>
+                        <td>{{ data.alias }}</td>
+                        <td *ngIf="!(unitEditActive[i].index === i)">
+                            {{ data.unit }}
+                        </td>
+                        <td
+                            *ngIf="
+                                unitEditActive[i].valid &&
+                                unitEditActive[i].index === i
+                            "
+                        >
+                            <p-dropdown
+                                [ngClass]="{
+                                    'ng-valid input-success':
+                                        pro_availables.valid,
+                                    'ng-invalid ng-dirty':
+                                        pro_availables.touched &&
+                                        !pro_availables.dirty
+                                }"
+                                #pro_availables="ngModel"
+                                name="pro_availables"
+                                [options]="unitAvilable.units"
+                                [(ngModel)]="propertiesSelected"
+                                optionLabel="label"
+                                placeholder="Unit"
+                                appendTo="body"
+                            />
+                        </td>
+                        <td>{{ data.address | titlecase }}</td>
+                        <td
+                            style="width: 0.5%"
+                            *ngIf="!(unitEditActive[i].index === i)"
+                        >
+                            {{ data.parkingsQty }}
+                        </td>
+                        <td
+                            style="width: 0.5%"
+                            *ngIf="
+                                unitEditActive[i].valid &&
+                                unitEditActive[i].index === i
+                            "
+                        >
+                            <p-dropdown
+                                [ngClass]="{
+                                    'ng-valid input-success': parking.valid,
+                                    'ng-invalid ng-dirty':
+                                        parking.touched && !parking.dirty
+                                }"
+                                #parking="ngModel"
+                                name="parking"
+                                [options]="parkingOptions"
+                                [(ngModel)]="parkingSelected"
+                                optionLabel="label"
+                                placeholder="Parking quantity"
+                                appendTo="body"
+                            />
+                        </td>
+                        <td>{{ data.pending_balance }}</td>
+                        <td>
+                            <p-tag
+                                [value]="data.status"
+                                [severity]="getSeverity(data.status)"
+                            />
+                        </td>
+                        <td>
+                            <button
+                                #btnEdit
+                                pButton
+                                type="button"
+                                [severity]="editBtnStyle[i].severity"
+                                [outlined]="true"
+                                [icon]="editBtnStyle[i].icon"
+                                [class]="editBtnStyle[i].class"
+                                (click)="activarEditarUnit(i, data)"
+                            ></button>
+                        </td>
+                        <td>
+                            <button
+                                pButton
+                                type="button"
+                                severity="secondary"
+                                [outlined]="true"
+                                icon="pi pi-trash"
+                                class="p-button-rounded hover:bg-red-600 hover:border-red-600 hover:text-white"
+                            ></button>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
         </div>
     </div>
 </div>

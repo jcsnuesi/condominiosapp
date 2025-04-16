@@ -256,10 +256,13 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.invoiceGenerator.open();
     }
 
-    unitFormatOnInit(unit) {
+    unitFormatOnInit(property_data) {
         var unitList = [];
-        for (let index = 0; index < unit.length; index++) {
-            unitList.push(unit[index].condominium_unit);
+        for (let index = 0; index < property_data.length; index++) {
+            unitList.push(property_data[index].condominium_unit);
+        }
+        if (unitList.length > 1) {
+            return unitList.slice(0, 2).join(', ') + '...';
         }
 
         return unitList.join(', ');
@@ -294,30 +297,6 @@ export class HomeComponent implements OnInit, OnDestroy {
                                 }
                             );
 
-                            this.availableUnitsObject.push({
-                                ownerId: unitList.units_ownerId,
-                                addressId: unitList._id,
-                                alias: unitList.alias,
-                                units: unitList.units,
-                                typeOfProperty: unitList.typeOfProperty,
-                                full_address:
-                                    unitList.street_1 +
-                                    ', ' +
-                                    unitList.street_2 +
-                                    ', ' +
-                                    unitList.sector_name +
-                                    ', ' +
-                                    unitList.city +
-                                    ', ' +
-                                    unitList.province +
-                                    ', ' +
-                                    unitList.country,
-                            });
-
-                            // console.log(
-                            //     'this.availableUnitsObject',
-                            //     this.availableUnitsObject
-                            // );
                             localStorage.setItem(
                                 'property',
                                 JSON.stringify(unitList)
@@ -367,11 +346,9 @@ export class HomeComponent implements OnInit, OnDestroy {
                             this.customers = unitList.units_ownerId;
                             // console.log('CONDOMINIO------->', this.customers);
                             this.customers.forEach((owner) => {
-                                owner.condominium_unit = owner.propertyDetails
-                                    .map((property) => {
-                                        return property.condominium_unit;
-                                    })
-                                    .join(', ');
+                                owner.condominium_unit = this.unitFormatOnInit(
+                                    owner.propertyDetails
+                                );
                             });
                         }
                     },
