@@ -1,0 +1,7 @@
+.avatarOwnerProfile {
+    width: 4rem;
+    height: 4rem;
+    flex-shrink: 0;
+    border-radius: 50%;
+    border: #dbdbdb solid 1px;
+}

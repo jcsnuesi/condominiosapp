@@ -197,8 +197,6 @@ export class PropertiesByOwnerComponent implements OnInit {
                                         }
                                     );
                             }
-
-                            //{label: 'A - 13'}
                             console.log('INVOICE', this.propertiesOwner);
                         },
                         error: (err: any) => {
@@ -397,6 +395,59 @@ export class PropertiesByOwnerComponent implements OnInit {
                     severity: 'danger',
                     summary: 'warning',
                     detail: 'Changes not saved',
+                });
+            },
+        });
+    }
+
+    deleteUnit(addressId: string, unit: string): void {
+        this._confirmationService.confirm({
+            header: 'Confirm',
+            message: 'Do you want to delete this property?',
+            icon: 'pi pi-exclamation-triangle',
+            acceptButtonStyleClass:
+                'p-button-success hover:bg-green-600 hover:border-green-600 hover:text-white',
+            rejectButtonStyleClass:
+                'p-button-danger hover:bg-red-600 hover:border-red-600 hover:text-white',
+            accept: () => {
+                this._ownerService
+                    .deleteUnitToOwner(this.token, {
+                        propertyId: addressId,
+                        ownerId: this.ownerData,
+                        unit: unit,
+                    })
+                    .subscribe({
+                        next: (response) => {
+                            if (response.status === 'success') {
+                                this._messageService.add({
+                                    severity: 'success',
+                                    summary: 'Success',
+                                    detail: 'Property deleted successfully',
+                                });
+                                this.fetchActiveProperties();
+                            } else {
+                                this._messageService.add({
+                                    severity: 'error',
+                                    summary: 'Error',
+                                    detail: 'Error deleting property',
+                                });
+                            }
+                        },
+                        error: (err) => {
+                            console.log('ERROR', err);
+                            this._messageService.add({
+                                severity: 'error',
+                                summary: 'Error',
+                                detail: 'Error deleting property',
+                            });
+                        },
+                    });
+            },
+            reject: () => {
+                this._messageService.add({
+                    severity: 'danger',
+                    summary: 'warning',
+                    detail: 'Unit not deleted',
                 });
             },
         });

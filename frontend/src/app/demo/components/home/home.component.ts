@@ -107,12 +107,12 @@ type FamilyAccess = {
         MessageService,
         CondominioService,
         UserService,
+        OwnerServiceService,
+        InvoiceService,
+        StaffService,
         ConfirmationService,
         DialogService,
-        InvoiceService,
         FormatFunctions,
-        StaffService,
-        OwnerServiceService,
     ],
 })
 export class HomeComponent implements OnInit, OnDestroy {
@@ -154,18 +154,18 @@ export class HomeComponent implements OnInit, OnDestroy {
     @Output('homeEvent') homeEvent = new EventEmitter<any>();
 
     constructor(
-        private _userService: UserService,
+        private _staffService: StaffService,
         private _messageService: MessageService,
+        private _userService: UserService,
+        private _bookingService: BookingServiceService,
+        private _ownerService: OwnerServiceService,
+        private _invoiceService: InvoiceService,
         private _confirmationService: ConfirmationService,
         public _condominioService: CondominioService,
         private _activatedRoute: ActivatedRoute,
         private dialogService: DialogService,
-        private _invoiceService: InvoiceService,
         private _formatFunctions: FormatFunctions,
-        private _router: Router,
-        private _staffService: StaffService,
-        private _bookingService: BookingServiceService,
-        private _ownerService: OwnerServiceService
+        private _router: Router
     ) {
         this.items = [
             { label: 'Add New', icon: 'pi pi-fw pi-plus' },

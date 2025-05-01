@@ -149,7 +149,7 @@ export class AppMenuComponent implements OnInit {
                     {
                         label: 'See Partners',
                         icon: 'pi pi-briefcase',
-                        routerLink: ['/staff-regular', this.cookieValue._id],
+                        routerLink: ['/all-partners'],
                     },
                 ],
                 role: ['ADMIN'],

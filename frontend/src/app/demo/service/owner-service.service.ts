@@ -74,4 +74,18 @@ export class OwnerServiceService {
             headers: header,
         });
     }
+
+    deleteUnitToOwner(
+        token: string,
+        data: { propertyId: string; ownerId: string; unit: string }
+    ): Observable<any> {
+        let params = JSON.stringify(data);
+        let header = new HttpHeaders()
+            .set('Content-Type', 'application/json')
+            .set('Authorization', token);
+
+        return this._http.put(this.url + 'delete-owner-unit', params, {
+            headers: header,
+        });
+    }
 }

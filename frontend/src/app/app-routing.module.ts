@@ -12,6 +12,8 @@ import { InvoiceHistoryComponent } from './demo/components/invoice-history/invoi
 import { StaffComponent } from './demo/components/staff/staff.component';
 import { DashboardComponent } from './demo/components/dashboard/dashboard.component';
 import { BookingAreaComponent } from './demo/components/booking-area/booking-area.component';
+import { OwnerProfileComponent } from './demo/components/owner-profile/owner-profile.component';
+import { AllPartnersComponent } from './demo/components/all-partners/all-partners.component';
 
 @NgModule({
     imports: [
@@ -124,6 +126,11 @@ import { BookingAreaComponent } from './demo/components/booking-area/booking-are
                             path: 'staff-regular/:ownerId',
                             canActivate: [UserGuard],
                             component: StaffComponent,
+                        },
+                        {
+                            path: 'all-partners',
+                            canActivate: [UserGuard],
+                            component: AllPartnersComponent,
                         },
                         // ,
                         // { path:'booking-area/:admin/:user', canActivate: [UserGuard], component: StaffComponent}
