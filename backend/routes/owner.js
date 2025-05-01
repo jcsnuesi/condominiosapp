@@ -8,7 +8,6 @@ let md_ws = require("../middleware/whatsappAuth");
 var multipart = require("connect-multiparty");
 var md_upload = multipart({ uploadDir: "./uploads/owners" });
 
-router.get("/customers", md_auth.authenticated, ownerController.ownerByAdmin);
 router.get("/owner-avatar/:avatar", ownerController.getAvatar);
 router.get(
   "/condominioByOwnerId/:ownerId",
@@ -51,6 +50,11 @@ router.put(
   "/update-owner-unit",
   md_auth.authenticated,
   ownerController.updateProperties
+);
+router.put(
+  "/delete-owner-unit",
+  md_auth.authenticated,
+  ownerController.deleteOwnerUnit
 );
 
 router.put(

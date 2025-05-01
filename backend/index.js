@@ -26,14 +26,14 @@ const connectBD = async () => {
 
 // configurarCronJobs();
 // testingCron();
-const io = new Server(httpServer);
+// const io = new Server(httpServer);
 
-io.sockets.on("connection", (socket) => {
-  console.log("....................User connected");
-  socket.on("disconnect", () => {
-    console.log("....................User disconnected");
-  });
-});
+// io.sockets.on("connection", (socket) => {
+//   console.log("....................User connected");
+//   socket.on("disconnect", () => {
+//     console.log("....................User disconnected");
+//   });
+// });
 
 httpServer.listen(port, () => {
   connectBD();

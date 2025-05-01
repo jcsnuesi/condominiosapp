@@ -10,6 +10,7 @@ let verifyDataParam = require("../service/verifyParamData");
 let Condominio = require("../models/condominio");
 let Owner = require("../models/owners");
 let Family = require("../models/family");
+const Invoice = require("../models/invoice");
 const occupant = require("../models/occupant");
 const verifying = new verifyDataParam();
 let validator = require("validator");
@@ -192,129 +193,6 @@ var ownerAndSubController = {
     }
   },
 
-  // secundaryAcc: function (req, res) {
-  //   var params = req.body;
-
-  //   if (req.user.email == params.email) {
-  //     return res.status(403).send({
-  //       status: "forbidden",
-  //       message: "Main account cannot be the same as the secondary account",
-  //     });
-  //   }
-
-  //   try {
-  //     var val_email = validator.isEmail(params.email);
-  //     var val_phone = verifying.phonesTransformation(params.phone);
-  //   } catch (error) {
-  //     return res.status(400).send({
-  //       status: "bad request",
-  //       message: "All fields required",
-  //     });
-  //   }
-
-  //   //verificar la extension de archivo enviado sea tipo imagen
-  //   // var imgFormatAccepted = checkExtensions.confirmExtension(req)
-
-  //   // if (imgFormatAccepted == false) {
-
-  //   //     return res.status(400).send({
-
-  //   //         status: "bad request",
-  //   //         message: "Files allows '.jpg', '.jpeg', '.gif', '.png'"
-  //   //     })
-  //   // }
-
-  //   if (val_email && val_password && val_phone) {
-  //     Family.findOne(
-  //       { $and: [{ email: params.email }, { phone: params.phone }] },
-  //       async (err, familyFound) => {
-  //         var errorHandlerArr = errorHandler.errorRegisteringUser(
-  //           err,
-  //           familyFound
-  //         );
-
-  //         if (errorHandlerArr[0]) {
-  //           return res.status(errorHandlerArr[1]).send({
-  //             status: "error",
-  //             message: errorHandlerArr[2],
-  //           });
-  //         }
-
-  //         if (familyFound) {
-  //           return res.status(500).send({
-  //             status: "error",
-  //             message: "Owner not updated",
-  //           });
-  //         }
-
-  //         var family_model = new Family();
-
-  //         for (const key in params) {
-  //           if (key == "password" || key == "addressId") {
-  //             continue;
-  //           } else {
-  //             family_model[key] = params[key].toLowerCase();
-  //           }
-  //         }
-  //         const fCondominioId = {
-  //           condominioId: "",
-  //         };
-
-  //         fCondominioId.condominioId = params.addressId;
-  //         family_model.addressId.push(fCondominioId);
-
-  //         // if (Object.keys(req.files).length != 0) {
-  //         //     family_model['avatar'] = (req.files['avatar'].path.split('\\'))[2]
-  //         // }
-
-  //         try {
-  //           const tempPass = "12345678";
-  //           family_model.password = await bcrypt.hash(tempPass, saltRounds);
-  //           var newMember = await family_model.save();
-
-  //           const owner = await Owner.findOne({ _id: req.user.sub }).populate(
-  //             "propertyDetails.addressId",
-  //             "alias"
-  //           );
-
-  //           // Buscarmos el id correspondiente a la propiedad que se le dara acceso
-  //           let addressInfo = owner.propertyDetails.filter(
-  //             (prop) => prop.addressId._id == params.addressId
-  //           )[0];
-
-  //           // Alias del condominio
-  //           var { addressId } = addressInfo;
-
-  //           owner.familyAccount.push(newMember._id);
-  //           await Owner.findOneAndUpdate({ _id: req.user.sub }, owner, {
-  //             new: true,
-  //           });
-
-  //           family_model.passwordTemp = tempPass;
-  //           family_model.condominioName = addressId.alias;
-  //           emailVerification.verifyRegistration(family_model);
-  //           wsConfirmationMessage.sendWhatsappMessage(family_model);
-  //         } catch (error) {
-  //           return res.status(500).send({
-  //             status: "error",
-  //             message: "Missing params to create this user",
-  //           });
-  //         }
-
-  //         return res.status(200).send({
-  //           status: "success",
-  //           message: newMember,
-  //         });
-  //       }
-  //     );
-  //   } else {
-  //     return res.status(500).send({
-  //       status: "error",
-  //       message: "Fill out all fields",
-  //     });
-  //   }
-  // },
-
   getFamily: function (req, res) {
     Family.find({ ownerId: "66f84833006341d7843b4127" })
       .populate(
@@ -404,37 +282,6 @@ var ownerAndSubController = {
       });
     }
   },
-  ownerByAdmin: async function (req, res) {
-    if (req.user.role.toLowerCase() != "admin") {
-      return res.status(403).send({
-        status: "forbidden",
-        message: "You are not authorized",
-      });
-    }
-
-    Owner.find({ adminId: req.user.sub })
-      .populate(
-        "occupantId.occupant",
-        "avatar name lastname gender email phone role status"
-      )
-      .populate(
-        "propertyDetails.addressId",
-        "avatar alias type phone street_1 street_2 sector_name city province zipcode country socialAreas status"
-      )
-      .exec((err, found) => {
-        if (err) {
-          return res.status(500).send({
-            status: "error",
-            message: "Server error, try again",
-          });
-        }
-
-        return res.status(200).send({
-          status: "success",
-          message: found,
-        });
-      });
-  },
   update: function (req, res) {
     const allow = ["owner", "family"];
 
@@ -522,7 +369,6 @@ var ownerAndSubController = {
   },
   updateProperties: async function (req, res) {
     let params = req.body;
-    console.log("params", params);
 
     try {
       var val_ownerId = !validator.isEmpty(params.ownerId);
@@ -575,6 +421,47 @@ var ownerAndSubController = {
       }
     }
   },
+  deleteOwnerUnit: async function (req, res) {
+    let params = req.body;
+
+    try {
+      var val_ownerId = !validator.isEmpty(params.ownerId);
+      var val_propertyId = !validator.isEmpty(params.propertyId);
+      var val_unit = !validator.isEmpty(params.unit);
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send({
+        status: "error",
+        message: "Missing params to delete this user",
+      });
+    }
+
+    if (val_ownerId && val_propertyId && val_unit) {
+      try {
+        await Owner.findOneAndUpdate(
+          { _id: params.ownerId },
+          { $pull: { propertyDetails: { condominium_unit: params.unit } } },
+          { new: true }
+        );
+        await Condominio.findOneAndUpdate(
+          { _id: params.propertyId },
+          { $push: { availableUnits: params.unit } },
+          { new: true }
+        );
+
+        return res.status(200).send({
+          status: "success",
+          message: "Unit deleted successfully",
+        });
+      } catch (error) {
+        console.log(error);
+        return res.status(500).send({
+          status: "error",
+          message: "Server error, try again",
+        });
+      }
+    }
+  },
   deactivatedUser: async function (req, res) {
     var params = req.body;
 
@@ -615,19 +502,19 @@ var ownerAndSubController = {
 
   getCondominiumByOwnerId: function (req, res) {
     const user = { owner: Owner, family: Family };
-    let param = req.params.ownerId;
+    let ownerId = req.params.ownerId;
     let userModel = "";
 
-    if (param.includes("properties")) {
+    if (ownerId.includes("properties")) {
       userModel = user["owner"];
-      param = param.split("-")[0];
+      ownerId = ownerId.split("-")[0];
     } else {
       userModel = user[req.user.role.toLowerCase()];
-      param = req.user.sub;
+      ownerId = req.user.sub;
     }
 
     userModel
-      .find({ _id: param })
+      .find({ _id: ownerId })
       .select("-password")
       .populate({
         path: "propertyDetails.addressId",
@@ -637,7 +524,7 @@ var ownerAndSubController = {
       })
       .exec((err, condominiumFound) => {
         var errorHandlerArr = errorHandler.newUser(err, condominiumFound);
-        console.log("errorHandlerArr", condominiumFound);
+
         if (errorHandlerArr[0]) {
           return res.status(errorHandlerArr[1]).send({
             status: errorHandlerArr[2],

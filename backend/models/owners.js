@@ -2,6 +2,7 @@
 
 var mongoose = require("mongoose");
 var Schema = mongoose.Schema;
+var HistoricoOwner = require("./historico_owner");
 
 // Función para calcular la fecha de finalización del contrato un año adelantado
 const oneYearFromNow = () => {
@@ -60,5 +61,36 @@ OwnerSchema.method.toJSON = function () {
   delete obj.password;
   return obj;
 };
+
+OwnerSchema.pre("findOneAndUpdate", async function (next) {
+  const docToUpdate = await this.model.findOne(this.getQuery());
+
+  if (docToUpdate) {
+    const plainDoc = docToUpdate.toObject();
+    const originalId = plainDoc._id;
+    delete plainDoc._id;
+
+    const newDoc = new HistoricoOwner({
+      ...plainDoc,
+      property_id: originalId,
+      httpMethod: "PUT",
+    });
+    console.log("newDoc", newDoc);
+    await newDoc.save();
+  }
+  next();
+});
+OwnerSchema.pre("findOneAndDelete", async function (next) {
+  const docToDelete = await this.model.findOne(this.getQuery());
+  if (docToDelete) {
+    const id = docToDelete._id;
+    delete docToDelete._id;
+    docToDelete["id"] = id;
+    docToDelete["updatedAt"] = new Date();
+    const newDoc = new HistoricoOwner(docToDelete.toObject());
+    await newDoc.save();
+  }
+  next();
+});
 
 module.exports = mongoose.model("Owner", OwnerSchema);

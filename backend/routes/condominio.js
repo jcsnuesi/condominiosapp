@@ -33,6 +33,11 @@ router.get(
   authenticated,
   condominioController.CondominiumPagination
 );
+router.get(
+  "/get-properties",
+  authenticated,
+  condominioController.ownerByOrganization
+);
 
 // POST
 

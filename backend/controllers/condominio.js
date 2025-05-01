@@ -11,6 +11,7 @@ const Owner = require("../models/owners");
 const Admin = require("../models/admin");
 const Family = require("../models/family");
 const Invoice = require("../models/invoice");
+const { match } = require("assert");
 
 var Condominium_Controller = {
   createCondominium: async function (req, res) {
@@ -201,22 +202,6 @@ var Condominium_Controller = {
     }
   },
 
-  // getCondominiumByAdmin: function (req, res) {
-  //   Condominium.find({ createdBy: req.user.sub })
-  //     .populate("createdBy", "company lastname email")
-  //     .exec((err, condominiumFound) => {
-  //       var errorHandlerArr = errorHandler.newUser(err, condominiumFound);
-
-  //       if (errorHandlerArr[0]) {
-  //         return res.status(errorHandlerArr[1]).send({
-  //           status: errorHandlerArr[2],
-  //           message: errorHandlerArr[3],
-  //         });
-  //       }
-  //     });
-
-  //   // 654af792af898fdd1ea3a266
-  // },
   getCondominiumById: function (req, res) {
     var params = req.body;
 
@@ -517,6 +502,90 @@ var Condominium_Controller = {
       return res.status(200).send({
         status: "success",
         units: units,
+      });
+    } catch (error) {
+      return res.status(500).send({
+        status: "error",
+        message: error.message,
+      });
+    }
+  },
+  ownerByOrganization: async function (req, res) {
+    try {
+      const condominium = await Condominium.find()
+        .populate({
+          model: "Owner",
+          path: "units_ownerId",
+          match: { status: "active" },
+          select: ` _id name lastname  email phone createdAt`,
+        })
+        .select("-password")
+        .exec();
+
+      let storage = [];
+
+      condominium.forEach((condo) => {
+        let { units_ownerId, ...rest } = condo;
+
+        for (const element of units_ownerId.flat()) {
+          storage.push({
+            _id: element["_id"],
+            name: element["name"],
+            lastname: element["lastname"],
+            email: element["email"],
+            phone: element["phone"],
+            createdAt: element["createdAt"],
+          });
+        }
+        return storage;
+      });
+
+      const invoice = await Invoice.aggregate([
+        {
+          $match: {
+            ownerId: { $in: storage.map((item) => item._id) },
+            paymentStatus: "pending",
+          },
+        },
+        {
+          $group: {
+            _id: "$ownerId",
+            totalAmount: { $sum: "$amount" },
+            count: { $sum: 1 },
+            invoice_paid_date: { $first: "$invoice_paid_date" },
+          },
+        },
+        {
+          $lookup: {
+            from: "owners", // nombre de la colección en MongoDB, no el modelo Mongoose
+            localField: "_id",
+            foreignField: "_id",
+            as: "owner",
+          },
+        },
+        {
+          $unwind: "$owner",
+        },
+        {
+          $project: {
+            _id: 1,
+            invoice_paid_date: 1,
+            totalAmount: 1,
+            count: 1,
+            "owner._id": 1,
+            "owner.name": 1,
+            "owner.avatar": 1,
+            "owner.lastname": 1,
+            "owner.email": 1,
+            "owner.phone": 1,
+            "owner.createdAt": 1,
+          },
+        },
+      ]);
+
+      return res.status(200).send({
+        status: "success",
+        message: invoice,
       });
     } catch (error) {
       return res.status(500).send({
