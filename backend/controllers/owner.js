@@ -7,9 +7,10 @@ let checkExtensions = require("../service/extensions");
 let errorHandler = require("../error/errorHandler");
 let deactivatedOwner = require("../service/persistencia");
 let verifyDataParam = require("../service/verifyParamData");
-let Condominio = require("../models/condominio");
-let Owner = require("../models/owners");
-let Family = require("../models/family");
+const Condominio = require("../models/condominio");
+const Owner = require("../models/owners");
+const Family = require("../models/family");
+const Reserve = require("../models/reserves");
 const Invoice = require("../models/invoice");
 const occupant = require("../models/occupant");
 const verifying = new verifyDataParam();
@@ -20,7 +21,9 @@ const fs = require("fs");
 const paths = require("path");
 const generatePassword = require("generate-password");
 const wsConfirmationMessage = require("./whatsappController");
-const { model } = require("mongoose");
+var mongoose = require("mongoose");
+const path = require("path");
+const { group } = require("console");
 
 // Generar una contraseña con opciones específicas
 const password = generatePassword.generate({
@@ -533,6 +536,93 @@ var ownerAndSubController = {
           });
         }
       });
+  },
+
+  getAssets: async function (req, res) {
+    let id = req.params.id;
+
+    if (Boolean(id == undefined)) {
+      return res.status(400).send({
+        status: "bad request",
+        message: "All fields required",
+      });
+    }
+
+    try {
+      const owner = await Owner.findOne({ _id: id })
+        .select("-password")
+        .populate({
+          path: "propertyDetails.addressId",
+          model: "Condominium",
+          select:
+            "avatar availableUnits alias phone street_1 street_2 sector_name city province zipcode country socialAreas mPayment status mPayment createdAt",
+        });
+
+      const invoices = await Invoice.aggregate([
+        {
+          $match: {
+            ownerId: mongoose.Types.ObjectId(id),
+            paymentStatus: "pending",
+          },
+        },
+        {
+          $group: {
+            _id: "$ownerId",
+            totalAmount: { $sum: "$amount" },
+            count: { $sum: 1 },
+            invoice_paid_date: { $first: "$invoice_paid_date" },
+            invoices: { $push: "$$ROOT" },
+          },
+        },
+      ]);
+      const booking = await Reserve.aggregate([
+        {
+          $match: { memberId: mongoose.Types.ObjectId(id) },
+        },
+        {
+          $group: {
+            _id: "$memberId",
+            count: { $sum: 1 },
+            bookings: { $push: "$$ROOT" },
+          },
+        },
+      ]);
+      const invoicesPaid = await Invoice.find({
+        ownerId: mongoose.Types.ObjectId(id),
+        paymentStatus: "paid",
+      }).populate({
+        path: "condominiumId",
+        model: "Condominium",
+        select:
+          "avatar availableUnits alias phone street_1 street_2 sector_name city province zipcode country socialAreas mPayment status mPayment createdAt",
+      });
+      const data = {
+        owner: owner,
+        invoices: invoices,
+        bookings: booking,
+        invoicePaid: invoicesPaid,
+      };
+
+      // console.log("data", data);
+
+      if (!owner) {
+        return res.status(404).send({
+          status: "error",
+          message: "Owner not found",
+        });
+      }
+
+      return res.status(200).send({
+        status: "success",
+        message: data,
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send({
+        status: "error",
+        message: "Server error, try again",
+      });
+    }
   },
 };
 

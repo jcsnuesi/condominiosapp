@@ -14,6 +14,11 @@ router.get(
   md_auth.authenticated,
   ownerController.getCondominiumByOwnerId
 );
+router.get(
+  "/get-assets-by-owner/:id",
+  md_auth.authenticated,
+  ownerController.getAssets
+);
 // router.get("/get-family", md_auth.authenticated, ownerController.getFamily);
 
 // router.get(

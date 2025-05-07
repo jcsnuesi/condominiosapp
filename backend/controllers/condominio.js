@@ -517,7 +517,7 @@ var Condominium_Controller = {
           model: "Owner",
           path: "units_ownerId",
           match: { status: "active" },
-          select: ` _id name lastname  email phone createdAt`,
+          select: ` _id name lastname  email phone createdAt avatar`,
         })
         .select("-password")
         .exec();
@@ -530,6 +530,7 @@ var Condominium_Controller = {
         for (const element of units_ownerId.flat()) {
           storage.push({
             _id: element["_id"],
+            avatar: element["avatar"],
             name: element["name"],
             lastname: element["lastname"],
             email: element["email"],
@@ -583,9 +584,22 @@ var Condominium_Controller = {
         },
       ]);
 
+      storage.forEach((item) => {
+        const invoiceData = invoice.find((inv) => inv._id.equals(item._id));
+        if (invoiceData) {
+          item.totalAmount = invoiceData.totalAmount;
+          item.count = invoiceData.count;
+          item.invoice_paid_date = invoiceData.invoice_paid_date;
+        } else {
+          item.totalAmount = 0;
+          item.count = 0;
+          item.invoice_paid_date = null;
+        }
+      });
+
       return res.status(200).send({
         status: "success",
-        message: invoice,
+        message: storage,
       });
     } catch (error) {
       return res.status(500).send({
