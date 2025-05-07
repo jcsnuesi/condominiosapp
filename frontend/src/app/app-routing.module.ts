@@ -132,6 +132,11 @@ import { AllPartnersComponent } from './demo/components/all-partners/all-partner
                             canActivate: [UserGuard],
                             component: AllPartnersComponent,
                         },
+                        {
+                            path: 'partners/:id',
+                            canActivate: [UserGuard],
+                            component: OwnerProfileComponent,
+                        },
                         // ,
                         // { path:'booking-area/:admin/:user', canActivate: [UserGuard], component: StaffComponent}
                     ],

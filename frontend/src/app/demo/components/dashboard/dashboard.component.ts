@@ -115,6 +115,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.gbColor = 'blue-100';
         this.url = global.url;
         this.ownerObj = new OwnerModel(
+            'noimage.jpeg',
             '',
             '',
             '',
@@ -679,6 +680,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     getModalContent() {
         this.ownerObj = new OwnerModel(
+            '',
             '',
             '',
             '',

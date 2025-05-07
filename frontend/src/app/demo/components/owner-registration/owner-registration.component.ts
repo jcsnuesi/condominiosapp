@@ -142,6 +142,7 @@ export class OwnerRegistrationComponent implements OnInit {
             '',
             '',
             '',
+            '',
             ''
         );
 
@@ -325,6 +326,7 @@ export class OwnerRegistrationComponent implements OnInit {
                         '',
                         '',
                         '',
+                        '',
                         ''
                     );
                     this.ownerObj.avatar = '../../assets/noimage2.jpeg';
@@ -370,6 +372,7 @@ export class OwnerRegistrationComponent implements OnInit {
     alertStatus(form: NgForm) {
         if (this.apiUnitResponse) {
             this.ownerObj = new OwnerModel(
+                '',
                 '',
                 '',
                 '',

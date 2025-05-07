@@ -30,12 +30,6 @@
     margin-bottom: 20px;
 }
 
-.img-border-radius {
-    border-radius: 50%;
-    border: #dbdbdb solid 1px;
-    width: 150px;
-    height: 130px;
-}
 ::ng-deep .p-dropdown {
     width: 100%;
     border-top-left-radius: 0px;

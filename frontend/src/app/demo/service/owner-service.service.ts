@@ -55,6 +55,16 @@ export class OwnerServiceService {
         });
     }
 
+    getOwnerAssets(token: string, id: string): Observable<any> {
+        let header = new HttpHeaders()
+            .set('Content-Type', 'application/json')
+            .set('Authorization', token);
+
+        return this._http.get(this.url + 'get-assets-by-owner/' + id, {
+            headers: header,
+        });
+    }
+
     addUnitToOwner(token: string, data: any): Observable<any> {
         let header = new HttpHeaders()
             .set('Content-Type', 'application/json')

@@ -42,10 +42,10 @@ export class HasPermissionsDirective {
 
         if (this.identity && this.identity.role) {
             // TODO: USER ROLE
-
             const permissionsFound = currentUser.find(
                 (perm) => perm.toLowerCase() === this.permissions
             );
+
             if (permissionsFound) {
                 has_perms = true;
             }

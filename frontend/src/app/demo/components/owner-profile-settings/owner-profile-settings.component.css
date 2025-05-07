@@ -1,0 +1,10 @@
+.padding-set {
+    padding: 12px;
+}
+
+.img-border-radius {
+    border-radius: 50%;
+    border: #dbdbdb solid 1px;
+    width: 150px;
+    height: 130px;
+}

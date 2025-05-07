@@ -1,20 +1,53 @@
 <div class="flex flex-col sm:flex-row items-center gap-6 mb-4">
     <div class="flex flex-col sm:flex-row items-center gap-4">
-        <img alt="avatar" [src]="image" class="avatarOwnerProfile" />
+        <img
+            alt="avatar"
+            [src]="ownerObj.avatarPreview"
+            class="avatarOwnerProfile"
+        />
         <div>
             <span
                 class="text-surface-900 dark:text-surface-0 font-bold text-4xl"
                 style="color: black"
-                >Pedro Santos</span
+                >{{ ownerObj.name + " " + ownerObj.lastname | titlecase }}</span
             >
             <p class="text-surface-600 dark:text-surface-200 m-0">
                 Last login was on 04/05/2022 at 10:24 am
             </p>
         </div>
+        <span
+            class="pi pi-cog"
+            (click)="settings()"
+            style="cursor: pointer"
+        ></span>
     </div>
 </div>
 
 <div class="grid">
+    <div class="col-12 lg:col-6 xl:col-3">
+        <div class="card">
+            <div class="flex justify-content-between mb-3">
+                <div>
+                    <span class="block text-500 font-medium mb-3">
+                        Balance
+                    </span>
+                    <div class="text-900 font-medium text-2xl">
+                        {{ invoiceCards.total | currency : "USD" }}
+                    </div>
+                </div>
+                <span
+                    class="change-icon flex align-items-center justify-content-center bg-green-100 border-round"
+                    [ngStyle]="{ width: '2.5rem', height: '2.5rem' }"
+                >
+                    <i class="pi pi-money-bill text-green-500 text-xl"></i>
+                </span>
+            </div>
+            <span class="text-green-500 font-medium"
+                >{{ invoiceCards.counts }}
+            </span>
+            <span class="text-500">pending</span>
+        </div>
+    </div>
     <div class="col-12 lg:col-6 xl:col-3">
         <div class="card">
             <div class="flex justify-content-between mb-3">
@@ -34,8 +67,87 @@
             </div>
             <span class="text-500">Member since: </span>
             <span class="text-green-500 font-medium"
-                >Member since: 13-01-2025
+                >{{ memberShipSince | date : "dd/MM/yyyy" }}
             </span>
         </div>
     </div>
+
+    <div class="col-12 lg:col-6 xl:col-3">
+        <div class="card">
+            <div class="flex justify-content-between mb-3">
+                <div>
+                    <span class="block text-500 font-medium mb-3">
+                        Bookings
+                    </span>
+                    <div class="text-900 font-medium text-2xl">
+                        {{ bookings }}
+                    </div>
+                </div>
+                <span
+                    class="change-icon flex align-items-center justify-content-center bg-orange-100 border-round"
+                    [ngStyle]="{ width: '2.5rem', height: '2.5rem' }"
+                >
+                    <i class="pi pi-calendar-minus text-orange-500 text-xl"></i>
+                </span>
+            </div>
+            <span class="text-green-500 font-medium">1 </span>
+            <span class="text-500">bookings for today</span>
+        </div>
+    </div>
 </div>
+
+<div class="main-frame">
+    <div class="card w-full md:w-12rem lg:w-20rem xl:w-25rem">
+        <div class="text-xl font-semibold mb-4" style="color: black">
+            Recent Payments
+        </div>
+        <div
+            style="text-align: center"
+            severity="info"
+            *ngIf="invoicePaid.length <= 0"
+        >
+            No data
+        </div>
+        <div *ngIf="invoicePaid.length > 0">
+            <ul class="list-none p-0 m-0" *ngFor="let item of invoicePaid">
+                <li
+                    class="flex justify-content-center align-items-center mb-4 border-b border-surface-200 dark:border-surface-700"
+                    style="color: black"
+                >
+                    <span
+                        class="flex align-items-center justify-content-center bg-green-100 border-round mr-3"
+                        [ngStyle]="{ width: '4.5rem', height: '4.5rem' }"
+                    >
+                        <i class="pi pi-dollar text-green-500 text-xl"></i>
+                    </span>
+                    <div class="flex flex-column">
+                        <span class="text-xl font-medium mb-1">{{
+                            item.condominiumId.alias
+                        }}</span>
+                        <span>{{
+                            item.invoice_paid_date | date : "dd/MM/yyyy"
+                        }}</span>
+                    </div>
+                    <span class="text-xl ml-5 font-semibold">{{
+                        item.amount | currency : "USD"
+                    }}</span>
+                </li>
+                <hr />
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!--  Setting  -->
+<p-dialog
+    header="Resident Profile"
+    [modal]="true"
+    [(visible)]="settingShow"
+    [maximizable]="true"
+    [contentStyle]="{ overflow: 'auto' }"
+>
+    <p-tabView>
+        <app-owner-profile-settings [ownerObj]="ownerObj">
+        </app-owner-profile-settings>
+    </p-tabView>
+</p-dialog>

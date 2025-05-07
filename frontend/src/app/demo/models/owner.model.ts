@@ -1,6 +1,7 @@
 export class OwnerModel {
     constructor(
         public avatar: string,
+        public avatarPreview: string,
         public name: string,
         public lastname: string,
         public gender: any,

@@ -1,7 +1,18 @@
+::ng-deep .justify-contents {
+    display: flex;
+    justify-content: center;
+}
+
 .avatarOwnerProfile {
     width: 4rem;
     height: 4rem;
     flex-shrink: 0;
     border-radius: 50%;
     border: #dbdbdb solid 1px;
+}
+
+::ng-deep .p-dropdown {
+    width: 100%;
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
 }
