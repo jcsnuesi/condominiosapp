@@ -80,7 +80,7 @@
                         Bookings
                     </span>
                     <div class="text-900 font-medium text-2xl">
-                        {{ bookings }}
+                        {{ bookings.count }}
                     </div>
                 </div>
                 <span
@@ -111,12 +111,12 @@
         <div *ngIf="invoicePaid.length > 0">
             <ul class="list-none p-0 m-0" *ngFor="let item of invoicePaid">
                 <li
-                    class="flex justify-content-center align-items-center mb-4 border-b border-surface-200 dark:border-surface-700"
-                    style="color: black"
+                    class="flex justify-content-center align-items-center mb-4 border-b border-surface-200 dark:border-surface-700 cursor-pointer h-over"
+                    (click)="openInvoice(item)"
                 >
                     <span
                         class="flex align-items-center justify-content-center bg-green-100 border-round mr-3"
-                        [ngStyle]="{ width: '4.5rem', height: '4.5rem' }"
+                        [ngStyle]="{ width: '5.5rem', height: '4.5rem' }"
                     >
                         <i class="pi pi-dollar text-green-500 text-xl"></i>
                     </span>
@@ -128,9 +128,20 @@
                             item.invoice_paid_date | date : "dd/MM/yyyy"
                         }}</span>
                     </div>
-                    <span class="text-xl ml-5 font-semibold">{{
-                        item.amount | currency : "USD"
-                    }}</span>
+                    <span class="text-xl ml-5 font-semibold"
+                        >{{ item.amount | currency : "USD" }}
+                        <p-tag
+                            class="tag-w-100"
+                            [value]="item.paymentStatus"
+                            [severity]="
+                                item.paymentStatus == 'paid'
+                                    ? 'success'
+                                    : item.paymentStatus == 'unpaid'
+                                    ? 'danger'
+                                    : 'primary'
+                            "
+                        />
+                    </span>
                 </li>
                 <hr />
             </ul>

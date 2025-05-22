@@ -16,3 +16,17 @@
     border-top-left-radius: 0px;
     border-bottom-left-radius: 0px;
 }
+
+.h-over {
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+}
+.h-over:hover {
+    color: black;
+    background-color: #dbdbdb;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+}
+::ng-deep .p-tag {
+    width: 100%;
+}

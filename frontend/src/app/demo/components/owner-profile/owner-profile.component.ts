@@ -76,9 +76,10 @@ export class OwnerProfileComponent implements OnInit {
             ''
         );
         this.url = global.url;
+        this.bookings = { count: 0 };
     }
     public memberShipSince: string;
-    public bookings: any;
+    public bookings: { count: number };
     public invoiceCards: { total: number; counts: number } = {
         total: 0,
         counts: 0,
@@ -101,12 +102,18 @@ export class OwnerProfileComponent implements OnInit {
 
             this._ownerService.getOwnerAssets(this.token, this._id).subscribe({
                 next: (response) => {
+                    console.log('response.message');
                     console.log(response.message);
                     if (response.status == 'success') {
                         let { owner, bookings, invoices, invoicePaid } =
                             response.message;
                         this.ownerObj = owner;
+                        console.log('owner', owner);
                         this.invoicePaid = invoicePaid;
+                        this.invoicePaid[0]['fullname'] =
+                            owner.name + ' ' + owner.lastname;
+                        this.invoicePaid[0]['phone'] = owner.phone;
+                        this.invoicePaid[0]['email'] = owner.email;
                         this.invoiceCards.counts = invoices[0].count;
                         this.invoiceCards.total = invoices[0].totalAmount;
                         this.memberShipSince = owner.createdAt.split('T')[0];
@@ -124,8 +131,13 @@ export class OwnerProfileComponent implements OnInit {
 
                         this.ownerObj.avatarPreview =
                             this.url + 'main-avatar/owners/' + owner.avatar;
-                        this.bookings = bookings[0].count;
-                        console.log(this.ownerObj);
+
+                        this.bookings = bookings[0];
+                        if (Boolean(this.bookings.count > 0)) {
+                            this.bookings = bookings[0].count;
+                        } else {
+                            this.bookings = { count: 0 };
+                        }
                     } else {
                         this._messageService.add({
                             severity: 'error',
@@ -143,5 +155,22 @@ export class OwnerProfileComponent implements OnInit {
     }
     settings() {
         this.settingShow = true;
+    }
+
+    openInvoice(item: any) {
+        const invoiceTemplate = {
+            alias: item.condominiumId.alias,
+            invoice_issue: item.issueDate,
+            invoice_paid_date: item.invoice_paid_date,
+            fullname: item.fullname,
+            phone: item.phone,
+            unit: item.unit,
+            email: item.email,
+            invoice_amount: item.amount,
+            invoice_status: item.status,
+        };
+        console.log('invoiceTemplate', item);
+
+        this._invoiceService.genPDF(invoiceTemplate);
     }
 }
