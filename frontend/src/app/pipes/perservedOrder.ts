@@ -15,7 +15,7 @@ export class PreserveOrderPipe implements PipeTransform {
                 pipeResponse[key] = value[key];
             }
         }
-        console.log('pipeResponse:', pipeResponse);
+        // console.log('pipeResponse:', pipeResponse);
         return Object.keys(pipeResponse).map((key) => ({
             key,
             value: value[key],

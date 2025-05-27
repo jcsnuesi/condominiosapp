@@ -100,14 +100,14 @@ export class FamilyMemberDetailsComponent implements OnInit {
         this._routeActivated.params.subscribe((params) => {
             this.seePropertyBool =
                 window.location.href.includes('see-property');
-            if (params['dashid']) {
-                this.userId = params['dashid'];
+            if (params['dashid'] || params['id']) {
+                this.userId = params['dashid'] || params['id'];
             } else {
                 this._routeActivated.queryParams.subscribe((param) => {
                     this.userId = param['userid'];
                 });
             }
-            // console.log('USER ID:', this.userId);
+            //  console.log('USER ID:', this.userId);
             if (this.userId) {
                 this.getFamilyMemberDetails();
             }

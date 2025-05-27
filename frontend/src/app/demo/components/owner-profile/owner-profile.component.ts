@@ -15,6 +15,11 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { OwnerProfileSettingsComponent } from '../owner-profile-settings/owner-profile-settings.component';
 import { FormatFunctions } from 'src/app/pipes/formating_text';
 import { global } from '../../service/global.service';
+import { PaymentsHistoryComponent } from '../payments-history/payments-history.component';
+import { MenuItem } from 'primeng/api';
+import { PropertiesByOwnerComponent } from '../properties-by-owner/properties-by-owner.component';
+import { FamilyMemberDetailsComponent } from '../family-member-details/family-member-details.component';
+import { BookingAreaComponent } from '../booking-area/booking-area.component';
 
 @Component({
     selector: 'app-owner-profile',
@@ -25,6 +30,10 @@ import { global } from '../../service/global.service';
         FormsModule,
         TableModule,
         OwnerProfileSettingsComponent,
+        PaymentsHistoryComponent,
+        PropertiesByOwnerComponent,
+        FamilyMemberDetailsComponent,
+        BookingAreaComponent,
     ],
     providers: [
         CondominioService,
@@ -41,10 +50,46 @@ import { global } from '../../service/global.service';
 export class OwnerProfileComponent implements OnInit {
     public image: string;
     public settingShow: boolean = false;
+    // public paymentShow: boolean = false;
+    public itemsShow: Array<{
+        item: string;
+        visible: boolean;
+        label: string;
+        disabled: boolean;
+    }> = [
+        {
+            item: 'payments',
+            visible: false,
+            label: 'Payment History',
+            disabled: true,
+        },
+        { item: 'units', visible: false, label: 'Units', disabled: true },
+        { item: 'members', visible: false, label: 'Members', disabled: true },
+        {
+            item: 'booking',
+            visible: false,
+            label: 'Booking Areas',
+            disabled: true,
+        },
+    ];
     public ownerObj: OwnerModel;
     public token: string;
     public url: string;
+    public items: MenuItem[] | undefined;
+    public memberShipSince: string;
+    public bookings: { count: number };
+    public invoiceCards: { total: number; counts: number } = {
+        total: 0,
+        counts: 0,
+    };
+    public bookingCards: { total: number; counts: number } = {
+        total: 0,
+        counts: 0,
+    };
 
+    public invoicePaid: any[] = [];
+    public _id: string;
+    public memberCardCount: number = 0;
     constructor(
         private _messageService: MessageService,
         private _userService: UserService,
@@ -77,15 +122,55 @@ export class OwnerProfileComponent implements OnInit {
         );
         this.url = global.url;
         this.bookings = { count: 0 };
+
+        this.items = [
+            {
+                label: 'Home',
+                command: () => {
+                    this.items = this.items.splice(0, 1);
+                    this.itemsShow.forEach((item) => {
+                        item.visible = false;
+                    });
+                },
+                styleClass: 'cursor-pointer',
+                icon: 'pi pi-home',
+            },
+        ];
     }
-    public memberShipSince: string;
-    public bookings: { count: number };
-    public invoiceCards: { total: number; counts: number } = {
-        total: 0,
-        counts: 0,
-    };
-    public invoicePaid: any[] = [];
-    public _id: string;
+
+    itemsChange(event: any) {
+        this.items = this.items.splice(0, 1);
+        this.itemsShow.forEach((item) => {
+            item.visible = false;
+        });
+        let itemFound = {
+            ...this.itemsShow.find((items) => items.item === event),
+        };
+        this.itemsShow.forEach((item) => {
+            if (item.item === event) {
+                item.visible = true;
+            } else {
+                item.visible = false;
+            }
+        });
+
+        if (!itemFound) return;
+
+        const exists = this.items.some(
+            (item) => item.label === itemFound.label
+        );
+        if (exists) return;
+
+        this.items = [
+            ...this.items,
+            {
+                label: itemFound.label,
+                disabled: itemFound.disabled,
+            },
+        ];
+        // console.log('items', this.items);
+    }
+
     ngOnInit(): void {
         // Obtener:
         // Las propiedades
@@ -108,7 +193,8 @@ export class OwnerProfileComponent implements OnInit {
                         let { owner, bookings, invoices, invoicePaid } =
                             response.message;
                         this.ownerObj = owner;
-                        console.log('owner', owner);
+                        this.memberCardCount = owner.familyAccount.length;
+                        // console.log('owner ---->', this.ownerObj.familyAccount);
                         this.invoicePaid = invoicePaid;
                         this.invoicePaid[0]['fullname'] =
                             owner.name + ' ' + owner.lastname;
@@ -132,11 +218,11 @@ export class OwnerProfileComponent implements OnInit {
                         this.ownerObj.avatarPreview =
                             this.url + 'main-avatar/owners/' + owner.avatar;
 
-                        this.bookings = bookings[0];
-                        if (Boolean(this.bookings.count > 0)) {
-                            this.bookings = bookings[0].count;
-                        } else {
-                            this.bookings = { count: 0 };
+                        this.bookings.count = bookings.length;
+
+                        // Limitar el invoicePaid a 5
+                        if (this.invoicePaid.length > 5) {
+                            this.invoicePaid = this.invoicePaid.slice(0, 5);
                         }
                     } else {
                         this._messageService.add({

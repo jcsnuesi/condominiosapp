@@ -1,79 +1,80 @@
-<p-table
-    #dt
-    [value]="bodyTableInfo"
-    [rows]="10"
-    [paginator]="true"
-    [globalFilterFields]="['fullname', 'status']"
-    [tableStyle]="{ 'min-width': '75rem' }"
-    [rowHover]="true"
-    dataKey="id"
-    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
-    [showCurrentPageReport]="true"
->
-    <ng-template pTemplate="caption">
-        <div class="flex align-items-center justify-content-between">
-            <h5 class="m-0">{{ headertbl }}</h5>
-        </div>
-    </ng-template>
-    <ng-template pTemplate="header">
-        <tr>
-            <th
-                *ngFor="let tdhead of dynamicHeaders | PreserveOrder"
-                style="min-width: 15rem"
-                ng-reflect-field="id"
-            >
-                <span *ngIf="tdhead.value.includes('id')"> # </span>
-                <span *ngIf="!tdhead.value.includes('id')">
-                    {{ tdhead.value | uppercase }}
-                    <p-sortIcon [field]="tdhead.value" />
-                </span>
-            </th>
-        </tr>
-    </ng-template>
-    <ng-template pTemplate="body" let-rowData let-rowIndex="rowIndex">
-        <tr>
-            <td *ngFor="let tdhead of dynamicHeaders | PreserveOrder">
-                <span *ngIf="tdhead.key.includes('id')">
-                    {{ rowIndex + 1 }}
-                </span>
+<div class="card">
+    <div class="flex items-center justify-between mb-4">
+        <span
+            class="font-semibold text-lg text-surface-900 dark:text-surface-0"
+        >
+            Payments History
+        </span>
+    </div>
 
-                <span
-                    *ngIf="
-                        !tdhead.key.includes('status') &&
-                        !tdhead.key.includes('actions') &&
-                        !tdhead.key.includes('id') &&
-                        !tdhead.key.includes('details')
-                    "
+    <p-table
+        #dt
+        [value]="bodyTableInfo"
+        [rows]="10"
+        [paginator]="true"
+        [globalFilterFields]="['fullname', 'status']"
+        [tableStyle]="{ 'min-width': '75rem' }"
+        [rowHover]="true"
+        dataKey="id"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+        [showCurrentPageReport]="true"
+    >
+        <ng-template pTemplate="header">
+            <tr>
+                <th
+                    *ngFor="let tdhead of dynamicHeaders | PreserveOrder"
+                    style="min-width: 15rem"
+                    ng-reflect-field="id"
                 >
-                    {{ rowData[tdhead.key] }}
-                </span>
+                    <span *ngIf="tdhead.value.includes('id')"> # </span>
+                    <span *ngIf="!tdhead.value.includes('id')">
+                        {{ tdhead.value | uppercase }}
+                        <p-sortIcon [field]="tdhead.value" />
+                    </span>
+                </th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-rowData let-rowIndex="rowIndex">
+            <tr>
+                <td *ngFor="let tdhead of dynamicHeaders | PreserveOrder">
+                    <span *ngIf="tdhead.key.includes('id')">
+                        {{ rowIndex + 1 }}
+                    </span>
 
-                <span *ngIf="tdhead.key.includes('status')">
-                    <p-tag
-                        [value]="rowData[tdhead.key]"
-                        [severity]="
-                            _stringFormating.getSeverity(rowData[tdhead.key])
+                    <span
+                        *ngIf="
+                            !tdhead.key.includes('status') &&
+                            !tdhead.key.includes('actions') &&
+                            !tdhead.key.includes('id') &&
+                            !tdhead.key.includes('details')
                         "
-                    />
-                </span>
+                    >
+                        {{ rowData[tdhead.key] }}
+                    </span>
 
-                <span *ngIf="tdhead.key.includes('actions')">
-                    <p-button
-                        icon="pi pi-file-pdf"
-                        class="mr-2"
-                        [rounded]="true"
-                        [outlined]="true"
-                        severity="danger"
-                        (onClick)="editItem(rowData)"
-                    />
-                </span>
-            </td>
-        </tr>
-    </ng-template>
-</p-table>
-<!-- 
-<div class="family_details" *ngIf="visible_dynamic">
-    <app-family-member-details
-        [reciving]="familyId"
-    ></app-family-member-details>
-</div> -->
+                    <span *ngIf="tdhead.key.includes('status')">
+                        <p-tag
+                            [value]="rowData[tdhead.key]"
+                            [severity]="
+                                _stringFormating.getSeverity(
+                                    rowData[tdhead.key]
+                                )
+                            "
+                        />
+                    </span>
+
+                    <span *ngIf="tdhead.key.includes('actions')">
+                        <p-button
+                            icon="pi pi-file-pdf"
+                            class="mr-2"
+                            [rounded]="true"
+                            [outlined]="true"
+                            severity="danger"
+                            (onClick)="editItem(rowData)"
+                        />
+                    </span>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>

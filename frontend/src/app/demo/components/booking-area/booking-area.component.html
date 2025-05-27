@@ -1,11 +1,10 @@
-<div *appHasPermissions="'admin'" style="margin-bottom: 15px">
+<!-- <div *appHasPermissions="'admin'" style="margin-bottom: 15px">
     <p-button (click)="back()" label="Back" icon="pi pi-arrow-left"></p-button>
-</div>
+</div> -->
 
+<p-toast />
+<p-confirmDialog />
 <div class="booking-responsive" *appHasPermissions="'owner'">
-    <p-toast />
-    <p-confirmDialog />
-
     <p-panel header="Booking">
         <p-fieldset id="bg-legend" legend="Choose action">
             <div class="radio-container">
@@ -336,7 +335,14 @@
     </p-panel>
 </div>
 
-<p-panel header="Booking History">
+<div class="card">
+    <div class="flex items-center justify-between mb-4">
+        <span
+            class="font-semibold text-lg text-surface-900 dark:text-surface-0"
+        >
+            Booking History
+        </span>
+    </div>
     <div class="tbl-reservations">
         <p-table
             #dt
@@ -584,7 +590,7 @@
             </ng-template>
         </p-table>
     </div>
-</p-panel>
+</div>
 
 <p-dialog
     #dialog_guest

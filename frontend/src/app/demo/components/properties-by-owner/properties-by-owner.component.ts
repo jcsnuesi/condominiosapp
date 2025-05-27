@@ -1,13 +1,14 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
-import { DropdownModule } from 'primeng/dropdown';
-import { ButtonModule } from 'primeng/button';
-import { TableModule } from 'primeng/table';
-import { TagModule } from 'primeng/tag';
+import { ImportsModule } from '../../imports_primeng';
+// import { DropdownModule } from 'primeng/dropdown';
+// import { ButtonModule } from 'primeng/button';
+// import { TableModule } from 'primeng/table';
+// import { TagModule } from 'primeng/tag';
 import { HasPermissionsDirective } from 'src/app/has-permissions.directive';
-import { PanelModule } from 'primeng/panel';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
+// import { PanelModule } from 'primeng/panel';
+// import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { Router, ActivatedRoute } from '@angular/router';
 import { DialogModule, Dialog } from 'primeng/dialog';
@@ -15,29 +16,15 @@ import { CondominioService } from '../../service/condominios.service';
 import { UserService } from '../../service/user.service';
 import { OwnerServiceService } from '../../service/owner-service.service';
 import { InvoiceService } from '../../service/invoice.service';
-import { AvatarModule } from 'primeng/avatar';
-import { AvatarGroupModule } from 'primeng/avatargroup';
+// import { AvatarModule } from 'primeng/avatar';
+// import { AvatarGroupModule } from 'primeng/avatargroup';
 import { global } from '../../service/global.service';
-import { ToastModule } from 'primeng/toast';
+// import { ToastModule } from 'primeng/toast';
 
 @Component({
     selector: 'app-properties-by-owner',
     standalone: true,
-    imports: [
-        ToastModule,
-        CommonModule,
-        FormsModule,
-        DropdownModule,
-        ButtonModule,
-        TableModule,
-        TagModule,
-        PanelModule,
-        ConfirmDialogModule,
-        DialogModule,
-        AvatarModule,
-        AvatarGroupModule,
-        ToastModule,
-    ],
+    imports: [ImportsModule, CommonModule, FormsModule],
     providers: [
         MessageService,
         ConfirmationService,
@@ -120,6 +107,7 @@ export class PropertiesByOwnerComponent implements OnInit {
     ngOnInit(): void {
         this.fetchActiveProperties();
         this.sortUnits();
+        console.log('this.unitAvilable', this.ownerData);
         // this.fetchAvailableProperties();
     }
     getSeverity(status: string) {
@@ -134,7 +122,7 @@ export class PropertiesByOwnerComponent implements OnInit {
 
         this._ownerService.getPropertyByOwner(this.token, id).subscribe({
             next: (data) => {
-                // console.log('INVOICE', data);
+                console.log('INVOICE', data);
                 this._invoiceService
                     .getInvoiceByOwner(this.token, id)
                     .subscribe({
@@ -269,8 +257,8 @@ export class PropertiesByOwnerComponent implements OnInit {
                 },
                 reject: () => {
                     this._messageService.add({
-                        severity: 'danger',
-                        summary: 'warning',
+                        severity: 'error',
+                        summary: 'error',
                         detail: 'Changes not saved',
                     });
                 },
@@ -392,8 +380,8 @@ export class PropertiesByOwnerComponent implements OnInit {
             },
             reject: () => {
                 this._messageService.add({
-                    severity: 'danger',
-                    summary: 'warning',
+                    severity: 'error',
+                    summary: 'error',
                     detail: 'Changes not saved',
                 });
             },
@@ -445,8 +433,8 @@ export class PropertiesByOwnerComponent implements OnInit {
             },
             reject: () => {
                 this._messageService.add({
-                    severity: 'danger',
-                    summary: 'warning',
+                    severity: 'error',
+                    summary: 'Error',
                     detail: 'Unit not deleted',
                 });
             },

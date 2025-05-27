@@ -147,7 +147,7 @@ export class PaymentsHistoryComponent implements OnInit {
 
         this.getInvoiceByOwner();
         this.base64();
-        console.log('this.ownerIdInput', this.ownerIdInput);
+        // console.log('this.ownerIdInput', this.ownerIdInput);
     }
 
     getInvoiceByOwner() {
