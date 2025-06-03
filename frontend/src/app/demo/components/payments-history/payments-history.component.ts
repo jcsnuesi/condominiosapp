@@ -135,7 +135,7 @@ export class PaymentsHistoryComponent implements OnInit {
     ngOnInit(): void {
         this.dynamicHeaders = {
             id: 'id',
-            fullname: 'Fullname',
+            alias: 'Alias',
             unit: 'Unit',
             phone: 'Phone',
             amounts: 'Amounts',
@@ -159,11 +159,12 @@ export class PaymentsHistoryComponent implements OnInit {
                         let invoice = result.invoices;
 
                         this.bodyTableInfo = invoice.map((invoice) => {
-                            let fullname = `${invoice.ownerId.name} ${invoice.ownerId.lastname}`;
+                            let { condominiumId, _ } = invoice;
+                            // let fullname = `${invoice.ownerId.name} ${invoice.ownerId.lastname}`;
+
                             return {
                                 id: invoice._id,
-                                fullname:
-                                    this._stringFormating.titleCase(fullname),
+                                alias: condominiumId.alias,
                                 unit: invoice.ownerId.propertyDetails[0]
                                     .condominium_unit,
                                 phone: invoice.ownerId.phone,
@@ -183,6 +184,7 @@ export class PaymentsHistoryComponent implements OnInit {
                                 propertyDetails: invoice,
                             };
                         });
+                        // console.log('bodyTableInfo', this.bodyTableInfo);
                     }
                 },
                 error: (error) => {

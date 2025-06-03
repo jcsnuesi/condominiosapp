@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { ImportsModule } from '../../imports_primeng';
@@ -65,6 +65,8 @@ export class PropertiesByOwnerComponent implements OnInit {
     public unitAvilable: any;
     @Input() ownerData: any;
     @Input('propertyData') propertyData: [] = [];
+    @Output() propertyDataChange: EventEmitter<boolean> =
+        new EventEmitter<boolean>();
 
     constructor(
         private _messageService: MessageService,
@@ -106,8 +108,8 @@ export class PropertiesByOwnerComponent implements OnInit {
     }
     ngOnInit(): void {
         this.fetchActiveProperties();
-        this.sortUnits();
-        console.log('this.unitAvilable', this.ownerData);
+        // this.sortUnits();
+        // console.log('this.unitAvilable', this.ownerData);
         // this.fetchAvailableProperties();
     }
     getSeverity(status: string) {
@@ -122,11 +124,12 @@ export class PropertiesByOwnerComponent implements OnInit {
 
         this._ownerService.getPropertyByOwner(this.token, id).subscribe({
             next: (data) => {
-                console.log('INVOICE', data);
                 this._invoiceService
                     .getInvoiceByOwner(this.token, id)
                     .subscribe({
                         next: (invoice) => {
+                            console.log('data', data);
+
                             if (invoice.status === 'success') {
                                 this.propertiesOwner =
                                     data.message[0].propertyDetails.map(
@@ -184,8 +187,26 @@ export class PropertiesByOwnerComponent implements OnInit {
                                             };
                                         }
                                     );
+                                let availableUnt =
+                                    data.message[0].propertyDetails[
+                                        data.message[0].propertyDetails.length -
+                                            1
+                                    ].addressId;
+                                this.unitAvilable['availableUnits'] =
+                                    availableUnt.availableUnits
+                                        .map((x) => {
+                                            return {
+                                                label: x,
+                                            };
+                                        })
+                                        .sort((a, b) => a - b);
+                                console.log(
+                                    '  this.propertiesOwner',
+                                    this.unitAvilable['availableUnits']
+                                );
+                                this.propertyDataChange.emit(true);
                             }
-                            console.log('INVOICE', this.propertiesOwner);
+                            // console.log('INVOICE', this.propertiesOwner);
                         },
                         error: (err: any) => {
                             console.log('ERROR2', err);
@@ -198,29 +219,31 @@ export class PropertiesByOwnerComponent implements OnInit {
         });
     }
 
-    sortUnits() {
-        let unitSorted = {};
+    // sortUnits() {
+    //     let unitSorted = {};
 
-        this.unitAvilable['availableUnits'].forEach((element) => {
-            let unitLetter = element.split('-')[0];
-            let unitPosition = parseInt(element.split('-')[1]);
-            if (!unitSorted[unitLetter]) {
-                unitSorted[unitLetter] = [unitPosition];
-            } else {
-                unitSorted[unitLetter].push(unitPosition);
-                unitSorted[unitLetter].sort((a, b) => a - b);
-            }
-        });
-        this.unitAvilable['units'] = [];
+    //     this.unitAvilable['availableUnits'].forEach((element) => {
+    //         let unitLetter = element.split('-')[0];
+    //         let unitPosition = parseInt(element.split('-')[1]);
+    //         if (!unitSorted[unitLetter]) {
+    //             unitSorted[unitLetter] = [unitPosition];
+    //         } else {
+    //             unitSorted[unitLetter].push(unitPosition);
+    //             unitSorted[unitLetter].sort((a, b) => a - b);
+    //         }
+    //     });
+    //     // console.log('unitAvilable', this.unitAvilable);
+    //     // console.log('unitSorted', unitSorted);
+    //     this.unitAvilable['units'] = [];
 
-        Object.keys(unitSorted).forEach((key) => {
-            unitSorted[key].forEach((element) => {
-                this.unitAvilable['units'].push({
-                    label: key + '- ' + element,
-                });
-            });
-        });
-    }
+    //     Object.keys(unitSorted).forEach((key) => {
+    //         unitSorted[key].forEach((element) => {
+    //             this.unitAvilable['units'].push({
+    //                 label: key + '- ' + element,
+    //             });
+    //         });
+    //     });
+    // }
 
     activarEditarUnit(index: number, data: any): void {
         let condition = Boolean(this.unitEditActive[index].valid == false)

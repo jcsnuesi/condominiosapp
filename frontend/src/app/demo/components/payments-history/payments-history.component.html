@@ -13,7 +13,7 @@
             [value]="propertyDetailsUser"
             [rows]="10"
             [paginator]="true"
-            [globalFilterFields]="['fullname', 'status']"
+            [globalFilterFields]="['alias', 'status']"
             [tableStyle]="{ 'min-width': '75rem' }"
             [rowHover]="true"
             dataKey="id"
@@ -22,8 +22,8 @@
         >
             <ng-template pTemplate="header">
                 <tr>
-                    <th pSortableColumn="fullname" style="min-width: 15rem">
-                        Fullname <p-sortIcon field="fullname" />
+                    <th pSortableColumn="alias" style="min-width: 15rem">
+                        Property name <p-sortIcon field="alias" />
                     </th>
                     <th>Unit</th>
                     <th>Phone number</th>
@@ -38,7 +38,7 @@
             <ng-template pTemplate="body" let-owner>
                 <tr>
                     <td>
-                        {{ fullNameFormat(owner.ownerId) }}
+                        {{ owner.alias }}
                     </td>
 
                     <td>

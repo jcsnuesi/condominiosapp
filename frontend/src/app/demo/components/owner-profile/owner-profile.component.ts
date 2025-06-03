@@ -72,12 +72,18 @@ export class OwnerProfileComponent implements OnInit {
             disabled: true,
         },
     ];
+    public ownerCard: { count: number } = {
+        count: 0,
+    };
     public ownerObj: OwnerModel;
     public token: string;
     public url: string;
     public items: MenuItem[] | undefined;
     public memberShipSince: string;
-    public bookings: { count: number };
+    public bookingsCard: { count: number; today_booking: number } = {
+        count: 0,
+        today_booking: 0,
+    };
     public invoiceCards: { total: number; counts: number } = {
         total: 0,
         counts: 0,
@@ -89,7 +95,10 @@ export class OwnerProfileComponent implements OnInit {
 
     public invoicePaid: any[] = [];
     public _id: string;
-    public memberCardCount: number = 0;
+    public memberCard: { count: 0; active: 0 } = {
+        count: 0,
+        active: 0,
+    };
     constructor(
         private _messageService: MessageService,
         private _userService: UserService,
@@ -121,7 +130,7 @@ export class OwnerProfileComponent implements OnInit {
             ''
         );
         this.url = global.url;
-        this.bookings = { count: 0 };
+        this.bookingsCard = { count: 0, today_booking: 0 };
 
         this.items = [
             {
@@ -193,7 +202,13 @@ export class OwnerProfileComponent implements OnInit {
                         let { owner, bookings, invoices, invoicePaid } =
                             response.message;
                         this.ownerObj = owner;
-                        this.memberCardCount = owner.familyAccount.length;
+                        this.ownerCard.count = owner.propertyDetails.length;
+                        this.memberCard.count = owner.familyAccount.length;
+                        if (this.memberCard.count > 0) {
+                            this.memberCard.active = owner.familyAccount.filter(
+                                (member) => member.status === 'active'
+                            ).length;
+                        }
                         // console.log('owner ---->', this.ownerObj.familyAccount);
                         this.invoicePaid = invoicePaid;
                         this.invoicePaid[0]['fullname'] =
@@ -218,7 +233,14 @@ export class OwnerProfileComponent implements OnInit {
                         this.ownerObj.avatarPreview =
                             this.url + 'main-avatar/owners/' + owner.avatar;
 
-                        this.bookings.count = bookings.length;
+                        this.bookingsCard.count = bookings.length;
+
+                        for (let index = 0; index < bookings.length; index++) {
+                            this.bookingsCard.today_booking +=
+                                this.checkoutDate(
+                                    bookings[index].bookings[0].checkOut
+                                );
+                        }
 
                         // Limitar el invoicePaid a 5
                         if (this.invoicePaid.length > 5) {
@@ -239,6 +261,26 @@ export class OwnerProfileComponent implements OnInit {
             });
         });
     }
+
+    propertyDataChange(event: any) {
+        this.ngOnInit();
+    }
+
+    checkoutDate(date: string): number {
+        const today = new Date();
+        const dateObj = new Date(date.split('T')[0]);
+        // Compare only the date parts (year, month, day)
+
+        if (
+            today.getFullYear() === dateObj.getFullYear() &&
+            today.getMonth() + 1 === dateObj.getMonth() + 1 &&
+            today.getDate() === dateObj.getDate() + 1
+        ) {
+            return 1;
+        }
+        return 0;
+    }
+
     settings() {
         this.settingShow = true;
     }
@@ -255,7 +297,7 @@ export class OwnerProfileComponent implements OnInit {
             invoice_amount: item.amount,
             invoice_status: item.status,
         };
-        console.log('invoiceTemplate', item);
+        // console.log('invoiceTemplate', item);
 
         this._invoiceService.genPDF(invoiceTemplate);
     }
