@@ -16,7 +16,6 @@ const occupant = require("../models/occupant");
 const verifying = new verifyDataParam();
 let validator = require("validator");
 let emailVerification = require("../service/verificators");
-const { getAvatar } = require("./condominio");
 const fs = require("fs");
 const paths = require("path");
 const generatePassword = require("generate-password");
@@ -192,6 +191,42 @@ var ownerAndSubController = {
       return res.status(500).send({
         status: "error",
         message: "Fill out all fields",
+      });
+    }
+  },
+
+  getOwnerByIdentifier: async function (req, res) {
+    let identifier = req.params.keyword;
+    console.log("identifier", identifier);
+    if (Boolean(identifier == undefined)) {
+      return res.status(400).send({
+        status: "bad request",
+        message: "All fields required",
+      });
+    }
+
+    try {
+      const owner = await Owner.findOne({
+        $or: [{ email: identifier }, { id_number: identifier }],
+      })
+        .select("-password")
+        .select(" name lastname email phone id_number avatar ");
+
+      if (!owner) {
+        return res.status(404).send({
+          status: "error",
+          message: "Owner not found",
+        });
+      }
+      return res.status(200).send({
+        status: "success",
+        message: owner,
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send({
+        status: "error",
+        message: "Server error, try again",
       });
     }
   },
@@ -491,7 +526,7 @@ var ownerAndSubController = {
   },
   getAvatar: function (req, res) {
     var file = req.params.avatar;
-    var path_file = "./uploads/owner/" + file;
+    var path_file = "./uploads/owners/" + file;
     console.log("path_file", path_file);
     if (fs.existsSync(path_file)) {
       return res.sendFile(paths.resolve(path_file));

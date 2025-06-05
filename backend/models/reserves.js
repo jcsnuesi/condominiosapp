@@ -16,7 +16,11 @@ const GuestSchema = {
 
 var reserveSchema = Schema(
   {
-    memberId: { type: String, required: true },
+    memberId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Owner",
+      required: true,
+    },
     bookingName: { type: String, required: true },
     phone: { type: String, required: true },
     guest: [GuestSchema],

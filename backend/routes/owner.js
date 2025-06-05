@@ -19,6 +19,11 @@ router.get(
   md_auth.authenticated,
   ownerController.getAssets
 );
+router.get(
+  "/get-owner-by-id-or-email/:keyword",
+  md_auth.authenticated,
+  ownerController.getOwnerByIdentifier
+);
 // router.get("/get-family", md_auth.authenticated, ownerController.getFamily);
 
 // router.get(

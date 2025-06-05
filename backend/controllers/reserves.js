@@ -123,28 +123,15 @@ var reservesController = {
     // console.log(id);
     // return;
     try {
-      // // Construir query según el rol del usuario || req.user.role === "STAFF"
-      // if (req.user.role === "ADMIN" && _id.includes(".home")) {
-      //   // Administradores pueden ver todas las reservas del condominio
-      //   homeId = _id.split(".")[0];
-      //   query = { condoId: homeId };
-      // } else if (req.user.role == "STAFF") {
-      //   query = { condoId: _id };
-      // } else if (req.user.role == "OWNER" || req.user.role == "FAMILY") {
-      //   // Usuarios normales solo ven sus propias reservas
-      //   query = { memberId: _id };
-      // }
-
       // Ejecutar la consulta
-      reservations = await Reserves.find({
-        $or: [{ memberId: _id }, { condoId: _id }],
-      })
+      reservations = await Reserves.find({ memberId: _id })
         .populate({
           model: "Condominium",
           path: "condoId",
           select: "alias phone1 street_1 sector_name province city country",
         })
         .exec();
+
       if (reservations.length > 0) {
         return res.status(200).send({
           status: "success",
