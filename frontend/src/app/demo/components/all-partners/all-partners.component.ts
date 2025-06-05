@@ -9,11 +9,12 @@ import { CondominioService } from '../../service/condominios.service';
 import { global } from '../../service/global.service';
 import { ProgressBar } from 'primeng/progressbar';
 import { Router } from '@angular/router';
+import { OwnerRegistrationComponent } from '../owner-registration/owner-registration.component';
 
 @Component({
     selector: 'app-all-partners',
     standalone: true,
-    imports: [ImportsModule, CommonModule],
+    imports: [ImportsModule, CommonModule, OwnerRegistrationComponent],
     providers: [
         MessageService,
         ConfirmationService,
@@ -25,6 +26,7 @@ import { Router } from '@angular/router';
 })
 export class AllPartnersComponent implements OnInit {
     public token: string;
+    public visible: boolean = false;
     public identity: any;
     public datatable: any[];
     public selectedCustomers: any[] = [];
@@ -72,7 +74,7 @@ export class AllPartnersComponent implements OnInit {
                         };
                     });
                     this.loading = false;
-                    console.log(this.datatable);
+                    // console.log(this.datatable);
                 } else {
                     this.loading = false;
                     this._messageService.add({
@@ -122,5 +124,12 @@ export class AllPartnersComponent implements OnInit {
 
     showOwner(id: string) {
         this._router.navigate(['/partners', id]);
+    }
+
+    closeDialogRegistration() {
+        // INIT INFO
+        this.visible = false;
+        this.ngOnInit();
+        // console.log('closeDialogRegistration');
     }
 }

@@ -98,4 +98,12 @@ export class OwnerServiceService {
             headers: header,
         });
     }
+
+    getOwnerByIdOrEmail(token: string, data: string): Observable<any> {
+        let header = new HttpHeaders().set('Authorization', token);
+
+        return this._http.get(this.url + 'get-owner-by-id-or-email/' + data, {
+            headers: header,
+        });
+    }
 }

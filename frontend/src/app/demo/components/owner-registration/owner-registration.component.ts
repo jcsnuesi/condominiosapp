@@ -8,27 +8,15 @@ import {
     viewChild,
 } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
-import { MessagesModule } from 'primeng/messages';
-import { IconFieldModule } from 'primeng/iconfield';
-import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
-import { InputGroupModule } from 'primeng/inputgroup';
-import { InputTextModule } from 'primeng/inputtext';
-import { FileUploadModule } from 'primeng/fileupload';
-import { ButtonModule } from 'primeng/button';
-import { ToastModule } from 'primeng/toast';
 import { ConfirmationService, MessageService } from 'primeng/api';
-import { CommonModule } from '@angular/common';
 import { OwnerModel } from '../../models/owner.model';
 import { CondominioService } from '../../service/condominios.service';
 import { UserService } from '../../service/user.service';
-import { StepperModule } from 'primeng/stepper';
-import { DialogModule } from 'primeng/dialog';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { StepsModule } from 'primeng/steps';
-import { DropdownModule } from 'primeng/dropdown';
-import { CardModule } from 'primeng/card';
 import { ActivatedRoute, Router } from '@angular/router';
-import { InputNumberModule } from 'primeng/inputnumber';
+import { FormatFunctions } from 'src/app/pipes/formating_text';
+import { ImportsModule } from '../../imports_primeng';
+import { OwnerServiceService } from '../../service/owner-service.service';
+import { global } from '../../service/global.service';
 
 type MessageType = {
     severity?: string;
@@ -49,30 +37,13 @@ type MessageType = {
 @Component({
     selector: 'app-owner-registration',
     standalone: true,
-    imports: [
-        CardModule,
-        DropdownModule,
-        StepsModule,
-        MessagesModule,
-        StepperModule,
-        DialogModule,
-        ConfirmDialogModule,
-        IconFieldModule,
-        InputGroupAddonModule,
-        InputGroupModule,
-        InputTextModule,
-        FileUploadModule,
-        ButtonModule,
-        ToastModule,
-        FormsModule,
-        CommonModule,
-        InputNumberModule,
-    ],
+    imports: [ImportsModule, FormsModule],
     providers: [
         CondominioService,
         UserService,
         MessageService,
         ConfirmationService,
+        FormatFunctions,
     ],
     templateUrl: './owner-registration.component.html',
     styleUrl: './owner-registration.component.css',
@@ -110,11 +81,16 @@ export class OwnerRegistrationComponent implements OnInit {
     @ViewChild('unitFormUno') basicInfo: NgForm;
     @ViewChild('unitFormDos') propertyInfo: NgForm;
     public items: any;
+    public homeId: string;
 
     public isRentOptions: { label: string; code: string }[] = [
         { label: 'Yes', code: 'yes' },
         { label: 'No', code: 'no' },
     ];
+    public propertiesOptions: { label: string; code: string }[] = [
+        { label: '', code: '' },
+    ];
+    public url: string = global.url;
 
     constructor(
         private _condominioService: CondominioService,
@@ -122,7 +98,9 @@ export class OwnerRegistrationComponent implements OnInit {
         private _messageService: MessageService,
         private _confirmationService: ConfirmationService,
         private _router: Router,
-        private _activatedRoute: ActivatedRoute
+        private _activatedRoute: ActivatedRoute,
+        private _formatFunctions: FormatFunctions,
+        private _ownerService: OwnerServiceService
     ) {
         this.token = this._userService.getToken();
         this.identity = this._userService.getIdentity();
@@ -184,24 +162,22 @@ export class OwnerRegistrationComponent implements OnInit {
      *
      *
      */
-    public homeId: string;
     ngOnInit(): void {
         this._activatedRoute.params.subscribe((params) => {
             this.homeId = params['homeid'];
 
-            this.OnLoad(this.homeId);
-            this.reviewOwnerCard();
+            if (params['homeid'] !== undefined) {
+                this.OnLoad(this.homeId);
+            } else {
+                this.getPropertiesByAdminId();
+            }
         });
     }
 
-    /**
-     * Metodo para obtener las unidades disponibles del condominio
-     * @param param  - id del condominio
-     */
     OnLoad(param: string) {
         this._condominioService.getBuilding(param, this.token).subscribe({
             next: (response) => {
-                console.log(response);
+                // console.log(response);
                 if (response.status == 'success') {
                     console.log(
                         'response.condominium.availableUnits',
@@ -222,18 +198,73 @@ export class OwnerRegistrationComponent implements OnInit {
             },
         });
     }
+    onPropertiesChange(event: any) {
+        let propertyId = event.value.code;
+        this.OnLoad(propertyId);
+    }
 
-    reviewOwnerCard() {
+    public searchUserValue: string = '';
+    searchExistingUser() {
+        this._ownerService
+            .getOwnerByIdOrEmail(this.token, this.searchUserValue)
+            .subscribe({
+                next: (response) => {
+                    if (response.status == 'success') {
+                        this.ownerObj = response.message;
+                        let gender = {
+                            label: this._formatFunctions.titleCase(
+                                this.ownerObj.gender
+                            ),
+                            code: 'female',
+                        };
+
+                        this.ownerObj.gender = gender;
+                        this.image =
+                            this.url + 'owner-avatar/' + this.ownerObj.avatar;
+                    } else {
+                        this._messageService.add({
+                            severity: 'error',
+                            summary: 'Error',
+                            detail: 'No se ha encontrado el usuario',
+                        });
+                    }
+                    console.log('searchExistingUser', this.ownerObj);
+                },
+                error: (error) => {
+                    console.log(error);
+                    this._messageService.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: 'Error al buscar el usuario',
+                    });
+                },
+            });
+    }
+
+    reviewOwnerCard(event: any) {
         let property = JSON.parse(localStorage.getItem('property'));
         this.ownerObj.propertyType = property.typeOfProperty.toUpperCase();
         // Address Details - Card
-        this.ownerObj.addressId = property._id;
-        this.addreesDetails.street_1 = property.street_1;
-        this.addreesDetails.street_2 = property.street_2;
-        this.addreesDetails.sector_name = property.sector_name;
-        this.addreesDetails.city = property.city;
-        this.addreesDetails.province = property.province;
-        this.addreesDetails.country = property.country;
+        this.ownerObj.addressId = this._formatFunctions.titleCase(property._id);
+        this.addreesDetails.street_1 = this._formatFunctions.titleCase(
+            property.street_1
+        );
+        this.addreesDetails.street_2 = this._formatFunctions.titleCase(
+            property.street_2
+        );
+        this.addreesDetails.sector_name = this._formatFunctions.titleCase(
+            property.sector_name
+        );
+        this.addreesDetails.city = this._formatFunctions.titleCase(
+            property.city
+        );
+        this.addreesDetails.province = this._formatFunctions.titleCase(
+            property.province
+        );
+        this.addreesDetails.country = this._formatFunctions.titleCase(
+            property.country
+        );
+        event.emit();
     }
 
     onSelect(file: any) {
@@ -278,6 +309,38 @@ export class OwnerRegistrationComponent implements OnInit {
     resetStepper() {
         this.indexStepper = 0;
         this.apiUnitResponse = false;
+    }
+
+    getPropertiesByAdminId() {
+        this._condominioService.getPropertyByAdminId(this.token).subscribe({
+            next: (response) => {
+                // console.log('getPropertiesByAdminId', response);
+                if (response.status == 'success') {
+                    this.propertiesOptions = response.message.map(
+                        (item: any) => {
+                            return {
+                                label: item.alias,
+                                code: item._id,
+                            };
+                        }
+                    );
+                } else {
+                    this._messageService.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: 'No se han encontrado condominios',
+                    });
+                }
+            },
+            error: (error) => {
+                console.log(error);
+                this._messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Error al cargar los condominios',
+                });
+            },
+        });
     }
     /**
      * Metodo para crear propiedad:

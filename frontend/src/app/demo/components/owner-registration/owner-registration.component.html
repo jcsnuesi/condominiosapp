@@ -9,12 +9,12 @@
     />
     <button
         pButton
-        label="Create another user?"
+        label="¿Create another user?"
         (click)="resetStepper()"
         *ngIf="apiUnitResponse"
     ></button>
 
-    <div class="flex justify-content-center" *ngIf="!apiUnitResponse">
+    <div class="flex justify-content-center mt-4" *ngIf="!apiUnitResponse">
         <p-stepper
             [activeStep]="indexStepper"
             (activeStepChange)="onStepChange($event)"
@@ -27,6 +27,28 @@
                     let-nextCallback="nextCallback"
                     let-index="index"
                 >
+                    <p-accordion [activeIndex]="-1" class="mb-4">
+                        <p-accordionTab header="¿Existing user?">
+                            <div
+                                class="form-group flex align-items-center gap-2"
+                            >
+                                <input
+                                    pInputText
+                                    type="text"
+                                    placeholder="Enter user ID or email"
+                                    [(ngModel)]="searchUserValue"
+                                    name="searchUserValue"
+                                />
+                                <button
+                                    pButton
+                                    type="button"
+                                    label="Buscar"
+                                    icon="pi pi-search"
+                                    (click)="searchExistingUser()"
+                                ></button>
+                            </div>
+                        </p-accordionTab>
+                    </p-accordion>
                     <div
                         class="padding-set border-2 border-dashed surface-border border-round surface-ground justify-content-center font-medium"
                     >
@@ -225,6 +247,7 @@
                             iconPos="right"
                             (onClick)="nextCallback.emit()"
                             [disabled]="
+                                !email.valid ||
                                 !ownerName.valid ||
                                 !phone.valid ||
                                 !lastname.valid ||
@@ -249,6 +272,40 @@
                             <p-inputGroup>
                                 <p-inputGroupAddon>
                                     <i class="pi pi-building"></i>
+                                </p-inputGroupAddon>
+
+                                <p-dropdown
+                                    [ngClass]="{
+                                        'input-success':
+                                            propertiesAvailable.valid,
+                                        'input-error ':
+                                            propertiesAvailable.touched &&
+                                            !propertiesAvailable.dirty
+                                    }"
+                                    #propertiesAvailable="ngModel"
+                                    [(ngModel)]="ownerObj.addressId"
+                                    name="propertiesAvailable"
+                                    [options]="propertiesOptions"
+                                    optionLabel="label"
+                                    placeholder="Choose properties..."
+                                    (onChange)="onPropertiesChange($event)"
+                                    required
+                                />
+                            </p-inputGroup>
+                            <small
+                                *ngIf="
+                                    propertiesAvailable.touched &&
+                                    !propertiesAvailable.valid
+                                "
+                                id="propertiesAvailable-label"
+                                class="p-error"
+                                >Required.</small
+                            >
+                        </div>
+                        <div class="form-group mb-3">
+                            <p-inputGroup>
+                                <p-inputGroupAddon>
+                                    <i class="pi pi-home"></i>
                                 </p-inputGroupAddon>
 
                                 <p-dropdown
@@ -337,11 +394,12 @@
                             icon="pi pi-arrow-right"
                             iconPos="right"
                             [disabled]="
+                                !propertiesAvailable.valid ||
                                 !apartmentsUnit.valid ||
                                 !isRent.valid ||
                                 !parking.valid
                             "
-                            (onClick)="nextCallback.emit()"
+                            (onClick)="reviewOwnerCard(nextCallback)"
                         />
                     </div>
                 </ng-template>
