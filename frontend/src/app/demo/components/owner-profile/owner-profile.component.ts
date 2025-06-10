@@ -193,15 +193,16 @@ export class OwnerProfileComponent implements OnInit {
 
         this._activatedRoute.params.subscribe((param) => {
             this._id = param['id'];
-
             this._ownerService.getOwnerAssets(this.token, this._id).subscribe({
                 next: (response) => {
-                    console.log('response.message');
-                    console.log(response.message);
                     if (response.status == 'success') {
                         let { owner, bookings, invoices, invoicePaid } =
                             response.message;
                         this.ownerObj = owner;
+                        this.ownerObj.status = owner.status;
+
+                        console.log('response.message');
+                        console.log(this.ownerObj.status);
                         this.ownerCard.count = owner.propertyDetails.length;
                         this.memberCard.count = owner.familyAccount.length;
                         if (this.memberCard.count > 0) {
@@ -209,14 +210,17 @@ export class OwnerProfileComponent implements OnInit {
                                 (member) => member.status === 'active'
                             ).length;
                         }
-                        // console.log('owner ---->', this.ownerObj.familyAccount);
-                        this.invoicePaid = invoicePaid;
-                        this.invoicePaid[0]['fullname'] =
-                            owner.name + ' ' + owner.lastname;
-                        this.invoicePaid[0]['phone'] = owner.phone;
-                        this.invoicePaid[0]['email'] = owner.email;
-                        this.invoiceCards.counts = invoices[0].count;
-                        this.invoiceCards.total = invoices[0].totalAmount;
+
+                        if (invoicePaid.length > 0) {
+                            this.invoicePaid = invoicePaid;
+                            this.invoicePaid[0]['fullname'] =
+                                owner.name + ' ' + owner.lastname;
+                            this.invoicePaid[0]['phone'] = owner.phone;
+                            this.invoicePaid[0]['email'] = owner.email;
+                            this.invoiceCards.counts = invoices[0].count;
+                            this.invoiceCards.total = invoices[0].totalAmount;
+                        }
+
                         this.memberShipSince = owner.createdAt.split('T')[0];
                         owner.name = this._formatFunctions.titleCase(
                             owner.name

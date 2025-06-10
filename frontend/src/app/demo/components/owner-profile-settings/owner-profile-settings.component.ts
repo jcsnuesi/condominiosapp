@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ConfirmationService, MessageService } from 'primeng/api';
@@ -39,6 +39,7 @@ export class OwnerProfileSettingsComponent {
     public identity: any;
     @Input() ownerObj: OwnerModel;
 
+    @Output() ownerUpdated: EventEmitter<boolean> = new EventEmitter<boolean>();
     public genderOptions: Array<{ label: string }>;
     public passwordOwner: boolean = false;
 
@@ -96,7 +97,8 @@ export class OwnerProfileSettingsComponent {
                 this._ownerService
                     .deactivateOwner(this.token, {
                         _id: data._id,
-                        status: 'inactive',
+                        status:
+                            data.status == 'inactive' ? 'active' : 'inactive',
                     })
                     .subscribe({
                         next: (response) => {
@@ -107,6 +109,7 @@ export class OwnerProfileSettingsComponent {
                                     detail: 'You have deleted this profile',
                                     life: 3000,
                                 });
+                                this.ownerUpdated.emit(true);
                             }
                         },
                         error: (error) => {

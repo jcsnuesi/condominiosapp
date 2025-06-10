@@ -21,6 +21,10 @@
             style="cursor: pointer"
         ></span>
     </div>
+    <p-tag
+        [severity]="ownerObj.status == 'active' ? 'success' : 'danger'"
+        [value]="ownerObj.status == 'active' ? 'Active' : 'Deactive'"
+    />
 </div>
 
 <div class="grid">
@@ -231,7 +235,10 @@
     [contentStyle]="{ overflow: 'auto' }"
 >
     <p-tabView>
-        <app-owner-profile-settings [ownerObj]="ownerObj">
+        <app-owner-profile-settings
+            (ownerUpdated)="ngOnInit()"
+            [ownerObj]="ownerObj"
+        >
         </app-owner-profile-settings>
     </p-tabView>
 </p-dialog>

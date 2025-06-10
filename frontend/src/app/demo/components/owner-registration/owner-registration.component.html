@@ -27,6 +27,7 @@
                     let-nextCallback="nextCallback"
                     let-index="index"
                 >
+                    <!-- Existing client -->
                     <p-accordion [activeIndex]="-1" class="mb-4">
                         <p-accordionTab header="¿Existing user?">
                             <div
@@ -49,6 +50,7 @@
                             </div>
                         </p-accordionTab>
                     </p-accordion>
+                    <!-- [END] - Existing client -->
                     <div
                         class="padding-set border-2 border-dashed surface-border border-round surface-ground justify-content-center font-medium"
                     >
@@ -268,7 +270,7 @@
                     <div
                         class="padding-set border-2 border-dashed surface-border border-round surface-ground justify-content-center font-medium"
                     >
-                        <div class="form-group mb-3">
+                        <div class="form-group mb-3" *ngIf="!homeId">
                             <p-inputGroup>
                                 <p-inputGroupAddon>
                                     <i class="pi pi-building"></i>
@@ -394,7 +396,6 @@
                             icon="pi pi-arrow-right"
                             iconPos="right"
                             [disabled]="
-                                !propertiesAvailable.valid ||
                                 !apartmentsUnit.valid ||
                                 !isRent.valid ||
                                 !parking.valid

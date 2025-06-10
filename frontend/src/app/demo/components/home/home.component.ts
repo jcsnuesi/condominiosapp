@@ -55,6 +55,7 @@ import { HasPermissionsDirective } from 'src/app/has-permissions.directive';
 import { NotificationComponent } from '../notification/notification.component';
 import { PropertiesByOwnerComponent } from '../properties-by-owner/properties-by-owner.component';
 import { OwnerProfileSettingsComponent } from '../owner-profile-settings/owner-profile-settings.component';
+import { ImportsModule } from '../../imports_primeng';
 
 type FamilyAccess = {
     avatar: string;
@@ -72,36 +73,16 @@ type FamilyAccess = {
     selector: 'app-home',
     standalone: true,
     imports: [
+        ImportsModule,
         OwnerProfileSettingsComponent,
         PropertiesByOwnerComponent,
         NotificationComponent,
         HasPermissionsDirective,
-        DividerModule,
-        ProgressSpinnerModule,
         BookingAreaComponent,
-        ButtonModule,
-        DynamicDialogModule,
         PaymentsHistoryComponent,
-        DropdownModule,
-        TableModule,
-        AvatarModule,
-        AvatarGroupModule,
-        MenuModule,
-        FormsModule,
-        CommonModule,
-        ChartModule,
-        TabViewModule,
-        DialogModule,
-        FileUploadModule,
-        InputGroupModule,
-        InputGroupAddonModule,
-        ToastModule,
-        ConfirmDialogModule,
         OwnerRegistrationComponent,
-        InputTextModule,
         InviceGeneraterComponent,
         FamilyMemberDetailsComponent,
-        StepperModule,
     ],
     templateUrl: './home.component.html',
     styleUrl: './home.component.css',

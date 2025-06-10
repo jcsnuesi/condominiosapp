@@ -314,7 +314,7 @@ export class OwnerRegistrationComponent implements OnInit {
     getPropertiesByAdminId() {
         this._condominioService.getPropertyByAdminId(this.token).subscribe({
             next: (response) => {
-                // console.log('getPropertiesByAdminId', response);
+                console.log('getPropertiesByAdminId', response);
                 if (response.status == 'success') {
                     this.propertiesOptions = response.message.map(
                         (item: any) => {
