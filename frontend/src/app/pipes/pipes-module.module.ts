@@ -4,10 +4,8 @@ import { PreserveOrderPipe } from './perservedOrder';
 import { KeysValuesPipe } from './perservedOrder';
 
 @NgModule({
-  declarations: [PreserveOrderPipe, KeysValuesPipe],
-  imports: [
-    CommonModule
-  ],
-  exports: [PreserveOrderPipe, KeysValuesPipe]
+    declarations: [PreserveOrderPipe],
+    imports: [CommonModule],
+    exports: [PreserveOrderPipe],
 })
-export class PipesModuleModule { }
+export class PipesModuleModule {}

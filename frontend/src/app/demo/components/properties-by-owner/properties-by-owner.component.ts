@@ -2,13 +2,7 @@ import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { ImportsModule } from '../../imports_primeng';
-// import { DropdownModule } from 'primeng/dropdown';
-// import { ButtonModule } from 'primeng/button';
-// import { TableModule } from 'primeng/table';
-// import { TagModule } from 'primeng/tag';
 import { HasPermissionsDirective } from 'src/app/has-permissions.directive';
-// import { PanelModule } from 'primeng/panel';
-// import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { Router, ActivatedRoute } from '@angular/router';
 import { DialogModule, Dialog } from 'primeng/dialog';
@@ -16,21 +10,22 @@ import { CondominioService } from '../../service/condominios.service';
 import { UserService } from '../../service/user.service';
 import { OwnerServiceService } from '../../service/owner-service.service';
 import { InvoiceService } from '../../service/invoice.service';
-// import { AvatarModule } from 'primeng/avatar';
-// import { AvatarGroupModule } from 'primeng/avatargroup';
+
 import { global } from '../../service/global.service';
-// import { ToastModule } from 'primeng/toast';
+import { KeysValuesPipe } from 'src/app/pipes/perservedOrder';
+import { FormatFunctions } from 'src/app/pipes/formating_text';
 
 @Component({
     selector: 'app-properties-by-owner',
     standalone: true,
-    imports: [ImportsModule, CommonModule, FormsModule],
+    imports: [ImportsModule, CommonModule, FormsModule, KeysValuesPipe],
     providers: [
         MessageService,
         ConfirmationService,
         CondominioService,
         UserService,
         OwnerServiceService,
+        FormatFunctions,
     ],
     templateUrl: './properties-by-owner.component.html',
     styleUrl: './properties-by-owner.component.css',
@@ -76,7 +71,8 @@ export class PropertiesByOwnerComponent implements OnInit {
         private _condominioService: CondominioService,
         private _userService: UserService,
         private _ownerService: OwnerServiceService,
-        private _invoiceService: InvoiceService
+        private _invoiceService: InvoiceService,
+        private _formatFunctions: FormatFunctions
     ) {
         this.token = this._userService.getToken();
         this.url = global.url;
@@ -117,7 +113,7 @@ export class PropertiesByOwnerComponent implements OnInit {
     }
 
     // Metodo para traer las propiedades activas de un propietario  addProperty
-
+    public availableUnitsList: any[] = [];
     fetchActiveProperties(): void {
         let id = this.ownerData + '-properties';
         this.unitAvilable.ownerId = this.ownerData;
@@ -192,17 +188,59 @@ export class PropertiesByOwnerComponent implements OnInit {
                                         data.message[0].propertyDetails.length -
                                             1
                                     ].addressId;
-                                this.unitAvilable['availableUnits'] =
-                                    availableUnt.availableUnits
-                                        .map((x) => {
-                                            return {
-                                                label: x,
-                                            };
-                                        })
-                                        .sort((a, b) => a - b);
+                                let uniqueObjects: any = {};
+                                data.message.forEach((obj) => {
+                                    if (obj.propertyDetails.length > 0) {
+                                        obj.propertyDetails.forEach(
+                                            (property: any) => {
+                                                if (property.addressId.alias) {
+                                                    uniqueObjects[
+                                                        property.addressId.alias
+                                                            .split(' ')
+                                                            .join('_')
+                                                    ] = {
+                                                        alias: property
+                                                            .addressId.alias,
+                                                        address:
+                                                            property.addressId
+                                                                .street_1 +
+                                                            ', ' +
+                                                            property.addressId
+                                                                .street_2 +
+                                                            ', ' +
+                                                            property.addressId
+                                                                .sector_name +
+                                                            ', ' +
+                                                            property.addressId
+                                                                .province +
+                                                            ', ' +
+                                                            property.addressId
+                                                                .city +
+                                                            ', ' +
+                                                            (property.addressId
+                                                                .zipcode ??
+                                                                '00000') +
+                                                            ', ' +
+                                                            property.addressId
+                                                                .country,
+                                                        availableUnits:
+                                                            this._formatFunctions.splitlist(
+                                                                property
+                                                                    .addressId
+                                                                    .availableUnits
+                                                            ),
+                                                    };
+                                                }
+                                            }
+                                        );
+                                    }
+                                });
+
+                                this.availableUnitsList.push(uniqueObjects);
+
                                 console.log(
-                                    '  this.propertiesOwner',
-                                    this.unitAvilable['availableUnits']
+                                    'availableUnitsList',
+                                    this.availableUnitsList
                                 );
                                 this.propertyDataChange.emit(true);
                             }
@@ -218,32 +256,6 @@ export class PropertiesByOwnerComponent implements OnInit {
             },
         });
     }
-
-    // sortUnits() {
-    //     let unitSorted = {};
-
-    //     this.unitAvilable['availableUnits'].forEach((element) => {
-    //         let unitLetter = element.split('-')[0];
-    //         let unitPosition = parseInt(element.split('-')[1]);
-    //         if (!unitSorted[unitLetter]) {
-    //             unitSorted[unitLetter] = [unitPosition];
-    //         } else {
-    //             unitSorted[unitLetter].push(unitPosition);
-    //             unitSorted[unitLetter].sort((a, b) => a - b);
-    //         }
-    //     });
-    //     // console.log('unitAvilable', this.unitAvilable);
-    //     // console.log('unitSorted', unitSorted);
-    //     this.unitAvilable['units'] = [];
-
-    //     Object.keys(unitSorted).forEach((key) => {
-    //         unitSorted[key].forEach((element) => {
-    //             this.unitAvilable['units'].push({
-    //                 label: key + '- ' + element,
-    //             });
-    //         });
-    //     });
-    // }
 
     activarEditarUnit(index: number, data: any): void {
         let condition = Boolean(this.unitEditActive[index].valid == false)

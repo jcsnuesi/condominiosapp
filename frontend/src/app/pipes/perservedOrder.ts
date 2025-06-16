@@ -24,16 +24,18 @@ export class PreserveOrderPipe implements PipeTransform {
 }
 
 @Pipe({
-    name: 'KeysValues',
+    name: 'ObjectValues',
+    standalone: true,
 })
 export class KeysValuesPipe implements PipeTransform {
     transform(arrObj: any, ...args: any[]): any {
-        if (!arrObj) {
+        if (!arrObj && !Array.isArray(arrObj)) {
             return [];
         }
-        let value = '';
-
-        console.log('value:', value);
-        return value;
+        return arrObj.map((obj: any) => {
+            return Object.values(obj).map((v) => {
+                return v;
+            });
+        });
     }
 }

@@ -132,4 +132,20 @@ export class FormatFunctions {
             return 'Female';
         }
     }
+
+    splitlist(list: string[]): Array<{ label: string; value: string }> {
+        console.log('splitlist list:', list);
+        if (!list && list.length === 0) {
+            return [{ label: 'No data', value: '' }];
+        }
+
+        // Split the string by commas and trim whitespace from each item
+        return list.map((item) => {
+            console.log('splitlist item:', {
+                label: item.trim(),
+                value: item.trim(),
+            });
+            return { label: item.trim(), value: item.trim() };
+        });
+    }
 }
