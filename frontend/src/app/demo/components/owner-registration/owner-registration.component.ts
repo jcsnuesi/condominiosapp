@@ -64,6 +64,7 @@ export class OwnerRegistrationComponent implements OnInit {
     public unitOptions: any[] = [];
 
     public addreesDetails: {
+        typeOfProperty: string;
         street_1: string;
         street_2: string;
         sector_name: string;
@@ -71,6 +72,7 @@ export class OwnerRegistrationComponent implements OnInit {
         province: string;
         country: string;
     } = {
+        typeOfProperty: '',
         street_1: '',
         street_2: '',
         sector_name: '',
@@ -168,6 +170,7 @@ export class OwnerRegistrationComponent implements OnInit {
 
             if (params['homeid'] !== undefined) {
                 this.OnLoad(this.homeId);
+                console.log('homeId', this.homeId);
             } else {
                 this.getPropertiesByAdminId();
             }
@@ -175,14 +178,25 @@ export class OwnerRegistrationComponent implements OnInit {
     }
 
     OnLoad(param: string) {
+        this.ownerObj.addressId = param;
         this._condominioService.getBuilding(param, this.token).subscribe({
             next: (response) => {
                 // console.log(response);
                 if (response.status == 'success') {
-                    console.log(
-                        'response.condominium.availableUnits',
-                        response.condominium.availableUnits
-                    );
+                    // console.log(
+                    //     'response.condominium.availableUnits',
+                    //     response.condominium
+                    // );
+
+                    // Formatear los detalles de la dirección
+
+                    for (const key in this.addreesDetails) {
+                        this.addreesDetails[key] =
+                            this._formatFunctions.titleCase(
+                                response.condominium[key]
+                            );
+                    }
+
                     this.unitOptions = response.condominium.availableUnits.map(
                         (units) => {
                             return {
@@ -200,6 +214,7 @@ export class OwnerRegistrationComponent implements OnInit {
     }
     onPropertiesChange(event: any) {
         let propertyId = event.value.code;
+        // console.log('onPropertiesChange', propertyId);
         this.OnLoad(propertyId);
     }
 
@@ -210,17 +225,26 @@ export class OwnerRegistrationComponent implements OnInit {
             .subscribe({
                 next: (response) => {
                     if (response.status == 'success') {
-                        this.ownerObj = response.message;
+                        const ownerFound = response.message;
+                        console.log('searchExistingUser', this.ownerObj);
                         let gender = {
                             label: this._formatFunctions.titleCase(
-                                this.ownerObj.gender
+                                ownerFound.gender
                             ),
-                            code: 'female',
+                            code: ownerFound.gender,
                         };
 
+                        this.ownerObj.name = ownerFound.name;
+                        this.ownerObj.lastname = ownerFound.lastname;
                         this.ownerObj.gender = gender;
+                        this.ownerObj.phone = ownerFound.phone;
+                        this.ownerObj.avatar = ownerFound.avatar;
+                        this.ownerObj.email = ownerFound.email;
+                        this.ownerObj.id_number = ownerFound.id_number;
+
                         this.image =
                             this.url + 'owner-avatar/' + this.ownerObj.avatar;
+                        this.searchUserValue = '';
                     } else {
                         this._messageService.add({
                             severity: 'error',
@@ -228,7 +252,6 @@ export class OwnerRegistrationComponent implements OnInit {
                             detail: 'No se ha encontrado el usuario',
                         });
                     }
-                    console.log('searchExistingUser', this.ownerObj);
                 },
                 error: (error) => {
                     console.log(error);
@@ -239,32 +262,6 @@ export class OwnerRegistrationComponent implements OnInit {
                     });
                 },
             });
-    }
-
-    reviewOwnerCard(event: any) {
-        let property = JSON.parse(localStorage.getItem('property'));
-        this.ownerObj.propertyType = property.typeOfProperty.toUpperCase();
-        // Address Details - Card
-        this.ownerObj.addressId = this._formatFunctions.titleCase(property._id);
-        this.addreesDetails.street_1 = this._formatFunctions.titleCase(
-            property.street_1
-        );
-        this.addreesDetails.street_2 = this._formatFunctions.titleCase(
-            property.street_2
-        );
-        this.addreesDetails.sector_name = this._formatFunctions.titleCase(
-            property.sector_name
-        );
-        this.addreesDetails.city = this._formatFunctions.titleCase(
-            property.city
-        );
-        this.addreesDetails.province = this._formatFunctions.titleCase(
-            property.province
-        );
-        this.addreesDetails.country = this._formatFunctions.titleCase(
-            property.country
-        );
-        event.emit();
     }
 
     onSelect(file: any) {
@@ -300,6 +297,16 @@ export class OwnerRegistrationComponent implements OnInit {
                 });
             },
         });
+    }
+
+    onUnitChange() {
+        // Formatear los detalles del propietario
+        this.ownerObj.name = this._formatFunctions.titleCase(
+            this.ownerObj.name
+        );
+        this.ownerObj.lastname = this._formatFunctions.titleCase(
+            this.ownerObj.lastname
+        );
     }
 
     onStepChange(event: number) {
@@ -350,6 +357,7 @@ export class OwnerRegistrationComponent implements OnInit {
      * 3. Seleccionamos el condominio al que pertenece el owner
      * 4. Si vamos agregar una nueva unidad, actualizamos el owner para que se registre la nueva unidad
      * 5. Solo el rol owner puede registrar una nueva unidad
+     *
      */
     onSubmitUnit() {
         const formData = new FormData();
@@ -361,6 +369,7 @@ export class OwnerRegistrationComponent implements OnInit {
             ) {
                 formData.append(key, this.ownerObj[key].code);
             } else if (key === 'avatar') {
+                console.log(key + ': ' + this.ownerObj[key]);
                 formData.append(
                     key,
                     Boolean(this.ownerObj.avatar != undefined)
@@ -371,6 +380,11 @@ export class OwnerRegistrationComponent implements OnInit {
                 formData.append(key, this.ownerObj[key]);
             }
         }
+        // formData.forEach((value, key) => {
+        //     console.log(key + ': ' + value);
+        // });
+        // return;
+        // hantos@mail.com
         this._condominioService.createOwner(this.token, formData).subscribe({
             next: (response) => {
                 if (response.status == 'success') {

@@ -271,6 +271,7 @@ export class OwnerProfileComponent implements OnInit {
     }
 
     checkoutDate(date: string): number {
+        if (!date) return 0;
         const today = new Date();
         const dateObj = new Date(date.split('T')[0]);
         // Compare only the date parts (year, month, day)

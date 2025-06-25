@@ -124,9 +124,11 @@ export class PropertiesByOwnerComponent implements OnInit {
                     .getInvoiceByOwner(this.token, id)
                     .subscribe({
                         next: (invoice) => {
-                            console.log('data', data);
-
                             if (invoice.status === 'success') {
+                                console.log(
+                                    'data',
+                                    data.message[0].propertyDetails
+                                );
                                 this.propertiesOwner =
                                     data.message[0].propertyDetails.map(
                                         (property: any, index: number) => {

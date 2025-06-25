@@ -56,6 +56,7 @@ import { NotificationComponent } from '../notification/notification.component';
 import { PropertiesByOwnerComponent } from '../properties-by-owner/properties-by-owner.component';
 import { OwnerProfileSettingsComponent } from '../owner-profile-settings/owner-profile-settings.component';
 import { ImportsModule } from '../../imports_primeng';
+import * as XLSX from 'xlsx';
 
 type FamilyAccess = {
     avatar: string;
@@ -279,10 +280,10 @@ export class HomeComponent implements OnInit, OnDestroy {
                                 }
                             );
 
-                            localStorage.setItem(
-                                'property',
-                                JSON.stringify(unitList)
-                            );
+                            // localStorage.setItem(
+                            //     'property',
+                            //     JSON.stringify(unitList)
+                            // );
                             this.units = unitList.units_ownerId.length;
 
                             this.card_unit_member_date =
@@ -294,39 +295,47 @@ export class HomeComponent implements OnInit, OnDestroy {
                                 this.identity.role == 'ADMIN' ||
                                 this.identity.role == 'STAFF'
                             ) {
-                                unitList.alias = this.titleCase(unitList.alias);
-                                unitList.typeOfProperty = {
-                                    label: this.titleCase(
-                                        unitList.typeOfProperty
-                                    ),
-                                };
-                                unitList.propertyUnitFormat =
-                                    typeof unitList.availableUnits[0] ==
-                                    'string'
-                                        ? 'Letters'
-                                        : 'Numbers';
+                                // console.log(
+                                //     'unitList------->',
+                                //     response.condominium
+                                // );
+                                // Configurar encabezado con los datos del condominio
+                                new Array(response.condominium).forEach(
+                                    (element) => {
+                                        unitList.alias = this.titleCase(
+                                            element.alias
+                                        );
+                                        unitList.typeOfProperty = {
+                                            label:
+                                                this.titleCase(
+                                                    element.typeOfProperty
+                                                ) + ':',
+                                        };
 
-                                unitList.socialAreas = unitList.socialAreas.map(
-                                    (s) => {
-                                        return { areasOptions: s };
+                                        unitList.socialAreas =
+                                            element.socialAreas.map((s) => {
+                                                return { areasOptions: s };
+                                            });
+                                        unitList.paymentDate =
+                                            this._formatFunctions.dateFormat(
+                                                element.paymentDate
+                                            );
+                                        unitList.propertyUnitFormat =
+                                            typeof unitList.availableUnits[0] ==
+                                            'string'
+                                                ? 'Letters'
+                                                : 'Numbers';
                                     }
                                 );
-                                unitList.paymentDate =
-                                    this._formatFunctions.dateFormat(
-                                        unitList.paymentDate
-                                    );
+                                this.homeEvent.emit(unitList);
+
                                 // Sun Jan 19 2025
                                 //Sat Jan 18 2025 00:00:00 GMT-0400 (Atlantic Standard Time)
-                                unitList.paymentDate = new Date(
-                                    unitList.paymentDate
-                                );
-
-                                this.homeEvent.emit(unitList);
                             }
 
                             this.getInvoiceByCondoFunc(unitList);
                             this.customers = unitList.units_ownerId;
-                            // console.log('CONDOMINIO------->', this.customers);
+
                             this.customers.forEach((owner) => {
                                 owner.condominium_unit = this.unitFormatOnInit(
                                     owner.propertyDetails
@@ -682,5 +691,42 @@ export class HomeComponent implements OnInit, OnDestroy {
             availableUnits: [],
             country: '',
         });
+    }
+
+    onSelect(event: any): void {
+        const file: File = event.files?.[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+
+        reader.onload = (e: ProgressEvent<FileReader>) => {
+            const result = e.target?.result;
+            if (!result) return;
+
+            const data = new Uint8Array(result as ArrayBuffer);
+            const workbook = XLSX.read(data, { type: 'array' });
+
+            const firstSheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[firstSheetName];
+            const jsonData: any[][] = XLSX.utils.sheet_to_json(worksheet, {
+                header: 1,
+            });
+
+            if (jsonData.length < 2) {
+                console.log([]);
+                return;
+            }
+
+            const [headers, ...rows] = jsonData;
+            const results = rows
+                .filter((row) => row.length > 0)
+                .map((row) =>
+                    Object.fromEntries(headers.map((h, i) => [h, row[i]]))
+                );
+
+            console.log(results); // Puedes reemplazar esto con la lógica que necesites
+        };
+
+        reader.readAsArrayBuffer(file);
     }
 }

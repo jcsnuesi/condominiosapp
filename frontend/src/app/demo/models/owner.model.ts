@@ -16,6 +16,7 @@ export class OwnerModel {
         public propertyType: string,
         public isRenting: string,
         public password: string,
+        public _id?: string,
         public status?: string
     ) {}
 }

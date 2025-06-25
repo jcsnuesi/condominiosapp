@@ -324,6 +324,7 @@
                                     optionLabel="label"
                                     placeholder="Choose available unit..."
                                     required
+                                    (onChange)="onUnitChange()"
                                 />
                             </p-inputGroup>
                             <small
@@ -400,7 +401,7 @@
                                 !isRent.valid ||
                                 !parking.valid
                             "
-                            (onClick)="reviewOwnerCard(nextCallback)"
+                            (onClick)="nextCallback.emit()"
                         />
                     </div>
                 </ng-template>
