@@ -21,8 +21,7 @@ const paths = require("path");
 const generatePassword = require("generate-password");
 const wsConfirmationMessage = require("./whatsappController");
 var mongoose = require("mongoose");
-const path = require("path");
-const { group } = require("console");
+const assert = require("assert");
 
 // Generar una contraseña con opciones específicas
 const password = generatePassword.generate({
@@ -84,13 +83,16 @@ var ownerAndSubController = {
     var params = req.body;
     let pathName = null;
 
+    // console.log("params", params);
+    // return;
+
     try {
       var val_email = validator.isEmail(params.email);
       var val_phone = verifying.phonesTransformation(params.phone);
       var val_id_number = !validator.isEmpty(params.id_number);
 
       // Validamos que el condominio exista antes de crear al usuario
-      var condominioFound = await Condominio.findOne({ _id: params.addressId });
+      // var condominioFound = await Condominio.findOne({ _id: params.addressId });
     } catch (error) {
       return res.status(400).send({
         status: "bad request",
@@ -126,65 +128,109 @@ var ownerAndSubController = {
             userDuplicated
           );
 
-          if (errorHandlerArr[0]) {
-            return res.status(errorHandlerArr[1]).send({
-              status: "error",
-              message: errorHandlerArr[2],
-            });
-          }
-          delete params._id;
-          try {
-            //Instanciamos el usuario segun el tipo de usuario
-            let user = new Owner();
+          // console.log("userDuplicated", userDuplicated._id);
+          if (userDuplicated) {
+            const propertyFound = userDuplicated.propertyDetails.some(
+              (property) =>
+                property.addressId == params.addressId &&
+                property.condominium_unit == params.apartmentsUnit
+            );
 
-            for (const key in params) {
-              user[key] = params[key].toLowerCase();
+            if (propertyFound) {
+              return res.status(400).send({
+                status: "error",
+                message: "This unit is already assigned to another owner",
+              });
+            } else {
+              let propertyDetails = {
+                body: {
+                  ownerId: userDuplicated._id,
+                  addressId: params.addressId,
+                  unit: params.apartmentsUnit,
+                  parkingsQty: params.parkingsQty,
+                },
+              };
+
+              const propertyUpdating = await ownerAndSubController.addOwnerUnit(
+                propertyDetails,
+                null
+              );
+              // console.log("propertyUpdating", propertyUpdating);
+              if (propertyUpdating.code == 200) {
+                return res.status(propertyUpdating.code).send({
+                  status: propertyUpdating.status,
+                  message: propertyUpdating.message,
+                });
+              }
+              if (propertyUpdating.code == 500) {
+                return res.status(propertyUpdating.code).send({
+                  status: propertyUpdating.status,
+                  message: propertyUpdating.message,
+                });
+              }
             }
 
-            var property_details = {
-              addressId: params.addressId,
-              condominium_unit: params.apartmentsUnit,
-              parkingsQty: params.parkingsQty,
-              isRenting: false,
-            };
+            if (errorHandlerArr[0]) {
+              return res.status(errorHandlerArr[1]).send({
+                status: "error",
+                message: errorHandlerArr[2],
+              });
+            }
+            delete params._id;
+            delete params.status;
+            try {
+              //Instanciamos el usuario segun el tipo de usuario
+              let user = new Owner();
 
-            user.propertyDetails.push(property_details);
-            user.password = await bcrypt.hash(password, saltRounds);
+              for (const key in params) {
+                user[key] = params[key].toLowerCase();
+              }
 
-            await user.save();
-            condominioFound.units_ownerId.push(user._id);
-            // Este código elimina la unidad asignada de la lista de unidades disponibles
-            // 1. Encuentra el índice de la unidad (params.apartmentsUnit) en el array availableUnits
-            // 2. Elimina 1 elemento en esa posición usando splice()
-            // Esto se hace porque una vez que se asigna una unidad a un propietario,
-            // ya no debe estar disponible para otros
-            condominioFound.availableUnits.splice(
-              condominioFound.availableUnits.indexOf(params.apartmentsUnit),
-              1
-            );
-            await Condominio.findOneAndUpdate(
-              { _id: params.addressId },
-              condominioFound,
-              { new: true }
-            );
+              var property_details = {
+                addressId: params.addressId,
+                condominium_unit: params.apartmentsUnit,
+                parkingsQty: params.parkingsQty,
+                isRenting: false,
+              };
 
-            user.passwordTemp = password;
-            user.condominioName = condominioFound.alias;
-            emailVerification.verifyRegistration(user);
-            wsConfirmationMessage.sendWhatsappMessage(user);
-          } catch (error) {
-            console.log(error);
-            return res.status(500).send({
-              status: "error",
-              message: "Missing params to create this user",
-              error: error,
+              user.propertyDetails.push(property_details);
+              user.password = await bcrypt.hash(password, saltRounds);
+
+              await user.save();
+              condominioFound.units_ownerId.push(user._id);
+              // Este código elimina la unidad asignada de la lista de unidades disponibles
+              // 1. Encuentra el índice de la unidad (params.apartmentsUnit) en el array availableUnits
+              // 2. Elimina 1 elemento en esa posición usando splice()
+              // Esto se hace porque una vez que se asigna una unidad a un propietario,
+              // ya no debe estar disponible para otros
+              condominioFound.availableUnits.splice(
+                condominioFound.availableUnits.indexOf(params.apartmentsUnit),
+                1
+              );
+              await Condominio.findOneAndUpdate(
+                { _id: params.addressId },
+                condominioFound,
+                { new: true }
+              );
+
+              user.passwordTemp = password;
+              user.condominioName = condominioFound.alias;
+              emailVerification.verifyRegistration(user);
+              wsConfirmationMessage.sendWhatsappMessage(user);
+            } catch (error) {
+              console.log(error);
+              return res.status(500).send({
+                status: "error",
+                message: "Missing params to create this user",
+                error: error,
+              });
+            }
+
+            return res.status(200).send({
+              status: "success",
+              message: "User created successfully",
             });
           }
-
-          return res.status(200).send({
-            status: "success",
-            message: "User created successfully",
-          });
         }
       );
     } else {
@@ -305,15 +351,33 @@ var ownerAndSubController = {
 
       await Condominio.findOneAndUpdate(
         { _id: params.addressId },
-        { $pull: { availableUnits: params.unit } },
+        {
+          $pull: { availableUnits: params.unit },
+          $push: { units_ownerId: params.ownerId },
+        },
         { new: true }
       );
+
+      if (res == null) {
+        return {
+          status: "success",
+          message: "Unit assigned successfully",
+          code: 200,
+        };
+      }
       return res.status(200).send({
         status: "success",
         message: "Unit assigned successfully",
       });
     } catch (error) {
       console.log(error);
+      if (res == null) {
+        return {
+          status: "success",
+          message: "Unit assigned successfully",
+          code: 500,
+        };
+      }
       return res.status(500).send({
         status: "error",
         message: "Server error, try again",
@@ -656,6 +720,98 @@ var ownerAndSubController = {
       return res.status(500).send({
         status: "error",
         message: "Server error, try again",
+      });
+    }
+  },
+  createMultipleOwner: async function (req, res) {
+    const params = req.body;
+
+    try {
+      let val = params.map((p) => {
+        var val_id_number = !validator.isEmpty(p.id_number);
+        var val_email = validator.isEmail(p.email);
+        var val_condominioId = !validator.isEmpty(p.addressId);
+
+        return val_id_number && val_email && val_condominioId;
+      });
+      assert.strictEqual(val.includes(false), false, "params must be an array");
+      assert.strictEqual(
+        Array.isArray(params),
+        true,
+        "params must be an array"
+      );
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send({
+        status: "error",
+        message: "Server error, try again",
+      });
+    }
+
+    const owner = await Owner.find({
+      id_number: { $in: params.map((p) => p.id_number) },
+    });
+
+    if (owner.length > 0) {
+      return res.status(400).send({
+        status: "error",
+        message: "Some owners already exist",
+        found: owner,
+      });
+    }
+
+    try {
+      params.forEach((ownerObj) => {
+        let propertyDetails = {
+          addressId: "",
+          condominium_unit: "",
+          parkingsQty: "",
+        };
+        let { addressId, condominium_unit, parkingsQty, ..._ } = ownerObj;
+        propertyDetails.addressId = addressId;
+        propertyDetails.condominium_unit = condominium_unit;
+        propertyDetails.parkingsQty = parkingsQty;
+        ownerObj["propertyDetails"] = [propertyDetails];
+      });
+
+      delete params.addressId;
+      delete params.condominium_unit;
+      delete params.parkingsQty;
+      const newOwners = await Owner.insertMany(params);
+
+      await Promise.all(
+        newOwners.map(async (usuario) => {
+          const addressId = usuario.propertyDetails[0].addressId;
+          const unidad = usuario.propertyDetails[0].condominium_unit.trim();
+
+          if (!addressId || !unidad) {
+            console.warn(`Datos incompletos para usuario ${usuario._id}`);
+            return;
+          }
+
+          const result = await Condominio.updateOne(
+            { _id: addressId },
+            {
+              $pull: { availableUnits: unidad },
+              $push: { units_ownerId: usuario._id },
+            }
+          );
+
+          if (result.modifiedCount === 0) {
+            console.warn(`No se actualizó condominio para unidad ${unidad}`);
+          }
+        })
+      );
+
+      return res.status(200).send({
+        status: "success",
+        message: "Owners created successfully",
+      });
+    } catch (error) {
+      return res.status(500).send({
+        status: "error",
+        message: "Server error, try again",
+        error: error,
       });
     }
   },

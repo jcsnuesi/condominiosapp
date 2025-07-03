@@ -75,13 +75,19 @@ var Condominium_Controller = {
           }
 
           var condominio = new Condominium();
-
+          console.log(condominiumParams.socialAreas.length);
           // Convertir en socialAreas en un array
-          if (condominiumParams.socialAreas) {
-            condominiumParams["socialAreas"]
-              .split(",")
-              .forEach((areas) => condominio["socialAreas"].push(areas));
+          if (
+            condominiumParams.socialAreas.length > 1 &&
+            condominiumParams.socialAreas.includes(",")
+          ) {
+            condominiumParams.socialAreas.forEach((areas) =>
+              condominio.socialAreas.push(areas)
+            );
 
+            delete condominiumParams.socialAreas;
+          } else {
+            condominio.socialAreas.push(condominiumParams.socialAreas);
             delete condominiumParams.socialAreas;
           }
 

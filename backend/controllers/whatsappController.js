@@ -16,9 +16,9 @@ var wsController = {
         type: "text",
         text: {
           body: `Usuario registrado con éxito al condominio: *${user.condominioName.toUpperCase()}*. \n 
-                   Nombre completo: ${user.name} ${user.lastname} \n 
-                   usuario: ${user.email} \n 
-                   contraseña temporal: ${user.password} \n `,
+          Nombre completo: ${user.name} ${user.lastname} \n 
+          usuario: ${user.email} \n 
+          contraseña temporal: ${user.password} \n `,
         },
       });
 

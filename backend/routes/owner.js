@@ -41,6 +41,11 @@ router.post(
   [md_upload, md_auth.emailOwnerRegistration],
   ownerController.createSingleOwner
 );
+router.post(
+  "/create-multiple-owner",
+  md_auth.emailOwnerRegistration,
+  ownerController.createMultipleOwner
+);
 
 // invite owner
 // router.post('/owner-register', [md_auth.authenticated], emailRegisterGenerator.emailOwnerRegister)

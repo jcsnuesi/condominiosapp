@@ -25,7 +25,7 @@ var CondominiumSchema = Schema(
     street_1: { type: String, required: true },
     street_2: { type: String },
     sector_name: { type: String, required: true },
-    availableUnits: [],
+    availableUnits: [{ type: String }],
     city: { type: String, required: true },
     province: { type: String, required: true },
     zipcode: { type: String },
