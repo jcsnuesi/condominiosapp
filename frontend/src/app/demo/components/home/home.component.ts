@@ -221,8 +221,9 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.loadBookingCard();
     }
 
-    closeDialogRegistration() {
+    closeDialogRegistration(fileSelected: any) {
         // INIT INFO
+        fileSelected.clear();
         this.onInitInfo();
         this.getStaffByCondoId();
         this.loadBookingCard();
@@ -692,7 +693,7 @@ export class HomeComponent implements OnInit, OnDestroy {
             country: '',
         });
     }
-
+    public multipleOwners: any[] = [];
     onSelect(event: any): void {
         const file: File = event.files?.[0];
         if (!file) return;
@@ -718,15 +719,72 @@ export class HomeComponent implements OnInit, OnDestroy {
             }
 
             const [headers, ...rows] = jsonData;
+            headers.push('addressId');
+
             const results = rows
                 .filter((row) => row.length > 0)
-                .map((row) =>
-                    Object.fromEntries(headers.map((h, i) => [h, row[i]]))
+                .map(
+                    (row) =>
+                        row.push(this.condoId) &&
+                        Object.fromEntries(headers.map((h, i) => [h, row[i]]))
                 );
-
-            console.log(results); // Puedes reemplazar esto con la lógica que necesites
+            console.log(results);
+            this.multipleOwners = results;
+            // Puedes reemplazar esto con la lógica que necesites
         };
 
         reader.readAsArrayBuffer(file);
+    }
+
+    createMultipleOwners() {
+        this._confirmationService.confirm({
+            message:
+                '¿Estás seguro de que deseas crear múltiples propietarios?',
+            header: 'Confirmation',
+            icon: 'pi pi-exclamation-triangle',
+            acceptButtonStyleClass: 'p-button-success',
+            rejectButtonStyleClass: 'p-button-danger',
+            accept: () => {
+                // Acción a realizar si se acepta la confirmación
+                this._ownerService
+                    .createMultipleUnitsOwners(this.token, this.multipleOwners)
+                    .subscribe({
+                        next: (response) => {
+                            console.log('response:--------------->', response);
+                            if (response.status == 'success') {
+                                this.messageApiResponse.message =
+                                    response.message;
+                                this.messageApiResponse.severity = 'success';
+                                this.apiUnitResponse = true;
+                            } else {
+                                this.messageApiResponse.message =
+                                    response.message;
+                                this.messageApiResponse.severity = 'danger';
+                                this.apiUnitResponse = true;
+                            }
+                        },
+                        error: (error) => {
+                            console.log(error);
+                        },
+                        complete: () => {
+                            this._messageService.add({
+                                severity: 'success',
+                                summary: 'Success',
+                                detail: 'Units Created',
+                                life: 3000,
+                            });
+                        },
+                    });
+            },
+            reject: () => {
+                // Acción a realizar si se rechaza la confirmación
+                this._messageService.add({
+                    severity: 'warn',
+                    summary: 'Action Cancelled',
+                    detail: 'Users were not created.',
+                    life: 3000,
+                });
+            },
+        });
     }
 }

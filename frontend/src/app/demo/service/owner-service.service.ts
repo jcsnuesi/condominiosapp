@@ -106,4 +106,14 @@ export class OwnerServiceService {
             headers: header,
         });
     }
+
+    createMultipleUnitsOwners(token: string, data: any): Observable<any> {
+        let params = JSON.stringify(data);
+        let header = new HttpHeaders()
+            .set('Content-Type', 'application/json')
+            .set('Authorization', token);
+        return this._http.post(this.url + 'create-multiple-owner', params, {
+            headers: header,
+        });
+    }
 }
