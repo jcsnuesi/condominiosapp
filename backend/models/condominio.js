@@ -4,20 +4,9 @@ var mongoose = require("mongoose");
 var Schema = mongoose.Schema;
 var mongooPaginate = require("mongoose-paginate-v2");
 
-var EmployeesSchema = Schema({
-  avatar: { type: String },
-  name: { type: String, required: true },
-  lastname: { type: String, required: true },
-  gender: { type: String, required: true },
-  email: { type: String, required: true },
-  phone: [{ type: String, required: true }],
-});
-
-const employees = mongoose.model("Employees", EmployeesSchema);
-
 var CondominiumSchema = Schema(
   {
-    avatar: { type: String },
+    avatar: { type: String, default: "noimage2.jpeg" },
     alias: { type: String, required: true },
     typeOfProperty: { type: String, required: true },
     phone: { type: String, required: true },

@@ -9,8 +9,9 @@ let router = express.Router();
 var multipart = require("connect-multiparty");
 var md_upload = multipart({ uploadDir: "./uploads/properties" });
 var { authenticated, adminAuth } = require("../middleware/middleware_bundle");
+const VerifyData = require("../service/verifyParamData");
+const phoneFormatFunc = new VerifyData();
 // GET
-
 // router.get(
 //   "/condominios",
 //   authenticated,
@@ -50,6 +51,11 @@ router.post(
   "/create-Apartment",
   authenticated,
   condominioController.createApartment
+);
+router.post(
+  "/create-multiple-condo",
+  [authenticated, phoneFormatFunc.phoneFormat, phoneFormatFunc.validKeys],
+  condominioController.createMultipleCondo
 );
 
 // PUT

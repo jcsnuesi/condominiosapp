@@ -138,9 +138,7 @@ var invoiceController = {
     });
   },
   getInvoices: function (req, res) {
-    var userId = req.params.id.includes("properties")
-      ? req.params.id.split("-")[0]
-      : req.params.id;
+    var userId = req.params.id;
 
     Invoice.find({ ownerId: userId })
       .populate({

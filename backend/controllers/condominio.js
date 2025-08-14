@@ -2,7 +2,7 @@
 
 var validator = require("validator");
 var path = require("path");
-var Condominium = require("../models/condominio");
+const Condominium = require("../models/condominio");
 var fs = require("fs");
 let errorHandler = require("../error/errorHandler");
 let checkExtensions = require("../service/extensions");
@@ -12,6 +12,9 @@ const Admin = require("../models/admin");
 const Family = require("../models/family");
 const Invoice = require("../models/invoice");
 const { match } = require("assert");
+const { create } = require("../models/counter");
+
+const mongoose = require("mongoose");
 
 var Condominium_Controller = {
   createCondominium: async function (req, res) {
@@ -608,6 +611,47 @@ var Condominium_Controller = {
         message: storage,
       });
     } catch (error) {
+      return res.status(500).send({
+        status: "error",
+        message: error.message,
+      });
+    }
+  },
+  createMultipleCondo: async function (req, res) {
+    let params = req.body;
+    delete params.unitFormatted;
+
+    try {
+      // Validar que los parámetros necesarios estén presentes
+      if (!Array.isArray(params)) {
+        return res.status(400).send({
+          status: "error",
+          message: "Invalid input data",
+        });
+      }
+
+      const condoFound = await Condominium.find({
+        $or: [
+          { alias: { $in: params.map((p) => p.alias) } },
+          { phone: { $in: params.map((p) => p.phone) } },
+        ],
+      });
+
+      if (condoFound.length > 0) {
+        return res.status(400).send({
+          status: "error",
+          message: "Condominium with the same alias or phone already exists",
+          condo: condoFound,
+        });
+      }
+
+      await Condominium.insertMany(params);
+      return res.status(200).send({
+        status: "success",
+        message: "Condominiums created successfully",
+      });
+    } catch (error) {
+      console.error("Transaction failed: ", error);
       return res.status(500).send({
         status: "error",
         message: error.message,

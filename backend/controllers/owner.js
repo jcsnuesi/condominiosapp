@@ -602,39 +602,28 @@ var ownerAndSubController = {
     }
   },
 
-  getCondominiumByOwnerId: function (req, res) {
-    const user = { owner: Owner, family: Family };
+  getCondominiumByOwnerId: async function (req, res) {
     let ownerId = req.params.ownerId;
-    let userModel = "";
+    console.log("ownerId", ownerId);
 
-    if (ownerId.includes("properties")) {
-      userModel = user["owner"];
-      ownerId = ownerId.split("-")[0];
-    } else {
-      userModel = user[req.user.role.toLowerCase()];
-      ownerId = req.user.sub;
-    }
-
-    userModel
-      .find({ _id: ownerId })
-      .select("-password")
-      .populate({
+    try {
+      const ownerCondo = await Owner.findOne({ _id: ownerId }).populate({
         path: "propertyDetails.addressId",
         model: "Condominium",
         select:
           " avatar availableUnits alias phone street_1 street_2 sector_name city province zipcode country socialAreas mPayment status mPayment createdAt",
-      })
-      .exec((err, condominiumFound) => {
-        var errorHandlerArr = errorHandler.newUser(err, condominiumFound);
-
-        if (errorHandlerArr[0]) {
-          return res.status(errorHandlerArr[1]).send({
-            status: errorHandlerArr[2],
-            message: errorHandlerArr[3],
-            errors: err,
-          });
-        }
       });
+
+      return res.status(200).send({
+        status: "success",
+        message: ownerCondo,
+      });
+    } catch (error) {
+      return res.status(500).send({
+        status: "error",
+        message: "Server error, try again",
+      });
+    }
   },
 
   getAssets: async function (req, res) {
@@ -702,8 +691,6 @@ var ownerAndSubController = {
         invoicePaid: invoicesPaid,
       };
 
-      // console.log("data", data);
-
       if (!owner) {
         return res.status(404).send({
           status: "error",
@@ -750,6 +737,22 @@ var ownerAndSubController = {
 
     const owner = await Owner.find({
       id_number: { $in: params.map((p) => p.id_number) },
+    });
+    const condominio = await Condominio.find({
+      addressId: { $in: params.map((p) => p.addressId) },
+    });
+    condominio.forEach((c) => {
+      const existe = params.some((p) =>
+        c.availableUnits.includes(p.condominium_unit)
+      );
+      if (!existe) {
+        return res.status(400).send({
+          status: "error",
+          message: `Unit ${params.map(
+            (p) => p.condominium_unit
+          )} not available in condominium ${c.alias}`,
+        });
+      }
     });
 
     if (owner.length > 0) {
