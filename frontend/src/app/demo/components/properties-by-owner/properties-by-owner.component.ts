@@ -10,7 +10,7 @@ import { CondominioService } from '../../service/condominios.service';
 import { UserService } from '../../service/user.service';
 import { OwnerServiceService } from '../../service/owner-service.service';
 import { InvoiceService } from '../../service/invoice.service';
-
+import { Button } from 'primeng/button';
 import { global } from '../../service/global.service';
 import { KeysValuesPipe } from 'src/app/pipes/perservedOrder';
 import { FormatFunctions } from 'src/app/pipes/formating_text';
@@ -20,7 +20,6 @@ import { FormatFunctions } from 'src/app/pipes/formating_text';
     standalone: true,
     imports: [ImportsModule, CommonModule, FormsModule, KeysValuesPipe],
     providers: [
-        MessageService,
         ConfirmationService,
         CondominioService,
         UserService,
@@ -32,7 +31,7 @@ import { FormatFunctions } from 'src/app/pipes/formating_text';
 })
 export class PropertiesByOwnerComponent implements OnInit {
     public title: string = 'Properties by Owner';
-    public propertiesOwner: any[] = [];
+    public propertiesOwner: any;
     public unitEditActive: { valid: boolean; index: number }[] = [
         {
             valid: false,
@@ -57,7 +56,7 @@ export class PropertiesByOwnerComponent implements OnInit {
         icon: string;
         class: string;
     }[];
-    public unitAvilable: any;
+    public unitAvilable: Array<{ label: string }> = [{ label: '' }];
     @Input() ownerData: any;
     @Input('propertyData') propertyData: [] = [];
     @Output() propertyDataChange: EventEmitter<boolean> =
@@ -83,274 +82,162 @@ export class PropertiesByOwnerComponent implements OnInit {
                 class: 'p-button-rounded hover:bg-yellow-600 hover:border-yellow-600 hover:text-white',
             },
         ];
-        this.unitAvilable = JSON.parse(localStorage.getItem('property')!);
 
-        this.unitAvilable.address =
-            this.unitAvilable.street_1 +
-            ', ' +
-            this.unitAvilable.street_2 +
-            ', ' +
-            this.unitAvilable.sector_name +
-            ', ' +
-            this.unitAvilable.province +
-            ', ' +
-            this.unitAvilable.city +
-            ', ' +
-            (Boolean(this.unitAvilable.zipcode)
-                ? this.unitAvilable.zipcode
-                : '00000') +
-            ', ' +
-            this.unitAvilable.country;
+        this.unitAvilable = [{ label: '' }];
     }
     ngOnInit(): void {
-        this.fetchActiveProperties();
+        // this.getInvoiceByOwnerByOwnerId();
+        this.getActiveProperties();
         // this.sortUnits();
         // console.log('this.unitAvilable', this.ownerData);
         // this.fetchAvailableProperties();
     }
     getSeverity(status: string) {
-        return status == 'active' ? 'success' : 'danger';
+        return status == 'active' ? 'primary' : 'danger';
     }
 
     // Metodo para traer las propiedades activas de un propietario  addProperty
     public availableUnitsList: any[] = [];
-    fetchActiveProperties(): void {
-        let id = this.ownerData + '-properties';
-        this.unitAvilable.ownerId = this.ownerData;
+    getActiveProperties(): void {
+        let [propertyDetails, invoices, _] = [...this.ownerData];
 
-        this._ownerService.getPropertyByOwner(this.token, id).subscribe({
-            next: (data) => {
-                this._invoiceService
-                    .getInvoiceByOwner(this.token, id)
-                    .subscribe({
-                        next: (invoice) => {
-                            if (invoice.status === 'success') {
-                                console.log(
-                                    'data',
-                                    data.message[0].propertyDetails
-                                );
-                                this.propertiesOwner =
-                                    data.message[0].propertyDetails.map(
-                                        (property: any, index: number) => {
-                                            this.editBtnStyle[index] = {
-                                                severity: 'warning',
-                                                icon: 'pi pi-pencil',
-                                                class: 'p-button-rounded hover:bg-yellow-600 hover:border-yellow-600 hover:text-white',
-                                            };
-                                            this.unitEditActive[index] = {
-                                                valid: false,
-                                                index: -1,
-                                            };
-
-                                            return {
-                                                id: property.addressId._id,
-                                                alias: property.addressId.alias,
-                                                unit: property.condominium_unit,
-                                                address:
-                                                    property.addressId
-                                                        .street_1 +
-                                                    ', ' +
-                                                    property.addressId
-                                                        .street_2 +
-                                                    ', ' +
-                                                    property.addressId
-                                                        .sector_name +
-                                                    ', ' +
-                                                    property.addressId
-                                                        .province +
-                                                    ', ' +
-                                                    property.addressId.city +
-                                                    ', ' +
-                                                    (property.addressId
-                                                        .zipcode ?? '00000') +
-                                                    ', ' +
-                                                    property.addressId.country,
-                                                status: property.addressId
-                                                    .status,
-                                                pending_balance:
-                                                    invoice.invoices.reduce(
-                                                        (
-                                                            acc: any,
-                                                            curr: any
-                                                        ) => {
-                                                            return (
-                                                                acc +
-                                                                curr.amount
-                                                            );
-                                                        },
-                                                        0
-                                                    ),
-                                                parkingsQty:
-                                                    property.parkingsQty,
-                                            };
-                                        }
-                                    );
-                                let availableUnt =
-                                    data.message[0].propertyDetails[
-                                        data.message[0].propertyDetails.length -
-                                            1
-                                    ].addressId;
-                                let uniqueObjects: any = {};
-                                data.message.forEach((obj) => {
-                                    if (obj.propertyDetails.length > 0) {
-                                        obj.propertyDetails.forEach(
-                                            (property: any) => {
-                                                if (property.addressId.alias) {
-                                                    uniqueObjects[
-                                                        property.addressId.alias
-                                                            .split(' ')
-                                                            .join('_')
-                                                    ] = {
-                                                        alias: property
-                                                            .addressId.alias,
-                                                        address:
-                                                            property.addressId
-                                                                .street_1 +
-                                                            ', ' +
-                                                            property.addressId
-                                                                .street_2 +
-                                                            ', ' +
-                                                            property.addressId
-                                                                .sector_name +
-                                                            ', ' +
-                                                            property.addressId
-                                                                .province +
-                                                            ', ' +
-                                                            property.addressId
-                                                                .city +
-                                                            ', ' +
-                                                            (property.addressId
-                                                                .zipcode ??
-                                                                '00000') +
-                                                            ', ' +
-                                                            property.addressId
-                                                                .country,
-                                                        availableUnits:
-                                                            this._formatFunctions.splitlist(
-                                                                property
-                                                                    .addressId
-                                                                    .availableUnits
-                                                            ),
-                                                    };
-                                                }
-                                            }
-                                        );
-                                    }
-                                });
-
-                                this.availableUnitsList.push(uniqueObjects);
-
-                                console.log(
-                                    'availableUnitsList',
-                                    this.availableUnitsList
-                                );
-                                this.propertyDataChange.emit(true);
-                            }
-                            // console.log('INVOICE', this.propertiesOwner);
-                        },
-                        error: (err: any) => {
-                            console.log('ERROR2', err);
-                        },
-                    });
-            },
-            error: (err: any) => {
-                console.log('ERROR', err);
-            },
+        propertyDetails.forEach((element) => {
+            element.id = element.addressId._id;
+            element.address =
+                element.addressId.street_1 +
+                ', ' +
+                element.addressId.street_2 +
+                ', ' +
+                element.addressId.sector_name +
+                ', ' +
+                element.addressId.province +
+                ', ' +
+                element.addressId.city +
+                ', ' +
+                (Boolean(element.addressId.zipcode)
+                    ? element.addressId.zipcode
+                    : '00000') +
+                ', ' +
+                element.addressId.country;
+            element.alias = element.addressId.alias;
+            element.pending_balance = this.getInvoiceByOwnerByOwnerId(
+                element.addressId._id
+            );
+            element.status = element.addressId.status;
+            element.units = element.condominium_unit;
         });
+
+        console.log('this.ownerData ------------->   ', propertyDetails);
+        // variable para las unidades disponibles
+        this.propertiesOwner = propertyDetails;
     }
 
+    public invoiceFullData = [];
+    getInvoiceByOwnerByOwnerId(condoId: string): number {
+        let [propertyDetails, invoices, _] = [...this.ownerData];
+
+        if (invoices.length == 0) return 0;
+
+        let invoice = invoices.find((inv) => inv.condominiumId === condoId);
+        return invoice ? invoice.totalAmount : 0;
+    }
+    public showUnits: boolean = true;
     activarEditarUnit(index: number, data: any): void {
-        let condition = Boolean(this.unitEditActive[index].valid == false)
-            ? true
-            : false;
-        if (condition) {
-            this.editBtnStyle[index] = {
-                severity: 'success',
-                icon: 'pi pi-check',
-                class: 'p-button-rounded hover:bg-green-600 hover:border-green-600 hover:text-white',
-            };
-            this.propertiesSelected = { label: data.unit };
-            this.parkingSelected = { label: data.parkingsQty };
+        let unitAvilable = [];
 
-            this.unitEditActive[index].valid = condition;
-            this.unitEditActive[index].index = index;
-        } else {
-            this._confirmationService.confirm({
-                header: 'Confirm',
-                message: 'Do you want to save the changes?',
-                icon: 'pi pi-exclamation-triangle',
-                acceptButtonStyleClass:
-                    'p-button-success hover:bg-green-600 hover:border-green-600 hover:text-white',
-                rejectButtonStyleClass:
-                    'p-button-danger hover:bg-red-600 hover:border-red-600 hover:text-white',
+        this.showUnits = false;
 
-                accept: () => {
-                    this.updateProperty(
-                        data,
-                        this.propertiesSelected,
-                        this.parkingSelected,
-                        this.propertiesOwner[index].unit
-                    );
-                },
-                reject: () => {
-                    this._messageService.add({
-                        severity: 'error',
-                        summary: 'error',
-                        detail: 'Changes not saved',
-                    });
-                },
-            });
-            this.editBtnStyle[index] = {
-                severity: 'warning',
-                icon: 'pi pi-pencil',
-                class: 'p-button-rounded hover:bg-yellow-600 hover:border-yellow-600 hover:text-white',
-            };
-            this.unitEditActive[index].valid = condition;
-            this.unitEditActive[index].index = -1;
+        data.addressId.availableUnits.forEach((element: any) => {
+            unitAvilable.push({ label: element });
+        });
+
+        this.unitAvilable = unitAvilable;
+        let btnConfig = this.editBtnStyle[index];
+        if (btnConfig.severity == 'success') {
+            this.updateProperty(
+                data,
+                this.propertiesSelected.label,
+                this.parkingSelected.label,
+                data.units
+            );
         }
+        console.log('btnConfig', btnConfig);
+        this.editBtnStyle[index] = {
+            severity: btnConfig.severity === 'warning' ? 'success' : 'warning',
+            icon:
+                btnConfig.icon === 'pi pi-pencil'
+                    ? 'pi pi-check'
+                    : 'pi pi-pencil',
+            class:
+                btnConfig.class ===
+                'p-button-rounded hover:bg-yellow-600 hover:border-yellow-600 hover:text-white'
+                    ? 'p-button-rounded hover:bg-green-600 hover:border-green-600 hover:text-white'
+                    : 'p-button-rounded hover:bg-yellow-600 hover:border-yellow-600 hover:text-white',
+        };
+        console.log('AFTER btnConfig', btnConfig);
     }
 
     updateProperty(
         data: any,
-        unitSelected: { label: string },
-        parkingSelected: { label: string },
-        currentUnit: { label: string }
+        unitSelected: string,
+        parkingSelected: string,
+        currentUnit: string
     ) {
-        this._ownerService
-            .updateUnitToOwner(this.token, {
-                ownerId: this.ownerData,
-                propertyId: data.id,
-                newUnit: unitSelected.label,
-                parkingsQty: parkingSelected.label,
-                unit: currentUnit,
-            })
-            .subscribe({
-                next: (response) => {
-                    if (response.status === 'success') {
-                        this._messageService.add({
-                            severity: 'success',
-                            summary: 'Success',
-                            detail: 'Property updated successfully',
-                        });
+        console.log(parkingSelected);
+        this._confirmationService.confirm({
+            header: 'Confirm',
+            message: 'Do you want to save the changes?',
+            icon: 'pi pi-exclamation-triangle',
+            acceptButtonStyleClass:
+                'p-button-success hover:bg-green-600 hover:border-green-600 hover:text-white',
+            rejectButtonStyleClass:
+                'p-button-danger hover:bg-red-600 hover:border-red-600 hover:text-white',
 
-                        this.fetchActiveProperties();
-                    } else {
-                        this._messageService.add({
-                            severity: 'error',
-                            summary: 'Error',
-                            detail: 'Error updating property',
-                        });
-                    }
-                },
-                error: (err) => {
-                    console.log('ERROR', err);
-                    this._messageService.add({
-                        severity: 'error',
-                        summary: 'Error',
-                        detail: 'Error updating property',
+            accept: () => {
+                this._ownerService
+                    .updateUnitToOwner(this.token, {
+                        ownerId: this.ownerData[this.ownerData.length - 1],
+                        propertyId: data.id,
+                        newUnit: unitSelected,
+                        parkingsQty: parkingSelected,
+                        unit: currentUnit,
+                    })
+                    .subscribe({
+                        next: (response) => {
+                            if (response.status === 'success') {
+                                this._messageService.add({
+                                    severity: 'success',
+                                    summary: 'Success',
+                                    detail: 'Property updated successfully',
+                                });
+
+                                this.getActiveProperties();
+                            } else {
+                                this._messageService.add({
+                                    severity: 'error',
+                                    summary: 'Error',
+                                    detail: 'Error updating property',
+                                });
+                            }
+                        },
+                        error: (err) => {
+                            console.log('ERROR', err);
+                            this._messageService.add({
+                                severity: 'error',
+                                summary: 'Error',
+                                detail: 'Error updating property',
+                            });
+                        },
                     });
-                },
-            });
+            },
+            reject: () => {
+                this._messageService.add({
+                    severity: 'error',
+                    summary: 'error',
+                    detail: 'Changes not saved',
+                });
+            },
+        });
     }
 
     public loading: boolean = false;
@@ -392,7 +279,7 @@ export class PropertiesByOwnerComponent implements OnInit {
                                     summary: 'Success',
                                     detail: 'Property added successfully',
                                 });
-                                this.fetchActiveProperties();
+                                this.getActiveProperties();
                                 this.showAvailableProperties = false;
                                 this.loading = false;
                             } else {
@@ -449,7 +336,7 @@ export class PropertiesByOwnerComponent implements OnInit {
                                     summary: 'Success',
                                     detail: 'Property deleted successfully',
                                 });
-                                this.fetchActiveProperties();
+                                this.getActiveProperties();
                             } else {
                                 this._messageService.add({
                                     severity: 'error',

@@ -1,4 +1,3 @@
-<p-toast />
 <p-confirmDialog />
 <div class="card">
     <div class="flex items-center justify-between mb-4">
@@ -147,6 +146,7 @@
                 </div>
             </div>
         </div>
+
         <div class="tbl-properties">
             <p-table
                 [value]="propertiesOwner"
@@ -180,7 +180,7 @@
                         <th pSortableColumn="status" style="width: 10%">
                             Status <p-sortIcon field="status" />
                         </th>
-                        <th colspan="2" style="text-align: center">Actions</th>
+                        <th colspan="3" style="text-align: center">Actions</th>
                     </tr>
                 </ng-template>
 
@@ -188,15 +188,10 @@
                     <tr>
                         <td>{{ i + 1 }}</td>
                         <td>{{ data.alias }}</td>
-                        <td *ngIf="!(unitEditActive[i].index === i)">
-                            {{ data.unit }}
+                        <td *ngIf="showUnits">
+                            {{ data.units }}
                         </td>
-                        <td
-                            *ngIf="
-                                unitEditActive[i].valid &&
-                                unitEditActive[i].index === i
-                            "
-                        >
+                        <td style="width: 0.5%" *ngIf="unitAvilable.length > 1">
                             <p-dropdown
                                 [ngClass]="{
                                     'ng-valid input-success':
@@ -207,7 +202,7 @@
                                 }"
                                 #pro_availables="ngModel"
                                 name="pro_availables"
-                                [options]="unitAvilable.units"
+                                [options]="unitAvilable"
                                 [(ngModel)]="propertiesSelected"
                                 optionLabel="label"
                                 placeholder="Unit"
@@ -215,19 +210,10 @@
                             />
                         </td>
                         <td>{{ data.address | titlecase }}</td>
-                        <td
-                            style="width: 0.5%"
-                            *ngIf="!(unitEditActive[i].index === i)"
-                        >
+                        <td style="width: 0.5%">
                             {{ data.parkingsQty }}
                         </td>
-                        <td
-                            style="width: 0.5%"
-                            *ngIf="
-                                unitEditActive[i].valid &&
-                                unitEditActive[i].index === i
-                            "
-                        >
+                        <td style="width: 0.5%" *ngIf="unitAvilable.length > 1">
                             <p-dropdown
                                 [ngClass]="{
                                     'ng-valid input-success': parking.valid,
@@ -243,7 +229,7 @@
                                 appendTo="body"
                             />
                         </td>
-                        <td>{{ data.pending_balance }}</td>
+                        <td *ngIf="showUnits">{{ data.pending_balance }}</td>
                         <td>
                             <p-tag
                                 [value]="data.status"
@@ -270,7 +256,9 @@
                                 [outlined]="true"
                                 icon="pi pi-trash"
                                 class="p-button-rounded hover:bg-red-600 hover:border-red-600 hover:text-white"
-                                (click)="deleteUnit(data.id, data.unit)"
+                                (click)="
+                                    deleteUnit(data.id, data.condominium_unit)
+                                "
                             ></button>
                         </td>
                     </tr>

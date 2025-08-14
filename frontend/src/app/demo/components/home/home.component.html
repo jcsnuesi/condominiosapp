@@ -225,7 +225,7 @@
                 </p-tabPanel>
 
                 <p-tabPanel header="Create multiple units">
-                    <div
+                    <!-- <div
                         class="flex"
                         style="
                             border: 1px solid #e0e0e0;
@@ -257,7 +257,11 @@
                                 (click)="createMultipleOwners()"
                             ></button>
                         </div>
-                    </div>
+                    </div> -->
+                    <app-pool-file-loader
+                        *ngIf="!visibleStepper"
+                        [service_key]="'ownersByFile'"
+                    ></app-pool-file-loader>
                 </p-tabPanel>
             </p-tabView>
         </p-dialog>

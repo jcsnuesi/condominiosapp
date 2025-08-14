@@ -1,0 +1,28 @@
+<p-confirmDialog />
+
+<div
+    class="flex card"
+    style="border: 1px solid #e0e0e0; border-radius: 5px; padding: 1rem"
+>
+    <div class="fileloader">
+        <p-fileUpload
+            #fileSelected
+            mode="basic"
+            chooseLabel="Choose file"
+            name="demo[]"
+            url="https://www.primefaces.org/cdn/api/upload.php"
+            accept=".xlsx, .xls, .csv"
+            maxlengthFileSize="1000000"
+            (onSelect)="onSelect($event)"
+        >
+        </p-fileUpload>
+    </div>
+    <div class="ml-4">
+        <button
+            [disabled]="!fileSelected.files || fileSelected.files.length === 0"
+            pButton
+            label="Create"
+            (click)="createMultipleByFile()"
+        ></button>
+    </div>
+</div>

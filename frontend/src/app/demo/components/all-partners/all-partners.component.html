@@ -146,7 +146,11 @@
                     <div class="flex items-center gap-2 text-align-center">
                         <img
                             [src]="
-                                url + 'main-avatar/owners/' + customer.avatar
+                                _noPicturesService.getNoPictures(
+                                    url +
+                                        'main-avatar/owners/' +
+                                        customer.avatar
+                                )
                             "
                             style="
                                 width: 40px;
@@ -233,6 +237,10 @@
                 (onSelect)="onSelect($event)"
             >
             </p-fileUpload> -->
+
+            <app-pool-file-loader
+                [services]="fileInputData"
+            ></app-pool-file-loader>
         </p-tabPanel>
     </p-tabView>
 </p-dialog>

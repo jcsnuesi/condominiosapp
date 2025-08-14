@@ -1,6 +1,3 @@
-<p-toast />
-<p-confirmDialog />
-
 <p-card
     header="Success!"
     [style]="{
@@ -16,12 +13,20 @@
     <a routerLink="/see-property">Go to properties</a> or
     <a style="cursor: pointer" (click)="reloadWindows()">Create another one</a>
 </p-card>
+<p-tabMenu [model]="items" />
+
+<p-toast />
+<p-confirmDialog />
+<app-pool-file-loader
+    *ngIf="!visibleStepper"
+    [services]="fileInputData"
+></app-pool-file-loader>
 <form
     *ngIf="status != 'success'"
     #condominiumForm="ngForm"
     (ngSubmit)="submit(condominiumForm)"
 >
-    <div class="card flex justify-content-center">
+    <div class="card flex justify-content-center mt-4" *ngIf="visibleStepper">
         <p-stepper>
             <p-stepperPanel header="Basic Info">
                 <ng-template
@@ -346,13 +351,6 @@
                                     />
                                 </div>
 
-                                <!-- <div class="addressProperty">
-    <label for="zipcodelabel" class="addressProperty">Zip code</label>
-    
-        <input pInputText id="zipcodelabel" #zipcode="ngModel" [(ngModel)]="condominioModel.zipcode" name="zipcode"
-            maxlength="9" />
-
-</div> -->
                                 <div class="addressProperty">
                                     <label for="countrylabel"> Country </label>
 

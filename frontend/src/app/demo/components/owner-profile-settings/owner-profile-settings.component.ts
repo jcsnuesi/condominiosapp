@@ -29,7 +29,6 @@ import { ActivatedRoute, Router } from '@angular/router';
         OwnerServiceService,
         InvoiceService,
         ConfirmationService,
-        MessageService,
     ],
     templateUrl: './owner-profile-settings.component.html',
     styleUrl: './owner-profile-settings.component.css',
@@ -102,11 +101,18 @@ export class OwnerProfileSettingsComponent {
                     })
                     .subscribe({
                         next: (response) => {
+                            console.log('response', data.status);
                             if (response.status == 'success') {
                                 this._messageService.add({
                                     severity: 'success',
-                                    summary: 'Profile Deleted',
-                                    detail: 'You have deleted this profile',
+                                    summary:
+                                        data.status == 'inactive'
+                                            ? 'Profile Activated'
+                                            : 'Profile Deactivated',
+                                    detail:
+                                        data.status == 'inactive'
+                                            ? 'You have activated this profile'
+                                            : 'You have deactivated this profile',
                                     life: 3000,
                                 });
                                 this.ownerUpdated.emit(true);
@@ -119,11 +125,8 @@ export class OwnerProfileSettingsComponent {
                                 detail: 'There is a problem on the server',
                                 life: 3000,
                             });
-                            console.log(error);
                         },
                     });
-
-                console.log(data);
             },
             reject: () => {
                 this._messageService.add({

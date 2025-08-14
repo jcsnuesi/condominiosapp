@@ -15,14 +15,17 @@ import { StepperModule } from 'primeng/stepper';
 import { CalendarModule } from 'primeng/calendar';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { InputNumberModule } from 'primeng/inputnumber';
-import { ConfirmationService, MessageService } from 'primeng/api';
+import { ConfirmationService, MenuItem, MessageService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
+import { PoolFileLoaderComponent } from '../pool-file-loader/pool-file-loader.component';
+import { TabMenuModule } from 'primeng/tabmenu';
 
 @Component({
     selector: 'app-create-property',
     standalone: true,
     imports: [
+        PoolFileLoaderComponent,
         CommonModule,
         ToastModule,
         FormsModule,
@@ -38,6 +41,7 @@ import { ToastModule } from 'primeng/toast';
         RadioButtonModule,
         InputNumberModule,
         ConfirmDialogModule,
+        TabMenuModule,
     ],
     templateUrl: './create-property.component.html',
     styleUrls: ['./create-property.component.css'],
@@ -73,6 +77,13 @@ export class CreatePropertyComponent implements OnInit {
     public toLetter: string = 'Z';
 
     @ViewChild('fileInput') fileInput!: FileUpload;
+    items: MenuItem[] | undefined;
+    public visibleStepper: boolean;
+    public fileInputData: {
+        service_key: string;
+        keys_to_add: string[];
+        extras: any;
+    };
 
     constructor(
         private _condominioService: CondominioService,
@@ -81,6 +92,7 @@ export class CreatePropertyComponent implements OnInit {
         private _confirmationService: ConfirmationService,
         private _messageService: MessageService
     ) {
+        this.visibleStepper = true;
         this.condominioModel = new Condominio(
             '',
             '',
@@ -110,6 +122,52 @@ export class CreatePropertyComponent implements OnInit {
         } else {
             this.condominioModel.user_id = this.identity.createdBy;
         }
+
+        this.items = [
+            {
+                label: 'Basic Info',
+                icon: 'pi pi-building',
+                command: () => {
+                    this.visibleStepper = true;
+                },
+            },
+            {
+                label: 'File Loader',
+                icon: 'pi pi-file-excel',
+                command: () => {
+                    this.visibleStepper = false;
+                },
+            },
+        ];
+
+        this.fileInputData = {
+            service_key: 'condoByFile',
+            keys_to_add: ['createdBy'],
+            extras: {
+                createdBy: this.identity._id,
+                required_cols: [
+                    'alias',
+                    'typeOfProperty',
+                    'unit_type',
+                    'start_lettler',
+                    'end_lettler',
+                    'start_range',
+                    'end_range',
+                    'phone',
+                    'phone2',
+                    'street_1',
+                    'street_2',
+                    'city',
+                    'zipcode',
+                    'province',
+                    'country',
+                    'mPayment',
+                    'paymentDate',
+                    'sector_name',
+                    'createdBy',
+                ],
+            },
+        };
     }
 
     ngOnInit(): void {

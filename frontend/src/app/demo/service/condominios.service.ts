@@ -89,4 +89,15 @@ export class CondominioService {
             headers: header,
         });
     }
+
+    createMultipleCondo(token: string, data: any): Observable<any> {
+        let params = JSON.stringify(data);
+        let header = new HttpHeaders()
+            .set('Content-Type', 'application/json')
+            .set('Authorization', token);
+        console.log('createMultipleCondo data: ', params);
+        return this._http.post(this.url + 'create-multiple-condo', params, {
+            headers: header,
+        });
+    }
 }

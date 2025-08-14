@@ -18,13 +18,7 @@
         [loading]="loading"
         [paginator]="true"
         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
-        [globalFilterFields]="[
-            'company',
-            'email_company',
-            'status',
-            'country',
-            'phone'
-        ]"
+        [globalFilterFields]="['alias', 'phone', 'phone2', 'status', 'country']"
     >
         <ng-template pTemplate="caption">
             <div class="flex">
@@ -58,7 +52,7 @@
                         Property Alias
                         <p-columnFilter
                             type="text"
-                            field="company"
+                            field="alias"
                             display="menu"
                         ></p-columnFilter>
                     </div>
@@ -68,13 +62,18 @@
                         Address
                         <p-columnFilter
                             type="text"
-                            field="email_company"
+                            field="address"
                             display="menu"
                         ></p-columnFilter>
                     </div>
                 </th>
                 <th style="min-width: 15rem">
                     <div class="flex align-items-center">Phone number</div>
+                    <p-columnFilter
+                        type="text"
+                        field="phone"
+                        display="menu"
+                    ></p-columnFilter>
                 </th>
                 <th style="min-width: 15rem">
                     <div class="flex align-items-center">Monthly payment</div>

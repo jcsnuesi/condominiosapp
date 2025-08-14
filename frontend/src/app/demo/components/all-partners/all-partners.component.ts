@@ -10,16 +10,24 @@ import { global } from '../../service/global.service';
 import { ProgressBar } from 'primeng/progressbar';
 import { Router } from '@angular/router';
 import { OwnerRegistrationComponent } from '../owner-registration/owner-registration.component';
+import { NoPicturesService } from '../../service/nopictures.service';
+import { PoolFileLoaderComponent } from '../pool-file-loader/pool-file-loader.component';
 
 @Component({
     selector: 'app-all-partners',
     standalone: true,
-    imports: [ImportsModule, CommonModule, OwnerRegistrationComponent],
+    imports: [
+        ImportsModule,
+        CommonModule,
+        OwnerRegistrationComponent,
+        PoolFileLoaderComponent,
+    ],
     providers: [
         MessageService,
         ConfirmationService,
         UserService,
         CondominioService,
+        NoPicturesService,
     ],
     templateUrl: './all-partners.component.html',
     styleUrls: ['./all-partners.component.css'],
@@ -32,19 +40,48 @@ export class AllPartnersComponent implements OnInit {
     public selectedCustomers: any[] = [];
     public loading: boolean = true;
     public url: string;
-    @ViewChild('prossBar') prossBar: ProgressBar; // Reference to the datatable
+    @ViewChild('prossBar') prossBar: ProgressBar;
+    public noPictures: any;
+    public fileInputData: {
+        service_key: string;
+        keys_to_add: string[];
+        extras: any;
+    };
+
     constructor(
         private _messageService: MessageService,
         private _confirmationService: ConfirmationService,
         private _userService: UserService,
         private _ownerService: OwnerServiceService,
         private _condominioService: CondominioService,
-        private _router: Router
+        private _router: Router,
+        private _noPicturesService: NoPicturesService
     ) {
         this.token = this._userService.getToken();
         this.identity = this._userService.getIdentity();
         this.url = global.url;
         this.datatable = [];
+
+        this.fileInputData = {
+            service_key: 'ownersByFile',
+            keys_to_add: ['createdBy'],
+            extras: {
+                createdBy: this.identity._id,
+                required_cols: [
+                    'name',
+                    'lastname',
+                    'gender',
+                    'phone',
+                    'dob',
+                    'email',
+                    'condominium_unit',
+                    'parkingsQty',
+                    'id_number',
+                    'isRenting',
+                    'addressId',
+                ],
+            },
+        };
     }
 
     ngOnInit(): void {

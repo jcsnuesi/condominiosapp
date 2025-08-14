@@ -9,44 +9,19 @@ import {
 } from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { CondominioService } from '../../service/condominios.service';
-import { dateTimeFormatter } from '../../service/datetime.service';
 import { OwnerModel } from '../../models/owner.model';
-import { CookieService } from 'ngx-cookie-service';
 import { ActivatedRoute } from '@angular/router';
 import { global } from '../../service/global.service';
-import { TableModule } from 'primeng/table';
-import { MenuModule } from 'primeng/menu';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
-import { ChartModule } from 'primeng/chart';
-import { TabViewModule } from 'primeng/tabview';
-import { DialogModule } from 'primeng/dialog';
-import { FileUploadModule } from 'primeng/fileupload';
 import { UserService } from '../../service/user.service';
-import { InputGroupModule } from 'primeng/inputgroup';
-import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
-import { ToastModule } from 'primeng/toast';
 import { ConfirmationService } from 'primeng/api';
 import { OwnerRegistrationComponent } from '../owner-registration/owner-registration.component';
-import { InputTextModule } from 'primeng/inputtext';
-import { AvatarModule } from 'primeng/avatar';
-import { AvatarGroupModule } from 'primeng/avatargroup';
-import { ToolbarModule } from 'primeng/toolbar';
-import { FamilyMemberComponent } from '../family-member/family-member.component';
-import { DropdownModule } from 'primeng/dropdown';
 import { PaymentsHistoryComponent } from '../payments-history/payments-history.component';
 import { InviceGeneraterComponent } from '../invice-generater/invoice-generater.component';
-import { DynamicDialogRef, DynamicDialogModule } from 'primeng/dynamicdialog';
 import { DialogService } from 'primeng/dynamicdialog';
-import { ButtonModule } from 'primeng/button';
 import { FamilyMemberDetailsComponent } from '../family-member-details/family-member-details.component';
 import { BookingAreaComponent } from '../booking-area/booking-area.component';
-import { StepperModule } from 'primeng/stepper';
-import { DividerModule } from 'primeng/divider';
 import { InvoiceService } from '../../service/invoice.service';
 import { FormatFunctions } from 'src/app/pipes/formating_text';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { Router } from '@angular/router';
 import { StaffService } from '../../service/staff.service';
 import { BookingServiceService } from '../../service/booking-service.service';
@@ -57,6 +32,7 @@ import { PropertiesByOwnerComponent } from '../properties-by-owner/properties-by
 import { OwnerProfileSettingsComponent } from '../owner-profile-settings/owner-profile-settings.component';
 import { ImportsModule } from '../../imports_primeng';
 import * as XLSX from 'xlsx';
+import { PoolFileLoaderComponent } from '../pool-file-loader/pool-file-loader.component';
 
 type FamilyAccess = {
     avatar: string;
@@ -74,6 +50,7 @@ type FamilyAccess = {
     selector: 'app-home',
     standalone: true,
     imports: [
+        PoolFileLoaderComponent,
         ImportsModule,
         OwnerProfileSettingsComponent,
         PropertiesByOwnerComponent,

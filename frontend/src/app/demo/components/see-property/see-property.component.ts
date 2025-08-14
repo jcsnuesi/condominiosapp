@@ -161,7 +161,7 @@ export class SeePropertyComponent implements OnInit {
                     .subscribe({
                         next: (response) => {
                             this.loading = false;
-
+                            console.log('ELEMENT:', response);
                             if (response.status == 'success') {
                                 this.properties = response.message;
                             }
@@ -183,7 +183,6 @@ export class SeePropertyComponent implements OnInit {
                             if (response.status == 'success') {
                                 response.message[0].propertyDetails.forEach(
                                     (element) => {
-                                        // console.log('ELEMENT:', element);
                                         this.properties.push({
                                             _id: element.addressId._id,
                                             avatar: element.addressId.avatar,

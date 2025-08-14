@@ -94,11 +94,20 @@ export class OwnerProfileComponent implements OnInit {
     };
 
     public invoicePaid: any[] = [];
-    public _id: string;
+    public OwnerData: Array<any> = [];
     public memberCard: { count: 0; active: 0 } = {
         count: 0,
         active: 0,
     };
+
+    public showComponents: {
+        invoice: boolean;
+        payments: boolean;
+        units: boolean;
+        members: boolean;
+        booking: boolean;
+    };
+
     constructor(
         private _messageService: MessageService,
         private _userService: UserService,
@@ -131,15 +140,19 @@ export class OwnerProfileComponent implements OnInit {
         );
         this.url = global.url;
         this.bookingsCard = { count: 0, today_booking: 0 };
+        this.showComponents = {
+            invoice: false,
+            payments: true,
+            units: false,
+            members: false,
+            booking: false,
+        };
 
         this.items = [
             {
                 label: 'Home',
                 command: () => {
-                    this.items = this.items.splice(0, 1);
-                    this.itemsShow.forEach((item) => {
-                        item.visible = false;
-                    });
+                    this.showComponentsOnClick('payments');
                 },
                 styleClass: 'cursor-pointer',
                 icon: 'pi pi-home',
@@ -147,36 +160,47 @@ export class OwnerProfileComponent implements OnInit {
         ];
     }
 
-    itemsChange(event: any) {
+    showComponentsOnClick(event: any) {
+        this.showComponents = {
+            invoice: false,
+            payments: false,
+            units: false,
+            members: false,
+            booking: false,
+        };
+        this.showComponents[event] = true;
+    }
+
+    itemsChange() {
         this.items = this.items.splice(0, 1);
         this.itemsShow.forEach((item) => {
             item.visible = false;
         });
-        let itemFound = {
-            ...this.itemsShow.find((items) => items.item === event),
-        };
-        this.itemsShow.forEach((item) => {
-            if (item.item === event) {
-                item.visible = true;
-            } else {
-                item.visible = false;
-            }
-        });
+        // let itemFound = {
+        //     ...this.itemsShow.find((items) => items.item === event),
+        // };
+        // this.itemsShow.forEach((item) => {
+        //     if (item.item === event) {
+        //         item.visible = true;
+        //     } else {
+        //         item.visible = false;
+        //     }
+        // });
 
-        if (!itemFound) return;
+        // if (!itemFound) return;
 
-        const exists = this.items.some(
-            (item) => item.label === itemFound.label
-        );
-        if (exists) return;
+        // const exists = this.items.some(
+        //     (item) => item.label === itemFound.label
+        // );
+        // if (exists) return;
 
-        this.items = [
-            ...this.items,
-            {
-                label: itemFound.label,
-                disabled: itemFound.disabled,
-            },
-        ];
+        // this.items = [
+        //     ...this.items,
+        //     {
+        //         label: itemFound.label,
+        //         disabled: itemFound.disabled,
+        //     },
+        // ];
         // console.log('items', this.items);
     }
 
@@ -192,21 +216,27 @@ export class OwnerProfileComponent implements OnInit {
          */
 
         this._activatedRoute.params.subscribe((param) => {
-            this._id = param['id'];
-            this._ownerService.getOwnerAssets(this.token, this._id).subscribe({
+            const ownerId = param['id'];
+
+            this._ownerService.getOwnerAssets(this.token, ownerId).subscribe({
                 next: (response) => {
                     if (response.status == 'success') {
                         let { owner, bookings, invoices, invoicePaid } =
                             response.message;
+                        let { propertyDetails } = owner;
+                        this.OwnerData.push(propertyDetails);
+                        this.OwnerData.push(invoices);
+                        this.OwnerData.push(ownerId);
+                        let { familyAccount } = owner;
                         this.ownerObj = owner;
                         this.ownerObj.status = owner.status;
 
-                        console.log('response.message');
-                        console.log(this.ownerObj.status);
-                        this.ownerCard.count = owner.propertyDetails.length;
-                        this.memberCard.count = owner.familyAccount.length;
-                        if (this.memberCard.count > 0) {
-                            this.memberCard.active = owner.familyAccount.filter(
+                        console.log('response.message', response.message);
+                        // console.log(this.ownerObj.status);
+                        this.ownerCard.count = propertyDetails.length;
+                        this.memberCard.count = familyAccount.length;
+                        if (familyAccount.length > 0) {
+                            this.memberCard.active = familyAccount.filter(
                                 (member) => member.status === 'active'
                             ).length;
                         }
@@ -266,9 +296,9 @@ export class OwnerProfileComponent implements OnInit {
         });
     }
 
-    propertyDataChange(event: any) {
-        this.ngOnInit();
-    }
+    // propertyDataChange(event: any) {
+    //     this.ngOnInit();
+    // }
 
     checkoutDate(date: string): number {
         if (!date) return 0;

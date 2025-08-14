@@ -1,3 +1,4 @@
+<p-toast />
 <div class="flex flex-col sm:flex-row items-center gap-6 mb-4">
     <div class="flex flex-col sm:flex-row items-center gap-4">
         <img
@@ -39,13 +40,13 @@
                         {{ invoiceCards.total | currency : "USD" }}
                     </div>
                 </div>
-                <span
+                <div
                     class="cursor-pointer change-icon flex align-items-center justify-content-center bg-green-100 border-round"
                     [ngStyle]="{ width: '2.5rem', height: '2.5rem' }"
-                    (click)="itemsChange('payments')"
+                    (click)="showComponentsOnClick('invoice')"
                 >
                     <i class="pi pi-money-bill text-green-500 text-xl"></i>
-                </span>
+                </div>
             </div>
             <span class="text-green-500 font-medium"
                 >{{ invoiceCards.counts }}
@@ -68,7 +69,7 @@
                 <div
                     class="cursor-pointer flex align-items-center justify-content-center bg-blue-100 border-round"
                     [ngStyle]="{ width: '2.5rem', height: '2.5rem' }"
-                    (click)="itemsChange('units')"
+                    (click)="showComponentsOnClick('units')"
                 >
                     <i class="pi pi-home text-blue-500 text-xl"></i>
                 </div>
@@ -94,7 +95,7 @@
                 <span
                     class="cursor-pointer change-icon flex align-items-center justify-content-center bg-orange-100 border-round"
                     [ngStyle]="{ width: '2.5rem', height: '2.5rem' }"
-                    (click)="itemsChange('booking')"
+                    (click)="showComponentsOnClick('booking')"
                 >
                     <i class="pi pi-calendar-minus text-orange-500 text-xl"></i>
                 </span>
@@ -119,7 +120,7 @@
                 <span
                     class="cursor-pointer change-icon flex align-items-center justify-content-center bg-yellow-100 border-round"
                     [ngStyle]="{ width: '2.5rem', height: '2.5rem' }"
-                    (click)="itemsChange('members')"
+                    (click)="showComponentsOnClick('members')"
                 >
                     <i class="pi pi-users text-yellow-500 text-xl"></i>
                 </span>
@@ -134,7 +135,7 @@
 
 <p-breadcrumb class="max-w-full mb-4" [model]="items" />
 <div class="main-frame mt-4">
-    <div class="card" *ngIf="items.length == 1">
+    <div class="card" *ngIf="showComponents.payments">
         <div class="text-xl font-semibold mb-4" style="color: black">
             Recent Payments
         </div>
@@ -185,43 +186,35 @@
             <p-button
                 class="w-full"
                 label="View all payments"
-                (click)="itemsChange('payments')"
+                (click)="itemsChange()"
                 [link]="true"
             >
             </p-button>
         </div>
     </div>
 
-    <div *ngFor="let item of itemsShow">
-        <div class="scrollable-table-container" *ngIf="item.visible">
-            <div *ngIf="item.visible && item.item == 'payments'">
-                <!-- Payment history -->
-                <app-payments-history
-                    [ownerIdInput]="ownerObj._id"
-                ></app-payments-history>
-            </div>
-            <div *ngIf="item.visible && item.item == 'units'">
-                <!-- Properties -->
-                <app-properties-by-owner
-                    *ngIf="item.visible"
-                    [ownerData]="ownerObj._id"
-                    (propertyDataChange)="propertyDataChange($event)"
-                ></app-properties-by-owner>
-            </div>
-            <div *ngIf="item.visible && item.item == 'members'">
-                <!-- Member accounts -->
+    <div class="scrollable-table-container">
+        <div *ngIf="showComponents.invoice">
+            <!-- Payment history -->
+            <app-payments-history
+                [ownerIdInput]="ownerObj._id"
+            ></app-payments-history>
+        </div>
+        <div *ngIf="showComponents.units">
+            <!-- Properties -->
+            <app-properties-by-owner
+                [ownerData]="OwnerData"
+                (propertyDataChange)="ngOnInit()"
+            ></app-properties-by-owner>
+        </div>
+        <div *ngIf="showComponents.members">
+            <!-- Member accounts -->
 
-                <app-family-member-details
-                    *ngIf="item.visible"
-                ></app-family-member-details>
-            </div>
-            <div *ngIf="item.visible && item.item == 'booking'">
-                <!-- Booking areas -->
-                <app-booking-area
-                    [getIdCondo]="ownerObj._id"
-                    *ngIf="item.visible"
-                ></app-booking-area>
-            </div>
+            <app-family-member-details></app-family-member-details>
+        </div>
+        <div *ngIf="showComponents.booking">
+            <!-- Booking areas -->
+            <app-booking-area [getIdCondo]="ownerObj._id"></app-booking-area>
         </div>
     </div>
 </div>
