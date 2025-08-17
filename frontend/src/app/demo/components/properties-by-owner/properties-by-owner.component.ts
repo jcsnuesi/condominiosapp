@@ -38,29 +38,20 @@ export class PropertiesByOwnerComponent implements OnInit {
             index: -1,
         },
     ];
-    public propertiesSelected: { label: string } = { label: '' };
-    public parkingSelected: { label: string } = { label: '' };
+    public unitsOptions: Array<{ label: string }> = [{ label: '' }];
+    public unitSelected: { label: string } = { label: '' };
+    public parkingOptions: Array<{ label: number }>;
+    public parkingSelected: { label: number };
     private token: string;
     public showAvailableProperties: boolean = false;
     public url: string;
-    public parkingOptions: any[] = [
-        { label: '0' },
-        { label: '1' },
-        { label: '2' },
-        { label: '3' },
-        { label: '4' },
-        { label: '5' },
-    ];
     public editBtnStyle: {
         severity: string;
         icon: string;
         class: string;
     }[];
-    public unitAvilable: Array<{ label: string }> = [{ label: '' }];
     @Input() ownerData: any;
     @Input('propertyData') propertyData: [] = [];
-    @Output() propertyDataChange: EventEmitter<boolean> =
-        new EventEmitter<boolean>();
 
     constructor(
         private _messageService: MessageService,
@@ -83,14 +74,21 @@ export class PropertiesByOwnerComponent implements OnInit {
             },
         ];
 
-        this.unitAvilable = [{ label: '' }];
+        this.ownerData = [];
+        this.unitsOptions = [{ label: '' }];
+        this.unitSelected = { label: '' };
+        this.parkingOptions = [
+            { label: 0 },
+            { label: 1 },
+            { label: 2 },
+            { label: 3 },
+            { label: 4 },
+            { label: 5 },
+        ];
+        this.parkingSelected = { label: null };
     }
     ngOnInit(): void {
-        // this.getInvoiceByOwnerByOwnerId();
         this.getActiveProperties();
-        // this.sortUnits();
-        // console.log('this.unitAvilable', this.ownerData);
-        // this.fetchAvailableProperties();
     }
     getSeverity(status: string) {
         return status == 'active' ? 'primary' : 'danger';
@@ -101,6 +99,11 @@ export class PropertiesByOwnerComponent implements OnInit {
     getActiveProperties(): void {
         let [propertyDetails, invoices, _] = [...this.ownerData];
 
+        // variable para las unidades disponibles
+        this.propertiesOwner = this.buildData(propertyDetails);
+    }
+
+    buildData(propertyDetails: any) {
         propertyDetails.forEach((element) => {
             element.id = element.addressId._id;
             element.address =
@@ -124,44 +127,53 @@ export class PropertiesByOwnerComponent implements OnInit {
                 element.addressId._id
             );
             element.status = element.addressId.status;
-            element.units = element.condominium_unit;
+            element.units = String(element.condominium_unit);
         });
 
-        console.log('this.ownerData ------------->   ', propertyDetails);
-        // variable para las unidades disponibles
-        this.propertiesOwner = propertyDetails;
+        return propertyDetails;
     }
 
     public invoiceFullData = [];
     getInvoiceByOwnerByOwnerId(condoId: string): number {
-        let [propertyDetails, invoices, _] = [...this.ownerData];
+        let [propertyDetails, invoices, ownerId] = [...this.ownerData];
 
         if (invoices.length == 0) return 0;
 
-        let invoice = invoices.find((inv) => inv.condominiumId === condoId);
+        let invoice = invoices.filter(
+            (inv) => inv.ownerId === ownerId && inv.condoId === condoId
+        )[0];
         return invoice ? invoice.totalAmount : 0;
     }
     public showUnits: boolean = true;
     activarEditarUnit(index: number, data: any): void {
         let unitAvilable = [];
 
-        this.showUnits = false;
+        this.showUnits = this.showUnits ? false : true;
 
         data.addressId.availableUnits.forEach((element: any) => {
             unitAvilable.push({ label: element });
         });
 
-        this.unitAvilable = unitAvilable;
+        this.unitsOptions = unitAvilable;
+
         let btnConfig = this.editBtnStyle[index];
+        console.log(
+            'data',
+            data,
+            'unitSelected',
+            this.unitSelected,
+            'parkingSelected',
+            this.parkingSelected
+        );
         if (btnConfig.severity == 'success') {
             this.updateProperty(
                 data,
-                this.propertiesSelected.label,
+                this.unitSelected.label,
                 this.parkingSelected.label,
                 data.units
             );
         }
-        console.log('btnConfig', btnConfig);
+
         this.editBtnStyle[index] = {
             severity: btnConfig.severity === 'warning' ? 'success' : 'warning',
             icon:
@@ -174,13 +186,15 @@ export class PropertiesByOwnerComponent implements OnInit {
                     ? 'p-button-rounded hover:bg-green-600 hover:border-green-600 hover:text-white'
                     : 'p-button-rounded hover:bg-yellow-600 hover:border-yellow-600 hover:text-white',
         };
-        console.log('AFTER btnConfig', btnConfig);
+
+        this.unitSelected = { label: data.units };
+        this.parkingSelected = { label: data.parkingsQty };
     }
 
     updateProperty(
         data: any,
         unitSelected: string,
-        parkingSelected: string,
+        parkingSelected: number,
         currentUnit: string
     ) {
         console.log(parkingSelected);
@@ -204,14 +218,18 @@ export class PropertiesByOwnerComponent implements OnInit {
                     })
                     .subscribe({
                         next: (response) => {
+                            const { propertyDetails } = response.owner;
+
                             if (response.status === 'success') {
                                 this._messageService.add({
                                     severity: 'success',
                                     summary: 'Success',
                                     detail: 'Property updated successfully',
                                 });
+                                console.log(response);
 
-                                this.getActiveProperties();
+                                this.propertiesOwner =
+                                    this.buildData(propertyDetails);
                             } else {
                                 this._messageService.add({
                                     severity: 'error',

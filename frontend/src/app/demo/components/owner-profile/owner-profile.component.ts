@@ -176,32 +176,6 @@ export class OwnerProfileComponent implements OnInit {
         this.itemsShow.forEach((item) => {
             item.visible = false;
         });
-        // let itemFound = {
-        //     ...this.itemsShow.find((items) => items.item === event),
-        // };
-        // this.itemsShow.forEach((item) => {
-        //     if (item.item === event) {
-        //         item.visible = true;
-        //     } else {
-        //         item.visible = false;
-        //     }
-        // });
-
-        // if (!itemFound) return;
-
-        // const exists = this.items.some(
-        //     (item) => item.label === itemFound.label
-        // );
-        // if (exists) return;
-
-        // this.items = [
-        //     ...this.items,
-        //     {
-        //         label: itemFound.label,
-        //         disabled: itemFound.disabled,
-        //     },
-        // ];
-        // console.log('items', this.items);
     }
 
     ngOnInit(): void {
@@ -217,6 +191,7 @@ export class OwnerProfileComponent implements OnInit {
 
         this._activatedRoute.params.subscribe((param) => {
             const ownerId = param['id'];
+            this.OwnerData = [];
 
             this._ownerService.getOwnerAssets(this.token, ownerId).subscribe({
                 next: (response) => {
@@ -232,6 +207,7 @@ export class OwnerProfileComponent implements OnInit {
                         this.ownerObj.status = owner.status;
 
                         console.log('response.message', response.message);
+                        console.log('this.OwnerData', this.OwnerData);
                         // console.log(this.ownerObj.status);
                         this.ownerCard.count = propertyDetails.length;
                         this.memberCard.count = familyAccount.length;
@@ -295,10 +271,6 @@ export class OwnerProfileComponent implements OnInit {
             });
         });
     }
-
-    // propertyDataChange(event: any) {
-    //     this.ngOnInit();
-    // }
 
     checkoutDate(date: string): number {
         if (!date) return 0;
