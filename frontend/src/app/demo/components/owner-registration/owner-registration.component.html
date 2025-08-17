@@ -19,7 +19,7 @@
             [activeStep]="indexStepper"
             (activeStepChange)="onStepChange($event)"
             [linear]="true"
-            #stepperOw
+            #stepperComponent
         >
             <p-stepperPanel header="Basic Info">
                 <ng-template
@@ -385,13 +385,16 @@
                         </div>
                     </div>
 
-                    <div class="flex pt-4 justify-content-between">
+                    <div [class]="showBackBtn ? 'ww-100' : 'full-width'">
+                        <!-- *ngIf="showBackBtn" -->
                         <p-button
                             label="Back"
+                            *ngIf="showBackBtn"
                             icon="pi pi-arrow-left"
                             (onClick)="prevCallback.emit()"
                         />
 
+                        <!-- [style]="{ width: '100%', flex: '1 1 auto' }" -->
                         <p-button
                             label="Next"
                             icon="pi pi-arrow-right"
@@ -402,6 +405,7 @@
                                 !parking.valid
                             "
                             (onClick)="nextCallback.emit()"
+                            [styleClass]="!showBackBtn ? 'full-width' : ''"
                         />
                     </div>
                 </ng-template>

@@ -14,11 +14,18 @@ import { Button } from 'primeng/button';
 import { global } from '../../service/global.service';
 import { KeysValuesPipe } from 'src/app/pipes/perservedOrder';
 import { FormatFunctions } from 'src/app/pipes/formating_text';
+import { OwnerRegistrationComponent } from '../owner-registration/owner-registration.component';
 
 @Component({
     selector: 'app-properties-by-owner',
     standalone: true,
-    imports: [ImportsModule, CommonModule, FormsModule, KeysValuesPipe],
+    imports: [
+        ImportsModule,
+        CommonModule,
+        FormsModule,
+        KeysValuesPipe,
+        OwnerRegistrationComponent,
+    ],
     providers: [
         ConfirmationService,
         CondominioService,
@@ -39,11 +46,12 @@ export class PropertiesByOwnerComponent implements OnInit {
         },
     ];
     public unitsOptions: Array<{ label: string }> = [{ label: '' }];
-    public unitSelected: { label: string } = { label: '' };
+    public unitSelected: { label: string }[];
     public parkingOptions: Array<{ label: number }>;
-    public parkingSelected: { label: number };
+    public parkingSelected: { label: number }[];
     private token: string;
     public showAvailableProperties: boolean = false;
+    public sendOwnerDataToPropertyRegistration: any = {};
     public url: string;
     public editBtnStyle: {
         severity: string;
@@ -66,17 +74,11 @@ export class PropertiesByOwnerComponent implements OnInit {
     ) {
         this.token = this._userService.getToken();
         this.url = global.url;
-        this.editBtnStyle = [
-            {
-                severity: 'warning',
-                icon: 'pi pi-pencil',
-                class: 'p-button-rounded hover:bg-yellow-600 hover:border-yellow-600 hover:text-white',
-            },
-        ];
+        this.sendOwnerDataToPropertyRegistration = {};
 
         this.ownerData = [];
         this.unitsOptions = [{ label: '' }];
-        this.unitSelected = { label: '' };
+        this.unitSelected = [{ label: '' }];
         this.parkingOptions = [
             { label: 0 },
             { label: 1 },
@@ -85,7 +87,7 @@ export class PropertiesByOwnerComponent implements OnInit {
             { label: 4 },
             { label: 5 },
         ];
-        this.parkingSelected = { label: null };
+        this.parkingSelected = [{ label: 0 }];
     }
     ngOnInit(): void {
         this.getActiveProperties();
@@ -97,14 +99,14 @@ export class PropertiesByOwnerComponent implements OnInit {
     // Metodo para traer las propiedades activas de un propietario  addProperty
     public availableUnitsList: any[] = [];
     getActiveProperties(): void {
-        let [propertyDetails, invoices, _] = [...this.ownerData];
-
+        var [owner, propertyDetails, invoices, _] = [...this.ownerData];
         // variable para las unidades disponibles
+
         this.propertiesOwner = this.buildData(propertyDetails);
     }
 
     buildData(propertyDetails: any) {
-        propertyDetails.forEach((element) => {
+        propertyDetails.forEach((element, i) => {
             element.id = element.addressId._id;
             element.address =
                 element.addressId.street_1 +
@@ -128,14 +130,23 @@ export class PropertiesByOwnerComponent implements OnInit {
             );
             element.status = element.addressId.status;
             element.units = String(element.condominium_unit);
+            element.showUnits = true;
+            element.unitSelected = { label: element.units };
+            element.parkingSelected = { label: element.parkingsQty };
         });
-
+        this.editBtnStyle = new Array(propertyDetails.length).fill({
+            severity: 'warning',
+            icon: 'pi pi-pencil',
+            class: 'p-button-rounded hover:bg-yellow-600 hover:border-yellow-600 hover:text-white',
+        });
+        console.log('*9****************', propertyDetails);
+        // console.log('BTN CONFIG POSITION', this.editBtnStyle);
         return propertyDetails;
     }
 
     public invoiceFullData = [];
     getInvoiceByOwnerByOwnerId(condoId: string): number {
-        let [propertyDetails, invoices, ownerId] = [...this.ownerData];
+        let [owner, propertyDetails, invoices, ownerId] = [...this.ownerData];
 
         if (invoices.length == 0) return 0;
 
@@ -144,11 +155,27 @@ export class PropertiesByOwnerComponent implements OnInit {
         )[0];
         return invoice ? invoice.totalAmount : 0;
     }
-    public showUnits: boolean = true;
-    activarEditarUnit(index: number, data: any): void {
-        let unitAvilable = [];
 
-        this.showUnits = this.showUnits ? false : true;
+    addNewProperty() {
+        this.showAvailableProperties = this.showAvailableProperties
+            ? false
+            : true;
+
+        let [owner, propertyDetails, invoices, ownerId] = [...this.ownerData];
+
+        this.sendOwnerDataToPropertyRegistration = {
+            name: owner.name,
+            lastname: owner.lastname,
+            gender: owner.gender,
+            phone: owner.phone.replace(/\D/g, ''),
+            id_number: owner.id_number.replace(/\D/g, ''),
+            email: owner.email,
+        };
+    }
+
+    activarEditarUnit(index: any, data: any): void {
+        let unitAvilable = [];
+        data.showUnits = data.showUnits ? false : true;
 
         data.addressId.availableUnits.forEach((element: any) => {
             unitAvilable.push({ label: element });
@@ -157,19 +184,12 @@ export class PropertiesByOwnerComponent implements OnInit {
         this.unitsOptions = unitAvilable;
 
         let btnConfig = this.editBtnStyle[index];
-        console.log(
-            'data',
-            data,
-            'unitSelected',
-            this.unitSelected,
-            'parkingSelected',
-            this.parkingSelected
-        );
+
         if (btnConfig.severity == 'success') {
             this.updateProperty(
                 data,
-                this.unitSelected.label,
-                this.parkingSelected.label,
+                data.unitSelected.label,
+                data.parkingSelected.label,
                 data.units
             );
         }
@@ -186,9 +206,6 @@ export class PropertiesByOwnerComponent implements OnInit {
                     ? 'p-button-rounded hover:bg-green-600 hover:border-green-600 hover:text-white'
                     : 'p-button-rounded hover:bg-yellow-600 hover:border-yellow-600 hover:text-white',
         };
-
-        this.unitSelected = { label: data.units };
-        this.parkingSelected = { label: data.parkingsQty };
     }
 
     updateProperty(
@@ -197,7 +214,6 @@ export class PropertiesByOwnerComponent implements OnInit {
         parkingSelected: number,
         currentUnit: string
     ) {
-        console.log(parkingSelected);
         this._confirmationService.confirm({
             header: 'Confirm',
             message: 'Do you want to save the changes?',
@@ -226,7 +242,6 @@ export class PropertiesByOwnerComponent implements OnInit {
                                     summary: 'Success',
                                     detail: 'Property updated successfully',
                                 });
-                                console.log(response);
 
                                 this.propertiesOwner =
                                     this.buildData(propertyDetails);

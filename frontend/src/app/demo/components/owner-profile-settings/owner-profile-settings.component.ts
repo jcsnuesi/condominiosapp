@@ -1,4 +1,11 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import {
+    AfterViewInit,
+    Component,
+    EventEmitter,
+    Input,
+    OnInit,
+    Output,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ConfirmationService, MessageService } from 'primeng/api';
@@ -33,7 +40,7 @@ import { ActivatedRoute, Router } from '@angular/router';
     templateUrl: './owner-profile-settings.component.html',
     styleUrl: './owner-profile-settings.component.css',
 })
-export class OwnerProfileSettingsComponent {
+export class OwnerProfileSettingsComponent implements AfterViewInit {
     public token: string;
     public identity: any;
     @Input() ownerObj: OwnerModel;
@@ -51,24 +58,24 @@ export class OwnerProfileSettingsComponent {
         private _confirmationService: ConfirmationService,
         private _condominioService: CondominioService
     ) {
-        this.ownerObj = new OwnerModel(
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            ''
-        );
+        // this.ownerObj = new OwnerModel(
+        //     '',
+        //     '',
+        //     '',
+        //     '',
+        //     '',
+        //     '',
+        //     '',
+        //     '',
+        //     '',
+        //     '',
+        //     '',
+        //     '',
+        //     '',
+        //     '',
+        //     '',
+        //     ''
+        // );
         this.token = this._userService.getToken();
         this.identity = this._userService.getIdentity();
         this.genderOptions = [{ label: 'Male' }, { label: 'Female' }];
@@ -78,6 +85,11 @@ export class OwnerProfileSettingsComponent {
         } else {
             this.passwordOwner = false;
         }
+    }
+
+    ngAfterViewInit(): void {
+        this.ownerObj.avatarPreview = this.ownerObj.avatar;
+        console.log('ownerObj.avatarPreview', this.ownerObj.avatarPreview);
     }
 
     delAccount(data: any) {

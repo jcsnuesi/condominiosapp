@@ -199,6 +199,7 @@ export class OwnerProfileComponent implements OnInit {
                         let { owner, bookings, invoices, invoicePaid } =
                             response.message;
                         let { propertyDetails } = owner;
+                        this.OwnerData.push(owner);
                         this.OwnerData.push(propertyDetails);
                         this.OwnerData.push(invoices);
                         this.OwnerData.push(ownerId);

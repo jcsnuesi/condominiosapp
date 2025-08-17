@@ -13,7 +13,7 @@
                 label="Add Property"
                 icon="pi pi-plus-circle"
                 class="p-ripple p-button p-component"
-                (click)="showAvailableProperties = !showAvailableProperties"
+                (click)="addNewProperty()"
             >
                 <span
                     class="p-button-icon p-button-icon-left pi pi-plus-circle"
@@ -31,120 +31,10 @@
 
     <div class="contenido-properties">
         <div *ngIf="showAvailableProperties" class="propertiesAvailable mb-4">
-            <span
-                class="font-semibold text-lg text-surface-900 dark:text-surface-0"
-            >
-                Units availables
-            </span>
-
-            <!-- *ngFor="let row of propertyData" -->
-            <!-- Aqui va el for  *ngFor="let row of " *ngFor="let unitAvilable of propertyData"-->
-
-            <div *ngFor="let items of availableUnitsList | ObjectValues">
-                <div
-                    class="border border-surface rounded-md h-[28rem]"
-                    *ngFor="let item of items"
-                >
-                    <div
-                        class="div-content border-b border-surface text-surface-700 dark:text-surface-100 cursor-pointer hover:text-color"
-                    >
-                        <div class="col">
-                            <div class="flex items-center gap-4">
-                                <p-avatar
-                                    size="large"
-                                    shape="circle"
-                                    data-pc-name="avatar"
-                                    class="p-avatar p-component p-avatar-circle p-avatar-lg p-avatar-image"
-                                >
-                                    <img
-                                        [src]="
-                                            url +
-                                            'main-avatar/properties/noimage.jpeg'
-                                        "
-                                        class="ng-star-inserted"
-                                    />
-                                </p-avatar>
-                                <div class="envoltorio">
-                                    <span class="font-medium">{{
-                                        item.alias
-                                    }}</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="flex justify-between gap-4 flex-1">
-                                <div
-                                    class="envoltorio-z"
-                                    style="flex-basis: 150%"
-                                >
-                                    <span class="font-medium">{{
-                                        item.address | titlecase
-                                    }}</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div
-                                class="flex justify-between gap-8 flex-1"
-                                style="overflow: visible"
-                            >
-                                <div
-                                    class="envoltorio-z"
-                                    style="flex-basis: 20%; overflow: visible"
-                                >
-                                    <span class="font-medium">
-                                        <p-dropdown
-                                            #pro_availables="ngModel"
-                                            name="pro_availables"
-                                            [options]="item.availableUnits"
-                                            [(ngModel)]="propertiesSelected"
-                                            optionLabel="label"
-                                            placeholder="Unit"
-                                            required
-                                        />
-                                    </span>
-                                </div>
-                                <div
-                                    class="envoltorio-z"
-                                    style="flex-basis: 20%; overflow: visible"
-                                >
-                                    <span class="font-medium">
-                                        <p-dropdown
-                                            #parking="ngModel"
-                                            name="parking"
-                                            [options]="parkingOptions"
-                                            [(ngModel)]="parkingSelected"
-                                            optionLabel="label"
-                                            placeholder="Parking quantity"
-                                            required
-                                        />
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="flex justify-end">
-                                <button
-                                    pButton
-                                    [loading]="loading"
-                                    type="button"
-                                    severity="secondary"
-                                    [outlined]="true"
-                                    icon="pi pi-plus-circle"
-                                    class="p-button-rounded hover:bg-green-600 hover:border-green-600 hover:text-white"
-                                    (click)="
-                                        addProperty(
-                                            item,
-                                            propertiesSelected,
-                                            parkingSelected
-                                        )
-                                    "
-                                ></button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <app-owner-registration
+                [ownerData]="sendOwnerDataToPropertyRegistration"
+                (ownerCreated)="showAvailableProperties = $event"
+            ></app-owner-registration>
         </div>
 
         <div class="tbl-properties">
@@ -188,10 +78,10 @@
                     <tr>
                         <td>{{ i + 1 }}</td>
                         <td>{{ data.alias }}</td>
-                        <td *ngIf="showUnits">
+                        <td *ngIf="data.showUnits">
                             {{ data.units }}
                         </td>
-                        <td style="width: 0.5%" *ngIf="!showUnits">
+                        <td style="width: 0.5%" *ngIf="!data.showUnits">
                             <p-dropdown
                                 [ngClass]="{
                                     'ng-valid input-success':
@@ -203,16 +93,16 @@
                                 #pro_availables="ngModel"
                                 name="pro_availables"
                                 [options]="unitsOptions"
-                                [(ngModel)]="unitSelected"
+                                [(ngModel)]="data.unitSelected"
                                 optionLabel="label"
                                 appendTo="body"
                             />
                         </td>
                         <td>{{ data.address | titlecase }}</td>
-                        <td style="width: 0.5%" *ngIf="showUnits">
+                        <td style="width: 0.5%" *ngIf="data.showUnits">
                             {{ data.parkingsQty }}
                         </td>
-                        <td style="width: 0.5%" *ngIf="!showUnits">
+                        <td style="width: 0.5%" *ngIf="!data.showUnits">
                             <p-dropdown
                                 [ngClass]="{
                                     'ng-valid input-success': parking.valid,
@@ -222,7 +112,7 @@
                                 #parking="ngModel"
                                 name="parking"
                                 [options]="parkingOptions"
-                                [(ngModel)]="parkingSelected"
+                                [(ngModel)]="data.parkingSelected"
                                 optionLabel="label"
                                 appendTo="body"
                             />

@@ -113,6 +113,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     @ViewChild(InviceGeneraterComponent)
     invoiceGenerator: InviceGeneraterComponent;
     @Output('homeEvent') homeEvent = new EventEmitter<any>();
+    @Input() ownerData: any[] = [];
 
     constructor(
         private _staffService: StaffService,
@@ -339,24 +340,6 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     showDialog() {
         this.visible = true;
-
-        // this.ownerObj = new OwnerModel(
-        //     '',
-        //     '',
-        //     '',
-        //     '',
-        //     '',
-        //     '',
-        //     '',
-        //     '',
-        //     '',
-        //     '',
-        //     '',
-        //     '',
-        //     '',
-        //     '',
-        //     ''
-        // );
     }
 
     loadBookingCard() {
@@ -386,15 +369,21 @@ export class HomeComponent implements OnInit, OnDestroy {
             .join(' ');
     }
 
-    public idOwner: string;
     showOwnerDialog(events) {
         let info = { ...events };
+        this.ownerData = [];
+        console.log('info ------------------->', info);
+        let { propertyDetails } = info;
 
-        this.idOwner = events._id;
+        this.ownerData.push(info);
+        this.ownerData.push(propertyDetails);
+        this.ownerData.push([]);
+        this.ownerData.push(info._id);
 
         this.ownerObj = info;
         this.ownerObj.name = this.titleCase(info.name);
         this.ownerObj.lastname = this.titleCase(info.lastname);
+        this.ownerObj.avatar = this.url + 'main-avatar/owners/' + events.avatar;
         this.ownerObj.gender = {
             label: this.titleCase(info.gender),
         };
@@ -419,10 +408,8 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     onSubmitUnit() {
         const formData = new FormData();
-        formData.append(
-            'avatar',
-            this.ownerObj.avatar != null ? this.ownerObj.avatar : 'noimage.jpeg'
-        );
+        // main-avatar/owners/noimage.jpeg
+        formData.append('avatar', this.url + 'main-avatar/owners/noimage.jpeg');
         formData.append('name', this.ownerObj.name);
         formData.append('lastname', this.ownerObj.lastname);
         formData.append('gender', this.ownerObj.gender);

@@ -5,7 +5,11 @@ import {
     ViewChild,
     ViewContainerRef,
     AfterViewInit,
-    viewChild,
+    Input,
+    SimpleChanges,
+    OnChanges,
+    Output,
+    EventEmitter,
 } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { ConfirmationService, MessageService } from 'primeng/api';
@@ -17,6 +21,7 @@ import { FormatFunctions } from 'src/app/pipes/formating_text';
 import { ImportsModule } from '../../imports_primeng';
 import { OwnerServiceService } from '../../service/owner-service.service';
 import { global } from '../../service/global.service';
+import { Stepper, StepperPanel } from 'primeng/stepper';
 
 type MessageType = {
     severity?: string;
@@ -48,7 +53,9 @@ type MessageType = {
     templateUrl: './owner-registration.component.html',
     styleUrl: './owner-registration.component.css',
 })
-export class OwnerRegistrationComponent implements OnInit {
+export class OwnerRegistrationComponent
+    implements OnInit, AfterViewInit, OnChanges
+{
     public ownerObj: OwnerModel;
     public image: any;
     private token: string;
@@ -80,10 +87,12 @@ export class OwnerRegistrationComponent implements OnInit {
         province: '',
         country: '',
     };
-    @ViewChild('unitFormUno') basicInfo: NgForm;
-    @ViewChild('unitFormDos') propertyInfo: NgForm;
+    @ViewChild('stepperComponent') stepperComponent: Stepper;
+    // @ViewChild('unitFormDos') propertyInfo: NgForm;
     public items: any;
     public homeId: string;
+    @Input('ownerData') ownerData: any;
+    @Output() ownerCreated = new EventEmitter<boolean>();
 
     public isRentOptions: { label: string; code: string }[] = [
         { label: 'Yes', code: 'yes' },
@@ -106,7 +115,7 @@ export class OwnerRegistrationComponent implements OnInit {
     ) {
         this.token = this._userService.getToken();
         this.identity = this._userService.getIdentity();
-
+        this.showBackBtn = true;
         this.ownerObj = new OwnerModel(
             '',
             '',
@@ -133,13 +142,10 @@ export class OwnerRegistrationComponent implements OnInit {
             },
         ];
 
-        this.image = '../../assets/noimage.jpeg';
+        this.image = this.url + 'main-avatar/owners/noimage.jpeg';
         this.apiUnitResponse = false;
 
-        this.genderOption = [
-            { label: 'Male', code: 'male' },
-            { label: 'Female', code: 'female' },
-        ];
+        this.genderOption = [{ label: 'Male' }, { label: 'Female' }];
 
         this.items = [
             {
@@ -175,6 +181,23 @@ export class OwnerRegistrationComponent implements OnInit {
                 this.getPropertiesByAdminId();
             }
         });
+    }
+
+    public showBackBtn: boolean;
+
+    ngAfterViewInit(): void {
+        console.log('this.ownerObj', this.ownerObj);
+        if (this.ownerObj.email != '' && this.ownerObj.id_number != '') {
+            this.stepperComponent.activeStep = 1;
+            this.showBackBtn = false;
+        }
+    }
+
+    ngOnChanges(changes: SimpleChanges) {
+        if (changes['ownerData']?.currentValue) {
+            this.ownerObj = { ...changes['ownerData'].currentValue };
+            console.log('ownerData CHANGES ->', this.ownerObj);
+        }
     }
 
     OnLoad(param: string) {
@@ -411,9 +434,13 @@ export class OwnerRegistrationComponent implements OnInit {
                         item.detail = response.message;
                         item.severity = 'success';
                     });
-                    this.OnLoad(this.homeId);
-                    this.indexStepper = 0;
-                    this.image = '../../assets/noimage.jpeg';
+
+                    if (this.ownerData) {
+                        this.ownerCreated.emit(false);
+                    } else {
+                        this.OnLoad(this.homeId);
+                        this.indexStepper = 0;
+                    }
                 } else {
                     this.messageApiResponse.forEach((item) => {
                         item.detail = response.message;

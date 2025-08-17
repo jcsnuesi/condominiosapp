@@ -55,3 +55,16 @@
     align-items: center;
     gap: 4px;
 }
+
+::ng-deep .ww-100 {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 1rem; /* pt-4 */
+    width: 100%;
+}
+
+::ng-deep .full-width {
+    flex: 1 1 auto;
+    width: 100%;
+    padding-top: 1rem;
+}
