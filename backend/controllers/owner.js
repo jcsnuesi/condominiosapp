@@ -218,7 +218,6 @@ var ownerAndSubController = {
               emailVerification.verifyRegistration(user);
               wsConfirmationMessage.sendWhatsappMessage(user);
             } catch (error) {
-              console.log(error);
               return res.status(500).send({
                 status: "error",
                 message: "Missing params to create this user",
@@ -226,9 +225,12 @@ var ownerAndSubController = {
               });
             }
 
+            delete user.passwordTemp;
+            delete user.password;
             return res.status(200).send({
               status: "success",
               message: "User created successfully",
+              user: user,
             });
           }
         }
@@ -476,7 +478,7 @@ var ownerAndSubController = {
       var val_ownerId = !validator.isEmpty(params.ownerId);
       var val_propertyId = !validator.isEmpty(params.propertyId);
       var val_unit = !validator.isEmpty(params.unit);
-      var val_newUnit = !validator.isEmpty(params.newUnit);
+      var val_newUnit = !validator.isEmpty(params.newUnit.trim());
     } catch (error) {
       return res.status(500).send({
         status: "error",
@@ -486,7 +488,7 @@ var ownerAndSubController = {
 
     if (val_ownerId && val_propertyId && val_unit && val_newUnit) {
       try {
-        await Owner.findOneAndUpdate(
+        const OwnerFound = await Owner.findOneAndUpdate(
           {
             $and: [
               { _id: params.ownerId },
@@ -496,26 +498,54 @@ var ownerAndSubController = {
           {
             $set: {
               "propertyDetails.$.condominium_unit": params.newUnit,
+              "propertyDetails.$.parkingsQty": params.parkingsQty,
             },
           },
           { new: true }
-        );
-        await Condominio.findOneAndUpdate(
-          { _id: params.propertyId },
-          { $pull: { availableUnits: params.newUnit } },
-          { new: true }
-        );
+        ).populate({
+          path: "propertyDetails.addressId",
+          model: "Condominium",
+          select:
+            " avatar availableUnits alias phone street_1 street_2 sector_name city province zipcode country socialAreas mPayment status mPayment createdAt",
+        });
+
+        const condoFound = await Condominio.findOne({
+          $and: [
+            { _id: params.propertyId },
+            { availableUnits: { $in: [params.newUnit] } },
+          ],
+        });
+
+        if (!condoFound) {
+          return res.status(200).send({
+            status: "success",
+            message: "Property updated successfully",
+            owner: OwnerFound,
+          });
+        }
+
         await Condominio.updateOne(
           { _id: params.propertyId },
-          { $push: { availableUnits: params.unit } },
-          { new: true }
+          { $pull: { availableUnits: params.newUnit } }
         );
+
+        await Condominio.updateOne(
+          { _id: params.propertyId },
+          { $addToSet: { availableUnits: params.unit } } // evita duplicados
+        );
+        // await Condominio.updateOne(
+        //   { _id: params.propertyId },
+        //   { $push: { availableUnits: params.unit } },
+        //   { new: true }
+        // );
 
         return res.status(200).send({
           status: "success",
           message: "Unit updated successfully",
+          owner: OwnerFound,
         });
       } catch (error) {
+        console.log(error);
         return res.status(500).send({
           status: "error",
           message: "Server error, try again",
