@@ -1,6 +1,22 @@
 <p-toast />
 <p-confirmDialog />
-<div class="grid" *ngIf="!bookingVisible">
+<div class="flex flex-col sm:flex-row items-center gap-6 mb-4">
+    <div class="flex flex-col sm:flex-row gap-4">
+        <img alt="avatar" [src]="condoInfo.avatar" class="avatarOwnerProfile" />
+        <div>
+            <span
+                class="text-surface-900 dark:text-surface-0 font-bold text-4xl"
+                style="color: black"
+                >{{ condoInfo.type + ": " + condoInfo.alias | titlecase }}</span
+            >
+        </div>
+    </div>
+    <p-tag
+        [severity]="condoInfo.status == 'active' ? 'success' : 'danger'"
+        [value]="condoInfo.status == 'active' ? 'Active' : 'Deactive'"
+    />
+</div>
+<div class="grid">
     <div class="col-12 lg:col-6 xl:col-3">
         <div class="card">
             <div class="flex justify-content-between mb-3">
@@ -26,12 +42,6 @@
         </div>
     </div>
 
-    <!-- Invoice generater -->
-
-    <app-invice-generater (facturaGenerada)="procesarFactura($event)" />
-
-    <!--END  Invoice generater -->
-
     <div class="col-12 lg:col-6 xl:col-3">
         <div class="card mb-0">
             <div class="flex justify-content-between mb-3">
@@ -44,7 +54,7 @@
                     </div>
                 </div>
                 <a
-                    [routerLink]="['/bookings', condoId]"
+                    (click)="showComponent('booking')"
                     class="change-icon flex align-items-center justify-content-center bg-orange-100 border-round"
                     [ngStyle]="{ width: '2.5rem', height: '2.5rem' }"
                 >
@@ -67,7 +77,7 @@
                     </div>
                 </div>
                 <a
-                    [routerLink]="['/staff', condoId]"
+                    (click)="showComponent('staff')"
                     class="flex align-items-center justify-content-center bg-cyan-100 border-round change-icon"
                     [ngStyle]="{ width: '2.5rem', height: '2.5rem' }"
                 >
@@ -100,8 +110,9 @@
             <span class="text-500">responded</span>
         </div>
     </div>
-
-    <!-- Residents list -->
+</div>
+<p-breadcrumb class="max-w-full mb-4" [model]="itemsx" />
+<div class="grid mt-2" *ngIf="componentsToShow.main">
     <div class="col-12 xl:col-6">
         <div class="card">
             <h5>Residents list</h5>
@@ -115,7 +126,8 @@
                     <tr>
                         <th>Picture</th>
                         <th pSortableColumn="fullname">
-                            Fullname <p-sortIcon field="fullname"></p-sortIcon>
+                            Fullname
+                            <p-sortIcon field="fullname"></p-sortIcon>
                         </th>
                         <th pSortableColumn="unit">
                             Unit <p-sortIcon field="unit"></p-sortIcon>
@@ -172,7 +184,7 @@
                 <p-inputGroup>
                     <div
                         class="flex align-items-center justify-content-center bg-gray-100 border-round icon-plus-changer mr-3"
-                        (click)="invoiceHistory()"
+                        (click)="showComponent('invoiceHistory')"
                         [ngStyle]="{ width: '2.5rem', height: '2.5rem' }"
                     >
                         <i class="pi pi-history text-gray-500 text-xl"></i>
@@ -182,7 +194,7 @@
                     <div class="ml-3"></div>
                     <div
                         class="flex align-items-center justify-content-center bg-green-100 border-round icon-plus-changer mr-3"
-                        (click)="openInvoiceGenerator()"
+                        (click)="showInvoiceGenerator()"
                         [ngStyle]="{ width: '2.5rem', height: '2.5rem' }"
                     >
                         <i class="pi pi-money-bill text-green-500 text-xl"></i>
@@ -202,36 +214,6 @@
                 [options]="options"
             ></p-chart>
         </div>
-
-        <!--START MODAL-->
-        <p-dialog
-            [(visible)]="visible"
-            (onHide)="closeDialogRegistration(fileSelected)"
-            [modal]="true"
-            [maximizable]="true"
-        >
-            <ng-template pTemplate="header">
-                <span class="font-semibold text-xl w-100">
-                    <h2>Register owner</h2>
-                </span>
-                <hr />
-            </ng-template>
-
-            <p-tabView>
-                <p-tabPanel header="Create single unit">
-                    <app-owner-registration
-                        *ngIf="visible"
-                    ></app-owner-registration>
-                </p-tabPanel>
-
-                <p-tabPanel header="Create multiple units">
-                    <app-pool-file-loader
-                        *ngIf="!visibleStepper"
-                        [service_key]="'ownersByFile'"
-                    ></app-pool-file-loader>
-                </p-tabPanel>
-            </p-tabView>
-        </p-dialog>
 
         <!-- Modal owners details -->
 
@@ -301,7 +283,7 @@
                 </p-tabPanel>
                 <p-tabPanel header="Bookings">
                     <app-booking-area
-                        [getIdCondo]="idOwner"
+                        [condoId]="condoId"
                         *ngIf="visible_owner"
                     ></app-booking-area>
                 </p-tabPanel>
@@ -309,3 +291,53 @@
         </p-dialog>
     </div>
 </div>
+
+<!--START MODAL-->
+<p-dialog
+    [(visible)]="visible"
+    (onHide)="closeDialogRegistration()"
+    [modal]="true"
+    [maximizable]="true"
+>
+    <ng-template pTemplate="header">
+        <span class="font-semibold text-xl w-100">
+            <h2>Register owner</h2>
+        </span>
+        <hr />
+    </ng-template>
+
+    <p-tabView>
+        <p-tabPanel header="Create single unit">
+            <app-owner-registration *ngIf="visible"></app-owner-registration>
+        </p-tabPanel>
+
+        <p-tabPanel header="Create multiple units">
+            <app-pool-file-loader
+                *ngIf="visible"
+                [service_key]="'ownersByFile'"
+            ></app-pool-file-loader>
+        </p-tabPanel>
+    </p-tabView>
+</p-dialog>
+
+<!-- Invoice generater -->
+
+<app-invice-generater
+    [invoiceData]="invoiceInfo"
+    (facturaGenerada)="procesarFactura($event)"
+/>
+
+<!-- Invoice History -->
+<app-invoice-history
+    [ownerId]="condoId"
+    *ngIf="componentsToShow.invoiceHistory"
+></app-invoice-history>
+
+<!-- Bookings generater -->
+<app-booking-area
+    [condoId]="condoId"
+    *ngIf="componentsToShow.booking"
+></app-booking-area>
+<!-- Bookings generater -->
+<!-- Staff  -->
+<app-staff *ngIf="componentsToShow.staff" [condoId]="condoId"></app-staff>

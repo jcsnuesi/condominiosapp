@@ -1,15 +1,14 @@
+<p-confirmDialog />
 <p-dialog
     header="Set up invoice details"
     [modal]="true"
-    [(visible)]="display"
+    [(visible)]="invoiceData.invoiceGenerator"
     [draggable]="true"
     [resizable]="false"
     [style]="{ width: '30%' }"
     [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
     (onHide)="onHide()"
 >
-    <p-confirmDialog />
-
     <form #invoiceForm="ngForm" class="size-full">
         <span class="p-text-secondary mb-3"
             >Update your payment information.</span

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import {
     TitleCasePipe,
     DatePipe,
@@ -80,6 +80,7 @@ export class InvoiceHistoryComponent implements OnInit {
     public tableBody: InvoiceBody;
     public selectedPayment: any;
     public excludedColumns: any[];
+    @Input() ownerId: string;
 
     constructor(
         private _userService: UserService,
@@ -142,13 +143,10 @@ export class InvoiceHistoryComponent implements OnInit {
 
     ngOnInit() {
         this._activateRoute.params.subscribe((params) => {
-            this.idCondo = params['condoId'];
+            this.idCondo = params['condoId'] ?? this.ownerId;
             console.log('idCondo:--->', this.idCondo);
-
-            if (this.idCondo != undefined) {
-                this.getInvoiceHistory();
-                this.convertImageToBase64();
-            }
+            this.getInvoiceHistory();
+            this.convertImageToBase64();
         });
     }
 

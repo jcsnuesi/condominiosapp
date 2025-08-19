@@ -4,6 +4,7 @@ import {
     ViewChild,
     ElementRef,
     AfterViewInit,
+    Input,
 } from '@angular/core';
 import {
     TitleCasePipe,
@@ -150,6 +151,7 @@ export class StaffComponent implements OnInit, AfterViewInit {
     @ViewChild('editpositionRef') editpositionRef!: ElementRef;
     @ViewChild('editbuildingRef') editbuildingRef!: ElementRef;
     @ViewChild('editStatusRef') editStatusRef!: ElementRef;
+    @Input() condoId: any;
 
     constructor(
         private _userService: UserService,
@@ -301,20 +303,13 @@ export class StaffComponent implements OnInit, AfterViewInit {
     ngOnInit(): void {
         // Obtiene el id del condominio
         this._route.params.subscribe((params) => {
-            let condoId = Object.keys(params).includes('ownerId')
-                ? params['ownerId']
-                : params['homeId'] + '_' + 'homeId'; // comparte variable admin y owner
-            this.condoData = condoId;
-            this.backBtnVisible = Object.keys(params).includes('homeId')
-                ? true
-                : false;
+            let condoId = params['id'] ?? this.condoId; // comparte variable admin y owner            this.condoData = condoId;
 
-            if (condoId != undefined) {
-                this.getStaffByCondoId(condoId);
+            console.log('Condo Data [params]:', params);
+            this.getStaffByCondoId(condoId);
 
-                if (this.loginInfo.role == 'ADMIN') {
-                    this.getAdminsProperties();
-                }
+            if (this.loginInfo.role == 'ADMIN') {
+                this.getAdminsProperties();
             }
         });
     }
@@ -324,12 +319,8 @@ export class StaffComponent implements OnInit, AfterViewInit {
             next: (response) => {
                 if (response.status == 'success') {
                     this.propertyDetailsVar = response.message.map((staff) => {
-                        this.condominioList = [
-                            {
-                                label: staff.condo_id?.alias.toUpperCase(),
-                                code: staff.condo_id?._id,
-                            },
-                        ];
+                        console.log('STAFF', staff);
+
                         return {
                             _id: staff._id,
                             fullname: staff?.name + ' ' + staff?.lastname,
@@ -337,7 +328,8 @@ export class StaffComponent implements OnInit, AfterViewInit {
                             gender: staff.gender,
                             government_id: staff.government_id,
                             createdBy: staff.createdBy,
-                            condo_id: staff.condo_id?.alias ?? 'No Condo',
+                            condo_alias: staff.condo_id?.alias,
+                            condo_id: staff.condo_id?._id,
                             position: staff.position,
                             email: staff.email,
                             status: staff.status,
@@ -350,6 +342,7 @@ export class StaffComponent implements OnInit, AfterViewInit {
                 }
             },
             error: (error) => {
+                this.loading = false;
                 console.log(error);
             },
         });
@@ -361,7 +354,7 @@ export class StaffComponent implements OnInit, AfterViewInit {
 
     backToDashboard() {
         const id = this.condoData.split('_')[0];
-        console.log('BACK TO DASHBOARD', id);
+
         this._router.navigate(['/home', id]);
     }
 
@@ -374,15 +367,11 @@ export class StaffComponent implements OnInit, AfterViewInit {
     showDialog(info: any) {
         this.visibleStaff = true;
         this.passwordMatch = false;
-        // this.dataToUpdate = {};
-
         let { ...res } = info;
 
         this.dataToUpdate = {
             _id: res._id,
-            condo_id: this.condominioList.find(
-                (condo) => condo.label.toLowerCase() === res.condo_id
-            ),
+            condo_id: { label: res.condo_alias, code: res.condo_id },
             name: res.fullname.split(' ')[0],
             lastname: res.fullname.split(' ')[1],
             gender: this.genderOptions.find((gend) =>
@@ -397,6 +386,8 @@ export class StaffComponent implements OnInit, AfterViewInit {
             email: res.email,
             status: this.statusStaff.find((stat) => stat.code == res.status),
         };
+
+        console.log('BACK TO DASHBOARD', this.dataToUpdate);
 
         this.previwImageEdit = this.url + 'avatar-staff/' + res.avatar;
     }
@@ -416,7 +407,6 @@ export class StaffComponent implements OnInit, AfterViewInit {
         reader.readAsDataURL(event.files[0]);
         this.staffInfo.avatar = event.files[0];
         this.dataToUpdate.avatar = event.files[0];
-        console.log('AVATAR:', this.dataToUpdate.avatar);
     }
 
     onsubmit(form: NgForm) {
@@ -442,12 +432,6 @@ export class StaffComponent implements OnInit, AfterViewInit {
                         formSfaff.append(key, this.staffInfo[key]);
                     }
                 }
-
-                // formSfaff.forEach((key, value) => {
-                //     console.log(key, ' : ', value);
-                // });
-
-                // return;
 
                 this._staffService.create(formSfaff, this.token).subscribe({
                     next: (response) => {
@@ -504,6 +488,10 @@ export class StaffComponent implements OnInit, AfterViewInit {
                 formdata.append(key, this.dataToUpdate[key]);
             }
         }
+
+        formdata.forEach((value, key) => {
+            console.log(key, value);
+        });
 
         this._confirmationService.confirm({
             target: event.target as EventTarget,
@@ -628,29 +616,20 @@ export class StaffComponent implements OnInit, AfterViewInit {
                 if (response.status == 'success') {
                     this.loadingCondo = false;
 
-                    if (this.condoData.split('.')[1] != undefined) {
-                        // Filtra solo el condominio que coincide con el ID de la URL
-                        this.condominioList = response.message
-                            .filter(
-                                (element) =>
-                                    element._id === this.condoData.split('.')[0]
-                            )
-                            .map((element) => {
-                                return {
-                                    label: element.alias.toUpperCase(),
-                                    code: element._id,
-                                };
-                            });
-                    } else {
-                        this.condominioList = response.message.map(
-                            (element) => {
-                                return {
-                                    label: element.alias.toUpperCase(),
-                                    code: element._id,
-                                };
-                            }
-                        );
-                    }
+                    this.condominioList = response.message.map((element) => {
+                        return {
+                            label: element.alias,
+                            code: element._id,
+                        };
+                    });
+                } else {
+                    this._messageService.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: 'No se encontraron propiedades',
+                        key: 'br',
+                        life: 3000,
+                    });
                 }
             },
             error: (error) => {
@@ -673,7 +652,6 @@ export class StaffComponent implements OnInit, AfterViewInit {
             rejectIcon: 'pi pi-times',
             acceptButtonStyleClass: 'p-button-danger',
             accept: () => {
-                console.log('STAFF SELECTED:', this.staffSelected);
                 this._staffService
                     .deleteStaff(this.token, this.staffSelected)
                     .subscribe({
@@ -707,6 +685,78 @@ export class StaffComponent implements OnInit, AfterViewInit {
                     summary: 'Rejected',
                     detail: 'You have rejected',
                     key: 'br',
+                    life: 3000,
+                });
+            },
+        });
+    }
+
+    activateStaff() {
+        const formdata = new FormData();
+        this.staffSelected.forEach((staff) => {
+            for (const key in staff) {
+                if (key == 'status') {
+                    formdata.append(key, 'active');
+                } else {
+                    formdata.append(key, staff[key]);
+                }
+            }
+        });
+
+        this._confirmationService.confirm({
+            target: event.target as EventTarget,
+            header: 'Confirmation',
+            message: 'Please confirm to proceed moving forward.',
+            icon: 'pi pi-exclamation-circle',
+            acceptIcon: 'pi pi-check mr-1',
+            rejectIcon: 'pi pi-times mr-1',
+            acceptLabel: 'Confirm',
+            rejectLabel: 'Cancel',
+            rejectButtonStyleClass: 'p-button-outlined p-button-sm',
+            acceptButtonStyleClass: 'p-button-sm',
+            accept: () => {
+                this._staffService.updateStaff(this.token, formdata).subscribe({
+                    next: (response) => {
+                        if (response.status == 'success') {
+                            this._messageService.add({
+                                severity: 'success',
+                                summary: 'Confirmed',
+                                detail: 'Staff successfully updated!',
+                                key: 'br',
+                                life: 3000,
+                            });
+                            this.visibleStaff = false;
+
+                            this.ngOnInit();
+                        }
+                    },
+                    error: (error) => {
+                        this._messageService.add({
+                            severity: 'error',
+                            summary: 'Error',
+                            detail: 'Staff was not updated!',
+                            key: 'br',
+                            life: 3000,
+                        });
+
+                        if (error.error.message == 'Password incorrect') {
+                            this.statusApi = true;
+                            this.currentPasswordMsg = error.error.message;
+                            setTimeout(() => {
+                                this.statusApi = false;
+                            }, 6000);
+                        }
+                    },
+                    complete: () => {
+                        console.log('Request completed!');
+                    },
+                });
+            },
+            reject: () => {
+                this._messageService.add({
+                    severity: 'error',
+                    summary: 'Rejected',
+                    detail: 'You have rejected',
                     life: 3000,
                 });
             },

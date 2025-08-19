@@ -100,12 +100,27 @@ export class PropertiesByOwnerComponent implements OnInit {
     public availableUnitsList: any[] = [];
     getActiveProperties(): void {
         var [owner, propertyDetails, invoices, _] = [...this.ownerData];
-        // variable para las unidades disponibles
+
+        if (_ == null && propertyDetails == null) {
+            let { condoId } = owner;
+            propertyDetails = owner.propertyDetails.filter(
+                (property) =>
+                    String(property.addressId._id).trim() ===
+                    String(condoId).trim()
+            );
+            propertyDetails.forEach((property) => {
+                property.ownerId = owner._id;
+            });
+            console.log('DATA #1', propertyDetails);
+        } else {
+            propertyDetails.ownerId = owner._id;
+        }
 
         this.propertiesOwner = this.buildData(propertyDetails);
     }
 
     buildData(propertyDetails: any) {
+        // console.log('buildData', propertyDetails);
         propertyDetails.forEach((element, i) => {
             element.id = element.addressId._id;
             element.address =
@@ -139,8 +154,7 @@ export class PropertiesByOwnerComponent implements OnInit {
             icon: 'pi pi-pencil',
             class: 'p-button-rounded hover:bg-yellow-600 hover:border-yellow-600 hover:text-white',
         });
-        console.log('*9****************', propertyDetails);
-        // console.log('BTN CONFIG POSITION', this.editBtnStyle);
+
         return propertyDetails;
     }
 
@@ -180,7 +194,7 @@ export class PropertiesByOwnerComponent implements OnInit {
         data.addressId.availableUnits.forEach((element: any) => {
             unitAvilable.push({ label: element });
         });
-
+        console.log('DATA', data);
         this.unitsOptions = unitAvilable;
 
         let btnConfig = this.editBtnStyle[index];
@@ -214,6 +228,7 @@ export class PropertiesByOwnerComponent implements OnInit {
         parkingSelected: number,
         currentUnit: string
     ) {
+        // return;
         this._confirmationService.confirm({
             header: 'Confirm',
             message: 'Do you want to save the changes?',
@@ -226,7 +241,7 @@ export class PropertiesByOwnerComponent implements OnInit {
             accept: () => {
                 this._ownerService
                     .updateUnitToOwner(this.token, {
-                        ownerId: this.ownerData[this.ownerData.length - 1],
+                        ownerId: data.ownerId,
                         propertyId: data.id,
                         newUnit: unitSelected,
                         parkingsQty: parkingSelected,

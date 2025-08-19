@@ -83,7 +83,6 @@ type BookingType = {
     providers: [
         UserService,
         BookingServiceService,
-        MessageService,
         ConfirmationService,
         FormatFunctions,
         OwnerServiceService,
@@ -108,14 +107,13 @@ export class BookingAreaComponent implements OnInit {
     public token: string;
     public identity: any;
     public headerStatus: any[];
-
     public selectedRow: any[];
     public visibleDialog: boolean = false;
     public searchValue: string = '';
     public bookingId: string;
     public headerBooking: string;
     public today: Date;
-    @Input() getIdCondo: string;
+    @Input() condoId: string | [string];
 
     constructor(
         private _userService: UserService,
@@ -164,8 +162,6 @@ export class BookingAreaComponent implements OnInit {
         this.loading = true;
         this.notifingOptions = [{ label: 'Email' }, { label: 'None' }];
         this.bookingInfoApt = {};
-
-        // console.log("GET IDENTITY:", this.identity)
     }
     updateBookingObj() {
         this.bookingInfo = {
@@ -185,20 +181,20 @@ export class BookingAreaComponent implements OnInit {
 
     ngOnInit(): void {
         this._route.params.subscribe((params) => {
-            this.bookingId = params['dashid'];
-            if (this.bookingId) {
-                this.getAllBookings(this.bookingId);
-                this.getPropertyType();
-            } else {
-                this.getAllBookings(this.getIdCondo);
-            }
-            // console.log('Booking ID:', this.bookingId);
-            // console.log('getIdCondo ID:', this.getIdCondo);
-        });
-    }
+            let query: any = params['id'];
 
-    back() {
-        this._router.navigate(['/home', this.bookingId]);
+            if (typeof this.condoId == 'object') {
+                if (this.condoId) {
+                    query = this.condoId;
+                }
+            } else {
+                query = this.condoId;
+            }
+
+            console.log('Booking ID:', query);
+            this.getAllBookings(query);
+            this.getPropertyType();
+        });
     }
 
     clear(dt: any) {
@@ -213,7 +209,7 @@ export class BookingAreaComponent implements OnInit {
             .getPropertyByOwner(this.token, this.identity._id)
             .subscribe({
                 next: (res) => {
-                    if (res.status === 'success') {
+                    if (res.status === 'success' && res.message != null) {
                         res.message.forEach((prop) => {
                             prop.propertyDetails.forEach((property) => {
                                 this.propertyDetails.push(property);
@@ -228,8 +224,6 @@ export class BookingAreaComponent implements OnInit {
                                         code: property.condominium_unit,
                                     });
                                 }
-
-                                // console.log('Property this.unitOption-->:', this.identity)
                             });
                         });
                     }
@@ -382,7 +376,7 @@ export class BookingAreaComponent implements OnInit {
                             });
                             form.reset();
                             this.bookingInfo.notifingType = '';
-                            this.getAllBookings(this.bookingId);
+                            this.ngOnInit();
                         }
                         // console.log('Booking Response:', response)
                     },
@@ -410,6 +404,8 @@ export class BookingAreaComponent implements OnInit {
     getAllBookings(paramId: string) {
         /**Este metodo obtiene las reservas del condominio*/
 
+        console.log('query booking:', paramId);
+
         this._bookingService.getBooking(this.token, paramId).subscribe({
             next: (response) => {
                 // this.bookingHistory = response.booking;
@@ -424,16 +420,8 @@ export class BookingAreaComponent implements OnInit {
                                 this.identity.role == 'OWNER'
                             ) {
                                 bookName = booking.guest[0].fullname;
-                                console.log(
-                                    'booking.guest.fullname:',
-                                    booking.guest
-                                );
                             } else {
                                 bookName = booking.condoId.alias;
-                                console.log(
-                                    'booking.condoId:',
-                                    booking.condoId
-                                );
                             }
                             return {
                                 id: booking._id,

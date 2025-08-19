@@ -103,6 +103,7 @@ export class InviceGeneraterComponent {
         ];
     public ownerSelected: Array<{ label: string; value: string }> = [];
     @Output() facturaGenerada = new EventEmitter<any>();
+    @Input() invoiceData: any;
 
     constructor(
         private messageService: MessageService,
@@ -113,7 +114,7 @@ export class InviceGeneraterComponent {
     ) {
         this.token = this._userService.getToken();
         this.condoInfo = JSON.parse(localStorage.getItem('property'));
-
+        let dataFromFatherComponent = { ...this.invoiceData };
         this.invoiceInfo = {
             issueDate: '',
             amount: 0,
@@ -124,11 +125,11 @@ export class InviceGeneraterComponent {
         };
 
         this.updateInfo = {
-            mPayment: 0,
-            paymentDate: '',
-            id: '',
+            mPayment: dataFromFatherComponent.mPayment ?? 0,
+            paymentDate: dataFromFatherComponent.paymentDate,
+            id: dataFromFatherComponent._id,
         };
-
+        console.log('Update Info:', this.updateInfo);
         this.invoiceSetup = false;
     }
 
@@ -303,19 +304,5 @@ export class InviceGeneraterComponent {
 
     open() {
         this.display = true;
-
-        this.updateInfo = {
-            mPayment: this.condoInfo.mPayment,
-            paymentDate: this.setTodayDate(),
-            id: this.condoInfo._id,
-        };
-
-        this.invoiceInfo = {
-            issueDate: '',
-            amount: 0,
-            condominiumId: this.condoInfo._id,
-            ownerId: [],
-            paymentDescription: [],
-        };
     }
 }

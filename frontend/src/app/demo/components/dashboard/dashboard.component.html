@@ -11,7 +11,6 @@
     [enableService]="false"
     [closable]="false"
 />
-
 <div class="grid">
     <div class="col-12 lg:col-6 xl:col-3">
         <div class="card">
@@ -53,7 +52,7 @@
                 </div>
 
                 <a
-                    [routerLink]="['/booking-area', idroute]"
+                    (click)="showComponent('booking')"
                     class="change-icon flex align-items-center justify-content-center bg-orange-100 border-round"
                     [ngStyle]="{ width: '2.5rem', height: '2.5rem' }"
                 >
@@ -76,11 +75,9 @@
                         {{ totalStaff }}
                     </div>
                 </div>
-                <!-- <a [routerLink]="['staff/',idroute]"
-                    class="change-icon flex align-items-center justify-content-center bg-orange-100 border-round"
-                    [ngStyle]="{width: '2.5rem', height: '2.5rem'}"> -->
+
                 <a
-                    [routerLink]="['/staff-regular', identity._id]"
+                    (click)="showComponent('staff')"
                     class="change-icon flex align-items-center justify-content-center bg-cyan-100 border-round"
                     [ngStyle]="{ width: '2.5rem', height: '2.5rem' }"
                 >
@@ -111,7 +108,9 @@
             <span class="text-500">responded</span>
         </div>
     </div>
-
+</div>
+<p-breadcrumb class="max-w-full mb-4" [model]="itemsx" />
+<div class="grid mt-2" *ngIf="componentsToShow.main">
     <div class="col-12 xl:col-6">
         <div class="card" *appHasPermissions="'admin'">
             <h5>Sales Overview</h5>
@@ -202,6 +201,7 @@
     </div>
 </div>
 
+<!-- Owner permissions -->
 <p-dialog
     [(visible)]="visibleCreateOwnerUnit"
     [modal]="true"
@@ -217,7 +217,11 @@
     <app-family-area *ngIf="visibleCreateOwnerUnit"></app-family-area>
 </p-dialog>
 
-<!-- <div class="container">
-   (hideFamilyDialog)="hideFamilyDialogfunc($event)"
-    <app-booking-area *ngIf="bookingVisible"></app-booking-area>
-</div> -->
+<!-- Bookings generater -->
+<app-booking-area
+    [condoId]="units_ownerId"
+    *ngIf="componentsToShow.booking"
+></app-booking-area>
+<!-- Bookings generater -->
+<!-- Staff  -->
+<app-staff *ngIf="componentsToShow.staff" [condoId]="condoId"></app-staff>

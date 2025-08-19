@@ -75,6 +75,6 @@ import { FamilyAreaComponent } from '../family-area/family-area.component';
         CardsComponent,
     ],
     exports: [StepperModule],
-    declarations: [DashboardComponent],
+    declarations: [],
 })
 export class DashboardModule {}

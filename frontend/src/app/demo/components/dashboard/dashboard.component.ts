@@ -28,19 +28,26 @@ import { OwnerModel } from '../../models/owner.model';
 import { BookingServiceService } from '../../service/booking-service.service';
 import { StaffService } from '../../service/staff.service';
 import { OwnerServiceService } from '../../service/owner-service.service';
-import { MessagesModule } from 'primeng/messages';
-import { ToastModule } from 'primeng/toast';
+import { ChangePasswordComponent } from '../change-password/change-password.component';
+import { ImportsModule } from '../../imports_primeng';
+import { HasPermissionsDirective } from 'src/app/has-permissions.directive';
+import { BookingAreaComponent } from '../booking-area/booking-area.component';
 
 @Component({
     templateUrl: './dashboard.component.html',
+    standalone: true,
+    imports: [
+        ImportsModule,
+        ChangePasswordComponent,
+        HasPermissionsDirective,
+        BookingAreaComponent,
+    ],
     providers: [
         CondominioService,
         UserService,
         MessageService,
         ConfirmationService,
         OwnerServiceService,
-        MessagesModule,
-        ToastModule,
     ],
     styleUrls: ['./dashboard.css'],
 })
@@ -87,8 +94,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
     public messagesNoProperty: any;
     public totalUnits: number;
     public visibleCreateOwnerUnit: boolean = false;
+    public itemsx: any;
 
     @Output() propertyInfoEvent: EventEmitter<any> = new EventEmitter();
+    componentsToShow: { booking: boolean; staff: boolean; main: boolean };
 
     constructor(
         private productService: ProductService,
@@ -132,7 +141,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
             '',
             ''
         );
-
+        this.componentsToShow = {
+            booking: false,
+            staff: false,
+            main: true,
+        };
         this.formValidation =
             this.ownerObj.apartmentsUnit != '' &&
             this.ownerObj.parkingsQty != '' &&
@@ -151,10 +164,21 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.first_password =
             this.identity.first_password_changed == false ? true : false;
         this.propertyInactive = [];
+
+        this.itemsx = [
+            {
+                label: 'Home',
+                command: () => {
+                    this.showComponent('main');
+                },
+                styleClass: 'cursor-pointer',
+                icon: 'pi pi-home',
+            },
+        ];
     }
 
     ngOnInit() {
-        this.propertyObj = JSON.parse(localStorage.getItem('property'));
+        // this.propertyObj = JSON.parse(localStorage.getItem('property'));
 
         this.onInitInfo();
         this.genderOption = [
@@ -264,6 +288,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.loadBookingCard();
         this.getStaffQty();
         this.loadUnitsCard();
+    }
+
+    showComponent(show: string) {
+        this.componentsToShow = {
+            booking: false,
+            staff: false,
+            main: false,
+        };
+        this.componentsToShow[show] = true;
     }
 
     loadUnitsCard() {
@@ -419,40 +452,39 @@ export class DashboardComponent implements OnInit, OnDestroy {
     public isRentOptions: any[];
 
     public propertyInactive: any[];
+    public units_ownerId: any[];
+
     onInitInfo() {
         this._activatedRoute.params.subscribe((param) => {
             let id = param['dashid']; // admin id or owner id
-            let refPath = Object.keys(param)[0];
 
-            if (this.identity.role == 'ADMIN') {
-                id = id + '.' + refPath;
-            }
-            // console.log('ID refPath--->', id);
-            if (id != undefined && this.identity.role == 'ADMIN') {
-                this._condominioService.getBuilding(id, this.token).subscribe({
-                    next: (response) => {
-                        if (response.status == 'success') {
-                            var unitList = response.message;
-                            this.units = unitList.units_ownerId.length;
-
-                            this.dateFormatted = dateTimeFormatter(
-                                unitList.createdAt
-                            );
-
-                            // this.propertyData(unitList);
-
-                            this.customers = unitList.units_ownerId;
-
-                            // console.log('CUSTOMER--->', this.customers);
-                        } else {
-                            console.log('Error--->', response);
-                        }
-                    },
-                    error: (error) => {
-                        console.log(error);
-                    },
-                });
-            }
+            this._condominioService.getBuilding(id, this.token).subscribe({
+                next: (response) => {
+                    if (response.status == 'success') {
+                        this.units_ownerId =
+                            this.identity.role.toLowerCase() == 'admin'
+                                ? response.condominium
+                                      .map((unit) => {
+                                          let total_owner = [];
+                                          unit?.units_ownerId.forEach(
+                                              (owner) => {
+                                                  total_owner.push(owner._id);
+                                              }
+                                          );
+                                          return total_owner;
+                                      })
+                                      .flat()
+                                : response.condominium;
+                        console.log('Error--->', this.units_ownerId);
+                        this.units = response.condominium.length;
+                    } else {
+                        console.log('Error--->', response);
+                    }
+                },
+                error: (error) => {
+                    console.log(error);
+                },
+            });
         });
     }
 

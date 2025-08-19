@@ -121,17 +121,17 @@ export class AppLayoutComponent implements OnDestroy {
         this.getData.handleCondoUpdate(event);
     }
     public getData: any;
-    dataCondoLoaded(data: any) {
-        this.activeComponent = data.homeEvent;
-        this.getData = data;
+    // dataCondoLoaded(data: any) {
+    //     this.activeComponent = data.homeEvent;
+    //     this.getData = data;
 
-        if (data.homeEvent) {
-            data.homeEvent.subscribe((data: any) => {
-                // console.log('Evento recibido:', data);
-                this.currentProperty = data;
-            });
-        }
-    }
+    //     if (data.homeEvent) {
+    //         data.homeEvent.subscribe((data: any) => {
+    //             // console.log('Evento recibido:', data);
+    //             this.currentProperty = data;
+    //         });
+    //     }
+    // }
 
     onDeactivate(data: any): void {
         if (data.homeEvent) {

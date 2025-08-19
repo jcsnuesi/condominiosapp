@@ -7,7 +7,7 @@ import {
     ViewChild,
     OnDestroy,
 } from '@angular/core';
-import { MessageService } from 'primeng/api';
+import { MenuItem, MessageService } from 'primeng/api';
 import { CondominioService } from '../../service/condominios.service';
 import { OwnerModel } from '../../models/owner.model';
 import { ActivatedRoute } from '@angular/router';
@@ -33,6 +33,8 @@ import { OwnerProfileSettingsComponent } from '../owner-profile-settings/owner-p
 import { ImportsModule } from '../../imports_primeng';
 import * as XLSX from 'xlsx';
 import { PoolFileLoaderComponent } from '../pool-file-loader/pool-file-loader.component';
+import { StaffComponent } from '../staff/staff.component';
+import { InvoiceHistoryComponent } from '../invoice-history/invoice-history.component';
 
 type FamilyAccess = {
     avatar: string;
@@ -50,6 +52,8 @@ type FamilyAccess = {
     selector: 'app-home',
     standalone: true,
     imports: [
+        InvoiceHistoryComponent,
+        StaffComponent,
         PoolFileLoaderComponent,
         ImportsModule,
         OwnerProfileSettingsComponent,
@@ -76,7 +80,7 @@ type FamilyAccess = {
         FormatFunctions,
     ],
 })
-export class HomeComponent implements OnInit, OnDestroy {
+export class HomeComponent implements OnInit {
     public maximized: boolean;
     public customers: any[];
     public items!: any[];
@@ -103,17 +107,17 @@ export class HomeComponent implements OnInit, OnDestroy {
     public nodata: boolean;
     public visible_dynamic: boolean;
     public genderModel: { name: string; code: string }[];
-    // public ref: DynamicDialogRef;
     public bookingVisible: boolean;
     public chartVisible: boolean;
     public stafflistNumber: number;
+    public home: MenuItem[] | undefined;
+    public condoInfo: any;
+    public itemsx: any;
 
     public updateDateFromTopbar: any;
 
-    @ViewChild(InviceGeneraterComponent)
-    invoiceGenerator: InviceGeneraterComponent;
-    @Output('homeEvent') homeEvent = new EventEmitter<any>();
-    @Input() ownerData: any[] = [];
+    @Input()
+    ownerData: any[] = [];
 
     constructor(
         private _staffService: StaffService,
@@ -155,6 +159,19 @@ export class HomeComponent implements OnInit, OnDestroy {
             '',
             ''
         );
+        this.condoInfo = {
+            id: '',
+            alias: '',
+            type: '',
+            avatar: '',
+            status: '',
+        };
+        this.componentsToShow = {
+            booking: false,
+            staff: false,
+            invoiceHistory: false,
+            main: true,
+        };
         this.bookingVisible = false;
         this.url = global.url;
         this.identity = this._userService.getIdentity();
@@ -188,7 +205,16 @@ export class HomeComponent implements OnInit, OnDestroy {
             { name: 'Penthouse', code: 'penthouse' },
         ];
         this.messageApiResponse = { message: '', severity: '' };
-        // this.apiUnitResponse = false
+        this.itemsx = [
+            {
+                label: 'Home',
+                command: () => {
+                    this.showComponent('main');
+                },
+                styleClass: 'cursor-pointer',
+                icon: 'pi pi-home',
+            },
+        ];
     }
 
     ngOnInit() {
@@ -199,9 +225,9 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.loadBookingCard();
     }
 
-    closeDialogRegistration(fileSelected: any) {
-        // INIT INFO
-        fileSelected.clear();
+    closeDialogRegistration() {
+        // // INIT INFO
+        // fileSelected.clear();
         this.onInitInfo();
         this.getStaffByCondoId();
         this.loadBookingCard();
@@ -213,13 +239,12 @@ export class HomeComponent implements OnInit, OnDestroy {
         this._messageService.add(event);
     }
 
-    // Open Invoice generater dialog
-    openInvoiceGenerator() {
-        this.invoiceGenerator.open();
-    }
-
     unitFormatOnInit(property_data) {
         var unitList = [];
+        property_data = property_data.filter(
+            (condo) => condo.addressId._id == this.condoId
+        );
+
         for (let index = 0; index < property_data.length; index++) {
             unitList.push(property_data[index].condominium_unit);
         }
@@ -243,6 +268,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     public totalBooked: number = 0;
     public condoId: string;
     public availableUnitsObject: any[] = [];
+    public invoiceInfo: any = {};
     onInitInfo() {
         this._activatedRoute.params.subscribe((param) => {
             let id = param['homeid'];
@@ -252,65 +278,34 @@ export class HomeComponent implements OnInit, OnDestroy {
                 this._condominioService.getBuilding(id, this.token).subscribe(
                     (response) => {
                         if (response.status == 'success') {
-                            var unitList = response.condominium;
+                            // Info para enviar al componente 'invoice generator'
+                            this.invoiceInfo.mPayment =
+                                response.condominium.mPayment;
+                            this.invoiceInfo.paymentDate =
+                                response.condominium.paymentDate;
+                            this.invoiceInfo.id = response.condominium._id;
+                            var unitList = response.condominium[0];
+
                             unitList['units'] = unitList.availableUnits.map(
                                 (unit) => {
                                     return { label: unit };
                                 }
                             );
 
-                            // localStorage.setItem(
-                            //     'property',
-                            //     JSON.stringify(unitList)
-                            // );
+                            this.condoInfo.avatar =
+                                this.url +
+                                'main-avatar/properties/' +
+                                unitList.avatar;
+                            this.condoInfo.alias = unitList.alias;
+                            this.condoInfo.type = unitList.typeOfProperty;
+                            this.condoInfo.status = unitList.status;
+
                             this.units = unitList.units_ownerId.length;
 
                             this.card_unit_member_date =
                                 this._formatFunctions.dateFormat2(
                                     unitList.createdAt
                                 );
-
-                            if (
-                                this.identity.role == 'ADMIN' ||
-                                this.identity.role == 'STAFF'
-                            ) {
-                                // console.log(
-                                //     'unitList------->',
-                                //     response.condominium
-                                // );
-                                // Configurar encabezado con los datos del condominio
-                                new Array(response.condominium).forEach(
-                                    (element) => {
-                                        unitList.alias = this.titleCase(
-                                            element.alias
-                                        );
-                                        unitList.typeOfProperty = {
-                                            label:
-                                                this.titleCase(
-                                                    element.typeOfProperty
-                                                ) + ':',
-                                        };
-
-                                        unitList.socialAreas =
-                                            element.socialAreas.map((s) => {
-                                                return { areasOptions: s };
-                                            });
-                                        unitList.paymentDate =
-                                            this._formatFunctions.dateFormat(
-                                                element.paymentDate
-                                            );
-                                        unitList.propertyUnitFormat =
-                                            typeof unitList.availableUnits[0] ==
-                                            'string'
-                                                ? 'Letters'
-                                                : 'Numbers';
-                                    }
-                                );
-                                this.homeEvent.emit(unitList);
-
-                                // Sun Jan 19 2025
-                                //Sat Jan 18 2025 00:00:00 GMT-0400 (Atlantic Standard Time)
-                            }
 
                             this.getInvoiceByCondoFunc(unitList);
                             this.customers = unitList.units_ownerId;
@@ -351,10 +346,22 @@ export class HomeComponent implements OnInit, OnDestroy {
                     this.totalBooked = response.message.length;
                 } else {
                     this.totalBooked = 0;
+                    this._messageService.add({
+                        severity: 'warn',
+                        summary: 'No bookings found',
+                        detail: 'There are no bookings for this condominium',
+                        life: 3000,
+                    });
                 }
             },
             error: (error) => {
                 console.log(error);
+                this._messageService.add({
+                    severity: 'warn',
+                    summary: 'No bookings found',
+                    detail: 'There are no bookings for this condominium',
+                    life: 3000,
+                });
             },
         });
     }
@@ -370,15 +377,15 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
 
     showOwnerDialog(events) {
+        // console.log('info ------------------->', events);
         let info = { ...events };
+        info.condoId = this.condoId;
         this.ownerData = [];
-        console.log('info ------------------->', info);
-        let { propertyDetails } = info;
 
         this.ownerData.push(info);
-        this.ownerData.push(propertyDetails);
-        this.ownerData.push([]);
-        this.ownerData.push(info._id);
+        this.ownerData.push(null);
+        this.ownerData.push(this.invoicesObj.invoices);
+        this.ownerData.push(null);
 
         this.ownerObj = info;
         this.ownerObj.name = this.titleCase(info.name);
@@ -404,6 +411,24 @@ export class HomeComponent implements OnInit, OnDestroy {
             queryParams: { userid: null },
             queryParamsHandling: 'merge',
         });
+    }
+
+    public visible_staff: boolean = false;
+    public componentsToShow: {
+        booking: boolean;
+        staff: boolean;
+        invoiceHistory: boolean;
+        main: boolean;
+    };
+    showInvoiceGenerator() {
+        this.invoiceInfo.invoiceGenerator = true;
+    }
+    showComponent(show) {
+        this.componentsToShow.booking = false;
+        this.componentsToShow.staff = false;
+        this.componentsToShow.invoiceHistory = false;
+        this.componentsToShow.main = false;
+        this.componentsToShow[show] = true;
     }
 
     onSubmitUnit() {
@@ -457,29 +482,46 @@ export class HomeComponent implements OnInit, OnDestroy {
     public activeStaffQty: number;
     // Carga los staff por condominio
     getStaffByCondoId() {
-        let data = this.condoId + '_' + 'homeId'; // comparte variable admin y owner
+        // let data = this.condoId + '_' + 'homeId'; // comparte variable admin y owner
 
-        this._staffService.getStaffByOwnerCondo(this.token, data).subscribe({
-            next: (response) => {
-                if (response.status == 'success') {
-                    this.activeStaffQty = response.message.filter(
-                        (staff) => staff.status == 'active'
-                    ).length;
-                    this.stafflistNumber = response.message.length;
-                }
-            },
-            error: (error) => {
-                console.log(error);
-            },
-        });
+        this._staffService
+            .getStaffByOwnerCondo(this.token, this.condoId)
+            .subscribe({
+                next: (response) => {
+                    if (response.status == 'success') {
+                        this.activeStaffQty = response.message.filter(
+                            (staff) => staff.status == 'active'
+                        ).length;
+                        this.stafflistNumber = response.message.length;
+                    } else {
+                        this._messageService.add({
+                            severity: 'warn',
+                            summary: 'Message for server',
+                            detail: 'Staff was not found',
+                            life: 3000,
+                        });
+                    }
+                },
+                error: (error) => {
+                    console.log(error);
+                    this._messageService.add({
+                        severity: 'error',
+                        summary: 'Message for server',
+                        detail: 'Server error, getting staff by condo',
+                        life: 3000,
+                    });
+                },
+            });
     }
 
+    public invoicesObj: any = {};
     getInvoiceByCondoFunc(cantidadOwner) {
         this._invoiceService
             .getInvoiceByCondo(this.token, this.condoId)
             .subscribe({
                 next: (response) => {
                     // GRAPH VARIABLES
+                    this.invoicesObj.invoices = response.invoices;
                     const documentStyle = getComputedStyle(
                         document.documentElement
                     );
@@ -635,28 +677,28 @@ export class HomeComponent implements OnInit, OnDestroy {
         this._router.navigate(['/invoice-history', this.condoId]);
     }
 
-    ngOnDestroy(): void {
-        this.homeEvent.emit({
-            _id: '',
-            alias: '',
-            typeOfProperty: { label: '' },
-            phone: '',
-            phone2: '',
-            street_1: '',
-            street_2: '',
-            sector_name: '',
-            city: '',
-            province: '',
-            socialAreas: [],
-            mPayment: 0,
-            paymentDate: '',
-            propertyUnitFormat: '',
-            avatar: '',
-            status: false,
-            availableUnits: [],
-            country: '',
-        });
-    }
+    // ngOnDestroy(): void {
+    //     this.homeEvent.emit({
+    //         _id: '',
+    //         alias: '',
+    //         typeOfProperty: { label: '' },
+    //         phone: '',
+    //         phone2: '',
+    //         street_1: '',
+    //         street_2: '',
+    //         sector_name: '',
+    //         city: '',
+    //         province: '',
+    //         socialAreas: [],
+    //         mPayment: 0,
+    //         paymentDate: '',
+    //         propertyUnitFormat: '',
+    //         avatar: '',
+    //         status: false,
+    //         availableUnits: [],
+    //         country: '',
+    //     });
+    // }
     public multipleOwners: any[] = [];
     onSelect(event: any): void {
         const file: File = event.files?.[0];
@@ -692,7 +734,7 @@ export class HomeComponent implements OnInit, OnDestroy {
                         row.push(this.condoId) &&
                         Object.fromEntries(headers.map((h, i) => [h, row[i]]))
                 );
-            console.log(results);
+
             this.multipleOwners = results;
             // Puedes reemplazar esto con la lógica que necesites
         };
@@ -714,7 +756,6 @@ export class HomeComponent implements OnInit, OnDestroy {
                     .createMultipleUnitsOwners(this.token, this.multipleOwners)
                     .subscribe({
                         next: (response) => {
-                            console.log('response:--------------->', response);
                             if (response.status == 'success') {
                                 this.messageApiResponse.message =
                                     response.message;

@@ -206,11 +206,6 @@ export class OwnerRegistrationComponent
             next: (response) => {
                 // console.log(response);
                 if (response.status == 'success') {
-                    // console.log(
-                    //     'response.condominium.availableUnits',
-                    //     response.condominium
-                    // );
-
                     // Formatear los detalles de la dirección
 
                     for (const key in this.addreesDetails) {
@@ -381,33 +376,53 @@ export class OwnerRegistrationComponent
      * 4. Si vamos agregar una nueva unidad, actualizamos el owner para que se registre la nueva unidad
      * 5. Solo el rol owner puede registrar una nueva unidad
      *
+     *
      */
-    onSubmitUnit() {
+
+    formDataAndValidation(): FormData {
         const formData = new FormData();
 
-        for (const key in this.ownerObj) {
-            if (
-                typeof this.ownerObj[key] === 'object' &&
-                Boolean(this.ownerObj[key].code != undefined)
-            ) {
-                formData.append(key, this.ownerObj[key].code);
-            } else if (key === 'avatar') {
-                console.log(key + ': ' + this.ownerObj[key]);
-                formData.append(
-                    key,
-                    Boolean(this.ownerObj.avatar != undefined)
-                        ? this.ownerObj.avatar
-                        : 'noimage.jpeg'
-                );
-            } else {
-                formData.append(key, this.ownerObj[key]);
+        try {
+            for (const key in this.ownerObj) {
+                if (
+                    typeof this.ownerObj[key] === 'object' &&
+                    Boolean(this.ownerObj[key].code != undefined)
+                ) {
+                    formData.append(key, this.ownerObj[key].code);
+                } else if (
+                    typeof this.ownerObj[key] === 'object' &&
+                    Boolean(this.ownerObj[key].label != undefined)
+                ) {
+                    formData.append(key, this.ownerObj[key].label);
+                } else if (key === 'avatar' && this.ownerObj.avatar != '') {
+                    formData.append(key, this.ownerObj.avatar);
+                } else if (
+                    Boolean(this.ownerObj[key] == undefined) ||
+                    this.ownerObj[key] === ''
+                ) {
+                    continue;
+                } else {
+                    formData.append(key, this.ownerObj[key]);
+                }
             }
+            return formData;
+        } catch (error) {
+            throw Error('Error processing form data: ' + error);
         }
+    }
+    onSubmitUnit() {
         // formData.forEach((value, key) => {
         //     console.log(key + ': ' + value);
         // });
         // return;
         // hantos@mail.com
+
+        const formData = this.formDataAndValidation();
+
+        formData.forEach((value, key) => {
+            console.log(key + ': ' + value);
+        });
+
         this._condominioService.createOwner(this.token, formData).subscribe({
             next: (response) => {
                 if (response.status == 'success') {
@@ -429,7 +444,7 @@ export class OwnerRegistrationComponent
                         '',
                         ''
                     );
-                    this.ownerObj.avatar = '../../assets/noimage2.jpeg';
+                    // this.ownerObj.avatar = '../../assets/noimage2.jpeg';
                     this.messageApiResponse.forEach((item) => {
                         item.detail = response.message;
                         item.severity = 'success';
@@ -493,7 +508,7 @@ export class OwnerRegistrationComponent
                 '',
                 ''
             );
-            this.ownerObj.avatar = '../../assets/noimage2.jpeg';
+            // this.ownerObj.avatar = '../../assets/noimage2.jpeg';
 
             this.apiUnitResponse = false;
         } else {

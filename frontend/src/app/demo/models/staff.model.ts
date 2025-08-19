@@ -1,5 +1,4 @@
-export class Staff{
-
+export class Staff {
     constructor(
         public name: string,
         public lastname: string,
@@ -10,6 +9,5 @@ export class Staff{
         public email: string,
         public password: string,
         public permissions: string
-
-    ){}
+    ) {}
 }

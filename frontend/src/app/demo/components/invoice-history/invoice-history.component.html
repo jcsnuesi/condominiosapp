@@ -1,208 +1,210 @@
-<div class="head">
-    <div class="icon head" (click)="back()">
-        <i class="pi pi-arrow-left i-hover"></i>
-    </div>
-    <div class="head">
-        <h3>{{ moduleTitle }}</h3>
-    </div>
-</div>
-<p-table
-    #dt1
-    [value]="propertyDetailsVar"
-    dataKey="_id"
-    [rows]="10"
-    [rowsPerPageOptions]="[10, 25, 50]"
-    [loading]="loading"
-    [paginator]="true"
-    [globalFilterFields]="globalFilters"
->
-    <ng-template pTemplate="caption">
-        <div class="flex">
-            <p-button
-                label="Clear"
-                [outlined]="true"
-                icon="pi pi-filter-slash"
-                (onClick)="clear(dt1)"
-            />
-            <span class="p-input-icon-left ml-auto">
-                <i class="pi pi-search"></i>
-                <input
-                    pInputText
-                    type="text"
-                    [(ngModel)]="searchValue"
-                    (input)="dt1.filterGlobal($event.target.value, 'contains')"
-                    placeholder="Search keyword"
-                />
-            </span>
-        </div>
-    </ng-template>
-    <ng-template pTemplate="header">
-        <tr>
-            <th *ngFor="let headerKey of headerTitleDict | PreserveOrder">
-                <div
-                    *ngIf="
-                        headerKey.key == 'fullname' ||
-                        headerKey.key == 'unit' ||
-                        headerKey.key == 'phone' ||
-                        headerKey.key == 'descriptions'
-                    "
-                    class="flex align-items-center"
-                >
-                    {{ headerKey.value }}
+<div class="card mt-2">
+    <h3>{{ moduleTitle }}</h3>
 
-                    <p-columnFilter
-                        type="text"
-                        [field]="headerKey.key"
-                        display="menu"
-                    />
-                </div>
-
-                <div
-                    *ngIf="headerKey.key == 'invoice_amount'"
-                    class="flex align-items-center"
-                >
-                    {{ headerKey.value }}
-                    <p-columnFilter
-                        type="numeric"
-                        field="invoice_amount"
-                        display="menu"
-                    />
-                </div>
-
-                <div
-                    *ngIf="headerKey.key == 'invoice_issue'"
-                    class="flex align-items-center"
-                >
-                    Issue date
-                    <p-columnFilter
-                        type="date"
-                        field="invoice_issue"
-                        display="menu"
-                    />
-                </div>
-
-                <div
-                    *ngIf="headerKey.key == 'invoice_status'"
-                    class="flex align-items-center"
-                >
-                    Status
-                    <p-columnFilter
-                        field="invoice_status"
-                        matchMode="equals"
-                        display="menu"
-                    >
-                        <ng-template
-                            pTemplate="filter"
-                            let-value
-                            let-filter="filterCallback"
-                        >
-                            <p-dropdown
-                                [ngModel]="value"
-                                [options]="statuses"
-                                (onChange)="filter($event.value)"
-                                placeholder="Any"
-                            >
-                                <ng-template let-option pTemplate="item">
-                                    <p-tag
-                                        [value]="option.label"
-                                        [severity]="
-                                            getInvoiceStatus(option.value)
-                                        "
-                                    />
-                                </ng-template>
-                            </p-dropdown>
-                        </ng-template>
-                    </p-columnFilter>
-                </div>
-
-                <div
-                    *ngIf="headerKey.key == 'paymentStatus'"
-                    class="flex align-items-center"
-                >
-                    Payment Status
-                    <p-columnFilter
-                        field="paymentStatus"
-                        matchMode="equals"
-                        display="menu"
-                    >
-                        <ng-template
-                            pTemplate="filter"
-                            let-value
-                            let-filter="filterCallback"
-                        >
-                            <p-dropdown
-                                [ngModel]="value"
-                                [options]="paymentStatuses"
-                                (onChange)="filter($event.value)"
-                                placeholder="Any"
-                            >
-                                <ng-template let-option pTemplate="item">
-                                    <p-tag
-                                        [value]="option.label"
-                                        [severity]="
-                                            getPaymentStatus(option.value)
-                                        "
-                                    />
-                                </ng-template>
-                            </p-dropdown>
-                        </ng-template>
-                    </p-columnFilter>
-                </div>
-            </th>
-
-            <th style="width: 5rem"></th>
-        </tr>
-    </ng-template>
-
-    <ng-template pTemplate="body" let-customer>
-        <tr>
-            <td *ngFor="let data of customer | PreserveOrder : excludedColumns">
-                <span
-                    *ngIf="
-                        data.key == 'fullname' ||
-                        data.key == 'unit' ||
-                        data.key == 'phone'
-                    "
-                >
-                    {{ data.value | titlecase }}
-                </span>
-
-                <span *ngIf="data.key == 'invoice_issue'">
-                    {{ data.value | date : "MM/dd/yy" }}
-                </span>
-                <span *ngIf="data.key == 'invoice_amount'">
-                    {{ data.value | currency : "USD" }}
-                </span>
-
-                <span *ngIf="data.key == 'invoice_status'">
-                    <p-tag
-                        [value]="data.value | titlecase"
-                        [severity]="getInvoiceStatus(data.value)"
-                    />
-                </span>
-
-                <span *ngIf="data.key == 'paymentStatus'">
-                    <p-tag
-                        [value]="data.value | titlecase"
-                        [severity]="getPaymentStatus(data.value)"
-                    />
-                </span>
-            </td>
-            <td>
+    <p-table
+        #dt1
+        [value]="propertyDetailsVar"
+        dataKey="_id"
+        [rows]="10"
+        [rowsPerPageOptions]="[10, 25, 50]"
+        [loading]="loading"
+        [paginator]="true"
+        [globalFilterFields]="globalFilters"
+    >
+        <ng-template pTemplate="caption">
+            <div class="flex">
                 <p-button
-                    icon="pi pi-cog"
-                    severity="secondary"
-                    (click)="getInvoiceInfo(customer)"
+                    label="Clear"
+                    [outlined]="true"
+                    icon="pi pi-filter-slash"
+                    (onClick)="clear(dt1)"
                 />
-            </td>
-        </tr>
-    </ng-template>
-    <ng-template pTemplate="emptymessage">
-        <tr>
-            <td colspan="7">No invoice found.</td>
-        </tr>
-    </ng-template>
-</p-table>
+                <span class="p-input-icon-left ml-auto">
+                    <i class="pi pi-search"></i>
+                    <input
+                        pInputText
+                        type="text"
+                        [(ngModel)]="searchValue"
+                        (input)="
+                            dt1.filterGlobal($event.target.value, 'contains')
+                        "
+                        placeholder="Search keyword"
+                    />
+                </span>
+            </div>
+        </ng-template>
+        <ng-template pTemplate="header">
+            <tr>
+                <th *ngFor="let headerKey of headerTitleDict | PreserveOrder">
+                    <div
+                        *ngIf="
+                            headerKey.key == 'fullname' ||
+                            headerKey.key == 'unit' ||
+                            headerKey.key == 'phone' ||
+                            headerKey.key == 'descriptions'
+                        "
+                        class="flex align-items-center"
+                    >
+                        {{ headerKey.value }}
+
+                        <p-columnFilter
+                            type="text"
+                            [field]="headerKey.key"
+                            display="menu"
+                        />
+                    </div>
+
+                    <div
+                        *ngIf="headerKey.key == 'invoice_amount'"
+                        class="flex align-items-center"
+                    >
+                        {{ headerKey.value }}
+                        <p-columnFilter
+                            type="numeric"
+                            field="invoice_amount"
+                            display="menu"
+                        />
+                    </div>
+
+                    <div
+                        *ngIf="headerKey.key == 'invoice_issue'"
+                        class="flex align-items-center"
+                    >
+                        Issue date
+                        <p-columnFilter
+                            type="date"
+                            field="invoice_issue"
+                            display="menu"
+                        />
+                    </div>
+
+                    <div
+                        *ngIf="headerKey.key == 'invoice_status'"
+                        class="flex align-items-center"
+                    >
+                        Status
+                        <p-columnFilter
+                            field="invoice_status"
+                            matchMode="equals"
+                            display="menu"
+                        >
+                            <ng-template
+                                pTemplate="filter"
+                                let-value
+                                let-filter="filterCallback"
+                            >
+                                <p-dropdown
+                                    [ngModel]="value"
+                                    [options]="statuses"
+                                    (onChange)="filter($event.value)"
+                                    placeholder="Any"
+                                >
+                                    <ng-template let-option pTemplate="item">
+                                        <p-tag
+                                            [value]="option.label"
+                                            [severity]="
+                                                getInvoiceStatus(option.value)
+                                            "
+                                        />
+                                    </ng-template>
+                                </p-dropdown>
+                            </ng-template>
+                        </p-columnFilter>
+                    </div>
+
+                    <div
+                        *ngIf="headerKey.key == 'paymentStatus'"
+                        class="flex align-items-center"
+                    >
+                        Payment Status
+                        <p-columnFilter
+                            field="paymentStatus"
+                            matchMode="equals"
+                            display="menu"
+                        >
+                            <ng-template
+                                pTemplate="filter"
+                                let-value
+                                let-filter="filterCallback"
+                            >
+                                <p-dropdown
+                                    [ngModel]="value"
+                                    [options]="paymentStatuses"
+                                    (onChange)="filter($event.value)"
+                                    placeholder="Any"
+                                >
+                                    <ng-template let-option pTemplate="item">
+                                        <p-tag
+                                            [value]="option.label"
+                                            [severity]="
+                                                getPaymentStatus(option.value)
+                                            "
+                                        />
+                                    </ng-template>
+                                </p-dropdown>
+                            </ng-template>
+                        </p-columnFilter>
+                    </div>
+                </th>
+
+                <th style="width: 5rem"></th>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-customer>
+            <tr>
+                <td
+                    *ngFor="
+                        let data of customer | PreserveOrder : excludedColumns
+                    "
+                >
+                    <span
+                        *ngIf="
+                            data.key == 'fullname' ||
+                            data.key == 'unit' ||
+                            data.key == 'phone'
+                        "
+                    >
+                        {{ data.value | titlecase }}
+                    </span>
+
+                    <span *ngIf="data.key == 'invoice_issue'">
+                        {{ data.value | date : "MM/dd/yy" }}
+                    </span>
+                    <span *ngIf="data.key == 'invoice_amount'">
+                        {{ data.value | currency : "USD" }}
+                    </span>
+
+                    <span *ngIf="data.key == 'invoice_status'">
+                        <p-tag
+                            [value]="data.value | titlecase"
+                            [severity]="getInvoiceStatus(data.value)"
+                        />
+                    </span>
+
+                    <span *ngIf="data.key == 'paymentStatus'">
+                        <p-tag
+                            [value]="data.value | titlecase"
+                            [severity]="getPaymentStatus(data.value)"
+                        />
+                    </span>
+                </td>
+                <td>
+                    <p-button
+                        icon="pi pi-cog"
+                        severity="secondary"
+                        (click)="getInvoiceInfo(customer)"
+                    />
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="7">No invoice found.</td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>
 
 <!-- MODAL INVOICE HISTORY -->
 

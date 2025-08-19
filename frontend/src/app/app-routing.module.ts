@@ -118,12 +118,7 @@ import { AllPartnersComponent } from './demo/components/all-partners/all-partner
                             component: InvoiceHistoryComponent,
                         },
                         {
-                            path: 'staff/:homeId',
-                            canActivate: [UserGuard],
-                            component: StaffComponent,
-                        },
-                        {
-                            path: 'staff-regular/:ownerId',
+                            path: 'staff/:id',
                             canActivate: [UserGuard],
                             component: StaffComponent,
                         },

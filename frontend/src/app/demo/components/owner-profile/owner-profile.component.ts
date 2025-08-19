@@ -207,8 +207,6 @@ export class OwnerProfileComponent implements OnInit {
                         this.ownerObj = owner;
                         this.ownerObj.status = owner.status;
 
-                        console.log('response.message', response.message);
-                        console.log('this.OwnerData', this.OwnerData);
                         // console.log(this.ownerObj.status);
                         this.ownerCard.count = propertyDetails.length;
                         this.memberCard.count = familyAccount.length;

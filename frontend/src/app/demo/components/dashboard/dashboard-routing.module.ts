@@ -11,7 +11,7 @@ import { FamilyAreaComponent } from '../family-area/family-area.component';
             { path: 'start', component: DashboardComponent },
             { path: 'start/:dashid', component: DashboardComponent },
             { path: 'booking-area/:dashid', component: BookingAreaComponent },
-            { path: 'staff-regular/:ownerId', component: StaffComponent },
+            { path: 'staff-regular/:id', component: StaffComponent },
             {
                 path: 'family-area/:dashid',
                 component: FamilyAreaComponent,
