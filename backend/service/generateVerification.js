@@ -2,7 +2,7 @@
 const mailer = require("nodemailer");
 
 // Handle the registration verification
-exports.verifyRegistration = function (user) {
+exports.verifyRegistration = async function (user) {
   const transporter = mailer.createTransport({
     service: "gmail",
     host: "smtp.gmail.com",
@@ -10,7 +10,7 @@ exports.verifyRegistration = function (user) {
     secure: true,
     auth: {
       user: "jcsnuesi@gmail.com",
-      pass: "kvfc vvja sxye wjru",
+      pass: "rgps oaba qccf aeaq",
     },
   });
 
@@ -20,7 +20,7 @@ exports.verifyRegistration = function (user) {
     \n
     ==== Credenciales de acceso ====
     Email: ${user.email} \n
-    Password: ${user.password} \n
+    Password: ${user.passwordTemp} \n
     `;
 
   const mailOptions = {
@@ -30,13 +30,11 @@ exports.verifyRegistration = function (user) {
     text: mensajeCorreo,
   };
 
-  transporter.sendMail(mailOptions, (error, info) => {
-    if (error) {
-      console.error(error);
-    }
-
-    console.log("Correo de verificación enviado!!");
-  });
+  try {
+    await transporter.sendMail(mailOptions);
+  } catch (error) {
+    throw Error("Error al enviar el correo de verificación", error);
+  }
 };
 
 exports.CodeVerification = function (email, code) {
@@ -47,7 +45,7 @@ exports.CodeVerification = function (email, code) {
     secure: true,
     auth: {
       user: "jcsnuesi@gmail.com",
-      pass: "kvfc vvja sxye wjru",
+      pass: "rgps oaba qccf aeaq",
     },
   });
 
@@ -70,7 +68,7 @@ exports.CodeVerification = function (email, code) {
   });
 };
 
-exports.StaffRegistration = function (fullobject) {
+exports.StaffRegistration = async function (fullobject) {
   let { email, password } = fullobject;
 
   console.log("Email:", email, "Password:", password);
@@ -82,12 +80,12 @@ exports.StaffRegistration = function (fullobject) {
     secure: true,
     auth: {
       user: "jcsnuesi@gmail.com",
-      pass: "kvfc vvja sxye wjru",
+      pass: "rgps oaba qccf aeaq",
     },
   });
 
   // Enviar correo electrónico de verificación
-  const enlaceVerificacion = `http://localhost:3993/api/verify-email/${email}`;
+  const enlaceVerificacion = `http://localhost:3993/api/staff-verify-email/${email}`;
   const mensajeCorreo = `Por favor, haz clic en el siguiente enlace para verificar tu cuenta: ${enlaceVerificacion} \n
     Password temporal: ${password} \n`;
 
@@ -98,11 +96,9 @@ exports.StaffRegistration = function (fullobject) {
     text: mensajeCorreo,
   };
 
-  transporter.sendMail(mailOptions, (error, info) => {
-    if (error) {
-      console.error(error);
-    }
-
-    console.log("Correo de verificación enviado!!");
-  });
+  try {
+    await transporter.sendMail(mailOptions);
+  } catch (error) {
+    throw Error("Error al enviar el correo de verificación", error);
+  }
 };

@@ -1,52 +1,50 @@
-'use strict'
+"use strict";
 
-var mongoose = require('mongoose') 
-var Schema = mongoose.Schema
+var mongoose = require("mongoose");
+var Schema = mongoose.Schema;
 
-var ContactPerson = Schema({
-
+var ContactPerson = Schema(
+  {
     name_contact: { type: String, required: true },
     lastname_contact: { type: String, required: true },
     gender_contact: { type: String, required: true },
-    email_contact: { type: String, required: true },   
+    email_contact: { type: String, required: true },
     phone_contact: [],
-    role_contact: { type: String, required: true }
- 
- 
-}, { timestamps :true})
+    role_contact: { type: String, required: true },
+  },
+  { timestamps: true }
+);
 
-var contactP = mongoose.model('ContactPerson', ContactPerson)
- 
-var AdminSchema = Schema({
+var contactP = mongoose.model("ContactPerson", ContactPerson);
 
-    avatar: { type: String },
+var AdminSchema = Schema(
+  {
+    avatar: { type: String, default: "default-avatar.png" },
     company: { type: String, required: true },
     rnc: { type: String },
-    admins: [{ type: mongoose.Schema.Types.ObjectId, ref:'Administrators' }],
-    phone: [],    
+    admins: [{ type: mongoose.Schema.Types.ObjectId, ref: "Administrators" }],
+    phone: [],
     street_1: { type: String, required: true },
-    street_2: { type: String},
+    street_2: { type: String },
     city: { type: String, required: true },
-    state: { type: String, required: true }, 
-    zipcode: { type: String }, 
+    state: { type: String, required: true },
+    zipcode: { type: String },
     country: { type: String, required: true },
-    email_company: { type: String, required: true },    
-    password: { type: String, required: true }, 
-    contact_person: [ContactPerson],   
-    role: { type: String, default: 'ADMIN'},  
-    status: { type: String, default: 'active'},
-    verified: { type: Boolean, default: false},
-    terms: { type: Boolean, default: false }
-   
-}, { timestamps: true })
+    email: { type: String, required: true },
+    password: { type: String, required: true },
+    contact_person: [ContactPerson],
+    role: { type: String, default: "ADMIN" },
+    status: { type: String, default: "active" },
+    verified: { type: Boolean, default: false },
+    terms: { type: Boolean, default: false },
+  },
+  { timestamps: true }
+);
 
-AdminSchema.method.toJSON = function(){
+AdminSchema.method.toJSON = function () {
+  var obj = this.toObject();
+  delete obj.password;
+  return obj;
+};
 
-    var obj = this.toObject()
-    delete obj.password
-    return obj
-}
-
-
-
-module.exports = mongoose.model('Admin', AdminSchema);
+module.exports = mongoose.model("Admin", AdminSchema);

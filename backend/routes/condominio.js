@@ -61,7 +61,7 @@ router.post(
 // PUT
 
 router.put(
-  "/updateCondominio",
+  "/updateCondominio/:id",
   [authenticated, md_upload, adminAuth],
   condominioController.CondominiumUpdate
 );

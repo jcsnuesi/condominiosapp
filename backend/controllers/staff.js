@@ -7,17 +7,19 @@ let bcrypt = require("bcrypt");
 let errorHandler = require("../error/errorHandler");
 let checkExtensions = require("../service/extensions");
 const { v4: uuidv4 } = require("uuid");
+const emailVerification = require("../service/generateVerification");
 const verifyClass = require("../service/verifyParamData");
-const sendEmailVerification = require("../service/verificators");
 const generatePassword = require("generate-password");
 const Owner = require("../models/owners");
 const Family = require("../models/family");
 const Admin = require("../models/admin");
 const Staff = require("../models/staff");
-const Condo = require("../models/condominio");
+const Staff_Admin = require("../models/staff_admin");
+const Condominio = require("../models/condominio");
+
 let saltRounds = 10;
 // Generar una contraseña con opciones específicas
-const password = generatePassword.generate({
+let temp_password = generatePassword.generate({
   length: 8, // Longitud de la contraseña
   numbers: true, // Incluir números
   symbols: true, // Incluir símbolos
@@ -92,7 +94,7 @@ var StaffController = {
             gender: params.gender.toLowerCase(),
             government_id: params.government_id.toLowerCase(),
             email: params.email.toLowerCase(),
-            password: await bcrypt.hash(password, saltRounds),
+            password: await bcrypt.hash(temp_password, saltRounds),
             phone: params.phone.toLowerCase(),
             position: params.position.toLowerCase(),
             condo_id: params.condo_id,
@@ -109,9 +111,9 @@ var StaffController = {
             }
 
             try {
-              sendEmailVerification.StaffRegistration({
+              await emailVerification.StaffRegistration({
                 email: staffSaved.email,
-                password: password,
+                password: temp_password,
               });
 
               staffSaved.password = undefined;
@@ -133,6 +135,63 @@ var StaffController = {
       return res.status(400).send({
         status: "bad request",
         message: "Missing required fields",
+      });
+    }
+  },
+  createAdmin: async function (req, res) {
+    let params = req.body;
+
+    const AdminFound = await Staff_Admin.findOne({
+      $or: [{ email: params.email }, { government_id: params.government_id }],
+    });
+
+    try {
+      if (AdminFound) {
+        return res.status(400).send({
+          status: "bad request",
+          message: "Admin with this email or government ID already exists",
+        });
+      }
+
+      let staff = new Staff_Admin({
+        name: params.name,
+        lastname: params.lastname,
+        gender: params.gender,
+        government_id: params.government_id,
+        email: params.email,
+        password: await bcrypt.hash(temp_password, saltRounds),
+        phone: params.phone,
+        position: params.position,
+        createdBy: req.user.sub,
+        permissions: params.permissions,
+      });
+
+      staff.save(async (err, staffSaved) => {
+        if (err) {
+          return res.status(500).send({
+            status: "error",
+            message: "Staff was not created",
+            errors: err,
+          });
+        }
+
+        await Admin.findOneAndUpdate(
+          { _id: req.user.sub },
+          { $push: { admins: staffSaved._id } }
+        );
+        staffSaved.password = temp_password;
+        emailVerification.StaffRegistration(staffSaved);
+        return res.status(200).send({
+          status: "success",
+          message: staffSaved,
+        });
+      });
+    } catch (error) {
+      console.log("Error creating admin:", error);
+      return res.status(500).send({
+        status: "error",
+        message: "Server error",
+        error: error,
       });
     }
   },
@@ -282,55 +341,82 @@ var StaffController = {
     }
   },
   getStaffByOwnerAndCondoId: async function (req, res) {
-    let _user = req.params.id;
-    var ref = null;
-    if (Boolean(_user.split("_")[1] == "homeId")) {
-      _user = _user.split("_")[0];
-      ref = "homeId";
-    }
-
-    let query = {};
+    let id = req.params.id;
 
     try {
-      if (req.user.role == "ADMIN" && ref === null) {
-        query["createdBy"] = _user;
-      } else if (ref != null) {
-        query["condo_id"] = _user;
+      const staffFound = await Staff.find({
+        $or: [{ condo_id: id }, { createdBy: id }],
+      }).populate({
+        path: "condo_id",
+        select: "_id alias",
+      });
+
+      if (staffFound.length > 0) {
+        return res.status(200).send({
+          status: "success",
+          message: staffFound,
+        });
       } else {
-        const condo = await Condo.find();
-        const user_id = condo.filter((condo) =>
-          condo.units_ownerId.includes(_user) ? condo._id : null
-        );
-        query["condo_id"] = { $in: user_id };
-        query["status"] = "active";
-      }
-
-      const StaffFound = await Staff.find(query).populate(
-        "condo_id",
-        "alias phone"
-      );
-
-      if (StaffFound.length == 0) {
-        return res.status(404).send({
+        return res.status(200).send({
           status: "error",
-          message: "Staffs was not found",
+          message: "No staff found",
         });
       }
-      // Ocultamos la password
-      StaffFound.forEach((staff) => {
-        staff.password = undefined;
-      });
-      return res.status(200).send({
-        status: "success",
-        message: StaffFound,
-      });
-    } catch (err) {
+    } catch (error) {
       return res.status(500).send({
         status: "error",
-        message: "Server error",
-        error: err,
+        message: "Server error, getting staff by condo",
+        error: error,
       });
     }
+    // var ref = null;
+    // if (Boolean(_user.split("_")[1] == "homeId")) {
+    //   _user = _user.split("_")[0];
+    //   ref = "homeId";
+    // }
+
+    // let query = {};
+
+    // try {
+    //   if (req.user.role == "ADMIN" && ref === null) {
+    //     query["createdBy"] = _user;
+    //   } else if (ref != null) {
+    //     query["condo_id"] = _user;
+    //   } else {
+    //     const condo = await Condominio.find();
+    //     const user_id = condo.filter((condo) =>
+    //       condo.units_ownerId.includes(_user) ? condo._id : null
+    //     );
+    //     query["condo_id"] = { $in: user_id };
+    //     query["status"] = "active";
+    //   }
+
+    //   const StaffFound = await Staff.find(query).populate(
+    //     "condo_id",
+    //     "alias phone"
+    //   );
+
+    //   if (StaffFound.length == 0) {
+    //     return res.status(404).send({
+    //       status: "error",
+    //       message: "Staffs was not found",
+    //     });
+    //   }
+    //   // Ocultamos la password
+    //   StaffFound.forEach((staff) => {
+    //     staff.password = undefined;
+    //   });
+    //   return res.status(200).send({
+    //     status: "success",
+    //     message: StaffFound,
+    //   });
+    // } catch (err) {
+    //   return res.status(500).send({
+    //     status: "error",
+    //     message: "Server error",
+    //     error: err,
+    //   });
+    // }
   },
   getStaffByAdmin: async function (req, res) {
     let _id = req.params.id;

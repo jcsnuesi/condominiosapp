@@ -4,7 +4,7 @@ let md_auth = require("../middleware/auth");
 let emailRegisterGenerator = require("../controllers/whatsappController");
 let router = express.Router();
 let md_ws = require("../middleware/whatsappAuth");
-
+var confirmLinkVerification = require("../service/validateLinkVerification");
 var multipart = require("connect-multiparty");
 var md_upload = multipart({ uploadDir: "./uploads/owners" });
 
@@ -33,7 +33,7 @@ router.get(
 // );
 
 // verify email
-router.get("/verify-email/:email", ownerController.emailVerification);
+router.get("/verify-email/:email", confirmLinkVerification.emailVerification);
 
 // create owner
 router.post(

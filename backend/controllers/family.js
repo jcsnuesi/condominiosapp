@@ -18,7 +18,7 @@ const password = generatePassword.generate({
   lowercase: true, // Incluir letras minúsculas
   excludeSimilarCharacters: true, // Excluir caracteres similares
 });
-const emailVerification = require("../service/verificators");
+const emailVerification = require("../service/generateVerification");
 const wsConfirmationMessage = require("./whatsappController");
 let checkExtensions = require("../service/extensions");
 

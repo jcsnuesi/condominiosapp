@@ -38,7 +38,7 @@ var wsController = {
       });
       wsService.sendWhatsappMessage(data);
     } catch (error) {
-      console.log(error);
+      console.log("WhatsappController", error);
     }
   },
   getTextUser: function (message) {

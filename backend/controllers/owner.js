@@ -15,14 +15,14 @@ const Invoice = require("../models/invoice");
 const occupant = require("../models/occupant");
 const verifying = new verifyDataParam();
 let validator = require("validator");
-let emailVerification = require("../service/verificators");
+let emailVerification = require("../service/generateVerification");
 const fs = require("fs");
 const paths = require("path");
-const generatePassword = require("generate-password");
 const wsConfirmationMessage = require("./whatsappController");
 var mongoose = require("mongoose");
 const assert = require("assert");
 
+const generatePassword = require("generate-password");
 // Generar una contraseña con opciones específicas
 const password = generatePassword.generate({
   length: 8, // Longitud de la contraseña
@@ -34,57 +34,9 @@ const password = generatePassword.generate({
 });
 
 var ownerAndSubController = {
-  emailVerification: function (req, res) {
-    Owner.findOne({ email: req.params.email }, (err, userFound) => {
-      if (err) {
-        return res.status(500).send({
-          status: "error",
-          message: "Server error, try again",
-        });
-      }
-
-      if (!userFound) {
-        return res.status(404).send({
-          status: "error",
-          message: "User not found",
-        });
-      }
-
-      userFound.emailVerified = true;
-
-      Owner.findOneAndUpdate(
-        { email: req.params.email },
-        userFound,
-        { new: true },
-        (err, userUpdated) => {
-          if (err) {
-            return res.status(500).send({
-              status: "error",
-              message: "Server error, try again",
-            });
-          }
-
-          if (!userUpdated) {
-            return res.status(500).send({
-              status: "error",
-              message: "User not updated",
-            });
-          }
-
-          return res.status(200).send({
-            status: "success",
-            verified: userFound.emailVerified,
-          });
-        }
-      );
-    });
-  },
   createSingleOwner: async function (req, res) {
     var params = req.body;
     let pathName = null;
-
-    // console.log("params", params);
-    // return;
 
     try {
       var val_email = validator.isEmail(params.email);
@@ -105,16 +57,14 @@ var ownerAndSubController = {
       let { path, ...res } = req.files.avatar;
       pathName = path.split("\\")[2];
       params.avatar = pathName;
-    }
-
-    //verificar la extension de archivo enviado sea tipo imagen
-    var imgFormatAccepted = checkExtensions.confirmExtension(req);
-
-    if (imgFormatAccepted == false) {
-      return res.status(400).send({
-        status: "bad request",
-        message: "Files allows '.jpg', '.jpeg', '.gif', '.png'",
-      });
+      //verificar la extension de archivo enviado sea tipo imagen
+      var imgFormatAccepted = checkExtensions.confirmExtension(req);
+      if (imgFormatAccepted == false) {
+        return res.status(400).send({
+          status: "bad request",
+          message: "Files allows '.jpg', '.jpeg', '.gif', '.png'",
+        });
+      }
     }
 
     if (val_email && val_phone && val_id_number) {
@@ -128,7 +78,6 @@ var ownerAndSubController = {
             userDuplicated
           );
 
-          // console.log("userDuplicated", userDuplicated._id);
           if (userDuplicated) {
             const propertyFound = userDuplicated.propertyDetails.some(
               (property) =>
@@ -155,7 +104,7 @@ var ownerAndSubController = {
                 propertyDetails,
                 null
               );
-              // console.log("propertyUpdating", propertyUpdating);
+
               if (propertyUpdating.code == 200) {
                 return res.status(propertyUpdating.code).send({
                   status: propertyUpdating.status,
@@ -176,8 +125,9 @@ var ownerAndSubController = {
                 message: errorHandlerArr[2],
               });
             }
-            delete params._id;
-            delete params.status;
+            // delete params._id;
+            // delete params.status;
+          } else {
             try {
               //Instanciamos el usuario segun el tipo de usuario
               let user = new Owner();
@@ -190,48 +140,42 @@ var ownerAndSubController = {
                 addressId: params.addressId,
                 condominium_unit: params.apartmentsUnit,
                 parkingsQty: params.parkingsQty,
-                isRenting: false,
+                isRenting: params.isRenting ?? false,
               };
 
               user.propertyDetails.push(property_details);
               user.password = await bcrypt.hash(password, saltRounds);
 
               await user.save();
-              condominioFound.units_ownerId.push(user._id);
-              // Este código elimina la unidad asignada de la lista de unidades disponibles
-              // 1. Encuentra el índice de la unidad (params.apartmentsUnit) en el array availableUnits
-              // 2. Elimina 1 elemento en esa posición usando splice()
-              // Esto se hace porque una vez que se asigna una unidad a un propietario,
-              // ya no debe estar disponible para otros
-              condominioFound.availableUnits.splice(
-                condominioFound.availableUnits.indexOf(params.apartmentsUnit),
-                1
-              );
-              await Condominio.findOneAndUpdate(
+              const condominioUpdated = await Condominio.findOneAndUpdate(
                 { _id: params.addressId },
-                condominioFound,
+                {
+                  $pull: { availableUnits: params.apartmentsUnit },
+                  $push: { units_ownerId: user._id },
+                },
                 { new: true }
               );
 
               user.passwordTemp = password;
-              user.condominioName = condominioFound.alias;
+              user.condominioName = condominioUpdated.alias;
               emailVerification.verifyRegistration(user);
               wsConfirmationMessage.sendWhatsappMessage(user);
+
+              delete user.passwordTemp;
+              delete user.password;
+              return res.status(200).send({
+                status: "success",
+                message: "User created successfully",
+                user: user,
+              });
             } catch (error) {
+              console.log("error", error);
               return res.status(500).send({
                 status: "error",
                 message: "Missing params to create this user",
                 error: error,
               });
             }
-
-            delete user.passwordTemp;
-            delete user.password;
-            return res.status(200).send({
-              status: "success",
-              message: "User created successfully",
-              user: user,
-            });
           }
         }
       );

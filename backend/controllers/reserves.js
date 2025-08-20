@@ -11,7 +11,7 @@ let errorHandler = require("../error/errorHandler");
 let moment = require("moment");
 // const {v4:uuidv4} = require('uuid')
 let isDateConflict = require("../service/dateConflict");
-let codeVerification = require("../service/verificators");
+let codeVerification = require("../service/generateVerification");
 let generateRandomCode = require("../service/codeGenerator");
 let bcrypt = require("bcrypt");
 let saltRounds = 10;
@@ -115,16 +115,17 @@ var reservesController = {
     }
   },
   getAllBookingByCondoAndUnit: async function (req, res) {
-    let _id = req.params.id;
-    let reservations = null;
-    let query = {};
-    let condosId = [];
-    let homeId = null;
-    // console.log(id);
-    // return;
+    let condoId = req.body.id;
+
     try {
       // Ejecutar la consulta
-      reservations = await Reserves.find({ memberId: _id })
+      let reservations = await Reserves.find({
+        $or: [
+          { condoId: condoId },
+          { memberId: condoId },
+          { memberId: { $in: condoId } },
+        ],
+      })
         .populate({
           model: "Condominium",
           path: "condoId",
@@ -138,13 +139,13 @@ var reservesController = {
           message: reservations,
         });
       } else {
-        return res.status(404).send({
+        return res.status(200).send({
           status: "error",
           message: "No reservations found",
         });
       }
     } catch (error) {
-      console.error(error);
+      console.error("Error fetching reservations:", error);
       return res.status(500).send({
         status: "error",
         message: "Error fetching data",

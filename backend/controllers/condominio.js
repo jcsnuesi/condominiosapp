@@ -244,72 +244,12 @@ var Condominium_Controller = {
   },
   CondominiumUpdate: async function (req, res) {
     // Si el usuario envia un archivo de imagen, se guarda en el servidor y se le asigna el nombre a la propiedad avatar
+    let id = req.params.id;
     let params = req.body;
 
-    if (Boolean(req.files?.avatar)) {
-      let { path, ...res } = req.files.avatar;
-      pathName = path.split("\\")[2];
-      params.avatar = pathName;
-    }
-
-    let messages = "";
-
     try {
-      // Verificar si hay cambios en paymentDate o mPayment
-      if (params.paymentDate || params.mPayment) {
-        const currentDate = new Date();
-        const currentMonth = currentDate.getMonth();
-        const currentYear = currentDate.getFullYear();
-
-        // Buscar facturas del mes actual
-        const existingInvoices = await Invoice.find({
-          condominiumId: params._id,
-          createdAt: {
-            $gte: new Date(
-              params.paymentDate
-                ? new Date(params.paymentDate).getFullYear()
-                : currentYear,
-              params.paymentDate
-                ? new Date(params.paymentDate).getMonth()
-                : currentMonth,
-              1
-            ),
-            $lt: new Date(
-              params.paymentDate
-                ? new Date(params.paymentDate).getFullYear()
-                : currentYear,
-              params.paymentDate
-                ? new Date(params.paymentDate).getMonth() + 1
-                : currentMonth + 1,
-              1
-            ),
-          },
-        });
-
-        if (existingInvoices.length > 0) {
-          messages =
-            "There are invoices in the current month, it will be updated for the next month";
-          // Si existen facturas, actualizar para el mes siguiente
-          const nextMonth = new Date(
-            currentYear,
-            currentMonth + 1,
-            params.paymentDate
-              ? new Date(params.paymentDate).getDate()
-              : existingInvoices[0].dueDate.getDate()
-          );
-          params.paymentDate = nextMonth;
-        }
-      }
-
-      const newSocialAreas = params.socialAreas.split(",");
-      params.socialAreas = newSocialAreas.map((area) => area);
-
-      const newAvailableUnits = params.availableUnits.split(",");
-      params.availableUnits = newAvailableUnits.map((unit) => unit);
-
-      // Actualizar el condominio
-      const condominiumUpdated = await Condominium.findByIdAndUpdate(
-        params._id,
+      const condominiumUpdated = await Condominium.findOneAndUpdate(
+        { _id: id },
         params,
         { new: true }
       );
@@ -324,13 +264,13 @@ var Condominium_Controller = {
       return res.status(200).send({
         status: "success",
         condominium: condominiumUpdated,
-        message: messages,
       });
     } catch (error) {
+      // console.log("error", error);
       return res.status(500).send({
         status: "error",
         message: "Error al actualizar el condominio",
-        error: error.message,
+        error: error,
       });
     }
   },
@@ -436,12 +376,23 @@ var Condominium_Controller = {
 
   getBuildingDetails: function (req, res) {
     let id = req.params.id;
-    Condominium.findById(id)
+    console.log("ID:", id);
+    Condominium.find({
+      $or: [
+        { _id: mongoose.Types.ObjectId(id) },
+        { createdBy: mongoose.Types.ObjectId(id) },
+        { units_ownerId: mongoose.Types.ObjectId(id) },
+      ],
+    })
       .populate({
         path: "units_ownerId",
         match: { status: "active" },
         select: `availableUnits 
-        avatar name lastname gender email phone id_number status role familyAccount propertyDetails.addressId propertyDetails.condominium_unit propertyDetails.parkingsQty propertyDetails.isRenting propertyDetails.occupantId propertyDetails.createdAt`,
+        avatar name lastname gender email phone id_number status role familyAccount propertyDetails `,
+        populate: {
+          path: "propertyDetails.addressId",
+          select: `availableUnits alias phone street_1 street_2 sector_name city province zipcode country socialAreas status mPayment createdAt`,
+        },
       })
       .exec((err, condominiumFound) => {
         if (err || !condominiumFound) {

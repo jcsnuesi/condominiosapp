@@ -12,13 +12,18 @@ var StaffSchema = Schema(
     government_id: { type: String, required: true },
     email: { type: String, required: true },
     password: { type: String, required: true },
+    emailVerified: { type: Boolean, default: false },
     phone: { type: String, required: true },
     position: { type: String, required: true },
     status: { type: String, default: "active" },
     condo_id: { type: mongoose.Schema.Types.ObjectId, ref: "Condominium" },
     role: { type: String, default: "STAFF" },
     permissions: [{ type: String }],
-    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "Admin" },
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Admin",
+      required: true,
+    },
   },
   { timestamps: true }
 );
