@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { UserService } from '../../service/user.service';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { Staff } from '../../models/staff.model';
@@ -8,7 +10,7 @@ import { ImportsModule } from '../../imports_primeng';
 @Component({
     selector: 'app-create-user',
     standalone: true,
-    imports: [ImportsModule],
+    imports: [ImportsModule, FormsModule, CommonModule],
     templateUrl: './create-user.component.html',
     styleUrl: './create-user.component.scss',
     providers: [UserService, ConfirmationService, MessageService, StaffService],
@@ -41,10 +43,20 @@ export class CreateUserComponent implements OnInit {
         this.selectedStaffs = [];
         this.positionSelected = [];
         this.token = this._userService.getToken();
-        this.userModel = new Staff('', '', '', '', '', '', '', '', '');
+        this.userModel = new Staff(
+            '',
+            '',
+            { label: '', code: '' },
+            '',
+            '',
+            { label: '', code: '' },
+            '',
+            [],
+            ''
+        );
         this.genderModel = [
-            { name: 'Female', code: 'F' },
-            { name: 'Male', code: 'M' },
+            { name: 'Female', code: 'Female' },
+            { name: 'Male', code: 'Male' },
         ];
         this.passwordActive = false;
         this.positionOptions = [
@@ -130,7 +142,17 @@ export class CreateUserComponent implements OnInit {
         });
 
         // Restablecer todos los campos del modelo userModel
-        this.userModel = new Staff('', '', '', '', '', '', '', '', '');
+        this.userModel = new Staff(
+            '',
+            '',
+            { label: '', code: '' },
+            '',
+            '',
+            { label: '', code: '' },
+            '',
+            [],
+            ''
+        );
 
         // Restablecer las variables relacionadas con el formulario
         this.permissions = [];
@@ -154,10 +176,10 @@ export class CreateUserComponent implements OnInit {
             this.userModel[key] = user[key];
         }
 
-        this.genderSelected =
-            this.userModel['gender'] == 'M'
-                ? { name: 'Male', code: 'M' }
-                : { name: 'Female', code: 'F' };
+        // this.genderSelected =
+        //     this.userModel['gender'] == 'M'
+        //         ? { label: 'Male', code: 'M' }
+        //         : { label: 'Female', code: 'F' };
 
         this.positionSelected = this.positionOptions.filter(
             (position) =>
@@ -235,7 +257,25 @@ export class CreateUserComponent implements OnInit {
         });
     }
 
-    saveUser(event: any) {
+    transformUserModel(userModel: Staff) {
+        let dataFormatted = { position: '', gender: '', permissions: [] };
+        dataFormatted['name'] = userModel.name;
+        dataFormatted['lastname'] = userModel.lastname;
+        dataFormatted['government_id'] = userModel.government_id;
+        dataFormatted['phone'] = userModel.phone;
+        dataFormatted['email'] = userModel.email;
+        dataFormatted.position = this.userModel.position.code;
+        dataFormatted.gender = this.userModel.gender.code;
+        dataFormatted.permissions = this.userModel.permissions.map(
+            (perm) => perm.code
+        );
+
+        return dataFormatted;
+    }
+
+    createUser(event: any) {
+        const formData = this.transformUserModel(this.userModel);
+
         switch (event.label) {
             case 'Create':
                 this._confirmationService.confirm({
@@ -243,14 +283,40 @@ export class CreateUserComponent implements OnInit {
                     header: 'Confirm',
                     icon: 'pi pi-exclamation-triangle',
                     accept: () => {
-                        this.userModel.permissions = '';
-                        this.permissions.forEach((permission) => {
-                            this.userModel.permissions += permission.code + ',';
-                        });
-
-                        this.userModel.position = this.positionSelected.code;
-                        this.userModel.gender = this.genderSelected.code;
-                        this.submit();
+                        this._staffService
+                            .createAdmin(formData, this.token)
+                            .subscribe({
+                                next: (response) => {
+                                    if (response.status == 'success') {
+                                        this.userDialog = false;
+                                        this._messageService.add({
+                                            severity: 'success',
+                                            summary: 'Successful',
+                                            detail: 'Staff created successfully',
+                                            life: 3000,
+                                        });
+                                    } else {
+                                        this._messageService.add({
+                                            severity: 'error',
+                                            summary: 'Error',
+                                            detail: 'Staff not created',
+                                            life: 3000,
+                                        });
+                                    }
+                                },
+                                error: (error) => {
+                                    console.log('error', error);
+                                    this._messageService.add({
+                                        severity: 'error',
+                                        summary: 'Error',
+                                        detail: 'Staff not created',
+                                        life: 3000,
+                                    });
+                                },
+                                complete: () => {
+                                    console.log('Staff created!');
+                                },
+                            });
                     },
                 });
 
@@ -261,11 +327,6 @@ export class CreateUserComponent implements OnInit {
                     header: 'Confirm',
                     icon: 'pi pi-exclamation-triangle',
                     accept: () => {
-                        this.userModel.permissions = '';
-                        this.permissions.forEach((permission) => {
-                            this.userModel.permissions += permission.code + ',';
-                        });
-
                         this.userModel.position = this.positionSelected.code;
                         this.userModel.gender = this.genderSelected.code;
                         this.update();
@@ -321,26 +382,5 @@ export class CreateUserComponent implements OnInit {
                 console.log('Staff updated!');
             },
         });
-    }
-
-    submit() {
-        // this._staffService.create(this.userModel, this.token).subscribe({
-        //     next: (response)  => {
-        //       if (response.status == 'success') {
-        //         this.getAllStaff();
-        //         this.userDialog = false;
-        //         this._messageService.add({ severity: 'success', summary: 'Successful', detail: 'Staff created successfully', life: 3000 });
-        //       } else {
-        //         this._messageService.add({ severity: 'error', summary: 'Error', detail: 'Staff not created', life: 3000 });
-        //       }
-        //     },
-        //     error: (error) => {
-        //       console.log("error", error)
-        //       this._messageService.add({ severity: 'error', summary: 'Error', detail: 'Staff not created', life: 3000 });
-        //     },
-        //     complete: () => {
-        //       console.log('Staff created!')
-        //     }
-        // });
     }
 }

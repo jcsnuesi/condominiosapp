@@ -1,5 +1,6 @@
+<p-confirmDialog />
+<p-toast />
 <div class="card">
-    <p-toast />
     <p-toolbar styleClass="mb-4 gap-2">
         <ng-template pTemplate="left">
             <p-button
@@ -36,7 +37,7 @@
         [value]="users"
         [rows]="10"
         [paginator]="true"
-        [globalFilterFields]="['name', 'lastname', 'status', 'position']"
+        [globalFilterFields]="['fullname', 'status', 'position']"
         [tableStyle]="{ 'min-width': '75rem' }"
         [(selection)]="selectedStaffs"
         [rowHover]="true"
@@ -65,14 +66,11 @@
                     <p-tableHeaderCheckbox />
                 </th>
 
-                <th style="min-width: 15rem">Avatar</th>
                 <th pSortableColumn="name" style="min-width: 15rem">
-                    Name <p-sortIcon field="name" />
+                    Fullname <p-sortIcon field="name" />
                 </th>
-                <th pSortableColumn="lastname">
-                    Lastname <p-sortIcon field="lastname" />
-                </th>
-                <th>gender</th>
+
+                <th>Email</th>
                 <th style="min-width: 10rem">Phone</th>
                 <th pSortableColumn="position">
                     Position <p-sortIcon field="position" />
@@ -92,22 +90,22 @@
                 </td>
 
                 <td>
-                    <p-avatar
-                        label="{{ getAvatarFirstLetter(userx.name) }}"
-                        styleClass="mr-2"
-                        size="xlarge"
+                    <span class="p-column-title">Fullname</span>
+                    <img
+                        class="avata-tbl"
+                        [alt]="staff?.fullname"
+                        src="{{ url + 'avatar-staff/' + userx.avatar }}"
+                        width="45px"
+                        height="45px"
+                        style="vertical-align: middle"
                     />
+                    <span class="ml-1 vertical-align-middle" width="100px">
+                        {{ staff.fullname | titlecase }}
+                    </span>
                 </td>
 
                 <td>
-                    {{ upperCase(userx.name) }}
-                </td>
-
-                <td>
-                    {{ upperCase(userx.lastname) }}
-                </td>
-                <td>
-                    {{ upperCase(userx.gender) }}
+                    {{ userx.email }}
                 </td>
                 <td>
                     {{ userx.phone }}
@@ -159,10 +157,7 @@
         styleClass="p-fluid"
     >
         <ng-template pTemplate="content">
-            <!-- <img [src]="'https://primefaces.org/cdn/primeng/images/demo/product/' + product.image" [alt]="product.image"
-                    class="block m-auto pb-3" *ngIf="product.image" /> -->
-
-            <form #staffForm="ngForm" (ngSubmit)="submit(staffForm)">
+            <form #staffAdminForm="ngForm">
                 <div class="field">
                     <label for="name">Name</label>
                     <input
@@ -202,7 +197,7 @@
                         [options]="genderModel"
                         #genderx="ngModel"
                         name="genderx"
-                        [(ngModel)]="genderSelected"
+                        [(ngModel)]="userModel.gender"
                         optionLabel="name"
                         [placeholder]="genderSelected"
                         required
@@ -218,6 +213,7 @@
                         #phone="ngModel"
                         name="phone"
                         [(ngModel)]="userModel.phone"
+                        maxlength="11"
                         required
                     />
                     <small
@@ -253,7 +249,7 @@
                         [options]="positionOptions"
                         #position="ngModel"
                         name="position"
-                        [(ngModel)]="positionSelected"
+                        [(ngModel)]="userModel.position"
                         optionLabel="name"
                         [placeholder]="positionSelected"
                     />
@@ -304,7 +300,7 @@
                         [options]="permissionsOptions"
                         #permissionsx="ngModel"
                         name="permissionsx"
-                        [(ngModel)]="permissions"
+                        [(ngModel)]="userModel.permissions"
                         optionLabel="name"
                         placeholder="Select permissions..."
                     />
@@ -329,7 +325,6 @@
                 </div>
             </form>
         </ng-template>
-
         <ng-template pTemplate="footer">
             <p-button
                 label="Cancel"
@@ -342,10 +337,8 @@
                 #btnSave
                 icon="pi pi-check"
                 [text]="true"
-                (onClick)="saveUser(btnSave)"
+                (onClick)="createUser(btnSave)"
             />
         </ng-template>
     </p-dialog>
-
-    <p-confirmDialog [style]="{ width: '450px' }" />
 </div>

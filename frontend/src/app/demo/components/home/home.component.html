@@ -10,6 +10,11 @@
                 >{{ condoInfo.type + ": " + condoInfo.alias | titlecase }}</span
             >
         </div>
+        <span
+            class="pi pi-cog"
+            (click)="settings()"
+            style="cursor: pointer"
+        ></span>
     </div>
     <p-tag
         [severity]="condoInfo.status == 'active' ? 'success' : 'danger'"
@@ -341,3 +346,108 @@
 <!-- Bookings generater -->
 <!-- Staff  -->
 <app-staff *ngIf="componentsToShow.staff" [condoId]="condoId"></app-staff>
+
+<!-- Settings Dialog -->
+
+<p-dialog
+    header="Settings"
+    [(visible)]="visible_settings"
+    [modal]="true"
+    [draggable]="false"
+    [resizable]="false"
+    [closable]="true"
+    [style]="{ width: '30%' }"
+>
+    <form #condominiumForm="ngForm" (ngSubmit)="updateCondo()">
+        <span class="p-text-secondary mb-3"
+            >Update your condominium information.</span
+        >
+        <div class="d-block" style="padding: 12px">
+            <div class="addressProperty">
+                <label htmlFor="aliaslabel">Alias</label>
+                <input
+                    [ngClass]="{
+                        'input-error':
+                            alias.invalid && (alias.dirty || alias.touched)
+                    }"
+                    pInputText
+                    #alias="ngModel"
+                    name="alias"
+                    [(ngModel)]="condoInfo.alias"
+                    id="aliaslabel"
+                    type="text"
+                    maxlength="50"
+                    required
+                />
+            </div>
+
+            <div class="addressProperty">
+                <label htmlFor="phone">Phone</label>
+                <input
+                    [ngClass]="{
+                        'input-error':
+                            phone.invalid && (phone.dirty || phone.touched)
+                    }"
+                    pInputText
+                    #phone="ngModel"
+                    [(ngModel)]="condoInfo.phone"
+                    name="phone"
+                    id="phone"
+                    type="text"
+                    maxlength="11"
+                    pattern="^[0-9]+"
+                    placeholder="8095882222"
+                    required
+                />
+            </div>
+
+            <div class="addressProperty">
+                <label htmlFor="phone2">Phone 2</label>
+                <input
+                    pInputText
+                    #phone2="ngModel"
+                    [(ngModel)]="condoInfo.phone2"
+                    name="phone2"
+                    id="phone2"
+                    type="text"
+                    pattern="^[0-9]+"
+                    maxlength="11"
+                    pattern="^[0-9]+"
+                    placeholder="8095882222"
+                />
+            </div>
+            <div class="addressProperty">
+                <label htmlFor="amountInvoiceLabel">Monthly Fee</label>
+                <input
+                    pInputText
+                    type="text"
+                    #amountInvoice="ngModel"
+                    name="amountInvoice"
+                    [(ngModel)]="condoInfo.mPayment"
+                    id="amountInvoiceLabel"
+                />
+            </div>
+            <div class="addressProperty">
+                <label htmlFor="issueDateUpdatelabel">Payment Date</label>
+                <div class="mt-2"></div>
+                <p-calendar
+                    #issueDateUpdate="ngModel"
+                    name="issueDateUpdate"
+                    [(ngModel)]="condoInfo.paymentDate"
+                    id="issueDateUpdatelabel"
+                    [inline]="true"
+                    [showWeek]="true"
+                />
+            </div>
+        </div>
+        <div class="mt-4">
+            <button
+                class="btn-update-topbar"
+                [disabled]="!condominiumForm.valid"
+                pButton
+                pRipple
+                label="Update"
+            ></button>
+        </div>
+    </form>
+</p-dialog>

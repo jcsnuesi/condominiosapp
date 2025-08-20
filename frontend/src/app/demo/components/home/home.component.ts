@@ -159,12 +159,15 @@ export class HomeComponent implements OnInit {
             '',
             ''
         );
+
         this.condoInfo = {
             id: '',
             alias: '',
             type: '',
             avatar: '',
             status: '',
+            paymentDate: '',
+            mPayment: 0,
         };
         this.componentsToShow = {
             booking: false,
@@ -279,13 +282,14 @@ export class HomeComponent implements OnInit {
                     (response) => {
                         if (response.status == 'success') {
                             // Info para enviar al componente 'invoice generator'
-                            this.invoiceInfo.mPayment =
-                                response.condominium.mPayment;
-                            this.invoiceInfo.paymentDate =
-                                response.condominium.paymentDate;
-                            this.invoiceInfo.id = response.condominium._id;
                             var unitList = response.condominium[0];
-
+                            this.invoiceInfo.mPayment = unitList.mPayment;
+                            this.invoiceInfo.paymentDate = unitList.paymentDate;
+                            this.invoiceInfo.id = unitList._id;
+                            this.invoiceInfo.units_ownerId =
+                                unitList.units_ownerId;
+                            console.log('UNITS', this.invoiceInfo);
+                            this.condoInfo = { ...unitList };
                             unitList['units'] = unitList.availableUnits.map(
                                 (unit) => {
                                     return { label: unit };
@@ -673,32 +677,6 @@ export class HomeComponent implements OnInit {
             });
     }
 
-    invoiceHistory() {
-        this._router.navigate(['/invoice-history', this.condoId]);
-    }
-
-    // ngOnDestroy(): void {
-    //     this.homeEvent.emit({
-    //         _id: '',
-    //         alias: '',
-    //         typeOfProperty: { label: '' },
-    //         phone: '',
-    //         phone2: '',
-    //         street_1: '',
-    //         street_2: '',
-    //         sector_name: '',
-    //         city: '',
-    //         province: '',
-    //         socialAreas: [],
-    //         mPayment: 0,
-    //         paymentDate: '',
-    //         propertyUnitFormat: '',
-    //         avatar: '',
-    //         status: false,
-    //         availableUnits: [],
-    //         country: '',
-    //     });
-    // }
     public multipleOwners: any[] = [];
     onSelect(event: any): void {
         const file: File = event.files?.[0];
@@ -783,6 +761,71 @@ export class HomeComponent implements OnInit {
             },
             reject: () => {
                 // Acción a realizar si se rechaza la confirmación
+                this._messageService.add({
+                    severity: 'warn',
+                    summary: 'Action Cancelled',
+                    detail: 'Users were not created.',
+                    life: 3000,
+                });
+            },
+        });
+    }
+
+    public visible_settings: boolean = false;
+    settings() {
+        this.visible_settings = true;
+    }
+
+    setTodayDate(data: string): string {
+        const today = new Date(this.condoInfo.paymentDate);
+        let day = today.getDate();
+        let month = today.getMonth() + 1; // Los meses son 0-indexados
+        let year = today.getFullYear();
+
+        return `${month}-${day}-${year}`; // Formato MM-DD-YYYY
+    }
+
+    updateCondo() {
+        const formData = new FormData();
+        formData.append('alias', this.condoInfo.alias);
+        formData.append('phone', this.condoInfo.phone);
+        formData.append('phone2', this.condoInfo.phone2);
+        formData.append('mPayment', this.condoInfo.mPayment);
+        formData.append(
+            'paymentDate',
+            this.setTodayDate(this.condoInfo.paymentDate)
+        );
+
+        this._confirmationService.confirm({
+            message:
+                '¿Estás seguro de que deseas actualizar la información del condominio?',
+            header: 'Confirmación',
+            icon: 'pi pi-exclamation-triangle',
+            accept: () => {
+                this._condominioService
+                    .updateCondominium(this.token, formData, this.condoId)
+                    .subscribe({
+                        next: (res) => {
+                            console.log('res', res);
+                            if (res.status === 'success') {
+                                this._messageService.add({
+                                    severity: 'success',
+                                    summary: 'Success',
+                                    detail: 'Data Updated',
+                                });
+                            }
+                        },
+                        error: (err) => {
+                            this._messageService.add({
+                                severity: 'error',
+                                summary: 'Error',
+                                detail: 'Error updating data',
+                            });
+                            console.log('err', err);
+                        },
+                    });
+            },
+            reject: () => {
                 this._messageService.add({
                     severity: 'warn',
                     summary: 'Action Cancelled',

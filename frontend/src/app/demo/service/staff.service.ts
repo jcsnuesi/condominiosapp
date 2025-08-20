@@ -22,6 +22,15 @@ export class StaffService {
             headers: header,
         });
     }
+    createAdmin(admin: any, token: string): Observable<any> {
+        let header = new HttpHeaders()
+            .set('Authorization', token)
+            .set('Content-Type', 'application/json');
+
+        return this._http.post(this.url + 'create-staff-admin', admin, {
+            headers: header,
+        });
+    }
 
     login(user: any, token: boolean): Observable<any> {
         if (token) {

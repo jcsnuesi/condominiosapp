@@ -59,3 +59,20 @@
     border-radius: 50%;
     border: #dbdbdb solid 1px;
 }
+
+.addressProperty {
+    padding: 12px;
+}
+
+.addressProperty label {
+    display: block;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    margin-top: 4px;
+    margin-bottom: 4px;
+}
+
+.addressProperty input {
+    display: block;
+    width: 100%;
+}

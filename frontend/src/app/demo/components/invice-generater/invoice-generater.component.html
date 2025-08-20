@@ -1,6 +1,6 @@
 <p-confirmDialog />
 <p-dialog
-    header="Set up invoice details"
+    header="Generate Invoice"
     [modal]="true"
     [(visible)]="invoiceData.invoiceGenerator"
     [draggable]="true"
@@ -10,55 +10,11 @@
     (onHide)="onHide()"
 >
     <form #invoiceForm="ngForm" class="size-full">
-        <span class="p-text-secondary mb-3"
-            >Update your payment information.</span
-        >
-
-        <div class="mb-3">
-            <label for="amountInvoiceLabel" class="font-semibold w-6rem d-block"
-                >Enter amount $</label
-            >
-            <div class="mt-2"></div>
-            <input
-                pInputText
-                type="text"
-                #amountInvoice="ngModel"
-                name="amountInvoice"
-                [(ngModel)]="updateInfo.mPayment"
-                id="amountInvoiceLabel"
-            />
-        </div>
-
-        <div class="mb-3">
-            <label
-                for="issueDateUpdatelabel"
-                class="font-semibold w-6rem d-block"
-                >Issue date</label
-            >
-            <div class="mt-2"></div>
-            <p-calendar
-                #issueDateUpdate="ngModel"
-                name="issueDateUpdate"
-                [(ngModel)]="updateInfo.paymentDate"
-                id="issueDateUpdatelabel"
-            />
-        </div>
-
-        <div class="mb-3" *ngIf="!invoiceSetup">
-            <p-button
-                label="Update"
-                severity="info"
-                (click)="updateInvoice()"
-            />
-        </div>
-
-        <hr class="dropdown-divider" />
-
         <h3>Create a new invoice.</h3>
 
         <div class="mb-3">
             <label for="username" class="font-semibold d-block mb-2"
-                >Choose who the invoice belongs to</label
+                >Choose to whom the invoice belongs to</label
             >
             <div class="mt-2"></div>
             <p-dropdown

@@ -2,12 +2,12 @@ export class Staff {
     constructor(
         public name: string,
         public lastname: string,
-        public gender: string,
+        public gender: { label: string; code: string },
         public government_id: string,
         public phone: string,
-        public position: string,
+        public position: { label: string; code: string },
         public email: string,
-        public password: string,
-        public permissions: string
+        public permissions: Array<{ label: string; code: string }>,
+        public password?: string
     ) {}
 }

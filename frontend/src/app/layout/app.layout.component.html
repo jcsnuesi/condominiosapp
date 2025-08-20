@@ -1,18 +1,12 @@
 <div class="layout-wrapper" [ngClass]="containerClass">
-    <app-topbar
-        [currentCondoInfo]="currentProperty"
-        (updateCondoInfo)="handleCondoUpdateEvent($event)"
-    ></app-topbar>
+    <app-topbar></app-topbar>
 
     <div class="layout-sidebar">
         <app-sidebar></app-sidebar>
     </div>
     <div class="layout-main-container">
         <div class="layout-main">
-            <router-outlet
-                #currentComponent
-                (deactivate)="onDeactivate($event)"
-            ></router-outlet>
+            <router-outlet #currentComponent></router-outlet>
         </div>
         <app-footer></app-footer>
     </div>

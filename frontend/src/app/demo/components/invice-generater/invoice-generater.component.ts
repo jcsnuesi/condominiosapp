@@ -113,7 +113,7 @@ export class InviceGeneraterComponent {
         private _condoService: CondominioService
     ) {
         this.token = this._userService.getToken();
-        this.condoInfo = JSON.parse(localStorage.getItem('property'));
+
         let dataFromFatherComponent = { ...this.invoiceData };
         this.invoiceInfo = {
             issueDate: '',
@@ -147,58 +147,23 @@ export class InviceGeneraterComponent {
         return dueDate.toISOString().split('T')[0];
     }
 
-    updateInvoice() {
-        const formData = new FormData();
-        formData.append('mPayment', this.updateInfo.mPayment.toString());
-        formData.append('paymentDate', this.updateInfo.paymentDate);
-        formData.append('id', this.updateInfo.id);
-        this._condoService.updateCondominium(this.token, formData).subscribe({
-            next: (data) => {
-                if (data.status === 'success') {
-                    // localStorage.setItem('property', JSON.stringify(data.property));
-                    // Emitimos el evento para que se actualie el toast de factura generada
-                    this.facturaGenerada.emit({
-                        severity: 'success',
-                        summary: 'Successfully!',
-                        detail: 'Invoice updated successfully!',
-                    });
-                    // Cerramos el dialogo de invoice
-                    this.onHide();
-                } else {
-                    this.facturaGenerada.emit({
-                        severity: 'error',
-                        summary: 'Fail',
-                        detail: 'Invoice was not updated.',
-                    });
-                }
-            },
-            error: (error) => {
-                this.facturaGenerada.emit({
-                    severity: 'danger',
-                    summary: 'Fail',
-                    detail: 'Invoice was not updated.',
-                });
-                console.error('There was an error!', error);
-            },
-            complete: () => {
-                console.log('Completed');
-            },
-        });
-    }
-
     onClickInvoiceOwnerMultiSelect() {
         // let propertyOwner = this.condoInfo;
 
-        this.ownerSelected = this.condoInfo.units_ownerId.map((owner: any) => {
-            let propertyInfo = {};
-            owner.propertyDetails.forEach((property: any) => {
-                propertyInfo = {
-                    label: `${owner.name} ${owner.lastname} - ${property.condominium_unit}`,
-                    value: owner._id,
-                };
-            });
-            return propertyInfo;
-        });
+        this.ownerSelected = this.invoiceData.units_ownerId.map(
+            (owner: any) => {
+                let propertyInfo = {};
+                owner.propertyDetails.forEach((property: any) => {
+                    propertyInfo = {
+                        label: `${owner.name.toUpperCase()} ${owner.lastname.toUpperCase()} - ${
+                            property.condominium_unit
+                        }`,
+                        value: owner._id,
+                    };
+                });
+                return propertyInfo;
+            }
+        );
     }
 
     saveInvoice() {

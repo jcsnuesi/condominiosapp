@@ -30,7 +30,6 @@ export class AppLayoutComponent implements OnDestroy {
 
     public menuOutsideClickListener: any;
 
-    public currentProperty = '';
     public profileMenuOutsideClickListener: any;
 
     @ViewChild(AppSidebarComponent) appSidebar!: AppSidebarComponent;
@@ -113,33 +112,6 @@ export class AppLayoutComponent implements OnDestroy {
                 this.hideMenu();
                 this.hideProfileMenu();
             });
-    }
-
-    public updateDateFromTopbar: any;
-    // Maneja el evento de actualización del condominio desde el topbar
-    handleCondoUpdateEvent(event: any) {
-        this.getData.handleCondoUpdate(event);
-    }
-    public getData: any;
-    // dataCondoLoaded(data: any) {
-    //     this.activeComponent = data.homeEvent;
-    //     this.getData = data;
-
-    //     if (data.homeEvent) {
-    //         data.homeEvent.subscribe((data: any) => {
-    //             // console.log('Evento recibido:', data);
-    //             this.currentProperty = data;
-    //         });
-    //     }
-    // }
-
-    onDeactivate(data: any): void {
-        if (data.homeEvent) {
-            data.homeEvent.subscribe((data: any) => {
-                console.log('onDeactivate Evento recibido:', data);
-                this.currentProperty = data;
-            });
-        }
     }
 
     hideMenu() {

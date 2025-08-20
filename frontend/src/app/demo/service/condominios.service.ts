@@ -49,13 +49,18 @@ export class CondominioService {
 
     updateCondominium(
         token: string,
-        condominioInfo: FormData
+        condominioInfo: FormData,
+        id: string
     ): Observable<any> {
         let header = new HttpHeaders().set('Authorization', token);
 
-        return this._http.put(this.url + 'updateCondominio', condominioInfo, {
-            headers: header,
-        });
+        return this._http.put(
+            this.url + 'updateCondominio/' + id,
+            condominioInfo,
+            {
+                headers: header,
+            }
+        );
     }
 
     deletePropertyWithAuth(token: string, id: string): Observable<any> {
