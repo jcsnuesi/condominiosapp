@@ -12,6 +12,7 @@ var StaffSchema = Schema(
     government_id: { type: String, required: true },
     email: { type: String, required: true },
     password: { type: String, required: true },
+    first_password_changed: { type: Boolean },
     emailVerified: { type: Boolean, default: false },
     phone: { type: String, required: true },
     position: { type: String, required: true },

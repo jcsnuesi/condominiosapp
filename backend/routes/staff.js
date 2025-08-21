@@ -19,6 +19,11 @@ router.get(
   md_auth.authenticated,
   StaffController.getStaffByAdmin
 );
+router.get(
+  "/staffs-admin/:id",
+  md_auth.authenticated,
+  StaffController.getStaffAdmin
+);
 
 router.get("/avatar-staff/:avatar", StaffController.getAvatar);
 router.get(
@@ -68,5 +73,10 @@ router.put(
 // // DELETE
 
 router.put("/delete-staff", md_auth.authenticated, StaffController.deleteBatch);
+router.put(
+  "/delete-staff-admin",
+  md_auth.authenticated,
+  StaffController.deleteBatchAdmin
+);
 
 module.exports = router;

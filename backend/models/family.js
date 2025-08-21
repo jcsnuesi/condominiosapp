@@ -12,6 +12,7 @@ var FamilySchema = Schema(
     email: { type: String, required: true },
     password: { type: String },
     phone: { type: String, required: true },
+    first_password_changed: { type: Boolean, default: false },
     status: { type: String, default: "active" },
     role: { type: String, default: "FAMILY" },
     propertyDetails: [

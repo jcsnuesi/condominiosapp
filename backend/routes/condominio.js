@@ -11,12 +11,6 @@ var md_upload = multipart({ uploadDir: "./uploads/properties" });
 var { authenticated, adminAuth } = require("../middleware/middleware_bundle");
 const VerifyData = require("../service/verifyParamData");
 const phoneFormatFunc = new VerifyData();
-// GET
-// router.get(
-//   "/condominios",
-//   authenticated,
-//   condominioController.getCondominiumByAdmin
-// );
 
 router.get("/condominioById", condominioController.getCondominiumById);
 router.get(

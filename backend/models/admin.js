@@ -30,6 +30,7 @@ var AdminSchema = Schema(
     state: { type: String, required: true },
     zipcode: { type: String },
     country: { type: String, required: true },
+    first_password_changed: { type: Boolean },
     email: { type: String, required: true },
     password: { type: String, required: true },
     contact_person: [ContactPerson],

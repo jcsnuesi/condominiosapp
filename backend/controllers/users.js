@@ -14,6 +14,7 @@ let Admin = require("../models/admin");
 let Staff = require("../models/staff");
 let Owner = require("../models/owners");
 let Condominio = require("../models/condominio");
+const Staff_Admin = require("../models/staff_admin");
 let Occupant = require("../models/occupant");
 let deactivatedOwner = require("../service/persistencia");
 let backup = require("../models/accountsDeleted");
@@ -242,7 +243,8 @@ var controller = {
 
     if (val_email && val_password) {
       const userFound = await Promise.all([
-        Admin.findOne({ email_company: params.email }),
+        Admin.findOne({ email: params.email }),
+        Staff_Admin.findOne({ email: params.email }),
         Staff.findOne({ email: params.email }),
         Owner.findOne({ email: params.email })
           .populate({
@@ -256,7 +258,7 @@ var controller = {
           ),
         Family.findOne({ email: params.email }),
       ]);
-
+      console.log("userFound", userFound);
       let foundUser = null;
 
       const response = userFound.some((user) => {

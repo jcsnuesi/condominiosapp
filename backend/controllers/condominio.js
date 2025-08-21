@@ -423,45 +423,27 @@ var Condominium_Controller = {
     }
   },
   getUnits: async function (req, res) {
-    const users = { owner: Owner, family: Family, admin: Admin };
+    const id = req.params.id;
 
     try {
-      const id = req.params.id;
-      const user = await users[req.user.role.toLowerCase()].findById(id);
-
-      if (!user) {
+      const condominiums = await Condominium.find({
+        $or: [
+          { units_ownerId: { $in: [mongoose.Types.ObjectId(id)] } },
+          { createdBy: mongoose.Types.ObjectId(id) },
+        ],
+      }).select(
+        "name street_1 street_2 sector_name city province country availableUnits"
+      );
+      if (!condominiums) {
         return res.status(404).send({
           status: "error",
-          message: "User not found",
+          message: "Condominium not found",
         });
-      }
-
-      let units = [];
-
-      if (user.role.toLowerCase() === "owner") {
-        // Buscar todas las unidades donde el owner está asignado
-        const condominiums = await Condominium.find({
-          units_ownerId: { $in: [id] },
-        }).select(
-          "name street_1 street_2 sector_name city province country availableUnits"
-        );
-
-        units = condominiums;
-      } else if (user.role.toLowerCase() === "admin") {
-        // Buscar todos los condominios creados por el admin
-        const condominiums = await Condominium.find({
-          createdBy: id,
-          status: "active",
-        }).select(
-          "name street_1 street_2 sector_name city province country availableUnits"
-        );
-
-        units = condominiums;
       }
 
       return res.status(200).send({
         status: "success",
-        units: units,
+        units: condominiums,
       });
     } catch (error) {
       return res.status(500).send({

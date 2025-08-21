@@ -39,6 +39,11 @@ router.put(
   [md_auth.authenticated, md_upload, verifyPassword.passwordVerified],
   UserController.update
 );
+router.put("/update-password", [
+  md_auth.authenticated,
+  verifyPassword.passwordVerified,
+]);
+
 router.put(
   "/inactive-account",
   [md_auth.authenticated, userAuth.authorization],

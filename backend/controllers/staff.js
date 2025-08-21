@@ -16,7 +16,7 @@ const Admin = require("../models/admin");
 const Staff = require("../models/staff");
 const Staff_Admin = require("../models/staff_admin");
 const Condominio = require("../models/condominio");
-
+let mongoose = require("mongoose");
 let saltRounds = 10;
 // Generar una contraseña con opciones específicas
 let temp_password = generatePassword.generate({
@@ -141,11 +141,11 @@ var StaffController = {
   createAdmin: async function (req, res) {
     let params = req.body;
 
-    const AdminFound = await Staff_Admin.findOne({
-      $or: [{ email: params.email }, { government_id: params.government_id }],
-    });
-
     try {
+      const AdminFound = await Staff_Admin.findOne({
+        $or: [{ email: params.email }, { government_id: params.government_id }],
+      });
+
       if (AdminFound) {
         return res.status(400).send({
           status: "bad request",
@@ -340,6 +340,39 @@ var StaffController = {
       return res.status(500).send({ message: "Error en la petición" });
     }
   },
+  deleteBatchAdmin: async function (req, res) {
+    const updateData = req.body;
+
+    try {
+      if (!Array.isArray(updateData.id) || updateData.id.length === 0) {
+        return res
+          .status(400)
+          .send({ message: "No se proporcionaron IDs válidos" });
+      }
+      // Realizar la eliminación por lotes
+      const result = await Staff_Admin.updateMany(
+        { _id: { $in: updateData.id } },
+        { status: "inactive" },
+        { new: true }
+      );
+
+      if (result.deletedCount === 0) {
+        return res.status(404).send({
+          status: "error",
+          message: "No se encontraron usuarios para eliminar",
+        });
+      }
+
+      return res.status(200).send({
+        status: "success",
+        message: "Usuarios eliminados correctamente",
+        deletedCount: result.deletedCount,
+      });
+    } catch (err) {
+      console.error("Error en la eliminación:", err);
+      return res.status(500).send({ message: "Error en la petición" });
+    }
+  },
   getStaffByOwnerAndCondoId: async function (req, res) {
     let id = req.params.id;
 
@@ -419,10 +452,10 @@ var StaffController = {
     // }
   },
   getStaffByAdmin: async function (req, res) {
-    let _id = req.params.id;
+    let id = mongoose.Types.ObjectId(req.params.id);
 
     Staff.find({
-      createdBy: _id,
+      createdBy: id,
     })
       .populate("condo_id", "alias")
       .exec((err, staffs) => {
@@ -443,6 +476,28 @@ var StaffController = {
           message: staffs,
         });
       });
+  },
+  getStaffAdmin: async function (req, res) {
+    let id = mongoose.Types.ObjectId(req.params.id);
+
+    Staff_Admin.find({ createdBy: id }).exec((err, staffs) => {
+      if (err || !staffs) {
+        return res.status(501).send({
+          status: "error",
+          message: "Staffs was not found",
+        });
+      }
+
+      // Ocultamos la password
+      for (const index in staffs) {
+        staffs[index].password = undefined;
+      }
+
+      return res.status(200).send({
+        status: "success",
+        message: staffs,
+      });
+    });
   },
   unlikeImage: function (filePath) {
     fs.unlink(filePath, (err) => {
