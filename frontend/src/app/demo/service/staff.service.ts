@@ -71,6 +71,17 @@ export class StaffService {
             headers: header,
         });
     }
+    deleteStaffAdmin(token: string, user: any): Observable<any> {
+        let param = JSON.stringify(user);
+
+        let header = new HttpHeaders()
+            .set('Content-Type', 'application/json')
+            .set('Authorization', token);
+
+        return this._http.put(this.url + `delete-staff-admin`, param, {
+            headers: header,
+        });
+    }
 
     reactiveStaff(token: string, info: any): Observable<any> {
         let params = JSON.stringify(info);
@@ -89,6 +100,13 @@ export class StaffService {
             .set('Authorization', token);
 
         return this._http.get(this.url + 'staffs/' + company_id, {
+            headers: header,
+        });
+    }
+    getStaffAdmin(token: string, staff_id: string): Observable<any> {
+        let header = new HttpHeaders().set('Authorization', token);
+
+        return this._http.get(this.url + 'staffs-admin/' + staff_id, {
             headers: header,
         });
     }

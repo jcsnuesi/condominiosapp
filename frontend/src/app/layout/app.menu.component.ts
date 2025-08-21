@@ -66,39 +66,14 @@ export class AppMenuComponent implements OnInit {
                 label: 'User management',
                 items: [
                     {
-                        label: 'See all',
+                        label: 'See users',
                         icon: 'pi pi-users',
                         routerLink: ['/usermanagement'],
                     },
                 ],
                 role: 'ADMIN',
             },
-            {
-                label: 'Customers',
-                items: [
-                    {
-                        label: 'See all',
-                        icon: 'pi pi-users',
-                        routerLink: ['/customers'],
-                    },
-                    {
-                        label: 'Register for company',
-                        icon: 'pi pi-user-plus',
-                        routerLink: ['/register'],
-                    },
-                    {
-                        label: 'edit',
-                        icon: 'pi pi-user-edit',
-                        routerLink: ['/'],
-                    },
-                    {
-                        label: 'delete',
-                        icon: 'pi pi-user-minus',
-                        routerLink: ['/'],
-                    },
-                ],
-                role: 'ADMIN',
-            },
+
             {
                 label: 'Options',
                 items: [

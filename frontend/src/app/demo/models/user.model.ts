@@ -20,6 +20,7 @@ export class User {
         public phone_contact: string,
         public phone_contact2: string,
         public role: string,
-        public terms: boolean
+        public terms: boolean,
+        public first_password_changed: boolean
     ) {}
 }

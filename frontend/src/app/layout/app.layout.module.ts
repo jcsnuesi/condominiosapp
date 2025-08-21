@@ -32,6 +32,7 @@ import { TabMenuModule } from 'primeng/tabmenu';
 import { HasPermissionsDirective } from '../has-permissions.directive';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { CalendarModule } from 'primeng/calendar';
+import { ChangePasswordComponent } from '../demo/components/change-password/change-password.component';
 
 @NgModule({
     declarations: [
@@ -43,6 +44,7 @@ import { CalendarModule } from 'primeng/calendar';
         AppLayoutComponent,
     ],
     imports: [
+        ChangePasswordComponent,
         MultiSelectModule,
         CalendarModule,
         HasPermissionsDirective,

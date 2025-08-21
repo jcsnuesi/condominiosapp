@@ -191,7 +191,6 @@ export class BookingAreaComponent implements OnInit {
                 query = this.condoId;
             }
 
-            console.log('Booking ID:', query);
             this.getAllBookings(query);
             this.getPropertyType();
         });
@@ -404,14 +403,12 @@ export class BookingAreaComponent implements OnInit {
     getAllBookings(paramId: string) {
         /**Este metodo obtiene las reservas del condominio*/
 
-        console.log('query booking:', paramId);
-
         this._bookingService.getBooking(this.token, paramId).subscribe({
             next: (response) => {
                 // this.bookingHistory = response.booking;
                 if (response.status === 'success') {
                     let allBookinInfo = response.message;
-                    console.log('Booking Info HISTORY:', allBookinInfo);
+                    // console.log('Booking Info HISTORY:', allBookinInfo);
                     try {
                         this.bookingHistory = allBookinInfo.map((booking) => {
                             let bookName = null;

@@ -22,7 +22,6 @@ import { FormatFunctions } from '../pipes/formating_text';
 import { global } from '../demo/service/global.service';
 import { Condominio } from '../demo/models/condominios.model';
 import { FileUpload } from 'primeng/fileupload';
-import { NgForm } from '@angular/forms';
 import { Stepper } from 'primeng/stepper';
 
 type Condo = {
@@ -69,6 +68,9 @@ export class AppTopBarComponent implements OnInit {
     public image: string = '';
     public fullname: string = '';
     public role: string = '';
+    public userData: { _id: string; email: string; token: string };
+    public token: string = '';
+    public needChangePassword: boolean;
 
     constructor(
         public layoutService: LayoutService,
@@ -81,11 +83,26 @@ export class AppTopBarComponent implements OnInit {
         private _format: FormatFunctions
     ) {
         this.identity = this._userService.getIdentity();
-        let avatarPath = this.identity.role == 'ADMIN' ? 'users' : 'owners';
+        this.token = this._userService.getToken();
+
+        this.needChangePassword = this.identity.first_password_changed;
 
         this.url = global.url;
-        this.avatar =
-            this.url + 'main-avatar/' + avatarPath + '/' + this.identity.avatar;
+        this.avatar = this.getAvatar(this.identity.role);
+    }
+
+    getAvatar(role: string): string {
+        if (
+            role === 'ADMIN' ||
+            role === 'SUPER_ADMIN' ||
+            role === 'STAFF_ADMIN'
+        ) {
+            return this.url + 'main-avatar/users/' + this.identity.avatar;
+        } else if (role === 'OWNER') {
+            return this.url + 'main-avatar/owners/' + this.identity.avatar;
+        } else {
+            return this.url + 'main-avatar/family/' + this.identity.avatar;
+        }
     }
 
     ngOnInit(): void {

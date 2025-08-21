@@ -32,6 +32,7 @@ import { ChangePasswordComponent } from '../change-password/change-password.comp
 import { ImportsModule } from '../../imports_primeng';
 import { HasPermissionsDirective } from 'src/app/has-permissions.directive';
 import { BookingAreaComponent } from '../booking-area/booking-area.component';
+import { StaffComponent } from '../staff/staff.component';
 
 @Component({
     templateUrl: './dashboard.component.html',
@@ -41,6 +42,7 @@ import { BookingAreaComponent } from '../booking-area/booking-area.component';
         ChangePasswordComponent,
         HasPermissionsDirective,
         BookingAreaComponent,
+        StaffComponent,
     ],
     providers: [
         CondominioService,
@@ -95,6 +97,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     public totalUnits: number;
     public visibleCreateOwnerUnit: boolean = false;
     public itemsx: any;
+    public condoId: any;
 
     @Output() propertyInfoEvent: EventEmitter<any> = new EventEmitter();
     componentsToShow: { booking: boolean; staff: boolean; main: boolean };
@@ -288,6 +291,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.loadBookingCard();
         this.getStaffQty();
         this.loadUnitsCard();
+
+        this.condoId = this.getId();
     }
 
     showComponent(show: string) {
@@ -299,9 +304,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.componentsToShow[show] = true;
     }
 
+    getId() {
+        const role = this.identity.role.toLowerCase();
+        if (role === 'owner' || role === 'admin') {
+            return this.identity._id;
+        } else if (role === 'family') {
+            return this.identity.ownerId;
+        } else {
+            return this.identity.createdBy;
+        }
+    }
+
     loadUnitsCard() {
         this._condominioService
-            .getUnits(this.token, this.identity._id)
+            .getUnits(this.token, this.getId())
             .subscribe((response) => {
                 if (response.status == 'success') {
                     this.totalUnits = response.units.length;
@@ -310,7 +326,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
 
     hideFamilyDialogfunc(visible: boolean | { msg: string }) {
-        console.log('Hide family dialog', visible);
+        // console.log('Hide family dialog', visible);
         if (typeof visible === 'boolean') {
             this.visibleCreateOwnerUnit = visible;
             this._messageService.add({
@@ -326,13 +342,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 detail: `${visible.msg}`,
                 life: 8000,
             });
-        }
-    }
-    showDialogCreateOwnerUnit() {
-        if (this.identity.role == 'ADMIN') {
-            this._router.navigate(['/create-property']);
-        } else {
-            this.visibleCreateOwnerUnit = true;
         }
     }
 
@@ -456,7 +465,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     onInitInfo() {
         this._activatedRoute.params.subscribe((param) => {
-            let id = param['dashid']; // admin id or owner id
+            let id = this.getId() ?? param['dashid']; // admin id or owner id
 
             this._condominioService.getBuilding(id, this.token).subscribe({
                 next: (response) => {
@@ -475,7 +484,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                                       })
                                       .flat()
                                 : response.condominium;
-                        console.log('Error--->', this.units_ownerId);
+                        // console.log('Error--->', this.units_ownerId);
                         this.units = response.condominium.length;
                     } else {
                         console.log('Error--->', response);

@@ -62,6 +62,13 @@ export class UserService {
             headers: header,
         });
     }
+    updatePassword(token: string, user: any): Observable<any> {
+        let header = new HttpHeaders().set('Authorization', token);
+
+        return this._http.put(this.url + 'update-password', user, {
+            headers: header,
+        });
+    }
 
     deleteUser(token: string, user: any): Observable<any> {
         let param = JSON.stringify(user);

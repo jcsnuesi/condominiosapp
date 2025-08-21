@@ -248,21 +248,24 @@
                             <p-tableCheckbox [value]="staff" />
                         </td>
                         <td>
-                            <span class="p-column-title">Fullname</span>
-                            <img
-                                class="avata-tbl"
-                                [alt]="staff?.fullname"
-                                src="{{ url + 'avatar-staff/' + staff.avatar }}"
-                                width="45px"
-                                height="45px"
-                                style="vertical-align: middle"
-                            />
-                            <span
-                                class="ml-1 vertical-align-middle"
-                                width="100px"
-                            >
-                                {{ staff.fullname | titlecase }}
-                            </span>
+                            <div class="flex">
+                                <img
+                                    class="avata-tbl"
+                                    [alt]="staff?.fullname"
+                                    src="{{
+                                        url + 'avatar-staff/' + staff.avatar
+                                    }}"
+                                    width="45px"
+                                    height="45px"
+                                    style="vertical-align: middle"
+                                />
+                                <div
+                                    class="ml-1 vertical-align-middle"
+                                    width="100px"
+                                >
+                                    {{ staff.fullname | titlecase }}
+                                </div>
+                            </div>
                         </td>
 
                         <td *appHasPermissions="'admin'">

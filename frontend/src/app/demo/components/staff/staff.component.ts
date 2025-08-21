@@ -303,9 +303,9 @@ export class StaffComponent implements OnInit, AfterViewInit {
     ngOnInit(): void {
         // Obtiene el id del condominio
         this._route.params.subscribe((params) => {
-            let condoId = params['id'] ?? this.condoId; // comparte variable admin y owner            this.condoData = condoId;
+            let condoId = this.condoId ?? params['id']; // comparte variable admin y owner            this.condoData = condoId;
 
-            console.log('Condo Data [params]:', params);
+            console.log('Condo Data [params]:', this.condoId);
             this.getStaffByCondoId(condoId);
 
             if (this.loginInfo.role == 'ADMIN') {

@@ -6,12 +6,14 @@ import { FormsModule } from '@angular/forms';
 import { PasswordModule } from 'primeng/password';
 import { UserService } from '../../service/user.service';
 import { OwnerServiceService } from '../../service/owner-service.service';
-import { ConfirmationService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { CookieService } from 'ngx-cookie-service';
 import { CondominioService } from '../../service/condominios.service';
 
-type Password = {
+type ChangePassword = {
+    _id: string;
+    email: string;
     password: string;
     retryPassword: string;
 };
@@ -38,44 +40,38 @@ type Password = {
 })
 export class ChangePasswordComponent {
     public passval: boolean = true;
-    public password: Password;
+    public changePassword: ChangePassword;
     public passMessage: string = '';
     public identity: any;
     private token: any;
 
-    @Input() changePasswordDialog: boolean = false;
-    @Output() passwordChanged = new EventEmitter<boolean>();
-    @Input() componentHeader: string = '';
-    @Input() componentMessage: string = '';
-    @Input() data: any;
+    @Input() userData: boolean;
 
     constructor(
         private _userService: UserService,
-        private _ownerService: OwnerServiceService,
         private _confirmationService: ConfirmationService,
-        private _cookieService: CookieService,
-        private _condominioService: CondominioService
+        private _messageService: MessageService
     ) {
-        this.password = {
+        this.token = this._userService.getToken();
+        this.identity = this._userService.getIdentity();
+        this.changePassword = {
+            _id: this.identity._id,
+            email: this.identity.email,
             password: '',
             retryPassword: '',
         };
-
-        this.identity = this._userService.getIdentity();
-        this.token = this._userService.getToken();
-        // console.log('deleteProperty changePassword', this.componentHeader);
     }
 
     verifyPasswordInput(confirmPassword: any) {
         let passwordInput = confirmPassword.target.value;
 
-        if (this.password.password.length < 8) {
+        if (this.changePassword.password.length < 8) {
             this.passMessage = 'Password must be at least 8 characters';
             this.passval = true;
         } else {
             if (
-                this.password.password === passwordInput &&
-                this.password.retryPassword === passwordInput
+                this.changePassword.password === passwordInput &&
+                this.changePassword.retryPassword === passwordInput
             ) {
                 this.passMessage = 'Password Match';
                 this.passval = false;
@@ -99,11 +95,7 @@ export class ChangePasswordComponent {
             rejectButtonStyleClass: 'p-button-outlined p-button-sm',
             acceptButtonStyleClass: 'p-button-sm',
             accept: () => {
-                if (this.identity.role === 'ADMIN') {
-                    this.deletePropertyByAdmin();
-                } else {
-                    this.updatePassword();
-                }
+                this.updatePassword();
             },
             reject: () => {
                 console.log('reject');
@@ -111,76 +103,32 @@ export class ChangePasswordComponent {
         });
     }
 
-    deletePropertyByAdmin() {
-        let user = {
-            email: this.identity.email_company,
-            password: this.password.password,
-        };
-
-        this._userService.login(user, true).subscribe({
-            next: (response) => {
-                if (response.token) {
-                    this._condominioService
-                        .deletePropertyWithAuth(this.token, this.data._id)
-                        .subscribe({
-                            next: (response) => {
-                                if (response.status === 'success') {
-                                    this.changePasswordDialog = false;
-                                    this.emitChange();
-                                }
-                                console.log('response-------->', response);
-                            },
-                            error: (error) => {
-                                console.log('error', error);
-                            },
-                        });
-                } else {
-                    console.log('response-------->', response);
-                }
-                console.log('response-------->', response);
-            },
-            error: (error) => {
-                console.log('error', error);
-            },
-        });
-    }
-
     updatePassword() {
-        const formdata = new FormData();
-        formdata.append('password', this.password.password);
-        formdata.append('_id', this.identity._id);
-        formdata.append('role', this.identity.role);
-
-        switch (this.identity.role) {
-            case 'ADMIN':
-                // this._userService.updateUser(this.token, this.password).subscribe({
-                //     next: (response) => {},
-                //     error: (error) => {}
-                // });
-                break;
-            case 'OWNER':
-                this._ownerService.updateOwner(this.token, formdata).subscribe({
-                    next: (response) => {
-                        if (response.status === 'success') {
-                            this._cookieService.delete('identity');
-                            this._cookieService.set(
-                                'identity',
-                                JSON.stringify(response.user_updated)
-                            );
-                            this.changePasswordDialog = false;
-                            this.emitChange();
-                        }
-                        console.log('response', response);
-                    },
-                    error: (error) => {
-                        console.log('error', error);
-                    },
-                });
-                break;
-        }
-    }
-
-    emitChange() {
-        this.passwordChanged.emit(true);
+        this._userService
+            .updatePassword(this.token, this.changePassword)
+            .subscribe({
+                next: (response) => {
+                    if (response.status === 'success') {
+                        this._messageService.add({
+                            severity: 'success',
+                            summary: 'Success',
+                            detail: 'Password updated successfully',
+                        });
+                    } else {
+                        this._messageService.add({
+                            severity: 'error',
+                            summary: 'Error',
+                            detail: 'Failed to update password',
+                        });
+                    }
+                },
+                error: (error) => {
+                    this._messageService.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: 'Failed to update password',
+                    });
+                },
+            });
     }
 }

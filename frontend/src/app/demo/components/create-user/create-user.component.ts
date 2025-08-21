@@ -6,6 +6,21 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { Staff } from '../../models/staff.model';
 import { StaffService } from '../../service/staff.service';
 import { ImportsModule } from '../../imports_primeng';
+import { global } from '../../service/global.service';
+
+type StaffAdmin = {
+    fullname: string;
+    email: string;
+    position: string;
+    createdAt: string;
+    gender: string;
+    government_id: string;
+    phone: string;
+    status: string;
+    emailVerified: boolean;
+    createdBy: string;
+    permissions: Array<string>;
+}[];
 
 @Component({
     selector: 'app-create-user',
@@ -33,6 +48,9 @@ export class CreateUserComponent implements OnInit {
     public positionSelected: any;
     public current_permissions: any;
     public dialogHeader: string;
+    public identity: any;
+    public staffAdminData: StaffAdmin[];
+    public url: string;
 
     constructor(
         private _userService: UserService,
@@ -43,6 +61,8 @@ export class CreateUserComponent implements OnInit {
         this.selectedStaffs = [];
         this.positionSelected = [];
         this.token = this._userService.getToken();
+        this.identity = this._userService.getIdentity();
+        this.url = global.url;
         this.userModel = new Staff(
             '',
             '',
@@ -80,10 +100,39 @@ export class CreateUserComponent implements OnInit {
     ngOnInit(): void {
         // Cargamos todos los usuarios
         console.log('Create user component initialized');
+        this.getStaffAdmin();
     }
 
     upperCase(user) {
         return user.toUpperCase();
+    }
+
+    getId() {
+        const role = this.identity.role.toLowerCase();
+        if (role === 'owner' || role === 'admin') {
+            return this.identity._id;
+        } else if (role === 'family') {
+            return this.identity.ownerId;
+        } else {
+            return this.identity.createdBy;
+        }
+    }
+
+    getStaffAdmin() {
+        this._staffService.getStaffAdmin(this.token, this.getId()).subscribe({
+            next: (res) => {
+                let r = res.message.map((data) => {
+                    data.fullname = data.name + ' ' + data.lastname;
+
+                    return data;
+                });
+                this.staffAdminData = r;
+                console.log('res', this.staffAdminData);
+            },
+            error: (err) => {
+                console.log(err);
+            },
+        });
     }
 
     deleteSelectedUsers() {
@@ -93,39 +142,43 @@ export class CreateUserComponent implements OnInit {
             icon: 'pi pi-exclamation-triangle',
             accept: () => {
                 const ids = this.selectedStaffs.map((staff) => staff._id);
+                console.log('ids', ids);
+                this._staffService
+                    .deleteStaffAdmin(this.token, { id: ids })
+                    .subscribe({
+                        next: (response) => {
+                            if (response.status == 'success') {
+                                this._messageService.add({
+                                    severity: 'success',
+                                    summary: 'Successful',
+                                    detail: 'Staffs deleted successfully!',
+                                    life: 3000,
+                                });
 
-                this._staffService.deleteStaff(this.token, ids).subscribe({
-                    next: (response) => {
-                        if (response.status == 'success') {
-                            this._messageService.add({
-                                severity: 'success',
-                                summary: 'Successful',
-                                detail: 'Staffs deleted successfully!',
-                                life: 3000,
-                            });
-                        } else {
+                                this.getStaffAdmin();
+                            } else {
+                                this._messageService.add({
+                                    severity: 'error',
+                                    summary: 'Error',
+                                    detail: 'Staffs not deleted',
+                                    life: 3000,
+                                });
+                            }
+                        },
+
+                        error: (error) => {
+                            console.log('error', error);
                             this._messageService.add({
                                 severity: 'error',
                                 summary: 'Error',
                                 detail: 'Staffs not deleted',
                                 life: 3000,
                             });
-                        }
-                    },
-
-                    error: (error) => {
-                        console.log('error', error);
-                        this._messageService.add({
-                            severity: 'error',
-                            summary: 'Error',
-                            detail: 'Staffs not deleted',
-                            life: 3000,
-                        });
-                    },
-                    complete: () => {
-                        console.log('Staffs deleted!');
-                    },
-                });
+                        },
+                        complete: () => {
+                            console.log('Staffs deleted!');
+                        },
+                    });
             },
         });
     }
@@ -221,7 +274,7 @@ export class CreateUserComponent implements OnInit {
             accept: () => {
                 const ids = new Array(user._id);
 
-                this._staffService.deleteStaff(this.token, ids).subscribe({
+                this._staffService.deleteStaffAdmin(this.token, ids).subscribe({
                     next: (response) => {
                         if (response.status == 'success') {
                             this._messageService.add({

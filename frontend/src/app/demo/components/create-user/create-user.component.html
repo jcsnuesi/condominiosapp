@@ -19,22 +19,23 @@
             />
         </ng-template>
 
+        <!-- Si en el fututo el usuario pide exportar la lista de usuarios a pdf o enviar al correo, usar estos elementos -->
         <ng-template pTemplate="right">
-            <p-fileUpload
+            <!-- <p-fileUpload
                 mode="basic"
                 accept="image/*"
                 [maxFileSize]="1000000"
                 label="Import"
                 chooseLabel="Import"
                 class="mr-2 inline-block"
-            />
-            <p-button severity="help" label="Export" icon="pi pi-upload" />
+            /> -->
+            <!-- <p-button severity="help" label="Export" icon="pi pi-upload" /> -->
         </ng-template>
     </p-toolbar>
 
     <p-table
         #dt
-        [value]="users"
+        [value]="staffAdminData"
         [rows]="10"
         [paginator]="true"
         [globalFilterFields]="['fullname', 'status', 'position']"
@@ -90,18 +91,25 @@
                 </td>
 
                 <td>
-                    <span class="p-column-title">Fullname</span>
-                    <img
-                        class="avata-tbl"
-                        [alt]="staff?.fullname"
-                        src="{{ url + 'avatar-staff/' + userx.avatar }}"
-                        width="45px"
-                        height="45px"
-                        style="vertical-align: middle"
-                    />
-                    <span class="ml-1 vertical-align-middle" width="100px">
-                        {{ staff.fullname | titlecase }}
-                    </span>
+                    <div class="flex">
+                        <img
+                            class="avata-tbl"
+                            [alt]="staff?.fullname"
+                            src="{{
+                                url + 'main-avatar/users/' + userx.avatar
+                            }}"
+                            width="45px"
+                            height="45px"
+                            style="
+                                width: 40px;
+                                height: 40px;
+                                border-radius: 50%;
+                            "
+                        />
+                        <div class="ml-1 vertical-align-middle" width="100px">
+                            {{ userx.fullname | titlecase }}
+                        </div>
+                    </div>
                 </td>
 
                 <td>
