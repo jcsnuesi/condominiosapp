@@ -359,8 +359,21 @@ var Condominium_Controller = {
     });
   },
   getCondominiumsByAdmin: function (req, res) {
+    let params = req.params.id;
+    console.log("Params:------------------>", params);
     Condominium.find(
-      { $and: [{ createdBy: req.user.sub }, { status: "active" }] },
+      {
+        $and: [
+          {
+            $or: [
+              { createdBy: params },
+              { createdBy: params },
+              { units_ownerId: mongoose.Types.ObjectId(params) },
+            ],
+          },
+          { status: "active" },
+        ],
+      },
       (err, condominiumFound) => {
         var errorHandlerArr = errorHandler.newUser(err, condominiumFound);
 
@@ -376,13 +389,9 @@ var Condominium_Controller = {
 
   getBuildingDetails: function (req, res) {
     let id = req.params.id;
-    console.log("ID:", id);
+
     Condominium.find({
-      $or: [
-        { _id: mongoose.Types.ObjectId(id) },
-        { createdBy: mongoose.Types.ObjectId(id) },
-        { units_ownerId: mongoose.Types.ObjectId(id) },
-      ],
+      $or: [{ _id: id }, { createdBy: id }, { units_ownerId: { $in: [id] } }],
     })
       .populate({
         path: "units_ownerId",

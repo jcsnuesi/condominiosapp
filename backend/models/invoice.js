@@ -7,6 +7,13 @@ var Counter = require("./counter");
 
 var InvoiceSchema = Schema(
   {
+    condominiumId: { type: mongoose.Schema.Types.ObjectId, ref: "Condominium" },
+    ownerId: { type: mongoose.Schema.Types.ObjectId, ref: "Owner" },
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Admin",
+      required: true,
+    },
     invoice_number: { type: Number },
     invoice_paid_date: { type: Date, default: null },
     issueDate: { type: Date, required: true },
@@ -19,14 +26,6 @@ var InvoiceSchema = Schema(
     paymentMethod: { type: String },
     paymentDescription: { type: String },
     paymentStatus: { type: String, default: "pending" },
-    familyMenberId: { type: Array, default: [] },
-    condominiumId: { type: mongoose.Schema.Types.ObjectId, ref: "Condominium" },
-    ownerId: { type: mongoose.Schema.Types.ObjectId, ref: "Owner" },
-    createdBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Admin",
-      required: true,
-    },
   },
   { timestamps: true }
 );

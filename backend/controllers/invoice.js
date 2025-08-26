@@ -207,10 +207,19 @@ var invoiceController = {
   //       });
   //     });
   // }
-  getInvoiceByCondo: function (req, res) {
+  getInvoiceByIdentifier: async function (req, res) {
     var params = req.params.id;
 
-    Invoice.find({ condominiumId: params })
+    const ownersFound = await Owner.find({ createdBy: params }).select("_id");
+    // console.log("ownersFound", ownersFound);
+    // console.log("params", params);
+    // return;
+    Invoice.find({
+      $or: [
+        { condominiumId: params },
+        { ownerId: { $in: ownersFound.map((id) => id) } },
+      ],
+    })
       .populate({
         path: "ownerId",
         model: "Owner",

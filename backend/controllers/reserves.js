@@ -16,6 +16,7 @@ let generateRandomCode = require("../service/codeGenerator");
 let bcrypt = require("bcrypt");
 let saltRounds = 10;
 let verifyGuest = require("../service/jwt");
+const { default: mongoose } = require("mongoose");
 
 var reservesController = {
   createBooking: async function (req, res) {
@@ -115,15 +116,19 @@ var reservesController = {
     }
   },
   getAllBookingByCondoAndUnit: async function (req, res) {
-    let condoId = req.body.id;
+    let id = req.body.id;
+
+    let ownerFound = await Owner.find({
+      createdBy: mongoose.Types.ObjectId(id),
+    }).select("_id");
 
     try {
       // Ejecutar la consulta
       let reservations = await Reserves.find({
         $or: [
-          { condoId: condoId },
-          { memberId: condoId },
-          { memberId: { $in: condoId } },
+          { memberId: { $in: ownerFound } },
+          { condoId: id },
+          { memberId: id },
         ],
       })
         .populate({

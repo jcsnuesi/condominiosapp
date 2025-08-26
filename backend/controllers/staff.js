@@ -195,6 +195,50 @@ var StaffController = {
       });
     }
   },
+  updateStaffAdmin: async function (req, res) {
+    let staffParams = req.body;
+
+    try {
+      let stafFound = await Staff_Admin.findOne({ _id: staffParams._id });
+
+      console.log(
+        "Staff params:",
+        Object.prototype.hasOwnProperty.call(staffParams, "password")
+      );
+      if (Object.prototype.hasOwnProperty.call(staffParams, "password")) {
+        staffParams.password = await bcrypt.hash(
+          staffParams.password,
+          saltRounds
+        );
+      }
+
+      if (!stafFound) {
+        return res.status(404).send({
+          status: "error",
+          message: "STAFF not found",
+        });
+      }
+
+      await Staff_Admin.findOneAndUpdate(
+        { _id: staffParams._id },
+        staffParams,
+        {
+          new: true,
+        }
+      );
+
+      return res.status(200).send({
+        status: "success",
+        message: "User updated successfully",
+      });
+    } catch (err) {
+      return res.status(500).send({
+        status: "error",
+        message: "Server error",
+        error: err,
+      });
+    }
+  },
   update: async function (req, res) {
     let staffParams = req.body;
     const avatarPath = req?.files?.avatar?.path?.split("\\")[2];
@@ -342,6 +386,7 @@ var StaffController = {
   },
   deleteBatchAdmin: async function (req, res) {
     const updateData = req.body;
+    console.log("deleteBatchAdmin", updateData);
 
     try {
       if (!Array.isArray(updateData.id) || updateData.id.length === 0) {

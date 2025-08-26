@@ -14,8 +14,14 @@ router.get(
 router.get(
   "/get-invoicesByCondo/:id",
   md_auth.authenticated,
-  InvoiceController.getInvoiceByCondo
+  InvoiceController.getInvoiceByIdentifier
 );
+
+// router.get(
+//   "/get-allInvoicesIdentifier/:id",
+//   md_auth.authenticated,
+//   InvoiceController.getAllInvoiceIdentifier
+// );
 
 router.post(
   "/create-invoice",

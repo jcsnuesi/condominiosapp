@@ -23,7 +23,8 @@ var FamilySchema = Schema(
         family_status: { type: String, default: "authorized", required: true },
       },
     ],
-    ownerId: {
+
+    createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Owner",
       required: true,

@@ -14,8 +14,8 @@ const phoneFormatFunc = new VerifyData();
 
 router.get("/condominioById", condominioController.getCondominiumById);
 router.get(
-  "/condominioByAdmin",
-  [authenticated, adminAuth],
+  "/condominioByAdmin/:id",
+  [authenticated],
   condominioController.getCondominiumsByAdmin
 );
 router.get("/buildingDetail/:id", condominioController.getBuildingDetails);

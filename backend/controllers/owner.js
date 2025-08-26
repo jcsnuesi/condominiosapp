@@ -189,7 +189,7 @@ var ownerAndSubController = {
 
   getOwnerByIdentifier: async function (req, res) {
     let identifier = req.params.keyword;
-    console.log("identifier", identifier);
+
     if (Boolean(identifier == undefined)) {
       return res.status(400).send({
         status: "bad request",
@@ -477,11 +477,6 @@ var ownerAndSubController = {
           { _id: params.propertyId },
           { $addToSet: { availableUnits: params.unit } } // evita duplicados
         );
-        // await Condominio.updateOne(
-        //   { _id: params.propertyId },
-        //   { $push: { availableUnits: params.unit } },
-        //   { new: true }
-        // );
 
         return res.status(200).send({
           status: "success",
@@ -565,7 +560,7 @@ var ownerAndSubController = {
   getAvatar: function (req, res) {
     var file = req.params.avatar;
     var path_file = "./uploads/owners/" + file;
-    console.log("path_file", path_file);
+
     if (fs.existsSync(path_file)) {
       return res.sendFile(paths.resolve(path_file));
     } else {
@@ -578,14 +573,13 @@ var ownerAndSubController = {
 
   getCondominiumByOwnerId: async function (req, res) {
     let ownerId = req.params.ownerId;
-    console.log("ownerId", ownerId);
 
     try {
       const ownerCondo = await Owner.findOne({ _id: ownerId }).populate({
         path: "propertyDetails.addressId",
         model: "Condominium",
         select:
-          " avatar availableUnits alias phone street_1 street_2 sector_name city province zipcode country socialAreas mPayment status mPayment createdAt",
+          "avatar availableUnits alias phone street_1 street_2 sector_name city province zipcode country socialAreas mPayment status mPayment createdAt",
       });
 
       return res.status(200).send({

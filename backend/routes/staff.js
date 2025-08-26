@@ -7,6 +7,7 @@ var md_auth = require("../middleware/auth");
 var confirmLinkVerification = require("../service/validateLinkVerification");
 var multipart = require("connect-multiparty");
 var md_upload = multipart({ uploadDir: "./uploads/staff" });
+const checkUpdatePermissions = require("../service/checkPermissions");
 const {
   authenticated,
   adminAuth,
@@ -54,20 +55,20 @@ router.post(
   StaffController.verifyPasswordStaff
 );
 
-// // Buscar usuario por propietario
-
-// // POST
-// router.post('/createAccount', md_upload, UserController.createUser)
-// router.post('/createUserByOwner', md_auth.authenticated, UserController.createUserByOwner)
-// router.post('/login', UserController.login)
-
-// // PUT
-
 // router.put('/updateAccount', [md_auth.authenticated, md_upload], UserController.update)
 router.put(
   "/update-staff",
-  [md_auth.authenticated, md_upload],
+  [
+    md_auth.authenticated,
+    md_upload,
+    checkUpdatePermissions.checkPermissionsToUpdate,
+  ],
   StaffController.update
+);
+router.put(
+  "/update-staff-admin",
+  [md_auth.authenticated],
+  StaffController.updateStaffAdmin
 );
 
 // // DELETE

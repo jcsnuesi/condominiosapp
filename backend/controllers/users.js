@@ -243,9 +243,9 @@ var controller = {
 
     if (val_email && val_password) {
       const userFound = await Promise.all([
-        Admin.findOne({ email: params.email }),
-        Staff_Admin.findOne({ email: params.email }),
-        Staff.findOne({ email: params.email }),
+        Admin.findOne({ email: params.email }).select("+password").lean(),
+        Staff_Admin.findOne({ email: params.email }).select("+password").lean(),
+        Staff.findOne({ email: params.email }).select("+password").lean(),
         Owner.findOne({ email: params.email })
           .populate({
             path: "propertyDetails.addressId",
@@ -256,9 +256,9 @@ var controller = {
             "familyAccount",
             "name lastname gender email phone status permission addressId"
           ),
-        Family.findOne({ email: params.email }),
+        Family.findOne({ email: params.email }).select("+password").lean(),
       ]);
-      console.log("userFound", userFound);
+
       let foundUser = null;
 
       const response = userFound.some((user) => {
