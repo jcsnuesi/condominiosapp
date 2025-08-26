@@ -161,7 +161,7 @@
                                             Authorization
                                             <p-sortIcon field="family_status" />
                                         </th>
-                                        <th *appHasPermissions="'owner'">
+                                        <th *appHasPermissions="['owner']">
                                             Action
                                         </th>
                                     </tr>
@@ -189,7 +189,7 @@
                                             />
                                         </td>
 
-                                        <td *appHasPermissions="'owner'">
+                                        <td *appHasPermissions="['owner']">
                                             <p-button
                                                 type="button"
                                                 [severity]="
@@ -377,7 +377,7 @@
                     }"
                 ></i>
             </td>
-            <td *appHasPermissions="'owner'">
+            <td *appHasPermissions="['owner']">
                 <p-button
                     type="button"
                     [severity]="

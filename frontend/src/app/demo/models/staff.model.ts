@@ -1,5 +1,6 @@
 export class Staff {
     constructor(
+        public _id: string,
         public name: string,
         public lastname: string,
         public gender: { label: string; code: string },
@@ -8,6 +9,8 @@ export class Staff {
         public position: { label: string; code: string },
         public email: string,
         public permissions: Array<{ label: string; code: string }>,
-        public password?: string
+        public status: { label: string; code: string },
+        public password?: string,
+        public repeatPassword?: string
     ) {}
 }

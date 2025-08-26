@@ -36,7 +36,7 @@ import { InputGroupModule } from 'primeng/inputgroup';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { CardModule } from 'primeng/card';
 import { PasswordModule } from 'primeng/password';
-import { ButtonModule } from 'primeng/button';
+import { Button, ButtonDirective, ButtonModule } from 'primeng/button';
 import { PanelModule } from 'primeng/panel';
 import { CondominioService } from '../../service/condominios.service';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
@@ -151,7 +151,9 @@ export class StaffComponent implements OnInit, AfterViewInit {
     @ViewChild('editpositionRef') editpositionRef!: ElementRef;
     @ViewChild('editbuildingRef') editbuildingRef!: ElementRef;
     @ViewChild('editStatusRef') editStatusRef!: ElementRef;
+    @ViewChild('btnInactiveStaff') btnInactiveStaff!: ElementRef;
     @Input() condoId: any;
+    public identity: any;
 
     constructor(
         private _userService: UserService,
@@ -170,6 +172,7 @@ export class StaffComponent implements OnInit, AfterViewInit {
         this.previwImage = '../../../assets/noimage.jpeg';
         this.loadingCondo = true;
         this.staffVisibleBackBtn = false;
+        this.identity = this._userService.getIdentity();
 
         this.genderOptions = [
             { label: 'Male', code: 'male' },
@@ -252,6 +255,10 @@ export class StaffComponent implements OnInit, AfterViewInit {
         };
     }
 
+    showBtnMethod(btn: any) {
+        console.log('showBtnMethod', btn);
+    }
+
     ngAfterViewInit() {
         if (this.genderDropDown) {
             const dropdownElement = this.genderDropDown.nativeElement
@@ -303,24 +310,19 @@ export class StaffComponent implements OnInit, AfterViewInit {
     ngOnInit(): void {
         // Obtiene el id del condominio
         this._route.params.subscribe((params) => {
-            let condoId = this.condoId ?? params['id']; // comparte variable admin y owner            this.condoData = condoId;
+            let condoId = this.condoId ?? params['id'];
 
-            console.log('Condo Data [params]:', this.condoId);
-            this.getStaffByCondoId(condoId);
-
-            if (this.loginInfo.role == 'ADMIN') {
-                this.getAdminsProperties();
-            }
+            // console.log('Condo Data [params]:', this.condoId);
+            this.getStaffByCondoIdOrAdminId('676a231d9bee64f1a653d04c');
+            this.getAdminsProperties();
         });
     }
 
-    getStaffByCondoId(id: string) {
+    getStaffByCondoIdOrAdminId(id: string) {
         this._staffService.getStaffByOwnerCondo(this.token, id).subscribe({
             next: (response) => {
                 if (response.status == 'success') {
                     this.propertyDetailsVar = response.message.map((staff) => {
-                        console.log('STAFF', staff);
-
                         return {
                             _id: staff._id,
                             fullname: staff?.name + ' ' + staff?.lastname,
@@ -387,7 +389,7 @@ export class StaffComponent implements OnInit, AfterViewInit {
             status: this.statusStaff.find((stat) => stat.code == res.status),
         };
 
-        console.log('BACK TO DASHBOARD', this.dataToUpdate);
+        // console.log('BACK TO DASHBOARD', this.dataToUpdate);
 
         this.previwImageEdit = this.url + 'avatar-staff/' + res.avatar;
     }
@@ -489,9 +491,9 @@ export class StaffComponent implements OnInit, AfterViewInit {
             }
         }
 
-        formdata.forEach((value, key) => {
-            console.log(key, value);
-        });
+        // formdata.forEach((value, key) => {
+        //     console.log(key, value);
+        // });
 
         this._confirmationService.confirm({
             target: event.target as EventTarget,
@@ -518,6 +520,14 @@ export class StaffComponent implements OnInit, AfterViewInit {
                             this.visibleStaff = false;
                             form.reset();
                             this.ngOnInit();
+                        } else if (response.status == 'forbidden') {
+                            this._messageService.add({
+                                severity: 'error',
+                                summary: 'Forbidden',
+                                detail: 'You do not have permission to update this staff member.',
+                                key: 'br',
+                                life: 3000,
+                            });
                         }
                     },
                     error: (error) => {
@@ -608,38 +618,55 @@ export class StaffComponent implements OnInit, AfterViewInit {
         }
     }
 
+    getId(): string {
+        return this.identity.role.toLowerCase() == 'admin'
+            ? this.identity._id
+            : this.identity.createdBy;
+    }
+
     getAdminsProperties() {
         this.loadingCondo = true;
 
-        this._condominioService.getPropertyByAdminId(this.token).subscribe({
-            next: (response) => {
-                if (response.status == 'success') {
-                    this.loadingCondo = false;
+        if (
+            this.identity.role.toLowerCase() != 'admin' ||
+            this.identity.role.toLowerCase() != 'staff_admin'
+        ) {
+            return;
+        }
+        console.log('ID Service:', this.getId());
+        this._condominioService
+            .getPropertyByIdentifier(this.token, this.getId())
+            .subscribe({
+                next: (response) => {
+                    if (response.status == 'success') {
+                        this.loadingCondo = false;
 
-                    this.condominioList = response.message.map((element) => {
-                        return {
-                            label: element.alias,
-                            code: element._id,
-                        };
-                    });
-                } else {
-                    this._messageService.add({
-                        severity: 'error',
-                        summary: 'Error',
-                        detail: 'No se encontraron propiedades',
-                        key: 'br',
-                        life: 3000,
-                    });
-                }
-            },
-            error: (error) => {
-                console.log(error);
-                this.loadingCondo = false;
-            },
-            complete: () => {
-                console.log('See property completed!');
-            },
-        });
+                        this.condominioList = response.message.map(
+                            (element) => {
+                                return {
+                                    label: element.alias,
+                                    code: element._id,
+                                };
+                            }
+                        );
+                    } else {
+                        this._messageService.add({
+                            severity: 'error',
+                            summary: 'Error',
+                            detail: 'No se encontraron propiedades',
+                            key: 'br',
+                            life: 3000,
+                        });
+                    }
+                },
+                error: (error) => {
+                    console.log(error);
+                    this.loadingCondo = false;
+                },
+                complete: () => {
+                    console.log('See property completed!');
+                },
+            });
     }
 
     deleteStaff() {

@@ -337,7 +337,7 @@
                     <div class="div-btn">
                         <div *ngIf="showOnUpdate">
                             <p-button
-                                *appHasPermissions="'owner'"
+                                *appHasPermissions="['owner']"
                                 icon="pi pi-times"
                                 label="Delete"
                                 severity="danger"
@@ -346,7 +346,7 @@
                         </div>
                         <div class="div-btn-right">
                             <p-button
-                                *appHasPermissions="'owner'"
+                                *appHasPermissions="['owner']"
                                 icon="pi pi-check"
                                 [label]="btn_label"
                                 status="primary"

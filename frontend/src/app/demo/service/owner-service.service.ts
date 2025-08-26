@@ -46,7 +46,6 @@ export class OwnerServiceService {
 
     // Get all logged user's properties
     getPropertyByOwner(token: string, id: string): Observable<any> {
-        console.log('Getting properties for owner:', id);
         let header = new HttpHeaders().set('Authorization', token);
 
         return this._http.get(this.url + 'condominioByOwnerId/' + id, {

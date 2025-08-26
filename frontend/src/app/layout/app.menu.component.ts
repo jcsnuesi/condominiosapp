@@ -2,6 +2,7 @@ import { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import { LayoutService } from './service/app.layout.service';
 import { CookieService } from 'ngx-cookie-service';
+import { HasPermissionsDirective } from '../has-permissions.directive';
 
 @Component({
     selector: 'app-menu',
@@ -61,6 +62,7 @@ export class AppMenuComponent implements OnInit {
                         routerLink: ['/start', this.cookieValue._id],
                     },
                 ],
+                role: ['ADMIN', 'OWNER', 'STAFF_ADMIN', 'FAMILY'],
             },
             {
                 label: 'User management',
@@ -71,7 +73,7 @@ export class AppMenuComponent implements OnInit {
                         routerLink: ['/usermanagement'],
                     },
                 ],
-                role: 'ADMIN',
+                role: ['ADMIN'],
             },
 
             {
@@ -88,7 +90,7 @@ export class AppMenuComponent implements OnInit {
                         routerLink: ['/family-area', this.cookieValue._id],
                     },
                 ],
-                role: 'OWNER',
+                role: ['ADMIN', 'OWNER', 'STAFF_ADMIN'],
             },
             {
                 label: 'Staffs',
@@ -99,7 +101,7 @@ export class AppMenuComponent implements OnInit {
                         routerLink: ['/staff-regular', this.cookieValue._id],
                     },
                 ],
-                role: ['ADMIN', 'OWNER'],
+                role: ['ADMIN', 'OWNER', 'STAFF_ADMIN'],
             },
 
             {
@@ -116,7 +118,7 @@ export class AppMenuComponent implements OnInit {
                         routerLink: ['/see-property'],
                     },
                 ],
-                role: 'ADMIN',
+                role: ['ADMIN', 'STAFF_ADMIN'],
             },
             {
                 label: 'Partners',
@@ -127,7 +129,7 @@ export class AppMenuComponent implements OnInit {
                         routerLink: ['/all-partners'],
                     },
                 ],
-                role: ['ADMIN'],
+                role: ['ADMIN', 'STAFF_ADMIN'],
             },
             {
                 label: 'Documents',
@@ -138,7 +140,7 @@ export class AppMenuComponent implements OnInit {
                         routerLink: ['/', this.cookieValue._id],
                     },
                 ],
-                role: ['ADMIN', 'OWNER'],
+                role: ['ADMIN', 'OWNER', 'STAFF_ADMIN'],
             },
         ];
     }

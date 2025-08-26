@@ -180,20 +180,75 @@ export class BookingAreaComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        this._route.params.subscribe((params) => {
-            let query: any = params['id'];
+        console.log('get Booking', this.condoId);
+        this.getAllBookings(this.condoId);
+        // this.getPropertyType();
+    }
+    getAllBookings(paramId: any) {
+        /**Este metodo obtiene las reservas del condominio*/
 
-            if (typeof this.condoId == 'object') {
-                if (this.condoId) {
-                    query = this.condoId;
+        this._bookingService.getBooking(paramId, this.token).subscribe({
+            next: (response) => {
+                if (response.status === 'success') {
+                    let allBookinInfo = response.message;
+
+                    try {
+                        this.bookingHistory = allBookinInfo.map((booking) => {
+                            let bookName = null;
+                            if (
+                                Boolean(booking.guest.length > 0) &&
+                                this.identity.role == 'OWNER'
+                            ) {
+                                bookName = booking.guest[0].fullname;
+                            } else {
+                                bookName = booking.condoId.alias;
+                            }
+                            return {
+                                id: booking._id,
+                                guest: booking?.guest,
+                                bookingName: bookName,
+                                condoId: booking.condoId,
+                                unit: booking.apartmentUnit,
+                                area: booking?.areaToReserve ?? 'N/A',
+                                checkIn: this._format.dateTimeFormat(
+                                    booking.checkIn
+                                ),
+                                checkOut:
+                                    this._format.dateTimeFormat(
+                                        booking?.checkOut
+                                    ) ?? 'N/A',
+                                status: booking.status,
+                                visitorNumber: booking?.visitorNumber ?? 0,
+                                verified: Boolean(booking.guestCode),
+                                comments: booking?.comments,
+                            };
+                        });
+                    } catch (error) {
+                        console.log('Error:', error);
+                    }
+
+                    this.loading = false;
+                } else {
+                    this.loading = false;
                 }
-            } else {
-                query = this.condoId;
-            }
-
-            this.getAllBookings(query);
-            this.getPropertyType();
+            },
+            error: (errors) => {
+                this._messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: errors.error.message,
+                    life: 10000,
+                });
+                this.loading = false;
+                // console.log('Booking Error:', errors.error)
+            },
         });
+    }
+
+    getId(): string {
+        return ['admin', 'owner'].includes(this.identity.role.toLowerCase())
+            ? this.identity._id
+            : this.identity.createdBy;
     }
 
     clear(dt: any) {
@@ -201,6 +256,37 @@ export class BookingAreaComponent implements OnInit {
         this.searchValue = '';
     }
 
+    //  this._condominioService
+    //         .getPropertyByIdentifier(this.token, this.getId())
+    //         .subscribe({
+    //             next: (response) => {
+
+    //                 if (response.status == 'success') {
+    //                     this.propertiesOptions = response.message.map(
+    //                         (item: any) => {
+    //                             return {
+    //                                 label: item.alias,
+    //                                 code: item._id,
+    //                             };
+    //                         }
+    //                     );
+    //                 } else {
+    //                     this._messageService.add({
+    //                         severity: 'error',
+    //                         summary: 'Error',
+    //                         detail: 'No se han encontrado condominios',
+    //                     });
+    //                 }
+    //             },
+    //             error: (error) => {
+    //                 console.log(error);
+    //                 this._messageService.add({
+    //                     severity: 'error',
+    //                     summary: 'Error',
+    //                     detail: 'Error al cargar los condominios',
+    //                 });
+    //             },
+    //         });
     public propertyDetails: any[] = [];
     getPropertyType() {
         /**Este metodo obtiene las propiedades del propietario y carga el dropdown de condominios*/
@@ -208,7 +294,7 @@ export class BookingAreaComponent implements OnInit {
             .getPropertyByOwner(this.token, this.identity._id)
             .subscribe({
                 next: (res) => {
-                    if (res.status === 'success' && res.message != null) {
+                    if (res.status === 'success') {
                         res.message.forEach((prop) => {
                             prop.propertyDetails.forEach((property) => {
                                 this.propertyDetails.push(property);
@@ -306,7 +392,6 @@ export class BookingAreaComponent implements OnInit {
          */
 
         if (form.controls['checkIn'].value != null) {
-            console.log('form.controls:---------->', form.controls['checkIn']);
             let checkInDate = new Date(form.controls['checkIn'].value);
             checkInDate.setMilliseconds(0);
             let checkOutDate = new Date(form?.controls['checkOut']?.value);
@@ -400,68 +485,6 @@ export class BookingAreaComponent implements OnInit {
         });
     }
 
-    getAllBookings(paramId: string) {
-        /**Este metodo obtiene las reservas del condominio*/
-
-        this._bookingService.getBooking(this.token, paramId).subscribe({
-            next: (response) => {
-                // this.bookingHistory = response.booking;
-                if (response.status === 'success') {
-                    let allBookinInfo = response.message;
-                    // console.log('Booking Info HISTORY:', allBookinInfo);
-                    try {
-                        this.bookingHistory = allBookinInfo.map((booking) => {
-                            let bookName = null;
-                            if (
-                                Boolean(booking.guest.length > 0) &&
-                                this.identity.role == 'OWNER'
-                            ) {
-                                bookName = booking.guest[0].fullname;
-                            } else {
-                                bookName = booking.condoId.alias;
-                            }
-                            return {
-                                id: booking._id,
-                                guest: booking?.guest,
-                                bookingName: bookName,
-                                condoId: booking.condoId,
-                                unit: booking.apartmentUnit,
-                                area: booking?.areaToReserve ?? 'N/A',
-                                checkIn: this._format.dateTimeFormat(
-                                    booking.checkIn
-                                ),
-                                checkOut:
-                                    this._format.dateTimeFormat(
-                                        booking?.checkOut
-                                    ) ?? 'N/A',
-                                status: booking.status,
-                                visitorNumber: booking?.visitorNumber ?? 0,
-                                verified: Boolean(booking.guestCode),
-                                comments: booking?.comments,
-                            };
-                        });
-                    } catch (error) {
-                        console.log('Error:', error);
-                    }
-
-                    this.loading = false;
-                } else {
-                    this.loading = false;
-                }
-            },
-            error: (errors) => {
-                this._messageService.add({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: errors.error.message,
-                    life: 10000,
-                });
-                this.loading = false;
-                // console.log('Booking Error:', errors.error)
-            },
-        });
-    }
-
     // public inputData: string[] = [];
     public inputValues: Array<{
         notificationType: string;
@@ -495,7 +518,7 @@ export class BookingAreaComponent implements OnInit {
     public bookingInfoApt: any;
     showDialog(customer: any) {
         // Limpiar el array de visitantes
-        console.log('Customer Data:', customer);
+
         let customerData = { ...customer };
         this.loadVisitorArray(customerData.guest);
 

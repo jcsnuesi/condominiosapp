@@ -11,6 +11,32 @@
             <div class="flex justify-content-between mb-3">
                 <div>
                     <span class="block text-500 font-medium mb-3">
+                        Balance
+                    </span>
+                    <div class="text-900 font-medium text-2xl">
+                        {{ invoiceCards.totalBalance | currency : "USD" }}
+                    </div>
+                </div>
+                <div
+                    class="cursor-pointer change-icon flex align-items-center justify-content-center bg-green-100 border-round"
+                    [ngStyle]="{ width: '2.5rem', height: '2.5rem' }"
+                    (click)="showComponent('invoice')"
+                >
+                    <i class="pi pi-money-bill text-green-500 text-xl"></i>
+                </div>
+            </div>
+            <span class="text-green-500 font-medium"
+                >{{ invoiceCards.counts }}
+            </span>
+            <span class="text-500">pending</span>
+        </div>
+    </div>
+
+    <div class="col-12 lg:col-6 xl:col-3">
+        <div class="card">
+            <div class="flex justify-content-between mb-3">
+                <div>
+                    <span class="block text-500 font-medium mb-3">
                         Total units
                     </span>
                     <div class="text-900 font-medium text-2xl">
@@ -101,7 +127,7 @@
 <p-breadcrumb class="max-w-full mb-4" [model]="itemsx" />
 <div class="grid mt-2" *ngIf="componentsToShow.main">
     <div class="col-12 xl:col-6">
-        <div class="card" *appHasPermissions="'admin'">
+        <div class="card" *appHasPermissions="['admin']">
             <h5>Sales Overview</h5>
             <p-chart type="bar" [data]="data" [options]="options"></p-chart>
         </div>
@@ -211,6 +237,11 @@
     [condoId]="units_ownerId"
     *ngIf="componentsToShow.booking"
 ></app-booking-area>
-<!-- Bookings generater -->
+<!-- Invoice history -->
+<app-invoice-history
+    [ownerId]="condoId"
+    *ngIf="componentsToShow.invoice"
+></app-invoice-history>
+
 <!-- Staff  -->
 <app-staff *ngIf="componentsToShow.staff" [condoId]="condoId"></app-staff>

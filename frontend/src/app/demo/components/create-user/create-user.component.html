@@ -8,7 +8,7 @@
                 label="Create user"
                 icon="pi pi-plus"
                 class="mr-2"
-                (onClick)="openNew()"
+                (onClick)="createNewUser()"
             />
             <p-button
                 severity="danger"
@@ -151,7 +151,8 @@
         </ng-template>
         <ng-template pTemplate="summary">
             <div class="flex align-items-center justify-content-between">
-                In total there are {{ users ? users.length : 0 }} users.
+                Total users:
+                {{ totalRecords }}.
             </div>
         </ng-template>
     </p-table>
@@ -206,8 +207,7 @@
                         #genderx="ngModel"
                         name="genderx"
                         [(ngModel)]="userModel.gender"
-                        optionLabel="name"
-                        [placeholder]="genderSelected"
+                        optionLabel="label"
                         required
                     />
                 </div>
@@ -258,8 +258,7 @@
                         #position="ngModel"
                         name="position"
                         [(ngModel)]="userModel.position"
-                        optionLabel="name"
-                        [placeholder]="positionSelected"
+                        optionLabel="label"
                     />
                     <small
                         class="p-error"
@@ -289,19 +288,6 @@
                     </small>
                 </div>
 
-                <div class="field" *ngIf="passwordActive">
-                    <label for="passwordlabel">Password</label>
-                    <input
-                        type="text"
-                        pInputText
-                        id="passwordlabel"
-                        #password="ngModel"
-                        name="password"
-                        [(ngModel)]="userModel.password"
-                        required
-                    />
-                </div>
-
                 <div class="field">
                     <label for="permissionsLabel">Permissions</label>
                     <p-multiSelect
@@ -309,21 +295,10 @@
                         #permissionsx="ngModel"
                         name="permissionsx"
                         [(ngModel)]="userModel.permissions"
-                        optionLabel="name"
+                        optionLabel="label"
                         placeholder="Select permissions..."
                     />
 
-                    <small
-                        style="
-                            font-style: italic;
-                            font-size: 12px;
-                            color: forestgreen;
-                        "
-                        class="p-error"
-                        *ngIf="passwordActive"
-                    >
-                        Current permissions: {{ current_permissions }}.
-                    </small>
                     <small
                         class="p-error"
                         *ngIf="permissionsx.touched && !permissionsx.dirty"
@@ -331,21 +306,73 @@
                         Permissions is required.
                     </small>
                 </div>
+
+                <div class="field">
+                    <label for="accountStatus">Account Status</label>
+                    <p-dropdown
+                        [options]="accountStatusOptions"
+                        #accountStatus="ngModel"
+                        name="accountStatus"
+                        [(ngModel)]="userModel.status"
+                    />
+                    <small
+                        class="p-error"
+                        *ngIf="accountStatus.touched && !accountStatus.dirty"
+                    >
+                        Account Status is required.
+                    </small>
+                </div>
+
+                <div class="field" *ngIf="passwordActive">
+                    <label for="passwordlabel">New Password</label>
+                    <input
+                        type="password"
+                        pInputText
+                        id="passwordlabel"
+                        #password="ngModel"
+                        (keyup)="verifyPasswordInput($event)"
+                        name="password"
+                        [(ngModel)]="userModel.password"
+                        required
+                    />
+                </div>
+                <div class="field" *ngIf="passwordActive">
+                    <label for="repeatPasswordLabel">Repeat Password</label>
+                    <input
+                        type="password"
+                        pInputText
+                        id="repeatPasswordLabel"
+                        #repeatPassword="ngModel"
+                        (keyup)="verifyPasswordInput($event)"
+                        name="repeatPassword"
+                        [(ngModel)]="userModel.repeatPassword"
+                        required
+                    />
+
+                    <small
+                        [ngClass]="{
+                            'font-color-success': !passval,
+                            'font-color-fail': passval
+                        }"
+                        >{{ passMessage }}</small
+                    >
+                </div>
             </form>
         </ng-template>
         <ng-template pTemplate="footer">
             <p-button
+                severity="danger"
+                [outlined]="true"
                 label="Cancel"
                 icon="pi pi-times"
-                [text]="true"
                 (onClick)="hideDialog()"
             />
             <p-button
+                [outlined]="true"
                 [label]="btnLabel"
                 #btnSave
                 icon="pi pi-check"
-                [text]="true"
-                (onClick)="createUser(btnSave)"
+                (onClick)="createUpdateUser(btnSave)"
             />
         </ng-template>
     </p-dialog>

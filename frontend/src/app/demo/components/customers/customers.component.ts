@@ -179,7 +179,7 @@ export class CustomersComponent implements OnInit, DoCheck {
 
             case 'ADMIN':
                 this._condominioService
-                    .getPropertyByAdminId(this.token)
+                    .getPropertyByIdentifier(this.token, this.getId())
                     .subscribe(
                         (response) => {
                             this.header_changer = 'Address';
@@ -196,6 +196,12 @@ export class CustomersComponent implements OnInit, DoCheck {
 
                 break;
         }
+    }
+
+    getId(): string {
+        return this.identity.role.toLowerCase() == 'admin'
+            ? this.identity._id
+            : this.identity.createdBy;
     }
 
     full_address_func(customer) {

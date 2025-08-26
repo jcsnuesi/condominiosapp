@@ -41,6 +41,7 @@ export class PropertiesComponent implements OnInit {
         private _router: Router
     ) {
         this.url = global.url;
+        this.identity = this._userService.getIdentity();
     }
 
     ngOnInit(): void {
@@ -51,15 +52,23 @@ export class PropertiesComponent implements OnInit {
         return data.toUpperCase();
     }
 
+    getId(): string {
+        return this.identity.role.toLowerCase() == 'admin'
+            ? this.identity._id
+            : this.identity.createdBy;
+    }
+
     getCondominios() {
-        this._condominioService.getPropertyByAdminId(this.token).subscribe(
-            (response) => {
-                this.products = response.message;
-            },
-            (error) => {
-                console.log(error);
-            }
-        );
+        this._condominioService
+            .getPropertyByIdentifier(this.token, this.getId())
+            .subscribe(
+                (response) => {
+                    this.products = response.message;
+                },
+                (error) => {
+                    console.log(error);
+                }
+            );
     }
 
     units(id: string) {

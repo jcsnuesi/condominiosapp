@@ -59,6 +59,15 @@ export class StaffService {
             headers: header,
         });
     }
+    updateStaffAdmin(token: string, staff: any): Observable<any> {
+        let header = new HttpHeaders()
+            .set('Authorization', token)
+            .set('Content-Type', 'application/json');
+
+        return this._http.put(this.url + 'update-staff-admin', staff, {
+            headers: header,
+        });
+    }
 
     deleteStaff(token: string, user: any): Observable<any> {
         let param = JSON.stringify(user);

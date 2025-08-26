@@ -336,36 +336,43 @@ export class OwnerRegistrationComponent
         this.apiUnitResponse = false;
     }
 
+    getId(): string {
+        return this.identity.role.toLowerCase() == 'admin'
+            ? this.identity._id
+            : this.identity.createdBy;
+    }
+
     getPropertiesByAdminId() {
-        this._condominioService.getPropertyByAdminId(this.token).subscribe({
-            next: (response) => {
-                console.log('getPropertiesByAdminId', response);
-                if (response.status == 'success') {
-                    this.propertiesOptions = response.message.map(
-                        (item: any) => {
-                            return {
-                                label: item.alias,
-                                code: item._id,
-                            };
-                        }
-                    );
-                } else {
+        this._condominioService
+            .getPropertyByIdentifier(this.token, this.getId())
+            .subscribe({
+                next: (response) => {
+                    if (response.status == 'success') {
+                        this.propertiesOptions = response.message.map(
+                            (item: any) => {
+                                return {
+                                    label: item.alias,
+                                    code: item._id,
+                                };
+                            }
+                        );
+                    } else {
+                        this._messageService.add({
+                            severity: 'error',
+                            summary: 'Error',
+                            detail: 'No se han encontrado condominios',
+                        });
+                    }
+                },
+                error: (error) => {
+                    console.log(error);
                     this._messageService.add({
                         severity: 'error',
                         summary: 'Error',
-                        detail: 'No se han encontrado condominios',
+                        detail: 'Error al cargar los condominios',
                     });
-                }
-            },
-            error: (error) => {
-                console.log(error);
-                this._messageService.add({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: 'Error al cargar los condominios',
-                });
-            },
-        });
+                },
+            });
     }
     /**
      * Metodo para crear propiedad:
@@ -410,6 +417,7 @@ export class OwnerRegistrationComponent
             throw Error('Error processing form data: ' + error);
         }
     }
+
     onSubmitUnit() {
         // formData.forEach((value, key) => {
         //     console.log(key + ': ' + value);

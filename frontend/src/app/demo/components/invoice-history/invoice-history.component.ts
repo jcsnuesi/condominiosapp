@@ -144,7 +144,7 @@ export class InvoiceHistoryComponent implements OnInit {
     ngOnInit() {
         this._activateRoute.params.subscribe((params) => {
             this.idCondo = params['condoId'] ?? this.ownerId;
-            console.log('idCondo:--->', this.idCondo);
+
             this.getInvoiceHistory();
             this.convertImageToBase64();
         });

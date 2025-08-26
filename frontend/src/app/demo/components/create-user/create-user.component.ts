@@ -7,6 +7,7 @@ import { Staff } from '../../models/staff.model';
 import { StaffService } from '../../service/staff.service';
 import { ImportsModule } from '../../imports_primeng';
 import { global } from '../../service/global.service';
+import { FormatFunctions } from 'src/app/pipes/formating_text';
 
 type StaffAdmin = {
     fullname: string;
@@ -27,43 +28,50 @@ type StaffAdmin = {
     standalone: true,
     imports: [ImportsModule, FormsModule, CommonModule],
     templateUrl: './create-user.component.html',
-    styleUrl: './create-user.component.scss',
-    providers: [UserService, ConfirmationService, MessageService, StaffService],
+    styleUrl: './create-user.component.css',
+    providers: [
+        UserService,
+        ConfirmationService,
+        MessageService,
+        StaffService,
+        FormatFunctions,
+    ],
 })
 export class CreateUserComponent implements OnInit {
     public userModel: Staff;
     public users: any;
     public userInfo: any;
     public token: string;
-    public selectedStaffs: any;
+    public selectedStaffs: any[];
     public userDialog: boolean;
-    public genderModel: { name: string; code: string }[];
+    public genderModel: { label: string; code: string }[];
     public passwordActive: boolean = false;
-    public positionOptions: { name: string; code: string }[];
-    public roleOptions: { name: string; code: string }[];
-    public permissionsOptions: { name: string; code: string }[];
+    public positionOptions: { label: string; code: string }[];
+    public roleOptions: { label: string; code: string }[];
+    public permissionsOptions: { label: string; code: string }[];
     public permissions: any;
-    public genderSelected: any;
-    public roleSelected: any;
-    public positionSelected: any;
     public current_permissions: any;
     public dialogHeader: string;
     public identity: any;
     public staffAdminData: StaffAdmin[];
     public url: string;
+    public accountStatusOptions: { label: string; code: string }[];
+    public totalRecords: number;
 
     constructor(
         private _userService: UserService,
         private _confirmationService: ConfirmationService,
         private _messageService: MessageService,
-        private _staffService: StaffService
+        private _staffService: StaffService,
+        private _formatFunctions: FormatFunctions
     ) {
         this.selectedStaffs = [];
-        this.positionSelected = [];
+
         this.token = this._userService.getToken();
         this.identity = this._userService.getIdentity();
         this.url = global.url;
         this.userModel = new Staff(
+            '',
             '',
             '',
             { label: '', code: '' },
@@ -72,28 +80,35 @@ export class CreateUserComponent implements OnInit {
             { label: '', code: '' },
             '',
             [],
+            { label: '', code: '' },
             ''
         );
         this.genderModel = [
-            { name: 'Female', code: 'Female' },
-            { name: 'Male', code: 'Male' },
+            { label: 'Female', code: 'Female' },
+            { label: 'Male', code: 'Male' },
         ];
         this.passwordActive = false;
         this.positionOptions = [
-            { name: 'Manager', code: 'manager' },
-            { name: 'Accounting', code: 'accounting' },
-            { name: 'Sales', code: 'sales' },
-            { name: 'Marketing', code: 'marketing' },
-            { name: 'Human Resources', code: 'human_resources' },
-            { name: 'Handyman', code: 'handyman' },
-            { name: 'Customer care', code: 'customer_care' },
+            { label: 'Manager', code: 'manager' },
+            { label: 'Accounting', code: 'accounting' },
+            { label: 'Sales', code: 'sales' },
+            { label: 'Marketing', code: 'marketing' },
+            { label: 'Human Resources', code: 'human_resources' },
+            { label: 'Handyman', code: 'handyman' },
+            { label: 'Customer care', code: 'customer_care' },
         ];
 
         this.permissionsOptions = [
-            { name: 'Create', code: 'create' },
-            { name: 'Read', code: 'read' },
-            { name: 'Update', code: 'update' },
-            { name: 'Delete', code: 'delete' },
+            { label: 'Create', code: 'create' },
+            { label: 'Read', code: 'read' },
+            { label: 'Update', code: 'update' },
+            { label: 'Delete', code: 'delete' },
+        ];
+
+        this.accountStatusOptions = [
+            { label: 'Active', code: 'active' },
+            { label: 'Inactive', code: 'inactive' },
+            { label: 'Pending', code: 'pending' },
         ];
     }
 
@@ -121,13 +136,13 @@ export class CreateUserComponent implements OnInit {
     getStaffAdmin() {
         this._staffService.getStaffAdmin(this.token, this.getId()).subscribe({
             next: (res) => {
+                this.totalRecords = res.message.length;
                 let r = res.message.map((data) => {
                     data.fullname = data.name + ' ' + data.lastname;
 
                     return data;
                 });
                 this.staffAdminData = r;
-                console.log('res', this.staffAdminData);
             },
             error: (err) => {
                 console.log(err);
@@ -142,7 +157,7 @@ export class CreateUserComponent implements OnInit {
             icon: 'pi pi-exclamation-triangle',
             accept: () => {
                 const ids = this.selectedStaffs.map((staff) => staff._id);
-                console.log('ids', ids);
+
                 this._staffService
                     .deleteStaffAdmin(this.token, { id: ids })
                     .subscribe({
@@ -184,12 +199,13 @@ export class CreateUserComponent implements OnInit {
     }
 
     public btnLabel: string;
-    openNew() {
+    createNewUser() {
         this.userDialog = true;
         this.btnLabel = 'Create';
         this.dialogHeader = 'Create User';
         this.passwordActive = false;
 
+        console.log('this.userModel', this.userModel);
         Object.keys(this.userModel).forEach((key) => {
             this.userModel[key] = '';
         });
@@ -198,20 +214,18 @@ export class CreateUserComponent implements OnInit {
         this.userModel = new Staff(
             '',
             '',
+            '',
             { label: '', code: '' },
             '',
             '',
             { label: '', code: '' },
             '',
             [],
+            { label: '', code: '' },
             ''
         );
 
-        // Restablecer las variables relacionadas con el formulario
-        this.permissions = [];
-        this.genderSelected = 'Select gender...';
-        this.roleSelected = 'Select role...';
-        this.positionSelected = 'Select position...';
+        // // Restablecer las variables relacionadas con el formulario
     }
 
     hideDialog() {
@@ -224,38 +238,20 @@ export class CreateUserComponent implements OnInit {
         this.btnLabel = 'Update';
         this.dialogHeader = 'Edit User';
         this.passwordActive = true;
-
-        for (const key in this.userModel) {
-            this.userModel[key] = user[key];
-        }
-
-        // this.genderSelected =
-        //     this.userModel['gender'] == 'M'
-        //         ? { label: 'Male', code: 'M' }
-        //         : { label: 'Female', code: 'F' };
-
-        this.positionSelected = this.positionOptions.filter(
-            (position) =>
-                position.code.toUpperCase() == user.position.toUpperCase()
-        )[0].name;
-
-        // Cargamos los permisos del usuario  al dropdown
-        var perm = [];
-        user.permissions.forEach((permission) => {
-            for (let i = 0; i < this.permissionsOptions.length; i++) {
-                console.log(
-                    this.permissionsOptions[i].code.trim() == permission.trim()
-                );
-                if (
-                    this.permissionsOptions[i].code.trim() == permission.trim()
-                ) {
-                    perm.push(this.permissionsOptions[i]);
-                }
-            }
-        });
-
-        this.permissions = perm;
-        this.current_permissions = user.permissions;
+        this.userModel = { ...user };
+        this.userModel.gender = { label: user.gender, code: user.gender };
+        this.userModel.status = {
+            label: this._formatFunctions.titleCase(user.status),
+            code: user.status,
+        };
+        this.userModel.position = {
+            label: this._formatFunctions.titleCase(user.position),
+            code: user.position,
+        };
+        this.userModel.permissions = user.permissions.map((perm) => ({
+            label: this._formatFunctions.titleCase(perm),
+            code: perm,
+        }));
     }
 
     getAvatarFirstLetter(name: string) {
@@ -274,44 +270,53 @@ export class CreateUserComponent implements OnInit {
             accept: () => {
                 const ids = new Array(user._id);
 
-                this._staffService.deleteStaffAdmin(this.token, ids).subscribe({
-                    next: (response) => {
-                        if (response.status == 'success') {
-                            this._messageService.add({
-                                severity: 'success',
-                                summary: 'Successful',
-                                detail: 'Staffs deleted successfully!',
-                                life: 3000,
-                            });
-                        } else {
+                this._staffService
+                    .deleteStaffAdmin(this.token, { id: ids })
+                    .subscribe({
+                        next: (response) => {
+                            if (response.status == 'success') {
+                                this._messageService.add({
+                                    severity: 'success',
+                                    summary: 'Successful',
+                                    detail: 'Staffs deleted successfully!',
+                                    life: 3000,
+                                });
+
+                                this.getStaffAdmin();
+                            } else {
+                                this._messageService.add({
+                                    severity: 'error',
+                                    summary: 'Error',
+                                    detail: 'Staffs not deleted',
+                                    life: 3000,
+                                });
+                            }
+                        },
+
+                        error: (error) => {
+                            console.log('error', error);
                             this._messageService.add({
                                 severity: 'error',
                                 summary: 'Error',
                                 detail: 'Staffs not deleted',
                                 life: 3000,
                             });
-                        }
-                    },
-
-                    error: (error) => {
-                        console.log('error', error);
-                        this._messageService.add({
-                            severity: 'error',
-                            summary: 'Error',
-                            detail: 'Staffs not deleted',
-                            life: 3000,
-                        });
-                    },
-                    complete: () => {
-                        console.log('Staffs deleted!');
-                    },
-                });
+                        },
+                        complete: () => {
+                            console.log('Staffs deleted!');
+                        },
+                    });
             },
         });
     }
 
     transformUserModel(userModel: Staff) {
-        let dataFormatted = { position: '', gender: '', permissions: [] };
+        let dataFormatted = {
+            position: '',
+            gender: '',
+            permissions: [],
+            status,
+        };
         dataFormatted['name'] = userModel.name;
         dataFormatted['lastname'] = userModel.lastname;
         dataFormatted['government_id'] = userModel.government_id;
@@ -319,6 +324,7 @@ export class CreateUserComponent implements OnInit {
         dataFormatted['email'] = userModel.email;
         dataFormatted.position = this.userModel.position.code;
         dataFormatted.gender = this.userModel.gender.code;
+        dataFormatted.status = this.userModel.status.code;
         dataFormatted.permissions = this.userModel.permissions.map(
             (perm) => perm.code
         );
@@ -326,9 +332,44 @@ export class CreateUserComponent implements OnInit {
         return dataFormatted;
     }
 
-    createUser(event: any) {
+    createUserStaff() {
         const formData = this.transformUserModel(this.userModel);
 
+        this._staffService.createAdmin(formData, this.token).subscribe({
+            next: (response) => {
+                if (response.status == 'success') {
+                    this.userDialog = false;
+                    this._messageService.add({
+                        severity: 'success',
+                        summary: 'Successful',
+                        detail: 'Staff created successfully',
+                        life: 3000,
+                    });
+                } else {
+                    this._messageService.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: 'Staff not created',
+                        life: 3000,
+                    });
+                }
+            },
+            error: (error) => {
+                console.log('error', error);
+                this._messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Staff not created',
+                    life: 3000,
+                });
+            },
+            complete: () => {
+                console.log('Staff created!');
+            },
+        });
+    }
+
+    createUpdateUser(event: any) {
         switch (event.label) {
             case 'Create':
                 this._confirmationService.confirm({
@@ -336,40 +377,7 @@ export class CreateUserComponent implements OnInit {
                     header: 'Confirm',
                     icon: 'pi pi-exclamation-triangle',
                     accept: () => {
-                        this._staffService
-                            .createAdmin(formData, this.token)
-                            .subscribe({
-                                next: (response) => {
-                                    if (response.status == 'success') {
-                                        this.userDialog = false;
-                                        this._messageService.add({
-                                            severity: 'success',
-                                            summary: 'Successful',
-                                            detail: 'Staff created successfully',
-                                            life: 3000,
-                                        });
-                                    } else {
-                                        this._messageService.add({
-                                            severity: 'error',
-                                            summary: 'Error',
-                                            detail: 'Staff not created',
-                                            life: 3000,
-                                        });
-                                    }
-                                },
-                                error: (error) => {
-                                    console.log('error', error);
-                                    this._messageService.add({
-                                        severity: 'error',
-                                        summary: 'Error',
-                                        detail: 'Staff not created',
-                                        life: 3000,
-                                    });
-                                },
-                                complete: () => {
-                                    console.log('Staff created!');
-                                },
-                            });
+                        this.createUserStaff();
                     },
                 });
 
@@ -380,8 +388,6 @@ export class CreateUserComponent implements OnInit {
                     header: 'Confirm',
                     icon: 'pi pi-exclamation-triangle',
                     accept: () => {
-                        this.userModel.position = this.positionSelected.code;
-                        this.userModel.gender = this.genderSelected.code;
                         this.update();
                     },
                 });
@@ -402,7 +408,11 @@ export class CreateUserComponent implements OnInit {
     }
 
     update() {
-        this._staffService.updateStaff(this.token, this.userModel).subscribe({
+        const data = this.transformUserModel(this.userModel);
+        data['_id'] = this.userModel._id;
+        data['password'] = this.userModel.password;
+
+        this._staffService.updateStaffAdmin(this.token, data).subscribe({
             next: (response) => {
                 if (response.status == 'success') {
                     this.userDialog = false;
@@ -412,6 +422,7 @@ export class CreateUserComponent implements OnInit {
                         detail: 'Staff updated successfully!',
                         life: 3000,
                     });
+                    this.getStaffAdmin();
                 } else {
                     this._messageService.add({
                         severity: 'error',
@@ -435,5 +446,27 @@ export class CreateUserComponent implements OnInit {
                 console.log('Staff updated!');
             },
         });
+    }
+
+    public passval: boolean;
+    public passMessage: string;
+    verifyPasswordInput(confirmPassword: any) {
+        let passwordInput = confirmPassword.target.value;
+
+        if (this.userModel.password.length < 8) {
+            this.passMessage = 'Password must be at least 8 characters';
+            this.passval = true;
+        } else {
+            if (
+                this.userModel.password === passwordInput &&
+                this.userModel.repeatPassword === passwordInput
+            ) {
+                this.passMessage = 'Password Match';
+                this.passval = false;
+            } else {
+                this.passMessage = 'Password does not match';
+                this.passval = true;
+            }
+        }
     }
 }

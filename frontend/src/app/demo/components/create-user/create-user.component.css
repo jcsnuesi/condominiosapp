@@ -18,3 +18,10 @@ body {
     border-radius: 10px;
     margin-bottom: 1rem;
 }
+
+.font-color-fail {
+    color: red;
+}
+.font-color-success {
+    color: rgb(141, 219, 25);
+}

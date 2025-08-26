@@ -37,7 +37,10 @@
                                     label="Inactive account"
                                     (onClick)="deleteStaff()"
                                     [disabled]="staffSelected.length === 0"
-                                    *appHasPermissions="'admin'"
+                                    *appHasPermissions="[
+                                        'admin',
+                                        'staff_admin'
+                                    ]"
                                 />
                             </div>
                             <div class="ml-2 btn-f">
@@ -48,7 +51,7 @@
                                     label="Active account"
                                     (onClick)="activateStaff()"
                                     [disabled]="staffSelected.length === 0"
-                                    *appHasPermissions="'admin'"
+                                    *appHasPermissions="['admin']"
                                 />
                             </div>
                         </div>
@@ -93,7 +96,7 @@
                             </div>
                         </th>
                         <th
-                            *appHasPermissions="'admin'"
+                            *appHasPermissions="['admin']"
                             pSortableColumn="phone"
                             style="min-width: 8rem"
                         >
@@ -142,7 +145,7 @@
                             </div>
                         </th>
                         <th
-                            *appHasPermissions="'admin'"
+                            *appHasPermissions="['admin']"
                             pSortableColumn="government_id"
                             style="min-width: 10rem"
                         >
@@ -268,7 +271,7 @@
                             </div>
                         </td>
 
-                        <td *appHasPermissions="'admin'">
+                        <td *appHasPermissions="['admin']">
                             <span class="p-column-title">Phone</span>
                             {{ staff?.phone }}
                         </td>
@@ -280,7 +283,7 @@
                             <span class="p-column-title">Codominium name</span>
                             {{ staff.condo_alias | titlecase }}
                         </td>
-                        <td *appHasPermissions="'admin'">
+                        <td *appHasPermissions="['admin']">
                             <span class="p-column-title">Government ID</span>
                             {{ staff.government_id }}
                         </td>
@@ -304,10 +307,11 @@
 
                         <td style="text-align: center">
                             <p-button
+                                #btnInactiveStaff
                                 severity="secondary"
                                 (click)="showDialog(staff)"
                                 icon="pi pi-cog"
-                                *appHasPermissions="'admin'"
+                                *appHasPermissions="['admin', 'staff_admin']"
                             />
                         </td>
                     </tr>
@@ -319,7 +323,7 @@
                 </ng-template>
             </p-table>
         </p-tabPanel>
-        <p-tabPanel header="Create Staff" *appHasPermissions="'admin'">
+        <p-tabPanel header="Create Staff" *appHasPermissions="['admin']">
             <div class="createBoox-size">
                 <div class="createInputs">
                     <p-card header="STAFF INFO">

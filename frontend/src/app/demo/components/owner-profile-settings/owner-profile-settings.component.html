@@ -227,7 +227,7 @@
 
                     <div class="flex justify-content-between mt-4">
                         <p-button
-                            *appHasPermissions="'owner'"
+                            *appHasPermissions="['owner', 'staff_admin']"
                             (onClick)="confirmUpdate($event)"
                             icon="pi pi-check"
                             label="Update"
@@ -252,7 +252,7 @@
                                     ? 'success'
                                     : 'danger'
                             "
-                            *appHasPermissions="'admin'"
+                            *appHasPermissions="['admin', 'staff_admin']"
                         />
                     </div>
                 </div>

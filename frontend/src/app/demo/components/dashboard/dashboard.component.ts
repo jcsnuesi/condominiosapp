@@ -33,6 +33,8 @@ import { ImportsModule } from '../../imports_primeng';
 import { HasPermissionsDirective } from 'src/app/has-permissions.directive';
 import { BookingAreaComponent } from '../booking-area/booking-area.component';
 import { StaffComponent } from '../staff/staff.component';
+import { InvoiceService } from '../../service/invoice.service';
+import { InvoiceHistoryComponent } from '../invoice-history/invoice-history.component';
 
 @Component({
     templateUrl: './dashboard.component.html',
@@ -43,6 +45,7 @@ import { StaffComponent } from '../staff/staff.component';
         HasPermissionsDirective,
         BookingAreaComponent,
         StaffComponent,
+        InvoiceHistoryComponent,
     ],
     providers: [
         CondominioService,
@@ -50,6 +53,7 @@ import { StaffComponent } from '../staff/staff.component';
         MessageService,
         ConfirmationService,
         OwnerServiceService,
+        InvoiceService,
     ],
     styleUrls: ['./dashboard.css'],
 })
@@ -100,7 +104,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
     public condoId: any;
 
     @Output() propertyInfoEvent: EventEmitter<any> = new EventEmitter();
-    componentsToShow: { booking: boolean; staff: boolean; main: boolean };
+    componentsToShow: {
+        booking: boolean;
+        staff: boolean;
+        main: boolean;
+        invoice: boolean;
+    };
 
     constructor(
         private productService: ProductService,
@@ -115,7 +124,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
         private _router: Router,
         private _bookingService: BookingServiceService,
         private _staffService: StaffService,
-        private _ownerService: OwnerServiceService
+        private _ownerService: OwnerServiceService,
+        private _invoiceService: InvoiceService
     ) {
         this.subscription = this.layoutService.configUpdate$.subscribe(() => {
             this.initChart();
@@ -145,6 +155,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             ''
         );
         this.componentsToShow = {
+            invoice: false,
             booking: false,
             staff: false,
             main: true,
@@ -178,11 +189,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 icon: 'pi pi-home',
             },
         ];
+        this.invoiceCards = {
+            totalBalance: 0,
+            counts: 0,
+        };
     }
 
     ngOnInit() {
-        // this.propertyObj = JSON.parse(localStorage.getItem('property'));
-
         this.onInitInfo();
         this.genderOption = [
             { name: 'Male', gender: 'm' },
@@ -293,10 +306,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.loadUnitsCard();
 
         this.condoId = this.getId();
+        this.getAllInvoices();
     }
 
     showComponent(show: string) {
         this.componentsToShow = {
+            invoice: false,
             booking: false,
             staff: false,
             main: false,
@@ -315,7 +330,38 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }
     }
 
+    public invoiceCards: { totalBalance: number; counts: number };
+    getAllInvoices() {
+        this._invoiceService
+            .getInvoiceByCondo(this.token, this.getId())
+            .subscribe({
+                next: (response) => {
+                    if (response.status == 'success') {
+                        this.invoiceCards.totalBalance = 0;
+                        this.invoiceCards.counts = response.invoices.length;
+                    } else {
+                        this._messageService.add({
+                            severity: 'error',
+                            summary: 'Error',
+                            detail: 'Failed to load invoices',
+                            life: 3000,
+                        });
+                    }
+                },
+                error: (error) => {
+                    console.log(error);
+                    this._messageService.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: 'Failed to load invoices',
+                        life: 3000,
+                    });
+                },
+            });
+    }
+
     loadUnitsCard() {
+        console.log('Loading units card', this.getId());
         this._condominioService
             .getUnits(this.token, this.getId())
             .subscribe((response) => {
@@ -326,7 +372,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
 
     hideFamilyDialogfunc(visible: boolean | { msg: string }) {
-        // console.log('Hide family dialog', visible);
         if (typeof visible === 'boolean') {
             this.visibleCreateOwnerUnit = visible;
             this._messageService.add({
@@ -387,41 +432,21 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
 
     loadBookingCard() {
-        this._bookingService
-            .getBooking(this.token, this.identity._id)
-            .subscribe({
-                next: (response) => {
-                    if (response.status == 'success') {
-                        this.totalBooked = response.message.length;
-                    } else {
-                        this.totalBooked = 0;
-                    }
-                },
-                error: (error) => {
-                    console.log(error);
-                },
-            });
+        this._bookingService.getBooking(this.token, this.getId()).subscribe({
+            next: (response) => {
+                if (response.status == 'success') {
+                    this.totalBooked = response.message.length;
+                } else {
+                    this.totalBooked = 0;
+                }
+            },
+            error: (error) => {
+                console.log(error);
+            },
+        });
     }
 
     public indexStepper: number = 0;
-
-    allBooking() {
-        if (this.bookingVisible) {
-            this.bookingVisible = false;
-            this._router.navigate(['']);
-        } else {
-            this.bookingVisible = true;
-            this._router.navigate(['start/', this.identity._id]);
-        }
-    }
-
-    alertStatus() {
-        if (this.apiUnitResponse) {
-            this.apiUnitResponse = false;
-        } else {
-            this.apiUnitResponse = true;
-        }
-    }
 
     onMouseOver(): void {
         this.currentIcon = 'pi-plus';
@@ -459,19 +484,19 @@ export class DashboardComponent implements OnInit, OnDestroy {
     public genderOption: any;
     public selectedGenero: any[];
     public isRentOptions: any[];
-
     public propertyInactive: any[];
     public units_ownerId: any[];
 
     onInitInfo() {
         this._activatedRoute.params.subscribe((param) => {
-            let id = this.getId() ?? param['dashid']; // admin id or owner id
+            let id = this.getId();
 
-            this._condominioService.getBuilding(id, this.token).subscribe({
+            this._condominioService.getBuilding(this.token, id).subscribe({
                 next: (response) => {
                     if (response.status == 'success') {
                         this.units_ownerId =
-                            this.identity.role.toLowerCase() == 'admin'
+                            this.identity.role.toLowerCase() == 'admin' ||
+                            this.identity.role.toLowerCase() == 'staff_admin'
                                 ? response.condominium
                                       .map((unit) => {
                                           let total_owner = [];
@@ -483,8 +508,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
                                           return total_owner;
                                       })
                                       .flat()
-                                : response.condominium;
-                        // console.log('Error--->', this.units_ownerId);
+                                : response.condominium[0]._id;
+
                         this.units = response.condominium.length;
                     } else {
                         console.log('Error--->', response);
@@ -688,10 +713,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 this.formData.append(key, this.ownerObj[key]);
             }
         }
-
-        // this.formData.forEach((value, key) => {
-        //     console.log(key + ' ' + value)
-        // })
     }
 
     hideDialog() {}

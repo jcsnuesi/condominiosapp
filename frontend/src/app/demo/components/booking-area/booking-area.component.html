@@ -3,7 +3,7 @@
 </div> -->
 
 <p-confirmDialog />
-<div class="booking-responsive" *appHasPermissions="'owner'">
+<div class="booking-responsive" *appHasPermissions="['owner']">
     <p-panel header="Booking">
         <p-fieldset id="bg-legend" legend="Choose action">
             <div class="radio-container">
@@ -31,7 +31,7 @@
         </p-fieldset>
 
         <div class="show-form" *ngIf="valRadio == 'guest'">
-            <form #guestForm="ngForm" *appHasPermissions="'owner'">
+            <form #guestForm="ngForm" *appHasPermissions="['owner']">
                 <div class="guest-info">
                     <div class="form-group">
                         <label for="condo-label">Choose condo:</label>
@@ -210,7 +210,7 @@
             </form>
         </div>
         <div class="show-form" *ngIf="valRadio == 'bookingAct'">
-            <form #bookingForm="ngForm" *appHasPermissions="'owner'">
+            <form #bookingForm="ngForm" *appHasPermissions="['owner']">
                 <div class="guest-info">
                     <div class="form-group">
                         <label for="condo-label">Choose condominium:</label>
@@ -753,7 +753,7 @@
                     severity="success"
                     icon="pi pi-check"
                     (click)="addVisitor()"
-                    *appHasPermissions="'owner'"
+                    *appHasPermissions="['owner']"
                 />
             </div>
 
