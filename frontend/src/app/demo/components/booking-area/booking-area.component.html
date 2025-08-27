@@ -10,7 +10,6 @@
                 <div class="field-radiobutton">
                     <p-radioButton
                         name="bookAction"
-                        (onClick)="updateBookingObj()"
                         value="guest"
                         [(ngModel)]="valRadio"
                         id="guestRadio"
@@ -19,7 +18,6 @@
                 </div>
                 <div class="field-radiobutton">
                     <p-radioButton
-                        (onClick)="updateBookingObj()"
                         name="bookAction"
                         value="bookingAct"
                         [(ngModel)]="valRadio"
@@ -38,7 +36,7 @@
                         <p-dropdown
                             #condoOption="ngModel"
                             name="condoOption"
-                            (onChange)="getAreaInfo($event)"
+                            (onChange)="getUnit($event)"
                             id="areas-available-label"
                             [options]="condoOptions"
                             [(ngModel)]="bookingInfo.condoId"
@@ -219,7 +217,7 @@
                             #condoOption="ngModel"
                             name="condoOption"
                             id="condo-label"
-                            (onChange)="getAreaInfo($event)"
+                            (onChange)="getUnit($event)"
                             id="areas-available-label"
                             [options]="condoOptions"
                             [(ngModel)]="bookingInfo.condoId"
@@ -240,6 +238,7 @@
                             [(ngModel)]="bookingInfo.unit"
                             optionLabel="label"
                             [disabled]="unitOption.length == 0"
+                            (onChange)="getAreaInfo($event)"
                             required
                         />
                     </div>
@@ -326,7 +325,11 @@
                         (click)="submit(bookingForm)"
                         label="Book"
                         icon="pi pi-check"
-                        [disabled]="bookingForm.invalid"
+                        [disabled]="
+                            bookingForm.invalid ||
+                            unitOption.length != 0 ||
+                            areaOptions.length != 0
+                        "
                     />
                 </div>
             </form>
@@ -688,23 +691,10 @@
             </div>
 
             <div class="merged-container">
-                <!-- <div class="form-grouped">
-                        <label for="checkOut-label">Visitors' qtys:</label>
-                        <p-inputNumber
-                        #visitors="ngModel"
-                        name="visitors" 
-                        [(ngModel)]="bookingInfoApt.visitorNumber" 
-                        mode="decimal" 
-                        inputId="withoutgrouping" 
-                        [useGrouping]="false"  
-                        [min]="0"
-                        [max]="10" />
-                    </div> -->
                 <div class="form-grouped">
                     <label for="status-apt-label">Status:</label>
                     <p-dropdown
                         [readonly]="identity.role != 'OWNER'"
-                        (ngModelChange)="onStatusChange($event)"
                         [options]="headerStatus"
                         #statusOption_apt="ngModel"
                         name="statusOption_apt"

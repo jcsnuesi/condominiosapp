@@ -176,61 +176,6 @@ export class SeePropertyComponent implements OnInit {
                     console.log(error);
                 },
             });
-
-        // switch (this.identity.role) {
-        //     case 'STAFF_ADMIN':
-
-        //         break;
-
-        //     case 'OWNER':
-        //         this._ownerServiceService
-        //             .getPropertyByOwner(this.token, this.identity._id)
-        //             .subscribe({
-        //                 next: (response) => {
-        //                     this.properties = [];
-        //                     this.loading = false;
-        //                     console.log('For owner propuse:', response);
-        //                     if (response.status == 'success') {
-        //                         response.message[0].propertyDetails.forEach(
-        //                             (element) => {
-        //                                 this.properties.push({
-        //                                     _id: element.addressId._id,
-        //                                     avatar: element.addressId.avatar,
-        //                                     alias: element.addressId.alias,
-        //                                     phone: element.addressId.phone,
-        //                                     address: element.addressId.address,
-        //                                     city: element.addressId.city,
-        //                                     country: element.addressId.country,
-        //                                     province:
-        //                                         element.addressId.province,
-        //                                     sector_name:
-        //                                         element.addressId.sector_name,
-        //                                     street_1:
-        //                                         element.addressId.street_1,
-        //                                     street_2:
-        //                                         element.addressId.street_2,
-        //                                     createdAt: this._format.dateFormat(
-        //                                         element.addressId.createdAt
-        //                                     ),
-        //                                     property_id: element.addressId._id,
-        //                                     status: element.addressId.status,
-        //                                     mPayment:
-        //                                         element.addressId.mPayment,
-        //                                 });
-        //                             }
-        //                         );
-        //                     }
-        //                 },
-        //                 error: (error) => {
-        //                     console.log('For owner propuse:', error);
-        //                 },
-        //                 complete: () => {
-        //                     console.log('See OWNER property completed!');
-        //                 },
-        //             });
-
-        //         break;
-        // }
     }
 
     public ownerIdInput: string;

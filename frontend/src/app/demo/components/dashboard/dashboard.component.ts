@@ -361,7 +361,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
 
     loadUnitsCard() {
-        console.log('Loading units card', this.getId());
         this._condominioService
             .getUnits(this.token, this.getId())
             .subscribe((response) => {

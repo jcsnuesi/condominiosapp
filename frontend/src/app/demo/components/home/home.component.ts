@@ -278,7 +278,7 @@ export class HomeComponent implements OnInit {
 
             this.condoId = id;
             if (id != undefined) {
-                this._condominioService.getBuilding(id, this.token).subscribe(
+                this._condominioService.getBuilding(this.token, id).subscribe(
                     (response) => {
                         if (response.status == 'success') {
                             // Info para enviar al componente 'invoice generator'
@@ -288,7 +288,7 @@ export class HomeComponent implements OnInit {
                             this.invoiceInfo.id = unitList._id;
                             this.invoiceInfo.units_ownerId =
                                 unitList.units_ownerId;
-                            console.log('UNITS', this.invoiceInfo);
+
                             this.condoInfo = { ...unitList };
                             unitList['units'] = unitList.availableUnits.map(
                                 (unit) => {

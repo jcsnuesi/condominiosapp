@@ -39,6 +39,7 @@ import { DialogModule, Dialog } from 'primeng/dialog';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { OwnerServiceService } from '../../service/owner-service.service';
+import { CondominioService } from '../../service/condominios.service';
 
 type BookingType = {
     fullname?: string;
@@ -53,6 +54,17 @@ type BookingType = {
     visitorNumber?: number;
     notifingType?: string;
     notifing?: string;
+};
+
+type BookingSettings = {
+    id: string;
+    condoId: { label: string; code: string };
+    unit: { label: string; code: string };
+    areaId: { label: string; code: string };
+    checkIn: string;
+    checkOut: string;
+    status: { label: string; code: string };
+    comments: string;
 };
 
 @Component({
@@ -86,6 +98,7 @@ type BookingType = {
         ConfirmationService,
         FormatFunctions,
         OwnerServiceService,
+        CondominioService,
     ],
     templateUrl: './booking-area.component.html',
     styleUrl: './booking-area.component.css',
@@ -113,7 +126,14 @@ export class BookingAreaComponent implements OnInit {
     public bookingId: string;
     public headerBooking: string;
     public today: Date;
+    public inputValues: Array<{
+        notificationType: string;
+        fullname: string;
+        phone: string;
+    }> = [{ notificationType: '', fullname: '', phone: '' }];
+
     @Input() condoId: string | [string];
+    public bookingInfoApt: BookingSettings;
 
     constructor(
         private _userService: UserService,
@@ -124,7 +144,8 @@ export class BookingAreaComponent implements OnInit {
         private _route: ActivatedRoute,
         private _format: FormatFunctions,
         private cdr: ChangeDetectorRef,
-        private _ownerService: OwnerServiceService
+        private _ownerService: OwnerServiceService,
+        private _condominioService: CondominioService
     ) {
         this.identity = this._userService.getIdentity();
         this.token = this._userService.getToken();
@@ -158,11 +179,21 @@ export class BookingAreaComponent implements OnInit {
         this.condoOptions = [{ label: '', code: '' }];
         this.selectedRow = [];
         this.areaOptions = [];
-        this.unitOption = [{ label: 'Select unit...', code: '' }];
+        this.unitOption = [];
         this.loading = true;
         this.notifingOptions = [{ label: 'Email' }, { label: 'None' }];
-        this.bookingInfoApt = {};
+        this.bookingInfoApt = {
+            id: '',
+            condoId: { label: '', code: '' },
+            unit: { label: '', code: '' },
+            areaId: { label: '', code: '' },
+            checkIn: '',
+            checkOut: '',
+            status: { label: '', code: '' },
+            comments: '',
+        };
     }
+
     updateBookingObj() {
         this.bookingInfo = {
             unit: '',
@@ -180,14 +211,13 @@ export class BookingAreaComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        console.log('get Booking', this.condoId);
         this.getAllBookings(this.condoId);
-        // this.getPropertyType();
+        this.isOwner();
     }
     getAllBookings(paramId: any) {
         /**Este metodo obtiene las reservas del condominio*/
 
-        this._bookingService.getBooking(paramId, this.token).subscribe({
+        this._bookingService.getBooking(this.token, paramId).subscribe({
             next: (response) => {
                 if (response.status === 'success') {
                     let allBookinInfo = response.message;
@@ -240,7 +270,6 @@ export class BookingAreaComponent implements OnInit {
                     life: 10000,
                 });
                 this.loading = false;
-                // console.log('Booking Error:', errors.error)
             },
         });
     }
@@ -256,93 +285,85 @@ export class BookingAreaComponent implements OnInit {
         this.searchValue = '';
     }
 
-    //  this._condominioService
-    //         .getPropertyByIdentifier(this.token, this.getId())
-    //         .subscribe({
-    //             next: (response) => {
-
-    //                 if (response.status == 'success') {
-    //                     this.propertiesOptions = response.message.map(
-    //                         (item: any) => {
-    //                             return {
-    //                                 label: item.alias,
-    //                                 code: item._id,
-    //                             };
-    //                         }
-    //                     );
-    //                 } else {
-    //                     this._messageService.add({
-    //                         severity: 'error',
-    //                         summary: 'Error',
-    //                         detail: 'No se han encontrado condominios',
-    //                     });
-    //                 }
-    //             },
-    //             error: (error) => {
-    //                 console.log(error);
-    //                 this._messageService.add({
-    //                     severity: 'error',
-    //                     summary: 'Error',
-    //                     detail: 'Error al cargar los condominios',
-    //                 });
-    //             },
-    //         });
     public propertyDetails: any[] = [];
-    getPropertyType() {
-        /**Este metodo obtiene las propiedades del propietario y carga el dropdown de condominios*/
+    public dropListData: any[] = [];
+
+    isOwner() {
+        if (this.identity.role !== 'OWNER') {
+            return;
+        }
+
         this._ownerService
-            .getPropertyByOwner(this.token, this.identity._id)
+            .getPropertyByOwner(this.token, this.getId())
             .subscribe({
                 next: (res) => {
                     if (res.status === 'success') {
-                        res.message.forEach((prop) => {
-                            prop.propertyDetails.forEach((property) => {
-                                this.propertyDetails.push(property);
-                                this.condoOptions.push({
-                                    label: property.addressId.alias.toUpperCase(),
-                                    code: property.addressId._id,
-                                });
+                        let { propertyDetails } = res.message;
 
-                                if (Boolean(property.condominium_unit)) {
-                                    this.unitOption.push({
-                                        label: property.condominium_unit,
-                                        code: property.condominium_unit,
-                                    });
-                                }
+                        this.condoOptions = propertyDetails.map((condo) => {
+                            this.dropListData.push({
+                                id: condo.addressId._id,
+                                unit: condo.condominium_unit,
+                                areas: condo.addressId.socialAreas,
                             });
+                            return {
+                                label: condo.addressId.alias,
+                                code: condo.addressId._id,
+                            };
+                        });
+                    } else {
+                        this._messageService.add({
+                            severity: 'warn',
+                            summary: 'Notification',
+                            detail: 'No properties found for the owner.',
                         });
                     }
                 },
                 error: (err) => {
-                    console.log('Error:', err);
+                    console.error('Error fetching owner properties:', err);
+                    this._messageService.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: 'No se encontraron propiedades para el propietario.',
+                    });
                 },
+            });
+    }
+
+    getUnit(event: any) {
+        let unitObj = event.value;
+
+        this.unitOption = this.dropListData
+            .filter((condo) => condo.id === unitObj.code)
+            .map((condo) => {
+                return {
+                    label: condo.unit,
+                    code: unitObj.code,
+                };
             });
     }
 
     getAreaInfo(event: any) {
         let areaObj = event.value;
 
-        this.propertyDetails.forEach((area, index) => {
-            if (Boolean(areaObj == undefined)) {
-                this.areaOptions = area.addressId.socialAreas.map(
-                    (areaFound) => {
-                        return {
-                            label: areaFound.toUpperCase(),
-                            code: areaFound.toUpperCase(),
-                        };
-                    }
-                );
-            } else if (
-                area.addressId._id === areaObj.code &&
-                area.addressId.socialAreas.length > 0
-            ) {
-                this.areaOptions = area.addressId.socialAreas.map(
-                    (areaFound) => {
-                        return { label: areaFound, code: areaFound };
-                    }
-                );
-            }
-        });
+        this.areaOptions = this.dropListData
+            .filter((condo) => condo.id === areaObj.code)
+            .map((condo) => {
+                if (condo.areas.length > 0) {
+                    return {
+                        label: condo.areas,
+                        code: condo.areas,
+                    };
+                }
+
+                this._messageService.add({
+                    severity: 'warn',
+                    summary: 'Notification',
+                    detail: 'No social areas found for the selected condominium.',
+                });
+                return [];
+            })
+            .flat();
     }
 
     setIntervalTime(event: Date): Date | null {
@@ -354,7 +375,7 @@ export class BookingAreaComponent implements OnInit {
 
             // Validar que sea una fecha válida
             if (isNaN(date.getTime())) {
-                console.warn('Fecha inválida recibida:', event);
+                // console.warn('Fecha inválida recibida:', event);
                 return null;
             }
 
@@ -436,12 +457,9 @@ export class BookingAreaComponent implements OnInit {
             message = 'Are you sure you want to book this area?';
         }
 
-        let condominioId = data.condoId?.code;
-        let unitId = data.unit?.code;
-        let areaId = data.areaId?.code;
-        data.condoId = condominioId;
-        data.unit = unitId;
-        data.areaId = areaId;
+        data.condoId = data.condoId?.code;
+        data.unit = data.unit?.label;
+        data.areaId = data.areaId?.label;
 
         this._confirmationService.confirm({
             message: message,
@@ -486,19 +504,23 @@ export class BookingAreaComponent implements OnInit {
     }
 
     // public inputData: string[] = [];
-    public inputValues: Array<{
-        notificationType: string;
-        fullname: string;
-        phone: string;
-    }> = [{ notificationType: '', fullname: '', phone: '' }];
 
     addVisitor() {
         // this.inputData.push('');
-        this.inputValues.push({
-            notificationType: '',
-            fullname: '',
-            phone: '',
-        });
+
+        if (this.inputValues.length == 0) {
+            this.inputValues.push({
+                notificationType: '',
+                fullname: '',
+                phone: '',
+            });
+        } else if (this.inputValues.length < 3) {
+            this._messageService.add({
+                severity: 'warn',
+                summary: 'Warning',
+                detail: 'You can only add up to 3 visitors',
+            });
+        }
     }
 
     loadVisitorArray(guestList: any) {
@@ -515,75 +537,63 @@ export class BookingAreaComponent implements OnInit {
         this.inputValues.splice(id, 1);
     }
 
-    public bookingInfoApt: any;
     showDialog(customer: any) {
+        this.visibleDialog = true;
+        console.log(':guest', customer);
+
         // Limpiar el array de visitantes
-
         let customerData = { ...customer };
-        this.loadVisitorArray(customerData.guest);
-
-        let guestInfo = customerData.guest;
-
-        if (this.identity.role !== 'ADMIN') {
-            this.getAreaInfo(customerData.area);
-            this.areaOptions = [
-                {
-                    label: (customerData?.area).toUpperCase(),
-                    code: (customerData?.area).toUpperCase(),
-                },
-            ];
-        } else {
-            this.unitOption = [
-                { label: customerData.unit, code: customerData.unit },
-            ];
-            this.condoOptions = [
-                {
-                    label: customerData.condoId.alias.toUpperCase(),
-                    code: customerData.condoId._id,
-                },
-            ];
-        }
-        // console.log('customerData.checkOut:', customerData?.checkOut);
-        this.bookingInfoApt = {
-            id: customerData.id,
-            memberId: this.identity._id,
-            fullname: guestInfo?.fullname,
-            unit: { label: customerData.unit, code: customerData.unit },
-            phone: guestInfo?.phone,
-            checkIn: this._format.dateTimeFormat(customerData.checkIn),
-            checkOut:
-                customerData?.checkOut != 'N/A'
-                    ? this._format.dateTimeFormat(customerData?.checkOut)
-                    : null,
-            condoId: {
-                label: customerData.condoId.alias.toUpperCase(),
+        this.bookingInfoApt.id = customerData.id;
+        this.condoOptions = [
+            {
+                label: customerData.condoId.alias,
                 code: customerData.condoId._id,
             },
-            areaId: {
-                label: (customerData?.area).toUpperCase(),
-                code: (customerData?.area).toUpperCase(),
+        ];
+        this.bookingInfoApt.condoId = {
+            label: customerData.condoId.alias,
+            code: customerData.condoId._id,
+        };
+        this.unitOption = [
+            {
+                label: customerData.unit,
+                code: customerData.unit,
             },
-            notifingType: guestInfo?.notifingType,
-            notifing: guestInfo?.notifing,
-            visitorNumber: customerData?.visitorNumber,
-            status: {
-                label: this._format.titleCase(customerData.status),
-                code: this.headerStatus.find(
-                    (status_result) =>
-                        status_result.label.toLowerCase() ===
-                        customerData.status.toLowerCase()
-                ).code,
+        ];
+        this.bookingInfoApt.unit = {
+            label: customerData.unit,
+            code: customerData.unit,
+        };
+        this.areaOptions = [
+            {
+                label: customerData.area,
+                code: customerData.area,
             },
-            comments: customerData?.comments,
-            guest: [],
+        ];
+        this.bookingInfoApt.areaId = {
+            label: customerData.area,
+            code: customerData.area,
+        };
+        this.bookingInfoApt.checkIn = this._format.dateTimeFormat(
+            customerData.checkIn
+        );
+        this.bookingInfoApt.checkOut = this._format.dateTimeFormat(
+            customerData.checkOut
+        );
+
+        this.headerStatus = [
+            {
+                label: customerData.status,
+                code: customerData.status,
+            },
+        ];
+        this.bookingInfoApt.status = {
+            label: customerData.status,
+            code: customerData.status,
         };
 
-        this.visibleDialog = true;
-        this.cdr.detectChanges();
-    }
-
-    onStatusChange(event: any) {
-        this.bookingInfoApt.status = event;
+        this.bookingInfoApt.comments = customerData.comments;
+        this.loadVisitorArray(customerData.guest);
     }
 
     getSeverity(status: string) {
@@ -610,8 +620,9 @@ export class BookingAreaComponent implements OnInit {
     }
 
     update() {
-        let data = { ...this.bookingInfoApt };
+        let data: any = {};
         data.guest = this.inputValues;
+        data.id = this.bookingInfoApt.id;
         let unitlabel = this.bookingInfoApt.unit.code;
         let condoIdlabel = this.bookingInfoApt.condoId.code;
         let areaIdlabel = this.bookingInfoApt.areaId.label;
@@ -621,9 +632,6 @@ export class BookingAreaComponent implements OnInit {
         data.condoId = condoIdlabel;
         data.areaId = areaIdlabel;
         data.status = statuslabel;
-
-        // console.log('Booking Response//////////////////:', this.bookingInfoApt)
-        //   return
 
         this._confirmationService.confirm({
             message: 'Are you sure you want to update this booking?',
