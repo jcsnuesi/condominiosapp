@@ -119,14 +119,14 @@ var reservesController = {
     let id = req.body.id;
 
     let ownerFound = await Owner.find({
-      createdBy: mongoose.Types.ObjectId(id),
+      createdBy: id,
     }).select("_id");
 
     try {
       // Ejecutar la consulta
       let reservations = await Reserves.find({
         $or: [
-          { memberId: { $in: ownerFound } },
+          { memberId: { $in: ownerFound.map((owner) => owner._id) } },
           { condoId: id },
           { memberId: id },
         ],
@@ -162,81 +162,62 @@ var reservesController = {
     let params = req.body;
 
     try {
-      var val_memberId = !validator.isEmpty(params.memberId);
-      var val_checkIn = !validator.isEmpty(params.checkIn);
-      var val_unit = !validator.isEmpty(params.unit);
-      var val_status = !validator.isEmpty(params.status);
-    } catch (error) {
-      return res.status(400).send({
-        status: "error",
-        message: "Fill out all fields (required)",
-      });
-    }
+      var book_var = await Reserves.findOne({ _id: params.id });
 
-    if (val_memberId && val_checkIn && val_unit && val_status) {
-      try {
-        var book_var = await Reserves.findOne({ _id: params.id });
-
-        if (!book_var) {
-          return res.status(404).send({
-            status: "error",
-            message: "Reservation not found",
-          });
-        }
-
-        if (book_var.status == "Expired") {
-          return res.status(409).send({
-            status: "error",
-            message: "Reservation expired",
-          });
-        }
-
-        if (Array.isArray(params?.guest) && params.guest.length > 0) {
-          for (const element of params.guest) {
-            try {
-              if (Boolean(book_var.guest.find((x) => x._id == element._id))) {
-                continue;
-              } else {
-                element.verificationCode = generateRandomCode();
-                codeVerification.CodeVerification(
-                  element.notificationType,
-                  element.verificationCode
-                );
-
-                element.verificationCode = await bcrypt.hash(
-                  `${element.verificationCode}`,
-                  saltRounds
-                );
-                element.verify = false;
-                element.guest_token = verifyGuest.guestVerification(element);
-              }
-            } catch (error) {
-              console.error("Error hashing verification code:", error);
-            }
-          }
-        }
-
-        const bookingUpdated = await Reserves.findOneAndUpdate(
-          { _id: params.id },
-          params,
-          { new: true }
-        ).exec();
-
-        return res.status(200).send({
-          status: "success",
-          message: bookingUpdated,
-        });
-      } catch (error) {
-        console.error(error);
-        return res.status(500).send({
+      if (!book_var) {
+        return res.status(404).send({
           status: "error",
-          message: "Error updating reservation",
+          message: "Reservation not found",
         });
       }
-    } else {
-      return res.status(400).send({
+
+      if (book_var.status == "Expired") {
+        return res.status(409).send({
+          status: "error",
+          message: "Reservation expired",
+        });
+      }
+
+      if (Array.isArray(params?.guest) && params.guest.length > 0) {
+        for (const element of params.guest) {
+          try {
+            if (Boolean(book_var.guest.find((x) => x._id == element._id))) {
+              continue;
+            } else {
+              element.verificationCode = generateRandomCode();
+              codeVerification.CodeVerification(
+                element.notificationType,
+                element.verificationCode
+              );
+
+              element.verificationCode = await bcrypt.hash(
+                `${element.verificationCode}`,
+                saltRounds
+              );
+              element.verify = false;
+              element.guest_token = verifyGuest.guestVerification(element);
+            }
+          } catch (error) {
+            console.error("Error hashing verification code:", error);
+          }
+        }
+      }
+
+      const bookingUpdated = await Reserves.findOneAndUpdate(
+        { _id: params.id },
+        params,
+        { new: true }
+      ).exec();
+
+      return res.status(200).send({
+        status: "success",
+        message: bookingUpdated,
+      });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).send({
         status: "error",
-        message: "Fill out all fields (required)",
+        message: "Error updating reservation",
       });
     }
   },

@@ -360,13 +360,12 @@ var Condominium_Controller = {
   },
   getCondominiumsByAdmin: function (req, res) {
     let params = req.params.id;
-    console.log("Params:------------------>", params);
+
     Condominium.find(
       {
         $and: [
           {
             $or: [
-              { createdBy: params },
               { createdBy: params },
               { units_ownerId: mongoose.Types.ObjectId(params) },
             ],
@@ -440,9 +439,7 @@ var Condominium_Controller = {
           { units_ownerId: { $in: [mongoose.Types.ObjectId(id)] } },
           { createdBy: mongoose.Types.ObjectId(id) },
         ],
-      }).select(
-        "name street_1 street_2 sector_name city province country availableUnits"
-      );
+      }).select("availableUnits");
       if (!condominiums) {
         return res.status(404).send({
           status: "error",
