@@ -201,10 +201,6 @@ var StaffController = {
     try {
       let stafFound = await Staff_Admin.findOne({ _id: staffParams._id });
 
-      console.log(
-        "Staff params:",
-        Object.prototype.hasOwnProperty.call(staffParams, "password")
-      );
       if (Object.prototype.hasOwnProperty.call(staffParams, "password")) {
         staffParams.password = await bcrypt.hash(
           staffParams.password,
@@ -386,7 +382,7 @@ var StaffController = {
   },
   deleteBatchAdmin: async function (req, res) {
     const updateData = req.body;
-    console.log("deleteBatchAdmin", updateData);
+    var statusUser = updateData.status == "inactive" ? "active" : "inactive";
 
     try {
       if (!Array.isArray(updateData.id) || updateData.id.length === 0) {
@@ -397,7 +393,7 @@ var StaffController = {
       // Realizar la eliminación por lotes
       const result = await Staff_Admin.updateMany(
         { _id: { $in: updateData.id } },
-        { status: "inactive" },
+        { status: statusUser },
         { new: true }
       );
 

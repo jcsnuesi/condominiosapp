@@ -1,6 +1,9 @@
 "use strict";
 const mailer = require("nodemailer");
+const dotenv = require("dotenv");
+dotenv.config();
 
+const EMAIL_PASSWORD = process.env.EMAIL_PASSWORD;
 // Handle the registration verification
 exports.verifyRegistration = async function (user) {
   const transporter = mailer.createTransport({
@@ -10,7 +13,7 @@ exports.verifyRegistration = async function (user) {
     secure: true,
     auth: {
       user: "jcsnuesi@gmail.com",
-      pass: "rgps oaba qccf aeaq",
+      pass: EMAIL_PASSWORD,
     },
   });
 
@@ -45,7 +48,7 @@ exports.CodeVerification = function (email, code) {
     secure: true,
     auth: {
       user: "jcsnuesi@gmail.com",
-      pass: "rgps oaba qccf aeaq",
+      pass: EMAIL_PASSWORD,
     },
   });
 
@@ -80,7 +83,7 @@ exports.StaffRegistration = async function (fullobject) {
     secure: true,
     auth: {
       user: "jcsnuesi@gmail.com",
-      pass: "rgps oaba qccf aeaq",
+      pass: EMAIL_PASSWORD,
     },
   });
 
