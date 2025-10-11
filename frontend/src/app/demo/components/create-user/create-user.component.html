@@ -140,11 +140,13 @@
                         (onClick)="editStaff(userx)"
                     />
                     <p-button
-                        icon="pi pi-trash"
-                        severity="danger"
+                        [icon]="btnToggleDeleteActive(userx.status).icono"
+                        [severity]="
+                            btnToggleDeleteActive(userx.status).severity
+                        "
                         [rounded]="true"
                         [outlined]="true"
-                        (onClick)="deleteUser(userx)"
+                        (onClick)="deleteAnUser(userx)"
                     />
                 </td>
             </tr>
@@ -307,7 +309,7 @@
                     </small>
                 </div>
 
-                <div class="field">
+                <div class="field" style="display: none">
                     <label for="accountStatus">Account Status</label>
                     <p-dropdown
                         [options]="accountStatusOptions"

@@ -150,6 +150,12 @@ export class CreateUserComponent implements OnInit {
         });
     }
 
+    btnToggleDeleteActive(status: string) {
+        return status === 'inactive'
+            ? { severity: 'warning', icono: 'pi pi-user-plus' }
+            : { severity: 'danger', icono: 'pi pi-user-minus' };
+    }
+
     deleteSelectedUsers() {
         this._confirmationService.confirm({
             message: 'Are you sure you want to delete the selected products?',
@@ -262,16 +268,19 @@ export class CreateUserComponent implements OnInit {
         return new Date(date).toDateString();
     }
 
-    deleteUser(user: any) {
+    deleteAnUser(user: any) {
         this._confirmationService.confirm({
             message: 'Are you sure you want to delete the selected products?',
             header: 'Confirm',
             icon: 'pi pi-exclamation-triangle',
             accept: () => {
                 const ids = new Array(user._id);
+                let data = { id: ids, status: user.status };
+
+                console.log('data', data);
 
                 this._staffService
-                    .deleteStaffAdmin(this.token, { id: ids })
+                    .deleteStaffAdmin(this.token, data)
                     .subscribe({
                         next: (response) => {
                             if (response.status == 'success') {
@@ -334,6 +343,7 @@ export class CreateUserComponent implements OnInit {
 
     createUserStaff() {
         const formData = this.transformUserModel(this.userModel);
+        formData.status = 'active';
 
         this._staffService.createAdmin(formData, this.token).subscribe({
             next: (response) => {
@@ -403,7 +413,7 @@ export class CreateUserComponent implements OnInit {
             case 'inactive':
                 return 'danger';
             default:
-                return 'nan';
+                return 'danger';
         }
     }
 

@@ -68,7 +68,6 @@ export class PoolFileLoaderComponent {
                     this.multipleOwners
                 ).subscribe({
                     next: (response) => {
-                        // console.log('response:--------------->', response);
                         if (response.status == 'success') {
                             this._messageService.add({
                                 severity: 'success',

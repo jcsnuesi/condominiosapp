@@ -160,14 +160,14 @@ export class SeePropertyComponent implements OnInit {
     }
 
     getProperties() {
-        console.log('this.getId()', this.getId());
+        // console.log('this.getId()', this.getId());
 
         this._condominioService
             .getPropertyByIdentifier(this.token, this.getId())
             .subscribe({
                 next: (response) => {
                     this.loading = false;
-                    console.log('ELEMENT:', response);
+                    // console.log('ELEMENT:', response);
                     if (response.status == 'success') {
                         this.properties = response.message;
                     }
