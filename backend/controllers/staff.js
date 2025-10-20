@@ -17,6 +17,7 @@ const Staff = require("../models/staff");
 const Staff_Admin = require("../models/staff_admin");
 const Condominio = require("../models/condominio");
 let mongoose = require("mongoose");
+const { create } = require("domain");
 let saltRounds = 10;
 // Generar una contraseña con opciones específicas
 let temp_password = generatePassword.generate({
@@ -443,54 +444,6 @@ var StaffController = {
         error: error,
       });
     }
-    // var ref = null;
-    // if (Boolean(_user.split("_")[1] == "homeId")) {
-    //   _user = _user.split("_")[0];
-    //   ref = "homeId";
-    // }
-
-    // let query = {};
-
-    // try {
-    //   if (req.user.role == "ADMIN" && ref === null) {
-    //     query["createdBy"] = _user;
-    //   } else if (ref != null) {
-    //     query["condo_id"] = _user;
-    //   } else {
-    //     const condo = await Condominio.find();
-    //     const user_id = condo.filter((condo) =>
-    //       condo.units_ownerId.includes(_user) ? condo._id : null
-    //     );
-    //     query["condo_id"] = { $in: user_id };
-    //     query["status"] = "active";
-    //   }
-
-    //   const StaffFound = await Staff.find(query).populate(
-    //     "condo_id",
-    //     "alias phone"
-    //   );
-
-    //   if (StaffFound.length == 0) {
-    //     return res.status(404).send({
-    //       status: "error",
-    //       message: "Staffs was not found",
-    //     });
-    //   }
-    //   // Ocultamos la password
-    //   StaffFound.forEach((staff) => {
-    //     staff.password = undefined;
-    //   });
-    //   return res.status(200).send({
-    //     status: "success",
-    //     message: StaffFound,
-    //   });
-    // } catch (err) {
-    //   return res.status(500).send({
-    //     status: "error",
-    //     message: "Server error",
-    //     error: err,
-    //   });
-    // }
   },
   getStaffByAdmin: async function (req, res) {
     let id = mongoose.Types.ObjectId(req.params.id);

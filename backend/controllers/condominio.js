@@ -20,16 +20,33 @@ var Condominium_Controller = {
   createCondominium: async function (req, res) {
     let condominiumParams = req.body;
 
+    // Required fields validation
+    /*
+
+     user_id
+     alias
+     street_1
+     street_2
+     sector_name
+     city
+     province
+     mPayment
+
+    */
+
     try {
+      var user_id_validation = !validator.isEmpty(condominiumParams.user_id);
       var alias_validation = !validator.isEmpty(condominiumParams.alias);
       var street_1_validation = !validator.isEmpty(condominiumParams.street_1);
+      var street_2_validation = !validator.isEmpty(condominiumParams.street_2);
       var sector_name_validation = !validator.isEmpty(
         condominiumParams.sector_name
       );
-      var province_validation = !validator.isEmpty(condominiumParams.province);
       var city_validation = !validator.isEmpty(condominiumParams.city);
-      var phone1_validation = !validator.isEmpty(condominiumParams.phone);
+      var province_validation = !validator.isEmpty(condominiumParams.province);
+      var mPayment_validation = !validator.isEmpty(condominiumParams.mPayment);
     } catch (error) {
+      console.log("error", error);
       return res.status(400).send({
         status: "error",
         message: "Check out all fiels",
@@ -46,6 +63,23 @@ var Condominium_Controller = {
           "System just accept image format '.jpg', '.jpeg', '.gif', '.png'",
       });
     }
+    console.log(
+      alias_validation +
+        "&&" +
+        street_1_validation +
+        "&&" +
+        sector_name_validation +
+        "&&" +
+        province_validation +
+        "&&" +
+        city_validation +
+        "&&" +
+        mPayment_validation +
+        "&&" +
+        user_id_validation +
+        "&&" +
+        street_2_validation
+    );
 
     if (
       alias_validation &&
@@ -53,81 +87,59 @@ var Condominium_Controller = {
       sector_name_validation &&
       province_validation &&
       city_validation &&
-      phone1_validation
+      mPayment_validation &&
+      user_id_validation &&
+      street_2_validation
     ) {
-      Condominium.findOne(
-        {
-          $and: [
-            { alias: condominiumParams.alias },
-            { status: "active" },
-            { createdBy: condominiumParams.createdBy },
-          ],
-        },
-        (err, condominioFound) => {
-          if (err) {
-            return res.status(500).send({
-              status: "bad request",
-              message: "Error finding condominio",
-            });
-          }
-          if (condominioFound) {
-            return res.status(204).send({
-              status: "success",
-              message: "Usur already exists",
-            });
-          }
+      const condo = await Condominium.findOne({
+        $and: [
+          { alias: condominiumParams.alias },
+          { status: "active" },
+          { createdBy: condominiumParams.user_id },
+        ],
+      });
 
-          var condominio = new Condominium();
-          console.log(condominiumParams.socialAreas.length);
-          // Convertir en socialAreas en un array
-          if (
-            condominiumParams.socialAreas.length > 1 &&
-            condominiumParams.socialAreas.includes(",")
-          ) {
-            condominiumParams.socialAreas.forEach((areas) =>
-              condominio.socialAreas.push(areas)
-            );
+      if (condo) {
+        return res.status(400).send({
+          status: "bad request",
+          message: "Condominium already exists for this user",
+        });
+      }
 
-            delete condominiumParams.socialAreas;
-          } else {
-            condominio.socialAreas.push(condominiumParams.socialAreas);
-            delete condominiumParams.socialAreas;
-          }
+      try {
+        const condominio = new Condominium({
+          alias: condominiumParams.alias,
+          typeOfProperty: condominiumParams.typeOfProperty,
+          phone: condominiumParams.phone,
+          phone2: condominiumParams.phone2 ?? "",
+          street_1: condominiumParams.street_1,
+          street_2: condominiumParams.street_2,
+          sector_name: condominiumParams.sector_name ?? "",
+          availableUnits: condominiumParams.availableUnits,
+          city: condominiumParams.city,
+          province: condominiumParams.province,
+          zipcode: condominiumParams.zipcode ?? "",
+          country: condominiumParams.country,
+          socialAreas: condominiumParams.socialAreas ?? [],
+          mPayment: condominiumParams.mPayment,
+          paymentDate: condominiumParams.paymentDate,
+          createdBy: condominiumParams.user_id,
+        });
+        await condominio.save();
 
-          condominio.availableUnits = JSON.parse(
-            condominiumParams.availableUnits
-          );
-          delete condominiumParams.availableUnits;
-
-          for (const key in condominiumParams) {
-            condominio[key] =
-              typeof condominiumParams[key] == "string"
-                ? condominiumParams[key].toLowerCase()
-                : condominiumParams[key];
-          }
-
-          if (Boolean(req.files.avatar != undefined)) {
-            condominio["avatar"] = req.files.avatar.path.split("\\")[2];
-          }
-
-          //user whom created the propery
-          condominio.createdBy = req.user.sub;
-
-          condominio.save((err, newCondominio) => {
-            if (err) {
-              return res.status(500).send({
-                status: "bad request",
-                message: "Error finding condominio",
-              });
-            }
-
-            return res.status(200).send({
-              status: "success",
-              message: newCondominio,
-            });
-          });
-        }
-      );
+        return res.status(200).send({
+          status: "success",
+          message: "Condominium created successfully",
+          condominium: condominio,
+        });
+      } catch (error) {
+        console.log("error", error);
+        return res.status(500).send({
+          status: "error",
+          message: "Error saving condominium",
+          error: error.message,
+        });
+      }
     } else {
       return res.status(500).send({
         status: "bad request",
@@ -291,6 +303,8 @@ var Condominium_Controller = {
         { new: true }
       );
 
+      console.log("condoId", condominiumDeleted);
+
       if (!condominiumDeleted) {
         return res.status(404).send({
           status: "error",
@@ -370,7 +384,6 @@ var Condominium_Controller = {
               { units_ownerId: mongoose.Types.ObjectId(params) },
             ],
           },
-          { status: "active" },
         ],
       },
       (err, condominiumFound) => {

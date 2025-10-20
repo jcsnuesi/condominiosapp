@@ -32,7 +32,7 @@ var AdminsSchema = Schema(
       },
     ],
   },
-  { timestamp: true }
+  { timestamps: true }
 );
 
 AdminsSchema.method.toJSON = function () {
