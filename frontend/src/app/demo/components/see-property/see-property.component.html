@@ -1,13 +1,11 @@
 <p-toast />
-<!-- <app-change-password
-    [changePasswordDialog]="delProperty"
-    [componentHeader]="'Delete Property'"
-    [componentMessage]="'Type your password to delete this property.'"
-    [data]="data"
-    (passwordChanged)="passwordChanged($event)"
-></app-change-password> -->
-
+<p-confirmDialog />
 <div class="card">
+    <div
+        class="font-semibold text-xl text-surface-900 dark:text-surface-0 mb-4"
+    >
+        Properties List
+    </div>
     <p-table
         #dt1
         [value]="properties"
@@ -217,10 +215,12 @@
                     <button
                         pButton
                         type="button"
-                        severity="danger"
+                        [severity]="
+                            btnToggleDeleteActive(property.status).severity
+                        "
                         [outlined]="true"
-                        icon="pi pi-times-circle"
-                        class="p-button-rounded hover:bg-red-600 hover:border-red-600 hover:text-white"
+                        [icon]="btnToggleDeleteActive(property.status).icono"
+                        [class]="btnToggleDeleteActive(property.status).class"
                         (click)="deletePropertyFunc(property)"
                     ></button>
                 </td>

@@ -2,6 +2,7 @@ import { AnyObject } from 'chart.js/types/basic';
 
 export class Condominio {
     constructor(
+        public avatar: string,
         public alias: string,
         public typeOfProperty: any,
         public phone: string,

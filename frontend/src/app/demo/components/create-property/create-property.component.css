@@ -1,65 +1,170 @@
+/* === CORE COMPONENT STYLES === */
+
+/* File Upload Container */
 .custom-file-upload {
     display: flex;
     justify-content: center;
+    align-items: center;
     cursor: pointer;
     padding: 6px 12px;
-}
-.input-error {
-    border: 1px solid red;
-}
-::ng-deep .input-error-dropdown .p-dropdown {
-    border: 1px solid red;
+    margin-bottom: 1rem;
 }
 
+/* Upload Image - Fixed circular border */
 .upload-img {
     width: 160px;
     height: 160px;
     cursor: pointer;
-    border-radius: 300px;
-    border: solid 1px #e0e0e0;
+    border-radius: 50%; /* Fixed: was 300px, now proper circle */
+    border: 2px solid #e0e0e0; /* Increased border for better visibility */
+    object-fit: cover; /* Added: ensures proper image scaling */
+    transition: border-color 0.3s ease; /* Added: smooth hover transition */
 }
 
+.upload-img:hover {
+    border-color: #007bff; /* Added: hover effect */
+}
+
+/* === FORM VALIDATION STYLES === */
+
+/* Input Error State */
+.input-error {
+    border: 1px solid #dc3545 !important; /* Changed to Bootstrap danger color */
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25); /* Added focus shadow */
+}
+
+/* Dropdown Error State - Fixed class name */
+::ng-deep .input-error .p-dropdown {
+    border: 1px solid #dc3545 !important;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+/* Input Success State - Added for consistency */
+.input-success {
+    border: 1px solid #28a745 !important;
+    box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+}
+
+/* === LAYOUT UTILITIES === */
+
+/* Vertical Center Utility */
 .vertical-center {
     display: flex;
     justify-content: center;
-    /* Opcional: Centra horizontalmente */
     align-items: center;
-    /* Centra verticalmente */
     height: 100%;
-
-    /* Asegúrate de que el div ocupe el 100% de la altura disponible */
 }
+
+/* Property Details Block */
 .prop-details {
     display: block;
 }
+
+/* === FORM STYLING === */
+
+/* Address Property Container */
 .addressProperty {
     padding: 12px;
+    margin-bottom: 1rem; /* Added consistent spacing */
 }
 
 .addressProperty label {
     display: block;
     margin-top: 10px;
-    margin-bottom: 10px;
+    margin-bottom: 8px; /* Reduced for better spacing */
+    font-weight: 500; /* Added: better label styling */
+    color: #333; /* Added: consistent color */
 }
 
-.addressProperty input {
+.addressProperty input,
+.addressProperty .p-dropdown,
+.addressProperty .p-multiselect,
+.addressProperty .p-calendar {
     display: block;
-
     width: 100%;
 }
-/* .addr-margin {
-    margin-top: 10px;
+
+/* === PRIMENG COMPONENT OVERRIDES === */
+
+/* Tab View Height Fix */
+::ng-deep p-tabview > div > div > ul > li.p-tabview-selected {
+    height: 80px !important;
 }
-label {
-    margin-bottom: 10px;
-} */
-::ng-deep .p-dropdown {
+
+/* Form Controls Width */
+::ng-deep .p-dropdown,
+::ng-deep .p-multiselect,
+::ng-deep .p-calendar,
+::ng-deep .p-inputnumber {
     width: 100% !important;
 }
 
-::ng-deep .p-multiselect {
-    width: 100% !important;
+/* Radio Button Group Styling */
+::ng-deep .field-radiobutton {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
 }
-::ng-deep .p-calendar {
-    width: 100% !important;
+
+::ng-deep .field-radiobutton label {
+    margin-left: 0.5rem;
+    margin-bottom: 0;
+}
+
+/* Unit Range Styling */
+.unit-range {
+    margin-top: 1rem;
+}
+
+.unit-range .flex {
+    gap: 0.5rem;
+}
+
+/* Preview Units Styling */
+.preview-units {
+    margin-top: 0.5rem;
+    padding: 0.75rem;
+    background-color: #f8f9fa;
+    border-radius: 0.25rem;
+    border-left: 3px solid #007bff;
+}
+
+.preview-units label {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 0.5rem;
+}
+
+.preview-units p {
+    margin: 0.25rem 0;
+    padding: 0.125rem 0;
+}
+
+/* === RESPONSIVE DESIGN === */
+
+@media (max-width: 768px) {
+    .upload-img {
+        width: 120px;
+        height: 120px;
+    }
+
+    .addressProperty {
+        padding: 8px;
+    }
+
+    .unit-range .flex {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .custom-file-upload {
+        padding: 4px 8px;
+    }
+
+    .upload-img {
+        width: 100px;
+        height: 100px;
+    }
 }

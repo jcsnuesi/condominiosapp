@@ -143,6 +143,7 @@ export class CreateUserComponent implements OnInit {
                     return data;
                 });
                 this.staffAdminData = r;
+                console.log('this.staffAdminData', this.staffAdminData);
             },
             error: (err) => {
                 console.log(err);
@@ -152,8 +153,16 @@ export class CreateUserComponent implements OnInit {
 
     btnToggleDeleteActive(status: string) {
         return status === 'inactive'
-            ? { severity: 'warning', icono: 'pi pi-user-plus' }
-            : { severity: 'danger', icono: 'pi pi-user-minus' };
+            ? {
+                  severity: 'success',
+                  icono: 'pi pi-user-plus',
+                  class: 'p-button-rounded hover:bg-green-600 hover:border-green-600 hover:text-white',
+              }
+            : {
+                  severity: 'danger',
+                  icono: 'pi pi-user-minus',
+                  class: 'p-button-rounded hover:bg-red-600 hover:border-red-600 hover:text-white',
+              };
     }
 
     deleteSelectedUsers() {
@@ -211,7 +220,6 @@ export class CreateUserComponent implements OnInit {
         this.dialogHeader = 'Create User';
         this.passwordActive = false;
 
-        console.log('this.userModel', this.userModel);
         Object.keys(this.userModel).forEach((key) => {
             this.userModel[key] = '';
         });
@@ -355,6 +363,7 @@ export class CreateUserComponent implements OnInit {
                         detail: 'Staff created successfully',
                         life: 3000,
                     });
+                    this.getStaffAdmin();
                 } else {
                     this._messageService.add({
                         severity: 'error',

@@ -118,7 +118,48 @@ export class SeePropertyComponent implements OnInit {
     public data: any;
     deletePropertyFunc(property: any) {
         this.delProperty = true;
-        this.data = property;
+
+        this._confirmationService.confirm({
+            message: 'Are you sure you want to delete this property?',
+            header: 'Confirm Deletion',
+            icon: 'pi pi-exclamation-triangle',
+            accept: () => {
+                this._condominioService
+                    .deletePropertyWithAuth(this.token, property._id)
+                    .subscribe({
+                        next: (response) => {
+                            if (response.status === 'success') {
+                                this.getProperties();
+                                this._messageService.add({
+                                    severity: 'success',
+                                    summary: 'Success',
+                                    detail: 'Property deleted successfully!',
+                                    life: 3000,
+                                });
+                            } else {
+                                this._messageService.add({
+                                    severity: 'error',
+                                    summary: 'Error',
+                                    detail: 'Property could not be deleted!',
+                                    life: 3000,
+                                });
+                            }
+                        },
+                        error: (error) => {
+                            console.log('error deletePropertyWithAuth', error);
+                            this._messageService.add({
+                                severity: 'error',
+                                summary: 'Error',
+                                detail: 'Property could not be deleted!',
+                                life: 3000,
+                            });
+                        },
+                    });
+            },
+            reject: () => {
+                this.delProperty = false;
+            },
+        });
     }
 
     passwordChanged(event: boolean) {
@@ -159,9 +200,21 @@ export class SeePropertyComponent implements OnInit {
             : this.identity.createdBy;
     }
 
-    getProperties() {
-        // console.log('this.getId()', this.getId());
+    btnToggleDeleteActive(status: string) {
+        return status === 'inactive'
+            ? {
+                  severity: 'success',
+                  icono: 'pi pi-plus',
+                  class: 'p-button-rounded hover:bg-green-600 hover:border-green-600 hover:text-white',
+              }
+            : {
+                  severity: 'danger',
+                  icono: 'pi pi-trash',
+                  class: 'p-button-rounded hover:bg-red-600 hover:border-red-600 hover:text-white',
+              };
+    }
 
+    getProperties() {
         this._condominioService
             .getPropertyByIdentifier(this.token, this.getId())
             .subscribe({

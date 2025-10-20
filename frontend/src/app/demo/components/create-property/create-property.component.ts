@@ -1,25 +1,15 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Condominio } from '../../models/condominios.model';
 import { FormsModule, NgForm } from '@angular/forms';
-import { DropdownModule } from 'primeng/dropdown';
-import { InputTextModule } from 'primeng/inputtext';
-import { ButtonModule } from 'primeng/button';
-import { MultiSelectModule } from 'primeng/multiselect';
-import { FileUpload, FileUploadModule } from 'primeng/fileupload';
 import { CondominioService } from '../../service/condominios.service';
 import { UserService } from '../../service/user.service';
-import { CardModule } from 'primeng/card';
+import { FileUpload } from 'primeng/fileupload';
 import { RouterModule, Router } from '@angular/router';
-import { StepperModule } from 'primeng/stepper';
-import { CalendarModule } from 'primeng/calendar';
-import { RadioButtonModule } from 'primeng/radiobutton';
-import { InputNumberModule } from 'primeng/inputnumber';
 import { ConfirmationService, MenuItem, MessageService } from 'primeng/api';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { ToastModule } from 'primeng/toast';
 import { PoolFileLoaderComponent } from '../pool-file-loader/pool-file-loader.component';
-import { TabMenuModule } from 'primeng/tabmenu';
+import { ImportsModule } from '../../imports_primeng';
+import { StepperPanel } from 'primeng/stepper/public_api';
 
 @Component({
     selector: 'app-create-property',
@@ -27,21 +17,9 @@ import { TabMenuModule } from 'primeng/tabmenu';
     imports: [
         PoolFileLoaderComponent,
         CommonModule,
-        ToastModule,
-        FormsModule,
-        DropdownModule,
-        InputTextModule,
-        ButtonModule,
-        MultiSelectModule,
-        FileUploadModule,
-        CardModule,
         RouterModule,
-        StepperModule,
-        CalendarModule,
-        RadioButtonModule,
-        InputNumberModule,
-        ConfirmDialogModule,
-        TabMenuModule,
+        FormsModule,
+        ImportsModule,
     ],
     templateUrl: './create-property.component.html',
     styleUrls: ['./create-property.component.css'],
@@ -61,7 +39,7 @@ export class CreatePropertyComponent implements OnInit {
     public selectedAreas: any;
     public image: any;
     public status: any;
-    public avatar: any;
+
     public token: string;
     public identity: any;
     public numberingType: string = 'numeric';
@@ -75,9 +53,11 @@ export class CreatePropertyComponent implements OnInit {
     public totalUnits: number = 1;
     public fromLetter: string = 'A';
     public toLetter: string = 'Z';
+    public activeStep: number = 0;
 
     @ViewChild('fileInput') fileInput!: FileUpload;
-    items: MenuItem[] | undefined;
+    @ViewChild('stepperP') stepperP!: StepperPanel;
+
     public visibleStepper: boolean;
     public fileInputData: {
         service_key: string;
@@ -93,52 +73,9 @@ export class CreatePropertyComponent implements OnInit {
         private _messageService: MessageService
     ) {
         this.visibleStepper = true;
-        this.condominioModel = new Condominio(
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            [],
-            [],
-            null,
-            new Date(),
-            [],
-            ''
-        );
 
-        this.image = '../../assets/noimage.jpeg';
         this.token = this._userService.getToken();
         this.identity = this._userService.getIdentity();
-        if (this.identity.role == 'ADMIN') {
-            this.condominioModel.user_id = this.identity._id;
-        } else {
-            this.condominioModel.user_id = this.identity.createdBy;
-        }
-
-        this.items = [
-            {
-                label: 'Basic Info',
-                icon: 'pi pi-building',
-                command: () => {
-                    this.visibleStepper = true;
-                },
-            },
-            {
-                label: 'File Loader',
-                icon: 'pi pi-file-excel',
-                command: () => {
-                    this.visibleStepper = false;
-                },
-            },
-        ];
 
         this.fileInputData = {
             service_key: 'condoByFile',
@@ -172,6 +109,34 @@ export class CreatePropertyComponent implements OnInit {
 
     ngOnInit(): void {
         this.status = 'showForm';
+        this.condominioModel = new Condominio(
+            'noimage.jpeg',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            [],
+            [],
+            null,
+            new Date(),
+            [],
+            ''
+        );
+
+        if (this.identity.role == 'ADMIN') {
+            this.condominioModel.user_id = this.identity._id;
+        } else {
+            this.condominioModel.user_id = this.identity.createdBy;
+        }
+        this.image = '../../assets/noimage.jpeg';
 
         this.lettersRangeVisible = false;
         this.condominioModel.country = 'Dominican Republic';
@@ -196,18 +161,16 @@ export class CreatePropertyComponent implements OnInit {
     }
 
     public lettersRangeVisible: boolean;
-    public lettersFormatted: any[] = [];
+    public lettersFormatted: Array<any>;
 
     previewUnits(): void {
-        let previewUnits: any = null;
-
+        this.lettersFormatted = [];
+        this.condominioModel.unitFormat = [];
         switch (this.numberingType) {
             case 'numeric':
-                this.lettersFormatted = [];
-                this.condominioModel.unitFormat = [];
                 for (let i = this.startUnit; i <= this.endUnit; i++) {
-                    this.lettersFormatted.push(i + ', ');
-                    this.condominioModel.unitFormat.push(i + ', ');
+                    this.lettersFormatted.push(i);
+                    this.condominioModel.unitFormat.push(i.toString());
                 }
                 break;
             case 'padded':
@@ -215,10 +178,10 @@ export class CreatePropertyComponent implements OnInit {
                 for (let i = this.startUnit; i <= this.endUnit; i++) {
                     if (this.endUnit <= 99) {
                         this.lettersFormatted.push(
-                            i.toString().padStart(3, '0') + ', '
+                            i.toString().padStart(3, '0')
                         );
                         this.condominioModel.unitFormat.push(
-                            i.toString().padStart(3, '0') + ', '
+                            i.toString().padStart(3, '0')
                         );
                     } else {
                         this.lettersFormatted.push(i + ', ');
@@ -304,7 +267,9 @@ export class CreatePropertyComponent implements OnInit {
         const formdata = new FormData();
         formdata.append(
             'avatar',
-            this.avatar != null ? this.avatar : 'noimage.jpeg'
+            this.condominioModel.avatar != null
+                ? this.condominioModel.avatar
+                : 'noimage.jpeg'
         );
         formdata.append('user_id', this.condominioModel.user_id);
         formdata.append('alias', this.condominioModel.alias);
@@ -312,10 +277,10 @@ export class CreatePropertyComponent implements OnInit {
             'typeOfProperty',
             this.condominioModel.typeOfProperty.property
         );
-        formdata.append(
-            'availableUnits',
-            JSON.stringify(this.condominioModel.unitFormat)
-        );
+        this.condominioModel.unitFormat.forEach((units) => {
+            formdata.append('availableUnits', units);
+        });
+
         formdata.append('phone', this.condominioModel.phone);
         formdata.append('phone2', this.condominioModel.phone2);
         formdata.append('street_1', this.condominioModel.street_1);
@@ -350,13 +315,32 @@ export class CreatePropertyComponent implements OnInit {
                         (response) => {
                             if (response.status == 'success') {
                                 this.status = response.status;
+                                this.activeStep = 0;
                                 condominiumForm.reset();
                                 this.ngOnInit();
-                                this.status = 'success';
+                                this._messageService.add({
+                                    severity: 'success',
+                                    summary: 'Created',
+                                    detail: 'Condominium created successfully',
+                                    life: 3000,
+                                });
+                            } else {
+                                this._messageService.add({
+                                    severity: 'error',
+                                    summary: 'Error',
+                                    detail: 'Failed to create condominium',
+                                    life: 3000,
+                                });
                             }
                         },
                         (error) => {
                             console.error(error);
+                            this._messageService.add({
+                                severity: 'error',
+                                summary: 'Error',
+                                detail: 'Failed to create condominium',
+                                life: 3000,
+                            });
                         }
                     );
             },
@@ -386,6 +370,6 @@ export class CreatePropertyComponent implements OnInit {
         };
 
         reader.readAsDataURL(file.files[0]);
-        this.avatar = file.files[0];
+        this.condominioModel.avatar = file.files[0];
     }
 }

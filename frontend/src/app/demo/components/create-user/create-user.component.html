@@ -136,10 +136,11 @@
                         class="mr-2"
                         [rounded]="true"
                         [outlined]="true"
-                        severity="success"
+                        severity="warning"
                         (onClick)="editStaff(userx)"
                     />
                     <p-button
+                        [styleClass]="btnToggleDeleteActive(userx.status).class"
                         [icon]="btnToggleDeleteActive(userx.status).icono"
                         [severity]="
                             btnToggleDeleteActive(userx.status).severity

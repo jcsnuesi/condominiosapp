@@ -68,7 +68,7 @@ export class AppMenuComponent implements OnInit {
                 label: 'User management',
                 items: [
                     {
-                        label: 'See users',
+                        label: 'Users list',
                         icon: 'pi pi-users',
                         routerLink: ['/usermanagement'],
                     },
@@ -90,13 +90,13 @@ export class AppMenuComponent implements OnInit {
                         routerLink: ['/family-area', this.cookieValue._id],
                     },
                 ],
-                role: ['ADMIN', 'OWNER', 'STAFF_ADMIN'],
+                role: ['OWNER'],
             },
             {
                 label: 'Staffs',
                 items: [
                     {
-                        label: 'See Staff',
+                        label: 'Staff list',
                         icon: 'pi pi-users',
                         routerLink: ['/staff-regular', this.cookieValue._id],
                     },
@@ -108,12 +108,12 @@ export class AppMenuComponent implements OnInit {
                 label: 'Properties',
                 items: [
                     {
-                        label: 'Add property',
+                        label: 'Create property',
                         icon: 'pi pi-fw pi-plus-circle',
                         routerLink: ['/create-property'],
                     },
                     {
-                        label: 'See properties',
+                        label: 'Properties list',
                         icon: 'pi pi-fw pi-eye',
                         routerLink: ['/see-property'],
                     },
