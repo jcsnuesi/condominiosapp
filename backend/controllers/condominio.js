@@ -297,13 +297,18 @@ var Condominium_Controller = {
     }
 
     try {
+      const condominiumFound = await Condominium.findOne({ _id: condoId });
+      let set_status = "inactive";
+
+      if (condominiumFound.status === "inactive") {
+        set_status = "active";
+      }
+
       const condominiumDeleted = await Condominium.findByIdAndUpdate(
         condoId,
-        { status: "inactive" },
+        { status: set_status },
         { new: true }
       );
-
-      console.log("condoId", condominiumDeleted);
 
       if (!condominiumDeleted) {
         return res.status(404).send({
@@ -399,35 +404,62 @@ var Condominium_Controller = {
     );
   },
 
-  getBuildingDetails: function (req, res) {
-    let id = req.params.id;
+  getBuildingDetails: async function (req, res) {
+    const { id } = req.params;
 
-    Condominium.find({
-      $or: [{ _id: id }, { createdBy: id }, { units_ownerId: { $in: [id] } }],
-    })
-      .populate({
-        path: "units_ownerId",
-        match: { status: "active" },
-        select: `availableUnits 
-        avatar name lastname gender email phone id_number status role familyAccount propertyDetails `,
-        populate: {
-          path: "propertyDetails.addressId",
-          select: `availableUnits alias phone street_1 street_2 sector_name city province zipcode country socialAreas status mPayment createdAt`,
-        },
-      })
-      .exec((err, condominiumFound) => {
-        if (err || !condominiumFound) {
-          return res.status(404).send({
-            status: "error",
-            message: "Condominium not found",
-          });
-        }
-
-        return res.status(200).send({
-          status: "success",
-          condominium: condominiumFound,
-        });
+    // Validar que el id exista y sea un ObjectId válido
+    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).send({
+        status: "error",
+        message: "Invalid or missing id parameter",
       });
+    }
+
+    try {
+      const objectId = mongoose.Types.ObjectId(id);
+
+      // Buscar condominios donde el id sea _id, createdBy o esté en units_ownerId
+      const condominiums = await Condominium.find({
+        $or: [
+          { _id: objectId },
+          { createdBy: objectId },
+          { units_ownerId: { $in: [objectId] } },
+        ],
+      })
+        .select("-__v") // excluir campos innecesarios
+        .populate({
+          path: "units_ownerId",
+          match: { status: "active" },
+          select:
+            "availableUnits avatar name lastname gender email phone id_number status role familyAccount propertyDetails",
+          populate: {
+            path: "propertyDetails.addressId",
+            select:
+              "availableUnits alias phone street_1 street_2 sector_name city province zipcode country socialAreas status mPayment createdAt",
+          },
+        })
+        .lean()
+        .exec();
+
+      if (!condominiums || condominiums.length === 0) {
+        return res.status(404).send({
+          status: "error",
+          message: "Condominium not found",
+        });
+      }
+
+      return res.status(200).send({
+        status: "success",
+        condominium: condominiums,
+      });
+    } catch (error) {
+      console.error("getBuildingDetails error:", error);
+      return res.status(500).send({
+        status: "error",
+        message: "Server error retrieving building details",
+        error: error.message,
+      });
+    }
   },
 
   getAvatar: function (req, res) {

@@ -7,6 +7,7 @@ let md_ws = require("../middleware/whatsappAuth");
 var confirmLinkVerification = require("../service/validateLinkVerification");
 var multipart = require("connect-multiparty");
 var md_upload = multipart({ uploadDir: "./uploads/owners" });
+const statusValidator = require("../middleware/status_validation");
 
 router.get("/owner-avatar/:avatar", ownerController.getAvatar);
 router.get(
@@ -38,7 +39,7 @@ router.get("/verify-email/:email", confirmLinkVerification.emailVerification);
 // create owner
 router.post(
   "/create-owner",
-  [md_upload, md_auth.emailOwnerRegistration],
+  [md_upload, statusValidator.validateStatus, md_auth.emailOwnerRegistration],
   ownerController.createSingleOwner
 );
 router.post(
