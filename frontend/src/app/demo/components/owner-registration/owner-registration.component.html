@@ -240,23 +240,26 @@
                                 >Required.</small
                             >
                         </div>
-                    </div>
-
-                    <div class="flex pt-4 justify-content-end">
-                        <p-button
-                            label="Next"
-                            icon="pi pi-arrow-right"
-                            iconPos="right"
-                            (onClick)="nextCallback.emit()"
-                            [disabled]="
-                                !email.valid ||
-                                !ownerName.valid ||
-                                !phone.valid ||
-                                !lastname.valid ||
-                                !gender.valid ||
-                                !id_number.valid
-                            "
-                        />
+                        <hr />
+                        <div class="w-100">
+                            <p-button
+                                [style]="{
+                                    width: '100%'
+                                }"
+                                label="Next"
+                                icon="pi pi-arrow-right"
+                                iconPos="right"
+                                (onClick)="nextCallback.emit()"
+                                [disabled]="
+                                    !email.valid ||
+                                    !ownerName.valid ||
+                                    !phone.valid ||
+                                    !lastname.valid ||
+                                    !gender.valid ||
+                                    !id_number.valid
+                                "
+                            />
+                        </div>
                     </div>
                 </ng-template>
             </p-stepperPanel>
@@ -270,6 +273,14 @@
                     <div
                         class="padding-set border-2 border-dashed surface-border border-round surface-ground justify-content-center font-medium"
                     >
+                        <p-button
+                            severity="secondary"
+                            icon="pi pi-arrow-circle-left"
+                            (onClick)="prevCallback.emit()"
+                            [rounded]="true"
+                            [text]="true"
+                            size="large"
+                        />
                         <div class="form-group mb-3" *ngIf="!homeId">
                             <p-inputGroup>
                                 <p-inputGroupAddon>
@@ -383,30 +394,24 @@
                                 />
                             </p-inputGroup>
                         </div>
-                    </div>
 
-                    <div [class]="showBackBtn ? 'ww-100' : 'full-width'">
-                        <!-- *ngIf="showBackBtn" -->
-                        <p-button
-                            label="Back"
-                            *ngIf="showBackBtn"
-                            icon="pi pi-arrow-left"
-                            (onClick)="prevCallback.emit()"
-                        />
-
-                        <!-- [style]="{ width: '100%', flex: '1 1 auto' }" -->
-                        <p-button
-                            label="Next"
-                            icon="pi pi-arrow-right"
-                            iconPos="right"
-                            [disabled]="
-                                !apartmentsUnit.valid ||
-                                !isRent.valid ||
-                                !parking.valid
-                            "
-                            (onClick)="nextCallback.emit()"
-                            [styleClass]="!showBackBtn ? 'full-width' : ''"
-                        />
+                        <hr />
+                        <div class="w-100">
+                            <p-button
+                                [style]="{
+                                    width: '100%'
+                                }"
+                                label="Next"
+                                icon="pi pi-arrow-right"
+                                iconPos="right"
+                                [disabled]="
+                                    !apartmentsUnit.valid ||
+                                    !isRent.valid ||
+                                    !parking.valid
+                                "
+                                (onClick)="nextCallback.emit()"
+                            />
+                        </div>
                     </div>
                 </ng-template>
             </p-stepperPanel>
@@ -416,6 +421,14 @@
                     let-prevCallback="prevCallback"
                     let-index="index"
                 >
+                    <p-button
+                        severity="secondary"
+                        icon="pi pi-arrow-circle-left"
+                        (onClick)="prevCallback.emit()"
+                        [rounded]="true"
+                        [text]="true"
+                        size="large"
+                    />
                     <p-card header="Info confirmation:">
                         <p class="m-0">
                             <b>Name:</b> {{ ownerObj.name }}
@@ -457,21 +470,17 @@
                         </p>
                     </p-card>
 
-                    <div class="d-flex gap-1">
-                        <div class="flex pt-4 justify-content-between">
-                            <p-button
-                                label="Back"
-                                icon="pi pi-arrow-left"
-                                (onClick)="prevCallback.emit()"
-                            />
-
-                            <p-button
-                                label="Create"
-                                (onClick)="confirmNewOwner($event)"
-                                [raised]="true"
-                                severity="success"
-                            />
-                        </div>
+                    <hr />
+                    <div class="w-100">
+                        <p-button
+                            [style]="{
+                                width: '100%'
+                            }"
+                            label="Create"
+                            (onClick)="confirmNewOwner($event)"
+                            [raised]="true"
+                            severity="success"
+                        />
                     </div>
                 </ng-template>
             </p-stepperPanel>

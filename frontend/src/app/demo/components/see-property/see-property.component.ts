@@ -190,10 +190,6 @@ export class SeePropertyComponent implements OnInit {
         table.clear();
     }
 
-    fechaCreacion(fecha) {
-        return this._format.dateFormat(fecha);
-    }
-
     getId(): string {
         return ['admin', 'owner'].includes(this.identity.role.toLowerCase())
             ? this.identity._id
@@ -220,9 +216,11 @@ export class SeePropertyComponent implements OnInit {
             .subscribe({
                 next: (response) => {
                     this.loading = false;
-                    // console.log('ELEMENT:', response);
                     if (response.status == 'success') {
                         this.properties = response.message;
+                        this.full_address_func(this.properties);
+                        this.fechaCreacion(this.properties);
+                        console.log('ELEMENT:', this.properties);
                     }
                 },
                 error: (error) => {
@@ -242,16 +240,20 @@ export class SeePropertyComponent implements OnInit {
         });
     }
 
-    full_address_func(customer) {
-        return `${customer.street_1}, ${customer.street_2}, ${customer.sector_name}, ${customer.city}, ${customer.province}, ${customer.country}`;
+    full_address_func(properties: any) {
+        properties.forEach((p) => {
+            p.address = `${p.street_1}, ${p.street_2}, ${p.sector_name}, ${p.city}, ${p.province}, ${p.country}`;
+        });
+    }
+
+    fechaCreacion(properties: any) {
+        properties.forEach((p) => {
+            p.createdAt = this._format.dateFormat(p.createdAt);
+        });
     }
 
     onHide() {
         this.delProperty = false;
         this._router.navigate([]);
-    }
-
-    propertyName(alias) {
-        return alias.toUpperCase();
     }
 }

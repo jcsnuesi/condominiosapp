@@ -46,7 +46,6 @@ type MessageType = {
     providers: [
         CondominioService,
         UserService,
-        MessageService,
         ConfirmationService,
         FormatFunctions,
     ],
@@ -186,7 +185,7 @@ export class OwnerRegistrationComponent
     public showBackBtn: boolean;
 
     ngAfterViewInit(): void {
-        console.log('this.ownerObj', this.ownerObj);
+        // console.log('this.ownerObj', this.ownerObj);
         if (this.ownerObj.email != '' && this.ownerObj.id_number != '') {
             this.stepperComponent.activeStep = 1;
             this.showBackBtn = false;
@@ -196,33 +195,32 @@ export class OwnerRegistrationComponent
     ngOnChanges(changes: SimpleChanges) {
         if (changes['ownerData']?.currentValue) {
             this.ownerObj = { ...changes['ownerData'].currentValue };
-            console.log('ownerData CHANGES ->', this.ownerObj);
+            // console.log('ownerData CHANGES ->', this.ownerObj);
         }
     }
 
     OnLoad(param: string) {
         this.ownerObj.addressId = param;
-        this._condominioService.getBuilding(param, this.token).subscribe({
+        this._condominioService.getBuilding(this.token, param).subscribe({
             next: (response) => {
-                // console.log(response);
+                console.log('getBuilding response', response);
                 if (response.status == 'success') {
                     // Formatear los detalles de la dirección
 
                     for (const key in this.addreesDetails) {
                         this.addreesDetails[key] =
                             this._formatFunctions.titleCase(
-                                response.condominium[key]
+                                response.condominium[0][key]
                             );
                     }
 
-                    this.unitOptions = response.condominium.availableUnits.map(
-                        (units) => {
+                    this.unitOptions =
+                        response.condominium[0].availableUnits.map((units) => {
                             return {
                                 label: units,
                                 code: units,
                             };
-                        }
-                    );
+                        });
                 }
             },
             error: (error) => {
@@ -419,17 +417,7 @@ export class OwnerRegistrationComponent
     }
 
     onSubmitUnit() {
-        // formData.forEach((value, key) => {
-        //     console.log(key + ': ' + value);
-        // });
-        // return;
-        // hantos@mail.com
-
         const formData = this.formDataAndValidation();
-
-        formData.forEach((value, key) => {
-            console.log(key + ': ' + value);
-        });
 
         this._condominioService.createOwner(this.token, formData).subscribe({
             next: (response) => {
@@ -458,6 +446,12 @@ export class OwnerRegistrationComponent
                         item.severity = 'success';
                     });
 
+                    // this._messageService.add({
+                    //     severity: 'success',
+                    //     summary: 'Success',
+                    //     detail: 'Owner Created',
+                    //     life: 3000,
+                    // });
                     if (this.ownerData) {
                         this.ownerCreated.emit(false);
                     } else {
@@ -473,21 +467,17 @@ export class OwnerRegistrationComponent
                 this.apiUnitResponse = true;
             },
             error: (error) => {
-                this._messageService.add({
-                    severity: 'warn',
-                    summary: 'Message for server',
-                    detail: 'Unit was not Created',
-                    life: 3000,
+                // this._messageService.add({
+                //     severity: 'warn',
+                //     summary: 'Message for server',
+                //     detail: 'Unit was not Created',
+                //     life: 3000,
+                // });
+                this.messageApiResponse.forEach((item) => {
+                    item.detail = error.error.message;
+                    item.severity = 'danger';
                 });
                 console.log(error);
-            },
-            complete: () => {
-                this._messageService.add({
-                    severity: 'success',
-                    summary: 'Success',
-                    detail: 'Unit Created',
-                    life: 3000,
-                });
             },
         });
     }
