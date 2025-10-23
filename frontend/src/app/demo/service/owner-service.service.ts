@@ -105,6 +105,14 @@ export class OwnerServiceService {
         });
     }
 
+    createOwner(token: string, ownerProfile: FormData): Observable<any> {
+        let header = new HttpHeaders().set('Authorization', token);
+
+        return this._http.post(this.url + 'create-owner', ownerProfile, {
+            headers: header,
+        });
+    }
+
     createMultipleUnitsOwners(token: string, data: any): Observable<any> {
         let params = JSON.stringify(data);
         let header = new HttpHeaders()

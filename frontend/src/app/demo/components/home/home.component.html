@@ -7,8 +7,13 @@
             <span
                 class="text-surface-900 dark:text-surface-0 font-bold text-4xl"
                 style="color: black"
-                >{{ condoInfo.type + ": " + condoInfo.alias | titlecase }}</span
-            >
+                >{{ condoInfo.type + ": " + condoInfo.alias | titlecase }}
+
+                <div style="font-size: 12px">
+                    Billing date:
+                    {{ condoInfo.paymentDate }}
+                </div>
+            </span>
         </div>
         <span
             class="pi pi-cog"
@@ -345,7 +350,11 @@
 ></app-booking-area>
 <!-- Bookings generater -->
 <!-- Staff  -->
-<app-staff *ngIf="componentsToShow.staff" [condoId]="condoId"></app-staff>
+<app-staff
+    *ngIf="componentsToShow.staff"
+    [condoId]="condoId"
+    [isHome]="true"
+></app-staff>
 
 <!-- Settings Dialog -->
 

@@ -52,6 +52,17 @@ export class FormatFunctions {
         return dateFormated.toDateString();
     }
 
+    monthlyBillFormat(bill: string): string {
+        if (!bill) {
+            return bill;
+        }
+
+        let day = new Date(bill).getDay();
+        let date = new Date();
+
+        return `${this.getMonthName(date.getMonth() + 1)}, ${day}`;
+    }
+
     getSeverityUser(user_status: string) {
         if (user_status == 'active') {
             return 'success';
@@ -147,5 +158,15 @@ export class FormatFunctions {
             });
             return { label: item.trim(), value: item.trim() };
         });
+    }
+
+    phoneFormat(phone: string): string {
+        if (!phone) return phone;
+
+        // Mask phone number as (123) 456-7890
+        let first_chunk = phone.substring(0, 3);
+        let second_chunk = phone.substring(3, 6);
+        let last_chunk = phone.substring(6, 10);
+        return `(${first_chunk}) ${second_chunk}-${last_chunk}`;
     }
 }

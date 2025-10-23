@@ -9,7 +9,7 @@ import { ButtonModule } from 'primeng/button';
     standalone: true,
     imports: [FormsModule, CommonModule, MenuModule, ButtonModule],
     templateUrl: './notification.component.html',
-    styleUrl: './notification.component.scss',
+    styleUrl: './notification.component.css',
 })
 export class NotificationComponent implements OnInit {
     constructor() {}

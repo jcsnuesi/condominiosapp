@@ -130,9 +130,7 @@ export class StaffService {
         });
     }
     getStaffByOwnerCondo(token: string, condo_id: string): Observable<any> {
-        let header = new HttpHeaders()
-            .set('Content-Type', 'application/json')
-            .set('Authorization', token);
+        let header = new HttpHeaders().set('Authorization', token);
 
         return this._http.get(this.url + 'staff-by-condo-id/' + condo_id, {
             headers: header,

@@ -52,9 +52,7 @@ type MessageType = {
     templateUrl: './owner-registration.component.html',
     styleUrl: './owner-registration.component.css',
 })
-export class OwnerRegistrationComponent
-    implements OnInit, AfterViewInit, OnChanges
-{
+export class OwnerRegistrationComponent implements OnInit, OnChanges {
     public ownerObj: OwnerModel;
     public image: any;
     private token: string;
@@ -114,7 +112,7 @@ export class OwnerRegistrationComponent
     ) {
         this.token = this._userService.getToken();
         this.identity = this._userService.getIdentity();
-        this.showBackBtn = true;
+        // this.showBackBtn = true;
         this.ownerObj = new OwnerModel(
             '',
             '',
@@ -182,15 +180,15 @@ export class OwnerRegistrationComponent
         });
     }
 
-    public showBackBtn: boolean;
+    // public showBackBtn: boolean;
 
-    ngAfterViewInit(): void {
-        // console.log('this.ownerObj', this.ownerObj);
-        if (this.ownerObj.email != '' && this.ownerObj.id_number != '') {
-            this.stepperComponent.activeStep = 1;
-            this.showBackBtn = false;
-        }
-    }
+    // ngAfterViewInit(): void {
+    //     // console.log('this.ownerObj', this.ownerObj);
+    //     if (this.ownerObj.email != '' && this.ownerObj.id_number != '') {
+    //         this.stepperComponent.activeStep = 1;
+    //         this.showBackBtn = false;
+    //     }
+    // }
 
     ngOnChanges(changes: SimpleChanges) {
         if (changes['ownerData']?.currentValue) {
@@ -416,10 +414,21 @@ export class OwnerRegistrationComponent
         }
     }
 
+    enable_next(
+        apartmentsUnit: any,
+        isRenting: any,
+        parkingsQty: any
+    ): boolean {
+        console.log('apartmentsUnit', apartmentsUnit.invalid);
+        return (
+            apartmentsUnit.invalid || isRenting.invalid || parkingsQty.invalid
+        );
+    }
+
     onSubmitUnit() {
         const formData = this.formDataAndValidation();
 
-        this._condominioService.createOwner(this.token, formData).subscribe({
+        this._ownerService.createOwner(this.token, formData).subscribe({
             next: (response) => {
                 if (response.status == 'success') {
                     this.ownerObj = new OwnerModel(
@@ -441,30 +450,38 @@ export class OwnerRegistrationComponent
                         ''
                     );
                     // this.ownerObj.avatar = '../../assets/noimage2.jpeg';
-                    this.messageApiResponse.forEach((item) => {
-                        item.detail = response.message;
-                        item.severity = 'success';
-                    });
-
-                    // this._messageService.add({
-                    //     severity: 'success',
-                    //     summary: 'Success',
-                    //     detail: 'Owner Created',
-                    //     life: 3000,
+                    // this.messageApiResponse.forEach((item) => {
+                    //     item.detail = response.message;
+                    //     item.severity = 'success';
                     // });
-                    if (this.ownerData) {
-                        this.ownerCreated.emit(false);
-                    } else {
-                        this.OnLoad(this.homeId);
-                        this.indexStepper = 0;
-                    }
+
+                    this._messageService.add({
+                        severity: 'success',
+                        summary: 'Success',
+                        detail: 'Owner Created',
+                        life: 3000,
+                    });
+                    this.resetStepper();
+
+                    // if (this.ownerData) {
+                    //     this.ownerCreated.emit(false);
+                    // } else {
+                    //     this.OnLoad(this.homeId);
+                    //     this.indexStepper = 0;
+                    // }
                 } else {
-                    this.messageApiResponse.forEach((item) => {
-                        item.detail = response.message;
-                        item.severity = 'danger';
+                    // this.messageApiResponse.forEach((item) => {
+                    //     item.detail = response.message;
+                    //     item.severity = 'danger';
+                    // });
+                    this._messageService.add({
+                        severity: 'warn',
+                        summary: 'Warning',
+                        detail: 'Owner was not Created',
+                        life: 3000,
                     });
                 }
-                this.apiUnitResponse = true;
+                // this.apiUnitResponse = true;
             },
             error: (error) => {
                 // this._messageService.add({
@@ -473,9 +490,15 @@ export class OwnerRegistrationComponent
                 //     detail: 'Unit was not Created',
                 //     life: 3000,
                 // });
-                this.messageApiResponse.forEach((item) => {
-                    item.detail = error.error.message;
-                    item.severity = 'danger';
+                // this.messageApiResponse.forEach((item) => {
+                //     item.detail = error.error.message;
+                //     item.severity = 'danger';
+                // });
+                this._messageService.add({
+                    severity: 'warn',
+                    summary: 'Warning',
+                    detail: error.error.message,
+                    life: 3000,
                 });
                 console.log(error);
             },

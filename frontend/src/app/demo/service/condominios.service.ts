@@ -26,6 +26,13 @@ export class CondominioService {
             headers: header,
         });
     }
+    getCondoById(token: string, id: string): Observable<any> {
+        let header = new HttpHeaders().set('Authorization', token);
+
+        return this._http.get(this.url + 'condominioById/' + id, {
+            headers: header,
+        });
+    }
 
     getBuilding(token: string, id: string): Observable<any> {
         let header = new HttpHeaders()
@@ -33,14 +40,6 @@ export class CondominioService {
             .set('Authorization', token);
 
         return this._http.get(this.url + 'buildingDetail/' + id, {
-            headers: header,
-        });
-    }
-
-    createOwner(token: string, ownerProfile: FormData): Observable<any> {
-        let header = new HttpHeaders().set('Authorization', token);
-
-        return this._http.post(this.url + 'create-owner', ownerProfile, {
             headers: header,
         });
     }

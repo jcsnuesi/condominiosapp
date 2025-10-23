@@ -186,8 +186,10 @@ export class SeePropertyComponent implements OnInit {
         this._router.navigate(['home/', event._id]);
     }
 
-    clear(table: Table) {
+    clear(table: Table, searchInput: HTMLInputElement) {
         table.clear();
+        searchInput.value = '';
+        console.log('Table cleared', table);
     }
 
     getId(): string {
@@ -217,10 +219,9 @@ export class SeePropertyComponent implements OnInit {
                 next: (response) => {
                     this.loading = false;
                     if (response.status == 'success') {
-                        this.properties = response.message;
-                        this.full_address_func(this.properties);
-                        this.fechaCreacion(this.properties);
-                        console.log('ELEMENT:', this.properties);
+                        console.log('ELEMENT:', response);
+                        this.properties = response.condominiums;
+                        this.row_formating(this.properties);
                     }
                 },
                 error: (error) => {
@@ -240,15 +241,11 @@ export class SeePropertyComponent implements OnInit {
         });
     }
 
-    full_address_func(properties: any) {
+    row_formating(properties: any) {
         properties.forEach((p) => {
             p.address = `${p.street_1}, ${p.street_2}, ${p.sector_name}, ${p.city}, ${p.province}, ${p.country}`;
-        });
-    }
-
-    fechaCreacion(properties: any) {
-        properties.forEach((p) => {
-            p.createdAt = this._format.dateFormat(p.createdAt);
+            p.paymentDate = this._format.monthlyBillFormat(p.paymentDate);
+            p.phone = this._format.phoneFormat(p.phone);
         });
     }
 

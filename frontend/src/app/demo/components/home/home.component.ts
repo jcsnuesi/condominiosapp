@@ -113,7 +113,6 @@ export class HomeComponent implements OnInit {
     public home: MenuItem[] | undefined;
     public condoInfo: any;
     public itemsx: any;
-
     public updateDateFromTopbar: any;
 
     @Input()
@@ -224,7 +223,7 @@ export class HomeComponent implements OnInit {
         // INIT INFO
 
         this.onInitInfo();
-        this.getStaffByCondoId();
+        this.staffCard();
         this.loadBookingCard();
     }
 
@@ -232,7 +231,7 @@ export class HomeComponent implements OnInit {
         // // INIT INFO
         // fileSelected.clear();
         this.onInitInfo();
-        this.getStaffByCondoId();
+        this.staffCard();
         this.loadBookingCard();
     }
 
@@ -290,11 +289,6 @@ export class HomeComponent implements OnInit {
                                 unitList.units_ownerId;
 
                             this.condoInfo = { ...unitList };
-                            unitList['units'] = unitList.availableUnits.map(
-                                (unit) => {
-                                    return { label: unit };
-                                }
-                            );
 
                             this.condoInfo.avatar =
                                 this.url +
@@ -319,6 +313,17 @@ export class HomeComponent implements OnInit {
                                     owner.propertyDetails
                                 );
                             });
+
+                            this.condoInfo.paymentDate =
+                                this._formatFunctions.monthlyBillFormat(
+                                    this.condoInfo.paymentDate
+                                );
+
+                            unitList['units'] = unitList.availableUnits.map(
+                                (unit) => {
+                                    return { label: unit };
+                                }
+                            );
                         }
                     },
                     (error) => {
@@ -451,7 +456,7 @@ export class HomeComponent implements OnInit {
         formData.append('parkingsQty', this.ownerObj.parkingsQty);
         formData.append('isRenting', this.ownerObj.isRenting);
 
-        this._condominioService.createOwner(this.token, formData).subscribe({
+        this._ownerService.createOwner(this.token, formData).subscribe({
             next: (response) => {
                 if (response.status == 'success') {
                     this.messageApiResponse.message = response.message;
@@ -485,7 +490,7 @@ export class HomeComponent implements OnInit {
 
     public activeStaffQty: number;
     // Carga los staff por condominio
-    getStaffByCondoId() {
+    staffCard() {
         // let data = this.condoId + '_' + 'homeId'; // comparte variable admin y owner
 
         this._staffService
@@ -493,10 +498,11 @@ export class HomeComponent implements OnInit {
             .subscribe({
                 next: (response) => {
                     if (response.status == 'success') {
-                        this.activeStaffQty = response.message.filter(
-                            (staff) => staff.status == 'active'
-                        ).length;
-                        this.stafflistNumber = response.message.length;
+                        this.activeStaffQty =
+                            response.message.filter(
+                                (staff) => staff.status == 'active'
+                            ).length ?? 0;
+                        this.stafflistNumber = response.message.length ?? 0;
                     } else {
                         this._messageService.add({
                             severity: 'warn',
@@ -508,6 +514,8 @@ export class HomeComponent implements OnInit {
                 },
                 error: (error) => {
                     console.log(error);
+                    this.activeStaffQty = 0;
+                    this.stafflistNumber = 0;
                     this._messageService.add({
                         severity: 'error',
                         summary: 'Message for server',

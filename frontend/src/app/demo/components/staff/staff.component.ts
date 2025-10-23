@@ -153,6 +153,7 @@ export class StaffComponent implements OnInit, AfterViewInit {
     @ViewChild('editStatusRef') editStatusRef!: ElementRef;
     @ViewChild('btnInactiveStaff') btnInactiveStaff!: ElementRef;
     @Input() condoId: any;
+    @Input() isHome: boolean = false;
     public identity: any;
 
     constructor(
@@ -165,7 +166,7 @@ export class StaffComponent implements OnInit, AfterViewInit {
         private _messageService: MessageService,
         private _confirmationService: ConfirmationService
     ) {
-        this.condominioList = [{ label: '', code: '' }];
+        this.condominioList = [];
 
         this.url = global.url;
 
@@ -312,9 +313,38 @@ export class StaffComponent implements OnInit, AfterViewInit {
         this._route.params.subscribe((params) => {
             let condoId = this.condoId ?? params['id'];
 
-            // console.log('Condo Data [params]:', this.condoId);
-            this.getStaffByCondoIdOrAdminId('676a231d9bee64f1a653d04c');
-            this.getAdminsProperties();
+            this.getStaffByCondoIdOrAdminId(condoId);
+
+            if (this.isHome) {
+                this.getCondoById(condoId);
+            } else {
+                this.getAdminsProperties();
+            }
+        });
+    }
+
+    getCondoById(condo) {
+        this._condominioService.getCondoById(this.token, condo).subscribe({
+            next: (response) => {
+                this.condominioList = [];
+                if (response.status == 'success') {
+                    this.loadingCondo = false;
+                    this.condominioList.push({
+                        label: response.condominium.alias,
+                        code: response.condominium._id,
+                    });
+                } else {
+                    this._messageService.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: 'Condominium not found',
+                        life: 3000,
+                    });
+                }
+            },
+            error: (error) => {
+                console.log('getCondoById Error:', error);
+            },
         });
     }
 
@@ -348,6 +378,47 @@ export class StaffComponent implements OnInit, AfterViewInit {
                 console.log(error);
             },
         });
+    }
+    getId(): string {
+        return this.identity.role.toLowerCase() == 'admin'
+            ? this.identity._id
+            : this.identity.createdBy;
+    }
+
+    getAdminsProperties() {
+        this.loadingCondo = true;
+
+        this._condominioService
+            .getPropertyByIdentifier(this.token, this.getId())
+            .subscribe({
+                next: (response) => {
+                    if (response.status == 'success') {
+                        this.loadingCondo = false;
+                        this.condominioList = [];
+                        this.condominioList = response.condominiums.map(
+                            (element) => {
+                                return {
+                                    label: element.alias,
+                                    code: element._id,
+                                };
+                            }
+                        );
+                    } else {
+                        this._messageService.add({
+                            severity: 'error',
+                            summary: 'Error',
+                            detail: 'No se encontraron propiedades',
+                            key: 'br',
+                            life: 3000,
+                        });
+                    }
+                    console.log('[else] - getAdminsProperties:', response);
+                },
+                error: (error) => {
+                    console.log('[error] - getAdminsProperties:', error);
+                    this.loadingCondo = false;
+                },
+            });
     }
 
     clear(dt: any) {
@@ -509,35 +580,27 @@ export class StaffComponent implements OnInit, AfterViewInit {
             accept: () => {
                 this._staffService.updateStaff(this.token, formdata).subscribe({
                     next: (response) => {
+                        console.log('Response update staff:', response);
                         if (response.status == 'success') {
                             this._messageService.add({
                                 severity: 'success',
                                 summary: 'Confirmed',
                                 detail: 'Staff successfully updated!',
-                                key: 'br',
                                 life: 3000,
                             });
                             this.visibleStaff = false;
-                            form.reset();
                             this.ngOnInit();
-                        } else if (response.status == 'forbidden') {
+                        } else {
                             this._messageService.add({
                                 severity: 'error',
                                 summary: 'Forbidden',
                                 detail: 'You do not have permission to update this staff member.',
-                                key: 'br',
                                 life: 3000,
                             });
                         }
                     },
                     error: (error) => {
-                        this._messageService.add({
-                            severity: 'error',
-                            summary: 'Error',
-                            detail: 'Staff was not updated!',
-                            key: 'br',
-                            life: 3000,
-                        });
+                        console.log('Response update staff:', error);
 
                         if (error.error.message == 'Password incorrect') {
                             this.statusApi = true;
@@ -545,10 +608,14 @@ export class StaffComponent implements OnInit, AfterViewInit {
                             setTimeout(() => {
                                 this.statusApi = false;
                             }, 6000);
+                        } else {
+                            this._messageService.add({
+                                severity: 'error',
+                                summary: 'Error',
+                                detail: error.error.message,
+                                life: 3000,
+                            });
                         }
-                    },
-                    complete: () => {
-                        console.log('Request completed!');
                     },
                 });
             },
@@ -616,57 +683,6 @@ export class StaffComponent implements OnInit, AfterViewInit {
             this.currentPasswordMsg = 'Password does not match';
             this.passval = false;
         }
-    }
-
-    getId(): string {
-        return this.identity.role.toLowerCase() == 'admin'
-            ? this.identity._id
-            : this.identity.createdBy;
-    }
-
-    getAdminsProperties() {
-        this.loadingCondo = true;
-
-        if (
-            this.identity.role.toLowerCase() != 'admin' ||
-            this.identity.role.toLowerCase() != 'staff_admin'
-        ) {
-            return;
-        }
-        console.log('ID Service:', this.getId());
-        this._condominioService
-            .getPropertyByIdentifier(this.token, this.getId())
-            .subscribe({
-                next: (response) => {
-                    if (response.status == 'success') {
-                        this.loadingCondo = false;
-
-                        this.condominioList = response.message.map(
-                            (element) => {
-                                return {
-                                    label: element.alias,
-                                    code: element._id,
-                                };
-                            }
-                        );
-                    } else {
-                        this._messageService.add({
-                            severity: 'error',
-                            summary: 'Error',
-                            detail: 'No se encontraron propiedades',
-                            key: 'br',
-                            life: 3000,
-                        });
-                    }
-                },
-                error: (error) => {
-                    console.log(error);
-                    this.loadingCondo = false;
-                },
-                complete: () => {
-                    console.log('See property completed!');
-                },
-            });
     }
 
     deleteStaff() {
