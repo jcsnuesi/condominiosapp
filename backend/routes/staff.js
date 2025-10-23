@@ -8,6 +8,8 @@ var confirmLinkVerification = require("../service/validateLinkVerification");
 var multipart = require("connect-multiparty");
 var md_upload = multipart({ uploadDir: "./uploads/staff" });
 const checkUpdatePermissions = require("../service/checkPermissions");
+const statusValidator = require("../middleware/status_validation");
+
 const {
   authenticated,
   adminAuth,
@@ -41,7 +43,7 @@ router.get(
 
 router.post(
   "/create-staff",
-  [md_auth.authenticated, md_upload],
+  [md_auth.authenticated, md_upload, statusValidator.propertyStatus],
   StaffController.createStaff
 );
 router.post(
@@ -60,7 +62,7 @@ router.put(
   "/update-staff",
   [
     md_auth.authenticated,
-    md_upload,
+    [md_upload, statusValidator.propertyStatus],
     checkUpdatePermissions.checkPermissionsToUpdate,
   ],
   StaffController.update

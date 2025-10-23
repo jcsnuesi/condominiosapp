@@ -416,28 +416,41 @@ var StaffController = {
     }
   },
   getStaffByOwnerAndCondoId: async function (req, res) {
-    let id = req.params.id;
+    const rawId = mongoose.Types.ObjectId(req.params.id);
+    if (!rawId) {
+      return res.status(400).send({
+        status: "error",
+        message: "Missing id parameter",
+      });
+    }
+
+    // Build an array with both string and ObjectId (if valid) to match whatever is stored
 
     try {
+      console.log("getStaffByOwnerAndCondoId:", rawId);
       const staffFound = await Staff.find({
-        $or: [{ condo_id: id }, { createdBy: id }],
-      }).populate({
-        path: "condo_id",
-        select: "_id alias",
-      });
+        $or: [{ condo_id: { $in: [rawId] } }, { createdBy: { $in: [rawId] } }],
+      })
+        .populate({
+          path: "condo_id",
+          select: "_id alias",
+        })
+        .lean();
 
-      if (staffFound.length > 0) {
+      console.log("staffFound:", staffFound);
+      if (staffFound && staffFound.length > 0) {
         return res.status(200).send({
           status: "success",
           message: staffFound,
         });
       } else {
-        return res.status(200).send({
+        return res.status(404).send({
           status: "error",
           message: "No staff found",
         });
       }
     } catch (error) {
+      console.error("Error getting staff by condo:", error);
       return res.status(500).send({
         status: "error",
         message: "Server error, getting staff by condo",

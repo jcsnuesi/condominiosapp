@@ -9,8 +9,13 @@ var md_upload = multipart({ uploadDir: "./uploads/properties" });
 var { authenticated, adminAuth } = require("../middleware/middleware_bundle");
 const VerifyData = require("../service/verifyParamData");
 const phoneFormatFunc = new VerifyData();
+const statusValidator = require("../middleware/status_validation");
 
-router.get("/condominioById", condominioController.getCondominiumById);
+router.get(
+  "/condominioById/:id",
+  [authenticated, statusValidator.propertyStatus],
+  condominioController.getCondominiumById
+);
 router.get(
   "/condominioByAdmin/:id",
   [authenticated],

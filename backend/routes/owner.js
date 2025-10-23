@@ -39,7 +39,7 @@ router.get("/verify-email/:email", confirmLinkVerification.emailVerification);
 // create owner
 router.post(
   "/create-owner",
-  [md_upload, statusValidator.validateStatus, md_auth.emailOwnerRegistration],
+  [md_upload, statusValidator.propertyStatus, md_auth.emailOwnerRegistration],
   ownerController.createSingleOwner
 );
 router.post(

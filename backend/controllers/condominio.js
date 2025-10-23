@@ -11,6 +11,7 @@ const Owner = require("../models/owners");
 const Admin = require("../models/admin");
 const Family = require("../models/family");
 const Invoice = require("../models/invoice");
+const Staff = require("../models/staff");
 const { match } = require("assert");
 const { create } = require("../models/counter");
 
@@ -63,23 +64,6 @@ var Condominium_Controller = {
           "System just accept image format '.jpg', '.jpeg', '.gif', '.png'",
       });
     }
-    console.log(
-      alias_validation +
-        "&&" +
-        street_1_validation +
-        "&&" +
-        sector_name_validation +
-        "&&" +
-        province_validation +
-        "&&" +
-        city_validation +
-        "&&" +
-        mPayment_validation +
-        "&&" +
-        user_id_validation +
-        "&&" +
-        street_2_validation
-    );
 
     if (
       alias_validation &&
@@ -223,36 +207,34 @@ var Condominium_Controller = {
     }
   },
 
-  getCondominiumById: function (req, res) {
-    var params = req.body;
+  getCondominiumById: async function (req, res) {
+    var params = mongoose.Types.ObjectId(req.params.id);
 
+    if (params == null) {
+      return res.status(400).send({
+        status: "error",
+        message: "Invalid condominium ID",
+      });
+    }
     try {
-      var vel_idCondominio = !validator.isEmpty(params.id);
+      const condoFound = await Condominium.findOne({ _id: params });
+
+      if (!condoFound) {
+        return res.status(404).send({
+          status: "error",
+          message: "Condominium not found",
+        });
+      }
+      return res.status(200).send({
+        status: "success",
+        condominium: condoFound,
+      });
     } catch (error) {
       return res.status(500).send({
         status: "error",
         message: error,
       });
     }
-
-    Condominium.findOne({ _id: params.id }, (err, condominiumFound) => {
-      var loginErrorHandlerArr = errorHandler.loginExceptions(
-        err,
-        condominiumFound
-      );
-
-      if (loginErrorHandlerArr[0]) {
-        return res.status(loginErrorHandlerArr[1]).send({
-          status: loginErrorHandlerArr[2],
-          message: loginErrorHandlerArr[3],
-        });
-      }
-
-      return res.status(200).send({
-        status: "succes",
-        condominium: condominiumFound,
-      });
-    });
   },
   CondominiumUpdate: async function (req, res) {
     // Si el usuario envia un archivo de imagen, se guarda en el servidor y se le asigna el nombre a la propiedad avatar
@@ -306,6 +288,11 @@ var Condominium_Controller = {
 
       const condominiumDeleted = await Condominium.findByIdAndUpdate(
         condoId,
+        { status: set_status },
+        { new: true }
+      );
+      const staffDisabled = await Staff.updateMany(
+        { condo_id: condoId },
         { status: set_status },
         { new: true }
       );
@@ -377,31 +364,36 @@ var Condominium_Controller = {
       });
     });
   },
-  getCondominiumsByAdmin: function (req, res) {
-    let params = req.params.id;
+  getCondominiumsByAdmin: async function (req, res) {
+    let params = mongoose.Types.ObjectId(req.params.id);
 
-    Condominium.find(
-      {
+    try {
+      let condosFound = await Condominium.find({
         $and: [
           {
-            $or: [
-              { createdBy: params },
-              { units_ownerId: mongoose.Types.ObjectId(params) },
-            ],
+            $or: [{ createdBy: params }, { units_ownerId: params }],
           },
         ],
-      },
-      (err, condominiumFound) => {
-        var errorHandlerArr = errorHandler.newUser(err, condominiumFound);
+      });
 
-        if (errorHandlerArr[0]) {
-          return res.status(errorHandlerArr[1]).send({
-            status: errorHandlerArr[2],
-            message: errorHandlerArr[3],
-          });
-        }
+      if (condosFound.length === 0) {
+        return res.status(404).send({
+          status: "error",
+          message: "No condominiums found for this admin",
+        });
       }
-    );
+
+      return res.status(200).send({
+        status: "success",
+        condominiums: condosFound,
+      });
+    } catch (error) {
+      return res.status(500).send({
+        status: "error",
+        message: "Server error retrieving condominiums for this admin",
+        error: error.message,
+      });
+    }
   },
 
   getBuildingDetails: async function (req, res) {
