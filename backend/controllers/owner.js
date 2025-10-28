@@ -535,15 +535,46 @@ var ownerAndSubController = {
   },
   deactivatedUser: async function (req, res) {
     var params = req.body;
-
+    let set_status = params.status == "inactive" ? "active" : "inactive";
+    console.log("params", params);
     // var user = { owner: Owner, family: Family };
+    const updated = await Owner.findOne({
+      propertyDetails: { $elemMatch: { addressId: params.condoId } },
+    });
+    console.log("updated", updated);
+    return;
 
     try {
-      await Owner.findOneAndUpdate(
-        { _id: params._id },
-        { status: params.status },
-        { new: true }
-      );
+      if (params.ishome) {
+        await Owner.findOneAndUpdate(
+          {
+            _id: params._id,
+            "propertyDetails.addressId": params.condoId,
+          },
+          {
+            $set: {
+              "propertyDetails.$.status": params.condo_status,
+            },
+          },
+          { new: true }
+        );
+
+        return res.status(200).send({
+          status: "success",
+          message: "User inactive successfully",
+        });
+      } else {
+        await Owner.findOneAndUpdate(
+          { _id: params._id },
+          { status: set_status },
+          { new: true }
+        );
+
+        return res.status(200).send({
+          status: "success",
+          message: "User deleted successfully",
+        });
+      }
     } catch (error) {
       console.log(error);
       return res.status(500).send({
@@ -551,11 +582,6 @@ var ownerAndSubController = {
         message: "Server error, try again",
       });
     }
-
-    return res.status(200).send({
-      status: "success",
-      message: "User deleted successfully",
-    });
   },
   getAvatar: function (req, res) {
     var file = req.params.avatar;

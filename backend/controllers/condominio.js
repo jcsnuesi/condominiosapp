@@ -280,11 +280,12 @@ var Condominium_Controller = {
 
     try {
       const condominiumFound = await Condominium.findOne({ _id: condoId });
-      let set_status = "inactive";
+      let set_status =
+        condominiumFound.status == "inactive" ? "active" : "inactive";
 
-      if (condominiumFound.status === "inactive") {
-        set_status = "active";
-      }
+      // if (condominiumFound.status === "inactive") {
+      //   set_status = "active";
+      // }
 
       const condominiumDeleted = await Condominium.findByIdAndUpdate(
         condoId,
@@ -293,6 +294,12 @@ var Condominium_Controller = {
       );
       const staffDisabled = await Staff.updateMany(
         { condo_id: condoId },
+        { status: set_status },
+        { new: true }
+      );
+
+      const invoicesDisabled = await Invoice.updateMany(
+        { condominiumId: condoId },
         { status: set_status },
         { new: true }
       );
@@ -307,6 +314,8 @@ var Condominium_Controller = {
       return res.status(200).send({
         status: "success",
         condominium_deleted: condominiumDeleted,
+        staff_updated: staffDisabled || [],
+        invoices_updated: invoicesDisabled || [],
       });
     } catch (error) {
       return res.status(500).send({

@@ -30,17 +30,18 @@ let temp_password = generatePassword.generate({
 });
 
 var StaffController = {
-  createStaff: function (req, res) {
+  createStaff: async function (req, res) {
     var params = req.body;
 
     var optionToVerify = new verifyClass();
 
     try {
-      var val_name = !validator.isEmpty(params.name);
-      var val_lastname = !validator.isEmpty(params.lastname);
-      var val_email = validator.isEmail(params.email);
-      var val_phone = optionToVerify.phonesTransformation(params.phone);
+      !validator.isEmpty(params.name);
+      !validator.isEmpty(params.lastname);
+      validator.isEmail(params.email);
+      optionToVerify.phonesTransformation(params.phone);
     } catch (error) {
+      console.log("Error validating staff data:", error);
       return res.status(400).send({
         status: "bad request",
         message: "All fields required",
@@ -55,7 +56,7 @@ var StaffController = {
 
       //verificar la extension de archivo enviado sea tipo imagen
       var imgFormatAccepted = checkExtensions.confirmExtension(req);
-
+      console.log("imgFormatAccepted", imgFormatAccepted);
       if (imgFormatAccepted == false) {
         return res.status(400).send({
           status: "bad request",
@@ -65,77 +66,53 @@ var StaffController = {
       }
     }
 
-    if (val_name && val_lastname && val_email && val_phone) {
-      Staff.findOne(
-        {
-          $or: [
-            { email: params.email },
-            { government_id: params.government_id },
-            { phone: params.phone },
-          ],
-        },
-        async (err, staffound) => {
-          var errorHandlerArr = errorHandler.errorRegisteringUser(
-            err,
-            staffound,
-            params
-          );
+    const staffFound = await Staff.findOne({
+      $or: [
+        { email: params.email },
+        { government_id: params.government_id },
+        { phone: params.phone },
+      ],
+    });
 
-          if (errorHandlerArr[0]) {
-            return res.status(errorHandlerArr[1]).send({
-              status: "error",
-              message: errorHandlerArr[2],
-            });
-          }
-
-          const newStaff = new Staff({
-            avatar: params.avatar,
-            name: params.name.toLowerCase(),
-            lastname: params.lastname.toLowerCase(),
-            gender: params.gender.toLowerCase(),
-            government_id: params.government_id.toLowerCase(),
-            email: params.email.toLowerCase(),
-            password: await bcrypt.hash(temp_password, saltRounds),
-            phone: params.phone.toLowerCase(),
-            position: params.position.toLowerCase(),
-            condo_id: params.condo_id,
-            createdBy: req.user.sub,
-          });
-
-          newStaff.save(async (err, staffSaved) => {
-            if (err) {
-              return res.status(501).send({
-                status: "error",
-                message: "Staff was not create, try again",
-                errors: err,
-              });
-            }
-
-            try {
-              await emailVerification.StaffRegistration({
-                email: staffSaved.email,
-                password: temp_password,
-              });
-
-              staffSaved.password = undefined;
-
-              return res.status(200).send({
-                status: "success",
-                message: staffSaved,
-              });
-            } catch (error) {
-              return res.status(500).send({
-                status: "error",
-                message: error,
-              });
-            }
-          });
-        }
-      );
-    } else {
+    if (staffFound) {
       return res.status(400).send({
-        status: "bad request",
-        message: "Missing required fields",
+        status: "error",
+        message: "Staff with this email, government ID or phone already exists",
+      });
+    }
+
+    try {
+      const newStaff = new Staff({
+        avatar: params.avatar,
+        name: params.name.toLowerCase(),
+        lastname: params.lastname.toLowerCase(),
+        gender: params.gender.toLowerCase(),
+        government_id: params.government_id.toLowerCase(),
+        email: params.email.toLowerCase(),
+        password: await bcrypt.hash(temp_password, saltRounds),
+        phone: params.phone.toLowerCase(),
+        position: params.position.toLowerCase(),
+        condo_id: params.condo_id,
+        createdBy: req.user.sub,
+      });
+      await newStaff.save();
+
+      await emailVerification.StaffRegistration({
+        email: newStaff.email,
+        password: temp_password,
+      });
+
+      newStaff.password = undefined;
+
+      return res.status(200).send({
+        status: "success",
+        message: newStaff,
+      });
+    } catch (error) {
+      console.log("Error creating staff:", error);
+      return res.status(500).send({
+        status: "error",
+        message: error,
       });
     }
   },
@@ -427,7 +404,6 @@ var StaffController = {
     // Build an array with both string and ObjectId (if valid) to match whatever is stored
 
     try {
-      console.log("getStaffByOwnerAndCondoId:", rawId);
       const staffFound = await Staff.find({
         $or: [{ condo_id: { $in: [rawId] } }, { createdBy: { $in: [rawId] } }],
       })
@@ -437,7 +413,6 @@ var StaffController = {
         })
         .lean();
 
-      console.log("staffFound:", staffFound);
       if (staffFound && staffFound.length > 0) {
         return res.status(200).send({
           status: "success",
