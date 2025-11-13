@@ -1,12 +1,10 @@
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+const mongoose = require("mongoose");
 
-var counterSchema = Schema({
-    _id: { type: String, required: true },
-    sequence_value: { type: Number, required: true }
+const CounterSchema = new mongoose.Schema({
+  _id: { type: String, required: true },
+  sequence_value: { type: Number, default: 0 },
 });
 
-var Counter = mongoose.models.Counter || mongoose.model('Counter', counterSchema);
-// var Counter = mongoose.model('Counter', counterSchema);
-
-module.exports = Counter;
+// Export the model, checking if it already exists
+module.exports =
+  mongoose.models.Counter || mongoose.model("Counter", CounterSchema);

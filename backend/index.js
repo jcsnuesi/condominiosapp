@@ -4,7 +4,6 @@ const mongoose = require("mongoose");
 var app = require("./app");
 var port = 3993;
 var conection = "mongodb://127.0.0.1:27017/cleaningService";
-var { configurarCronJobs, testingCron } = require("./service/invoice_job");
 const { createServer } = require("node:http");
 const { Server } = require("socket.io");
 
@@ -23,17 +22,6 @@ const connectBD = async () => {
     console.log(error);
   }
 };
-
-// configurarCronJobs();
-// testingCron();
-// const io = new Server(httpServer);
-
-// io.sockets.on("connection", (socket) => {
-//   console.log("....................User connected");
-//   socket.on("disconnect", () => {
-//     console.log("....................User disconnected");
-//   });
-// });
 
 httpServer.listen(port, () => {
   connectBD();

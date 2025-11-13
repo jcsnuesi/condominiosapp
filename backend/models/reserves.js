@@ -1,6 +1,5 @@
 "use strict";
 
-const { max } = require("moment");
 var mongoose = require("mongoose");
 const { verify } = require("../controllers/users");
 var Schema = mongoose.Schema;

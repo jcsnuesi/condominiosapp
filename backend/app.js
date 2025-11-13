@@ -5,6 +5,21 @@ var cors = require("cors");
 var bodyparser = require("body-parser");
 var morgan = require("morgan");
 const app = express();
+// In your main app.js or server file
+const invoiceService = require("./service/invoice_job");
+
+// Initialize invoice system after all models are loaded
+async function initializeInvoiceSystem() {
+  try {
+    console.log("🔧 Initializing invoice system...");
+    await invoiceService.setupInvoiceCronJobs();
+    console.log("✅ Invoice system initialized successfully");
+  } catch (error) {
+    console.error("❌ Failed to initialize invoice system:", error.message);
+  }
+}
+
+initializeInvoiceSystem();
 
 //Cargar rutas de archivos
 var user_routes = require("./routes/users");
@@ -21,6 +36,7 @@ var staff_routes = require("./routes/staff");
 var owner = require("./routes/owner");
 var super_user = require("./routes/super_user");
 const family_routes = require("./routes/family");
+const notification_routes = require("./routes/notification");
 
 //Middlewares
 app.use(morgan("dev"));
@@ -43,5 +59,6 @@ app.use("/api", condominio_routes);
 app.use("/api", owner);
 app.use("/api", super_user);
 app.use("/api", family_routes);
+app.use("/api", notification_routes);
 
 module.exports = app;

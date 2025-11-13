@@ -8,8 +8,7 @@ const Staff = require("../models/staff");
 // const uuid = uuidv4();
 let validator = require("validator");
 let errorHandler = require("../error/errorHandler");
-let moment = require("moment");
-// const {v4:uuidv4} = require('uuid')
+
 let isDateConflict = require("../service/dateConflict");
 let codeVerification = require("../service/generateVerification");
 let generateRandomCode = require("../service/codeGenerator");

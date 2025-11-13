@@ -14,7 +14,7 @@ var InvoiceSchema = Schema(
       ref: "Admin",
       required: true,
     },
-    invoice_number: { type: Number },
+    invoice_number: { type: String, unique: true },
     invoice_paid_date: { type: Date, default: null },
     issueDate: { type: Date, required: true },
     dueDate: { type: Date },
@@ -23,6 +23,11 @@ var InvoiceSchema = Schema(
     // invoice_type: { type: String, required: true },
     description: { type: String },
     unit: { type: String },
+    unitNumber: {
+      type: String,
+      required: true,
+      index: true, // Add index for better query performance
+    },
     paymentMethod: { type: String },
     paymentDescription: { type: String },
     paymentStatus: { type: String, default: "pending" },
@@ -46,5 +51,19 @@ InvoiceSchema.pre("save", async function (next) {
 
   next();
 });
+
+// Update the compound index to include unitNumber
+InvoiceSchema.index(
+  {
+    condominiumId: 1,
+    ownerId: 1,
+    unitNumber: 1,
+    issueDate: 1,
+  },
+  {
+    unique: true,
+    name: "unique_monthly_unit_invoice",
+  }
+);
 
 module.exports = mongoose.model("Invoice", InvoiceSchema);

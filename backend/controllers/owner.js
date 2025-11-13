@@ -536,32 +536,68 @@ var ownerAndSubController = {
   deactivatedUser: async function (req, res) {
     var params = req.body;
     let set_status = params.status == "inactive" ? "active" : "inactive";
-    console.log("params", params);
-    // var user = { owner: Owner, family: Family };
-    const updated = await Owner.findOne({
-      propertyDetails: { $elemMatch: { addressId: params.condoId } },
-    });
-    console.log("updated", updated);
-    return;
+    // console.log("params", params);
+    // // var user = { owner: Owner, family: Family };
+    // const updated = await Owner.findOne({
+    //   _id: mongoose.Types.ObjectId(params._id),
+    //   "propertyDetails.addressId": mongoose.Types.ObjectId(params.condoId),
+    // });
+    // console.log("updated", updated.propertyDetails[0].status);
+    // return;
 
     try {
       if (params.ishome) {
+        // Actualiza el status del elemento correcto dentro de propertyDetails en una sola operación atómica
         await Owner.findOneAndUpdate(
           {
-            _id: params._id,
-            "propertyDetails.addressId": params.condoId,
+            _id: mongoose.Types.ObjectId(params._id),
+            "propertyDetails.addressId": mongoose.Types.ObjectId(
+              params.condoId
+            ),
           },
-          {
-            $set: {
-              "propertyDetails.$.status": params.condo_status,
+          [
+            {
+              $set: {
+                propertyDetails: {
+                  $map: {
+                    input: "$propertyDetails",
+                    as: "pd",
+                    in: {
+                      $cond: [
+                        {
+                          $eq: [
+                            "$$pd.addressId",
+                            mongoose.Types.ObjectId(params.condoId),
+                          ],
+                        },
+                        {
+                          $mergeObjects: [
+                            "$$pd",
+                            {
+                              status: {
+                                $cond: [
+                                  { $eq: ["$$pd.status", "active"] },
+                                  "inactive",
+                                  "active",
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                        "$$pd",
+                      ],
+                    },
+                  },
+                },
+              },
             },
-          },
+          ],
           { new: true }
         );
 
         return res.status(200).send({
           status: "success",
-          message: "User inactive successfully",
+          message: "User property status changed successfully",
         });
       } else {
         await Owner.findOneAndUpdate(
@@ -572,7 +608,7 @@ var ownerAndSubController = {
 
         return res.status(200).send({
           status: "success",
-          message: "User deleted successfully",
+          message: "User property status changed successfully",
         });
       }
     } catch (error) {

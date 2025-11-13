@@ -1,35 +1,39 @@
+const path = require("path");
 
-checkExtension = {
+const checkExtension = {
+  confirmExtension(req) {
+    if (!req) return false;
 
-    confirmExtension: function (req){
+    const files = [];
 
-        let fileExtensions = []
-        
-        if (Boolean(req?.files == undefined) || Object.keys(req?.files).length == 0  ) return true
-      
-        for (const key in req.files) {
+    if (req.file) files.push(req.file);
 
-            fileExtensions.push(((req.files[key].path).split('.'))[1].toLowerCase())             
-             
-        }      
-       
-      
-        let AllowExtension = ['jpg', 'jpeg', 'gif', 'png']
-
-        if (AllowExtension.some(ext => fileExtensions.includes(ext))) {
-         
-            return true
-        }else{
-
-            return false
-        }
-       
-      
-            
-
+    if (Array.isArray(req.files)) {
+      files.push(...req.files);
+    } else if (req.files && typeof req.files === "object") {
+      for (const key of Object.keys(req.files)) {
+        const item = req.files[key];
+        if (Array.isArray(item)) files.push(...item);
+        else files.push(item);
+      }
     }
-}
 
+    if (files.length === 0) return true; // no files -> valid
 
+    const allowedExt = new Set([".jpg", ".jpeg", ".gif", ".png"]);
 
-module.exports = checkExtension
+    return files.every((file) => {
+      const name =
+        file.originalname || file.name || file.filename || file.path || "";
+      const mimetype = (file.type || "").toLowerCase();
+      const ext = (path.extname(name) || "").toLowerCase();
+
+      const extOk = allowedExt.has(ext);
+      const mimeOk = mimetype ? mimetype.startsWith("image/") : true;
+
+      return extOk && mimeOk;
+    });
+  },
+};
+
+module.exports = checkExtension;

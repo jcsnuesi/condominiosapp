@@ -34,7 +34,6 @@ var CondominiumSchema = Schema(
       required: true,
     },
     units_ownerId: [{ type: mongoose.Schema.Types.ObjectId, ref: "Owner" }],
-    employees: [{ type: mongoose.Schema.Types.ObjectId, ref: "Employees" }],
   },
   { timestamps: true }
 );

@@ -75,7 +75,7 @@ router.put(
 
 router.put(
   "/deactivate-owner",
-  md_auth.authenticated,
+  [md_auth.authenticated, statusValidator.propertyStatus],
   ownerController.deactivatedUser
 );
 

@@ -436,7 +436,7 @@ var Condominium_Controller = {
           populate: {
             path: "propertyDetails.addressId",
             select:
-              "availableUnits alias phone street_1 street_2 sector_name city province zipcode country socialAreas status mPayment createdAt",
+              "_id alias phone street_1 street_2 sector_name city province zipcode country socialAreas status mPayment createdAt status_property",
           },
         })
         .lean()

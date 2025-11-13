@@ -1,7 +1,7 @@
 "use strict";
 
 var jwt = require("jwt-simple");
-var moment = require("moment");
+const { getUnixTime } = require("date-fns");
 var secret = "clave-nueva-para-cleanning-2023";
 
 module.exports.authenticated = function (req, res, next) {
@@ -20,7 +20,7 @@ module.exports.authenticated = function (req, res, next) {
 
     //Comprobar si el token han expirado
 
-    if (payload.exp <= moment().unix()) {
+    if (payload.exp <= getUnixTime(new Date())) {
       return res.status(404).send({
         message: "El token ha expirado.",
       });
@@ -48,7 +48,7 @@ exports.emailOwnerRegistration = function (req, res, next) {
 
     //Comprobar si el token han expirado
 
-    if (payload.exp <= moment().unix()) {
+    if (payload.exp <= getUnixTime(new Date())) {
       return res.status(404).send({
         message: "El token ha expirado.",
       });
@@ -74,7 +74,7 @@ exports.emailToken = function (req, res, next) {
 
     //Comprobar si el token han expirado
 
-    if (payload.exp <= moment().unix()) {
+    if (payload.exp <= getUnixTime(new Date())) {
       return res.status(404).send({
         message: "El token ha expirado.",
       });
@@ -108,7 +108,7 @@ exports.guestToken = function (req, res, next) {
 
     //Comprobar si el token han expirado
 
-    if (payload.exp <= moment().unix()) {
+    if (payload.exp <= getUnixTime(new Date())) {
       return res.status(404).send({
         message: "El token ha expirado.",
       });

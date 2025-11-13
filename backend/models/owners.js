@@ -26,17 +26,20 @@ var OwnerSchema = Schema(
     first_password_changed: { type: Boolean, default: false },
     propertyDetails: [
       {
+        _id: false,
         addressId: {
           type: mongoose.Schema.Types.ObjectId,
           ref: "Condominium",
           required: true,
         },
+
         condominium_unit: { type: String, required: true, max: 5 },
         parkingsQty: { type: Number, required: true, max: 5 },
         isRenting: { type: Boolean, default: false },
         createdAt: { type: Date, default: Date.now },
         contractStart: { type: Date, required: true, default: Date.now },
         contractEnd: { type: Date, required: true, default: oneYearFromNow() },
+        status_property: { type: String, default: "active" },
       },
     ],
     familyAccount: [{ type: mongoose.Schema.Types.ObjectId, ref: "Family" }],
@@ -75,7 +78,7 @@ OwnerSchema.pre("findOneAndUpdate", async function (next) {
       property_id: originalId,
       httpMethod: "PUT",
     });
-    console.log("newDoc", newDoc);
+
     await newDoc.save();
   }
   next();
