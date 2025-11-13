@@ -239,21 +239,40 @@
                             "
                         />
 
-                        <p-button
-                            (onClick)="delAccount(ownerObj)"
-                            icon="pi pi-check"
-                            [label]="
-                                ownerObj.status == 'inactive'
-                                    ? 'Reactivate account'
-                                    : 'Delete account'
-                            "
-                            [severity]="
-                                ownerObj.status == 'inactive'
-                                    ? 'success'
-                                    : 'danger'
-                            "
-                            *appHasPermissions="['admin', 'staff_admin']"
-                        />
+                        <span *ngIf="!isHome">
+                            <p-button
+                                (onClick)="delAccount(ownerObj)"
+                                icon="pi pi-check"
+                                [label]="
+                                    ownerObj.status == 'inactive'
+                                        ? 'Reactivate account'
+                                        : 'Delete account'
+                                "
+                                [severity]="
+                                    ownerObj.status == 'inactive'
+                                        ? 'success'
+                                        : 'danger'
+                                "
+                                *appHasPermissions="['admin']"
+                            />
+                        </span>
+                        <span *ngIf="isHome">
+                            <p-button
+                                (onClick)="delAccount(ownerObj)"
+                                icon="pi pi-check"
+                                [label]="
+                                    ownerObj.status == 'inactive'
+                                        ? 'Reactivate'
+                                        : 'Deactivate'
+                                "
+                                [severity]="
+                                    ownerObj.status == 'inactive'
+                                        ? 'success'
+                                        : 'danger'
+                                "
+                                *appHasPermissions="['admin', 'staff_admin']"
+                            />
+                        </span>
                     </div>
                 </div>
             </div>

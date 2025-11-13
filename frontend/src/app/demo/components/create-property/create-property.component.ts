@@ -311,8 +311,8 @@ export class CreatePropertyComponent implements OnInit {
             accept: () => {
                 this._condominioService
                     .createCondominium(this.token, formdata)
-                    .subscribe(
-                        (response) => {
+                    .subscribe({
+                        next: (response) => {
                             if (response.status == 'success') {
                                 this.status = response.status;
                                 this.activeStep = 0;
@@ -333,7 +333,7 @@ export class CreatePropertyComponent implements OnInit {
                                 });
                             }
                         },
-                        (error) => {
+                        error: (error) => {
                             console.error(error);
                             this._messageService.add({
                                 severity: 'error',
@@ -341,8 +341,8 @@ export class CreatePropertyComponent implements OnInit {
                                 detail: 'Failed to create condominium',
                                 life: 3000,
                             });
-                        }
-                    );
+                        },
+                    });
             },
             reject: () => {
                 this._messageService.add({

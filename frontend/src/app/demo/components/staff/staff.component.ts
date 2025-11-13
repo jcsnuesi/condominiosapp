@@ -5,6 +5,8 @@ import {
     ElementRef,
     AfterViewInit,
     Input,
+    Output,
+    EventEmitter,
 } from '@angular/core';
 import {
     TitleCasePipe,
@@ -16,35 +18,16 @@ import {
 } from '@angular/common';
 import { InputTextModule } from 'primeng/inputtext';
 import { FormsModule, NgForm } from '@angular/forms';
-import { DropdownModule } from 'primeng/dropdown';
-import { TableModule } from 'primeng/table';
 import { UserService } from '../../service/user.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormatFunctions } from 'src/app/pipes/formating_text';
-import { FloatLabelModule } from 'primeng/floatlabel';
-import { CalendarModule } from 'primeng/calendar';
-import { IconFieldModule } from 'primeng/iconfield';
-import { InputIconModule } from 'primeng/inputicon';
-import { TagModule } from 'primeng/tag';
-import { Table } from 'primeng/table';
-import { DialogModule } from 'primeng/dialog';
-import { HttpClient } from '@angular/common/http';
 import { PipesModuleModule } from 'src/app/pipes/pipes-module.module';
 import { StaffService } from '../../service/staff.service';
-import { TabViewModule } from 'primeng/tabview';
-import { InputGroupModule } from 'primeng/inputgroup';
-import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
-import { CardModule } from 'primeng/card';
-import { PasswordModule } from 'primeng/password';
-import { Button, ButtonDirective, ButtonModule } from 'primeng/button';
-import { PanelModule } from 'primeng/panel';
 import { CondominioService } from '../../service/condominios.service';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { ToastModule } from 'primeng/toast';
 import { MessageService, ConfirmationService } from 'primeng/api';
-import { FileUploadModule } from 'primeng/fileupload';
 import { global } from '../../service/global.service';
 import { HasPermissionsDirective } from 'src/app/has-permissions.directive';
+import { ImportsModule } from '../../imports_primeng';
 
 type StaffInfo = {
     _id: string;
@@ -71,31 +54,14 @@ type StaffInfo = {
     selector: 'app-staff',
     standalone: true,
     imports: [
-        DialogModule,
-        FileUploadModule,
-        ToastModule,
-        ButtonModule,
-        PasswordModule,
-        CardModule,
-        TabViewModule,
-        InputGroupModule,
-        InputGroupAddonModule,
+        ImportsModule,
         PipesModuleModule,
         CommonModule,
-        DialogModule,
-        TagModule,
-        InputIconModule,
-        IconFieldModule,
         InputTextModule,
         FormsModule,
-        DropdownModule,
-        TableModule,
         TitleCasePipe,
         DatePipe,
-        FloatLabelModule,
-        CalendarModule,
-        PanelModule,
-        ConfirmDialogModule,
+
         HasPermissionsDirective,
     ],
     providers: [
@@ -104,7 +70,6 @@ type StaffInfo = {
         FormatFunctions,
         KeyValuePipe,
         CondominioService,
-        MessageService,
         ConfirmationService,
     ],
     templateUrl: './staff.component.html',
@@ -143,6 +108,7 @@ export class StaffComponent implements OnInit, AfterViewInit {
     public previwImageEdit: any;
     public currentPasswordMsg: string;
     public passwordMatch: boolean;
+    public submitStatus: boolean;
 
     @ViewChild('genderRef') genderDropDown!: ElementRef;
     @ViewChild('positionRef') genderPositionRef!: ElementRef;
@@ -154,6 +120,7 @@ export class StaffComponent implements OnInit, AfterViewInit {
     @ViewChild('btnInactiveStaff') btnInactiveStaff!: ElementRef;
     @Input() condoId: any;
     @Input() isHome: boolean = false;
+    @Output() staffUpdated = new EventEmitter<any>();
     public identity: any;
 
     constructor(
@@ -187,22 +154,6 @@ export class StaffComponent implements OnInit, AfterViewInit {
 
         this.token = this._userService.getToken();
         this.loginInfo = this._userService.getIdentity();
-
-        this.staffInfo = {
-            _id: '',
-            createdBy: '',
-            condo_id: '',
-            name: '',
-            lastname: '',
-            gender: '',
-            government_id: '',
-            phone: '',
-            position: '',
-            email: '',
-            password: '',
-            password_verify: '',
-            dob: '',
-        };
 
         this.dataToUpdate = {
             _id: '',
@@ -309,6 +260,22 @@ export class StaffComponent implements OnInit, AfterViewInit {
     public backBtnVisible: boolean;
 
     ngOnInit(): void {
+        this.staffInfo = {
+            _id: '',
+            createdBy: '',
+            condo_id: '',
+            name: '',
+            lastname: '',
+            gender: '',
+            government_id: '',
+            phone: '',
+            position: '',
+            email: '',
+            password: '',
+            password_verify: '',
+            dob: '',
+        };
+        this.submitStatus = false;
         // Obtiene el id del condominio
         this._route.params.subscribe((params) => {
             let condoId = this.condoId ?? params['id'];
@@ -492,6 +459,7 @@ export class StaffComponent implements OnInit, AfterViewInit {
             rejectIcon: 'none',
             rejectButtonStyleClass: 'p-button-text',
             accept: () => {
+                this.submitStatus = true;
                 const formSfaff = new FormData();
 
                 let keys = ['condo_id', 'position', 'gender'];
@@ -513,12 +481,19 @@ export class StaffComponent implements OnInit, AfterViewInit {
                                 severity: 'success',
                                 summary: 'Confirmed',
                                 detail: 'Staff successfully registered!',
-                                key: 'br',
                                 life: 3000,
                             });
-
+                            this.staffUpdated.emit();
                             form.reset();
+                            this.ngOnInit();
                             this.previwImage = '../../../assets/noimage.jpeg';
+                        } else {
+                            this._messageService.add({
+                                severity: 'error',
+                                summary: 'Error',
+                                detail: 'Staff was not registered!',
+                                life: 3000,
+                            });
                         }
                     },
                     error: (error) => {
@@ -526,12 +501,11 @@ export class StaffComponent implements OnInit, AfterViewInit {
                             severity: 'error',
                             summary: 'Error',
                             detail: 'Staff was not registered!',
-                            key: 'br',
                             life: 3000,
                         });
-                        console.log(error);
                     },
                     complete: () => {
+                        this.submitStatus = false;
                         this.previwImage = '../../../assets/noimage2.jpeg';
                         console.log('Request completed!');
                     },
@@ -604,6 +578,7 @@ export class StaffComponent implements OnInit, AfterViewInit {
 
                         if (error.error.message == 'Password incorrect') {
                             this.statusApi = true;
+
                             this.currentPasswordMsg = error.error.message;
                             setTimeout(() => {
                                 this.statusApi = false;

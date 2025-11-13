@@ -35,13 +35,23 @@ export class OwnerServiceService {
 
     deactivateOwner(
         token: string,
-        owner: { _id: string; status: string }
+        owner: {
+            _id: string;
+            condoId: string;
+            status: string;
+            ishome?: boolean;
+        }
     ): Observable<any> {
         let header = new HttpHeaders().set('Authorization', token);
 
-        return this._http.put(this.url + 'deactivate-owner', owner, {
-            headers: header,
-        });
+        let isHome = owner.ishome ? owner.ishome : false;
+        return this._http.put(
+            this.url + 'deactivate-owner',
+            { ...owner, ishome: isHome },
+            {
+                headers: header,
+            }
+        );
     }
 
     // Get all logged user's properties

@@ -19,6 +19,7 @@ import { BookingServiceService } from '../../service/booking-service.service';
 import { OwnerModel } from '../../models/owner.model';
 import { HasPermissionsDirective } from 'src/app/has-permissions.directive';
 import { ActivatedRoute, Router } from '@angular/router';
+import { BtnToggleStyle } from 'src/app/pipes/btnToggle';
 
 @Component({
     selector: 'app-owner-profile-settings',
@@ -44,10 +45,12 @@ export class OwnerProfileSettingsComponent implements AfterViewInit {
     public token: string;
     public identity: any;
     @Input() ownerObj: OwnerModel;
+    @Input() isHome: boolean = false;
 
     @Output() ownerUpdated: EventEmitter<boolean> = new EventEmitter<boolean>();
     public genderOptions: Array<{ label: string }>;
     public passwordOwner: boolean = false;
+    public _btnToggle = BtnToggleStyle.btnToggleDeleteActive;
 
     constructor(
         private _messageService: MessageService,
@@ -93,6 +96,14 @@ export class OwnerProfileSettingsComponent implements AfterViewInit {
     }
 
     delAccount(data: any) {
+        if (this.isHome) {
+            let condoId = data.condoId;
+
+            data.status = data.propertyDetails.filter(
+                (property: any) => property.addressId._id === condoId
+            );
+        }
+
         this._confirmationService.confirm({
             target: event.target as EventTarget,
             header: 'Confirmation',
@@ -108,8 +119,10 @@ export class OwnerProfileSettingsComponent implements AfterViewInit {
                 this._ownerService
                     .deactivateOwner(this.token, {
                         _id: data._id,
+                        condoId: data.condoId,
                         status:
                             data.status == 'inactive' ? 'active' : 'inactive',
+                        ishome: this.isHome,
                     })
                     .subscribe({
                         next: (response) => {

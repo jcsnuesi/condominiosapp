@@ -23,6 +23,7 @@ import { ToastModule } from 'primeng/toast';
 import { TabViewModule } from 'primeng/tabview';
 import { FamilyMemberDetailsComponent } from '../family-member-details/family-member-details.component';
 import { PaymentsHistoryComponent } from '../payments-history/payments-history.component';
+import { BtnToggleStyle } from 'src/app/pipes/btnToggle';
 
 @Component({
     selector: 'app-see-property',
@@ -51,6 +52,7 @@ import { PaymentsHistoryComponent } from '../payments-history/payments-history.c
         FormatFunctions,
         OwnerServiceService,
         ConfirmationService,
+        BtnToggleStyle,
     ],
 })
 export class SeePropertyComponent implements OnInit {
@@ -89,6 +91,7 @@ export class SeePropertyComponent implements OnInit {
     public properties: any;
     public changePasswordDialog: boolean = false;
     public delProperty: boolean;
+    public _btnToggle = BtnToggleStyle.btnToggleDeleteActive;
 
     constructor(
         private _router: Router,
@@ -128,6 +131,10 @@ export class SeePropertyComponent implements OnInit {
                     .deletePropertyWithAuth(this.token, property._id)
                     .subscribe({
                         next: (response) => {
+                            console.log(
+                                'response deletePropertyWithAuth',
+                                response
+                            );
                             if (response.status === 'success') {
                                 this.getProperties();
                                 this._messageService.add({

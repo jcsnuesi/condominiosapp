@@ -7,13 +7,12 @@ import {
     ViewChild,
     OnDestroy,
 } from '@angular/core';
-import { MenuItem, MessageService } from 'primeng/api';
 import { CondominioService } from '../../service/condominios.service';
 import { OwnerModel } from '../../models/owner.model';
 import { ActivatedRoute } from '@angular/router';
 import { global } from '../../service/global.service';
 import { UserService } from '../../service/user.service';
-import { ConfirmationService } from 'primeng/api';
+import { ConfirmationService, MenuItem, MessageService } from 'primeng/api';
 import { OwnerRegistrationComponent } from '../owner-registration/owner-registration.component';
 import { PaymentsHistoryComponent } from '../payments-history/payments-history.component';
 import { InviceGeneraterComponent } from '../invice-generater/invoice-generater.component';
@@ -35,6 +34,7 @@ import * as XLSX from 'xlsx';
 import { PoolFileLoaderComponent } from '../pool-file-loader/pool-file-loader.component';
 import { StaffComponent } from '../staff/staff.component';
 import { InvoiceHistoryComponent } from '../invoice-history/invoice-history.component';
+import { NotificationService } from '../../service/notification.service';
 
 type FamilyAccess = {
     avatar: string;
@@ -70,14 +70,15 @@ type FamilyAccess = {
     styleUrl: './home.component.css',
     providers: [
         MessageService,
+        ConfirmationService,
         CondominioService,
         UserService,
         OwnerServiceService,
         InvoiceService,
         StaffService,
-        ConfirmationService,
         DialogService,
         FormatFunctions,
+        NotificationService,
     ],
 })
 export class HomeComponent implements OnInit {
@@ -130,7 +131,8 @@ export class HomeComponent implements OnInit {
         private _activatedRoute: ActivatedRoute,
         private dialogService: DialogService,
         private _formatFunctions: FormatFunctions,
-        private _router: Router
+        private _router: Router,
+        private _notificationService: NotificationService
     ) {
         this.items = [
             { label: 'Add New', icon: 'pi pi-fw pi-plus' },
@@ -173,6 +175,7 @@ export class HomeComponent implements OnInit {
             staff: false,
             invoiceHistory: false,
             main: true,
+            notification: false,
         };
         this.bookingVisible = false;
         this.url = global.url;
@@ -225,6 +228,7 @@ export class HomeComponent implements OnInit {
         this.onInitInfo();
         this.staffCard();
         this.loadBookingCard();
+        this.inquiriesCard();
     }
 
     closeDialogRegistration() {
@@ -242,19 +246,21 @@ export class HomeComponent implements OnInit {
     }
 
     unitFormatOnInit(property_data) {
-        var unitList = [];
-        property_data = property_data.filter(
-            (condo) => condo.addressId._id == this.condoId
-        );
+        const propertyDetails = property_data.propertyDetails;
 
-        for (let index = 0; index < property_data.length; index++) {
-            unitList.push(property_data[index].condominium_unit);
-        }
-        if (unitList.length > 1) {
-            return unitList.slice(0, 2).join(', ') + '...';
+        const units = propertyDetails
+            .filter((owner) => owner.addressId._id === this.condoId)
+            .map((owner) => owner.unit);
+
+        if (units.length === 0) {
+            return 'No units available';
         }
 
-        return unitList.join(', ');
+        property_data.condominium_unit =
+            units.length > 2
+                ? `${units.slice(0, 2).join(', ')}...`
+                : units.join(', ');
+        return property_data.condominium_unit;
     }
 
     public userDialog: boolean;
@@ -282,6 +288,7 @@ export class HomeComponent implements OnInit {
                         if (response.status == 'success') {
                             // Info para enviar al componente 'invoice generator'
                             var unitList = response.condominium[0];
+
                             this.invoiceInfo.mPayment = unitList.mPayment;
                             this.invoiceInfo.paymentDate = unitList.paymentDate;
                             this.invoiceInfo.id = unitList._id;
@@ -309,9 +316,7 @@ export class HomeComponent implements OnInit {
                             this.customers = unitList.units_ownerId;
 
                             this.customers.forEach((owner) => {
-                                owner.condominium_unit = this.unitFormatOnInit(
-                                    owner.propertyDetails
-                                );
+                                this.unitFormatOnInit(owner);
                             });
 
                             this.condoInfo.paymentDate =
@@ -374,6 +379,51 @@ export class HomeComponent implements OnInit {
             },
         });
     }
+    public totalInquiries: number = 0;
+    public inquiries: {
+        id: string;
+        fullname: string;
+        title: string;
+        status: string;
+    }[];
+    inquiriesCard() {
+        this._notificationService
+            .getOwnerInquiries(this.token, this.condoId)
+            .subscribe({
+                next: (response) => {
+                    console.log('response:--------------->', response);
+                    if (response.status == 'success') {
+                        this.totalInquiries = response.data.docs.length;
+                        this.inquiries = response.data.docs.map((inquiry) => ({
+                            id: inquiry._id,
+                            fullname:
+                                inquiry.createdBy.name +
+                                ' ' +
+                                inquiry.createdBy.lastname,
+                            title: inquiry.title,
+                            status: inquiry.priority,
+                        }));
+                    } else {
+                        this.totalInquiries = 0;
+                        this._messageService.add({
+                            severity: 'warn',
+                            summary: 'No inquiries found',
+                            detail: 'There are no inquiries for this condominium',
+                            life: 3000,
+                        });
+                    }
+                },
+                error: (error) => {
+                    console.log(error);
+                },
+            });
+    }
+
+    public notificationDialogData: { id: string; visible: boolean };
+    showNotificationDialog(inquiry) {
+        this.notificationDialogData = { id: inquiry.id, visible: true };
+        console.log('inquiry id:', inquiry.id);
+    }
 
     titleCase(str) {
         return str
@@ -428,6 +478,7 @@ export class HomeComponent implements OnInit {
         staff: boolean;
         invoiceHistory: boolean;
         main: boolean;
+        notification: boolean;
     };
     showInvoiceGenerator() {
         this.invoiceInfo.invoiceGenerator = true;
@@ -437,6 +488,7 @@ export class HomeComponent implements OnInit {
         this.componentsToShow.staff = false;
         this.componentsToShow.invoiceHistory = false;
         this.componentsToShow.main = false;
+        this.componentsToShow.notification = false;
         this.componentsToShow[show] = true;
     }
 

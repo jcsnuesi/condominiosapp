@@ -1,6 +1,9 @@
+/* Optimized staff.component.css */
+
 #margen {
     margin-bottom: 30px;
 }
+
 .avatar {
     display: flex;
     justify-content: center;
@@ -12,15 +15,18 @@
     border-radius: 50%;
 }
 
+/* Nota: revisar si .avata-tbl se usa (posible typo de avatar) */
 .avata-tbl {
     border-radius: 90px;
 }
+
 .btns {
     display: flex;
 }
 .btn-clear {
     margin-right: 5px;
 }
+
 .font-color-fail {
     color: red;
 }
@@ -28,7 +34,10 @@
     color: greenyellow;
 }
 
-::ng-deep .p-fileupload-choose {
+::ng-deep .p-fileupload-choose,
+.dropdown-class,
+::ng-deep .p-calendar,
+::ng-deep .p-password {
     width: 100%;
 }
 
@@ -47,29 +56,33 @@
     margin-top: 10px;
 }
 
+/* Inputs success/error */
+.input-success,
+.input-error {
+    border-radius: 1px;
+}
 .input-success {
     border: 1px solid rgb(85, 252, 85);
-    border-radius: 1px;
 }
-
 .input-error {
     border: 1px solid rgb(238, 64, 64);
-    border-radius: 1px;
 }
 
+/* Password message styles */
+.passmsg-success,
+.passmsg-error {
+    font-size: 12px;
+}
 .passmsg-success {
     color: rgb(85, 252, 85);
-    font-size: 12px;
 }
-
 .passmsg-error {
     color: red;
-    font-size: 12px;
 }
 
 .btn-staff {
     display: flex;
-    justify-content: right;
+    justify-content: flex-end; /* corregido */
     margin-top: 10px;
     padding: 10px;
 }
@@ -79,53 +92,37 @@
     justify-content: center;
 }
 
+/* Input group / input text radius adjustments */
 ::ng-deep .p-inputgroup-addon:first-child,
-.p-inputgroup button:first-child,
-.p-inputgroup input:first-child,
-.p-inputgroup > .p-inputwrapper:first-child > .p-component,
-.p-inputgroup > .p-inputwrapper:first-child > .p-component > .p-inputtext {
+::ng-deep .p-inputgroup button:first-child,
+::ng-deep .p-inputgroup input:first-child,
+::ng-deep .p-inputgroup > .p-inputwrapper:first-child > .p-component,
+::ng-deep
+    .p-inputgroup
+    > .p-inputwrapper:first-child
+    > .p-component
+    > .p-inputtext {
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
 }
 
 ::ng-deep .p-inputtext {
-    border-top-left-radius: 0 !important;
-    border-top-right-radius: 0 !important;
-    border-bottom-left-radius: 0 !important;
-    border-bottom-right-radius: 0 !important;
+    border-radius: 0 !important;
     width: 100%;
 }
 
-.dropdown-class {
-    width: 100%;
-}
-
-::ng-deep .p-calendar {
-    width: 100%;
-}
-
+/* Panel styling (combinado y sin duplicados) */
 ::ng-deep .p-panel {
     border: 1px solid #e2e8f0;
     border-radius: 6px;
     background-color: #ffffff;
 }
-
 ::ng-deep .p-panel .p-panel-header,
-.p-panel .p-panel-content,
-.p-panel .p-panel-footer {
+::ng-deep .p-panel .p-panel-content,
+::ng-deep .p-panel .p-panel-footer {
     background: transparent;
-    border: 0 none;
+    border: none;
 }
-
-::ng-deep .p-password {
-    width: 100%;
-}
-
-::ng-deep .p-panel .p-panel-content {
-    background: transparent;
-    border: 0 none;
-}
-
 ::ng-deep .p-panel-title {
     color: #495057;
 }
@@ -133,13 +130,7 @@
 ::ng-deep .p-tabview-nav {
     margin-bottom: 20px;
 }
+
 ::ng-deep .p-datatable .p-datatable-tbody > tr.inactive-row {
     background-color: #f8d7da;
 }
-
-/* 
-::ng-deep #pn_id_45{
-
-width: 10%;
-
-} */

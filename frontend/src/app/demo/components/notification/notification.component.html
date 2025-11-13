@@ -1,84 +1,625 @@
-<div class="flex align-items-center justify-content-between mb-4">
-    <h5>Notifications</h5>
-    <div>
-        <button
-            pButton
-            type="button"
-            icon="pi pi-ellipsis-v"
-            class="p-button-rounded p-button-text p-button-plain"
-        ></button>
-        <!-- <p-menu #menu [popup]="true" [model]="items"></p-menu> -->
+<div class="notification-container card">
+    <p-toast></p-toast>
+    <p-confirmDialog></p-confirmDialog>
+
+    <!-- Header Section -->
+    <div class="notification-header mb-4">
+        <div class="flex justify-content-between align-items-center">
+            <div>
+                <h2 class="text-2xl font-bold text-primary">
+                    Notifications & Inquiries
+                </h2>
+                <p class="text-600 mt-1">
+                    Manage your communications with the administration
+                </p>
+            </div>
+            <div class="flex gap-2">
+                <p-button
+                    label="New Inquiry"
+                    icon="pi pi-plus"
+                    (onClick)="openInquiryDialog()"
+                    class="p-button-primary"
+                >
+                </p-button>
+                <p-button
+                    label="Mark All Read"
+                    icon="pi pi-check-circle"
+                    (onClick)="markAllNoticesAsRead()"
+                    class="p-button-outlined"
+                    [disabled]="unreadNoticesCount === 0"
+                >
+                    <p-badge
+                        [value]="unreadNoticesCount"
+                        *ngIf="unreadNoticesCount > 0"
+                    ></p-badge>
+                </p-button>
+            </div>
+        </div>
     </div>
+
+    <!-- Statistics Cards -->
+    <div class="grid mb-4">
+        <div class="col-12 md:col-3">
+            <p-card class="stats-card">
+                <div class="flex align-items-center">
+                    <div
+                        class="bg-blue-100 text-blue-600 border-round"
+                        [ngStyle]="{ padding: '0.5rem' }"
+                    >
+                        <i class="pi pi-file-o text-2xl"></i>
+                    </div>
+                    <div class="ml-3">
+                        <div class="text-600 text-sm">Total Inquiries</div>
+                        <div class="text-900 text-xl font-semibold">
+                            {{ inquiryStats.total }}
+                        </div>
+                    </div>
+                </div>
+            </p-card>
+        </div>
+        <div class="col-12 md:col-3">
+            <p-card class="stats-card">
+                <div class="flex align-items-center">
+                    <div
+                        class="stat-icon bg-orange-100 text-orange-600 border-round"
+                        [ngStyle]="{ padding: '0.5rem' }"
+                    >
+                        <i class="pi pi-clock text-2xl"></i>
+                    </div>
+                    <div class="ml-3">
+                        <div class="text-600 text-sm">Open</div>
+                        <div class="text-900 text-xl font-semibold">
+                            {{ inquiryStats.open }}
+                        </div>
+                    </div>
+                </div>
+            </p-card>
+        </div>
+        <div class="col-12 md:col-3">
+            <p-card class="stats-card">
+                <div class="flex align-items-center">
+                    <div
+                        class="stat-icon bg-yellow-100 text-yellow-600 border-round"
+                        [ngStyle]="{ padding: '0.5rem' }"
+                    >
+                        <i class="pi pi-refresh text-2xl"></i>
+                    </div>
+                    <div class="ml-3">
+                        <div class="text-600 text-sm">In Progress</div>
+                        <div class="text-900 text-xl font-semibold">
+                            {{ inquiryStats.inProgress }}
+                        </div>
+                    </div>
+                </div>
+            </p-card>
+        </div>
+        <div class="col-12 md:col-3">
+            <p-card class="stats-card">
+                <div class="flex align-items-center">
+                    <div
+                        class="stat-icon bg-green-100 text-green-600 border-round"
+                        [ngStyle]="{ padding: '0.5rem' }"
+                    >
+                        <i class="pi pi-check-circle text-2xl"></i>
+                    </div>
+                    <div class="ml-3">
+                        <div class="text-600 text-sm">Resolved</div>
+                        <div class="text-900 text-xl font-semibold">
+                            {{ inquiryStats.resolved }}
+                        </div>
+                    </div>
+                </div>
+            </p-card>
+        </div>
+    </div>
+
+    <!-- Main Content Tabs -->
+    <p-tabView>
+        <!-- Inquiries Tab -->
+        <p-tabPanel header="Inquiries" leftIcon="pi pi-file-o">
+            <div class="inquiry-section">
+                <!-- Filters -->
+                <div
+                    class="flex justify-content-between align-items-center mb-3"
+                >
+                    <div class="flex align-items-center gap-2">
+                        <label for="statusFilter" class="font-semibold text-sm"
+                            >Filter by Status:</label
+                        >
+                        <p-dropdown
+                            id="statusFilter"
+                            [options]="statusOptions"
+                            [(ngModel)]="inquiryStatusFilter"
+                            optionLabel="label"
+                            optionValue="value"
+                            [style]="{ 'min-width': '140px' }"
+                        >
+                        </p-dropdown>
+                    </div>
+                    <p-button
+                        label="Refresh"
+                        icon="pi pi-refresh"
+                        (onClick)="loadInquiries()"
+                        class="p-button-outlined p-button-sm"
+                    >
+                    </p-button>
+                </div>
+
+                <!-- Inquiries Table -->
+                <p-table
+                    [value]="getFilteredInquiries()"
+                    [loading]="loading"
+                    [paginator]="true"
+                    [rows]="inquiryRows"
+                    [first]="inquiryFirst"
+                    (onPageChange)="onInquiryPageChange($event)"
+                    responsiveLayout="scroll"
+                    [globalFilterFields]="['title', 'type', 'status']"
+                >
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th>Title</th>
+                            <th>Category</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th>Responses</th>
+                            <th>Actions</th>
+                        </tr>
+                    </ng-template>
+
+                    <ng-template pTemplate="body" let-inquiry>
+                        <tr>
+                            <td>
+                                <div class="font-semibold">
+                                    {{ inquiry.title }}
+                                </div>
+                                <div class="text-sm text-600">
+                                    {{
+                                        inquiry.description | slice : 0 : 50
+                                    }}...
+                                </div>
+                            </td>
+                            <td>
+                                <p-tag
+                                    [value]="inquiry.type"
+                                    severity="secondary"
+                                ></p-tag>
+                            </td>
+                            <td>
+                                <p-tag
+                                    [value]="inquiry.priority"
+                                    [severity]="
+                                        getPriorityClass(inquiry.priority)
+                                    "
+                                ></p-tag>
+                            </td>
+                            <td>
+                                <p-tag
+                                    [value]="inquiry.status"
+                                    [severity]="getStatusClass(inquiry.status)"
+                                ></p-tag>
+                            </td>
+                            <td>{{ formatDate(inquiry.createdAt!) }}</td>
+                            <td>
+                                <p-badge
+                                    [value]="inquiry.responses?.length || 0"
+                                    class="p-badge-info"
+                                ></p-badge>
+                            </td>
+                            <td>
+                                <p-button
+                                    icon="pi pi-eye"
+                                    (onClick)="viewInquiryDetails(inquiry)"
+                                    class="p-button-text p-button-sm"
+                                    pTooltip="View Details"
+                                >
+                                </p-button>
+                            </td>
+                        </tr>
+                    </ng-template>
+
+                    <ng-template pTemplate="emptymessage">
+                        <tr>
+                            <td colspan="7">
+                                <div class="text-center p-4">
+                                    <i
+                                        class="pi pi-inbox text-4xl text-400 mb-3"
+                                    ></i>
+                                    <div class="text-600">
+                                        No inquiries found
+                                    </div>
+                                    <p-button
+                                        label="Create Your First Inquiry"
+                                        icon="pi pi-plus"
+                                        (onClick)="openInquiryDialog()"
+                                        class="p-button-text mt-2"
+                                    >
+                                    </p-button>
+                                </div>
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </div>
+        </p-tabPanel>
+
+        <!-- Notices Tab -->
+        <p-tabPanel header="Notices" leftIcon="pi pi-bell">
+            <div class="notice-section">
+                <!-- Filters -->
+                <div
+                    class="flex justify-content-between align-items-center mb-3"
+                >
+                    <div class="flex align-items-center gap-2">
+                        <label
+                            for="noticeTypeFilter"
+                            class="font-semibold text-sm"
+                            >Filter by Type:</label
+                        >
+                        <p-dropdown
+                            id="noticeTypeFilter"
+                            [options]="noticeTypeOptions"
+                            [(ngModel)]="noticeTypeFilter"
+                            optionLabel="label"
+                            optionValue="value"
+                            [style]="{ 'min-width': '140px' }"
+                        >
+                        </p-dropdown>
+                    </div>
+                    <div class="flex align-items-center gap-2">
+                        <span class="text-sm text-600"
+                            >Unread: {{ unreadNoticesCount }}</span
+                        >
+                        <p-button
+                            label="Refresh"
+                            icon="pi pi-refresh"
+                            (onClick)="loadNotices()"
+                            class="p-button-outlined p-button-sm"
+                        >
+                        </p-button>
+                    </div>
+                </div>
+
+                <!-- Notices List -->
+                <div class="notices-list">
+                    <div
+                        *ngFor="
+                            let notice of getFilteredNotices();
+                            let i = index
+                        "
+                        class="notice-card mb-3"
+                        [class.unread]="!notice.isRead"
+                        (click)="viewNoticeDetails(notice)"
+                    >
+                        <p-card [style]="{ cursor: 'pointer' }">
+                            <div
+                                class="flex justify-content-between align-items-start"
+                            >
+                                <div class="flex-1">
+                                    <div
+                                        class="flex align-items-center gap-2 mb-2"
+                                    >
+                                        <h4 class="m-0 text-900">
+                                            {{ notice.title }}
+                                        </h4>
+                                        <p-tag
+                                            [value]="notice.type"
+                                            [ngClass]="
+                                                getNoticeTypeClass(notice.type)
+                                            "
+                                        ></p-tag>
+                                        <p-tag
+                                            [value]="notice.priority"
+                                            [ngClass]="
+                                                getPriorityClass(
+                                                    notice.priority
+                                                )
+                                            "
+                                        ></p-tag>
+                                        <p-badge
+                                            value="NEW"
+                                            *ngIf="!notice.isRead"
+                                            class="p-badge-danger"
+                                        ></p-badge>
+                                    </div>
+                                    <p class="text-600 m-0">
+                                        {{
+                                            notice.content | slice : 0 : 150
+                                        }}...
+                                    </p>
+                                    <div class="text-sm text-500 mt-2">
+                                        <i class="pi pi-calendar mr-1"></i>
+                                        {{ formatDate(notice.createdAt!) }}
+                                    </div>
+                                </div>
+                                <i class="pi pi-chevron-right text-400"></i>
+                            </div>
+                        </p-card>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div
+                        *ngIf="getFilteredNotices().length === 0"
+                        class="text-center p-4"
+                    >
+                        <i class="pi pi-bell-slash text-4xl text-400 mb-3"></i>
+                        <div class="text-600">No notices available</div>
+                    </div>
+                </div>
+
+                <!-- Pagination for Notices -->
+                <p-paginator
+                    [rows]="noticeRows"
+                    [totalRecords]="getFilteredNotices().length"
+                    [first]="noticeFirst"
+                    (onPageChange)="onNoticePageChange($event)"
+                    *ngIf="getFilteredNotices().length > noticeRows"
+                >
+                </p-paginator>
+            </div>
+        </p-tabPanel>
+    </p-tabView>
+
+    <!-- Create Inquiry Dialog -->
+    <p-dialog
+        header="Create New Inquiry"
+        [(visible)]="displayInquiryDialog"
+        [modal]="true"
+        [style]="{ width: '600px' }"
+        [closable]="true"
+        [draggable]="false"
+    >
+        <form #inquiryForm="ngForm" (ngSubmit)="submitInquiry()">
+            <div class="field mb-3">
+                <label for="title" class="block font-semibold mb-2"
+                    >Title *</label
+                >
+                <input
+                    id="title"
+                    type="text"
+                    pInputText
+                    [(ngModel)]="newInquiry.title"
+                    name="title"
+                    required
+                    placeholder="Brief description of your inquiry"
+                    class="w-full"
+                />
+            </div>
+
+            <div class="field mb-3">
+                <label for="category" class="block font-semibold mb-2"
+                    >Category *</label
+                >
+                <p-dropdown
+                    id="category"
+                    [options]="categoryOptions"
+                    [(ngModel)]="newInquiry.category"
+                    name="category"
+                    required
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Select a category"
+                    class="w-full"
+                >
+                </p-dropdown>
+            </div>
+
+            <div class="field mb-3">
+                <label for="priority" class="block font-semibold mb-2"
+                    >Priority</label
+                >
+                <p-dropdown
+                    id="priority"
+                    [options]="priorityOptions"
+                    [(ngModel)]="newInquiry.priority"
+                    name="priority"
+                    optionLabel="label"
+                    optionValue="value"
+                    class="w-full"
+                >
+                </p-dropdown>
+            </div>
+
+            <div class="field mb-4">
+                <label for="description" class="block font-semibold mb-2"
+                    >Description *</label
+                >
+                <textarea
+                    id="description"
+                    pInputTextarea
+                    [(ngModel)]="newInquiry.description"
+                    name="description"
+                    required
+                    placeholder="Provide detailed information about your inquiry"
+                    rows="4"
+                    class="w-full"
+                >
+                </textarea>
+            </div>
+
+            <div class="flex justify-content-end gap-2">
+                <p-button
+                    label="Cancel"
+                    icon="pi pi-times"
+                    (onClick)="displayInquiryDialog = false"
+                    class="p-button-text"
+                >
+                </p-button>
+                <p-button
+                    label="Submit"
+                    icon="pi pi-check"
+                    type="submit"
+                    [loading]="loading"
+                    [disabled]="!inquiryForm.form.valid"
+                >
+                </p-button>
+            </div>
+        </form>
+    </p-dialog>
+
+    <!-- Inquiry Details Dialog -->
+    <p-dialog
+        header="Inquiry Details"
+        [(visible)]="displayInquiryDetailDialog"
+        [modal]="true"
+        [style]="{ width: '800px', height: '600px' }"
+        [closable]="true"
+        [maximizable]="true"
+    >
+        <div *ngIf="selectedInquiry" class="inquiry-details">
+            <!-- Inquiry Header -->
+            <div
+                class="inquiry-header mb-4 pb-3 border-bottom-1 surface-border"
+            >
+                <div
+                    class="flex justify-content-between align-items-start mb-2"
+                >
+                    <h3 class="m-0 text-900">{{ selectedInquiry.title }}</h3>
+                    <div class="flex gap-2">
+                        <p-tag
+                            [value]="selectedInquiry.type"
+                            severity="secondary"
+                        ></p-tag>
+                        <p-tag
+                            [value]="selectedInquiry.priority"
+                            [severity]="
+                                getPriorityClass(selectedInquiry.priority)
+                            "
+                        ></p-tag>
+                        <p-tag
+                            [value]="selectedInquiry.status"
+                            [severity]="getStatusClass(selectedInquiry.status)"
+                        ></p-tag>
+                    </div>
+                </div>
+                <p class="text-600 m-0">{{ selectedInquiry.description }}</p>
+                <div class="text-sm text-500 mt-2">
+                    Created: {{ formatDate(selectedInquiry.createdAt!) }}
+                </div>
+            </div>
+
+            <!-- Conversation Timeline -->
+            <div class="conversation-section">
+                <h4 class="text-900 mb-3">Conversation</h4>
+
+                <div
+                    class="conversation-timeline"
+                    style="max-height: 300px; overflow-y: auto"
+                >
+                    <p-timeline
+                        [value]="selectedInquiry.responses || []"
+                        layout="vertical"
+                        align="alternate"
+                    >
+                        <ng-template pTemplate="content" let-response>
+                            <div
+                                class="response-item p-3 border-round surface-100 mb-2"
+                            >
+                                <div
+                                    class="flex justify-content-between align-items-center mb-2"
+                                >
+                                    <div class="font-semibold text-sm">
+                                        {{
+                                            response.isAdminResponse
+                                                ? "Admin Staff"
+                                                : "You"
+                                        }}
+                                        <span
+                                            class="text-500 font-normal ml-2"
+                                            >{{
+                                                response.respondedByRole
+                                            }}</span
+                                        >
+                                    </div>
+                                    <div class="text-xs text-500">
+                                        {{ formatDate(response.createdAt) }}
+                                    </div>
+                                </div>
+                                <p class="m-0 text-600">
+                                    {{ response.message }}
+                                </p>
+                            </div>
+                        </ng-template>
+
+                        <ng-template pTemplate="opposite" let-response>
+                            <div class="text-sm text-500">
+                                {{ formatDate(response.createdAt) }}
+                            </div>
+                        </ng-template>
+                    </p-timeline>
+
+                    <!-- Empty State -->
+                    <div
+                        *ngIf="
+                            !selectedInquiry.responses ||
+                            selectedInquiry.responses.length === 0
+                        "
+                        class="text-center p-4 text-600"
+                    >
+                        <i class="pi pi-comment text-2xl mb-2"></i>
+                        <div>
+                            No responses yet. Add your first response below.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Add Response -->
+                <div
+                    class="add-response mt-4"
+                    *ngIf="selectedInquiry.status !== 'closed'"
+                >
+                    <div class="field">
+                        <label class="block font-semibold mb-2"
+                            >Add Response</label
+                        >
+                        <textarea
+                            pInputTextarea
+                            [(ngModel)]="newResponse"
+                            placeholder="Type your response here..."
+                            rows="3"
+                            class="w-full"
+                        >
+                        </textarea>
+                    </div>
+                    <div class="flex justify-content-end mt-2">
+                        <p-button
+                            label="Send Response"
+                            icon="pi pi-send"
+                            (onClick)="addResponseToInquiry()"
+                            [disabled]="!newResponse.trim()"
+                            class="p-button-sm"
+                        >
+                        </p-button>
+                    </div>
+                </div>
+
+                <!-- Closed Notice -->
+                <div
+                    *ngIf="selectedInquiry.status === 'closed'"
+                    class="closed-notice mt-4 p-3 border-round bg-gray-100"
+                >
+                    <div class="flex align-items-center text-600">
+                        <i class="pi pi-lock mr-2"></i>
+                        This inquiry has been closed and no longer accepts new
+                        responses.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </p-dialog>
+
+    <!-- Notice Details Dialog -->
+    <p-dialog
+        header="Notice Details"
+        [(visible)]="displayNoticeDialog"
+        [modal]="true"
+        [style]="{ width: '600px' }"
+        [closable]="true"
+    >
+        <!-- This will be populated when viewing notice details -->
+        <div class="notice-content">
+            <!-- Notice details will be shown here -->
+        </div>
+    </p-dialog>
 </div>
-
-<p>Notification</p>
-
-<!-- 
-
-
-<span class="block text-600 font-medium mb-3">TODAY</span>
-<ul class="p-0 mx-0 mt-0 mb-4 list-none">
-    <li
-        class="flex align-items-center py-2 border-bottom-1 surface-border"
-    >
-        <div
-            class="w-3rem h-3rem flex align-items-center justify-content-center bg-blue-100 border-circle mr-3 flex-shrink-0"
-        >
-            <i class="pi pi-dollar text-xl text-blue-500"></i>
-        </div>
-        <span class="text-900 line-height-3"
-            >Richard Jones
-            <span class="text-700">
-                has purchased a blue t-shirt for
-                <span class="text-blue-500">79$</span></span
-            >
-        </span>
-    </li>
-    <li class="flex align-items-center py-2">
-        <div
-            class="w-3rem h-3rem flex align-items-center justify-content-center bg-orange-100 border-circle mr-3 flex-shrink-0"
-        >
-            <i class="pi pi-download text-xl text-orange-500"></i>
-        </div>
-        <span class="text-700 line-height-3"
-            >Your request for withdrawal of
-            <span class="text-blue-500 font-medium">2500$</span> has
-            been initiated.</span
-        >
-    </li>
-</ul>
-
-<span class="block text-600 font-medium mb-3">YESTERDAY</span>
-<ul class="p-0 m-0 list-none">
-    <li
-        class="flex align-items-center py-2 border-bottom-1 surface-border"
-    >
-        <div
-            class="w-3rem h-3rem flex align-items-center justify-content-center bg-blue-100 border-circle mr-3 flex-shrink-0"
-        >
-            <i class="pi pi-dollar text-xl text-blue-500"></i>
-        </div>
-        <span class="text-900 line-height-3"
-            >Keyser Wick
-            <span class="text-700">
-                has purchased a black jacket for
-                <span class="text-blue-500">59$</span></span
-            >
-        </span>
-    </li>
-    <li
-        class="flex align-items-center py-2 border-bottom-1 surface-border"
-    >
-        <div
-            class="w-3rem h-3rem flex align-items-center justify-content-center bg-pink-100 border-circle mr-3 flex-shrink-0"
-        >
-            <i class="pi pi-question text-xl text-pink-500"></i>
-        </div>
-        <span class="text-900 line-height-3"
-            >Jane Davis<span class="text-700">
-                has posted a new questions about your product.</span
-            ></span
-        >
-    </li>
-</ul>
-</div> -->

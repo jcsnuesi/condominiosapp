@@ -105,15 +105,23 @@
             <div class="flex justify-content-between mb-3">
                 <div>
                     <span class="block text-500 font-medium mb-3"
-                        >Comments</span
+                        >Inquiries</span
                     >
-                    <div class="text-900 font-medium text-2xl">152 Unread</div>
+                    <div class="text-900 font-medium text-2xl">
+                        {{ totalInquiries }}
+                    </div>
                 </div>
                 <div
                     class="flex align-items-center justify-content-center bg-purple-100 border-round"
                     [ngStyle]="{ width: '2.5rem', height: '2.5rem' }"
                 >
-                    <i class="pi pi-comment text-purple-500 text-xl"></i>
+                    <a
+                        (click)="showComponent('notification')"
+                        class="flex align-items-center justify-content-center bg-purple-100 border-round change-icon"
+                        [ngStyle]="{ width: '2.5rem', height: '2.5rem' }"
+                    >
+                        <i class="pi pi-comment text-purple-500 text-xl"></i>
+                    </a>
                 </div>
             </div>
             <span class="text-green-500 font-medium">85 </span>
@@ -175,7 +183,7 @@
                                 pRipple
                                 type="button"
                                 (click)="showOwnerDialog(customer)"
-                                icon="pi pi-search"
+                                icon="pi pi-eye"
                                 class="p-button p-component p-button-text p-button-icon-only"
                             ></button>
                         </td>
@@ -184,7 +192,52 @@
             </p-table>
         </div>
         <div class="card">
-            <app-notification></app-notification>
+            <h5>Notifications</h5>
+            <div class="notifications">
+                <div
+                    class="notification-item"
+                    *ngFor="let inquiry of inquiries"
+                >
+                    <div class="notification-icon">
+                        <i
+                            class="pi pi-comment"
+                            [ngClass]="{
+                                'text-red-500': inquiry.status === 'high',
+                                'text-yellow-500': inquiry.status === 'medium',
+                                'text-green-500': inquiry.status === 'low'
+                            }"
+                        ></i>
+                        {{ inquiry.title }}
+                    </div>
+                    <div class="notification-content">
+                        <div class="body-notification">
+                            <span class="notification-text">
+                                {{ inquiry.fullname }} has sent an inquiry.
+                            </span>
+                            <span
+                                class="notification-status"
+                                [ngClass]="{
+                                    'status-high': inquiry.status === 'high',
+                                    'status-medium':
+                                        inquiry.status === 'medium',
+                                    'status-low': inquiry.status === 'low'
+                                }"
+                                >{{ inquiry.status | titlecase }}</span
+                            >
+                        </div>
+                        <p-button
+                            icon="pi pi-eye"
+                            [rounded]="true"
+                            [text]="true"
+                            (click)="
+                                showComponent('notification');
+                                showNotificationDialog(inquiry)
+                            "
+                        ></p-button>
+                    </div>
+                    <hr />
+                </div>
+            </div>
         </div>
     </div>
 
@@ -267,6 +320,7 @@
                     <app-owner-profile-settings
                         [ownerObj]="ownerObj"
                         *ngIf="visible_owner"
+                        [isHome]="true"
                     >
                     </app-owner-profile-settings>
                 </p-tabPanel>
@@ -276,7 +330,6 @@
                         [ownerData]="ownerData"
                         *ngIf="visible_owner"
                     ></app-properties-by-owner>
-                    <!-- [propertyData]="availableUnitsObject" -->
                 </p-tabPanel>
 
                 <p-tabPanel header="Authorized users">
@@ -354,7 +407,17 @@
     *ngIf="componentsToShow.staff"
     [condoId]="condoId"
     [isHome]="true"
+    (staffUpdated)="staffCard()"
 ></app-staff>
+
+<!-- Notification -->
+
+<app-notification
+    *ngIf="componentsToShow.notification"
+    [condoId]="condoId"
+    [isHome]="true"
+    [dataDialog]="notificationDialogData"
+></app-notification>
 
 <!-- Settings Dialog -->
 

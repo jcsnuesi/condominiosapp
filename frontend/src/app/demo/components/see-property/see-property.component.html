@@ -223,12 +223,10 @@
                     <button
                         pButton
                         type="button"
-                        [severity]="
-                            btnToggleDeleteActive(property.status).severity
-                        "
+                        [severity]="_btnToggle(property.status).severity"
                         [outlined]="true"
-                        [icon]="btnToggleDeleteActive(property.status).icono"
-                        [class]="btnToggleDeleteActive(property.status).class"
+                        [icon]="_btnToggle(property.status).icono"
+                        [class]="_btnToggle(property.status).class"
                         (click)="deletePropertyFunc(property)"
                     ></button>
                 </td>
