@@ -18,7 +18,6 @@ router.get("/get-notifications", async (req, res) => {
       priority,
       isActive,
     } = req.query;
-    console.log("Query Parameters:", req.query);
 
     const filter = {};
 
@@ -301,7 +300,6 @@ router.get(
       };
 
       const notifications = await Notice.paginate(filter, options);
-      console.log("Notifications fetched:", notifications.docs[0]);
       res.status(200).send({
         status: "success",
         data: notifications,
@@ -396,6 +394,99 @@ router.get("/stats/:condominiumId", async (req, res) => {
       data: result,
     });
   } catch (error) {
+    res.status(500).send({
+      status: "error",
+      message: error.message,
+    });
+  }
+});
+
+// POST /api/notifications/inquiries/response - Add response to inquiry
+router.post("/inquiries/response", md_auth.authenticated, async (req, res) => {
+  try {
+    req.body.respondedBy = req.user.sub;
+    req.body.respondedByRole = req.user.role;
+
+    const {
+      inquiryId,
+      message,
+      respondedBy,
+      respondedByModel,
+      status,
+      respondedByRole,
+    } = req.body;
+
+    // Validar campos requeridos
+    if (
+      !inquiryId ||
+      !message ||
+      !respondedBy ||
+      !respondedByModel ||
+      !respondedByRole
+    ) {
+      return res.status(400).send({
+        status: "error",
+        message:
+          "Missing required fields: inquiryId, message, respondedBy, respondedByModel",
+      });
+    }
+
+    // Validar que el inquiry existe
+    const inquiry = await Notice.findById(inquiryId);
+    if (!inquiry) {
+      return res.status(404).send({
+        status: "error",
+        message: "Inquiry not found",
+      });
+    }
+
+    // Crear objeto de respuesta
+    const response = {
+      message: message.trim(),
+      respondedBy: new mongoose.Types.ObjectId(respondedBy),
+      respondedByModel,
+      respondedByRole,
+      isAdminResponse: ["ADMIN", "STAFF_ADMIN"].includes(respondedByRole),
+    };
+
+    // Actualizar el inquiry con la nueva respuesta
+    const updateData = {
+      $push: { responses: response },
+      status: ["ADMIN", "STAFF_ADMIN"].includes(respondedByRole)
+        ? "responded"
+        : "sent", // Cambiar estado a 'responded' si no se especifica otro
+    };
+
+    const updatedInquiry = await Notice.findByIdAndUpdate(
+      inquiryId,
+      updateData,
+      {
+        new: true,
+        runValidators: true,
+      }
+    )
+      .populate("condominiumId", "name")
+      .populate("createdBy", "name lastname email")
+      .populate({
+        path: "responses.respondedBy",
+        model: respondedByModel,
+        select: "name lastname gender role email phone position",
+      });
+
+    if (!updatedInquiry) {
+      return res.status(404).send({
+        status: "error",
+        message: "Failed to update inquiry",
+      });
+    }
+
+    res.status(201).send({
+      status: "success",
+      message: "Response added successfully",
+      data: updatedInquiry,
+    });
+  } catch (error) {
+    console.error("Error adding inquiry response:", error);
     res.status(500).send({
       status: "error",
       message: error.message,
