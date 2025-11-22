@@ -229,6 +229,9 @@ export class HomeComponent implements OnInit {
         this.staffCard();
         this.loadBookingCard();
         this.inquiriesCard();
+        this.notificationDialogData = {
+            identity: this.identity,
+        };
     }
 
     closeDialogRegistration() {
@@ -420,8 +423,8 @@ export class HomeComponent implements OnInit {
     }
 
     public notificationDialogData: {
-        _id: string;
-        visible: boolean;
+        _id?: string;
+        visible?: boolean;
         identity: any;
     };
     showNotificationDialog(inquiry) {

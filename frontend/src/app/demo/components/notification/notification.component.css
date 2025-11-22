@@ -71,14 +71,27 @@
 }
 
 .add-response {
-    background: white;
-    padding: 1rem;
+    background: var(--surface-50);
+    padding: 1.5rem;
     border-radius: 8px;
-    border: 1px solid #e9ecef;
+    border: 1px solid var(--surface-200);
+}
+
+.add-response textarea {
+    resize: vertical;
+    min-height: 80px;
+    transition: border-color 0.3s ease;
+}
+
+.add-response textarea:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(var(--primary-color-rgb), 0.25);
 }
 
 .closed-notice {
     border: 1px solid #dee2e6;
+    animation: slideDown 0.5s ease;
+    background: linear-gradient(135deg, #fee 0%, #fdd 100%);
 }
 
 .notices-list {
@@ -91,6 +104,17 @@
     from {
         opacity: 0;
         transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
     }
     to {
         opacity: 1;
@@ -117,6 +141,19 @@
     .inquiry-section,
     .notice-section {
         padding: 1rem;
+    }
+
+    .action-section .flex {
+        flex-direction: column;
+        align-items: stretch !important;
+    }
+
+    .action-section .flex .gap-2 {
+        margin-top: 1rem;
+    }
+
+    .closed-notice .flex {
+        flex-direction: column;
     }
 }
 
@@ -154,4 +191,14 @@
 
 ::ng-deep .p-tag.p-tag-secondary {
     background: #6b7280 !important;
+}
+
+/* ==================== BUTTON STYLES ==================== */
+.p-button-danger.p-button-sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+}
+
+.p-button-text.p-button-sm {
+    padding: 0.5rem 1rem;
 }
