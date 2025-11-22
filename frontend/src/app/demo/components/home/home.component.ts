@@ -419,10 +419,18 @@ export class HomeComponent implements OnInit {
             });
     }
 
-    public notificationDialogData: { id: string; visible: boolean };
+    public notificationDialogData: {
+        _id: string;
+        visible: boolean;
+        identity: any;
+    };
     showNotificationDialog(inquiry) {
-        this.notificationDialogData = { id: inquiry.id, visible: true };
-        console.log('inquiry id:', inquiry.id);
+        this.notificationDialogData = {
+            _id: inquiry.id,
+            visible: true,
+            identity: this.identity,
+        };
+        this.showComponent('notification');
     }
 
     titleCase(str) {

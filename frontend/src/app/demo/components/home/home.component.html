@@ -193,6 +193,7 @@
         </div>
         <div class="card">
             <h5>Notifications</h5>
+            <hr />
             <div class="notifications">
                 <div
                     class="notification-item"
@@ -229,10 +230,7 @@
                             icon="pi pi-eye"
                             [rounded]="true"
                             [text]="true"
-                            (click)="
-                                showComponent('notification');
-                                showNotificationDialog(inquiry)
-                            "
+                            (click)="showNotificationDialog(inquiry)"
                         ></p-button>
                     </div>
                     <hr />

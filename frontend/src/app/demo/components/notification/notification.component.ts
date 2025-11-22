@@ -1,5 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, Input } from '@angular/core';
+import {
+    Component,
+    OnInit,
+    Input,
+    OnChanges,
+    SimpleChanges,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MenuModule } from 'primeng/menu';
 import { ButtonModule } from 'primeng/button';
@@ -19,6 +25,7 @@ import { PaginatorModule } from 'primeng/paginator';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { NotificationService } from '../../service/notification.service';
 import { UserService } from '../../service/user.service';
+import { FormatFunctions } from 'src/app/pipes/formating_text';
 
 interface Inquiry {
     _id?: string;
@@ -89,7 +96,7 @@ interface Notice {
     templateUrl: './notification.component.html',
     styleUrl: './notification.component.css',
 })
-export class NotificationComponent implements OnInit {
+export class NotificationComponent implements OnInit, OnChanges {
     // Dialog Controls
     displayInquiryDialog: boolean = false;
     displayInquiryDetailDialog: boolean = false;
@@ -174,23 +181,38 @@ export class NotificationComponent implements OnInit {
     public token: any;
     @Input() condoId: string = '';
     @Input() isHome: boolean = false;
-    @Input() dataDialog: boolean = false;
+    @Input() dataDialog: any;
 
     constructor(
         private _notificationService: NotificationService,
         private _userService: UserService,
         private messageService: MessageService,
-        private confirmationService: ConfirmationService
+        private confirmationService: ConfirmationService,
+        private _formatFunctions: FormatFunctions
     ) {
         this.token = this._userService.getToken();
     }
 
     ngOnInit(): void {
         // this.loadUserData();
+
         this.loadInquiries();
         // this.loadNotices();
         this.getFilteredInquiries();
-        console.log('Condo ID in NotificationComponent:', this.dataDialog);
+    }
+
+    ngOnChanges(changes: SimpleChanges) {
+        if (changes['dataDialog'] && this.dataDialog) {
+            var condoId = changes['dataDialog'].currentValue._id;
+            this.identity = changes['dataDialog'].currentValue.identity;
+            setTimeout(() => {
+                let data_filtered = this.inquiries.find(
+                    (inquiry) => inquiry._id === condoId
+                );
+
+                this.viewInquiryDetails(data_filtered);
+            }, 500);
+        }
     }
 
     loadUserData(): void {
@@ -289,19 +311,9 @@ export class NotificationComponent implements OnInit {
 
     viewInquiryDetails(inquiry: Inquiry): void {
         this.selectedInquiry = inquiry;
+        console.log('Inquiry details loaded:', inquiry);
         this.newResponse = '';
         this.displayInquiryDetailDialog = true;
-
-        // Load full inquiry details with responses
-        this._notificationService.getInquiryDetails(inquiry._id!).subscribe({
-            next: (response) => {
-                console.log('Inquiry details loaded:', response);
-                // this.selectedInquiry = [];
-            },
-            error: (error) => {
-                console.error('Error loading inquiry details:', error);
-            },
-        });
     }
 
     addResponseToInquiry(): void {
@@ -312,28 +324,35 @@ export class NotificationComponent implements OnInit {
         const responseData = {
             inquiryId: this.selectedInquiry._id,
             message: this.newResponse.trim(),
+            respondedByModel: this._formatFunctions.titleCase(
+                this.identity.role
+            ),
+            status: this.selectedInquiry.status,
         };
 
-        this._notificationService.addInquiryResponse(responseData).subscribe({
-            next: (response) => {
-                this.messageService.add({
-                    severity: 'success',
-                    summary: 'Success',
-                    detail: 'Response added successfully',
-                });
-                this.newResponse = '';
-                this.viewInquiryDetails(this.selectedInquiry!); // Reload details
-                this.loadInquiries(); // Refresh list
-            },
-            error: (error) => {
-                console.error('Error adding response:', error);
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: 'Failed to add response',
-                });
-            },
-        });
+        this._notificationService
+            .addInquiryResponse(responseData, this.token)
+            .subscribe({
+                next: (response) => {
+                    console.log('Response added:', response);
+                    this.messageService.add({
+                        severity: 'success',
+                        summary: 'Success',
+                        detail: 'Response added successfully',
+                    });
+                    this.newResponse = '';
+                    this.viewInquiryDetails(response.data); // Reload details
+                    this.loadInquiries(); // Refresh list
+                },
+                error: (error) => {
+                    console.error('Error adding response:', error);
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: 'Failed to add response',
+                    });
+                },
+            });
     }
 
     // ============ NOTICE MANAGEMENT ============
@@ -423,23 +442,22 @@ export class NotificationComponent implements OnInit {
             case 'urgent':
                 return 'danger';
             case 'high':
-                return 'warning';
+                return 'danger';
             case 'medium':
-                return 'info';
+                return 'warning';
             case 'low':
-                return 'success';
+                return 'info';
             default:
                 return 'info';
         }
     }
 
     getStatusClass(status: string): string {
-        console.log('Status:', status);
         switch (status) {
             case 'sent':
                 return 'info';
             case 'responded':
-                return 'warning';
+                return 'success';
             case 'closed':
                 return 'secondary';
             default:

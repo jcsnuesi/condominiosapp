@@ -41,16 +41,22 @@ export class NotificationService {
 
     getInquiryDetails(inquiryId: string): Observable<ApiResponse<any>> {
         return this.http.get<ApiResponse<any>>(
-            `${this.apiUrl}/inquiries/${inquiryId}`
+            `${this.apiUrl}inquiries/${inquiryId}`
             // { headers: this.getHeaders() }
         );
     }
 
-    addInquiryResponse(responseData: any): Observable<ApiResponse<any>> {
+    addInquiryResponse(
+        responseData: any,
+        token: string
+    ): Observable<ApiResponse<any>> {
+        let header = new HttpHeaders()
+            .set('Content-Type', 'application/json')
+            .set('Authorization', token);
         return this.http.post<ApiResponse<any>>(
-            `${this.apiUrl}/inquiries/response`,
-            responseData
-            //    { headers: this.getHeaders() }
+            `${this.apiUrl}inquiries/response`,
+            responseData,
+            { headers: header }
         );
     }
 
@@ -59,7 +65,7 @@ export class NotificationService {
         status: string
     ): Observable<ApiResponse<any>> {
         return this.http.patch<ApiResponse<any>>(
-            `${this.apiUrl}/inquiries/${inquiryId}/status`,
+            `${this.apiUrl}inquiries/${inquiryId}/status`,
             { status }
             //    { headers: this.getHeaders() }
         );
@@ -80,14 +86,14 @@ export class NotificationService {
 
     getNoticeDetails(noticeId: string): Observable<ApiResponse<any>> {
         return this.http.get<ApiResponse<any>>(
-            `${this.apiUrl}/notices/${noticeId}`
+            `${this.apiUrl}notices/${noticeId}`
             //    { headers: this.getHeaders() }
         );
     }
 
     markNoticeAsRead(noticeId: string): Observable<ApiResponse<any>> {
         return this.http.patch<ApiResponse<any>>(
-            `${this.apiUrl}/notices/${noticeId}/read`,
+            `${this.apiUrl}notices/${noticeId}/read`,
             {}
             //    { headers: this.getHeaders() }
         );
@@ -95,7 +101,7 @@ export class NotificationService {
 
     markAllNoticesAsRead(): Observable<ApiResponse<any>> {
         return this.http.patch<ApiResponse<any>>(
-            `${this.apiUrl}/notices/mark-all-read`,
+            `${this.apiUrl}notices/mark-all-read`,
             {}
             //    { headers: this.getHeaders() }
         );
@@ -116,7 +122,7 @@ export class NotificationService {
 
     createNotice(notice: any): Observable<ApiResponse<any>> {
         return this.http.post<ApiResponse<any>>(
-            `${this.apiUrl}/admin/notices`,
+            `${this.apiUrl}admin/notices`,
             notice
             //    { headers: this.getHeaders() }
         );
