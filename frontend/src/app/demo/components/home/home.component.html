@@ -116,7 +116,7 @@
                     [ngStyle]="{ width: '2.5rem', height: '2.5rem' }"
                 >
                     <a
-                        (click)="showComponent('notification')"
+                        (click)="showComponent('inquiry')"
                         class="flex align-items-center justify-content-center bg-purple-100 border-round change-icon"
                         [ngStyle]="{ width: '2.5rem', height: '2.5rem' }"
                     >
@@ -203,7 +203,9 @@
                         <i
                             class="pi pi-comment"
                             [ngClass]="{
-                                'text-red-500': inquiry.status === 'high',
+                                'text-red-500':
+                                    inquiry.status === 'high' ||
+                                    inquiry.status === 'urgent',
                                 'text-yellow-500': inquiry.status === 'medium',
                                 'text-green-500': inquiry.status === 'low'
                             }"
@@ -230,7 +232,7 @@
                             icon="pi pi-eye"
                             [rounded]="true"
                             [text]="true"
-                            (click)="showNotificationDialog(inquiry)"
+                            (click)="showInquiryDialog(inquiry)"
                         ></p-button>
                     </div>
                     <hr />
@@ -410,12 +412,12 @@
 
 <!-- Notification -->
 
-<app-notification
-    *ngIf="componentsToShow.notification"
+<app-inquiry
+    *ngIf="componentsToShow.inquiry"
     [condoId]="condoId"
     [isHome]="true"
-    [dataDialog]="notificationDialogData"
-></app-notification>
+    [dataDialog]="inquiryDialogData"
+></app-inquiry>
 
 <!-- Settings Dialog -->
 

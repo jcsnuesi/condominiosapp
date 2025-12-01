@@ -1,0 +1,524 @@
+.notification-container {
+    padding: 1rem;
+}
+
+.notification-header {
+    /* background: linear-gradient(135deg, #667eea 0%, #4b74a2 100%); */
+    color: white;
+    padding: 2rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+}
+
+.stats-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+}
+
+.stats-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 25px rgba(0, 0, 0, 0.1);
+}
+
+.stat-icon {
+    padding: 0.5rem;
+    border-radius: 8px;
+}
+
+.inquiry-section,
+.notice-section {
+    background: #fafafa;
+    padding: 1.5rem;
+    border-radius: 8px;
+}
+
+.notice-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.notice-card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+}
+
+.notice-card.unread {
+    border-left: 4px solid #3b82f6;
+    background: linear-gradient(90deg, #eff6ff 0%, #ffffff 100%);
+}
+
+.inquiry-details {
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.conversation-timeline {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+}
+
+.response-item {
+    margin-bottom: 1rem;
+    animation: fadeIn 0.3s ease-in;
+}
+
+.response-item:last-child {
+    margin-bottom: 0;
+}
+
+.add-response {
+    background: var(--surface-50);
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid var(--surface-200);
+}
+
+.add-response textarea {
+    resize: vertical;
+    min-height: 80px;
+    transition: border-color 0.3s ease;
+}
+
+.add-response textarea:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(var(--primary-color-rgb), 0.25);
+}
+
+.closed-notice {
+    border: 1px solid #dee2e6;
+    animation: slideDown 0.5s ease;
+    background: linear-gradient(135deg, #fee 0%, #fdd 100%);
+}
+
+.notices-list {
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+/* ==================== FILE UPLOAD SECTION ==================== */
+.uploaded-files-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.file-item {
+    transition: all 0.3s ease;
+    border: 1px solid var(--surface-border);
+}
+
+.file-item:hover {
+    background: var(--surface-200) !important;
+    transform: translateX(5px);
+}
+
+.file-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid var(--surface-border);
+}
+
+.file-preview {
+    width: 50px;
+    height: 50px;
+    background-size: cover;
+    background-position: center;
+    border-radius: 4px;
+    border: 1px solid var(--surface-border);
+    flex-shrink: 0;
+}
+
+.empty-file-state {
+    text-align: center;
+    padding: 2rem;
+    border: 2px dashed var(--surface-border);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.empty-file-state:hover {
+    border-color: var(--primary-color);
+    background: var(--primary-50);
+}
+
+.empty-file-state i {
+    display: block;
+}
+
+/* FileUpload Component Customization */
+::ng-deep .p-fileupload {
+    border: none;
+}
+
+::ng-deep .p-fileupload .p-fileupload-buttonbar {
+    background: transparent;
+    border: none;
+    padding: 0;
+}
+
+::ng-deep .p-fileupload .p-fileupload-content {
+    border: none;
+    padding: 0;
+}
+
+::ng-deep .p-fileupload .p-fileupload-choose {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+::ng-deep .p-fileupload .p-fileupload-choose:hover {
+    background: var(--primary-600);
+    border-color: var(--primary-600);
+}
+
+/* Empty state styling */
+.border-dashed {
+    transition: all 0.3s ease;
+}
+
+.border-dashed:hover {
+    border-color: var(--primary-color) !important;
+    background: var(--primary-50);
+}
+
+/* Scrollbar para lista de archivos */
+.uploaded-files-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.uploaded-files-list::-webkit-scrollbar-track {
+    background: var(--surface-100);
+    border-radius: 3px;
+}
+
+.uploaded-files-list::-webkit-scrollbar-thumb {
+    background: var(--surface-400);
+    border-radius: 3px;
+}
+
+.uploaded-files-list::-webkit-scrollbar-thumb:hover {
+    background: var(--surface-500);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .notification-header {
+        padding: 1rem;
+        text-align: center;
+    }
+
+    .notification-header .flex {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .stats-card {
+        margin-bottom: 1rem;
+    }
+
+    .inquiry-section,
+    .notice-section {
+        padding: 1rem;
+    }
+
+    .action-section .flex {
+        flex-direction: column;
+        align-items: stretch !important;
+    }
+
+    .action-section .flex .gap-2 {
+        margin-top: 1rem;
+    }
+
+    .closed-notice .flex {
+        flex-direction: column;
+    }
+
+    .file-item {
+        flex-direction: column;
+        align-items: flex-start !important;
+    }
+
+    .file-item .p-button {
+        align-self: flex-end;
+        margin-top: 0.5rem;
+    }
+
+    .file-preview {
+        margin-top: 0.5rem;
+    }
+
+    .preview-section {
+        margin-bottom: 1rem;
+    }
+
+    .field {
+        margin-bottom: 1rem;
+    }
+
+    ::ng-deep .p-dialog {
+        width: 95% !important;
+    }
+}
+
+/* PrimeNG Overrides */
+::ng-deep .p-tabview .p-tabview-panels {
+    background: transparent;
+    border: none;
+    padding: 0;
+}
+
+::ng-deep .p-dialog .p-dialog-content {
+    padding: 1.5rem;
+}
+
+::ng-deep .p-timeline .p-timeline-event-content {
+    padding: 0;
+}
+
+/* Custom Tag Colors */
+::ng-deep .p-tag.p-tag-danger {
+    background: #ef4444 !important;
+}
+
+::ng-deep .p-tag.p-tag-warning {
+    background: #f59e0b !important;
+}
+
+::ng-deep .p-tag.p-tag-info {
+    background: #3b82f6 !important;
+}
+
+::ng-deep .p-tag.p-tag-success {
+    background: #10b981 !important;
+}
+
+::ng-deep .p-tag.p-tag-secondary {
+    background: #6b7280 !important;
+}
+
+/* ==================== BUTTON STYLES ==================== */
+.p-button-danger.p-button-sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+}
+
+.p-button-text.p-button-sm {
+    padding: 0.5rem 1rem;
+}
+
+/* ==================== CREATE NOTICE DIALOG ==================== */
+.preview-section {
+    animation: fadeIn 0.3s ease;
+    border: 1px solid #d1e7ff;
+}
+
+.preview-card {
+    transition: all 0.3s ease;
+}
+
+.preview-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Notice type dropdown icons */
+::ng-deep .p-dropdown-item i {
+    color: var(--primary-color);
+    margin-right: 0.5rem;
+}
+
+::ng-deep .p-dropdown-panel .p-dropdown-item {
+    padding: 0.75rem 1rem;
+}
+
+/* Character counter styling */
+small.text-500 {
+    font-size: 0.75rem;
+    color: var(--text-color-secondary);
+    display: block;
+    margin-top: 0.25rem;
+}
+
+/* Checkbox label */
+.field-checkbox {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    background: var(--surface-50);
+    border-radius: 6px;
+}
+
+.field-checkbox label {
+    cursor: pointer;
+    user-select: none;
+    margin: 0;
+    font-weight: 500;
+}
+
+.field-checkbox:hover {
+    background: var(--surface-100);
+}
+
+/* Calendar styling */
+::ng-deep .p-calendar {
+    width: 100%;
+}
+
+::ng-deep .p-calendar .p-inputtext {
+    width: 100%;
+}
+
+::ng-deep .p-calendar-w-btn .p-datepicker-trigger {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+/* Button group spacing */
+.flex.gap-2 {
+    gap: 0.5rem;
+}
+
+/* Admin button styling */
+.p-button-success {
+    background: #10b981;
+    border-color: #10b981;
+}
+
+.p-button-success:hover {
+    background: #059669;
+    border-color: #059669;
+}
+
+.p-button-success.p-button-raised {
+    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+}
+
+.p-button-success.p-button-raised:hover {
+    box-shadow: 0 4px 8px rgba(16, 185, 129, 0.4);
+    transform: translateY(-1px);
+}
+
+/* Form field spacing */
+.field {
+    margin-bottom: 1rem;
+}
+
+.field label {
+    font-weight: 600;
+    color: var(--text-color);
+    display: block;
+}
+
+.field label i {
+    color: var(--primary-color);
+}
+
+.field small {
+    font-size: 0.75rem;
+    color: var(--text-color-secondary);
+}
+
+/* Inputs unificados */
+::ng-deep .p-inputtext,
+::ng-deep .p-inputtextarea {
+    width: 100%;
+    border: 1px solid var(--surface-border);
+    border-radius: 6px;
+    padding: 0.75rem;
+    transition: all 0.3s ease;
+}
+
+::ng-deep .p-inputtext:focus,
+::ng-deep .p-inputtextarea:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(var(--primary-color-rgb), 0.25);
+}
+
+/* Dropdowns unificados */
+::ng-deep .p-dropdown {
+    width: 100%;
+    border-radius: 6px;
+}
+
+::ng-deep .p-calendar {
+    width: 100%;
+}
+
+/* Preview notice styling */
+.preview-section .preview-card h5 {
+    color: var(--text-color);
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.preview-section .preview-card p {
+    color: var(--text-color-secondary);
+    line-height: 1.6;
+}
+
+/* Dialog footer buttons */
+::ng-deep .p-dialog-footer {
+    padding-top: 1rem;
+    border-top: 1px solid var(--surface-border);
+}
+
+/* Target audience dropdown */
+::ng-deep .p-dropdown-item small {
+    color: var(--text-color-secondary);
+    font-size: 0.8rem;
+}
+
+/* Loading spinner in button */
+::ng-deep .p-button .p-button-icon.pi-spin {
+    animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+::ng-deep .p-fileupload-content .p-progressbar {
+    display: none !important;
+}
+
+::ng-deep .p-fileupload-content .p-messages {
+    display: none !important;
+}
+
+::ng-deep .p-fileupload-content .p-fileupload-files {
+    display: none !important;
+}

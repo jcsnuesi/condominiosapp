@@ -76,7 +76,6 @@ export class CondominioService {
 
     getUnits(token: string, id: string): Observable<any> {
         let header = new HttpHeaders().set('Authorization', token);
-
         return this._http.get(this.url + 'getUnits/' + id, {
             headers: header,
         });
@@ -97,7 +96,7 @@ export class CondominioService {
         let header = new HttpHeaders()
             .set('Content-Type', 'application/json')
             .set('Authorization', token);
-        console.log('createMultipleCondo data: ', params);
+
         return this._http.post(this.url + 'create-multiple-condo', params, {
             headers: header,
         });

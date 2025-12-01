@@ -26,7 +26,7 @@ import { StaffService } from '../../service/staff.service';
 import { BookingServiceService } from '../../service/booking-service.service';
 import { OwnerServiceService } from '../../service/owner-service.service';
 import { HasPermissionsDirective } from 'src/app/has-permissions.directive';
-import { NotificationComponent } from '../notification/notification.component';
+import { InquiryComponent } from '../inquiry/inquiry.component';
 import { PropertiesByOwnerComponent } from '../properties-by-owner/properties-by-owner.component';
 import { OwnerProfileSettingsComponent } from '../owner-profile-settings/owner-profile-settings.component';
 import { ImportsModule } from '../../imports_primeng';
@@ -34,7 +34,7 @@ import * as XLSX from 'xlsx';
 import { PoolFileLoaderComponent } from '../pool-file-loader/pool-file-loader.component';
 import { StaffComponent } from '../staff/staff.component';
 import { InvoiceHistoryComponent } from '../invoice-history/invoice-history.component';
-import { NotificationService } from '../../service/notification.service';
+import { InquiryService } from '../../service/inquiry.service';
 
 type FamilyAccess = {
     avatar: string;
@@ -58,7 +58,7 @@ type FamilyAccess = {
         ImportsModule,
         OwnerProfileSettingsComponent,
         PropertiesByOwnerComponent,
-        NotificationComponent,
+        InquiryComponent,
         HasPermissionsDirective,
         BookingAreaComponent,
         PaymentsHistoryComponent,
@@ -78,7 +78,7 @@ type FamilyAccess = {
         StaffService,
         DialogService,
         FormatFunctions,
-        NotificationService,
+        InquiryService,
     ],
 })
 export class HomeComponent implements OnInit {
@@ -132,7 +132,7 @@ export class HomeComponent implements OnInit {
         private dialogService: DialogService,
         private _formatFunctions: FormatFunctions,
         private _router: Router,
-        private _notificationService: NotificationService
+        private _inquiryService: InquiryService
     ) {
         this.items = [
             { label: 'Add New', icon: 'pi pi-fw pi-plus' },
@@ -175,7 +175,7 @@ export class HomeComponent implements OnInit {
             staff: false,
             invoiceHistory: false,
             main: true,
-            notification: false,
+            inquiry: false,
         };
         this.bookingVisible = false;
         this.url = global.url;
@@ -229,7 +229,7 @@ export class HomeComponent implements OnInit {
         this.staffCard();
         this.loadBookingCard();
         this.inquiriesCard();
-        this.notificationDialogData = {
+        this.inquiryDialogData = {
             identity: this.identity,
         };
     }
@@ -390,11 +390,11 @@ export class HomeComponent implements OnInit {
         status: string;
     }[];
     inquiriesCard() {
-        this._notificationService
+        this._inquiryService
             .getOwnerInquiries(this.token, this.condoId)
             .subscribe({
                 next: (response) => {
-                    console.log('response:--------------->', response);
+                    // console.log('response:--------------->', response);
                     if (response.status == 'success') {
                         this.totalInquiries = response.data.docs.length;
                         this.inquiries = response.data.docs.map((inquiry) => ({
@@ -422,18 +422,18 @@ export class HomeComponent implements OnInit {
             });
     }
 
-    public notificationDialogData: {
+    public inquiryDialogData: {
         _id?: string;
         visible?: boolean;
         identity: any;
     };
-    showNotificationDialog(inquiry) {
-        this.notificationDialogData = {
+    showInquiryDialog(inquiry) {
+        this.inquiryDialogData = {
             _id: inquiry.id,
             visible: true,
             identity: this.identity,
         };
-        this.showComponent('notification');
+        this.showComponent('inquiry');
     }
 
     titleCase(str) {
@@ -489,7 +489,7 @@ export class HomeComponent implements OnInit {
         staff: boolean;
         invoiceHistory: boolean;
         main: boolean;
-        notification: boolean;
+        inquiry: boolean;
     };
     showInvoiceGenerator() {
         this.invoiceInfo.invoiceGenerator = true;
@@ -499,7 +499,7 @@ export class HomeComponent implements OnInit {
         this.componentsToShow.staff = false;
         this.componentsToShow.invoiceHistory = false;
         this.componentsToShow.main = false;
-        this.componentsToShow.notification = false;
+        this.componentsToShow.inquiry = false;
         this.componentsToShow[show] = true;
     }
 
