@@ -154,17 +154,29 @@ export class InquiryService {
      * @returns Observable con la respuesta
      */
     updateNotice(
-        noticeId: string,
-        updateData: any,
+        updateData: FormData,
+        token: string
+    ): Observable<ApiResponse<any>> {
+        const headers = new HttpHeaders().set('Authorization', token);
+
+        return this.http.put<ApiResponse<any>>(
+            `${this.apiUrl}update-notices`,
+            updateData,
+            { headers: headers }
+        );
+    }
+
+    deleteAttachment(
+        filename: {},
         token: string
     ): Observable<ApiResponse<any>> {
         const headers = new HttpHeaders()
             .set('Content-Type', 'application/json')
             .set('Authorization', token);
 
-        return this.http.patch<ApiResponse<any>>(
-            `${this.apiUrl}notices/${noticeId}`,
-            updateData,
+        return this.http.put<ApiResponse<any>>(
+            `${this.apiUrl}delete-attachment`,
+            filename,
             { headers: headers }
         );
     }

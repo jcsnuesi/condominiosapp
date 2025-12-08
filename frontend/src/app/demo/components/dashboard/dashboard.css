@@ -32,3 +32,9 @@
     cursor: pointer;
     border: rgb(198, 200, 203) 1px solid;
 }
+
+.notification-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}

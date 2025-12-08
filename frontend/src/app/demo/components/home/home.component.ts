@@ -394,7 +394,7 @@ export class HomeComponent implements OnInit {
             .getOwnerInquiries(this.token, this.condoId)
             .subscribe({
                 next: (response) => {
-                    // console.log('response:--------------->', response);
+                    console.log('response:--------------->', response);
                     if (response.status == 'success') {
                         this.totalInquiries = response.data.docs.length;
                         this.inquiries = response.data.docs.map((inquiry) => ({

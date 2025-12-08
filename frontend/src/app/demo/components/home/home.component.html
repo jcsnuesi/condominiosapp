@@ -194,6 +194,9 @@
         <div class="card">
             <h5>Notifications</h5>
             <hr />
+            <div *ngIf="areThereInquiries">
+                <p>No inquiries found.</p>
+            </div>
             <div class="notifications">
                 <div
                     class="notification-item"

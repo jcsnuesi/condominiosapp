@@ -35,6 +35,8 @@ import { BookingAreaComponent } from '../booking-area/booking-area.component';
 import { StaffComponent } from '../staff/staff.component';
 import { InvoiceService } from '../../service/invoice.service';
 import { InvoiceHistoryComponent } from '../invoice-history/invoice-history.component';
+import { InquiryService } from '../../service/inquiry.service';
+import { InquiryComponent } from '../inquiry/inquiry.component';
 
 @Component({
     templateUrl: './dashboard.component.html',
@@ -46,6 +48,7 @@ import { InvoiceHistoryComponent } from '../invoice-history/invoice-history.comp
         BookingAreaComponent,
         StaffComponent,
         InvoiceHistoryComponent,
+        InquiryComponent,
     ],
     providers: [
         CondominioService,
@@ -54,12 +57,13 @@ import { InvoiceHistoryComponent } from '../invoice-history/invoice-history.comp
         ConfirmationService,
         OwnerServiceService,
         InvoiceService,
+        InquiryService,
     ],
     styleUrls: ['./dashboard.css'],
 })
 export class DashboardComponent implements OnInit, OnDestroy {
     files = [];
-
+    public totalInquiries: number = 0;
     totalSize: number = 0;
 
     totalSizePercent: number = 0;
@@ -109,6 +113,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
         staff: boolean;
         main: boolean;
         invoice: boolean;
+        inquiry: boolean;
+    };
+    public inquiryDialogData: {
+        _id?: string;
+        visible?: boolean;
+        identity: any;
     };
 
     constructor(
@@ -125,7 +135,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
         private _bookingService: BookingServiceService,
         private _staffService: StaffService,
         private _ownerService: OwnerServiceService,
-        private _invoiceService: InvoiceService
+        private _invoiceService: InvoiceService,
+        private _inquiryService: InquiryService
     ) {
         this.subscription = this.layoutService.configUpdate$.subscribe(() => {
             this.initChart();
@@ -159,6 +170,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             booking: false,
             staff: false,
             main: true,
+            inquiry: false,
         };
         this.formValidation =
             this.ownerObj.apartmentsUnit != '' &&
@@ -195,8 +207,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
         };
     }
 
+    showInquiryDialog(inquiry) {
+        this.inquiryDialogData = {
+            _id: inquiry.id,
+            visible: true,
+            identity: this.identity,
+        };
+        this.showComponent('inquiry');
+    }
+
     ngOnInit() {
         this.onInitInfo();
+        this.inquiryDialogData = {
+            identity: this.identity,
+        };
         this.genderOption = [
             { name: 'Male', gender: 'm' },
             { name: 'Female', gender: 'f' },
@@ -304,9 +328,53 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.loadBookingCard();
         this.getStaffQty();
         this.loadUnitsCard();
-
         this.condoId = this.getId();
         this.getAllInvoices();
+        this.inquiriesCard();
+    }
+
+    public inquiries: {
+        id: string;
+        fullname: string;
+        title: string;
+        status: string;
+    }[];
+    public areThereInquiries: boolean = false;
+
+    inquiriesCard() {
+        this._inquiryService
+            .getOwnerInquiries(this.token, this.condoId)
+            .subscribe({
+                next: (response) => {
+                    // console.log('response:--------------->', response);
+                    if (response.status == 'success') {
+                        this.totalInquiries = response.data.docs.length;
+                        this.inquiries = response.data.docs.map((inquiry) => ({
+                            id: inquiry._id,
+                            fullname:
+                                inquiry.createdBy.name +
+                                ' ' +
+                                inquiry.createdBy.lastname,
+                            title: inquiry.title,
+                            status: inquiry.priority,
+                        }));
+
+                        this.areThereInquiries =
+                            this.inquiries.length > 0 ? true : false;
+                    } else {
+                        this.totalInquiries = 0;
+                        this._messageService.add({
+                            severity: 'warn',
+                            summary: 'No inquiries found',
+                            detail: 'There are no inquiries for this condominium',
+                            life: 3000,
+                        });
+                    }
+                },
+                error: (error) => {
+                    console.log(error);
+                },
+            });
     }
 
     showComponent(show: string) {
@@ -315,6 +383,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             booking: false,
             staff: false,
             main: false,
+            inquiry: false,
         };
         this.componentsToShow[show] = true;
     }

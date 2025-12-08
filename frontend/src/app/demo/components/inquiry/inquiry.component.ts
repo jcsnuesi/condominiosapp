@@ -101,6 +101,7 @@ interface Notice {
 
 // ← NUEVA INTERFACE
 interface NewNotice {
+    _id?: string;
     title: string;
     content: string;
     type:
@@ -166,6 +167,7 @@ interface BackendAttachment {
         ConfirmationService,
         InquiryService,
         UserService,
+        FormatFunctions,
     ],
     templateUrl: './inquiry.component.html',
     styleUrl: './inquiry.component.css',
@@ -342,6 +344,7 @@ export class InquiryComponent implements OnInit, OnChanges {
     @Input() isHome: boolean = false;
     @Input() dataDialog: any;
     public url: string;
+
     constructor(
         private _inquiryService: InquiryService,
         private _userService: UserService,
@@ -400,11 +403,12 @@ export class InquiryComponent implements OnInit, OnChanges {
 
     loadInquiries(): void {
         this.loading = true;
+
         this._inquiryService
             .getOwnerInquiries(this.token, this.condoId)
             .subscribe({
                 next: (response) => {
-                    // console.log('Inquiries loaded:', response);
+                    console.log('Inquiries loaded:', response);
                     this.inquiries = response.data.docs || [];
                     this.calculateInquiryStats();
                     this.loading = false;
@@ -809,7 +813,7 @@ export class InquiryComponent implements OnInit, OnChanges {
             .getCondominiumNotices(this.token, this.condoId)
             .subscribe({
                 next: (response) => {
-                    console.log('Notices loaded:', response);
+                    // console.log('Notices loaded:', response);
                     const noticesData = response.data || [];
 
                     // Map notices and check if they are read by current user
@@ -852,31 +856,17 @@ export class InquiryComponent implements OnInit, OnChanges {
 
     public dialogNoticeTitle: string = '';
     viewNoticeDetails(notice: Notice): void {
+        this.loadCondoUsers();
         this.dialogNoticeTitle = 'Notice Details';
         this.selectedInquiry = null;
         this.displayCreateNoticeDialog = true;
 
         this.newNotice = {
             ...notice,
-            condominiumId: this.condoId,
             targetAudience: notice.targetAudience || 'all',
-            publishImmediately: false,
         };
-        // this.condoUsersOptions = this.newNotice.specificRecipients
-        //     ? this.newNotice.specificRecipients.map((user) => ({
-        //           label: user.label,
-        //           value: user._id,
-        //             role: user.role,
-        //       }))
-        //     : [];
 
-        //  this.condoUsersOptions = users.map((u: any) => ({
-        //                 label: `${u.name || ''} ${u.lastname || ''} ${
-        //                     u.email ? ' - ' + u.email : ''
-        //                 }`.trim(),
-        //                 value: u._id,
-        //                 role: (u.role || '').toUpperCase(),
-        //             }));
+        console.log('Viewing notice:', this.newNotice);
 
         // reset selected previews
         this.selectedNoticeFiles = [];
@@ -1112,7 +1102,6 @@ export class InquiryComponent implements OnInit, OnChanges {
             .getCondominiumUsers(this.token, this.condoId)
             .subscribe({
                 next: (res) => {
-                    console.log('Condominium users loaded:', res);
                     const users = res.data.units_ownerId || [];
                     this.condoUsersOptions = users.map((u: any) => ({
                         label: `${u.name || ''} ${u.lastname || ''} ${
@@ -1121,6 +1110,10 @@ export class InquiryComponent implements OnInit, OnChanges {
                         value: u._id,
                         role: (u.role || '').toUpperCase(),
                     }));
+                    console.log(
+                        'Condominium users loaded:',
+                        this.condoUsersOptions
+                    );
                 },
                 error: (err) => {
                     console.error('Error loading condominium users:', err);
@@ -1206,7 +1199,6 @@ export class InquiryComponent implements OnInit, OnChanges {
         this.isCreatingNotice = true;
         this.condoUsersOptions;
         let rolesRecipientModel = this.condoUsersOptions.map((u) => {
-            console.log('u:', u);
             if (
                 u.value &&
                 this.newNotice.specificRecipients.includes(u.value)
@@ -1220,7 +1212,6 @@ export class InquiryComponent implements OnInit, OnChanges {
             };
         });
 
-        console.log('rolesRecipientModel:', rolesRecipientModel);
         const formData = new FormData();
         formData.append('title', this.newNotice.title.trim());
         formData.append('content', this.newNotice.content.trim());
@@ -1242,12 +1233,12 @@ export class InquiryComponent implements OnInit, OnChanges {
         }
         // Add specific recipients if exists
         if (
-            this.newNotice.specificRecipients &&
-            this.newNotice.specificRecipients.length > 0
+            Boolean(this.newNotice?.specificRecipients) &&
+            this.newNotice?.specificRecipients.length > 0
         ) {
             rolesRecipientModel.forEach((recipientId) => {
                 formData.append(
-                    'specificRecipients',
+                    'specificRecipients[]',
                     recipientId.specificRecipients
                 );
                 formData.append(
@@ -1317,6 +1308,91 @@ export class InquiryComponent implements OnInit, OnChanges {
             },
             complete: () => {
                 this.isCreatingNotice = false;
+            },
+        });
+    }
+
+    updateNotice(): void {
+        var rolesRecipientModel = [];
+        if (this.condoUsersOptions) {
+            rolesRecipientModel = this.condoUsersOptions
+                .filter(
+                    (f) =>
+                        f.value != null &&
+                        this.newNotice.specificRecipients.includes(f.value)
+                )
+                .map((u) => {
+                    return {
+                        specificRecipients: u.value,
+                        specificRecipientModel: u.role,
+                    };
+                });
+        }
+
+        const formData = new FormData();
+        formData.append('_id', this.newNotice._id);
+        formData.append('title', this.newNotice.title.trim());
+        formData.append('content', this.newNotice.content.trim());
+        formData.append('type', this.newNotice.type);
+        formData.append('priority', this.newNotice.priority);
+        formData.append('condominiumId', this.condoId);
+        formData.append('targetAudience', this.newNotice.targetAudience);
+        formData.append('createdBy', this.identity._id);
+        formData.append(
+            'createdByModel',
+            this.getModelNameFromRole(this.identity.role)
+        );
+        formData.append('createdByRole', this.identity.role.toUpperCase());
+        if (this.newNotice.expiresAt) {
+            formData.append(
+                'expiresAt',
+                new Date(this.newNotice.expiresAt).toISOString()
+            );
+        }
+        // Add specific recipients if exists
+        if (
+            Boolean(this.newNotice?.specificRecipients) &&
+            this.newNotice?.specificRecipients.length > 0
+        ) {
+            rolesRecipientModel.forEach((recipientId) => {
+                formData.append(
+                    'specificRecipients[]',
+                    recipientId.specificRecipients
+                );
+                formData.append(
+                    'specificRecipientModel',
+                    this._formatFunctions.titleCase(
+                        recipientId.specificRecipientModel
+                    )
+                );
+            });
+        }
+
+        // Add attachments
+        this.selectedNoticeFiles.forEach((file) => {
+            formData.append('attachments', file, file.name);
+        });
+
+        this._inquiryService.updateNotice(formData, this.token).subscribe({
+            next: (response) => {
+                console.log('Notice updated successfully:', response);
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Success',
+                    detail: 'Notice updated successfully',
+                    life: 5000,
+                });
+                this.displayCreateNoticeDialog = false;
+                this.loadNotices();
+            },
+            error: (error) => {
+                console.error('Error updating notice:', error);
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Failed to update notice',
+                    life: 5000,
+                });
             },
         });
     }
@@ -1740,12 +1816,53 @@ export class InquiryComponent implements OnInit, OnChanges {
 
     /**
      * Elimina un archivo específico de notice por índice
+     * newNotice.specificRecipients
      */
-    removeNoticeFile(index: number): void {
+    removeNoticeFile(newNotice: any, index: number): void {
         const file = this.selectedNoticeFiles[index];
+        let filenameToRemove = newNotice.attachments[index].storedFilename;
+        let noticeId = newNotice._id;
+
         if (file) {
             this.noticeFilePreviewUrls.delete(file.name);
             this.selectedNoticeFiles.splice(index, 1);
+            this._inquiryService
+                .deleteAttachment(
+                    { filename: filenameToRemove, noticeId: noticeId },
+                    this.token
+                )
+                .subscribe({
+                    next: (response) => {
+                        if (response.status === 'success') {
+                            this.messageService.add({
+                                severity: 'success',
+                                summary: 'Attachment Deleted',
+                                detail: `${file.name} has been deleted from backend`,
+                                life: 3000,
+                            });
+                            this.loadNotices();
+                        } else {
+                            this.messageService.add({
+                                severity: 'error',
+                                summary: 'Deletion Failed',
+                                detail: `Failed to delete ${file.name} from backend`,
+                                life: 3000,
+                            });
+                        }
+                    },
+                    error: (error) => {
+                        console.error(
+                            'Error removing attachment from backend:',
+                            error
+                        );
+                        this.messageService.add({
+                            severity: 'error',
+                            summary: 'Deletion Failed',
+                            detail: `Failed to delete ${error.error.message} from backend`,
+                            life: 3000,
+                        });
+                    },
+                });
 
             this.messageService.add({
                 severity: 'info',

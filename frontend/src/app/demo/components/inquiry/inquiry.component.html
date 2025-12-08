@@ -27,7 +27,7 @@
 
                 <!-- New Inquiry Button -->
                 <p-button
-                    *ngIf="!isAdmin()"
+                    *ngIf="isAdmin()"
                     label="New Inquiry"
                     icon="pi pi-plus"
                     (onClick)="openInquiryDialog()"
@@ -227,6 +227,7 @@
                                         No inquiries found
                                     </div>
                                     <p-button
+                                        *ngIf="!isAdmin()"
                                         label="Create Your First Inquiry"
                                         icon="pi pi-plus"
                                         (onClick)="openInquiryDialog()"
@@ -317,6 +318,13 @@
                                             *ngIf="!notice.isRead"
                                             severity="danger"
                                         ></p-badge>
+                                        <i
+                                            class="pi pi-paperclip text-sm text-500"
+                                            *ngIf="
+                                                notice.attachments &&
+                                                notice.attachments.length > 0
+                                            "
+                                        ></i>
                                     </div>
                                     <p class="text-600 m-0">
                                         {{
@@ -459,6 +467,7 @@
                 </label>
 
                 <p-fileUpload
+                    *ngIf="!isAdmin()"
                     #fileUploader
                     name="attachments[]"
                     [multiple]="true"
@@ -902,19 +911,6 @@
         </div>
     </p-dialog>
 
-    <!-- Notice Details Dialog -->
-    <p-dialog
-        header="Notice Details"
-        [(visible)]="displayNoticeDialog"
-        [modal]="true"
-        [style]="{ width: '600px' }"
-        [closable]="true"
-    >
-        <div class="notice-content">
-            <!-- Notice details will be shown here -->
-        </div>
-    </p-dialog>
-
     <!-- ============================================ -->
     <!-- CREATE NOTICE DIALOG - CON FILE UPLOAD     -->
     <!-- ============================================ -->
@@ -927,7 +923,14 @@
         [draggable]="false"
         [resizable]="false"
     >
-        <form #noticeForm="ngForm" (ngSubmit)="submitNotice()">
+        <form
+            #noticeForm="ngForm"
+            (ngSubmit)="
+                dialogNoticeTitle == 'Create New Notice'
+                    ? submitNotice()
+                    : updateNotice()
+            "
+        >
             <!-- Title Field -->
             <div class="field mb-3">
                 <label for="notice-title" class="block font-semibold mb-2">
@@ -1209,8 +1212,11 @@
 
                                     <!-- Remove Button -->
                                     <p-button
+                                        *ngIf="isAdmin()"
                                         icon="pi pi-times"
-                                        (onClick)="removeNoticeFile(i)"
+                                        (onClick)="
+                                            removeNoticeFile(newNotice, i)
+                                        "
                                         styleClass="p-button-rounded p-button-text p-button-danger p-button-sm"
                                         pTooltip="Remove file"
                                         tooltipPosition="left"
@@ -1250,6 +1256,7 @@
                         }})
                     </small>
                     <p-button
+                        *ngIf="isAdmin()"
                         label="Clear All"
                         icon="pi pi-trash"
                         (onClick)="clearAllNoticeFiles()"
@@ -1327,9 +1334,9 @@
                 ></p-button>
                 <p-button
                     [label]="
-                        newNotice.publishImmediately
+                        dialogNoticeTitle.includes('Create')
                             ? 'Create & Publish'
-                            : 'Save Draft'
+                            : 'Update Notice'
                     "
                     icon="pi pi-send"
                     type="submit"
