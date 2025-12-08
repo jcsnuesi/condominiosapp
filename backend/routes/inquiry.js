@@ -37,9 +37,12 @@ router.get(
   md_auth.authenticated,
   async (req, res) => {
     try {
-      const condominiumId = req.params.condominiumId;
+      const condominiumId = await Condominium.find({
+        createdBy: req.params.condominiumId,
+      }).select("_id");
+
       const notifications = await Notification.find({
-        condominiumId: condominiumId,
+        condominiumId: { $in: condominiumId.map((c) => c._id) },
         isActive: true,
       })
         .populate("createdBy", "name lastname email")
@@ -136,16 +139,45 @@ router.get(
   md_auth.authenticated,
   async (req, res) => {
     try {
-      const filter = {
-        condominiumId: req.params.condominiumId,
-        isActive: true,
-      };
+      let role = req.user.role;
+      let ids = req.params.condominiumId;
 
-      let chooseSchema = {
-        ADMIN: "Admin",
-        STAFF_ADMIN: "Staff_Admin",
-        STAFF: "Staff",
-      };
+      if (!role) {
+        return res.status(400).send({
+          status: "error",
+          message: "Role is required",
+        });
+      }
+      // # CHECKPOINT 1
+      var query = null;
+      let checkQuery = await Condominium.find({
+        _id: mongoose.Types.ObjectId(ids),
+      }).select("_id");
+
+      if (checkQuery.length > 0) {
+        ids = checkQuery[0]._id;
+
+        query = {
+          condominiumId: mongoose.Types.ObjectId(ids),
+          isActive: true,
+        };
+      } else if (role == "ADMIN" || role == "STAFF_ADMIN" || role == "STAFF") {
+        const condominiumId = await Condominium.find({
+          createdBy: req.params.condominiumId,
+        }).select("_id");
+
+        query = {
+          condominiumId: { $in: condominiumId.map((c) => c._id) },
+          isActive: true,
+        };
+      } else if (role == "OWNER" || role == "FAMILY") {
+        query = {
+          createdBy: req.params.condominiumId,
+          isActive: true,
+        };
+      }
+
+      const filter = query;
 
       const options = {
         page: 1,
@@ -162,11 +194,13 @@ router.get(
       };
 
       const inquiry = await Inquiry.paginate(filter, options);
+
       res.status(200).send({
         status: "success",
         data: inquiry,
       });
     } catch (error) {
+      console.log("error:", error);
       res.status(500).send({
         status: "error",
         message: error.message,
@@ -178,8 +212,24 @@ router.get(
 // ✅ GET get-usersby/condominiums/:condominiumId - Get users by condominium ID
 router.get("/get-usersby/condominiums/:condominiumId", async (req, res) => {
   try {
-    const condominiumId = req.params.condominiumId;
-    const users = await Condominium.findById(condominiumId).populate({
+    // const condominiumId = req.params.condominiumId;
+    var query = null;
+    if (role == "ADMIN" || role == "STAFF_ADMIN" || role == "STAFF") {
+      const condominiumId = await Condominium.find({
+        createdBy: req.params.condominiumId,
+      }).select("_id");
+
+      query = {
+        _id: { $in: condominiumId.map((c) => c._id) },
+      };
+    } else {
+      return res.status(203).send({
+        status: "success",
+        message: "Admins users only",
+      });
+    }
+
+    const users = await Condominium.find(query).populate({
       path: "units_ownerId",
       select: "name lastname email phone role",
       populate: {
@@ -426,6 +476,149 @@ router.put("/notices-read/:id", md_auth.authenticated, async (req, res) => {
   }
 });
 
+router.put("/delete-attachment", async (req, res) => {
+  try {
+    const params = req.body;
+    const notificationId = params.noticeId;
+    var fileName = params.filename;
+
+    const filePath = path.join(
+      __dirname,
+      "../uploads/notifications/",
+      fileName
+    );
+    fs.unlink(filePath, async (err) => {
+      if (err) {
+        return res.status(500).send({
+          status: "error",
+          message: "Failed to delete attachment",
+        });
+      }
+
+      const notification = await Notification.findById(notificationId);
+      let attachmentsFound = notification.attachments.filter(
+        (f) => f.storedFilename === fileName
+      );
+      if (attachmentsFound.length > 0) {
+        notification.attachments = notification.attachments.filter(
+          (f) => f.storedFilename !== fileName
+        );
+        await Notification.findByIdAndUpdate(notificationId, {
+          attachments: notification.attachments,
+        });
+        res.status(200).send({
+          status: "success",
+          message: "Attachment deleted successfully",
+        });
+      }
+    });
+  } catch (error) {
+    console.error("Error deleting attachment:", error);
+    res.status(500).send({
+      status: "error",
+      message: error.message,
+    });
+  }
+});
+
+router.put(
+  "/update-notices",
+  md_auth.authenticated,
+  uploadNotification.array("attachments", 5),
+  async (req, res) => {
+    var params = req.body;
+
+    try {
+      // Validations
+
+      if (Boolean(req.body.specificRecipients)) {
+        specificRecipients = req.body.specificRecipients.find((v) => v != null);
+
+        params.specificRecipients = Array.isArray(specificRecipients)
+          ? specificRecipients
+          : [specificRecipients];
+
+        params.specificRecipientModel = Array.isArray(
+          req.body.specificRecipientModel
+        )
+          ? [...new Set(req.body.specificRecipientModel)][0]
+          : req.body.specificRecipientModel;
+      }
+
+      // Validations
+      if (
+        !params.title ||
+        !params.content ||
+        !params.type ||
+        !params.condominiumId
+      ) {
+        return res.status(400).send({
+          status: "error",
+          message:
+            "Missing required fields: title, content, type, condominiumId",
+        });
+      }
+
+      // Update notification
+      const filteredParams = {};
+
+      for (const key of Object.keys(params)) {
+        if (params[key] !== undefined) {
+          filteredParams[key] = params[key];
+        }
+      }
+      // Process attachments
+      const attachments = [];
+      if (req.files && req.files.length > 0) {
+        req.files.forEach((file) => {
+          attachments.push({
+            filename: file.originalname,
+            storedFilename: file.filename,
+            url: `/uploads/notifications/${file.filename}`,
+            mimetype: file.mimetype,
+            size: file.size,
+          });
+        });
+
+        filteredParams.attachments = attachments;
+      }
+
+      delete filteredParams._id;
+      const updateNotification = await Notification.findOneAndUpdate(
+        { _id: params._id },
+        filteredParams,
+        { new: true, runValidators: true }
+      );
+
+      if (!updateNotification) {
+        throw new Error("Notification not found");
+      }
+
+      res.status(200).send({
+        status: "success",
+        message: "Notification updated successfully",
+        data: updateNotification,
+      });
+    } catch (error) {
+      console.error("Error updating notification:", error);
+
+      // Delete uploaded files on error
+      if (req.files && req.files.length > 0) {
+        req.files.forEach((file) => {
+          fs.unlink(file.path, (err) => {
+            if (err) console.error("Error deleting file:", err);
+          });
+        });
+      }
+
+      res.status(500).send({
+        status: "error",
+        message: error.message || "Failed to create notification",
+      });
+    }
+  }
+);
+
 // PATCH /api/notifications/:id/deactivate - Deactivate notification
 router.patch("/deactivate-notification/:id", async (req, res) => {
   try {
@@ -526,7 +719,6 @@ router.post("/inquiries/response", md_auth.authenticated, async (req, res) => {
       $push: { responses: response },
       status: status, // Cambiar estado a 'responded' si no se especifica otro
     };
-    console.log("Adding response to inquiry:", updateData);
 
     const updatedInquiry = await Inquiry.findByIdAndUpdate(
       inquiryId,
@@ -703,13 +895,15 @@ router.post(
         expiresAt,
       } = req.body;
 
-      var specificRecipients = null;
-      var specificRecipientModel = null;
+      const params = req.body;
+
       if (Boolean(req.body.specificRecipients)) {
-        specificRecipients = Array.isArray(req.body.specificRecipients)
+        params.specificRecipients = Array.isArray(req.body.specificRecipients)
           ? req.body.specificRecipients
           : [req.body.specificRecipients];
-        specificRecipientModel = Array.isArray(req.body.specificRecipientModel)
+        params.specificRecipientModel = Array.isArray(
+          req.body.specificRecipientModel
+        )
           ? [...new Set(req.body.specificRecipientModel)][0]
           : req.body.specificRecipientModel;
       }
@@ -735,24 +929,11 @@ router.post(
             size: file.size,
           });
         });
+        params.attachments = attachments;
       }
 
       // Create notification
-      const newNotification = new Notification({
-        title: title.trim(),
-        content: content.trim(),
-        type,
-        priority: priority || "medium",
-        condominiumId: new mongoose.Types.ObjectId(condominiumId),
-        createdBy: new mongoose.Types.ObjectId(createdBy || req.user.sub),
-        createdByModel: createdByModel,
-        attachments: attachments,
-        expiresAt: expiresAt ? new Date(expiresAt) : null,
-        targetAudience: targetAudience,
-        specificRecipients: specificRecipients,
-        specificRecipientModel: specificRecipientModel,
-        createdByRole: createdByRole,
-      });
+      const newNotification = new Notification({ ...params });
 
       const savedNotification = await newNotification.save();
 
@@ -760,8 +941,6 @@ router.post(
         { path: "createdBy", select: "name lastname email" },
         { path: "condominiumId", select: "name address" },
       ]);
-
-      console.log("New notification created:", savedNotification);
 
       res.status(201).send({
         status: "success",
