@@ -18,9 +18,9 @@ const {
 
 // GET
 router.get(
-  "/staffs/:id",
+  "/staff-card/:id",
   md_auth.authenticated,
-  StaffController.getStaffByAdmin
+  StaffController.getStaffCard
 );
 router.get(
   "/staffs-admin/:id",
@@ -33,6 +33,11 @@ router.get(
   "/staff-by-condo-id/:id",
   [authenticated],
   StaffController.getStaffByOwnerAndCondoId
+);
+router.get(
+  "/staff-by-owner-id/:id",
+  [authenticated],
+  StaffController.getStaffByOwnerId
 );
 router.get(
   "/staff-verify-email/:email",

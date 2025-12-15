@@ -30,7 +30,11 @@ var InvoiceSchema = Schema(
     },
     paymentMethod: { type: String },
     paymentDescription: { type: String },
-    paymentStatus: { type: String, default: "pending" },
+    paymentStatus: {
+      type: String,
+      default: "pending",
+      enum: ["pending", "completed", "failed"],
+    },
   },
   { timestamps: true }
 );

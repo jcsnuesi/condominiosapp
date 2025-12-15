@@ -18,6 +18,7 @@ const Staff_Admin = require("../models/staff_admin");
 const Condominio = require("../models/condominio");
 let mongoose = require("mongoose");
 const { create } = require("domain");
+const staff = require("../models/staff");
 let saltRounds = 10;
 // Generar una contraseña con opciones específicas
 let temp_password = generatePassword.generate({
@@ -392,6 +393,57 @@ var StaffController = {
       return res.status(500).send({ message: "Error en la petición" });
     }
   },
+  getStaffByOwnerId: async function (req, res) {
+    const rawId = mongoose.Types.ObjectId(req.params.id);
+    if (!rawId) {
+      return res.status(400).send({
+        status: "error",
+        message: "Missing id parameter",
+      });
+    }
+    let models = { FAMILY: Family, OWNER: Owner };
+    let query = [];
+
+    // Build an array with both string and ObjectId (if valid) to match whatever is stored
+
+    try {
+      const ownerIds = await models[req.user.role.toUpperCase()]
+        .findOne({ _id: rawId })
+        .select("propertyDetails.addressId");
+      query.push({
+        condo_id: {
+          $in: ownerIds.propertyDetails.map((prop) => prop.addressId),
+        },
+      });
+      const staffFound = await Staff.find({
+        $or: query,
+      })
+        .populate({
+          path: "condo_id",
+          select: "_id alias",
+        })
+        .lean();
+
+      if (staffFound && staffFound.length > 0) {
+        return res.status(200).send({
+          status: "success",
+          message: staffFound,
+        });
+      } else {
+        return res.status(404).send({
+          status: "error",
+          message: "No staff found",
+        });
+      }
+    } catch (error) {
+      console.error("Error getting staff by condo:", error);
+      return res.status(500).send({
+        status: "error",
+        message: "Server error, getting staff by condo",
+        error: error,
+      });
+    }
+  },
   getStaffByOwnerAndCondoId: async function (req, res) {
     const rawId = mongoose.Types.ObjectId(req.params.id);
     if (!rawId) {
@@ -433,31 +485,74 @@ var StaffController = {
       });
     }
   },
-  getStaffByAdmin: async function (req, res) {
+  getStaffCard: async function (req, res) {
     let id = mongoose.Types.ObjectId(req.params.id);
 
-    Staff.find({
-      createdBy: id,
-    })
-      .populate("condo_id", "alias")
-      .exec((err, staffs) => {
-        if (err || !staffs) {
-          return res.status(501).send({
-            status: "error",
-            message: "Staffs was not found",
-          });
-        }
+    if (!id) {
+      return res.status(400).send({
+        status: "error",
+        message: "Missing id parameter",
+      });
+    }
+    let models = {
+      FAMILY: Family,
+      OWNER: Owner,
+      ADMIN: Admin,
+      STAFF_ADMIN: Staff_Admin,
+      STAFF: Staff,
+    };
+    let query = [];
 
-        // Ocultamos la password
-        for (const index in staffs) {
-          staffs[index].password = undefined;
-        }
+    try {
+      const role = req.user.role.toUpperCase();
+      if (role == "OWNER" || role == "FAMILY") {
+        const ownerIds = await models[role]
+          .findOne({ _id: id })
+          .select("propertyDetails.addressId");
+        query.push({
+          condo_id: {
+            $in: ownerIds.propertyDetails.map((prop) => prop.addressId),
+          },
+        });
+      } else if (role == "ADMIN") {
+        query.push({
+          createdBy: {
+            $in: [id],
+          },
+        });
+      } else if (role == "STAFF_ADMIN" || role == "STAFF") {
+        const adminIds = await models[role]
+          .findOne({ _id: id })
+          .select("createdBy");
+        query.push({
+          createdBy: {
+            $in: [adminIds.createdBy],
+          },
+        });
+      }
 
+      const staffFound = await Staff.find({
+        $or: query,
+      }).lean();
+      if (staffFound && staffFound.length > 0) {
         return res.status(200).send({
           status: "success",
-          message: staffs,
+          message: staffFound.length,
         });
+      } else {
+        return res.status(404).send({
+          status: "error",
+          message: "No staff found",
+        });
+      }
+    } catch (error) {
+      console.error("Error getting staff by condo:", error);
+      return res.status(500).send({
+        status: "error",
+        message: "Server error, getting staff by condo",
+        error: error,
       });
+    }
   },
   getStaffAdmin: async function (req, res) {
     let id = mongoose.Types.ObjectId(req.params.id);

@@ -15,8 +15,6 @@ var ContactPerson = Schema(
   { timestamps: true }
 );
 
-var contactP = mongoose.model("ContactPerson", ContactPerson);
-
 var AdminSchema = Schema(
   {
     avatar: { type: String, default: "default-avatar.png" },

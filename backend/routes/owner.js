@@ -25,6 +25,11 @@ router.get(
   md_auth.authenticated,
   ownerController.getOwnerByIdentifier
 );
+router.get(
+  "/get-owner-payments-stats/:createdBy",
+  md_auth.authenticated,
+  ownerController.getOwnerPaymentsStats
+);
 // router.get("/get-family", md_auth.authenticated, ownerController.getFamily);
 
 // router.get(

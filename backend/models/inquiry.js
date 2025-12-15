@@ -34,10 +34,8 @@ const InquiryResponseSchema = new Schema(
   },
   {
     timestamps: true,
-  },
-  {
-    _id: false, // ⬅️ Desactiva creación automática del _id
-    id: false, // (Opcional) evita que Mongoose cree el campo virtual "id"
+    _id: false, // Desactiva creación automática del _id en el subdocumento
+    id: false,
   }
 );
 

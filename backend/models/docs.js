@@ -1,17 +1,25 @@
-'use strict'
+"use strict";
 
-var mongoose = require('mongoose')
-var Schema = mongoose.Schema
+var mongoose = require("mongoose");
+var Schema = mongoose.Schema;
 
-var DocsSchema = Schema({
+var DocsSchema = Schema(
+  {
+    title: { type: String, required: true },
+    description: { type: String, required: true },
+    condoId: { type: mongoose.Schema.Types.ObjectId, ref: "Condominium" },
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      refPath: "createdByModel",
+    },
+    createdByModel: {
+      type: String,
+      required: true,
+      enum: ["Staff", "Staff_Admin", "Admin"],
+    },
+  },
+  { timestamps: true }
+);
 
-    title:{type:String, required:true},
-    description:{type:String, required:true},
-    addressId: { type: 'ObjectId', ref: 'Address' },
-    createdByAdmin: { type: 'ObjectId', ref:'Admin'},
-    createdByStaff: { type: 'ObjectId', ref:'Staff'},
-    
-}, { timestamps: true })
-
-
-module.exports = mongoose.model('Docs', DocsSchema)
+module.exports = mongoose.model("Docs", DocsSchema);

@@ -41,10 +41,20 @@ router.get(
         createdBy: req.params.condominiumId,
       }).select("_id");
 
-      const notifications = await Notification.find({
-        condominiumId: { $in: condominiumId.map((c) => c._id) },
-        isActive: true,
-      })
+      let query = {};
+      if (condominiumId.length === 0) {
+        query = {
+          condominiumId: req.params.condominiumId,
+          isActive: true,
+        };
+      } else {
+        query = {
+          condominiumId: { $in: condominiumId.map((c) => c._id) },
+          isActive: true,
+        };
+      }
+
+      const notifications = await Notification.find(query)
         .populate("createdBy", "name lastname email")
         .populate("condominiumId", "name address")
         .sort({ publishedAt: -1 });
@@ -112,7 +122,10 @@ router.get("/get-notifications-by-id/:id", async (req, res) => {
     const notification = await Inquiry.findById(req.params.id)
       .populate("condominiumId", "name")
       .populate("createdBy")
-      .populate("responseBy");
+      .populate({
+        path: "responses",
+        populate: { path: "respondedBy" },
+      });
 
     if (!notification) {
       return res.status(404).send({
@@ -148,7 +161,7 @@ router.get(
           message: "Role is required",
         });
       }
-      // # CHECKPOINT 1
+
       var query = null;
       let checkQuery = await Condominium.find({
         _id: mongoose.Types.ObjectId(ids),
@@ -178,18 +191,24 @@ router.get(
       }
 
       const filter = query;
+      const toTitleCase = (str) =>
+        str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 
       const options = {
         page: 1,
         limit: 10,
         sort: { publishedAt: -1 },
         populate: [
-          { path: "condominiumId", select: "name" },
-          { path: "createdBy", select: "name lastname email" },
           {
-            path: "responses.respondedBy",
-            select: "name lastname gender role email phone position",
+            path: "responses",
+            populate: {
+              path: "respondedBy",
+              model: toTitleCase(role),
+              select: "email",
+            },
           },
+          { path: "condominiumId", select: "alias" },
+          { path: "createdBy", select: "name lastname email" },
         ],
       };
 
@@ -210,52 +229,54 @@ router.get(
 );
 
 // ✅ GET get-usersby/condominiums/:condominiumId - Get users by condominium ID
-router.get("/get-usersby/condominiums/:condominiumId", async (req, res) => {
-  try {
-    // const condominiumId = req.params.condominiumId;
-    var query = null;
-    if (role == "ADMIN" || role == "STAFF_ADMIN" || role == "STAFF") {
-      const condominiumId = await Condominium.find({
-        createdBy: req.params.condominiumId,
-      }).select("_id");
+router.get(
+  "/get-usersby/condominiums/:condominiumId",
+  md_auth.authenticated,
+  async (req, res) => {
+    try {
+      var condominiumId = req.params.condominiumId;
+      var role = req.user.role;
 
-      query = {
-        _id: { $in: condominiumId.map((c) => c._id) },
-      };
-    } else {
-      return res.status(203).send({
+      if (role != "ADMIN" && role != "STAFF_ADMIN" && role != "STAFF") {
+        return res.status(403).send({
+          status: "forbidden",
+          message: "Admins users only",
+        });
+      }
+
+      const users = await Condominium.findOne({ _id: condominiumId })
+        .populate({
+          path: "units_ownerId",
+          model: "Owner",
+          select: "name lastname email phone role",
+          populate: {
+            path: "familyAccount",
+            select: "name lastname email phone",
+            model: "Family", // opcional si está definido en el schema
+          },
+        })
+        .exec();
+      console.log("users:", users);
+
+      if (!users) {
+        return res.status(404).send({
+          status: "error",
+          message: "Condominium not found",
+        });
+      }
+      res.status(200).send({
         status: "success",
-        message: "Admins users only",
+        data: users,
       });
-    }
-
-    const users = await Condominium.find(query).populate({
-      path: "units_ownerId",
-      select: "name lastname email phone role",
-      populate: {
-        path: "familyAccount",
-        select: "name lastname email phone",
-        model: "Family", // opcional si está definido en el schema
-      },
-    });
-
-    if (!users) {
-      return res.status(404).send({
+    } catch (error) {
+      console.log("error:------>", error);
+      res.status(500).send({
         status: "error",
-        message: "Condominium not found",
+        message: error.message,
       });
     }
-    res.status(200).send({
-      status: "success",
-      data: users,
-    });
-  } catch (error) {
-    res.status(500).send({
-      status: "error",
-      message: error.message,
-    });
   }
-});
+);
 
 // GET /api/notifications/stats/:condominiumId - Get notification statistics
 router.get("/stats/:condominiumId", async (req, res) => {
@@ -705,11 +726,35 @@ router.post("/inquiries/response", md_auth.authenticated, async (req, res) => {
       });
     }
 
+    // Map role to correct Mongoose model for refPath
+    const roleToModel = {
+      ADMIN: "Admin",
+      STAFF_ADMIN: "Staff_Admin",
+      STAFF: "Staff",
+      OWNER: "Owner",
+      FAMILY: "Family",
+    };
+
+    const normalizedModel =
+      respondedByModel &&
+      ["Admin", "Staff_Admin", "Staff", "Owner", "Family"].includes(
+        respondedByModel
+      )
+        ? respondedByModel
+        : roleToModel[respondedByRole];
+
+    if (!normalizedModel) {
+      return res.status(400).send({
+        status: "error",
+        message: "Invalid respondedByModel for the provided role",
+      });
+    }
+
     // Crear objeto de respuesta
     const response = {
       message: message.trim(),
       respondedBy: new mongoose.Types.ObjectId(respondedBy),
-      respondedByModel,
+      respondedByModel: normalizedModel,
       respondedByRole,
       isAdminResponse: ["ADMIN", "STAFF_ADMIN"].includes(respondedByRole),
     };
@@ -732,7 +777,6 @@ router.post("/inquiries/response", md_auth.authenticated, async (req, res) => {
       .populate("createdBy", "name lastname email")
       .populate({
         path: "responses.respondedBy",
-        model: respondedByModel,
         select: "name lastname gender role email phone position",
       });
 

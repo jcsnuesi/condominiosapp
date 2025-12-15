@@ -187,6 +187,108 @@ var ownerAndSubController = {
     }
   },
 
+  getOwnerPaymentsStats: async function (req, res) {
+    let identifier = req.params.createdBy;
+
+    if (Boolean(identifier == undefined)) {
+      return res.status(400).send({
+        status: "bad request",
+        message: "All fields required",
+      });
+    }
+
+    try {
+      const owners = await Owner.find(
+        { createdBy: identifier },
+        { _id: 1 }
+      ).lean();
+      const ownerIds = owners.map((o) => o._id);
+
+      const invoicesByMonth = await Invoice.aggregate([
+        {
+          $match: {
+            ownerId: { $in: ownerIds },
+            paymentStatus: { $in: ["pending", "completed"] },
+          },
+        },
+        {
+          $addFields: {
+            month: {
+              $dateToString: {
+                format: "%B",
+                date: "$createdAt",
+              },
+            },
+          },
+        },
+        {
+          $group: {
+            _id: {
+              month: "$month",
+              paymentStatus: "$paymentStatus",
+            },
+            count: { $sum: 1 },
+          },
+        },
+        {
+          $group: {
+            _id: "$_id.month",
+            totalInvoices: { $sum: "$count" },
+            statuses: {
+              $push: {
+                status: "$_id.paymentStatus",
+                count: "$count",
+              },
+            },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            month: "$_id",
+            totalInvoices: 1,
+            statuses: 1,
+          },
+        },
+        {
+          $sort: { month: 1 },
+        },
+      ]);
+
+      const monthlyInvoiceStats = invoicesByMonth.map((m) => {
+        const completed =
+          m.statuses.find((s) => s.status === "completed")?.count || 0;
+        const pending =
+          m.statuses.find((s) => s.status === "pending")?.count || 0;
+
+        return {
+          month: m.month,
+          totalInvoices: m.totalInvoices,
+          completed: {
+            count: completed,
+            percentage: Number(
+              ((completed / m.totalInvoices) * 100).toFixed(2)
+            ),
+          },
+          pending: {
+            count: pending,
+            percentage: Number(((pending / m.totalInvoices) * 100).toFixed(2)),
+          },
+        };
+      });
+
+      return res.status(200).send({
+        status: "success",
+        message: monthlyInvoiceStats,
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send({
+        status: "error",
+        message: "Server error, try again",
+      });
+    }
+  },
   getOwnerByIdentifier: async function (req, res) {
     let identifier = req.params.keyword;
 

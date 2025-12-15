@@ -9,6 +9,10 @@ const cron = require("node-cron");
 var validation = require("validator");
 const PDFDocument = require("pdfkit");
 const Owner = require("../models/owners");
+const Family = require("../models/family");
+const Admin = require("../models/admin");
+const Staff_Admin = require("../models/staff_admin");
+const Staff = require("../models/staff");
 const { model } = require("mongoose");
 
 var invoiceController = {
@@ -286,29 +290,48 @@ var invoiceController = {
   },
 
   getInvoiceByIdentifier: async function (req, res) {
-    var params = req.params.id;
+    var id = req.params.id;
+    const role = req.user.role.toUpperCase();
+    var ModelQuery = null;
 
-    if (!params) {
+    if (!id) {
       return res.status(400).send({
         status: "error",
         message: "Identifier is required.",
       });
     }
+    let models = {
+      FAMILY: Family,
+      OWNER: Owner,
+      ADMIN: Admin,
+      STAFF_ADMIN: Staff_Admin,
+      STAFF: Staff,
+    };
+    let query = [];
+
+    if (role == "OWNER") {
+      ModelQuery = Invoice.find({
+        ownerId: id,
+      });
+    } else if (role == "FAMILY" || role == "STAFF_ADMIN" || role == "STAFF") {
+      const ownerData = await models[role]
+        .findOne({ _id: id })
+        .select("createdBy");
+      ModelQuery = Invoice.find({
+        ownerId: ownerData.createdBy,
+      });
+    } else if (role == "ADMIN") {
+      ModelQuery = Invoice.find({
+        createdBy: id,
+      });
+    }
 
     try {
-      const ownersFound = await Owner.find({ createdBy: params }).select("_id");
-
-      Invoice.find({
-        $or: [
-          { condominiumId: params },
-          { ownerId: { $in: ownersFound.map((owner) => owner._id) } },
-        ],
+      const invoices = await ModelQuery.populate({
+        path: "ownerId",
+        model: "Owner",
+        select: "name lastname email phone id_number propertyDetails",
       })
-        .populate({
-          path: "ownerId",
-          model: "Owner",
-          select: "name lastname email phone id_number propertyDetails",
-        })
         .populate(
           "condominiumId",
           "alias phone street_1 street_2 sector_name city province country"
