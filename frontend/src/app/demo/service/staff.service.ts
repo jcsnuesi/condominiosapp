@@ -103,15 +103,15 @@ export class StaffService {
         });
     }
 
-    getStaff(token: string, company_id: string): Observable<any> {
-        let header = new HttpHeaders()
-            .set('Content-Type', 'application/json')
-            .set('Authorization', token);
+    // getStaff(token: string, company_id: string): Observable<any> {
+    //     let header = new HttpHeaders()
+    //         .set('Content-Type', 'application/json')
+    //         .set('Authorization', token);
 
-        return this._http.get(this.url + 'staffs/' + company_id, {
-            headers: header,
-        });
-    }
+    //     return this._http.get(this.url + 'staffs/' + company_id, {
+    //         headers: header,
+    //     });
+    // }
     getStaffAdmin(token: string, staff_id: string): Observable<any> {
         let header = new HttpHeaders().set('Authorization', token);
 
@@ -133,6 +133,22 @@ export class StaffService {
         let header = new HttpHeaders().set('Authorization', token);
 
         return this._http.get(this.url + 'staff-by-condo-id/' + condo_id, {
+            headers: header,
+        });
+    }
+    getStaffByOwnerId(token: string, owner_id: string): Observable<any> {
+        let header = new HttpHeaders().set('Authorization', token);
+
+        return this._http.get(this.url + 'staff-by-owner-id/' + owner_id, {
+            headers: header,
+        });
+    }
+
+    getStaffCard(token: string, id: string): Observable<any> {
+        let header = new HttpHeaders()
+            .set('Content-Type', 'application/json')
+            .set('Authorization', token);
+        return this._http.get(this.url + 'staff-card/' + id, {
             headers: header,
         });
     }

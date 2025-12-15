@@ -173,7 +173,6 @@ export class OwnerRegistrationComponent implements OnInit, OnChanges {
 
             if (params['homeid'] !== undefined) {
                 this.OnLoad(this.homeId);
-                console.log('homeId', this.homeId);
             } else {
                 this.getPropertiesByAdminId();
             }

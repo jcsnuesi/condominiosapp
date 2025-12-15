@@ -61,7 +61,6 @@ type StaffInfo = {
         FormsModule,
         TitleCasePipe,
         DatePipe,
-
         HasPermissionsDirective,
     ],
     providers: [
@@ -71,6 +70,7 @@ type StaffInfo = {
         KeyValuePipe,
         CondominioService,
         ConfirmationService,
+        MessageService,
     ],
     templateUrl: './staff.component.html',
     styleUrl: './staff.component.css',
@@ -121,6 +121,7 @@ export class StaffComponent implements OnInit, AfterViewInit {
     @Input() condoId: any;
     @Input() isHome: boolean = false;
     @Output() staffUpdated = new EventEmitter<any>();
+
     public identity: any;
 
     constructor(
@@ -279,8 +280,12 @@ export class StaffComponent implements OnInit, AfterViewInit {
         // Obtiene el id del condominio
         this._route.params.subscribe((params) => {
             let condoId = this.condoId ?? params['id'];
-
-            this.getStaffByCondoIdOrAdminId(condoId);
+         
+            if (this.identity.role.toLowerCase() == 'admin') {
+                this.getStaffByCondoIdOrAdminId(condoId);
+            } else {
+                this.getStaffByOwnerIds(condoId);
+            }
 
             if (this.isHome) {
                 this.getCondoById(condoId);
@@ -311,6 +316,39 @@ export class StaffComponent implements OnInit, AfterViewInit {
             },
             error: (error) => {
                 console.log('getCondoById Error:', error);
+            },
+        });
+    }
+
+    getStaffByOwnerIds(id: string) {
+        this._staffService.getStaffByOwnerId(this.token, id).subscribe({
+            next: (response) => {
+            
+                if (response.status == 'success') {
+                    this.propertyDetailsVar = response.message.map((staff) => {
+                        return {
+                            _id: staff._id,
+                            fullname: staff?.name + ' ' + staff?.lastname,
+                            phone: staff.phone,
+                            gender: staff.gender,
+                            government_id: staff.government_id,
+                            createdBy: staff.createdBy,
+                            condo_alias: staff.condo_id?.alias,
+                            condo_id: staff.condo_id?._id,
+                            position: staff.position,
+                            email: staff.email,
+                            status: staff.status,
+                            createdAt: staff.createdAt,
+                            avatar: staff.avatar,
+                        };
+                    });
+
+                    this.loading = false;
+                }
+            },
+            error: (error) => {
+                this.loading = false;
+                console.log(error);
             },
         });
     }
@@ -347,9 +385,11 @@ export class StaffComponent implements OnInit, AfterViewInit {
         });
     }
     getId(): string {
-        return this.identity.role.toLowerCase() == 'admin'
-            ? this.identity._id
-            : this.identity.createdBy;
+       
+        let roles = ['STAFF_ADMIN'];
+        return roles.includes(this.identity.role.toUpperCase())
+            ? this.identity.createdBy
+            : this.identity._id;
     }
 
     getAdminsProperties() {
@@ -379,7 +419,7 @@ export class StaffComponent implements OnInit, AfterViewInit {
                             life: 3000,
                         });
                     }
-                    console.log('[else] - getAdminsProperties:', response);
+                    // console.log('[else] - getAdminsProperties:', response);
                 },
                 error: (error) => {
                     console.log('[error] - getAdminsProperties:', error);
@@ -507,7 +547,7 @@ export class StaffComponent implements OnInit, AfterViewInit {
                     complete: () => {
                         this.submitStatus = false;
                         this.previwImage = '../../../assets/noimage2.jpeg';
-                        console.log('Request completed!');
+                        
                     },
                 });
             },
@@ -554,7 +594,7 @@ export class StaffComponent implements OnInit, AfterViewInit {
             accept: () => {
                 this._staffService.updateStaff(this.token, formdata).subscribe({
                     next: (response) => {
-                        console.log('Response update staff:', response);
+                    
                         if (response.status == 'success') {
                             this._messageService.add({
                                 severity: 'success',
@@ -649,9 +689,6 @@ export class StaffComponent implements OnInit, AfterViewInit {
                     setTimeout(() => {
                         this.statusApi = false;
                     }, 6000);
-                },
-                complete: () => {
-                    console.log('Request completed!');
                 },
             });
         } else {
@@ -764,9 +801,6 @@ export class StaffComponent implements OnInit, AfterViewInit {
                                 this.statusApi = false;
                             }, 6000);
                         }
-                    },
-                    complete: () => {
-                        console.log('Request completed!');
                     },
                 });
             },

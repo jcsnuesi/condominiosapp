@@ -1,0 +1,271 @@
+<!-- Admin-only Documentation Module built with PrimeNG -->
+
+<!-- Access control -->
+<ng-container *appHasPermissions="['admin', 'staff_admin']">
+    <section class="docs-admin">
+        <h2>Documentation Management</h2>
+        <p class="subtitle">
+            Upload, manage, and maintain official documents across condominiums.
+        </p>
+
+        <!-- Upload Form -->
+        <div class="panel">
+            <h3>Upload New Document</h3>
+            <form [formGroup]="uploadForm" class="upload-form" novalidate>
+                <div class="grid">
+                    <div class="col-12 md:col-4">
+                        <label>Document Type</label>
+                        <p-dropdown
+                            [options]="documentTypeOptions"
+                            optionLabel="label"
+                            optionValue="value"
+                            formControlName="type"
+                            placeholder="Select type"
+                        ></p-dropdown>
+                    </div>
+                    <div class="col-12 md:col-8">
+                        <label>Condominiums</label>
+                        <p-multiselect
+                            [options]="condominiums"
+                            optionLabel="name"
+                            optionValue="id"
+                            formControlName="condominiumIds"
+                            defaultLabel="Select condominiums"
+                            [showToggleAll]="true"
+                        ></p-multiselect>
+                        <small class="hint"
+                            >Leave empty to apply to all condominiums.</small
+                        >
+                    </div>
+                    <div class="col-12">
+                        <label>Description</label>
+                        <textarea
+                            pInputTextarea
+                            rows="3"
+                            formControlName="description"
+                            placeholder="Optional description or notes"
+                        ></textarea>
+                    </div>
+                </div>
+
+                <div class="grid align-center">
+                    <div class="col-12 md:col-6">
+                        <!-- PrimeNG FileUpload; customUpload so we control submission -->
+                        <p-fileUpload
+                            name="file"
+                            [customUpload]="true"
+                            (uploadHandler)="onUploadHandler($event)"
+                            (onSelect)="onFileSelect($event)"
+                            (onClear)="onFileClear()"
+                            (onRemove)="onFileRemove($event)"
+                            [multiple]="false"
+                            [disabled]="!uploadForm.valid"
+                            [auto]="false"
+                            chooseLabel="Choose"
+                            uploadLabel="Upload"
+                            cancelLabel="Clear"
+                            accept="application/pdf,.doc,.docx,image/*"
+                            maxFileSize="10485760"
+                            chooseButtonIcon="pi pi-file"
+                            uploadButtonIcon="pi pi-upload"
+                            cancelButtonIcon="pi pi-times"
+                        ></p-fileUpload>
+                        <small class="hint"
+                            >Max size: 10MB. Accepted: PDF, DOC, DOCX,
+                            images.</small
+                        >
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Documents Table -->
+        <div class="panel">
+            <h3>Documents</h3>
+            <p-table
+                [value]="docs"
+                [paginator]="true"
+                [rows]="10"
+                [loading]="isLoading"
+                [responsiveLayout]="'scroll'"
+                [rowHover]="true"
+            >
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Name</th>
+                        <th>Type</th>
+                        <th>Condominium</th>
+                        <th>Uploaded</th>
+                        <th>Uploaded By</th>
+                        <th>Status</th>
+                        <th style="width: 220px">Actions</th>
+                    </tr>
+                </ng-template>
+
+                <ng-template pTemplate="body" let-doc let-rowIndex="rowIndex">
+                    <tr>
+                        <td>
+                            <div class="doc-name">{{ doc.name }}</div>
+                            <div class="doc-desc" *ngIf="doc.description">
+                                {{ doc.description }}
+                            </div>
+                        </td>
+                        <td>
+                            <p-tag
+                                [severity]="tagSeverityForType(doc.type)"
+                                [value]="doc.type"
+                            ></p-tag>
+                        </td>
+                        <td>
+                            {{ condoNamesFor(doc.condominiumIds) }}
+                        </td>
+                        <td>{{ doc.uploadedDate | date : "mediumDate" }}</td>
+                        <td>{{ doc.uploadedBy }}</td>
+                        <td>
+                            <p-tag
+                                [severity]="tagSeverityForStatus(doc.status)"
+                                [value]="doc.status"
+                            ></p-tag>
+                        </td>
+                        <td class="actions">
+                            <button
+                                pButton
+                                type="button"
+                                label="View"
+                                icon="pi pi-eye"
+                                class="p-button-text"
+                                (click)="onView(doc)"
+                                [disabled]="!doc.url || doc.url === '#'"
+                            ></button>
+                            <button
+                                pButton
+                                type="button"
+                                label="Download"
+                                icon="pi pi-download"
+                                class="p-button-text"
+                                (click)="onDownload(doc)"
+                                [disabled]="!doc.url || doc.url === '#'"
+                            ></button>
+                            <button
+                                pButton
+                                type="button"
+                                label="Edit"
+                                icon="pi pi-pencil"
+                                class="p-button-text"
+                                (click)="onEdit(doc)"
+                            ></button>
+                            <button
+                                pButton
+                                type="button"
+                                label="Delete"
+                                icon="pi pi-trash"
+                                class="p-button-danger p-button-text"
+                                (click)="onDelete(doc)"
+                            ></button>
+                        </td>
+                    </tr>
+                </ng-template>
+
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="7" class="empty">
+                            No documents available.
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+
+        <!-- Edit Dialog -->
+        <p-dialog
+            header="Edit Document"
+            [(visible)]="editDialogVisible"
+            [modal]="true"
+            [style]="{ width: '700px' }"
+            [closable]="true"
+            (onHide)="closeEditDialog()"
+        >
+            <form [formGroup]="editForm" class="edit-form" novalidate>
+                <div class="grid">
+                    <div class="col-12">
+                        <label>Name</label>
+                        <input
+                            type="text"
+                            pInputText
+                            formControlName="name"
+                            placeholder="Document name"
+                        />
+                    </div>
+                    <div class="col-12 md:col-4">
+                        <label>Type</label>
+                        <p-dropdown
+                            [options]="documentTypeOptions"
+                            optionLabel="label"
+                            optionValue="value"
+                            formControlName="type"
+                            placeholder="Select type"
+                        ></p-dropdown>
+                    </div>
+                    <div class="col-12 md:col-4">
+                        <label>Status</label>
+                        <p-dropdown
+                            [options]="statusOptions"
+                            optionLabel="label"
+                            optionValue="value"
+                            formControlName="status"
+                            placeholder="Select status"
+                        ></p-dropdown>
+                    </div>
+                    <div class="col-12 md:col-12">
+                        <label>Condominiums</label>
+                        <p-multiselect
+                            [options]="condominiums"
+                            optionLabel="name"
+                            optionValue="id"
+                            formControlName="condominiumIds"
+                            defaultLabel="Select condominiums"
+                            [showToggleAll]="true"
+                        ></p-multiselect>
+                    </div>
+                    <div class="col-12">
+                        <label>Description</label>
+                        <textarea
+                            pInputTextarea
+                            rows="3"
+                            formControlName="description"
+                            placeholder="Optional description"
+                        ></textarea>
+                    </div>
+                </div>
+                <div class="dialog-actions">
+                    <button
+                        pButton
+                        type="button"
+                        label="Cancel"
+                        class="p-button-text"
+                        (click)="closeEditDialog()"
+                    ></button>
+                    <button
+                        pButton
+                        type="button"
+                        label="Save"
+                        icon="pi pi-check"
+                        (click)="onEditSubmit()"
+                        [disabled]="!editForm.valid"
+                    ></button>
+                </div>
+            </form>
+        </p-dialog>
+    </section>
+</ng-container>
+
+<!-- Access denied template -->
+<ng-template #accessDenied>
+    <section class="access-denied">
+        <h2>Access Denied</h2>
+        <p>
+            You do not have permission to view this module. ADMIN role is
+            required.
+        </p>
+    </section>
+</ng-template>

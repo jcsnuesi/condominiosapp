@@ -92,7 +92,6 @@ export class OwnerProfileSettingsComponent implements AfterViewInit {
 
     ngAfterViewInit(): void {
         this.ownerObj.avatarPreview = this.ownerObj.avatar;
-        console.log('ownerObj.avatarPreview', this.ownerObj.avatarPreview);
     }
 
     delAccount(data: any) {

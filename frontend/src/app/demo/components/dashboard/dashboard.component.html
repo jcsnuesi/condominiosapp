@@ -188,9 +188,20 @@
         </div>
     </div>
     <div class="col-12 xl:col-6">
-        <div class="card" *appHasPermissions="['admin']">
-            <h5>Sales Overview</h5>
-            <p-chart type="bar" [data]="data" [options]="options"></p-chart>
+        <div class="card">
+            <h5>Monthly Payments Stats</h5>
+            <p-chart
+                type="bar"
+                *appHasPermissions="['admin', 'staff_admin', 'staff']"
+                [data]="data"
+                [options]="options"
+            ></p-chart>
+            <p-chart
+                type="bar"
+                *appHasPermissions="['owner']"
+                [data]="dataOwner"
+                [options]="options"
+            ></p-chart>
         </div>
     </div>
 </div>
@@ -223,7 +234,11 @@
 ></app-invoice-history>
 
 <!-- Staff  -->
-<app-staff *ngIf="componentsToShow.staff" [condoId]="condoId"></app-staff>
+<app-staff
+    *ngIf="componentsToShow.staff"
+    [condoId]="condoId"
+    (staffCard)="totalStaff = $event"
+></app-staff>
 
 <!-- Notification -->
 

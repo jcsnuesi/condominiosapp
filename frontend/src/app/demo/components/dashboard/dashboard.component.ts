@@ -205,6 +205,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             totalBalance: 0,
             counts: 0,
         };
+        this.invoiceDataForCharts = [];
     }
 
     showInquiryDialog(inquiry) {
@@ -246,41 +247,75 @@ export class DashboardComponent implements OnInit, OnDestroy {
             { name: 'Penthouse', code: 'penthouse' },
         ];
 
+        this.items = [
+            { label: 'Add New', icon: 'pi pi-fw pi-plus' },
+            { label: 'Remove', icon: 'pi pi-fw pi-minus' },
+        ];
+
+        this.loadBookingCard();
+        this.getStaffQty();
+        this.loadUnitsCard();
+        this.condoId = this.getId();
+        this.getAllInvoices();
+        this.inquiriesCard();
+    }
+
+    public dataOwner: any;
+    ownerChart() {
         const documentStyle = getComputedStyle(document.documentElement);
 
         const textColor = documentStyle.getPropertyValue('--text-color');
-
         const textColorSecondary = documentStyle.getPropertyValue(
             '--text-color-secondary'
         );
+        let data = { unpaid: {}, paid: {} };
+        this.invoiceDataForCharts.forEach((invoice) => {
+            const date = new Date(invoice.createdAt);
+            const monthName = date
+                .toLocaleString('es-ES', { month: 'long' })
+                .replace(/^\w/, (c) => c.toUpperCase());
+
+            if (
+                invoice.paymentStatus === 'pending' ||
+                invoice.paymentStatus === 'failed'
+            ) {
+                if (!Object.keys(data.unpaid).includes(monthName)) {
+                    data.unpaid[monthName] = 1;
+                } else {
+                    data.unpaid[monthName] += 1;
+                }
+            } else {
+                if (!Object.keys(data.paid).includes(monthName)) {
+                    data.paid[monthName] = 1;
+                } else {
+                    data.paid[monthName] += 1;
+                }
+            }
+        });
 
         const surfaceBorder =
             documentStyle.getPropertyValue('--surface-border');
+        let monthLabels = new Set<string>();
+        Object.keys(data.paid).forEach((month) => monthLabels.add(month));
+        Object.keys(data.unpaid).forEach((month) => monthLabels.add(month));
+        let [unpaid, paid] = Object.keys(data);
 
-        this.data = {
-            labels: [
-                'January',
-                'February',
-                'March',
-                'April',
-                'May',
-                'June',
-                'July',
-            ],
+        this.dataOwner = {
+            labels: Array.from(monthLabels),
             datasets: [
                 {
-                    label: 'My First dataset',
+                    label: paid.charAt(0).toUpperCase() + paid.slice(1),
                     backgroundColor:
                         documentStyle.getPropertyValue('--blue-500'),
                     borderColor: documentStyle.getPropertyValue('--blue-500'),
-                    data: [65, 59, 80, 81, 56, 55, 40],
+                    data: Object.values(data.paid),
                 },
                 {
-                    label: 'My Second dataset',
+                    label: unpaid.charAt(0).toUpperCase() + unpaid.slice(1),
                     backgroundColor:
                         documentStyle.getPropertyValue('--pink-500'),
                     borderColor: documentStyle.getPropertyValue('--pink-500'),
-                    data: [28, 48, 40, 19, 86, 27, 90],
+                    data: Object.values(data.unpaid),
                 },
             ],
         };
@@ -319,18 +354,117 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 },
             },
         };
+    }
 
-        this.items = [
-            { label: 'Add New', icon: 'pi pi-fw pi-plus' },
-            { label: 'Remove', icon: 'pi pi-fw pi-minus' },
-        ];
+    AdminsChart() {
+        const documentStyle = getComputedStyle(document.documentElement);
 
-        this.loadBookingCard();
-        this.getStaffQty();
-        this.loadUnitsCard();
-        this.condoId = this.getId();
-        this.getAllInvoices();
-        this.inquiriesCard();
+        const textColor = documentStyle.getPropertyValue('--text-color');
+        const textColorSecondary = documentStyle.getPropertyValue(
+            '--text-color-secondary'
+        );
+
+        // this._userService.getDashboardData(this.token, this.getId()).subscribe({
+        //     next: (response) => {
+        //         console.log('Dashboard data response: ', response);
+        //     },
+        //     error: (error) => {
+        //         console.log(error);
+        //         this._messageService.add({
+        //             severity: 'error',
+        //             summary: 'Error',
+        //             detail: 'Failed to load dashboard data',
+        //             life: 3000,
+        //         });
+        //     },
+        // });
+
+        let data = { unpaid: {}, paid: {} };
+        this.invoiceDataForCharts.forEach((invoice) => {
+            const date = new Date(invoice.createdAt);
+            const monthName = date
+                .toLocaleString('es-ES', { month: 'long' })
+                .replace(/^\w/, (c) => c.toUpperCase());
+
+            if (
+                invoice.paymentStatus === 'pending' ||
+                invoice.paymentStatus === 'failed'
+            ) {
+                if (!Object.keys(data.unpaid).includes(monthName)) {
+                    data.unpaid[monthName] = 1;
+                } else {
+                    data.unpaid[monthName] += 1;
+                }
+            } else {
+                if (!Object.keys(data.paid).includes(monthName)) {
+                    data.paid[monthName] = 1;
+                } else {
+                    data.paid[monthName] += 1;
+                }
+            }
+        });
+
+        const surfaceBorder =
+            documentStyle.getPropertyValue('--surface-border');
+        let monthLabels = new Set<string>();
+        Object.keys(data.paid).forEach((month) => monthLabels.add(month));
+        Object.keys(data.unpaid).forEach((month) => monthLabels.add(month));
+        let [unpaid, paid] = Object.keys(data);
+
+        this.data = {
+            labels: Array.from(monthLabels),
+            datasets: [
+                {
+                    label: paid.charAt(0).toUpperCase() + paid.slice(1),
+                    backgroundColor:
+                        documentStyle.getPropertyValue('--blue-500'),
+                    borderColor: documentStyle.getPropertyValue('--blue-500'),
+                    data: Object.values(data.paid),
+                },
+                {
+                    label: unpaid.charAt(0).toUpperCase() + unpaid.slice(1),
+                    backgroundColor:
+                        documentStyle.getPropertyValue('--pink-500'),
+                    borderColor: documentStyle.getPropertyValue('--pink-500'),
+                    data: Object.values(data.unpaid),
+                },
+            ],
+        };
+
+        this.options = {
+            maintainAspectRatio: false,
+            aspectRatio: 0.8,
+            plugins: {
+                legend: {
+                    labels: {
+                        color: textColor,
+                    },
+                },
+            },
+            scales: {
+                x: {
+                    ticks: {
+                        color: textColorSecondary,
+                        font: {
+                            weight: 500,
+                        },
+                    },
+                    grid: {
+                        color: surfaceBorder,
+                        drawBorder: false,
+                    },
+                },
+                y: {
+                    ticks: {
+                        color: textColorSecondary,
+                    },
+                    grid: {
+                        color: surfaceBorder,
+                        drawBorder: false,
+                    },
+                },
+            },
+        };
     }
 
     public inquiries: {
@@ -399,15 +533,27 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }
     }
 
+    public invoiceDataForCharts: any[];
+
     public invoiceCards: { totalBalance: number; counts: number };
     getAllInvoices() {
         this._invoiceService
             .getInvoiceByCondo(this.token, this.getId())
             .subscribe({
                 next: (response) => {
+                    console.log('Invoices response: ', response);
+                    this.invoiceDataForCharts = response.invoices;
                     if (response.status == 'success') {
+                        if (
+                            this.identity.role.toLowerCase() === 'owner' ||
+                            this.identity.role.toLowerCase() === 'family'
+                        ) {
+                            this.ownerChart();
+                        } else {
+                            this.AdminsChart();
+                        }
                         this.invoiceCards.totalBalance = 0;
-                        this.invoiceCards.counts = response.invoices.length;
+                        this.invoiceCards.counts = response.summary.pending;
                     } else {
                         this._messageService.add({
                             severity: 'error',
@@ -479,13 +625,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
     public totalStaff: number = 0;
     getStaffQty() {
         this._staffService
-            .getStaffByOwnerCondo(this.token, this.identity._id)
+
+            .getStaffCard(this.token, this.identity._id)
             .subscribe({
                 next: (response) => {
+                    console.log('Staff card response: ', response);
                     if (response.status == 'success') {
-                        this.totalStaff = response.message.length;
+                        this.totalStaff = response.message;
                     } else {
-                        this.totalBooked = 0;
+                        this.totalStaff = 0;
                     }
                 },
                 error: (error) => {

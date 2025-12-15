@@ -55,6 +55,14 @@ export class UserService {
         return this._http.get(this.url + 'admins', { headers: header });
     }
 
+    // Get data for charts Dashboard
+    getDashboardData(token: string, id: string): Observable<any> {
+        let header = new HttpHeaders().set('Authorization', token);
+        return this._http.get(this.url + 'get-owner-payments-stats/' + id, {
+            headers: header,
+        });
+    }
+
     updateUser(token: string, user: FormData): Observable<any> {
         let header = new HttpHeaders().set('Authorization', token);
 

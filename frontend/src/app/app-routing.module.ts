@@ -14,6 +14,7 @@ import { DashboardComponent } from './demo/components/dashboard/dashboard.compon
 import { BookingAreaComponent } from './demo/components/booking-area/booking-area.component';
 import { OwnerProfileComponent } from './demo/components/owner-profile/owner-profile.component';
 import { AllPartnersComponent } from './demo/components/all-partners/all-partners.component';
+import { DocsComponent } from './demo/components/docs/docs.component';
 
 @NgModule({
     imports: [
@@ -41,57 +42,7 @@ import { AllPartnersComponent } from './demo/components/all-partners/all-partner
                                     './demo/components/dashboard/dashboard.module'
                                 ).then((m) => m.DashboardModule),
                         },
-                        {
-                            path: 'uikit',
-                            loadChildren: () =>
-                                import(
-                                    './demo/components/uikit/uikit.module'
-                                ).then((m) => m.UIkitModule),
-                        },
-                        {
-                            path: 'utilities',
-                            loadChildren: () =>
-                                import(
-                                    './demo/components/utilities/utilities.module'
-                                ).then((m) => m.UtilitiesModule),
-                        },
-                        {
-                            path: 'documentation',
-                            loadChildren: () =>
-                                import(
-                                    './demo/components/documentation/documentation.module'
-                                ).then((m) => m.DocumentationModule),
-                        },
-                        {
-                            path: 'blocks',
-                            loadChildren: () =>
-                                import(
-                                    './demo/components/primeblocks/primeblocks.module'
-                                ).then((m) => m.PrimeBlocksModule),
-                        },
-                        {
-                            path: 'pages',
-                            loadChildren: () =>
-                                import(
-                                    './demo/components/pages/pages.module'
-                                ).then((m) => m.PagesModule),
-                        },
-                        {
-                            path: 'register',
-                            canActivate: [UserGuard],
-                            loadChildren: () =>
-                                import(
-                                    './demo/components/register/register.module'
-                                ).then((m) => m.RegisterDemoModule),
-                        },
-                        {
-                            path: 'customers',
-                            canActivate: [UserGuard],
-                            loadChildren: () =>
-                                import(
-                                    './demo/components/customers/customers.module'
-                                ).then((m) => m.CustomersDemoModule),
-                        },
+
                         {
                             path: 'create-property',
                             canActivate: [UserGuard],
@@ -131,6 +82,11 @@ import { AllPartnersComponent } from './demo/components/all-partners/all-partner
                             path: 'partners/:id',
                             canActivate: [UserGuard],
                             component: OwnerProfileComponent,
+                        },
+                        {
+                            path: 'docs',
+                            canActivate: [UserGuard],
+                            component: DocsComponent,
                         },
                         // ,
                         // { path:'booking-area/:admin/:user', canActivate: [UserGuard], component: StaffComponent}

@@ -27,7 +27,7 @@
 
                 <!-- New Inquiry Button -->
                 <p-button
-                    *ngIf="isAdmin()"
+                    *ngIf="!isAdmin()"
                     label="New Inquiry"
                     icon="pi pi-plus"
                     (onClick)="openInquiryDialog()"
@@ -398,6 +398,48 @@
                 </small>
             </div>
 
+            <!-- ✅ Resident & Apartment (Read-only UI) -->
+            <div class="field mb-3">
+                <label class="block font-semibold mb-2">
+                    <i class="pi pi-home mr-1"></i>
+                    Residential & Apartment
+                </label>
+                <div class="grid">
+                    <div class="col-12 md:col-6">
+                        <label
+                            for="inquiry-residential"
+                            class="block text-sm text-600 mb-2"
+                            >Residential</label
+                        >
+                        <p-dropdown
+                            id="inquiry-residential"
+                            [options]="[]"
+                            placeholder="Your residential (auto-filled)"
+                            styleClass="w-full"
+                            [disabled]="true"
+                        ></p-dropdown>
+                    </div>
+                    <div class="col-12 md:col-6">
+                        <label
+                            for="inquiry-apartment"
+                            class="block text-sm text-600 mb-2"
+                            >Apartment</label
+                        >
+                        <p-dropdown
+                            id="inquiry-apartment"
+                            [options]="[]"
+                            placeholder="Your apartment (auto-filled)"
+                            styleClass="w-full"
+                            [disabled]="true"
+                        ></p-dropdown>
+                    </div>
+                </div>
+                <small class="text-500 block mt-2">
+                    These fields are UI-only and will be auto-filled from the
+                    user profile when wired.
+                </small>
+            </div>
+
             <!-- ✅ Category Field - FORMATO UNIFICADO -->
             <div class="field mb-3">
                 <label for="inquiry-category" class="block font-semibold mb-2">
@@ -715,14 +757,7 @@
                                 >
                                     <div class="flex align-items-center gap-2">
                                         <div class="font-semibold text-900">
-                                            {{
-                                                response.respondedBy?.name ||
-                                                    "Unknown User"
-                                            }}
-                                            {{
-                                                response.respondedBy
-                                                    ?.lastname || ""
-                                            }}
+                                            {{ "Admin User" }}
                                         </div>
                                         <p-tag
                                             [value]="response.respondedByRole"

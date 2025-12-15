@@ -676,6 +676,7 @@ export class InquiryComponent implements OnInit, OnChanges {
 
     viewInquiryDetails(inquiry: Inquiry): void {
         this.selectedInquiry = inquiry;
+        console.log('Selected Inquiry:', this.selectedInquiry);
         this.displayInquiryDetailDialog = true;
     }
 
@@ -813,7 +814,7 @@ export class InquiryComponent implements OnInit, OnChanges {
             .getCondominiumNotices(this.token, this.condoId)
             .subscribe({
                 next: (response) => {
-                    // console.log('Notices loaded:', response);
+                    console.log('Notices loaded:', response);
                     const noticesData = response.data || [];
 
                     // Map notices and check if they are read by current user
@@ -1102,17 +1103,16 @@ export class InquiryComponent implements OnInit, OnChanges {
             .getCondominiumUsers(this.token, this.condoId)
             .subscribe({
                 next: (res) => {
-                    const users = res.data.units_ownerId || [];
-                    this.condoUsersOptions = users.map((u: any) => ({
-                        label: `${u.name || ''} ${u.lastname || ''} ${
-                            u.email ? ' - ' + u.email : ''
-                        }`.trim(),
-                        value: u._id,
-                        role: (u.role || '').toUpperCase(),
-                    }));
-                    console.log(
-                        'Condominium users loaded:',
-                        this.condoUsersOptions
+                    console.log('users:', res);
+                    const users = res.data || [];
+                    this.condoUsersOptions = users.units_ownerId.map(
+                        (u: any) => ({
+                            label: `${u.name || ''} ${u.lastname || ''} ${
+                                u.email ? ' - ' + u.email : ''
+                            }`.trim(),
+                            value: u._id,
+                            role: (u.role || '').toUpperCase(),
+                        })
                     );
                 },
                 error: (err) => {
