@@ -86,18 +86,17 @@ export class InvoiceService {
     }
 
     genPDF(data: any, logoBase64: string = this.logoBase64) {
-        let alias = data.alias;
-        let dateIssue = new Date(data.invoice_issue).toDateString();
-        let dateDue = new Date(data.invoice_due).toDateString();
-        let ownerFullname = data.fullname;
-        let phone = data.phone;
-        let unit = typeof data.unit === 'string' ? data.unit : 'null';
-        let email = data.email;
-        let docDefinition = null;
-
-        // console.log('data', logoBase64);
-
         try {
+            let alias = data.alias;
+            let dateIssue = new Date(data.invoice_issue).toDateString();
+            let dateDue = new Date(data.invoice_due).toDateString();
+            let ownerFullname = data.fullname;
+            let phone = data.phone;
+            let unit = typeof data.unit === 'string' ? data.unit : 'null';
+            let email = data.email;
+            let docDefinition = null;
+
+            console.log('data', data);
             docDefinition = {
                 content: [
                     {

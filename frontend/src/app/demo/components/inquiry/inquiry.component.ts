@@ -36,7 +36,7 @@ import { FileUpload } from 'primeng/fileupload'; // ← NUEVO
 import { CondominioService } from '../../service/condominios.service';
 import { global } from '../../service/global.service';
 import { HttpClient } from '@angular/common/http';
-import { HttpClientModule } from '@angular/common/http'; // ← ADD
+import { OwnerServiceService } from '../../service/owner-service.service';
 
 // ============ INTERFACES ACTUALIZADAS ============
 
@@ -66,6 +66,7 @@ interface Inquiry {
     title: string;
     content: string;
     category: string;
+    unitId?: string | { label: string; value: string };
     priority: 'low' | 'medium' | 'high' | 'urgent';
     status: 'sent' | 'responded' | 'closed';
     createdBy: string;
@@ -160,7 +161,6 @@ interface BackendAttachment {
         CheckboxModule,
         FileUploadModule, // ← NUEVO
         MultiSelectModule, // ← NUEVO
-        HttpClientModule, // ← ADD (standalone component needs this to use HttpClient here)
     ],
     providers: [
         MessageService,
@@ -168,6 +168,7 @@ interface BackendAttachment {
         InquiryService,
         UserService,
         FormatFunctions,
+        OwnerServiceService,
     ],
     templateUrl: './inquiry.component.html',
     styleUrl: './inquiry.component.css',
@@ -351,6 +352,7 @@ export class InquiryComponent implements OnInit, OnChanges {
         private messageService: MessageService,
         private confirmationService: ConfirmationService,
         private _formatFunctions: FormatFunctions,
+        private _ownerService: OwnerServiceService,
         private http: HttpClient // ← ADD
     ) {
         this.token = this._userService.getToken();
@@ -361,6 +363,7 @@ export class InquiryComponent implements OnInit, OnChanges {
         this.loadInquiries();
         this.loadNotices();
         this.getFilteredInquiries();
+        this.getCondoAndUnitInfo();
     }
 
     ngOnChanges(changes: SimpleChanges) {
@@ -425,6 +428,41 @@ export class InquiryComponent implements OnInit, OnChanges {
             });
     }
 
+    public condoOptions: any[] = [];
+    public unitOptions: any[] = [];
+    getCondoAndUnitInfo(): void {
+        this._ownerService
+            .getPropertyByOwner(this.token, this.identity._id)
+            .subscribe({
+                next: (response) => {
+                    if (response.status === 'success') {
+                        this.condoOptions =
+                            response.message.propertyDetails.map(
+                                (property: any) => {
+                                    return {
+                                        label: property.addressId.alias,
+                                        value: property.addressId._id,
+                                    };
+                                }
+                            );
+
+                        this.unitOptions = response.message.propertyDetails.map(
+                            (property: any) => {
+                                return {
+                                    label: property.condominium_unit,
+                                    value: property.condominium_unit,
+                                };
+                            }
+                        );
+                    }
+                    console.log('Property info loaded:', response);
+                },
+                error: (error) => {
+                    console.error('Error loading property info:', error);
+                },
+            });
+    }
+
     calculateInquiryStats(): void {
         this.inquiryStats = {
             total: this.inquiries.length,
@@ -441,6 +479,7 @@ export class InquiryComponent implements OnInit, OnChanges {
             title: '',
             content: '',
             category: '',
+            unitId: '',
             priority: 'medium',
             status: 'sent',
             createdBy: this.identity?._id || '',
@@ -561,6 +600,7 @@ export class InquiryComponent implements OnInit, OnChanges {
         formData.append('createdBy', '676a231d9bee64f1a653d04c'); // this.identity?._id
         formData.append('condominiumId', this.condoId);
         formData.append('createdInquiryBy', 'Owner'); //this.newInquiry.createdInquiryBy
+        formData.append('apartmentUnit', typeof this.newInquiry?.unitId === 'object' ? this.newInquiry?.unitId?.label : this.newInquiry?.unitId || ''); //this.newInquiry.createdInquiryBy
 
         // Agregar archivos
         this.selectedFiles.forEach((file, index) => {

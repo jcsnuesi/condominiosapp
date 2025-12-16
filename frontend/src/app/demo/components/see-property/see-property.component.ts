@@ -13,6 +13,7 @@ import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { ButtonModule } from 'primeng/button';
 import { HasPermissionsDirective } from 'src/app/has-permissions.directive';
+
 import { HasRoleDirective } from 'src/app/has-role.directive';
 import { FormatFunctions } from '../../../pipes/formating_text';
 import { OwnerServiceService } from '../../service/owner-service.service';
@@ -44,6 +45,7 @@ import { BtnToggleStyle } from 'src/app/pipes/btnToggle';
         ConfirmDialogModule,
         ToastModule,
         TabViewModule,
+        HasPermissionsDirective,
     ],
     providers: [
         UserService,

@@ -3,7 +3,7 @@
 </div> -->
 
 <p-confirmDialog />
-<div class="booking-responsive" *appHasPermissions="['owner']">
+<div class="booking-responsive mt-4" *appHasPermissions="['owner']">
     <p-panel header="Booking">
         <p-fieldset id="bg-legend" legend="Choose action">
             <div class="radio-container">
@@ -81,7 +81,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="phone-label">Phone:</label>
+                        <label for="phone-label">Phone (optional):</label>
                         <input
                             type="text"
                             pInputText
@@ -90,7 +90,6 @@
                             id="phone-label"
                             [(ngModel)]="bookingInfo.phone"
                             maxlength="11"
-                            required
                         />
 
                         <span
@@ -105,18 +104,16 @@
                             >Choose notification method (optional):</label
                         >
                         <p-dropdown
-                            #notifyOptions="ngModel"
-                            name="notifyOptions"
+                            #notify="ngModel"
+                            name="notify"
                             id="notify-label"
-                            [options]="notifingOptions"
-                            [(ngModel)]="bookingInfo.notifingType"
+                            [options]="notifyOptions"
+                            [(ngModel)]="bookingInfo.notifyType"
                             optionLabel="label"
                             placeholder="Areas available"
                         />
                         <span
-                            *ngIf="
-                                notifyOptions.touched && notifyOptions.invalid
-                            "
+                            *ngIf="notify.touched && notify.invalid"
                             class="p-error"
                             >This field is required.</span
                         >
@@ -125,12 +122,12 @@
                     <div
                         class="form-group"
                         *ngIf="
-                            bookingInfo.notifingType.length != 0 &&
-                            bookingInfo.notifingType.label != 'None'
+                            bookingInfo.notifyType.length != 0 &&
+                            bookingInfo.notifyType.label != 'None'
                         "
                     >
                         <label for="type-notyfication-label"
-                            >Type {{ bookingInfo.notifingType.label }}:</label
+                            >Type {{ bookingInfo.notifyType.label }}:</label
                         >
                         <input
                             type="text"
@@ -138,7 +135,7 @@
                             #typeNotification="ngModel"
                             name="typeNotification"
                             id="type-notyfication-label"
-                            [(ngModel)]="bookingInfo.notifing"
+                            [(ngModel)]="bookingInfo.notify"
                         />
 
                         <span

@@ -151,6 +151,7 @@ export class InvoiceHistoryComponent implements OnInit {
     }
 
     generatePDF() {
+        // console.log('selectedInvoice:', this.selectedInvoice);
         this._invoiceService.genPDF(this.selectedInvoice, this.logoBase64);
     }
 
@@ -188,6 +189,7 @@ export class InvoiceHistoryComponent implements OnInit {
             .getInvoiceByCondo(this.token, this.idCondo)
             .subscribe({
                 next: (res) => {
+                    console.log('RES INVOICE:', res);
                     if (res.status == 'success') {
                         this.propertyDetailsVar = res.invoices.map(
                             (invoice) => {

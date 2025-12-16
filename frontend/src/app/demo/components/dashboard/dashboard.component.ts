@@ -650,6 +650,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     loadBookingCard() {
         this._bookingService.getBooking(this.token, this.getId()).subscribe({
             next: (response) => {
+                console.log('Building response: ', response);
                 if (response.status == 'success') {
                     this.totalBooked = response.message.length;
                 } else {
@@ -710,21 +711,19 @@ export class DashboardComponent implements OnInit, OnDestroy {
             this._condominioService.getBuilding(this.token, id).subscribe({
                 next: (response) => {
                     if (response.status == 'success') {
-                        this.units_ownerId =
-                            this.identity.role.toLowerCase() == 'admin' ||
-                            this.identity.role.toLowerCase() == 'staff_admin'
-                                ? response.condominium
-                                      .map((unit) => {
-                                          let total_owner = [];
-                                          unit?.units_ownerId.forEach(
-                                              (owner) => {
-                                                  total_owner.push(owner._id);
-                                              }
-                                          );
-                                          return total_owner;
-                                      })
-                                      .flat()
-                                : response.condominium[0]._id;
+                        this.units_ownerId = ['admin', 'staff_admin'].includes(
+                            this.identity.role.toLowerCase()
+                        )
+                            ? response.condominium
+                                  .map((unit) => {
+                                      let total_owner = [];
+                                      unit?.units_ownerId.forEach((owner) => {
+                                          total_owner.push(owner._id);
+                                      });
+                                      return total_owner;
+                                  })
+                                  .flat()
+                            : response.condominium[0]._id;
 
                         this.units = response.condominium.length;
                     } else {

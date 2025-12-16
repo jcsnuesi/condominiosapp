@@ -412,11 +412,15 @@
                             >Residential</label
                         >
                         <p-dropdown
+                            #CondoId="ngModel"
+                            name="CondoId"
+                            [(ngModel)]="newInquiry.condominiumId"
                             id="inquiry-residential"
-                            [options]="[]"
+                            [options]="condoOptions"
                             placeholder="Your residential (auto-filled)"
                             styleClass="w-full"
-                            [disabled]="true"
+                            optionLabel="label"
+                            optionValue="value"
                         ></p-dropdown>
                     </div>
                     <div class="col-12 md:col-6">
@@ -426,11 +430,15 @@
                             >Apartment</label
                         >
                         <p-dropdown
+                            #UnitId="ngModel"
+                            name="UnitId"
+                            [(ngModel)]="newInquiry.unitId"
                             id="inquiry-apartment"
-                            [options]="[]"
+                            [options]="unitOptions"
                             placeholder="Your apartment (auto-filled)"
                             styleClass="w-full"
-                            [disabled]="true"
+                            optionLabel="label"
+                            optionValue="value"
                         ></p-dropdown>
                     </div>
                 </div>

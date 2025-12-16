@@ -76,7 +76,7 @@
                             (onClick)="editProduct(owner)"
                         />
                         <p-button
-                            *HasPermissionsDirective="'owner'"
+                            *HasPermissionsDirective="['owner']"
                             icon="pi pi-trash"
                             severity="danger"
                             [rounded]="true"

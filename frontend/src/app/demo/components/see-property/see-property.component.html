@@ -142,7 +142,7 @@
                 <th style="width: 3rem">
                     <div class="flex align-items-center">See more</div>
                 </th>
-                <th style="width: 3rem" *appHasRole="'admin'">
+                <th style="width: 3rem" *appHasPermissions="['admin']">
                     <div class="flex align-items-center">Delete</div>
                 </th>
             </tr>
@@ -199,7 +199,7 @@
 
                 <td>
                     <button
-                        *appHasRole="'owner'"
+                        *appHasPermissions="['owner']"
                         pButton
                         type="button"
                         [outlined]="true"
@@ -209,7 +209,7 @@
                     ></button>
 
                     <button
-                        *appHasRole="'admin'"
+                        *appHasPermissions="['admin']"
                         pButton
                         type="button"
                         severity="secondary"
@@ -219,8 +219,8 @@
                         (click)="goToDashboard(property)"
                     ></button>
                 </td>
-                <td *appHasRole="'admin'">
-                    <button
+                <td *appHasPermissions="['admin']">
+                    <buttonHas
                         pButton
                         type="button"
                         [severity]="_btnToggle(property.status).severity"
@@ -228,7 +228,7 @@
                         [icon]="_btnToggle(property.status).icono"
                         [class]="_btnToggle(property.status).class"
                         (click)="deletePropertyFunc(property)"
-                    ></button>
+                    ></buttonHas>
                 </td>
             </tr>
         </ng-template>

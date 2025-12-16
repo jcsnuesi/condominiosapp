@@ -52,8 +52,8 @@ type BookingType = {
     status?: string;
     comments?: string;
     visitorNumber?: number;
-    notifingType?: string;
-    notifing?: string;
+    notifyType?: string;
+    notify?: string;
 };
 
 type BookingSettings = {
@@ -115,7 +115,7 @@ export class BookingAreaComponent implements OnInit {
     public loading: boolean;
     public bookingHistory: any[];
     public valRadio: string = '';
-    public notifingOptions: any[];
+    public notifyOptions: any[];
 
     public token: string;
     public identity: any;
@@ -163,8 +163,8 @@ export class BookingAreaComponent implements OnInit {
             checkOut: new Date(),
             status: '',
             visitorNumber: 0,
-            notifingType: '',
-            notifing: '',
+            notifyType: '',
+            notify: '',
             phone: '',
             fullname: '',
         };
@@ -181,7 +181,7 @@ export class BookingAreaComponent implements OnInit {
         this.areaOptions = [];
         this.unitOption = [];
         this.loading = true;
-        this.notifingOptions = [{ label: 'Email' }, { label: 'None' }];
+        this.notifyOptions = [{ label: 'Email' }, { label: 'None' }];
         this.bookingInfoApt = {
             id: '',
             condoId: { label: '', code: '' },
@@ -203,8 +203,8 @@ export class BookingAreaComponent implements OnInit {
             checkOut: new Date(),
             status: '',
             visitorNumber: 0,
-            notifingType: '',
-            notifing: '',
+            notifyType: '',
+            notify: '',
             phone: '',
             fullname: '',
         };
@@ -460,6 +460,9 @@ export class BookingAreaComponent implements OnInit {
         data.condoId = data.condoId?.code;
         data.unit = data.unit?.label;
         data.areaId = data.areaId?.label;
+        data.memberModel =
+            this.identity.role.charAt(0).toUpperCase() +
+            this.identity.role.slice(1).toLowerCase();
 
         this._confirmationService.confirm({
             message: message,
@@ -477,7 +480,7 @@ export class BookingAreaComponent implements OnInit {
                                 life: 5000,
                             });
                             form.reset();
-                            this.bookingInfo.notifingType = '';
+                            this.bookingInfo.notifyType = '';
                             this.ngOnInit();
                         }
                         // console.log('Booking Response:', response)
@@ -539,7 +542,7 @@ export class BookingAreaComponent implements OnInit {
 
     showDialog(customer: any) {
         this.visibleDialog = true;
-        console.log(':guest', customer);
+        // console.log(':guest', customer);
 
         // Limpiar el array de visitantes
         let customerData = { ...customer };

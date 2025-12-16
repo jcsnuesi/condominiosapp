@@ -157,13 +157,17 @@ export class PaymentsHistoryComponent implements OnInit {
                 next: (result) => {
                     if (result.status == 'success') {
                         let invoice = result.invoices;
-
+                        // console.log('===================>invoice', invoice);
                         this.bodyTableInfo = invoice.map((invoice) => {
                             let { condominiumId, _ } = invoice;
                             // let fullname = `${invoice.ownerId.name} ${invoice.ownerId.lastname}`;
 
                             return {
                                 id: invoice._id,
+                                fullname:
+                                    invoice.ownerId.name +
+                                    ' ' +
+                                    invoice.ownerId.lastname,
                                 alias: condominiumId.alias,
                                 unit: invoice.ownerId.propertyDetails[0]
                                     .condominium_unit,
@@ -213,12 +217,11 @@ export class PaymentsHistoryComponent implements OnInit {
     editItem(event: any) {
         let data = { ...event };
 
-        console.log('data....', event.propertyDetails.condominiumId.alias);
-
         data['alias'] = event.propertyDetails.condominiumId.alias;
         data['invoice_issue'] = event.invoice_issue_date;
         data['invoice_due'] = event.invoice_due_date;
 
+        console.log('data....', data);
         this._invoiceService.genPDF(data, this.logoBase64);
     }
 }
