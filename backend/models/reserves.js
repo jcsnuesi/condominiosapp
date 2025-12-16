@@ -17,8 +17,13 @@ var reserveSchema = Schema(
   {
     memberId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Owner",
       required: true,
+      refPath: "memberModel",
+    },
+    memberModel: {
+      type: String,
+      required: true,
+      enum: ["Owner", "Family"],
     },
     condoId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -26,16 +31,20 @@ var reserveSchema = Schema(
       required: true,
     },
     bookingName: { type: String, required: true },
-    phone: { type: String, required: true },
+    phone: { type: String },
     guest: [GuestSchema],
     comments: { type: String },
     apartmentUnit: { type: String, required: true },
     areaToReserve: { type: String },
     checkIn: { type: Date, required: true },
     checkOut: { type: Date },
-    status: { type: String, default: "Reserved", required: true },
+    status: {
+      type: String,
+      required: true,
+      enum: ["Guest", "Reserved", "Cancelled", "Completed"],
+    },
     visitorNumber: { type: Number },
-    guestCode: { type: Number, max: 4 },
+    // guestCode: { type: Number, max: 4 },
   },
   { timestamps: true }
 );

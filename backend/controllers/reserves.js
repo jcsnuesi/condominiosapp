@@ -3,7 +3,7 @@
 const Reserves = require("../models/reserves");
 const Owner = require("../models/owners");
 const Family = require("../models/family");
-const Condo = require("../models/condominio");
+const Condominium = require("../models/condominio");
 const Staff = require("../models/staff");
 // const uuid = uuidv4();
 let validator = require("validator");
@@ -21,6 +21,7 @@ var reservesController = {
   createBooking: async function (req, res) {
     //Capturar los datos
     var params = req.body;
+    var phoneNumber = params.phone.length > 0 ? params.phone : "809-000-0000";
 
     try {
       var val_condoId = !validator.isEmpty(params.condoId);
@@ -33,52 +34,50 @@ var reservesController = {
 
     if (val_condoId) {
       try {
-        var user = { OWNER: Owner, FAMILY: Family };
-
-        const userInfo = await user[req.user.role].findOne({
-          _id: req.user.sub,
-        });
-        if (!userInfo) {
-          return res.status(404).send({
-            status: "error",
-            message: "Owner not found",
-          });
-        }
-
         const reservation = new Reserves();
 
+        reservation.memberId = req.user.sub;
+        reservation.memberModel = params.memberModel;
+        reservation.condoId = params.condoId;
+        reservation.bookingName = Boolean(params.name)
+          ? params?.name + " " + params?.lastname
+          : params?.fullname;
+        reservation.phone = phoneNumber;
+
         if (params.isguest) {
-          reservation.condoId = params.condoId;
-          reservation.apartmentUnit = params.unit;
-          reservation.memberId = req.user.sub;
-          reservation.bookingName = userInfo.name + " " + userInfo.lastname;
-          reservation.phone = userInfo.phone;
           reservation.guest.push({
             fullname: params.fullname,
-            phone: params.phone,
-            notificationType: params.notifing,
+            phone: phoneNumber,
+            notificationType: params.notifyType.label,
             verificationCode: generateRandomCode(),
             verify: false,
             guest_token: verifyGuest.guestVerification(params),
           });
-          reservation.status = "Guest";
-          reservation.checkIn = params.checkIn;
-          reservation.comments = params.comments;
+        } else {
+          reservation.checkOut = params.checkOut;
+          reservation.areaToReserve = params.areaId;
+          reservation.visitorNumber = params.visitorNumber;
+        }
+        reservation.comments = params.comments;
+        reservation.apartmentUnit = params.unit;
+        reservation.checkIn = params.checkIn;
+        reservation.status = params.isguest ? "Guest" : "Reserved";
 
-          await reservation.save();
-          // Enviarmos el correo con los 4 digitos de verificación
+        // Enviarmos el correo con los 4 digitos de verificación
+        if (params.notifyType.label === "Email") {
           codeVerification.CodeVerification(
-            params.notifing,
+            params.notifyType,
             reservation.guest[0].verificationCode
           );
-        } else {
+        }
+
+        if (!params.isguest) {
           const dateConflict = await isDateConflict(
             params.checkIn,
             params.checkOut,
             params.condoId,
             params.areaId
           );
-
           if (dateConflict.length > 0) {
             return res.status(409).send({
               status: "error",
@@ -87,18 +86,9 @@ var reservesController = {
               conflictingReserves: dateConflict,
             });
           }
-
-          reservation.condoId = params.condoId;
-          reservation.apartmentUnit = params.unit;
-          reservation.memberId = req.user.sub;
-          reservation.bookingName = userInfo.name + " " + userInfo.lastname;
-          reservation.phone = userInfo.phone;
-          reservation.areaToReserve = params.areaId;
-          reservation.checkIn = params.checkIn;
-          reservation.checkOut = params.checkOut;
-          reservation.visitorNumber = params.visitorNumber;
-          await reservation.save();
         }
+
+        await reservation.save();
       } catch (errors) {
         console.error(errors);
         return res.status(500).send({
@@ -117,18 +107,23 @@ var reservesController = {
   getAllBookingByCondoAndUnit: async function (req, res) {
     let id = req.body.id;
 
-    let ownerFound = await Owner.find({
+    let condoFound = await Condominium.find({
       createdBy: id,
     }).select("_id");
 
     try {
       // Ejecutar la consulta
+      if (condoFound.length > 0) {
+        id = condoFound.map((condo) => condo._id);
+      } else if (Array.isArray(id)) {
+        id = id.map((item) => mongoose.Types.ObjectId(item));
+      } else {
+        id = [mongoose.Types.ObjectId(id)];
+      }
+
+      console.log("--------------->ID:", id);
       let reservations = await Reserves.find({
-        $or: [
-          { memberId: { $in: ownerFound.map((owner) => owner._id) } },
-          { condoId: id },
-          { memberId: id },
-        ],
+        $or: [{ memberId: { $in: id } }, { condoId: { $in: id } }],
       })
         .populate({
           model: "Condominium",

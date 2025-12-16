@@ -77,6 +77,12 @@ const Inquiry = new Schema(
       ref: "Condominium",
       required: true,
     },
+    apartmentUnit: {
+      type: String,
+      required: true,
+      trim: true,
+      maxlength: 10,
+    },
     attachments: [
       {
         filename: { type: String },

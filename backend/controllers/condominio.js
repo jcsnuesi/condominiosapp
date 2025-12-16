@@ -442,6 +442,14 @@ var Condominium_Controller = {
         .lean()
         .exec();
 
+      if (req.user.role === "OWNER" || req.user.role === "FAMILY") {
+        condominiums.forEach((condo) => {
+          condo.units_ownerId = condo.units_ownerId.filter(
+            (owner) => owner._id.toString() === req.user.sub
+          );
+        });
+      }
+
       if (!condominiums || condominiums.length === 0) {
         return res.status(404).send({
           status: "error",

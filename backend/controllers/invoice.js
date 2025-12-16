@@ -13,7 +13,7 @@ const Family = require("../models/family");
 const Admin = require("../models/admin");
 const Staff_Admin = require("../models/staff_admin");
 const Staff = require("../models/staff");
-const { model } = require("mongoose");
+const { default: mongoose } = require("mongoose");
 
 var invoiceController = {
   createInvoice: async function (req, res) {
@@ -290,96 +290,123 @@ var invoiceController = {
   },
 
   getInvoiceByIdentifier: async function (req, res) {
-    var id = req.params.id;
+    var id = mongoose.Types.ObjectId(req.params.id);
     const role = req.user.role.toUpperCase();
-    var ModelQuery = null;
-
-    if (!id) {
-      return res.status(400).send({
-        status: "error",
-        message: "Identifier is required.",
-      });
-    }
-    let models = {
-      FAMILY: Family,
-      OWNER: Owner,
-      ADMIN: Admin,
-      STAFF_ADMIN: Staff_Admin,
-      STAFF: Staff,
-    };
-    let query = [];
-
-    if (role == "OWNER") {
-      ModelQuery = Invoice.find({
-        ownerId: id,
-      });
-    } else if (role == "FAMILY" || role == "STAFF_ADMIN" || role == "STAFF") {
-      const ownerData = await models[role]
-        .findOne({ _id: id })
-        .select("createdBy");
-      ModelQuery = Invoice.find({
-        ownerId: ownerData.createdBy,
-      });
-    } else if (role == "ADMIN") {
-      ModelQuery = Invoice.find({
-        createdBy: id,
-      });
-    }
 
     try {
-      const invoices = await ModelQuery.populate({
-        path: "ownerId",
-        model: "Owner",
-        select: "name lastname email phone id_number propertyDetails",
-      })
-        .populate(
-          "condominiumId",
-          "alias phone street_1 street_2 sector_name city province country"
-        )
-        .sort({ createdAt: -1 }) // Sort by newest first
-        .exec((err, invoices) => {
-          if (err) {
-            console.error("Error fetching invoices by identifier:", err);
-            return res.status(500).send({
-              status: "error",
-              message: "Error in the request. Try again.",
-            });
-          }
-
-          if (!invoices || invoices.length === 0) {
-            return res.status(404).send({
-              status: "error",
-              message: "There are no invoices to show.",
-            });
-          }
-
-          // Format dates using date-fns for response
-          const formattedInvoices = invoices.map((invoice) => ({
-            ...invoice.toObject(),
-            formattedIssueDate:
-              invoice.issueDate && format(invoice.issueDate, "dd/MM/yyyy"),
-            formattedDueDate:
-              invoice.dueDate && format(invoice.dueDate, "dd/MM/yyyy"),
-            formattedCreatedAt:
-              invoice.createdAt &&
-              format(invoice.createdAt, "dd/MM/yyyy HH:mm"),
-          }));
-
-          return res.status(200).send({
-            status: "success",
-            invoices: formattedInvoices,
-            count: invoices.length,
-            summary: {
-              total: invoices.length,
-              pending: invoices.filter((inv) => inv.status === "pending")
-                .length,
-              paid: invoices.filter((inv) => inv.status === "paid").length,
-              expired: invoices.filter(
-                (inv) => inv.invoice_status === "expired"
-              ).length,
-            },
-          });
+      if (!id) {
+        return res.status(400).send({
+          status: "error",
+          message: "Identifier is required.",
         });
+      }
+      let models = {
+        FAMILY: Family,
+        OWNER: Owner,
+        ADMIN: Admin,
+        STAFF_ADMIN: Staff_Admin,
+        STAFF: Staff,
+      };
+      var invoices;
+      if (role == "OWNER") {
+        invoices = await Invoice.find({
+          ownerId: id,
+        })
+          .populate({
+            path: "ownerId",
+            model: "Owner",
+            select: "name lastname email phone id_number propertyDetails",
+          })
+          .populate(
+            "condominiumId",
+            "alias phone street_1 street_2 sector_name city province country"
+          )
+          .sort({ createdAt: -1 }) // Sort by newest first
+          .exec();
+      } else if (role == "FAMILY") {
+        const ownerData = await models[role]
+          .findOne({ _id: id })
+          .select("createdBy");
+        invoices = await Invoice.find({
+          ownerId: ownerData.createdBy,
+        })
+          .populate({
+            path: "ownerId",
+            model: "Owner",
+            select: "name lastname email phone id_number propertyDetails",
+          })
+          .populate(
+            "condominiumId",
+            "alias phone street_1 street_2 sector_name city province country"
+          )
+          .sort({ createdAt: -1 }) // Sort by newest first
+          .exec();
+      } else if (role == "STAFF_ADMIN" || role == "STAFF") {
+        const adminData = await models[role]
+          .findOne({ _id: id })
+          .select("createdBy");
+        invoices = await Invoice.find({
+          createdBy: adminData.createdBy,
+        })
+          .populate({
+            path: "ownerId",
+            model: "Owner",
+            select: "name lastname email phone id_number propertyDetails",
+          })
+          .populate(
+            "condominiumId",
+            "alias phone street_1 street_2 sector_name city province country"
+          )
+          .sort({ createdAt: -1 }) // Sort by newest first
+          .exec();
+      } else if (role == "ADMIN") {
+        invoices = await Invoice.find({
+          $or: [{ condominiumId: id }, { ownerId: id }],
+        })
+          .populate({
+            path: "ownerId",
+            model: "Owner",
+            select: "name lastname email phone id_number propertyDetails",
+          })
+          .populate(
+            "condominiumId",
+            "alias phone street_1 street_2 sector_name city province country"
+          )
+          .sort({ createdAt: -1 }) // Sort by newest first
+          .exec();
+      }
+
+      if (!invoices || invoices.length === 0) {
+        return res.status(404).send({
+          status: "error",
+          message: "There are no invoices to show.",
+        });
+      }
+
+      // Format dates using date-fns for response
+      const formattedInvoices = invoices.map((invoice) => ({
+        ...invoice.toObject(),
+        formattedIssueDate:
+          invoice.issueDate && format(invoice.issueDate, "dd/MM/yyyy"),
+        formattedDueDate:
+          invoice.dueDate && format(invoice.dueDate, "dd/MM/yyyy"),
+        formattedCreatedAt:
+          invoice.createdAt && format(invoice.createdAt, "dd/MM/yyyy HH:mm"),
+      }));
+
+      console.log("Fetched invoices for identifier:", invoices);
+      return res.status(200).send({
+        status: "success",
+        invoices: formattedInvoices,
+        count: invoices.length,
+        summary: {
+          total: invoices.length,
+          pending: invoices.filter((inv) => inv.status === "pending").length,
+          paid: invoices.filter((inv) => inv.status === "paid").length,
+          expired: invoices.filter((inv) => inv.invoice_status === "expired")
+            .length,
+        },
+      });
     } catch (error) {
       console.error("Error in getInvoiceByIdentifier:", error);
       return res.status(500).send({

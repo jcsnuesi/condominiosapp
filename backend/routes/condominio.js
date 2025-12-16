@@ -2,7 +2,7 @@
 
 let express = require("express");
 let condominioController = require("../controllers/condominio");
-let md_auth = require("../middleware/auth");
+
 let router = express.Router();
 var multipart = require("connect-multiparty");
 var md_upload = multipart({ uploadDir: "./uploads/properties" });
@@ -21,7 +21,11 @@ router.get(
   [authenticated],
   condominioController.getCondominiumsByAdmin
 );
-router.get("/buildingDetail/:id", condominioController.getBuildingDetails);
+router.get(
+  "/buildingDetail/:id",
+  authenticated,
+  condominioController.getBuildingDetails
+);
 router.get("/avatarCondominios/:avatar", condominioController.getAvatar);
 // Obtener todas las unidades del owner con el ownerId y todos los condominios del admin con el adminId
 router.get("/getUnits/:id", [authenticated], condominioController.getUnits);
