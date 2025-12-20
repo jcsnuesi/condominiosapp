@@ -346,6 +346,7 @@
                         </div>
                         <div class="div-btn-right">
                             <p-button
+                                [loading]="loadingBtnCreate"
                                 *appHasPermissions="['owner']"
                                 icon="pi pi-check"
                                 [label]="btn_label"

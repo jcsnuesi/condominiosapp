@@ -541,7 +541,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
             .getInvoiceByCondo(this.token, this.getId())
             .subscribe({
                 next: (response) => {
-                    console.log('Invoices response: ', response);
                     this.invoiceDataForCharts = response.invoices;
                     if (response.status == 'success') {
                         if (
@@ -552,8 +551,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         } else {
                             this.AdminsChart();
                         }
-                        this.invoiceCards.totalBalance = 0;
+
+                        this.invoiceCards.totalBalance =
+                            response.summary.totalAmountDue;
                         this.invoiceCards.counts = response.summary.pending;
+                        console.log(
+                            'Invoices fetched for dashboard: ',
+                            this.invoiceCards.totalBalance
+                        );
                     } else {
                         this._messageService.add({
                             severity: 'error',

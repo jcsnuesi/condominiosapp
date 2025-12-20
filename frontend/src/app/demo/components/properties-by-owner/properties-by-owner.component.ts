@@ -99,28 +99,48 @@ export class PropertiesByOwnerComponent implements OnInit {
     // Metodo para traer las propiedades activas de un propietario  addProperty
     public availableUnitsList: any[] = [];
     getActiveProperties(): void {
-        var [owner, propertyDetails, invoices, _] = [...this.ownerData];
+        console.log('DATA #1', this.ownerData);
+        this._condominioService
+            .getCondoWithInvoice(this.token, this.ownerData)
+            .subscribe({
+                next: (response) => {
+                    console.log('Condo with invoice response', response);
 
-        if (_ == null && propertyDetails == null) {
-            let { condoId } = owner;
-            propertyDetails = owner.propertyDetails.filter(
-                (property) =>
-                    String(property.addressId._id).trim() ===
-                    String(condoId).trim()
-            );
-            propertyDetails.forEach((property) => {
-                property.ownerId = owner._id;
+                    this.propertiesOwner = response.condominiums;
+                    this.propertiesOwner.pending_balance =
+                        response.condominiums.totalPendingAmount;
+
+                    this.availableUnitsList = response.availableUnitsList;
+                    // this.propertiesOwner = this.buildData(propertyDetails);
+                },
+                error: (err) => {
+                    console.log('ERROR', err);
+                    this._messageService.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: 'Error fetching properties',
+                    });
+                },
             });
-            console.log('DATA #1', propertyDetails);
-        } else {
-            propertyDetails.ownerId = owner._id;
-        }
+        // if (_ == null && propertyDetails == null) {
+        //     let { condoId } = owner;getCondoWithInvoice
+        //     propertyDetails = owner.propertyDetails.filter(
+        //         (property) =>
+        //             String(property.addressId._id).trim() ===
+        //             String(condoId).trim()
+        //     );
+        //     propertyDetails.forEach((property) => {
+        //         property.ownerId = owner._id;
+        //     });
+        // } else {
+        //     propertyDetails.ownerId = owner._id;
+        // }
 
-        this.propertiesOwner = this.buildData(propertyDetails);
+        // this.propertiesOwner = this.buildData(propertyDetails);
     }
 
     buildData(propertyDetails: any) {
-        // console.log('buildData', propertyDetails);
+        console.log('buildData', propertyDetails);
         propertyDetails.forEach((element, i) => {
             element.id = element.addressId._id;
             element.address =
@@ -189,12 +209,13 @@ export class PropertiesByOwnerComponent implements OnInit {
 
     activarEditarUnit(index: any, data: any): void {
         let unitAvilable = [];
+        console.log('DATA', data);
         data.showUnits = data.showUnits ? false : true;
 
         data.addressId.availableUnits.forEach((element: any) => {
             unitAvilable.push({ label: element });
         });
-        console.log('DATA', data);
+
         this.unitsOptions = unitAvilable;
 
         let btnConfig = this.editBtnStyle[index];

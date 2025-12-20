@@ -253,7 +253,9 @@ export class HomeComponent implements OnInit {
 
         const units = propertyDetails
             .filter((owner) => owner.addressId._id === this.condoId)
-            .map((owner) => owner.unit);
+            .map((owner) => {
+                return owner.condominium_unit;
+            });
 
         if (units.length === 0) {
             return 'No units available';
@@ -327,11 +329,11 @@ export class HomeComponent implements OnInit {
                                     this.condoInfo.paymentDate
                                 );
 
-                            unitList['units'] = unitList.availableUnits.map(
-                                (unit) => {
-                                    return { label: unit };
-                                }
-                            );
+                            // unitList['units'] = unitList.availableUnits.map(
+                            //     (unit) => {
+                            //         return { label: unit };
+                            //     }
+                            // );
                         }
                     },
                     (error) => {
@@ -394,7 +396,6 @@ export class HomeComponent implements OnInit {
             .getOwnerInquiries(this.token, this.condoId)
             .subscribe({
                 next: (response) => {
-                    console.log('response:--------------->', response);
                     if (response.status == 'success') {
                         this.totalInquiries = response.data.docs.length;
                         this.inquiries = response.data.docs.map((inquiry) => ({
@@ -436,6 +437,14 @@ export class HomeComponent implements OnInit {
         this.showComponent('inquiry');
     }
 
+    closeInquiryDialog(visible: boolean) {
+        this.inquiryDialogData = {
+            _id: '',
+            visible: visible,
+            identity: '',
+        };
+    }
+
     titleCase(str) {
         return str
             .toLowerCase()
@@ -447,15 +456,15 @@ export class HomeComponent implements OnInit {
     }
 
     showOwnerDialog(events) {
-        // console.log('info ------------------->', events);
         let info = { ...events };
         info.condoId = this.condoId;
         this.ownerData = [];
 
         this.ownerData.push(info);
-        this.ownerData.push(null);
+        console.log(' this.ownerData', this.ownerData);
+        // this.ownerData.push(null);
         this.ownerData.push(this.invoicesObj.invoices);
-        this.ownerData.push(null);
+        // this.ownerData.push(null);
 
         this.ownerObj = info;
         this.ownerObj.name = this.titleCase(info.name);
@@ -468,10 +477,11 @@ export class HomeComponent implements OnInit {
         this.maximized = false;
         this.image = this.url + 'main-avatar/owners/' + events.avatar;
         this.visible_owner = true;
-        this._router.navigate([], {
-            queryParams: { userid: events._id },
-            queryParamsHandling: 'merge',
-        });
+
+        // this._router.navigate([], {
+        //     queryParams: { userid: events._id },
+        //     queryParamsHandling: 'merge',
+        // });
     }
 
     closeDialog(): void {
@@ -877,7 +887,7 @@ export class HomeComponent implements OnInit {
                     .updateCondominium(this.token, formData, this.condoId)
                     .subscribe({
                         next: (res) => {
-                            console.log('res', res);
+                            // console.log('res', res);
                             if (res.status === 'success') {
                                 this._messageService.add({
                                     severity: 'success',

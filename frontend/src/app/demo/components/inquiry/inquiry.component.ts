@@ -5,7 +5,9 @@ import {
     Input,
     OnChanges,
     SimpleChanges,
-    ViewChild, // ← NUEVO
+    ViewChild,
+    Output,
+    EventEmitter, // ← NUEVO
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MenuModule } from 'primeng/menu';
@@ -344,6 +346,8 @@ export class InquiryComponent implements OnInit, OnChanges {
     @Input() condoId: string = '';
     @Input() isHome: boolean = false;
     @Input() dataDialog: any;
+    @Output() clearSelectedInquiryDialog: EventEmitter<boolean> =
+        new EventEmitter<boolean>();
     public url: string;
 
     constructor(
@@ -356,6 +360,8 @@ export class InquiryComponent implements OnInit, OnChanges {
         private http: HttpClient // ← ADD
     ) {
         this.token = this._userService.getToken();
+        this.identity = this._userService.getIdentity();
+
         this.url = global.url;
     }
 
@@ -363,7 +369,12 @@ export class InquiryComponent implements OnInit, OnChanges {
         this.loadInquiries();
         this.loadNotices();
         this.getFilteredInquiries();
-        this.getCondoAndUnitInfo();
+        if (
+            this.identity.role.toUpperCase() === 'OWNER' ||
+            this.identity.role.toUpperCase() === 'FAMILY'
+        ) {
+            this.getCondoAndUnitInfo();
+        }
     }
 
     ngOnChanges(changes: SimpleChanges) {
@@ -375,7 +386,10 @@ export class InquiryComponent implements OnInit, OnChanges {
                     (inquiry) => inquiry._id === condoId
                 );
                 if (data_filtered) {
-                    this.viewInquiryDetails(data_filtered);
+                    this.selectedInquiry = data_filtered;
+
+                    this.displayInquiryDetailDialog =
+                        changes['dataDialog'].currentValue.visible;
                 }
             }, 500);
         }
@@ -411,7 +425,6 @@ export class InquiryComponent implements OnInit, OnChanges {
             .getOwnerInquiries(this.token, this.condoId)
             .subscribe({
                 next: (response) => {
-                    console.log('Inquiries loaded:', response);
                     this.inquiries = response.data.docs || [];
                     this.calculateInquiryStats();
                     this.loading = false;
@@ -455,7 +468,6 @@ export class InquiryComponent implements OnInit, OnChanges {
                             }
                         );
                     }
-                    console.log('Property info loaded:', response);
                 },
                 error: (error) => {
                     console.error('Error loading property info:', error);
@@ -597,10 +609,19 @@ export class InquiryComponent implements OnInit, OnChanges {
         formData.append('content', this.newInquiry.content);
         formData.append('category', this.newInquiry.category);
         formData.append('priority', this.newInquiry.priority);
-        formData.append('createdBy', '676a231d9bee64f1a653d04c'); // this.identity?._id
-        formData.append('condominiumId', this.condoId);
-        formData.append('createdInquiryBy', 'Owner'); //this.newInquiry.createdInquiryBy
-        formData.append('apartmentUnit', typeof this.newInquiry?.unitId === 'object' ? this.newInquiry?.unitId?.label : this.newInquiry?.unitId || ''); //this.newInquiry.createdInquiryBy
+        formData.append('createdBy', this.condoId); // this.identity?._id
+        formData.append('condominiumId', this.newInquiry.condominiumId || '');
+        formData.append(
+            'createdInquiryBy',
+            this.identity.role.charAt(0) +
+                this.identity.role.slice(1).toLowerCase()
+        ); //this.newInquiry.createdInquiryBy
+        formData.append(
+            'apartmentUnit',
+            typeof this.newInquiry?.unitId === 'object'
+                ? this.newInquiry?.unitId?.label
+                : this.newInquiry?.unitId || ''
+        ); //this.newInquiry.createdInquiryBy
 
         // Agregar archivos
         this.selectedFiles.forEach((file, index) => {
@@ -612,18 +633,30 @@ export class InquiryComponent implements OnInit, OnChanges {
             .createInquiryWithFiles(formData, this.token)
             .subscribe({
                 next: (response) => {
-                    this.messageService.add({
-                        severity: 'success',
-                        summary: 'Success',
-                        detail: 'Inquiry submitted successfully',
-                        life: 5000,
-                    });
+                    if (response.status === 'success') {
+                        this.messageService.add({
+                            severity: 'success',
+                            summary: 'Success',
+                            detail: 'Inquiry submitted successfully',
+                            life: 5000,
+                        });
 
-                    this.displayInquiryDialog = false;
-                    this.resetInquiryForm();
-                    this.loadInquiries();
+                        this.displayInquiryDialog = false;
+                        this.resetInquiryForm();
+                        this.loadInquiries();
+                    } else {
+                        this.messageService.add({
+                            severity: 'error',
+                            summary: 'Error',
+                            detail:
+                                response.message || 'Failed to submit inquiry',
+                            life: 5000,
+                        });
+                        this.loading = false;
+                    }
                 },
                 error: (error) => {
+                    this.loading = false;
                     console.error('Error submitting inquiry:', error);
                     this.messageService.add({
                         severity: 'error',
@@ -714,10 +747,8 @@ export class InquiryComponent implements OnInit, OnChanges {
 
     // ============ INQUIRY ACTIONS ============
 
-    viewInquiryDetails(inquiry: Inquiry): void {
-        this.selectedInquiry = inquiry;
-        console.log('Selected Inquiry:', this.selectedInquiry);
-        this.displayInquiryDetailDialog = true;
+    clearSelectedInquiry() {
+        this.clearSelectedInquiryDialog.emit(false);
     }
 
     closeInquiry(inquiryId: string): void {
@@ -854,7 +885,6 @@ export class InquiryComponent implements OnInit, OnChanges {
             .getCondominiumNotices(this.token, this.condoId)
             .subscribe({
                 next: (response) => {
-                    console.log('Notices loaded:', response);
                     const noticesData = response.data || [];
 
                     // Map notices and check if they are read by current user
@@ -906,8 +936,6 @@ export class InquiryComponent implements OnInit, OnChanges {
             ...notice,
             targetAudience: notice.targetAudience || 'all',
         };
-
-        console.log('Viewing notice:', this.newNotice);
 
         // reset selected previews
         this.selectedNoticeFiles = [];
@@ -1047,7 +1075,7 @@ export class InquiryComponent implements OnInit, OnChanges {
     markNoticeAsRead(noticeId: string): void {
         this._inquiryService.markNoticeAsRead(this.token, noticeId).subscribe({
             next: (response) => {
-                console.log('Notice marked as read:', response);
+                // console.log('Notice marked as read:', response);
             },
             error: (error) => {
                 console.error('Error marking notice as read:', error);
@@ -1143,7 +1171,6 @@ export class InquiryComponent implements OnInit, OnChanges {
             .getCondominiumUsers(this.token, this.condoId)
             .subscribe({
                 next: (res) => {
-                    console.log('users:', res);
                     const users = res.data || [];
                     this.condoUsersOptions = users.units_ownerId.map(
                         (u: any) => ({
@@ -1297,7 +1324,7 @@ export class InquiryComponent implements OnInit, OnChanges {
 
         this._inquiryService.createNotice(formData, this.token).subscribe({
             next: (response) => {
-                console.log('Notice created successfully:', response);
+                // console.log('Notice created successfully:', response);
 
                 this.messageService.add({
                     severity: 'success',
@@ -1415,7 +1442,7 @@ export class InquiryComponent implements OnInit, OnChanges {
 
         this._inquiryService.updateNotice(formData, this.token).subscribe({
             next: (response) => {
-                console.log('Notice updated successfully:', response);
+                // console.log('Notice updated successfully:', response);
                 this.messageService.add({
                     severity: 'success',
                     summary: 'Success',
@@ -1599,7 +1626,7 @@ export class InquiryComponent implements OnInit, OnChanges {
                     this.generateFilePreview(file);
                 }
 
-                // console.log('File selected:', file.name, file.size, file.type);
+                // // console.log('File selected:', file.name, file.size, file.type);
             }
         }
 
@@ -1622,7 +1649,7 @@ export class InquiryComponent implements OnInit, OnChanges {
         );
         this.filePreviewUrls.delete(file.name);
 
-        console.log('File removed:', file.name);
+        // console.log('File removed:', file.name);
     }
 
     /**
@@ -1631,7 +1658,7 @@ export class InquiryComponent implements OnInit, OnChanges {
     onFilesClear(): void {
         this.selectedFiles = [];
         this.filePreviewUrls.clear();
-        console.log('All files cleared');
+        // console.log('All files cleared');
     }
 
     /**
@@ -1842,7 +1869,7 @@ export class InquiryComponent implements OnInit, OnChanges {
         );
         this.noticeFilePreviewUrls.delete(file.name);
 
-        console.log('Notice file removed:', file.name);
+        // console.log('Notice file removed:', file.name);
     }
 
     /**
@@ -1851,7 +1878,7 @@ export class InquiryComponent implements OnInit, OnChanges {
     onNoticeFilesClear(): void {
         this.selectedNoticeFiles = [];
         this.noticeFilePreviewUrls.clear();
-        console.log('All notice files cleared');
+        // console.log('All notice files cleared');
     }
 
     /**
@@ -1976,7 +2003,7 @@ export class InquiryComponent implements OnInit, OnChanges {
      */
     downloadExistingAttachment(filename: string): void {
         // Ajustar ruta según tu backend real
-        console.log('Downloading attachment:', filename);
+        // console.log('Downloading attachment:', filename);
         const url = `${this.url}notifications/file/${filename}`;
         window.open(url, '_blank');
     }

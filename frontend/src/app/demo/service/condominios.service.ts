@@ -43,6 +43,15 @@ export class CondominioService {
             headers: header,
         });
     }
+    getCondoWithInvoice(token: string, id: string): Observable<any> {
+        let header = new HttpHeaders()
+            .set('Content-Type', 'application/json')
+            .set('Authorization', token);
+
+        return this._http.get(this.url + 'condoWithInvoice/' + id, {
+            headers: header,
+        });
+    }
 
     updateCondominium(
         token: string,

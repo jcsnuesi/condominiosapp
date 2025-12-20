@@ -62,6 +62,7 @@ export class FamilyMemberDetailsComponent implements OnInit {
     public identity: any;
     public url: string;
     @Output() memberInfo: EventEmitter<any> = new EventEmitter();
+    @Input() ownerIdInput: string;
 
     constructor(
         private _router: Router,
@@ -107,8 +108,8 @@ export class FamilyMemberDetailsComponent implements OnInit {
                     this.userId = param['userid'];
                 });
             }
-            //  console.log('USER ID:', this.userId);
-            if (this.userId) {
+
+            if (this.ownerIdInput) {
                 this.getFamilyMemberDetails();
             }
 
@@ -123,7 +124,7 @@ export class FamilyMemberDetailsComponent implements OnInit {
     public userByProperty: any[] = [];
     getFamilyMemberDetails() {
         this._familyService
-            .getFamiliesByOwnerId(this.token, this.userId)
+            .getFamiliesByOwnerId(this.token, this.ownerIdInput)
             .subscribe({
                 next: (res) => {
                     if (res.status == 'success') {

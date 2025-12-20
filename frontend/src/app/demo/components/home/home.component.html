@@ -330,7 +330,7 @@
 
                 <p-tabPanel header="Properties">
                     <app-properties-by-owner
-                        [ownerData]="ownerData"
+                        [ownerData]="ownerObj._id"
                         *ngIf="visible_owner"
                     ></app-properties-by-owner>
                 </p-tabPanel>
@@ -338,6 +338,7 @@
                 <p-tabPanel header="Authorized users">
                     <app-family-member-details
                         *ngIf="visible_owner"
+                        [ownerIdInput]="ownerObj._id"
                     ></app-family-member-details>
                 </p-tabPanel>
 
@@ -420,6 +421,7 @@
     [condoId]="condoId"
     [isHome]="true"
     [dataDialog]="inquiryDialogData"
+    (clearSelectedInquiryDialog)="closeInquiryDialog($event)"
 ></app-inquiry>
 
 <!-- Settings Dialog -->

@@ -47,7 +47,7 @@ import { FamilyServiceService } from '../../service/family-service.service';
 
 type FamilyMember = {
     memberId: string;
-    addressId: Array<{ label: string; code: string; unit: string }> | any;
+    addressId: Array<{ label: string; code: string; unit: string }>;
     avatar?: string;
     name: string;
     lastname: string;
@@ -182,7 +182,7 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
 
             this.familyMemberInfo = {
                 memberId: '',
-                addressId: [{ label: '', code: '', unit: '' }],
+                addressId: [],
                 avatar: '',
                 name: '',
                 lastname: '',
@@ -238,7 +238,7 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
                     condo.unit === property.condominium_unit
             );
 
-            console.log('carga de datos', data);
+            // console.log('carga de datos', data);
 
             if (data.length > 0) {
                 this.condoFound.push({
@@ -263,7 +263,7 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
                 };
             }
         });
-        console.log('carga de datos #2', this.condoOptions);
+        // console.log('carga de datos #2', this.condoOptions);
 
         this.btnDisabled = this.condoOptions[0].label === '' ? true : false;
     }
@@ -273,7 +273,7 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
         this.btn_label = 'Update';
         this.familyMemberInfo.memberId = datos._id;
         this.familyMemberInfo.ownerId = datos.ownerId._id;
-        console.log('datos', this.familyMemberInfo.ownerId);
+        // console.log('datos', this.familyMemberInfo.ownerId);
         this.familyMemberInfo.memberStatus = {
             label: this._formatPipe.titleCase(datos.status),
             code: datos.status,
@@ -328,7 +328,8 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
     formatFormData(): FormData {
         const formData = new FormData();
 
-        if (this.familyMemberInfo.addressId.length === 0) {
+        // Validate addressId
+        if (!this.familyMemberInfo.addressId?.length) {
             this._messageService.add({
                 severity: 'error',
                 summary: 'Error',
@@ -337,49 +338,70 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
                 closable: true,
             });
             throw new Error('Please select a property');
-        } else {
-            this.familyMemberInfo.addressId.forEach((condo) => {
-                formData.append('addressId', condo.code);
-                formData.append('unit', condo.unit);
-            });
         }
 
-        if (this.familyMemberInfo.tempAccess.code === 'yes') {
-            formData.append(
-                'accountAvailabilityDate',
-                this.familyMemberInfo['accountAvailabilityDate'].toISOString()
-            );
-            formData.append(
-                'accountExpirationDate',
-                this.familyMemberInfo['accountExpirationDate'].toISOString()
-            );
+        // Append addressId and unit
+        this.familyMemberInfo.addressId.forEach((condo) => {
+            formData.append('addressId', condo.code);
+            formData.append('unit', condo.unit);
+        });
+
+        if (this.familyMemberInfo?.avatar) {
+            formData.append('avatar', this.familyMemberInfo.avatar);
         }
 
-        for (const key in this.familyMemberInfo) {
-            if (
-                key === 'addressId' ||
-                key === 'accountAvailabilityDate' ||
-                key === 'accountExpirationDate'
-            ) {
-                continue;
+        // Append temporal access dates if applicable
+        if (this.familyMemberInfo.tempAccess?.code === 'yes') {
+            const availabilityDate =
+                this.familyMemberInfo.accountAvailabilityDate;
+            const expirationDate = this.familyMemberInfo.accountExpirationDate;
+
+            if (availabilityDate) {
+                formData.append(
+                    'accountAvailabilityDate',
+                    availabilityDate.toISOString()
+                );
             }
-            if (
-                Object.prototype.hasOwnProperty.call(
-                    this.familyMemberInfo[key],
-                    'code'
-                )
-            ) {
-                formData.append(key, this.familyMemberInfo[key].code);
-            } else {
-                formData.append(key, this.familyMemberInfo[key]);
+            if (expirationDate) {
+                formData.append(
+                    'accountExpirationDate',
+                    expirationDate.toISOString()
+                );
             }
         }
+
+        // Fields to exclude from iteration
+        const excludedFields = [
+            'addressId',
+            'accountAvailabilityDate',
+            'accountExpirationDate',
+            'avatar',
+        ];
+
+        // Append remaining fields
+        Object.entries(this.familyMemberInfo).forEach(([key, value]) => {
+            if (excludedFields.includes(key)) return;
+
+            // Handle objects with 'code' property
+            if (value && typeof value === 'object' && 'code' in value) {
+                const codeValue = (value as { code: string }).code;
+                if (codeValue) {
+                    formData.append(key, codeValue);
+                }
+            }
+            // Handle primitive values
+            else if (value !== null && value !== undefined && value !== '') {
+                formData.append(key, String(value));
+            }
+        });
 
         return formData;
     }
 
+    public loadingBtnCreate: boolean = false;
     onSubmit(form: NgForm) {
         const formData = this.formatFormData();
+        // this.loadingBtnCreate = true;
 
         this._confirmationService.confirm({
             header: 'Confirmation',
@@ -409,6 +431,7 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
                                 this.condoFound = [];
                                 this.getCondoOptions();
                                 form.reset();
+                                this.loadingBtnCreate = false;
                                 this.image =
                                     this.url +
                                     'main-avatar/owners/noimage.jpeg';
@@ -417,9 +440,7 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
                         },
                         error: (error) => {
                             console.log(error);
-                        },
-                        complete: () => {
-                            console.log('Create Family Completed');
+                            this.loadingBtnCreate = false;
                         },
                     });
             },

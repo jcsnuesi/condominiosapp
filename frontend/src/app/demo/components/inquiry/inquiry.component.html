@@ -665,6 +665,7 @@
     <!-- Inquiry Details Dialog -->
     <p-dialog
         [(visible)]="displayInquiryDetailDialog"
+        (onHide)="clearSelectedInquiry()"
         header="Inquiry Details"
         [modal]="true"
         [style]="{ width: '900px', maxHeight: '90vh' }"
@@ -765,7 +766,12 @@
                                 >
                                     <div class="flex align-items-center gap-2">
                                         <div class="font-semibold text-900">
-                                            {{ "Admin User" }}
+                                            {{
+                                                response.respondedByModel ===
+                                                "Admin"
+                                                    ? "Admin User"
+                                                    : "Resident User"
+                                            }}
                                         </div>
                                         <p-tag
                                             [value]="response.respondedByRole"
