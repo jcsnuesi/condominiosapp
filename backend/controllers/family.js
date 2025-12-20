@@ -18,6 +18,7 @@ const password = generatePassword.generate({
   lowercase: true, // Incluir letras minúsculas
   excludeSimilarCharacters: true, // Excluir caracteres similares
 });
+const mongoose = require("mongoose");
 const emailVerification = require("../service/generateVerification");
 const wsConfirmationMessage = require("./whatsappController");
 let checkExtensions = require("../service/extensions");
@@ -26,9 +27,8 @@ const familyController = {
   createAccount: async (req, res) => {
     let params = req.body;
 
-    if (Boolean(req.files.avatar)) {
-      let { path, ...res } = req.files.avatar;
-      params.avatar = path.split("\\")[2];
+    if (Boolean(req.files)) {
+      params.avatar = req.file.filename;
     }
 
     try {
@@ -49,8 +49,8 @@ const familyController = {
 
       if (familyFound) {
         // Eliminar la imagen subida si no se crea el usuario o si ya existe
-        if (Boolean(req.files.avatar)) {
-          await fs.unlinkSync(path.resolve(req.files.avatar.path));
+        if (Boolean(req.file)) {
+          await fs.unlinkSync(path.resolve(req.file.path));
         }
         return res.status(203).send({
           status: "error",
@@ -58,109 +58,89 @@ const familyController = {
         });
       }
 
-      let query =
-        typeof params.addressId === "string"
-          ? [params.addressId]
-          : params.addressId;
-
-      const { propertyDetails, ...ownerdata } = await Owner.findOne({
-        $and: [
-          { _id: params.ownerId },
-          { "propertyDetails.addressId": { $in: query } },
-        ],
-      });
-
-      let condoInfoId = { addressId: "", unit: "", family_status: "" };
-      const familyMember = new Family();
-
-      propertyDetails.forEach((property) => {
-        (condoInfoId.addressId = property.addressId),
-          (condoInfoId.unit = property.condominium_unit);
-        condoInfoId.family_status = "authorized";
-        familyMember.propertyDetails.push(condoInfoId);
-      });
-
-      for (const key in params) {
-        if (key === "addressId" || key == "avatar") continue;
-
-        familyMember[key] = params[key];
-      }
-
-      let newMember;
-      // asignamos una contraseña temporal
-      familyMember.password = password;
-
       try {
+        const familyMember = new Family({
+          avatar: params.avatar ?? "noimage.jpeg",
+          name: params.name,
+          lastname: params.lastname,
+          gender: params.gender,
+          email: params.email,
+          password: password,
+          phone: params.phone,
+          createdBy: params.ownerId,
+          propertyDetails: [
+            {
+              addressId: params.addressId,
+              unit: params.unit,
+            },
+          ],
+          accountAvailabilityDate: params.accountAvailabilityDate ?? null,
+          accountExpirationDate: params.accountExpirationDate ?? null,
+        });
+
         //Creamos al usuario
-        newMember = await familyMember.save();
+        const newMember = await familyMember.save();
         // Buscamos el condominio para enviar el nombre del condominio por whatsapp y correo
-        let condoinfo = await Condominium.findById(params.addressId);
+        let condoinfo = await Condominium.findById(
+          mongoose.Types.ObjectId(params.addressId)
+        )
+          .select("alias")
+          .lean();
         newMember.condominioName = condoinfo.alias;
         // Enviar correo de verificación
         emailVerification.verifyRegistration(newMember);
         // Enviar mensaje de confirmación por whatsapp
         wsConfirmationMessage.sendWhatsappMessage(newMember);
+        return res.status(200).send({
+          status: "success",
+          message: newMember,
+        });
       } catch (error) {
         // Eliminar la imagen subida si no se crea el usuario o si ya existe
-        if (Boolean(req.files.avatar)) {
-          await fs.unlinkSync(path.resolve(req.files.avatar.path));
+        console.log("Error creating family member:", error);
+        if (Boolean(req.file)) {
+          await fs.unlinkSync(path.resolve(req.file.path));
         }
         return res.status(500).send({
           status: "error",
           message: "Missing params to create this user",
         });
       }
-
-      return res.status(200).send({
-        status: "success",
-        message: newMember,
-      });
     }
   },
-  getFamilyByOwnerId: function (req, res) {
-    let params = req.params.id;
+  getFamilyByOwnerId: async function (req, res) {
+    let params = mongoose.Types.ObjectId(req.params.id);
 
-    Family.find({
-      $and: [{ ownerId: params }, { delete: false }],
-    })
-      .select("-password")
-      .populate({
-        path: "propertyDetails.addressId",
-        model: "Condominium",
-        select:
-          "alias type phone street_1 street_2 sector_name city province zipcode country socialAreas condominium_unit status",
+    try {
+      const familyFound = await Family.find({
+        $and: [{ createdBy: params }, { delete: false }],
       })
-      .populate({
-        path: "ownerId",
-        model: "Owner",
-        select: "name lastname email propertyDetails",
-        populate: {
+        .select("-password")
+        .populate({
           path: "propertyDetails.addressId",
           model: "Condominium",
           select:
-            "alias type phone street_1 street_2 sector_name city province zipcode country socialAreas condominium_unit",
-        },
-      })
-      .exec((err, familyFound) => {
-        if (err) {
-          return res.status(500).send({
-            status: "error",
-            message: "Server error, try again",
-          });
-        }
+            "alias type phone street_1 street_2 sector_name city province zipcode country socialAreas condominium_unit status",
+        })
+        .exec();
 
-        if (!familyFound) {
-          return res.status(404).send({
-            status: "error",
-            message: "Family not found",
-          });
-        }
-        delete familyFound.password;
-        return res.status(200).send({
-          status: "success",
-          message: familyFound,
+      if (!familyFound) {
+        return res.status(404).send({
+          status: "error",
+          message: "Family not found",
         });
+      }
+      delete familyFound.password;
+      return res.status(200).send({
+        status: "success",
+        message: familyFound,
       });
+    } catch (error) {
+      return res.status(500).send({
+        status: "error",
+        message: "Server error, try again",
+      });
+    }
   },
   getFamilyMemberByCondoId: async function (req, res) {
     let params = req.params.condoId;

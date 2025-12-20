@@ -405,11 +405,77 @@ var Condominium_Controller = {
     }
   },
 
+  getOwnerCondoAndInvoices: async function (req, res) {
+    const ownerId = mongoose.Types.ObjectId(req.params.id);
+    try {
+      const ownerWithCondo = await Owner.find({ _id: ownerId }).populate({
+        path: "propertyDetails.addressId",
+        model: "Condominium",
+        select:
+          "_id alias phone street_1 street_2 sector_name city province zipcode country socialAreas status mPayment createdAt status_property",
+      });
+
+      const invoices = await Invoice.aggregate([
+        {
+          $match: {
+            ownerId: mongoose.Types.ObjectId(ownerId),
+            paymentStatus: "pending",
+            condominiumId: {
+              $in: ownerWithCondo.flatMap((owner) =>
+                owner.propertyDetails.map((pd) =>
+                  mongoose.Types.ObjectId(pd.addressId._id)
+                )
+              ),
+            },
+          },
+        },
+        {
+          $group: {
+            _id: "$condominiumId",
+            totalPendingAmount: { $sum: "$amount" },
+            totalInvoices: { $sum: 1 },
+          },
+        },
+        {
+          $lookup: {
+            from: "condominia",
+            localField: "_id",
+            foreignField: "_id",
+            as: "condominium",
+          },
+        },
+        {
+          $unwind: "$condominium",
+        },
+        {
+          $project: {
+            _id: 0,
+            condominiumId: "$_id",
+            condominium: 1,
+            totalPendingAmount: 1,
+            totalInvoices: 1,
+          },
+        },
+      ]);
+      console.log("ownerWithCondo:", invoices);
+      return res.status(200).send({
+        status: "success",
+        condominium: invoices,
+      });
+    } catch (error) {
+      return res.status(500).send({
+        status: "error",
+        message: "Server error retrieving condominiums for this owner",
+        error: error.message,
+      });
+    }
+  },
+
   getBuildingDetails: async function (req, res) {
-    const { id } = req.params;
+    const objectId = mongoose.Types.ObjectId(req.params.id);
 
     // Validar que el id exista y sea un ObjectId válido
-    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+    if (!objectId || !mongoose.Types.ObjectId.isValid(objectId)) {
       return res.status(400).send({
         status: "error",
         message: "Invalid or missing id parameter",
@@ -417,8 +483,6 @@ var Condominium_Controller = {
     }
 
     try {
-      const objectId = mongoose.Types.ObjectId(id);
-
       // Buscar condominios donde el id sea _id, createdBy o esté en units_ownerId
       const condominiums = await Condominium.find({
         $or: [

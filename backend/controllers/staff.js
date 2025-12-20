@@ -57,7 +57,7 @@ var StaffController = {
 
       //verificar la extension de archivo enviado sea tipo imagen
       var imgFormatAccepted = checkExtensions.confirmExtension(req);
-      console.log("imgFormatAccepted", imgFormatAccepted);
+
       if (imgFormatAccepted == false) {
         return res.status(400).send({
           status: "bad request",

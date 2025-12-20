@@ -8,6 +8,32 @@ const {
   ownerAuth,
   adminAuth,
 } = require("../middleware/middleware_bundle");
+const multer = require("multer");
+const path = require("path");
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads/families/");
+  },
+  filename: function (req, file, cb) {
+    const uniqueName = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    const ext = path.extname(file.originalname); // <-- obtiene la extension .pdf
+    cb(null, uniqueName + ext); // <-- agrega la extension
+  },
+});
+
+const fileFilter = (req, file, cb) => {
+  const filetypes = /jpeg|jpg|png/;
+  const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+  const mimetype = filetypes.test(file.mimetype);
+
+  if (extname && mimetype) {
+    cb(null, true);
+  } else {
+    cb(new Error("Solo imágenes JPG, JPEG o PNG"));
+  }
+};
+
+const upload = multer({ storage: storage, fileFilter: fileFilter });
 const multipart = require("connect-multiparty");
 const md_upload = multipart({ uploadDir: "./uploads/families" });
 
@@ -26,7 +52,7 @@ router.get(
 // POST METHOD
 router.post(
   "/create-family",
-  [authenticated, md_upload],
+  [authenticated, upload.single("avatar"), ownerAuth],
   familyController.createAccount
 );
 

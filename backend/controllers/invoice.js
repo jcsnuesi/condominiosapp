@@ -307,74 +307,45 @@ var invoiceController = {
         STAFF_ADMIN: Staff_Admin,
         STAFF: Staff,
       };
-      var invoices;
+
+      var query = null;
       if (role == "OWNER") {
-        invoices = await Invoice.find({
+        query = {
           ownerId: id,
-        })
-          .populate({
-            path: "ownerId",
-            model: "Owner",
-            select: "name lastname email phone id_number propertyDetails",
-          })
-          .populate(
-            "condominiumId",
-            "alias phone street_1 street_2 sector_name city province country"
-          )
-          .sort({ createdAt: -1 }) // Sort by newest first
-          .exec();
+        };
       } else if (role == "FAMILY") {
         const ownerData = await models[role]
           .findOne({ _id: id })
           .select("createdBy");
-        invoices = await Invoice.find({
+        query = {
           ownerId: ownerData.createdBy,
-        })
-          .populate({
-            path: "ownerId",
-            model: "Owner",
-            select: "name lastname email phone id_number propertyDetails",
-          })
-          .populate(
-            "condominiumId",
-            "alias phone street_1 street_2 sector_name city province country"
-          )
-          .sort({ createdAt: -1 }) // Sort by newest first
-          .exec();
+        };
       } else if (role == "STAFF_ADMIN" || role == "STAFF") {
         const adminData = await models[role]
           .findOne({ _id: id })
           .select("createdBy");
-        invoices = await Invoice.find({
+
+        query = {
           createdBy: adminData.createdBy,
-        })
-          .populate({
-            path: "ownerId",
-            model: "Owner",
-            select: "name lastname email phone id_number propertyDetails",
-          })
-          .populate(
-            "condominiumId",
-            "alias phone street_1 street_2 sector_name city province country"
-          )
-          .sort({ createdAt: -1 }) // Sort by newest first
-          .exec();
-      } else if (role == "ADMIN") {
-        invoices = await Invoice.find({
-          $or: [{ condominiumId: id }, { ownerId: id }],
-        })
-          .populate({
-            path: "ownerId",
-            model: "Owner",
-            select: "name lastname email phone id_number propertyDetails",
-          })
-          .populate(
-            "condominiumId",
-            "alias phone street_1 street_2 sector_name city province country"
-          )
-          .sort({ createdAt: -1 }) // Sort by newest first
-          .exec();
+        };
+      } else {
+        query = {
+          $or: [{ createdBy: id }, { condominiumId: id }],
+        };
       }
+
+      const invoices = await Invoice.find(query)
+        .populate({
+          path: "ownerId",
+          model: "Owner",
+          select: "name lastname email phone id_number propertyDetails",
+        })
+        .populate(
+          "condominiumId",
+          "alias phone street_1 street_2 sector_name city province country"
+        )
+        .sort({ createdAt: -1 }) // Sort by newest first
+        .exec();
 
       if (!invoices || invoices.length === 0) {
         return res.status(404).send({
@@ -394,7 +365,9 @@ var invoiceController = {
           invoice.createdAt && format(invoice.createdAt, "dd/MM/yyyy HH:mm"),
       }));
 
-      console.log("Fetched invoices for identifier:", invoices);
+      let pendingAmout = invoices
+        .filter((inv) => inv.status === "pending")
+        .reduce((sum, inv) => sum + inv.amount, 0);
       return res.status(200).send({
         status: "success",
         invoices: formattedInvoices,
@@ -405,6 +378,7 @@ var invoiceController = {
           paid: invoices.filter((inv) => inv.status === "paid").length,
           expired: invoices.filter((inv) => inv.invoice_status === "expired")
             .length,
+          totalAmountDue: pendingAmout,
         },
       });
     } catch (error) {

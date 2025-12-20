@@ -26,6 +26,11 @@ router.get(
   authenticated,
   condominioController.getBuildingDetails
 );
+router.get(
+  "/condoWithInvoice/:id",
+  authenticated,
+  condominioController.getOwnerCondoAndInvoices
+);
 router.get("/avatarCondominios/:avatar", condominioController.getAvatar);
 // Obtener todas las unidades del owner con el ownerId y todos los condominios del admin con el adminId
 router.get("/getUnits/:id", [authenticated], condominioController.getUnits);

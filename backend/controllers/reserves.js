@@ -121,7 +121,6 @@ var reservesController = {
         id = [mongoose.Types.ObjectId(id)];
       }
 
-      console.log("--------------->ID:", id);
       let reservations = await Reserves.find({
         $or: [{ memberId: { $in: id } }, { condoId: { $in: id } }],
       })

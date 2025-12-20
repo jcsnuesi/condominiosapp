@@ -821,6 +821,7 @@ router.post(
         createdBy,
         condominiumId,
         createdInquiryBy,
+        apartmentUnit,
       } = req.body;
 
       // ✅ Validaciones
@@ -881,6 +882,7 @@ router.post(
         attachments: attachments,
         createdAt: new Date(),
         createdInquiryBy: createdInquiryBy,
+        apartmentUnit: apartmentUnit,
       });
 
       const savedInquiry = await newInquiry.save();
@@ -890,7 +892,7 @@ router.post(
         { path: "condominiumId", select: "name address" },
       ]);
 
-      res.status(201).send({
+      res.status(200).send({
         status: "success",
         message: "Inquiry created successfully",
         data: savedInquiry,
