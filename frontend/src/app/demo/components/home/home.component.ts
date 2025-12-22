@@ -248,7 +248,7 @@ export class HomeComponent implements OnInit {
         this._messageService.add(event);
     }
 
-    unitFormatOnInit(property_data) {
+    unitFormatOnInit(property_data): void {
         const propertyDetails = property_data.propertyDetails;
 
         const units = propertyDetails
@@ -258,14 +258,13 @@ export class HomeComponent implements OnInit {
             });
 
         if (units.length === 0) {
-            return 'No units available';
+            return;
         }
 
         property_data.condominium_unit =
             units.length > 2
                 ? `${units.slice(0, 2).join(', ')}...`
                 : units.join(', ');
-        return property_data.condominium_unit;
     }
 
     public userDialog: boolean;
@@ -328,12 +327,6 @@ export class HomeComponent implements OnInit {
                                 this._formatFunctions.monthlyBillFormat(
                                     this.condoInfo.paymentDate
                                 );
-
-                            // unitList['units'] = unitList.availableUnits.map(
-                            //     (unit) => {
-                            //         return { label: unit };
-                            //     }
-                            // );
                         }
                     },
                     (error) => {
@@ -461,7 +454,7 @@ export class HomeComponent implements OnInit {
         this.ownerData = [];
 
         this.ownerData.push(info);
-        console.log(' this.ownerData', this.ownerData);
+
         // this.ownerData.push(null);
         this.ownerData.push(this.invoicesObj.invoices);
         // this.ownerData.push(null);
@@ -570,19 +563,13 @@ export class HomeComponent implements OnInit {
             .getStaffByOwnerCondo(this.token, this.condoId)
             .subscribe({
                 next: (response) => {
-                    if (response.status == 'success') {
+                    console.log('staffByOwnerCondo response', response);
+                    if (response?.status == 'success') {
                         this.activeStaffQty =
                             response.message.filter(
                                 (staff) => staff.status == 'active'
                             ).length ?? 0;
                         this.stafflistNumber = response.message.length ?? 0;
-                    } else {
-                        this._messageService.add({
-                            severity: 'warn',
-                            summary: 'Message for server',
-                            detail: 'Staff was not found',
-                            life: 3000,
-                        });
                     }
                 },
                 error: (error) => {
@@ -751,9 +738,6 @@ export class HomeComponent implements OnInit {
                 },
                 error: (error) => {
                     console.log(error);
-                },
-                complete: () => {
-                    console.log('completed');
                 },
             });
     }

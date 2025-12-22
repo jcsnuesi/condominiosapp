@@ -155,7 +155,7 @@ export class PaymentsHistoryComponent implements OnInit {
             .getInvoiceByOwner(this.token, this.ownerIdInput)
             .subscribe({
                 next: (result) => {
-                    if (result.status == 'success') {
+                    if (result?.status == 'success') {
                         let invoice = result.invoices;
                         // console.log('===================>invoice', invoice);
                         this.bodyTableInfo = invoice.map((invoice) => {

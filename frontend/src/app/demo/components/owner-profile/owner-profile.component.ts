@@ -94,7 +94,7 @@ export class OwnerProfileComponent implements OnInit {
     };
 
     public invoicePaid: any[] = [];
-    public OwnerData: Array<any> = [];
+    public ownerData: any;
     public memberCard: { count: 0; active: 0 } = {
         count: 0,
         active: 0,
@@ -191,7 +191,8 @@ export class OwnerProfileComponent implements OnInit {
 
         this._activatedRoute.params.subscribe((param) => {
             const ownerId = param['id'];
-            this.OwnerData = [];
+            this.ownerData = ownerId;
+            console.log('ownerId===========', ownerId);
 
             this._ownerService.getOwnerAssets(this.token, ownerId).subscribe({
                 next: (response) => {
@@ -199,10 +200,10 @@ export class OwnerProfileComponent implements OnInit {
                         let { owner, bookings, invoices, invoicePaid } =
                             response.message;
                         let { propertyDetails } = owner;
-                        this.OwnerData.push(owner);
-                        this.OwnerData.push(propertyDetails);
-                        this.OwnerData.push(invoices);
-                        this.OwnerData.push(ownerId);
+
+                        // this.ownerData.push(propertyDetails);
+                        // this.ownerData.push(invoices);
+                        // this.ownerData.push(ownerId);
                         let { familyAccount } = owner;
                         this.ownerObj = owner;
                         this.ownerObj.status = owner.status;

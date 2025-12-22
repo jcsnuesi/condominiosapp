@@ -23,12 +23,10 @@ export class BookingServiceService {
     }
 
     getBooking(token: any, id: any): Observable<any> {
-        let headers = new HttpHeaders()
-            .set('Authorization', token)
-            .set('Content-Type', 'application/json');
-        return this._http.post(
-            this.url + 'get-bookings',
-            { id: id },
+        let headers = new HttpHeaders().set('Authorization', token);
+        return this._http.get(
+            this.url + 'get-bookings/' + id,
+
             {
                 headers: headers,
             }

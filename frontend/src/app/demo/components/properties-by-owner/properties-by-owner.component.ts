@@ -16,6 +16,16 @@ import { KeysValuesPipe } from 'src/app/pipes/perservedOrder';
 import { FormatFunctions } from 'src/app/pipes/formating_text';
 import { OwnerRegistrationComponent } from '../owner-registration/owner-registration.component';
 
+interface OwnerDataInter {
+    id: string;
+    name?: string;
+    lastname?: string;
+    email?: string;
+    phone?: string;
+    gender?: { label: string } | string;
+    id_number?: string;
+}
+
 @Component({
     selector: 'app-properties-by-owner',
     standalone: true,
@@ -51,7 +61,7 @@ export class PropertiesByOwnerComponent implements OnInit {
     public parkingSelected: { label: number }[];
     private token: string;
     public showAvailableProperties: boolean = false;
-    public sendOwnerDataToPropertyRegistration: any = {};
+    public sendOwnerDataToPropertyRegistration: OwnerDataInter;
     public url: string;
     public editBtnStyle: {
         severity: string;
@@ -74,9 +84,7 @@ export class PropertiesByOwnerComponent implements OnInit {
     ) {
         this.token = this._userService.getToken();
         this.url = global.url;
-        this.sendOwnerDataToPropertyRegistration = {};
 
-        this.ownerData = [];
         this.unitsOptions = [{ label: '' }];
         this.unitSelected = [{ label: '' }];
         this.parkingOptions = [
@@ -99,19 +107,52 @@ export class PropertiesByOwnerComponent implements OnInit {
     // Metodo para traer las propiedades activas de un propietario  addProperty
     public availableUnitsList: any[] = [];
     getActiveProperties(): void {
-        console.log('DATA #1', this.ownerData);
+        // console.log('ownerData-------->', this.ownerData);
         this._condominioService
             .getCondoWithInvoice(this.token, this.ownerData)
             .subscribe({
                 next: (response) => {
-                    console.log('Condo with invoice response', response);
+                    this.propertiesOwner = response.condominium.map((condo) => {
+                        return {
+                            ownerId: condo.owner_data.id,
+                            owner_data: condo.owner_data,
+                            id: condo.addressId._id,
+                            alias: condo.addressId.alias,
+                            units: condo.condominium_unit,
+                            address:
+                                condo.addressId.street_1 +
+                                ', ' +
+                                condo.addressId.street_2 +
+                                ', ' +
+                                condo.addressId.sector_name +
+                                ', ' +
+                                condo.addressId.city +
+                                ', ' +
+                                condo.addressId.province +
+                                ', ' +
+                                ', ' +
+                                condo.addressId.zipcode,
+                            parkingsQty: condo.parkingsQty,
+                            pending_balance: condo.pending_balance,
+                            status: condo.status_property,
+                            showUnits: true,
+                            unitSelected: { label: condo.condominium_unit },
+                            parkingSelected: { label: condo.parkingsQty },
+                            unitsOptions: condo.addressId.availableUnits.map(
+                                (unit: any) => {
+                                    return { label: unit };
+                                }
+                            ),
+                        };
+                    });
 
-                    this.propertiesOwner = response.condominiums;
-                    this.propertiesOwner.pending_balance =
-                        response.condominiums.totalPendingAmount;
-
-                    this.availableUnitsList = response.availableUnitsList;
-                    // this.propertiesOwner = this.buildData(propertyDetails);
+                    this.editBtnStyle = new Array(
+                        this.propertiesOwner.length
+                    ).fill({
+                        severity: 'warning',
+                        icon: 'pi pi-pencil',
+                        class: 'p-button-rounded hover:bg-yellow-600 hover:border-yellow-600 hover:text-white',
+                    });
                 },
                 error: (err) => {
                     console.log('ERROR', err);
@@ -122,101 +163,24 @@ export class PropertiesByOwnerComponent implements OnInit {
                     });
                 },
             });
-        // if (_ == null && propertyDetails == null) {
-        //     let { condoId } = owner;getCondoWithInvoice
-        //     propertyDetails = owner.propertyDetails.filter(
-        //         (property) =>
-        //             String(property.addressId._id).trim() ===
-        //             String(condoId).trim()
-        //     );
-        //     propertyDetails.forEach((property) => {
-        //         property.ownerId = owner._id;
-        //     });
-        // } else {
-        //     propertyDetails.ownerId = owner._id;
-        // }
-
-        // this.propertiesOwner = this.buildData(propertyDetails);
-    }
-
-    buildData(propertyDetails: any) {
-        console.log('buildData', propertyDetails);
-        propertyDetails.forEach((element, i) => {
-            element.id = element.addressId._id;
-            element.address =
-                element.addressId.street_1 +
-                ', ' +
-                element.addressId.street_2 +
-                ', ' +
-                element.addressId.sector_name +
-                ', ' +
-                element.addressId.province +
-                ', ' +
-                element.addressId.city +
-                ', ' +
-                (Boolean(element.addressId.zipcode)
-                    ? element.addressId.zipcode
-                    : '00000') +
-                ', ' +
-                element.addressId.country;
-            element.alias = element.addressId.alias;
-            element.pending_balance = this.getInvoiceByOwnerByOwnerId(
-                element.addressId._id
-            );
-            element.status = element.addressId.status;
-            element.units = String(element.condominium_unit);
-            element.showUnits = true;
-            element.unitSelected = { label: element.units };
-            element.parkingSelected = { label: element.parkingsQty };
-        });
-        this.editBtnStyle = new Array(propertyDetails.length).fill({
-            severity: 'warning',
-            icon: 'pi pi-pencil',
-            class: 'p-button-rounded hover:bg-yellow-600 hover:border-yellow-600 hover:text-white',
-        });
-
-        return propertyDetails;
     }
 
     public invoiceFullData = [];
-    getInvoiceByOwnerByOwnerId(condoId: string): number {
-        let [owner, propertyDetails, invoices, ownerId] = [...this.ownerData];
-
-        if (invoices.length == 0) return 0;
-
-        let invoice = invoices.filter(
-            (inv) => inv.ownerId === ownerId && inv.condoId === condoId
-        )[0];
-        return invoice ? invoice.totalAmount : 0;
-    }
 
     addNewProperty() {
         this.showAvailableProperties = this.showAvailableProperties
             ? false
             : true;
 
-        let [owner, propertyDetails, invoices, ownerId] = [...this.ownerData];
-
-        this.sendOwnerDataToPropertyRegistration = {
-            name: owner.name,
-            lastname: owner.lastname,
-            gender: owner.gender,
-            phone: owner.phone.replace(/\D/g, ''),
-            id_number: owner.id_number.replace(/\D/g, ''),
-            email: owner.email,
+        this.sendOwnerDataToPropertyRegistration =
+            this.propertiesOwner[0].owner_data;
+        this.sendOwnerDataToPropertyRegistration.gender = {
+            label: this.propertiesOwner[0].owner_data.gender,
         };
     }
 
     activarEditarUnit(index: any, data: any): void {
-        let unitAvilable = [];
-        console.log('DATA', data);
         data.showUnits = data.showUnits ? false : true;
-
-        data.addressId.availableUnits.forEach((element: any) => {
-            unitAvilable.push({ label: element });
-        });
-
-        this.unitsOptions = unitAvilable;
 
         let btnConfig = this.editBtnStyle[index];
 
@@ -279,8 +243,7 @@ export class PropertiesByOwnerComponent implements OnInit {
                                     detail: 'Property updated successfully',
                                 });
 
-                                this.propertiesOwner =
-                                    this.buildData(propertyDetails);
+                                this.getActiveProperties();
                             } else {
                                 this._messageService.add({
                                     severity: 'error',

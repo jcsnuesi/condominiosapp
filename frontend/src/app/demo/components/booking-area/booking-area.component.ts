@@ -214,14 +214,13 @@ export class BookingAreaComponent implements OnInit {
         this.getAllBookings(this.condoId);
         this.isOwner();
     }
-    getAllBookings(paramId: any) {
+    getAllBookings(paramId: string | [string]) {
         /**Este metodo obtiene las reservas del condominio*/
 
         this._bookingService.getBooking(this.token, paramId).subscribe({
             next: (response) => {
-                if (response.status === 'success') {
+                if (response?.status === 'success') {
                     let allBookinInfo = response.message;
-
                     try {
                         this.bookingHistory = allBookinInfo.map((booking) => {
                             let bookName = null;

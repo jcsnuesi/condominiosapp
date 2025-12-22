@@ -200,7 +200,7 @@ export class OwnerRegistrationComponent implements OnInit, OnChanges {
         this.ownerObj.addressId = param;
         this._condominioService.getBuilding(this.token, param).subscribe({
             next: (response) => {
-                console.log('getBuilding response', response);
+                // console.log('getBuilding response', response);
                 if (response.status == 'success') {
                     // Formatear los detalles de la dirección
 
@@ -239,7 +239,7 @@ export class OwnerRegistrationComponent implements OnInit, OnChanges {
                 next: (response) => {
                     if (response.status == 'success') {
                         const ownerFound = response.message;
-                        console.log('searchExistingUser', this.ownerObj);
+                        // console.log('searchExistingUser', this.ownerObj);
                         let gender = {
                             label: this._formatFunctions.titleCase(
                                 ownerFound.gender
@@ -418,7 +418,7 @@ export class OwnerRegistrationComponent implements OnInit, OnChanges {
         isRenting: any,
         parkingsQty: any
     ): boolean {
-        console.log('apartmentsUnit', apartmentsUnit.invalid);
+        // console.log('apartmentsUnit', apartmentsUnit.invalid);
         return (
             apartmentsUnit.invalid || isRenting.invalid || parkingsQty.invalid
         );

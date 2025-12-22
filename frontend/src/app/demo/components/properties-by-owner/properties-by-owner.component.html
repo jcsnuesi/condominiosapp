@@ -79,7 +79,7 @@
                         <td>{{ i + 1 }}</td>
                         <td>{{ data.alias }}</td>
                         <td *ngIf="data.showUnits">
-                            {{ data.unit }}
+                            {{ data.units }}
                         </td>
                         <td style="width: 0.5%" *ngIf="!data.showUnits">
                             <p-dropdown
@@ -92,7 +92,7 @@
                                 }"
                                 #pro_availables="ngModel"
                                 name="pro_availables"
-                                [options]="unitsOptions"
+                                [options]="data.unitsOptions"
                                 [(ngModel)]="data.unitSelected"
                                 optionLabel="label"
                                 appendTo="body"
@@ -144,7 +144,7 @@
                                 [outlined]="true"
                                 icon="pi pi-trash"
                                 class="p-button-rounded hover:bg-red-600 hover:border-red-600 hover:text-white"
-                                (click)="deleteUnit(data.id, data.units)"
+                                (click)="deleteUnit(data.id, data.unit)"
                             ></button>
                         </td>
                     </tr>

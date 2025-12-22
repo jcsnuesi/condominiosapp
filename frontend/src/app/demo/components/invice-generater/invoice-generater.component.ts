@@ -129,7 +129,7 @@ export class InviceGeneraterComponent {
             paymentDate: dataFromFatherComponent.paymentDate,
             id: dataFromFatherComponent._id,
         };
-        console.log('Update Info:', this.updateInfo);
+        // console.log('Update Info:', this.updateInfo);
         this.invoiceSetup = false;
     }
 
