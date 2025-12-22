@@ -408,61 +408,58 @@ var Condominium_Controller = {
   getOwnerCondoAndInvoices: async function (req, res) {
     const ownerId = mongoose.Types.ObjectId(req.params.id);
     try {
-      const ownerWithCondo = await Owner.find({ _id: ownerId }).populate({
+      const ownerWithCondo = await Owner.findOne({ _id: ownerId }).populate({
         path: "propertyDetails.addressId",
         model: "Condominium",
         select:
-          "_id alias phone street_1 street_2 sector_name city province zipcode country socialAreas status mPayment createdAt status_property",
+          "_id alias availableUnits phone street_1 street_2 sector_name city province zipcode country socialAreas status mPayment createdAt",
       });
 
-      const invoices = await Invoice.aggregate([
-        {
-          $match: {
-            ownerId: mongoose.Types.ObjectId(ownerId),
-            paymentStatus: "pending",
-            condominiumId: {
-              $in: ownerWithCondo.flatMap((owner) =>
-                owner.propertyDetails.map((pd) =>
-                  mongoose.Types.ObjectId(pd.addressId._id)
-                )
-              ),
+      const invoices = await Invoice.find({
+        ownerId: ownerId,
+        status: "pending",
+      });
+
+      const ownerWithCondoAndInvoices = ownerWithCondo.propertyDetails.map(
+        (property) => {
+          const propertyInvoices = invoices
+            .filter(
+              (invoice) =>
+                invoice.condominiumId.equals(property.addressId._id) &&
+                invoice.unitNumber.trim() === property.condominium_unit.trim()
+            )
+            .reduce(
+              (acc, invoice) => {
+                acc.pending_balance += invoice.amount;
+                acc.invoices.push(invoice);
+                return acc;
+              },
+              { pending_balance: 0, invoices: [] }
+            );
+
+          return {
+            ...property.toObject(),
+            id: ownerWithCondo._id,
+            owner_data: {
+              name: ownerWithCondo.name,
+              lastname: ownerWithCondo.lastname,
+              email: ownerWithCondo.email,
+              phone: ownerWithCondo.phone,
+              gender: ownerWithCondo.gender,
+              id_number: ownerWithCondo.id_number,
             },
-          },
-        },
-        {
-          $group: {
-            _id: "$condominiumId",
-            totalPendingAmount: { $sum: "$amount" },
-            totalInvoices: { $sum: 1 },
-          },
-        },
-        {
-          $lookup: {
-            from: "condominia",
-            localField: "_id",
-            foreignField: "_id",
-            as: "condominium",
-          },
-        },
-        {
-          $unwind: "$condominium",
-        },
-        {
-          $project: {
-            _id: 0,
-            condominiumId: "$_id",
-            condominium: 1,
-            totalPendingAmount: 1,
-            totalInvoices: 1,
-          },
-        },
-      ]);
-      console.log("ownerWithCondo:", invoices);
+            invoices: propertyInvoices.invoices,
+            pending_balance: propertyInvoices.pending_balance,
+          };
+        }
+      );
+
       return res.status(200).send({
         status: "success",
-        condominium: invoices,
+        condominium: ownerWithCondoAndInvoices,
       });
     } catch (error) {
+      console.log("ownerWithCondo:", error);
       return res.status(500).send({
         status: "error",
         message: "Server error retrieving condominiums for this owner",

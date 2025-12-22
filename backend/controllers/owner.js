@@ -548,12 +548,7 @@ var ownerAndSubController = {
             },
           },
           { new: true }
-        ).populate({
-          path: "propertyDetails.addressId",
-          model: "Condominium",
-          select:
-            " avatar availableUnits alias phone street_1 street_2 sector_name city province zipcode country socialAreas mPayment status mPayment createdAt",
-        });
+        );
 
         const condoFound = await Condominio.findOne({
           $and: [

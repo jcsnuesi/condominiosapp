@@ -63,6 +63,7 @@ InvoiceSchema.index(
     ownerId: 1,
     unitNumber: 1,
     issueDate: 1,
+    paymentStatus: 1,
   },
   {
     unique: true,

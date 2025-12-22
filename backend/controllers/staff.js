@@ -461,6 +461,7 @@ var StaffController = {
       })
         .populate({
           path: "condo_id",
+          model: "Condominium",
           select: "_id alias",
         })
         .lean();
@@ -471,7 +472,8 @@ var StaffController = {
           message: staffFound,
         });
       } else {
-        return res.status(404).send({
+        console.log("No staff found for condo or owner ID:", rawId);
+        return res.status(204).send({
           status: "error",
           message: "No staff found",
         });

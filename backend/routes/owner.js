@@ -72,6 +72,7 @@ router.put(
   md_auth.authenticated,
   ownerController.updateProperties
 );
+
 router.put(
   "/delete-owner-unit",
   md_auth.authenticated,

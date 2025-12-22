@@ -266,7 +266,7 @@ var invoiceController = {
         }
 
         if (!invoices || invoices.length === 0) {
-          return res.status(404).send({
+          return res.status(204).send({
             status: "error",
             message: "There are no invoices to show.",
           });

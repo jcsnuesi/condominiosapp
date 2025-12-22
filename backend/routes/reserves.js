@@ -24,6 +24,12 @@ var md_upload = multipart({ uploadDir: "./uploads/users" });
 
 // GET
 
+router.get(
+  "/get-bookings/:id",
+  authenticated,
+  ReserveController.getAllBookingByCondoAndUnit
+);
+
 // router.get('/allReservation', md_auth.authenticated, ReserveController.getAllReservation)
 // router.get('/findReservation/:apartment/:addressId', md_auth.authenticated, ReserveController.getReservationByBooker)
 
@@ -35,12 +41,6 @@ router.post(
   "/create-booking",
   [authenticated, ownerAuth, checkAvailability, validateBookingData],
   ReserveController.createBooking
-);
-
-router.post(
-  "/get-bookings",
-  authenticated,
-  ReserveController.getAllBookingByCondoAndUnit
 );
 
 // router.post('/createUserByOwner', md_auth.authenticated, UserController.createUserByOwner)

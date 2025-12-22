@@ -15,7 +15,7 @@ let generateRandomCode = require("../service/codeGenerator");
 let bcrypt = require("bcrypt");
 let saltRounds = 10;
 let verifyGuest = require("../service/jwt");
-const { default: mongoose } = require("mongoose");
+const { default: mongoose, mongo } = require("mongoose");
 
 var reservesController = {
   createBooking: async function (req, res) {
@@ -105,24 +105,10 @@ var reservesController = {
     }
   },
   getAllBookingByCondoAndUnit: async function (req, res) {
-    let id = req.body.id;
-
-    let condoFound = await Condominium.find({
-      createdBy: id,
-    }).select("_id");
-
     try {
-      // Ejecutar la consulta
-      if (condoFound.length > 0) {
-        id = condoFound.map((condo) => condo._id);
-      } else if (Array.isArray(id)) {
-        id = id.map((item) => mongoose.Types.ObjectId(item));
-      } else {
-        id = [mongoose.Types.ObjectId(id)];
-      }
-
+      let id = mongoose.Types.ObjectId(req.params.id);
       let reservations = await Reserves.find({
-        $or: [{ memberId: { $in: id } }, { condoId: { $in: id } }],
+        $or: [{ memberId: id }, { condoId: id }],
       })
         .populate({
           model: "Condominium",
@@ -130,14 +116,13 @@ var reservesController = {
           select: "alias phone1 street_1 sector_name province city country",
         })
         .exec();
-
       if (reservations.length > 0) {
         return res.status(200).send({
           status: "success",
           message: reservations,
         });
       } else {
-        return res.status(200).send({
+        return res.status(204).send({
           status: "error",
           message: "No reservations found",
         });
