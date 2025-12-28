@@ -1,9 +1,9 @@
 "use strict";
 
 const express = require("express");
-var cors = require("cors");
-var bodyparser = require("body-parser");
-var morgan = require("morgan");
+const cors = require("cors");
+const bodyparser = require("body-parser");
+const morgan = require("morgan");
 const app = express();
 // In your main app.js or server file
 const invoiceService = require("./service/invoice_job");
@@ -22,19 +22,19 @@ async function initializeInvoiceSystem() {
 initializeInvoiceSystem();
 
 //Cargar rutas de archivos
-var user_routes = require("./routes/users");
-var property_routes = require("./routes/property");
-var task_routes = require("./routes/task");
-var guest_routes = require("./routes/guest");
-var reserve_routes = require("./routes/reserves");
-var docs_routes = require("./routes/docs");
-var cxc_routes = require("./routes/cxc");
-var invoice_routes = require("./routes/invoice");
-var personnel_routes = require("./routes/personnel");
-var condominio_routes = require("./routes/condominio");
-var staff_routes = require("./routes/staff");
-var owner = require("./routes/owner");
-var super_user = require("./routes/super_user");
+const user_routes = require("./routes/users");
+const property_routes = require("./routes/property");
+const task_routes = require("./routes/task");
+const guest_routes = require("./routes/guest");
+const reserve_routes = require("./routes/reserves");
+const docs_routes = require("./routes/docs");
+const cxc_routes = require("./routes/cxc");
+const invoice_routes = require("./routes/invoice");
+const personnel_routes = require("./routes/personnel");
+const condominio_routes = require("./routes/condominio");
+const staff_routes = require("./routes/staff");
+const owner = require("./routes/owner");
+const super_user = require("./routes/super_user");
 const family_routes = require("./routes/family");
 const inquiry_routes = require("./routes/inquiry");
 const notification_routes = require("./routes/notification");

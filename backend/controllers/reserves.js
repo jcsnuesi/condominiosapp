@@ -107,8 +107,18 @@ var reservesController = {
   getAllBookingByCondoAndUnit: async function (req, res) {
     try {
       let id = mongoose.Types.ObjectId(req.params.id);
+      const OwnerFound = await Owner.find({ createdBy: id })
+        .select("_id")
+        .exec();
+
       let reservations = await Reserves.find({
-        $or: [{ memberId: id }, { condoId: id }],
+        $or: [
+          { memberId: id },
+          { condoId: id },
+          {
+            memberId: { $in: OwnerFound.map((o) => o._id) },
+          },
+        ],
       })
         .populate({
           model: "Condominium",
@@ -116,6 +126,7 @@ var reservesController = {
           select: "alias phone1 street_1 sector_name province city country",
         })
         .exec();
+
       if (reservations.length > 0) {
         return res.status(200).send({
           status: "success",

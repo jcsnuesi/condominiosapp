@@ -1,115 +1,50 @@
 "use strict";
 
-var Docs = require("../models/docs");
 // const Condominium = require("../models/condominio");
 var validator = require("validator");
 var path = require("path");
 const fs = require("fs");
 const ExceptionHandler = require("../error/errorHandler");
-var directoryManagement = require("../service/createDirectory");
+const Condominium = require("../models/condominio");
+const Docs = require("../models/docs");
 var findDirectory = require("../service/findDirectory");
+const { model } = require("mongoose");
 
 var DocsController = {
-  createDoc: function (req, res) {
-    var docsAllowed = [
-      "pdf",
-      "gif",
-      "jpeg",
-      "jpg",
-      "png",
-      "doc",
-      "docx",
-      "xls",
-      "xlsx",
-    ];
-
+  createDoc: async function (req, res) {
     var params = req.body;
 
     try {
-      var filePath = req.files.file0.path;
-      var title_val = !validator.isEmpty(params.title);
-      var description_val = !validator.isEmpty(params.description);
-      var condoId_val = !validator.isEmpty(params.condoId);
+      const newDocs = new Docs({
+        title: params.title,
+        description: params.description,
+        category: params.category,
+        status: params.status,
+        createdBy: params.uploadedBy,
+        createdByModel: params.uploadedRole,
+        condoId: params.condominiumId,
+        file: req.files.map((file) => ({
+          filename: file.filename,
+          size: file.size,
+          mimetype: file.mimetype,
+          url: `/getDocsByName/${params.condominiumId}/${file.filename}`,
+        })),
+      });
+      await newDocs.save();
+
+      return res.status(200).send({
+        status: "success",
+        message: newDocs,
+      });
     } catch (error) {
+      console.log(error);
+      req.files.forEach((file) => {
+        fs.unlinkSync(file.path);
+      });
       return res.status(500).send({
         status: "error",
-        message: "File was not uploaded",
+        message: "Bad request",
       });
-    }
-
-    var fileSplit = filePath.split(/[".\\"]/);
-
-    if (!docsAllowed.includes(fileSplit[3])) {
-      fs.unlink(filePath, (err) => {
-        return res.status(400).send({
-          status: "Failed",
-          message: `Format file allowed ${docsAllowed}`,
-        });
-      });
-    }
-
-    if (title_val && description_val && condoId_val) {
-      Docs.find({
-        $and: [{ title: params.title }, { condoId: params.condoId }],
-      })
-        .populate(
-          "condoId",
-          "alias phone1 street_1 sector_name province city country"
-        )
-        .exec(async (err, docFound) => {
-          var Exceptions = ExceptionHandler.docRegistration(err, docFound);
-
-          if (Exceptions[0]) {
-            return res.status(Exceptions[1]).send({
-              status: Exceptions[2],
-              message: Exceptions[3],
-            });
-          }
-
-          var docsFields = new Docs();
-
-          for (const key in params) {
-            docsFields[key] = params[key];
-          }
-
-          if (req.user.role.includes("ROLE_ADMIN")) {
-            docsFields.createdByAdmin = req.user.sub;
-          } else if (req.user.role.includes("ROLE_STAFF")) {
-            docsFields.createdByStaff = req.user.sub;
-          }
-
-          const directory = await findDirectory.findDirectory(params.condoId);
-
-          // Crear carpeta para los futuros documentos de cada condominio
-          const newDirectory = `./uploads/docs/${directory}`;
-
-          const currentFilePath = "./uploads/docs";
-
-          const fileName = `${fileSplit[2]}.${fileSplit[3]}`;
-
-          const fileNewName = `${params.title}.${fileSplit[3]}`;
-
-          directoryManagement.CreateDirectory(
-            newDirectory,
-            currentFilePath,
-            fileName,
-            fileNewName
-          );
-
-          docsFields.save((err, docCreated) => {
-            if (err) {
-              return res.status(500).send({
-                status: "error",
-                message: "Server error",
-              });
-            }
-
-            return res.status(200).send({
-              status: "success",
-              message: docCreated,
-            });
-          });
-        });
     }
   },
   getDocsDirectoryByCondoId: async function (req, res) {
@@ -139,13 +74,55 @@ var DocsController = {
       });
     });
   },
-  openFileByPath: async function (req, res) {
-    var params = req.params.id;
-    var fileName = req.params.file;
+  getDirectoriesByCreatedBy: async function (req, res) {
+    let params = req.params.id;
 
     try {
-      var directory = await findDirectory.findDirectory(params);
-      var id_val = !validator.isEmpty(params);
+      const docsFound = await Docs.find({ createdBy: params })
+        .populate({
+          path: "condoId",
+          select: "alias",
+        })
+        .populate({
+          path: "createdBy",
+          select: "email name lastname",
+        });
+      console.log(docsFound);
+
+      if (!docsFound || docsFound.length === 0) {
+        return res.status(404).send({
+          status: "NOT FOUND",
+          message: "No documents found for the given creator.",
+        });
+      }
+
+      return res.status(200).send({
+        status: "success",
+        message: docsFound,
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send({
+        status: "error",
+        message: "Server error while retrieving documents.",
+      });
+    }
+  },
+  openFileByPath: async function (req, res) {
+    var filename = req.params.filename;
+    var directory = req.params.condoId;
+
+    var params = `./uploads/docs/${directory}/${filename}`;
+
+    try {
+      if (fs.existsSync(params)) {
+        return res.sendFile(path.resolve(params));
+      } else {
+        return res.status(404).send({
+          status: "error",
+          message: "Doc does not exists.",
+        });
+      }
     } catch (error) {
       return res.status(400).send({
         status: "Error",

@@ -4,15 +4,32 @@ let express = require("express");
 let router = express.Router();
 let DocsController = require("../controllers/docs");
 var md_auth = require("../middleware/auth");
+let fs = require("fs");
+const path = require("path");
 const multer = require("multer");
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "uploads/docs/"); // <-- carpeta de destino
+    const condoId = req.body.condominiumId;
+
+    if (!condoId) {
+      return cb(new Error("condoId es requerido"), null);
+    }
+
+    const uploadPath = path.join(__dirname, "..", "uploads", "docs", condoId);
+
+    // 📂 Crear directorio si no existe
+    fs.mkdir(uploadPath, { recursive: true }, (err) => {
+      if (err) {
+        return cb(err, null);
+      }
+      cb(null, uploadPath);
+    });
   },
+
   filename: function (req, file, cb) {
-    const uniqueName = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    const ext = path.extname(file.originalname); // <-- obtiene la extension .pdf
-    cb(null, uniqueName + ext); // <-- agrega la extension
+    const uniqueName = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+    const ext = path.extname(file.originalname).toLowerCase();
+    cb(null, uniqueName + ext);
   },
 });
 
@@ -20,13 +37,13 @@ const upload = multer({ storage: storage });
 // GET
 
 router.get(
-  "/getDirectory/:id",
+  "/docs/getDirectories/:id",
   md_auth.authenticated,
-  DocsController.getDocsDirectoryByCondoId
+  DocsController.getDirectoriesByCreatedBy
 );
 
 router.get(
-  "/getDocsByName/:id/:file",
+  "/docs/getDocsByName/:condoId/:filename",
   md_auth.authenticated,
   DocsController.openFileByPath
 );
@@ -34,8 +51,8 @@ router.get(
 // POST
 
 router.post(
-  "/createDoc",
-  [md_auth.authenticated, upload.single("file")],
+  "/docs/createDoc",
+  [md_auth.authenticated, upload.array("file")],
   DocsController.createDoc
 );
 
