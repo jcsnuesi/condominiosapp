@@ -1,0 +1,79 @@
+/* ==================== FILE UPLOAD SECTION ==================== */
+.uploaded-files-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.file-item {
+    transition: all 0.3s ease;
+    border: 1px solid var(--surface-border);
+}
+
+.file-item:hover {
+    background: var(--surface-200) !important;
+    transform: translateX(5px);
+}
+
+.file-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid var(--surface-border);
+}
+
+.file-preview {
+    width: 50px;
+    height: 50px;
+    background-size: cover;
+    background-position: center;
+    border-radius: 4px;
+    border: 1px solid var(--surface-border);
+    flex-shrink: 0;
+}
+
+.empty-file-state {
+    text-align: center;
+    padding: 2rem;
+    border: 2px dashed var(--surface-border);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.empty-file-state:hover {
+    border-color: var(--primary-color);
+    background: var(--primary-50);
+}
+
+.empty-file-state i {
+    display: block;
+}
+
+/* FileUpload Component Customization */
+::ng-deep .p-fileupload {
+    border: none;
+}
+
+::ng-deep .p-fileupload .p-fileupload-buttonbar {
+    background: transparent;
+    border: none;
+    padding: 0;
+}
+
+::ng-deep .p-fileupload .p-fileupload-content {
+    border: none;
+    padding: 0;
+}
+
+::ng-deep .p-fileupload .p-fileupload-choose {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+::ng-deep .p-fileupload .p-fileupload-choose:hover {
+    background: var(--primary-600);
+    border-color: var(--primary-600);
+}

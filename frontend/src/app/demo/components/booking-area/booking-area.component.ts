@@ -216,6 +216,7 @@ export class BookingAreaComponent implements OnInit {
     }
     getAllBookings(paramId: string | [string]) {
         /**Este metodo obtiene las reservas del condominio*/
+        console.log('Param ID:', paramId);
 
         this._bookingService.getBooking(this.token, paramId).subscribe({
             next: (response) => {
@@ -309,12 +310,6 @@ export class BookingAreaComponent implements OnInit {
                                 label: condo.addressId.alias,
                                 code: condo.addressId._id,
                             };
-                        });
-                    } else {
-                        this._messageService.add({
-                            severity: 'warn',
-                            summary: 'Notification',
-                            detail: 'No properties found for the owner.',
                         });
                     }
                 },

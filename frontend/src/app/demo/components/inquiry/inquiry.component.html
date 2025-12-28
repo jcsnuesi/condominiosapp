@@ -27,7 +27,7 @@
 
                 <!-- New Inquiry Button -->
                 <p-button
-                    *ngIf="!isAdmin()"
+                    *ngIf="isAdmin()"
                     label="New Inquiry"
                     icon="pi pi-plus"
                     (onClick)="openInquiryDialog()"
@@ -517,7 +517,6 @@
                 </label>
 
                 <p-fileUpload
-                    *ngIf="!isAdmin()"
                     #fileUploader
                     name="attachments[]"
                     [multiple]="true"

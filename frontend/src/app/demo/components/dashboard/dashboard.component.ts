@@ -37,11 +37,13 @@ import { InvoiceService } from '../../service/invoice.service';
 import { InvoiceHistoryComponent } from '../invoice-history/invoice-history.component';
 import { InquiryService } from '../../service/inquiry.service';
 import { InquiryComponent } from '../inquiry/inquiry.component';
+import { DocsComponent } from '../docs/docs.component';
 
 @Component({
     templateUrl: './dashboard.component.html',
     standalone: true,
     imports: [
+        DocsComponent,
         ImportsModule,
         ChangePasswordComponent,
         HasPermissionsDirective,
@@ -106,6 +108,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     public visibleCreateOwnerUnit: boolean = false;
     public itemsx: any;
     public condoId: any;
+    public totalDocuments: number = 0;
 
     @Output() propertyInfoEvent: EventEmitter<any> = new EventEmitter();
     componentsToShow: {
@@ -114,6 +117,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         main: boolean;
         invoice: boolean;
         inquiry: boolean;
+        documents: boolean;
     };
     public inquiryDialogData: {
         _id?: string;
@@ -171,6 +175,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             staff: false,
             main: true,
             inquiry: false,
+            documents: false,
         };
         this.formValidation =
             this.ownerObj.apartmentsUnit != '' &&
@@ -518,6 +523,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             staff: false,
             main: false,
             inquiry: false,
+            documents: false,
         };
         this.componentsToShow[show] = true;
     }
@@ -555,10 +561,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
                         this.invoiceCards.totalBalance =
                             response.summary.totalAmountDue;
                         this.invoiceCards.counts = response.summary.pending;
-                        console.log(
-                            'Invoices fetched for dashboard: ',
-                            this.invoiceCards.totalBalance
-                        );
                     } else {
                         this._messageService.add({
                             severity: 'error',
@@ -634,7 +636,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
             .getStaffCard(this.token, this.identity._id)
             .subscribe({
                 next: (response) => {
-                    console.log('Staff card response: ', response);
                     if (response.status == 'success') {
                         this.totalStaff = response.message;
                     } else {
@@ -655,8 +656,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     loadBookingCard() {
         this._bookingService.getBooking(this.token, this.getId()).subscribe({
             next: (response) => {
-                console.log('Building response: ', response);
-                if (response.status == 'success') {
+                if (response?.status == 'success') {
                     this.totalBooked = response.message.length;
                 } else {
                     this.totalBooked = 0;
@@ -707,7 +707,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
     public selectedGenero: any[];
     public isRentOptions: any[];
     public propertyInactive: any[];
-    public units_ownerId: any[];
+    public units_ownerId: string;
+    public documentsData: Array<{ value: string; label: string }> = [
+        { value: '*', label: 'All' },
+    ];
 
     onInitInfo() {
         this._activatedRoute.params.subscribe((param) => {
@@ -715,21 +718,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
             this._condominioService.getBuilding(this.token, id).subscribe({
                 next: (response) => {
-                    if (response.status == 'success') {
-                        this.units_ownerId = ['admin', 'staff_admin'].includes(
-                            this.identity.role.toLowerCase()
-                        )
-                            ? response.condominium
-                                  .map((unit) => {
-                                      let total_owner = [];
-                                      unit?.units_ownerId.forEach((owner) => {
-                                          total_owner.push(owner._id);
-                                      });
-                                      return total_owner;
-                                  })
-                                  .flat()
-                            : response.condominium[0]._id;
+                    this.documentsData = response.condominium.map((doc) => ({
+                        value: doc._id,
+                        label: doc.alias,
+                    }));
 
+                    if (response.status == 'success') {
+                        this.units_ownerId = id;
                         this.units = response.condominium.length;
                     } else {
                         console.log('Error--->', response);

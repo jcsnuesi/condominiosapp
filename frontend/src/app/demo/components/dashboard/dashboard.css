@@ -38,3 +38,34 @@
     justify-content: space-between;
     align-items: center;
 }
+
+/* Scrollbar para lista de archivos */
+.uploaded-files-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.uploaded-files-list::-webkit-scrollbar-track {
+    background: var(--surface-100);
+    border-radius: 3px;
+}
+
+.uploaded-files-list::-webkit-scrollbar-thumb {
+    background: var(--surface-400);
+    border-radius: 3px;
+}
+
+.uploaded-files-list::-webkit-scrollbar-thumb:hover {
+    background: var(--surface-500);
+}
+
+::ng-deep .p-fileupload-content .p-progressbar {
+    display: none !important;
+}
+
+::ng-deep .p-fileupload-content .p-messages {
+    display: none !important;
+}
+
+::ng-deep .p-fileupload-content .p-fileupload-files {
+    display: none !important;
+}
