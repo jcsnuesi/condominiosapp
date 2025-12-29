@@ -415,6 +415,8 @@ var Condominium_Controller = {
           "_id alias availableUnits phone street_1 street_2 sector_name city province zipcode country socialAreas status mPayment createdAt",
       });
 
+      console.log("ownerWithCondo:", ownerWithCondo);
+
       const invoices = await Invoice.find({
         ownerId: ownerId,
         status: "pending",
@@ -574,16 +576,51 @@ var Condominium_Controller = {
     }
   },
   ownerByOrganization: async function (req, res) {
+    const condominium = await Condominium.aggregate([
+      {
+        $match: {
+          createdBy: mongoose.Types.ObjectId(req.user.sub),
+          status: "active",
+        },
+      },
+      {
+        $lookup: {
+          from: "owners", // nombre de la colección en MongoDB, no el modelo Mongoose
+          localField: "units_ownerId",
+          foreignField: "_id",
+          as: "units_ownerId",
+        },
+      },
+    ]);
+    console.log("condominium:", condominium);
+
+    return;
     try {
-      const condominium = await Condominium.find()
-        .populate({
-          model: "Owner",
-          path: "units_ownerId",
-          match: { status: "active" },
-          select: ` _id name lastname  email phone createdAt avatar`,
-        })
-        .select("-password")
-        .exec();
+      const condominium = await Condominium.aggregate([
+        {
+          $match: {
+            createdBy: mongoose.Types.ObjectId(req.user.sub),
+            status: "active",
+          },
+        },
+        {
+          $lookup: {
+            from: "owners", // nombre de la colección en MongoDB, no el modelo Mongoose
+            localField: "units_ownerId",
+            foreignField: "_id",
+            as: "units_ownerId",
+          },
+        },
+      ]);
+      // find()
+      //   .populate({
+      //     model: "Owner",
+      //     path: "units_ownerId",
+      //     match: { status: "active" },
+      //     select: ` _id name lastname  email phone createdAt avatar`,
+      //   })
+      //   .select("-password")
+      //   .exec();
 
       let storage = [];
 

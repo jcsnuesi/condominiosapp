@@ -21,6 +21,11 @@ router.get(
   ownerController.getAssets
 );
 router.get(
+  "/get-all-owners/:createdBy",
+  md_auth.authenticated,
+  ownerController.getAllOwners
+);
+router.get(
   "/get-owner-by-id-or-email/:keyword",
   md_auth.authenticated,
   ownerController.getOwnerByIdentifier

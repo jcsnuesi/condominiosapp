@@ -13,7 +13,11 @@ const oneYearFromNow = () => {
 
 var OwnerSchema = Schema(
   {
-    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "Admin" },
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      refPath: "createdByModel",
+    },
+    createdByModel: { type: String, enum: ["Admin", "Staff_Admin"] },
     avatar: { type: String, default: "noimage.jpeg" },
     name: { type: String, required: true },
     lastname: { type: String, required: true },

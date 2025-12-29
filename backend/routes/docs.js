@@ -47,6 +47,11 @@ router.get(
   md_auth.authenticated,
   DocsController.openFileByPath
 );
+router.get(
+  "/docs/docCard/:id",
+  md_auth.authenticated,
+  DocsController.docsQty
+);
 
 // POST
 
@@ -56,12 +61,31 @@ router.post(
   DocsController.createDoc
 );
 
-// DELETE
+// PUT
 
-router.delete(
-  "/deleteDoc",
+router.put(
+  "/docs/updateDoc/:id",
+  [md_auth.authenticated, upload.array("file")],
+  DocsController.updateDoc
+);
+
+router.put(
+  "/docs/deleteAttachament",
   md_auth.authenticated,
-  DocsController.deleteFileByName
+  DocsController.deleteAttachamentByName
+);
+
+router.put(
+  "/docs/deleteAllAttachments",
+  md_auth.authenticated,
+  DocsController.deleteAllAttachments
+);
+
+// DELETE
+router.delete(
+  "/docs/deleteDoc/:id",
+  md_auth.authenticated,
+  DocsController.deleteDoc
 );
 
 module.exports = router;

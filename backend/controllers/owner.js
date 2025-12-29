@@ -613,7 +613,10 @@ var ownerAndSubController = {
         );
         await Condominio.findOneAndUpdate(
           { _id: params.propertyId },
-          { $push: { availableUnits: params.unit } },
+          {
+            $set: { status: "inactive" },
+            $push: { availableUnits: params.unit },
+          },
           { new: true }
         );
 
@@ -749,6 +752,125 @@ var ownerAndSubController = {
       return res.status(500).send({
         status: "error",
         message: "Server error, try again",
+      });
+    }
+  },
+  getAllOwners: async function (req, res) {
+    const ownerId = mongoose.Types.ObjectId(req.params.createdBy);
+    try {
+      const ownerWithCondo = await Owner.find({ createdBy: ownerId }).populate({
+        path: "propertyDetails.addressId",
+        model: "Condominium",
+        select:
+          "_id alias availableUnits phone street_1 street_2 sector_name city province zipcode country socialAreas status mPayment createdAt",
+      });
+
+      const ownerIds = ownerWithCondo.map((o) => o._id);
+      const invoicesGroupedByOwner = await Invoice.aggregate([
+        // 1️⃣ Filtrar invoices
+        {
+          $match: {
+            ownerId: { $in: ownerIds },
+            status: "pending",
+          },
+        },
+
+        // 2️⃣ Agrupar invoices por owner
+        {
+          $group: {
+            _id: "$ownerId",
+            totalInvoices: { $sum: 1 },
+            totalAmount: { $sum: "$amount" },
+            invoices: {
+              $push: {
+                _id: "$_id",
+                amount: "$amount",
+                issueDate: "$issueDate",
+                dueDate: "$dueDate",
+                condominiumId: "$condominiumId",
+                status: "$status",
+              },
+            },
+          },
+        },
+
+        // 3️⃣ Lookup Owner
+        {
+          $lookup: {
+            from: "owners",
+            localField: "_id",
+            foreignField: "_id",
+            as: "owner",
+          },
+        },
+
+        // 4️⃣ Unwind owner
+        { $unwind: "$owner" },
+
+        // 5️⃣ 🔥 Extraer explícitamente los addressId del owner
+        {
+          $addFields: {
+            condominiumIdsFromOwner: {
+              $map: {
+                input: "$owner.propertyDetails",
+                as: "pd",
+                in: "$$pd.addressId",
+              },
+            },
+          },
+        },
+
+        // 6️⃣ Lookup Condominium usando IDs planos
+        {
+          $lookup: {
+            from: "condominia",
+            localField: "condominiumIdsFromOwner",
+            foreignField: "_id",
+            as: "condominiums",
+          },
+        },
+
+        // 7️⃣ Proyección final
+        {
+          $project: {
+            ownerId: "$_id",
+            owner: {
+              _id: "$owner._id",
+              name: "$owner.name",
+              lastname: "$owner.lastname",
+              email: "$owner.email",
+            },
+
+            // 🔥 IDs de condominios por owner
+            condominiumIds: {
+              $map: {
+                input: "$condominiums",
+                as: "condo",
+                in: {
+                  _id: "$$condo._id",
+                  alias: "$$condo.alias",
+                },
+              },
+            },
+
+            totalInvoices: 1,
+            totalAmount: 1,
+            invoices: 1,
+            _id: 0,
+          },
+        },
+      ]);
+
+      return res.status(200).send({
+        status: "success",
+        message: invoicesGroupedByOwner,
+      });
+    } catch (error) {
+      console.log("ownerWithCondo:", error);
+      return res.status(500).send({
+        status: "error",
+        message: "Server error retrieving condominiums for this owner",
+        error: error.message,
       });
     }
   },

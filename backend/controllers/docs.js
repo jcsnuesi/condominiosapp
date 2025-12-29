@@ -9,6 +9,7 @@ const Condominium = require("../models/condominio");
 const Docs = require("../models/docs");
 var findDirectory = require("../service/findDirectory");
 const { model } = require("mongoose");
+const { param } = require("../routes/docs");
 
 var DocsController = {
   createDoc: async function (req, res) {
@@ -78,7 +79,9 @@ var DocsController = {
     let params = req.params.id;
 
     try {
-      const docsFound = await Docs.find({ createdBy: params })
+      const docsFound = await Docs.find({
+        $or: [{ createdBy: params }, { condoId: params }],
+      })
         .populate({
           path: "condoId",
           select: "alias",
@@ -87,11 +90,10 @@ var DocsController = {
           path: "createdBy",
           select: "email name lastname",
         });
-      console.log(docsFound);
 
       if (!docsFound || docsFound.length === 0) {
-        return res.status(404).send({
-          status: "NOT FOUND",
+        return res.status(201).send({
+          status: "Not files",
           message: "No documents found for the given creator.",
         });
       }
@@ -108,6 +110,25 @@ var DocsController = {
       });
     }
   },
+  docsQty: async function (req, res) {
+    let params = req.params.id;
+    try {
+      const docsCount = await Docs.countDocuments({
+        $or: [{ createdBy: params }, { condoId: params }],
+      });
+      return res.status(200).send({
+        status: "success",
+        message: docsCount,
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send({
+        status: "error",
+        message: "Server error while counting documents.",
+      });
+    }
+  },
+
   openFileByPath: async function (req, res) {
     var filename = req.params.filename;
     var directory = req.params.condoId;
@@ -129,63 +150,186 @@ var DocsController = {
         message: "Bad Request",
       });
     }
-
-    var filePath = `./uploads/docs/${directory}/${fileName}`;
-
-    if (id_val) {
-      fs.readFile(filePath, (err, data) => {
-        if (data) {
-          return res.sendFile(path.resolve(filePath));
-        } else {
-          return res.status(404).send({
-            status: "error",
-            message: "Doc does not exists.",
-            details: err,
-          });
-        }
-      });
-    }
   },
-  deleteFileByName: function (req, res) {
-    var params = req.body;
+  deleteAllAttachments: async function (req, res) {
+    const params = req.body;
 
     try {
-      var id_val = !validator.isEmpty(params.id);
-      var id_filename = !validator.isEmpty(params.filename);
+      const docFound = await Docs.findOne({
+        _id: params[0].id,
+      });
+
+      if (docFound != null || docFound != undefined) {
+        docFound.file = [];
+      } else {
+        return res.status(404).send({
+          status: "error",
+          message: "Document or file not found.",
+        });
+      }
+      await docFound.save();
+
+      params.forEach((f) => {
+        fs.unlink(`./uploads/docs/${f.condoId}/${f.filename}`, (err) => {
+          if (err) {
+            console.log("file was not deleted");
+            return res.status(500).send({
+              status: "error",
+              message: "Error deleting file from server",
+            });
+          }
+        });
+      });
+
+      return res.status(200).send({
+        status: "success",
+        message: "File deleted successfully",
+      });
     } catch (error) {
+      console.log(" error", error);
       return res.status(400).send({
         status: "error",
         message: "Bad request",
       });
     }
+  },
+  deleteAttachamentByName: async function (req, res) {
+    const params = req.body;
 
-    if (id_val && id_filename) {
-      Docs.findOneAndDelete({ _id: params.id })
-        .populate("condoId", "alias")
-        .exec((err, docFound) => {
-          var Exceptions = ExceptionHandler.loginExceptions(err, docFound);
+    try {
+      const docFound = await Docs.findOne({
+        _id: params.id,
+        "file.filename": params.filename,
+      });
 
-          if (Exceptions[0]) {
-            return res.status(Exceptions[1]).send({
-              status: Exceptions[2],
-              message: Exceptions[3],
+      if (docFound != null || docFound != undefined) {
+        docFound.file = docFound.file.filter(
+          (file) => file.filename !== params.filename
+        );
+      } else {
+        return res.status(404).send({
+          status: "error",
+          message: "Document or file not found.",
+        });
+      }
+      await docFound.save();
+
+      fs.unlink(
+        `./uploads/docs/${docFound.condoId}/${params.filename}`,
+        (err) => {
+          if (err) {
+            console.log("file was not deleted");
+            return res.status(500).send({
+              status: "error",
+              message: "Error deleting file from server",
+            });
+          } else {
+            return res.status(200).send({
+              status: "success",
+              message: "File deleted successfully",
             });
           }
+        }
+      );
+    } catch (error) {
+      console.log(" error", error);
+      return res.status(400).send({
+        status: "error",
+        message: "Bad request",
+      });
+    }
+  },
+  updateDoc: async function (req, res) {
+    const docId = req.params.id;
+    const params = req.body;
+    let existingFiles = [];
+    if (params.existingFiles) {
+      existingFiles = JSON.parse(params.existingFiles);
+    }
 
-          fs.unlink(
-            `./uploads/docs/${docFound.condoId.alias}/${params.filename}`,
-            (err) => {
-              if (err) {
-                console.log("file was not deleted");
-              } else {
-                return res.status(200).send({
-                  status: "success",
-                  message: docFound,
-                });
-              }
-            }
-          );
+    try {
+      const docToUpdate = await Docs.findById(docId);
+      if (!docToUpdate) {
+        return res.status(404).send({
+          status: "error",
+          message: "Document not found",
         });
+      }
+      // Update metadata fields
+      docToUpdate.title = params.title || docToUpdate.title;
+      docToUpdate.description = params.description || docToUpdate.description;
+      docToUpdate.category = params.category || docToUpdate.category;
+      docToUpdate.status = params.status || docToUpdate.status;
+      docToUpdate.condoId = params.condominiumId;
+      // Append new files if any
+      if (req.files && req.files.length > 0) {
+        if (existingFiles.length > 0) {
+          const retainedFiles = docToUpdate.file.filter((file) =>
+            existingFiles.some((f) => f.filename === file.filename)
+          );
+          docToUpdate.file = retainedFiles;
+        }
+
+        let updateFiles = req.files.map((file) => ({
+          filename: file.filename,
+          size: file.size,
+          mimetype: file.mimetype,
+          url: `/getDocsByName/${docToUpdate.condoId}/${file.filename}`,
+        }));
+        updateFiles.forEach((file) => {
+          docToUpdate.file.push(file);
+        });
+      }
+
+      await docToUpdate.save();
+
+      return res.status(200).send({
+        status: "success",
+        message: docToUpdate,
+      });
+    } catch (error) {
+      req.files.forEach((file) => fs.unlinkSync(file.path));
+      console.log(error);
+      return res.status(500).send({
+        status: "error",
+        message: "Server error while updating document.",
+      });
+    }
+  },
+  deleteDoc: async function (req, res) {
+    const docId = req.params.id;
+
+    try {
+      const docToDelete = await Docs.findById(docId);
+      if (!docToDelete) {
+        return res.status(404).send({
+          status: "error",
+          message: "Document not found",
+        });
+      }
+      // Delete associated files from filesystem
+      for (const file of docToDelete.file) {
+        fs.unlink(
+          `./uploads/docs/${docToDelete.condoId}/${file.filename}`,
+          (err) => {
+            if (err) {
+              console.log("file was not deleted", err);
+            }
+          }
+        );
+      }
+      await Docs.findByIdAndDelete(docId);
+
+      return res.status(200).send({
+        status: "success",
+        message: "Document and associated files deleted successfully",
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send({
+        status: "error",
+        message: "Server error while deleting document.",
+      });
     }
   },
 };
