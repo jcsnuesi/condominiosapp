@@ -107,14 +107,14 @@ export class PropertiesByOwnerComponent implements OnInit {
     // Metodo para traer las propiedades activas de un propietario  addProperty
     public availableUnitsList: any[] = [];
     getActiveProperties(): void {
-        // console.log('ownerData-------->', this.ownerData);
         this._condominioService
             .getCondoWithInvoice(this.token, this.ownerData)
             .subscribe({
                 next: (response) => {
                     this.propertiesOwner = response.condominium.map((condo) => {
+                        console.log('CONDO', condo);
                         return {
-                            ownerId: condo.owner_data.id,
+                            ownerId: condo.id,
                             owner_data: condo.owner_data,
                             id: condo.addressId._id,
                             alias: condo.addressId.alias,
@@ -234,8 +234,6 @@ export class PropertiesByOwnerComponent implements OnInit {
                     })
                     .subscribe({
                         next: (response) => {
-                            const { propertyDetails } = response.owner;
-
                             if (response.status === 'success') {
                                 this._messageService.add({
                                     severity: 'success',

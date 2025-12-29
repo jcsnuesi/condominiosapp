@@ -10,6 +10,7 @@ import { MessageService, ConfirmationService } from 'primeng/api';
 import { ImportsModule } from '../../imports_primeng';
 import { FileUpload } from 'primeng/fileupload';
 import { global } from '../../service/global.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
     selector: 'app-docs',
@@ -122,7 +123,7 @@ export class DocsComponent implements OnInit {
 
     ngOnInit(): void {
         this.isAdmin();
-        this.dialogHeader = 'Create New Documentation';
+
         this.loadDocuments();
     }
 
@@ -131,8 +132,8 @@ export class DocsComponent implements OnInit {
             return false;
         }
         const adminRoles = ['ADMIN', 'STAFF_ADMIN', 'STAFF'];
-        // return adminRoles.includes(this.identity.role.toUpperCase());
-        return false;
+        return adminRoles.includes(this.identity.role.toUpperCase());
+        // return false;
     }
     /** Check ADMIN access using AuthService */
     // private checkAdminAccess(): boolean {
@@ -144,35 +145,12 @@ export class DocsComponent implements OnInit {
     //     }
     // }
 
-    closeInquiryDialog(): void {
-        if (
-            this.docModel.title ||
-            this.docModel.description ||
-            this.selectedFiles.length > 0
-        ) {
-            this._confirmationService.confirm({
-                message:
-                    'Are you sure you want to cancel? All entered data and selected files will be lost.',
-                header: 'Confirm Cancel',
-                icon: 'pi pi-exclamation-triangle',
-                acceptLabel: 'Yes, Cancel',
-                rejectLabel: 'Continue Editing',
-                acceptButtonStyleClass: 'p-button-danger',
-                accept: () => {
-                    this.displayDocsDialog = false;
-                    this.resetInquiryForm();
-                },
-            });
-        } else {
-            this.displayDocsDialog = false;
-            this.resetInquiryForm();
-        }
-    }
-
     /**
      * Resetea el formulario de inquiry
      */
-    private resetInquiryForm(): void {
+    resetDocForm(): void {
+        this.loadDocuments();
+        console.log('Resetting document form');
         this.docModel = {
             id: '',
             title: '',
@@ -190,11 +168,82 @@ export class DocsComponent implements OnInit {
         }
     }
 
-    submitDocs() {
+    updateDocs(): void {
         const formData = new FormData();
         formData.append('title', this.docModel.title);
         formData.append('category', this.docModel.category);
         formData.append('condominiumId', this.docModel.condominiumId);
+        formData.append('status', this.docModel.status);
+        formData.append('description', this.docModel.description);
+        formData.append('uploadedBy', this.identity._id);
+        formData.append(
+            'uploadedRole',
+            this.identity.role.charAt(0).toUpperCase() +
+                this.identity.role.slice(1).toLowerCase()
+        );
+        let existingFileMetaData: any[] = [];
+        this.selectedFiles.forEach((file) => {
+            if (Object.hasOwn(file, 'condoId')) {
+                existingFileMetaData.push({
+                    filename: file.name,
+                    size: file.size,
+                    mimetype: file.type,
+                    url: `/getDocsByName/${file['condoId']}/${file.name}`,
+                });
+            } else {
+                formData.append('file', file, file.name);
+            }
+        });
+        formData.append('existingFiles', JSON.stringify(existingFileMetaData));
+
+        this._confirmationService.confirm({
+            message: `Are you sure you want to update the document "${this.docModel.title}"?`,
+            header: 'Confirm Update',
+            icon: 'pi pi-exclamation-triangle',
+            acceptLabel: 'Yes, Update',
+            rejectLabel: 'Cancel',
+            acceptButtonStyleClass: 'p-button-success',
+            accept: () => {
+                this._docsService
+                    .updateDocument(this.token, this.docModel.id, formData)
+                    .subscribe({
+                        next: (res) => {
+                            console.log('Updating document:', res);
+                            if (res.status === 'success') {
+                                this._messageService.add({
+                                    severity: 'success',
+                                    summary: 'Success',
+                                    detail: `Document updated successfully.`,
+                                });
+
+                                this.loadDocuments();
+                                this.displayDocsDialog = false;
+                            }
+                        },
+                        error: (err) => {
+                            console.error('Error updating document:', err);
+                            this._messageService.add({
+                                severity: 'error',
+                                summary: 'Error',
+                                detail: `Failed to update document.`,
+                            });
+                        },
+                    });
+            },
+            reject: () => {
+                console.log('Update cancelled');
+            },
+        });
+    }
+
+    submitDocs() {
+        const formData = new FormData();
+        formData.append('title', this.docModel.title);
+        formData.append('category', this.docModel.category);
+        formData.append(
+            'condominiumId',
+            this.isDashboard ? this.docModel.condominiumId : this.userId
+        );
         formData.append('description', this.docModel.description);
 
         formData.append('uploadedBy', this.identity._id);
@@ -235,11 +284,20 @@ export class DocsComponent implements OnInit {
     public docModelTable: any;
     loadDocuments(): void {
         // const mockIfMissing = !this.docsService?.getDocuments;
-
+        this.btnLabel = 'Submit';
+        this.dialogHeader = 'Create New Documentation';
         this._docsService.getDirectory(this.token, this.userId).subscribe({
             next: (res: any) => {
-                console.log('Documents loaded:', res);
                 this.docModelTable = res.message || [];
+                this.docModelTable.file = res.message.map((f: any) => {
+                    f.file.forEach((file: any) => {
+                        file.condoId = f.condoId._id;
+                    });
+                    return {
+                        ...f,
+                    };
+                });
+
                 this.isLoading = false;
             },
             error: () => {
@@ -276,10 +334,15 @@ export class DocsComponent implements OnInit {
 
     private generateFilePreview(file: File): void {
         const reader = new FileReader();
+
         reader.onload = (e: any) => {
             this.filePreviewUrls.set(file.name, e.target.result);
         };
         reader.readAsDataURL(file);
+    }
+
+    getFilePreview(file: File): string {
+        return this.filePreviewUrls.get(file.name) || '';
     }
 
     /**
@@ -287,15 +350,19 @@ export class DocsComponent implements OnInit {
      */
     downloadExistingAttachment(file: any): void {
         // Ajustar ruta según tu backend real
-        console.log('Downloading attachment:', file);
+
         this._docsService
-            .downloadFile(this.token, file.condoId, file.name)
+            .downloadFile(
+                this.token,
+                file.condoId,
+                file?.name ?? file?.filename
+            )
             .subscribe({
                 next: (blob: Blob) => {
                     const url = window.URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
-                    a.download = file.name;
+                    a.download = file.name ?? file.filename;
                     a.click();
                     window.URL.revokeObjectURL(url);
                 },
@@ -341,14 +408,48 @@ export class DocsComponent implements OnInit {
     removeFile(index: number): void {
         const file = this.selectedFiles[index];
         if (file) {
-            this.filePreviewUrls.delete(file.name);
-            this.selectedFiles.splice(index, 1);
-
-            this._messageService.add({
-                severity: 'info',
-                summary: 'File Removed',
-                detail: `${file.name} has been removed`,
-                life: 2000,
+            this._confirmationService.confirm({
+                message: `Are you sure you want to remove ${file.name}?`,
+                header: 'Confirm File Removal',
+                icon: 'pi pi-exclamation-triangle',
+                acceptLabel: 'Yes, Remove',
+                rejectLabel: 'Cancel',
+                acceptButtonStyleClass: 'p-button-danger',
+                accept: () => {
+                    this.filePreviewUrls.delete(file.name);
+                    this.selectedFiles.splice(index, 1);
+                    // File removed
+                    this._docsService
+                        .deleteAttachment({
+                            token: this.token,
+                            id: this.docModel.id,
+                            filename: file.name,
+                            condoId: this.docModel.condominiumId,
+                        })
+                        .subscribe({
+                            next: (r: any) => {
+                                if (r.status == 'success') {
+                                    this._messageService.add({
+                                        severity: 'info',
+                                        summary: 'File Removed',
+                                        detail: `${file.name} has been removed`,
+                                        life: 2000,
+                                    });
+                                }
+                            },
+                            error: (err) => {
+                                console.error('Error deleting file:', err);
+                                this._messageService.add({
+                                    severity: 'error',
+                                    summary: 'Error',
+                                    detail: `Failed to remove ${file.name}`,
+                                });
+                            },
+                        });
+                },
+                reject: () => {
+                    // Removal cancelled
+                },
             });
         }
     }
@@ -441,7 +542,6 @@ export class DocsComponent implements OnInit {
 
     clearAllFiles(): void {
         if (this.selectedFiles.length === 0) return;
-        console.log('Clearing all files');
 
         this._confirmationService.confirm({
             message: `Are you sure you want to remove all ${this.selectedFiles.length} file(s)?`,
@@ -451,17 +551,36 @@ export class DocsComponent implements OnInit {
             rejectLabel: 'Cancel',
             acceptButtonStyleClass: 'p-button-danger',
             accept: () => {
-                this.selectedFiles = [];
-                this.filePreviewUrls.clear();
-                if (this.fileUploader) {
-                    this.fileUploader.clear();
-                }
+                let metadata = this.selectedFiles.map((f) => ({
+                    id: this.docModel.id,
+                    filename: f.name,
+                    condoId: this.docModel.condominiumId,
+                }));
 
-                this._messageService.add({
-                    severity: 'success',
-                    summary: 'Files Cleared',
-                    detail: 'All files have been removed',
-                });
+                this._docsService
+                    .deleteAllAttachments(this.token, metadata)
+                    .subscribe({
+                        next: (response: any) => {
+                            console.log(
+                                'All files deleted response:',
+                                response
+                            );
+                            this.selectedFiles = [];
+                            this.filePreviewUrls.clear();
+                            if (this.fileUploader) {
+                                this.fileUploader.clear();
+                            }
+
+                            this._messageService.add({
+                                severity: 'success',
+                                summary: 'Files Cleared',
+                                detail: 'All files have been removed',
+                            });
+                        },
+                        error: (err) => {
+                            console.error('Error deleting all files:', err);
+                        },
+                    });
             },
         });
     }
@@ -532,24 +651,40 @@ export class DocsComponent implements OnInit {
 
     // ===== Actions: View, Download, Edit, Delete =====
     dialogHeader: string;
-    onView(doc: any): void {
+    btnLabel: string;
+    async onView(doc: any): Promise<void> {
         this.dialogHeader = 'Document Details';
-        this.docModel = doc;
+        this.btnLabel = 'Update';
+        this.docModel = { ...doc };
+        this.docModel.id = doc._id;
         this.docModel.condominiumId = doc.condoId._id;
         this.docModel.category = doc.category;
 
         this.displayDocsDialog = true;
-        this.selectedFiles = doc.file.map((f) => {
-            const blob = new Blob([], { type: f.mimetype });
-            const fileData = new File([blob], f.filename, { type: f.mimetype });
-            fileData['condoId'] = doc.condoId._id;
-            return fileData;
-        });
+        this.selectedFiles = await Promise.all(
+            doc.file.map(async (f) => {
+                const blob = await firstValueFrom(
+                    this._docsService.downloadFile(
+                        this.token,
+                        this.docModel.condominiumId,
+                        f?.name ?? f?.filename
+                    )
+                );
 
-        console.log(' this.  this.selectedFiles', this.selectedFiles);
-        // if (doc.url && doc.url !== '#') {
-        //     window.open(doc.url, '_blank');
-        // }
+                const fileData = new File([blob], f.filename, {
+                    type: f.mimetype,
+                    lastModified: Date.now(),
+                });
+
+                fileData['condoId'] = doc.condoId._id;
+
+                if (this.isImage(fileData)) {
+                    this.generateFilePreview(fileData);
+                }
+
+                return fileData;
+            })
+        );
     }
 
     onEdit(doc: DocumentItem): void {
@@ -564,42 +699,6 @@ export class DocsComponent implements OnInit {
         this.editDialogVisible = true;
     }
 
-    onEditSubmit(): void {
-        if (!this.editForm.valid || !this.editingDoc) {
-            return;
-        }
-        const values = this.editForm.value;
-        // const updated: DocumentItem = {
-        //     ...this.editingDoc,
-        //     name: values.name,
-        //     type: values.type,
-        //     condominiumIds: values.condominiumIds,
-        //     status: values.status,
-        //     description: values.description || '',
-        // };
-
-        // if (this.docsService?.updateDocument) {
-        //     try {
-        //         this.docsService.updateDocument(updated.id, updated).subscribe({
-        //             next: (saved: DocumentItem) => {
-        //                 this.replaceDoc(saved || updated);
-        //                 this.closeEditDialog();
-        //             },
-        //             error: () => {
-        //                 this.replaceDoc(updated);
-        //                 this.closeEditDialog();
-        //             },
-        //         });
-        //     } catch {
-        //         this.replaceDoc(updated);
-        //         this.closeEditDialog();
-        //     }
-        // } else {
-        //     this.replaceDoc(updated);
-        //     this.closeEditDialog();
-        // }
-    }
-
     private replaceDoc(doc: DocumentItem): void {
         this.docs = this.docs.map((d) => (d.id === doc.id ? doc : d));
     }
@@ -610,26 +709,48 @@ export class DocsComponent implements OnInit {
     }
 
     onDelete(doc: DocumentItem): void {
-        // const ok = window.confirm(
-        //     `Delete "${doc.name}"? This cannot be undone.`
-        // );
-        // if (!ok) return;
-        // if (this.docsService?.deleteDocument) {
-        //     try {
-        //         this.docsService.deleteDocument(doc.id).subscribe({
-        //             next: () => {
-        //                 this.docs = this.docs.filter((d) => d.id !== doc.id);
-        //             },
-        //             error: () => {
-        //                 this.docs = this.docs.filter((d) => d.id !== doc.id);
-        //             },
-        //         });
-        //     } catch {
-        //         this.docs = this.docs.filter((d) => d.id !== doc.id);
-        //     }
-        // } else {
-        //     this.docs = this.docs.filter((d) => d.id !== doc.id);
-        // }
+        this._confirmationService.confirm({
+            message: `Are you sure you want to delete the document "${doc.title}"? This action cannot be undone.`,
+            header: 'Confirm Deletion',
+            icon: 'pi pi-exclamation-triangle',
+            acceptLabel: 'Yes, Delete',
+            rejectLabel: 'Cancel',
+            acceptButtonStyleClass: 'p-button-danger',
+            accept: () => {
+                this._docsService.deleteDoc(this.token, doc.id).subscribe({
+                    next: (res) => {
+                        console.log('Delete response:', res);
+                        if (res.status === 'success') {
+                            this.docs = this.docs.filter(
+                                (d) => d.id !== doc.id
+                            );
+                            this._messageService.add({
+                                severity: 'success',
+                                summary: 'Deleted',
+                                detail: `Document "${doc.title}" has been deleted.`,
+                            });
+                            this.displayDocsDialog = false;
+                        }
+                    },
+                    error: (err) => {
+                        console.error('Error deleting document:', err);
+                        this._messageService.add({
+                            severity: 'error',
+                            summary: 'Error',
+                            detail: `Failed to delete document "${doc.title}".`,
+                        });
+                    },
+                });
+            },
+            reject: () => {
+                console.log('Deletion cancelled');
+                this._messageService.add({
+                    severity: 'error',
+                    summary: 'Cancelled',
+                    detail: `Deletion of document "${doc.title}" was cancelled.`,
+                });
+            },
+        });
     }
 
     // ===== Helpers =====
@@ -664,10 +785,6 @@ export class DocsComponent implements OnInit {
 
     trackByDocId(_: number, item: DocumentItem): string {
         return item.id;
-    }
-
-    getFilePreview(file: File): string {
-        return this.filePreviewUrls.get(file.name) || '';
     }
 
     loading = false;
@@ -706,7 +823,7 @@ interface BackendAttachment {
 export interface DocumentItem {
     id: string;
     title: string;
-    condominiumId: string; // Empty or ["*"] means all condominiums
+    condominiumId: string;
     description: string;
     uploadedBy: string;
     uploadedRole: string;

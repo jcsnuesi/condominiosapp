@@ -60,15 +60,64 @@ export class DocsService {
      * DELETE /deleteDoc
      * Deletes a file by name. Backend expects body with { id, file }.
      */
-    deleteDoc(payload: {
+
+      deleteDoc(
+        token: string,
+        id: string
+    ): Observable<any> {
+        let headers = new HttpHeaders()
+            .set('Content-Type', 'application/json')
+            .set('Authorization', token);
+        return this.http.delete<any>(`${this.baseUrl}/deleteDoc/${id}`, {
+            headers,
+         
+        });
+    }
+
+    docCard(token: string, id: string): Observable<any> 
+    {
+        const headers = new HttpHeaders().set('Authorization', token);
+        return this.http.get(`${this.baseUrl}/docCard/${id}`, {
+            headers,
+        });
+
+    }
+
+    deleteAttachment(payload: {
+        token: string;
         id: string;
-        file: string;
-    }): Observable<{ ok: boolean; message?: string }> {
-        return this.http.request<{ ok: boolean; message?: string }>(
-            'DELETE',
+        filename: string;
+        condoId: string;
+    }): Observable<{ status: boolean; message: string }> {
+        let headers = new HttpHeaders()
+            .set('Content-Type', 'application/json')
+            .set('Authorization', payload.token);
+        return this.http.put<{ status: boolean; message: string }>(
             `${this.baseUrl}/deleteDoc`,
+            payload,
             {
-                body: payload,
+                headers,
+            }
+        );
+    }
+
+  
+    deleteAllAttachments(
+        token: string,
+        payload: {
+            id: string;
+            filename: string;
+            condoId: string;
+        }[]
+    ): Observable<{ status: boolean; message: string }> {
+        let headers = new HttpHeaders()
+            .set('Content-Type', 'application/json')
+            .set('Authorization', token);
+        return this.http.put<{ status: boolean; message: string }>(
+            `${this.baseUrl}/deleteAllAttachments`,
+            JSON.stringify(payload),
+            {
+                headers: headers,
             }
         );
     }
@@ -98,16 +147,14 @@ export class DocsService {
         return this.createDoc(token, fd);
     }
 
-    /** Placeholder: update metadata (not implemented in backend) */
-    updateDocument(_id: string, _payload: unknown): Observable<never> {
-        throw new Error('updateDocument route not implemented on backend');
-    }
-
-    /** Adapter: delete document using id + filename */
-    deleteDocument(
+    updateDocument(
+        token: string,
         id: string,
-        filename: string
-    ): Observable<{ ok: boolean; message?: string }> {
-        return this.deleteDoc({ id, file: filename });
+        payload: FormData
+    ): Observable<any> {
+        let headers = new HttpHeaders().set('Authorization', token);
+        return this.http.put<any>(`${this.baseUrl}/updateDoc/${id}`, payload, {
+            headers,
+        });
     }
 }

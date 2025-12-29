@@ -69,11 +69,12 @@
                             <td>
                                 <i
                                     *ngFor="let file of doc.file"
+                                    class="mr-2 cursor-pointer"
                                     [class]="getFileIcon(file.mimetype)"
-                                    class="mr-2"
                                     [style.color]="
                                         getFileIconColor(file.mimetype)
                                     "
+                                    (click)="downloadExistingAttachment(file)"
                                 ></i>
                             </td>
                             <td>
@@ -97,34 +98,12 @@
                                 <button
                                     pButton
                                     type="button"
-                                    label="View"
-                                    icon="pi pi-eye"
+                                    [label]="isAdmin() ? 'Edit' : 'View'"
+                                    [icon]="
+                                        isAdmin() ? 'pi pi-pencil' : 'pi pi-eye'
+                                    "
                                     class="p-button-text"
                                     (click)="onView(doc)"
-                                ></button>
-                                <button
-                                    pButton
-                                    type="button"
-                                    label="Download"
-                                    icon="pi pi-download"
-                                    class="p-button-text"
-                                    (click)="onDownload(doc)"
-                                ></button>
-                                <button
-                                    pButton
-                                    type="button"
-                                    label="Edit"
-                                    icon="pi pi-pencil"
-                                    class="p-button-text"
-                                    (click)="onEdit(doc)"
-                                ></button>
-                                <button
-                                    pButton
-                                    type="button"
-                                    label="Delete"
-                                    icon="pi pi-trash"
-                                    class="p-button-danger p-button-text"
-                                    (click)="onDelete(doc)"
                                 ></button>
                             </td>
                         </tr>
@@ -162,8 +141,12 @@
     [closable]="true"
     [draggable]="false"
     [resizable]="false"
+    (onHide)="resetDocForm()"
 >
-    <form #docsForm="ngForm" (ngSubmit)="submitDocs()">
+    <form
+        #docsForm="ngForm"
+        (ngSubmit)="btnLabel == 'Submit' ? submitDocs() : updateDocs()"
+    >
         <!-- ✅ Title Field - FORMATO UNIFICADO -->
         <div class="field mb-3">
             <label for="inquiry-title" class="block font-semibold mb-2">
@@ -231,6 +214,27 @@
                 optionLabel="label"
                 optionValue="value"
                 placeholder="Select a category"
+                styleClass="w-full"
+                [disabled]="!isAdmin()"
+            ></p-dropdown>
+        </div>
+        <div
+            class="field mb-3"
+            *ngIf="dialogHeader != 'Create New Documentation'"
+        >
+            <label for="doc-status" class="block font-semibold mb-2">
+                <i class="pi pi-tag mr-1"></i>
+                Status *
+            </label>
+            <p-dropdown
+                id="doc-status"
+                [options]="statusOptions"
+                [(ngModel)]="docModel.status"
+                name="status"
+                required
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Select..."
                 styleClass="w-full"
                 [disabled]="!isAdmin()"
             ></p-dropdown>
@@ -411,17 +415,26 @@
             <p-button
                 label="Cancel"
                 icon="pi pi-times"
-                (onClick)="closeInquiryDialog()"
+                (onClick)="displayDocsDialog = false"
                 styleClass="p-button-text"
                 type="button"
             ></p-button>
             <p-button
-                label="Submit"
+                [loading]="loading"
+                *ngIf="isAdmin()"
+                label="Delete"
+                icon="pi pi-trash"
+                class="p-button-danger p-button-text"
+                (click)="onDelete(docModel)"
+                severity="danger"
+            ></p-button>
+            <p-button
+                [label]="btnLabel"
                 icon="pi pi-check"
                 type="submit"
                 [loading]="loading"
                 [disabled]="!docsForm.form.valid"
-                [ngStyle]="{ display: isAdmin() ? 'inline-block' : 'none' }"
+                *ngIf="isAdmin()"
             ></p-button>
         </div>
     </form>

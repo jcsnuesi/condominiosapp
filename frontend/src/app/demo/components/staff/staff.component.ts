@@ -280,7 +280,7 @@ export class StaffComponent implements OnInit, AfterViewInit {
         // Obtiene el id del condominio
         this._route.params.subscribe((params) => {
             let condoId = this.condoId ?? params['id'];
-         
+
             if (this.identity.role.toLowerCase() == 'admin') {
                 this.getStaffByCondoIdOrAdminId(condoId);
             } else {
@@ -323,7 +323,6 @@ export class StaffComponent implements OnInit, AfterViewInit {
     getStaffByOwnerIds(id: string) {
         this._staffService.getStaffByOwnerId(this.token, id).subscribe({
             next: (response) => {
-            
                 if (response.status == 'success') {
                     this.propertyDetailsVar = response.message.map((staff) => {
                         return {
@@ -356,7 +355,7 @@ export class StaffComponent implements OnInit, AfterViewInit {
     getStaffByCondoIdOrAdminId(id: string) {
         this._staffService.getStaffByOwnerCondo(this.token, id).subscribe({
             next: (response) => {
-                if (response.status == 'success') {
+                if (response?.status == 'success') {
                     this.propertyDetailsVar = response.message.map((staff) => {
                         return {
                             _id: staff._id,
@@ -385,7 +384,6 @@ export class StaffComponent implements OnInit, AfterViewInit {
         });
     }
     getId(): string {
-       
         let roles = ['STAFF_ADMIN'];
         return roles.includes(this.identity.role.toUpperCase())
             ? this.identity.createdBy
@@ -547,7 +545,6 @@ export class StaffComponent implements OnInit, AfterViewInit {
                     complete: () => {
                         this.submitStatus = false;
                         this.previwImage = '../../../assets/noimage2.jpeg';
-                        
                     },
                 });
             },
@@ -594,7 +591,6 @@ export class StaffComponent implements OnInit, AfterViewInit {
             accept: () => {
                 this._staffService.updateStaff(this.token, formdata).subscribe({
                     next: (response) => {
-                    
                         if (response.status == 'success') {
                             this._messageService.add({
                                 severity: 'success',

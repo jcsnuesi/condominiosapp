@@ -92,20 +92,30 @@ export class AllPartnersComponent implements OnInit {
         dt.clear();
     }
 
+    getId() {
+        const role = this.identity.role.toLowerCase();
+        if (role === 'admin') {
+            return this.identity._id;
+        } else if (role === 'staff' || role === 'staff_admin') {
+            return this.identity.createdBy;
+        }
+    }
+
     getAllPartners() {
-        this._condominioService.getProperties(this.token).subscribe({
+        this._ownerService.getAllOwners(this.token, this.getId()).subscribe({
             next: (response) => {
+                console.log('RESPONSE OWNERS', response);
                 if (response.status == 'success') {
-                    const apiResponse = response.message;
-                    this.datatable = apiResponse.map((item: any) => {
+                    this.datatable = response.message.map((item: any) => {
                         return {
                             id: item._id,
                             avatar: item.avatar,
-                            fullname: item.name + ' ' + item.lastname,
-                            email: item.email,
-                            phone: item.phone,
-                            createdAt: item.createdAt,
-                            invoiceCount: item.count,
+                            fullname:
+                                item.owner.name + ' ' + item.owner.lastname,
+                            email: item.owner.email,
+                            phone: item.owner.phone,
+                            createdAt: item.owner.createdAt,
+                            invoiceCount: item.totalInvoices,
                             totalAmount: item.totalAmount,
                             lastPayment: item.invoice_paid_date,
                         };

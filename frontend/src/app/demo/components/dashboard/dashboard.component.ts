@@ -38,6 +38,7 @@ import { InvoiceHistoryComponent } from '../invoice-history/invoice-history.comp
 import { InquiryService } from '../../service/inquiry.service';
 import { InquiryComponent } from '../inquiry/inquiry.component';
 import { DocsComponent } from '../docs/docs.component';
+import { DocsService } from '../../service/docs.service';
 
 @Component({
     templateUrl: './dashboard.component.html',
@@ -60,6 +61,7 @@ import { DocsComponent } from '../docs/docs.component';
         OwnerServiceService,
         InvoiceService,
         InquiryService,
+        DocsService,
     ],
     styleUrls: ['./dashboard.css'],
 })
@@ -126,21 +128,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
     };
 
     constructor(
-        private productService: ProductService,
         public _condominioService: CondominioService,
         public _userService: UserService,
         public layoutService: LayoutService,
         private _activatedRoute: ActivatedRoute,
-        private _cookieService: CookieService,
-        private _config: PrimeNGConfig,
         private _messageService: MessageService,
         private _confirmationService: ConfirmationService,
-        private _router: Router,
         private _bookingService: BookingServiceService,
         private _staffService: StaffService,
-        private _ownerService: OwnerServiceService,
         private _invoiceService: InvoiceService,
-        private _inquiryService: InquiryService
+        private _inquiryService: InquiryService,
+        private _docsService: DocsService
     ) {
         this.subscription = this.layoutService.configUpdate$.subscribe(() => {
             this.initChart();
@@ -263,6 +261,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.condoId = this.getId();
         this.getAllInvoices();
         this.inquiriesCard();
+        this.documentsCard();
     }
 
     public dataOwner: any;
@@ -361,6 +360,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
         };
     }
 
+    documentsCard() {
+        this._docsService
+            .docCard(this.token, this.condoId)
+            .subscribe((response) => {
+                console.log('Documents response: ', response);
+                if (response.status == 'success') {
+                    this.totalDocuments = response.message;
+                }
+            });
+    }
+
     AdminsChart() {
         const documentStyle = getComputedStyle(document.documentElement);
 
@@ -368,21 +378,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
         const textColorSecondary = documentStyle.getPropertyValue(
             '--text-color-secondary'
         );
-
-        // this._userService.getDashboardData(this.token, this.getId()).subscribe({
-        //     next: (response) => {
-        //         console.log('Dashboard data response: ', response);
-        //     },
-        //     error: (error) => {
-        //         console.log(error);
-        //         this._messageService.add({
-        //             severity: 'error',
-        //             summary: 'Error',
-        //             detail: 'Failed to load dashboard data',
-        //             life: 3000,
-        //         });
-        //     },
-        // });
 
         let data = { unpaid: {}, paid: {} };
         this.invoiceDataForCharts.forEach((invoice) => {

@@ -1579,8 +1579,8 @@ export class InquiryComponent implements OnInit, OnChanges {
     }
 
     // ============ FILE UPLOAD PROPERTIES (NUEVAS) ============
-    selectedFiles: File[] = []; // ← NUEVO
-    filePreviewUrls: Map<string, string> = new Map(); // ← NUEVO
+    selectedFiles: File[] = [];
+    filePreviewUrls: Map<string, string> = new Map();
     maxFileSize: number = 10 * 1024 * 1024; // 10MB
     acceptedFileTypes: string[] = ['image/*', '.pdf', '.doc', '.docx', '.txt'];
 

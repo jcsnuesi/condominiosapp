@@ -216,7 +216,6 @@ export class BookingAreaComponent implements OnInit {
     }
     getAllBookings(paramId: string | [string]) {
         /**Este metodo obtiene las reservas del condominio*/
-        console.log('Param ID:', paramId);
 
         this._bookingService.getBooking(this.token, paramId).subscribe({
             next: (response) => {

@@ -132,4 +132,11 @@ export class OwnerServiceService {
             headers: header,
         });
     }
+
+    getAllOwners(token: string, createdBy: string): Observable<any> {
+        let header = new HttpHeaders().set('Authorization', token);
+        return this._http.get(this.url + 'get-all-owners/' + createdBy, {
+            headers: header,
+        });
+    }
 }
