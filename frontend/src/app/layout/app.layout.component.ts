@@ -18,11 +18,12 @@ import { CondominioService } from '../demo/service/condominios.service';
 import { DashboardComponent } from '../demo/components/dashboard/dashboard.component';
 import { HomeComponent } from '../demo/components/home/home.component';
 import { MenuService } from './app.menu.service';
+import { MessageService, ConfirmationService } from 'primeng/api';
 
 @Component({
     selector: 'app-layout',
     templateUrl: './app.layout.component.html',
-    providers: [CondominioService],
+    providers: [CondominioService, MessageService, ConfirmationService],
 })
 export class AppLayoutComponent implements OnDestroy {
     overlayMenuOpenSubscription: Subscription;

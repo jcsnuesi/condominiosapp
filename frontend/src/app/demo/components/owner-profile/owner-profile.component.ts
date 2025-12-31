@@ -191,7 +191,6 @@ export class OwnerProfileComponent implements OnInit {
         this._activatedRoute.params.subscribe((param) => {
             const ownerId = param['id'];
             this.ownerData = ownerId;
-            console.log('ownerId===========', ownerId);
 
             this._ownerService.getOwnerAssets(this.token, ownerId).subscribe({
                 next: (response) => {

@@ -74,8 +74,10 @@
                     <i class="pi pi-calendar-minus text-orange-500 text-xl"></i>
                 </a>
             </div>
-            <span class="text-green-500 font-medium">%52+ </span>
-            <span class="text-500">since last week</span>
+            <span class="text-green-500 font-medium"
+                >{{ bookingExpiring }}
+            </span>
+            <span class="text-500">expire today</span>
         </div>
     </div>
 
@@ -83,9 +85,7 @@
         <div class="card mb-0">
             <div class="flex justify-content-between mb-3">
                 <div>
-                    <span class="block text-500 font-medium mb-3"
-                        >Staff list</span
-                    >
+                    <span class="block text-500 font-medium mb-3">Staff</span>
                     <div class="text-900 font-medium text-2xl">
                         {{ totalStaff }}
                     </div>
@@ -99,8 +99,8 @@
                     <i class="pi pi-users text-cyan-500 text-xl"></i>
                 </a>
             </div>
-            <span class="text-green-500 font-medium">520 </span>
-            <span class="text-500">newly registered</span>
+            <!-- <span class="text-green-500 font-medium">520 </span>
+            <span class="text-500">newly registered</span> -->
         </div>
     </div>
     <div class="col-12 lg:col-6 xl:col-3">

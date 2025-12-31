@@ -1639,6 +1639,11 @@ export class InquiryComponent implements OnInit, OnChanges {
         });
     }
 
+    viewInquiryDetails(inquiry: Inquiry): void {
+        this.selectedInquiry = inquiry;
+        this.displayInquiryDetailDialog = true;
+    }
+
     /**
      * Maneja la eliminación de un archivo
      */

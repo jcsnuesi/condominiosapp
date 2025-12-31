@@ -11,6 +11,7 @@ import { ImportsModule } from '../../imports_primeng';
 import { FileUpload } from 'primeng/fileupload';
 import { global } from '../../service/global.service';
 import { firstValueFrom } from 'rxjs';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
     selector: 'app-docs',
@@ -87,7 +88,8 @@ export class DocsComponent implements OnInit {
         private _userService: UserService,
         private _messageService: MessageService,
         private _confirmationService: ConfirmationService,
-        private _docsService: DocsService
+        private _docsService: DocsService,
+        private _activeRoute: ActivatedRoute
     ) {
         this.identity = this._userService.getIdentity();
         this.token = this._userService.getToken();
@@ -121,36 +123,28 @@ export class DocsComponent implements OnInit {
         this.displayDocsDialog = true;
     }
 
+    public isAdmin: boolean;
     ngOnInit(): void {
-        this.isAdmin();
+        this._activeRoute.params.subscribe((params) => {
+            const userId = params['id'];
 
-        this.loadDocuments();
-    }
+            if (Boolean(userId)) {
+                this.userId = userId;
+            }
 
-    isAdmin(): boolean {
-        if (!this.identity?.role) {
-            return false;
-        }
-        const adminRoles = ['ADMIN', 'STAFF_ADMIN', 'STAFF'];
-        return adminRoles.includes(this.identity.role.toUpperCase());
-        // return false;
+            this.isAdmin = this._userService.isAdmin();
+            this.docModelTable = [];
+
+            this.loadDocuments();
+        });
     }
-    /** Check ADMIN access using AuthService */
-    // private checkAdminAccess(): boolean {
-    //     try {
-    //         const role: string | undefined = this._userService?.getRole?.();
-    //         return (role || '').toUpperCase() === 'ADMIN';
-    //     } catch {
-    //         return false;
-    //     }
-    // }
 
     /**
      * Resetea el formulario de inquiry
      */
     resetDocForm(): void {
         this.loadDocuments();
-        console.log('Resetting document form');
+
         this.docModel = {
             id: '',
             title: '',
@@ -208,7 +202,6 @@ export class DocsComponent implements OnInit {
                     .updateDocument(this.token, this.docModel.id, formData)
                     .subscribe({
                         next: (res) => {
-                            console.log('Updating document:', res);
                             if (res.status === 'success') {
                                 this._messageService.add({
                                     severity: 'success',
@@ -288,21 +281,27 @@ export class DocsComponent implements OnInit {
         this.dialogHeader = 'Create New Documentation';
         this._docsService.getDirectory(this.token, this.userId).subscribe({
             next: (res: any) => {
-                this.docModelTable = res.message || [];
-                this.docModelTable.file = res.message.map((f: any) => {
-                    f.file.forEach((file: any) => {
-                        file.condoId = f.condoId._id;
+                console.log('Documents loaded:', res);
+                if (res.status === 'success') {
+                    this.docModelTable = res.message;
+                    this.docModelTable.file = res.message.map((f: any) => {
+                        f.file.forEach((file: any) => {
+                            file.condoId = f.condoId._id;
+                        });
+                        return {
+                            ...f,
+                        };
                     });
-                    return {
-                        ...f,
-                    };
-                });
+                } else {
+                    this.docModelTable = [];
+                }
 
                 this.isLoading = false;
             },
             error: () => {
                 this.isError = true;
                 this.errorMessage = 'Failed to load documents';
+                this.docModelTable = [];
                 this.isLoading = false;
             },
         });
@@ -586,66 +585,6 @@ export class DocsComponent implements OnInit {
     }
 
     onFileClear(): void {
-        this.selectedFiles = [];
-    }
-
-    onUploadHandler(event: any): void {
-        if (!this.uploadForm.valid || (event?.files?.length || 0) === 0) {
-            return;
-        }
-        const file = event.files[0] as File;
-        this.performUpload(file);
-    }
-
-    private performUpload(file: File): void {
-        const { type, condominiumIds, description } = this.uploadForm.value;
-
-        // const newDoc: DocumentItem = {
-        //     id: 'new_' + Math.random().toString(36).slice(2),
-        //     name: file.name.replace(/\.[^.]+$/, ''),
-        //     type,
-        //     condominiumIds: condominiumIds?.length ? condominiumIds : ['*'],
-        //     uploadedDate: new Date(),
-        //     uploadedBy: this.identity?.name || 'You',
-        //     status: 'ACTIVE',
-        //     url: '#',
-        //     filename: file.name,
-        //     description: description || '',
-        // };
-
-        // if (this.docsService?.uploadDocument) {
-        //     const fd = new FormData();
-        //     fd.append('type', type);
-        //     fd.append('condominiumIds', JSON.stringify(condominiumIds));
-        //     fd.append('description', description || '');
-        //     fd.append('file', file);
-        //     try {
-        //         this.docsService.uploadDocument(fd).subscribe({
-        //             next: (saved: DocumentItem) => {
-        //                 this.docs.unshift(saved || newDoc);
-        //                 this.resetUploadForm();
-        //             },
-        //             error: () => {
-        //                 this.docs.unshift(newDoc);
-        //                 this.resetUploadForm();
-        //             },
-        //         });
-        //     } catch {
-        //         this.docs.unshift(newDoc);
-        //         this.resetUploadForm();
-        //     }
-        // } else {
-        //     this.docs.unshift(newDoc);
-        //     this.resetUploadForm();
-        // }
-    }
-
-    private resetUploadForm(): void {
-        this.uploadForm.reset({
-            type: '',
-            condominiumIds: [],
-            description: '',
-        });
         this.selectedFiles = [];
     }
 

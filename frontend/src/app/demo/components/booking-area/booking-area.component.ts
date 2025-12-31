@@ -58,6 +58,7 @@ type BookingType = {
 
 type BookingSettings = {
     id: string;
+    bookingName: string;
     condoId: { label: string; code: string };
     unit: { label: string; code: string };
     areaId: { label: string; code: string };
@@ -134,6 +135,7 @@ export class BookingAreaComponent implements OnInit {
 
     @Input() condoId: string | [string];
     public bookingInfoApt: BookingSettings;
+    public isAdmin: boolean = false;
 
     constructor(
         private _userService: UserService,
@@ -148,6 +150,7 @@ export class BookingAreaComponent implements OnInit {
         private _condominioService: CondominioService
     ) {
         this.identity = this._userService.getIdentity();
+        this.isAdmin = this._userService.isAdmin();
         this.token = this._userService.getToken();
         this.headerBooking =
             this.identity.role == 'OWNER' ? 'Booking name' : 'Condo name';
@@ -184,6 +187,7 @@ export class BookingAreaComponent implements OnInit {
         this.notifyOptions = [{ label: 'Email' }, { label: 'None' }];
         this.bookingInfoApt = {
             id: '',
+            bookingName: '',
             condoId: { label: '', code: '' },
             unit: { label: '', code: '' },
             areaId: { label: '', code: '' },
@@ -211,31 +215,28 @@ export class BookingAreaComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        this.getAllBookings(this.condoId);
-        this.isOwner();
+        this._route.params.subscribe((params) => {
+            this.condoId = params['id'];
+
+            this.getAllBookings(this.condoId);
+            this.isOwner();
+        });
     }
     getAllBookings(paramId: string | [string]) {
         /**Este metodo obtiene las reservas del condominio*/
 
         this._bookingService.getBooking(this.token, paramId).subscribe({
             next: (response) => {
+                console.log('Bookings Response:', response);
                 if (response?.status === 'success') {
                     let allBookinInfo = response.message;
                     try {
                         this.bookingHistory = allBookinInfo.map((booking) => {
-                            let bookName = null;
-                            if (
-                                Boolean(booking.guest.length > 0) &&
-                                this.identity.role == 'OWNER'
-                            ) {
-                                bookName = booking.guest[0].fullname;
-                            } else {
-                                bookName = booking.condoId.alias;
-                            }
                             return {
                                 id: booking._id,
                                 guest: booking?.guest,
-                                bookingName: bookName,
+                                alias: booking?.condoId?.alias,
+                                bookingName: booking.bookingName,
                                 condoId: booking.condoId,
                                 unit: booking.apartmentUnit,
                                 area: booking?.areaToReserve ?? 'N/A',
@@ -262,12 +263,7 @@ export class BookingAreaComponent implements OnInit {
                 }
             },
             error: (errors) => {
-                this._messageService.add({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: errors.error.message,
-                    life: 10000,
-                });
+                console.log('Error:', errors);
                 this.loading = false;
             },
         });
@@ -540,6 +536,9 @@ export class BookingAreaComponent implements OnInit {
         // Limpiar el array de visitantes
         let customerData = { ...customer };
         this.bookingInfoApt.id = customerData.id;
+        this.bookingInfoApt.bookingName = this._format.titleCase(
+            customerData.bookingName
+        );
         this.condoOptions = [
             {
                 label: customerData.condoId.alias,

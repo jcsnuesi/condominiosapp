@@ -204,6 +204,7 @@
             <!-- Properties -->
             <app-properties-by-owner
                 [ownerData]="ownerData"
+                (refreshOwnerProperties)="ngOnInit()"
             ></app-properties-by-owner>
         </div>
         <div *ngIf="showComponents.members">

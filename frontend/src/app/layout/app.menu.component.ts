@@ -68,7 +68,7 @@ export class AppMenuComponent implements OnInit {
                 label: 'User management',
                 items: [
                     {
-                        label: 'Users list',
+                        label: 'Users',
                         icon: 'pi pi-users',
                         routerLink: ['/usermanagement'],
                     },
@@ -93,10 +93,21 @@ export class AppMenuComponent implements OnInit {
                 role: ['OWNER'],
             },
             {
+                label: 'Bookings',
+                items: [
+                    {
+                        label: 'Bookings',
+                        icon: 'pi pi-users',
+                        routerLink: ['/bookings', this.cookieValue._id],
+                    },
+                ],
+                role: ['ADMIN', 'OWNER', 'STAFF_ADMIN'],
+            },
+            {
                 label: 'Staffs',
                 items: [
                     {
-                        label: 'Staff list',
+                        label: 'Staffs',
                         icon: 'pi pi-users',
                         routerLink: ['/staff-regular', this.cookieValue._id],
                     },
@@ -113,7 +124,7 @@ export class AppMenuComponent implements OnInit {
                         routerLink: ['/create-property'],
                     },
                     {
-                        label: 'Properties list',
+                        label: 'Properties',
                         icon: 'pi pi-fw pi-eye',
                         routerLink: ['/see-property'],
                     },
@@ -124,25 +135,25 @@ export class AppMenuComponent implements OnInit {
                 label: 'Partners',
                 items: [
                     {
-                        label: 'See Partners',
+                        label: 'Partners',
                         icon: 'pi pi-briefcase',
                         routerLink: ['/all-partners'],
                     },
                 ],
                 role: ['ADMIN', 'STAFF_ADMIN'],
             },
-            // ,
-            // {
-            //     label: 'Documents',
-            //     items: [
-            //         {
-            //             label: 'Files',
-            //             icon: 'pi pi-file',
-            //             routerLink: ['/docs'],
-            //         },
-            //     ],
-            //     role: ['ADMIN', 'OWNER', 'STAFF_ADMIN'],
-            // },
+
+            {
+                label: 'Docs',
+                items: [
+                    {
+                        label: 'Documents',
+                        icon: 'pi pi-file',
+                        routerLink: ['/docs', this.cookieValue._id],
+                    },
+                ],
+                role: ['ADMIN', 'OWNER', 'STAFF_ADMIN'],
+            },
         ];
     }
 }

@@ -31,7 +31,7 @@ import { DocsComponent } from './demo/components/docs/docs.component';
                             component: HomeComponent,
                         },
                         {
-                            path: 'bookings/:dashid',
+                            path: 'bookings/:id',
                             component: BookingAreaComponent,
                         },
                         {
@@ -84,7 +84,7 @@ import { DocsComponent } from './demo/components/docs/docs.component';
                             component: OwnerProfileComponent,
                         },
                         {
-                            path: 'docs',
+                            path: 'docs/:id',
                             canActivate: [UserGuard],
                             component: DocsComponent,
                         },

@@ -111,6 +111,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     public itemsx: any;
     public condoId: any;
     public totalDocuments: number = 0;
+    public bookingExpiring: number = 0;
 
     @Output() propertyInfoEvent: EventEmitter<any> = new EventEmitter();
     componentsToShow: {
@@ -364,7 +365,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this._docsService
             .docCard(this.token, this.condoId)
             .subscribe((response) => {
-                console.log('Documents response: ', response);
                 if (response.status == 'success') {
                     this.totalDocuments = response.message;
                 }
@@ -651,6 +651,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     loadBookingCard() {
         this._bookingService.getBooking(this.token, this.getId()).subscribe({
             next: (response) => {
+                console.log('Booking response: ', response);
                 if (response?.status == 'success') {
                     this.totalBooked = response.message.length;
                 } else {

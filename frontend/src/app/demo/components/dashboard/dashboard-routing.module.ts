@@ -9,11 +9,11 @@ import { FamilyAreaComponent } from '../family-area/family-area.component';
         RouterModule.forChild([
             { path: '', component: DashboardComponent },
             { path: 'start', component: DashboardComponent },
-            { path: 'start/:dashid', component: DashboardComponent },
-            { path: 'booking-area/:dashid', component: BookingAreaComponent },
+            { path: 'start/:id', component: DashboardComponent },
+            { path: 'booking-area/:id', component: BookingAreaComponent },
             { path: 'staff-regular/:id', component: StaffComponent },
             {
-                path: 'family-area/:dashid',
+                path: 'family-area/:id',
                 component: FamilyAreaComponent,
             },
         ]),

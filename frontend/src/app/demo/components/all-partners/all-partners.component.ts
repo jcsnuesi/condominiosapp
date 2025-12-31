@@ -104,11 +104,10 @@ export class AllPartnersComponent implements OnInit {
     getAllPartners() {
         this._ownerService.getAllOwners(this.token, this.getId()).subscribe({
             next: (response) => {
-                console.log('RESPONSE OWNERS', response);
                 if (response.status == 'success') {
                     this.datatable = response.message.map((item: any) => {
                         return {
-                            id: item._id,
+                            id: item.ownerId,
                             avatar: item.avatar,
                             fullname:
                                 item.owner.name + ' ' + item.owner.lastname,
@@ -117,7 +116,6 @@ export class AllPartnersComponent implements OnInit {
                             createdAt: item.owner.createdAt,
                             invoiceCount: item.totalInvoices,
                             totalAmount: item.totalAmount,
-                            lastPayment: item.invoice_paid_date,
                         };
                     });
                     this.loading = false;

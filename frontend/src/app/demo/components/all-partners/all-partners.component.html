@@ -107,18 +107,6 @@
                     </div>
                 </th>
 
-                <th pSortableColumn="lastPayment" style="max-width: 10rem">
-                    <div class="flex justify-between items-center">
-                        Last Payment
-                        <p-sortIcon field="lastPayment" />
-                        <p-columnFilter
-                            type="text"
-                            field="lastPayment"
-                            display="menu"
-                            class="ml-auto"
-                        />
-                    </div>
-                </th>
                 <th pSortableColumn="createdAt" style="max-width: 10rem">
                     <div class="flex justify-between items-center">
                         Partnetship Date
@@ -174,9 +162,6 @@
                 </td>
 
                 <td>
-                    {{ customer.lastPayment | date : "MM/dd/yyyy" }}
-                </td>
-                <td>
                     {{ customer.createdAt | date : "MM/dd/yyyy" }}
                 </td>
 
@@ -227,17 +212,6 @@
             <app-owner-registration *ngIf="visible"></app-owner-registration>
         </p-tabPanel>
         <p-tabPanel header="Create multiple units">
-            <!-- <p-fileUpload
-                mode="basic"
-                chooseLabel="Choose image"
-                name="demo[]"
-                url="https://www.primefaces.org/cdn/api/upload.php"
-                accept="image/*"
-                maxlengthFileSize="1000000"
-                (onSelect)="onSelect($event)"
-            >
-            </p-fileUpload> -->
-
             <app-pool-file-loader
                 [services]="fileInputData"
             ></app-pool-file-loader>

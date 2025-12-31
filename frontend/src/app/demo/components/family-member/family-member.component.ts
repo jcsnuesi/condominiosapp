@@ -178,7 +178,7 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
         ];
 
         this._activateRoute.params.subscribe((params) => {
-            let param = params['dashid'];
+            let param = params['id'];
 
             this.familyMemberInfo = {
                 memberId: '',

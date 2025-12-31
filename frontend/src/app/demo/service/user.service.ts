@@ -27,6 +27,15 @@ export class UserService {
         });
     }
 
+    isAdmin(): boolean {
+        if (!this.getIdentity()?.role) {
+            return false;
+        }
+        const adminRoles = ['ADMIN', 'STAFF_ADMIN'];
+        return adminRoles.includes(this.getIdentity().role.toUpperCase());
+        // return false;
+    }
+
     login(user: any, token: boolean): Observable<any> {
         if (token) {
             user.gettoken = true;

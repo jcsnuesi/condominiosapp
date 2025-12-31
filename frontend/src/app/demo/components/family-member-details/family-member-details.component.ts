@@ -101,8 +101,8 @@ export class FamilyMemberDetailsComponent implements OnInit {
         this._routeActivated.params.subscribe((params) => {
             this.seePropertyBool =
                 window.location.href.includes('see-property');
-            if (params['dashid'] || params['id']) {
-                this.userId = params['dashid'] || params['id'];
+            if (params['id']) {
+                this.userId = params['id'];
             } else {
                 this._routeActivated.queryParams.subscribe((param) => {
                     this.userId = param['userid'];

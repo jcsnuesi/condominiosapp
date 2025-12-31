@@ -70,17 +70,15 @@ export class PropertiesByOwnerComponent implements OnInit {
     }[];
     @Input() ownerData: any;
     @Input('propertyData') propertyData: [] = [];
+    @Output() refreshOwnerProperties: EventEmitter<boolean> =
+        new EventEmitter();
 
     constructor(
         private _messageService: MessageService,
         private _confirmationService: ConfirmationService,
-        private _router: Router,
-        private _route: ActivatedRoute,
         private _condominioService: CondominioService,
         private _userService: UserService,
-        private _ownerService: OwnerServiceService,
-        private _invoiceService: InvoiceService,
-        private _formatFunctions: FormatFunctions
+        private _ownerService: OwnerServiceService
     ) {
         this.token = this._userService.getToken();
         this.url = global.url;
@@ -95,11 +93,14 @@ export class PropertiesByOwnerComponent implements OnInit {
             { label: 4 },
             { label: 5 },
         ];
+
         this.parkingSelected = [{ label: 0 }];
     }
+
     ngOnInit(): void {
         this.getActiveProperties();
     }
+
     getSeverity(status: string) {
         return status == 'active' ? 'primary' : 'danger';
     }
@@ -112,7 +113,6 @@ export class PropertiesByOwnerComponent implements OnInit {
             .subscribe({
                 next: (response) => {
                     this.propertiesOwner = response.condominium.map((condo) => {
-                        console.log('CONDO', condo);
                         return {
                             ownerId: condo.id,
                             owner_data: condo.owner_data,
@@ -166,7 +166,6 @@ export class PropertiesByOwnerComponent implements OnInit {
     }
 
     public invoiceFullData = [];
-
     addNewProperty() {
         this.showAvailableProperties = this.showAvailableProperties
             ? false
@@ -367,6 +366,7 @@ export class PropertiesByOwnerComponent implements OnInit {
                                     detail: 'Property deleted successfully',
                                 });
                                 this.getActiveProperties();
+                                this.refreshOwnerProperties.emit(true);
                             } else {
                                 this._messageService.add({
                                     severity: 'error',
