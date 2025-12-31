@@ -765,54 +765,53 @@ var ownerAndSubController = {
           "_id alias availableUnits phone street_1 street_2 sector_name city province zipcode country socialAreas status mPayment createdAt",
       });
 
+      console.log("Length owners:", ownerWithCondo.length);
       const ownerIds = ownerWithCondo.map((o) => o._id);
-      const invoicesGroupedByOwner = await Invoice.aggregate([
-        // 1️⃣ Filtrar invoices
+      const ownersWithInvoices = await Owner.aggregate([
+        // 1️⃣ Filtrar owners (opcional si ya tienes ownerIds)
         {
           $match: {
-            ownerId: { $in: ownerIds },
-            status: "pending",
+            _id: { $in: ownerIds },
           },
         },
 
-        // 2️⃣ Agrupar invoices por owner
+        // 2️⃣ Lookup invoices (LEFT JOIN)
         {
-          $group: {
-            _id: "$ownerId",
-            totalInvoices: { $sum: 1 },
-            totalAmount: { $sum: "$amount" },
-            invoices: {
-              $push: {
-                _id: "$_id",
-                amount: "$amount",
-                issueDate: "$issueDate",
-                dueDate: "$dueDate",
-                condominiumId: "$condominiumId",
-                status: "$status",
+          $lookup: {
+            from: "invoices",
+            let: { ownerId: "$_id" },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $and: [
+                      { $eq: ["$ownerId", "$$ownerId"] },
+                      { $eq: ["$status", "pending"] },
+                    ],
+                  },
+                },
               },
+            ],
+            as: "invoices",
+          },
+        },
+
+        // 3️⃣ Calcular totales (aunque no tenga invoices)
+        {
+          $addFields: {
+            totalInvoices: { $size: "$invoices" },
+            totalAmount: {
+              $sum: "$invoices.amount",
             },
           },
         },
 
-        // 3️⃣ Lookup Owner
-        {
-          $lookup: {
-            from: "owners",
-            localField: "_id",
-            foreignField: "_id",
-            as: "owner",
-          },
-        },
-
-        // 4️⃣ Unwind owner
-        { $unwind: "$owner" },
-
-        // 5️⃣ 🔥 Extraer explícitamente los addressId del owner
+        // 4️⃣ Extraer condominiumIds del owner
         {
           $addFields: {
             condominiumIdsFromOwner: {
               $map: {
-                input: "$owner.propertyDetails",
+                input: "$propertyDetails",
                 as: "pd",
                 in: "$$pd.addressId",
               },
@@ -820,7 +819,7 @@ var ownerAndSubController = {
           },
         },
 
-        // 6️⃣ Lookup Condominium usando IDs planos
+        // 5️⃣ Lookup condominios
         {
           $lookup: {
             from: "condominia",
@@ -830,18 +829,19 @@ var ownerAndSubController = {
           },
         },
 
-        // 7️⃣ Proyección final
+        // 6️⃣ Proyección final
         {
           $project: {
             ownerId: "$_id",
             owner: {
-              _id: "$owner._id",
-              name: "$owner.name",
-              lastname: "$owner.lastname",
-              email: "$owner.email",
+              _id: "$_id",
+              name: "$name",
+              lastname: "$lastname",
+              email: "$email",
+              phone: "$phone",
+              createdAt: "$createdAt",
             },
 
-            // 🔥 IDs de condominios por owner
             condominiumIds: {
               $map: {
                 input: "$condominiums",
@@ -855,7 +855,21 @@ var ownerAndSubController = {
 
             totalInvoices: 1,
             totalAmount: 1,
-            invoices: 1,
+            invoices: {
+              $map: {
+                input: "$invoices",
+                as: "inv",
+                in: {
+                  _id: "$$inv._id",
+                  amount: "$$inv.amount",
+                  issueDate: "$$inv.issueDate",
+                  dueDate: "$$inv.dueDate",
+                  condominiumId: "$$inv.condominiumId",
+                  status: "$$inv.status",
+                },
+              },
+            },
+
             _id: 0,
           },
         },
@@ -863,7 +877,7 @@ var ownerAndSubController = {
 
       return res.status(200).send({
         status: "success",
-        message: invoicesGroupedByOwner,
+        message: ownersWithInvoices,
       });
     } catch (error) {
       console.log("ownerWithCondo:", error);

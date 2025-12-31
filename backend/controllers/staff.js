@@ -536,14 +536,15 @@ var StaffController = {
       const staffFound = await Staff.find({
         $or: query,
       }).lean();
+
       if (staffFound && staffFound.length > 0) {
         return res.status(200).send({
           status: "success",
           message: staffFound.length,
         });
       } else {
-        return res.status(404).send({
-          status: "error",
+        return res.status(203).send({
+          status: "success",
           message: "No staff found",
         });
       }

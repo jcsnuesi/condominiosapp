@@ -6,6 +6,8 @@ var path = require("path");
 const fs = require("fs");
 const ExceptionHandler = require("../error/errorHandler");
 const Condominium = require("../models/condominio");
+const Owner = require("../models/owners");
+const Family = require("../models/family");
 const Docs = require("../models/docs");
 var findDirectory = require("../service/findDirectory");
 const { model } = require("mongoose");
@@ -77,10 +79,25 @@ var DocsController = {
   },
   getDirectoriesByCreatedBy: async function (req, res) {
     let params = req.params.id;
+    let ModelObject = { OWNER: Owner, FAMILY: Family };
 
     try {
+      if (["OWNER", "FAMILY"].includes(req.user.role)) {
+        const ownerFound = await ModelObject[req.user.role].findOne({
+          $or: [{ _id: params }, { createdBy: params }],
+        });
+        if (ownerFound) {
+          var propertiesFound = ownerFound.propertyDetails.map(
+            (prop) => prop.addressId
+          );
+        }
+      }
       const docsFound = await Docs.find({
-        $or: [{ createdBy: params }, { condoId: params }],
+        $or: [
+          { createdBy: params },
+          { condoId: params },
+          { condoId: { $in: propertiesFound } },
+        ],
       })
         .populate({
           path: "condoId",
@@ -92,8 +109,8 @@ var DocsController = {
         });
 
       if (!docsFound || docsFound.length === 0) {
-        return res.status(201).send({
-          status: "Not files",
+        return res.status(404).send({
+          status: "not found",
           message: "No documents found for the given creator.",
         });
       }

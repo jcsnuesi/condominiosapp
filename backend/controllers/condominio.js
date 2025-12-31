@@ -407,6 +407,7 @@ var Condominium_Controller = {
 
   getOwnerCondoAndInvoices: async function (req, res) {
     const ownerId = mongoose.Types.ObjectId(req.params.id);
+
     try {
       const ownerWithCondo = await Owner.findOne({ _id: ownerId }).populate({
         path: "propertyDetails.addressId",
@@ -414,8 +415,6 @@ var Condominium_Controller = {
         select:
           "_id alias availableUnits phone street_1 street_2 sector_name city province zipcode country socialAreas status mPayment createdAt",
       });
-
-      console.log("ownerWithCondo:", ownerWithCondo);
 
       const invoices = await Invoice.find({
         ownerId: ownerId,
