@@ -1,0 +1,198 @@
+
+<div class="grid">
+  <div class="col-12">
+    @if (status == 'success') {
+      <p-message [(value)]="messages" [enableService]="false" [closable]="true"></p-message>
+    }
+
+    @if (status != 'success') {
+      <div class="card">
+        <h5>Formulario de Registro para administradora </h5>
+        <form #registroAdmin="ngForm"  (ngSubmit)="onSubmit(registroAdmin)">
+          <div class="p-fluid p-formgrid grid">
+            <div class="field col-12">
+              @if (status == 'true') {
+                <p-message [(value)]="messages" [enableService]="false" [closable]="true"></p-message>
+              }
+              <p-fileUpload styleClass="cp-file-upload" mode="basic" chooseLabel="Choose image" name="demo[]" url="https://www.primefaces.org/cdn/api/upload.php"
+              accept="image/*" maxFileSize="1000000" (onSelect)="onSelect($event)"></p-fileUpload>
+              <div class="col-md-4 mt-3">
+                @if (preview) {
+                  <img [src]="image" alt="" width="181px" height="200px">
+                }
+              </div>
+            </div>
+            <div class="field col-12 md:col-6">
+              <label htmlFor="company">Empresa<span style="color: red;">*</span></label>
+              <input pInputText id="company" type="text" required #company="ngModel" name="company" [(ngModel)]="user.company"  aria-describedby="username-help" [ngClass]="{'valid-form':company.valid,'invalid-form':!company.valid}" />
+              @if (company.touched && !company.valid) {
+                <small id="username-help" class="p-error">Obligatorio.</small>
+              }
+            </div>
+            <div class="field col-6 md:col-6">
+              <label htmlFor="rnc">RNC<span style="color: red;">*</span></label>
+              <input pInputText id="rnc" type="text" required name="rnc" #rnc="ngModel" [(ngModel)]="user.rnc" [ngClass]="{'valid-form':rnc.valid,'invalid-form':!rnc.valid}" minlength="8" maxlength="9" pattern="^[0-9]+"/>
+              @if (rnc.touched && !rnc.valid) {
+                <small id="username-help" class="p-error">Obligatorio (Just number, 9 digits).</small>
+              }
+            </div>
+            <div class="field col-6 md:col-6">
+              <label htmlFor="phone">Telefono<span style="color: red;">*</span></label>
+              <input pInputText id="phone" type="text" required [(ngModel)]="user.phone" #phone="ngModel" name="phone" minlength="10" maxlength="10" [ngClass]="{'valid-form':phone.valid,'invalid-form':!phone.valid}" />
+              @if (phone.touched && !phone.valid) {
+                <small id="username-help" class="p-error">Obligatorio.</small>
+              }
+            </div>
+            <div class="field col-6 md:col-6">
+              <label htmlFor="phone2">Telefono 2</label>
+              <input pInputText id="phone2" type="text" [(ngModel)]="user.phone2" #phone2="ngModel" name="phone2"
+                maxlength="10"  [ngClass]="{'valid-form':phone2.valid,'invalid-form':!phone2.valid}"/>
+              @if (!phone.valid) {
+                <small id="username-help" class="p-error">Must be 10 at least digits.</small>
+              }
+            </div>
+            <br>
+              <div style="margin-left: 20px;width: 100%;">
+                <h5>Direccion</h5>
+                <hr>
+                </div>
+                <div class="field col-12">
+                  <label htmlFor="street_1">Calle<span style="color: red;">*</span></label>
+                  <input pTextarea id="street_1" rows="4" name="street_1" required [(ngModel)]="user.street_1" #street_1="ngModel" [ngClass]="{'valid-form':street_1.valid,'invalid-form':!street_1.valid}"/>
+                  @if (street_1.touched && !street_1.valid) {
+                    <small id="username-help" class="p-error">Obligatorio.</small>
+                  }
+                </div>
+                <div class="field col-12">
+                  <label htmlFor="street_2">Calle 2</label>
+                  <input pTextarea id="street_2" rows="4" name="street_2" [(ngModel)]="user.street_2" #street_2="ngModel"
+                    />
+                </div>
+                <div class="field col-12 md:col-5">
+                  <label htmlFor="city">Ciudad<span style="color: red;">*</span></label>
+                  <input pInputText id="city" type="text" required [(ngModel)]="user.city" #city="ngModel" name="city" [ngClass]="{'valid-form':city.valid,'invalid-form':!city.valid}"/>
+                  @if (city.touched && !city.valid) {
+                    <small id="username-help" class="p-error">Obligatorio.</small>
+                  }
+                </div>
+                <div class="field col-12 md:col-5">
+                  <label htmlFor="states">
+                    Estado
+                    <span style="color: red;">*</span>
+                  </label>
+                  <p-select [options]="states_us" optionLabel="name"
+                    optionValue="name"
+                    [(ngModel)]="user.state"
+                    #state="ngModel"
+                    name="state"
+                    required>
+                  </p-select>
+                  @if (state.touched && !state.valid) {
+                    <small id="username-help" class="p-error">Obligatorio.</small>
+                  }
+                </div>
+                <div class="field col-12 md:col-4">
+                  <label htmlFor="zipcode">Zip code<span style="color: red;">*</span></label>
+                  <input pInputText id="zipcode" type="text" maxlength="10" required [(ngModel)]="user.zipcode" #zipcode="ngModel" name="zipcode"
+                    [ngClass]="{'valid-form':zipcode.valid,'invalid-form':!zipcode.valid}" />
+                </div>
+                <div class="field col-12 md:col-6">
+                  <label htmlFor="country">Pais<span style="color: red;">*</span></label>
+                  <input pInputText name="country" id="country" [(ngModel)]="user.country" #country="ngModel"
+                    [ngClass]="{'valid-form':country.valid,'invalid-form':!country.valid}"   readonly>
+                </div>
+                <div style="margin-left: 20px;width: 100%;">
+                  <h5>Persona de contacto</h5>
+                  <hr>
+                  </div>
+                  <div class="field col-12 md:col-6">
+                    <label htmlFor="name_contact">Nombres<span style="color: red;">*</span></label>
+                    <input pInputText id="name_contact" type="text" required [(ngModel)]="user.name_contact"  [ngClass]="{'valid-form':name_contact.valid,'invalid-form':!name_contact.valid}" #name_contact="ngModel" name="name_contact" maxlength="50"/>
+                    @if (name_contact.touched && !name_contact.valid) {
+                      <small id="username-help" class="p-error">Obligatorio.</small>
+                    }
+                  </div>
+                  <div class="field col-12 md:col-6">
+                    <label htmlFor="name">Apellido<span style="color: red;">*</span></label>
+                    <input pInputText id="lastname_contact" type="text" required [(ngModel)]="user.lastname_contact"
+                      #lastname_contact="ngModel"
+                      [ngClass]="{'valid-form':lastname_contact.valid,'invalid-form':!lastname_contact.valid}"
+                      name="lastname_contact" maxlength="50"/>
+                    @if (lastname_contact.touched && !lastname_contact.valid) {
+                      <small id="username-help" class="p-error">Obligatorio.</small>
+                    }
+                  </div>
+                  <div class="field col-12 md:col-6">
+                    <label htmlFor="gender_contact">Genero<span style="color: red;">*</span></label>
+                    <p-select [options]="genero" optionLabel="name" optionValue="name" #gender_contact="ngModel" [(ngModel)]="user.gender_contact"  placeholder="Genero"
+                      name="gender_contact" required
+                    ></p-select>
+                    @if (gender_contact.touched && !gender_contact.valid) {
+                      <small id="username-help"
+                      class="p-error">Obligatorio.</small>
+                    }
+                  </div>
+                  <div class="field col-12 md:col-6">
+                    <label htmlFor="phone_contact">Telefono<span style="color: red;">*</span></label>
+                    <input pInputText id="phone_contact" type="text" required [(ngModel)]="user.phone_contact" name="phone_contact"
+                      #phone_contact="ngModel" maxlength="10"
+                      [ngClass]="{'valid-form':phone_contact.valid,'invalid-form':!phone_contact.valid}"  />
+                    @if (phone_contact.touched && !phone_contact.valid) {
+                      <small id="username-help" class="p-error">Obligatorio.</small>
+                    }
+                  </div>
+                  <div class="field col-12 md:col-6">
+                    <label htmlFor="phone_contact2">Telefono 2<span style="color: red;">*</span></label>
+                    <input pInputText id="phone_contact2" type="text" [(ngModel)]="user.phone_contact2" name="phone_contact2"
+                      #phone_contact2="ngModel"
+                      maxlength="10"
+                      [ngClass]="{'valid-form':phone_contact2.valid,'invalid-form':!phone_contact2.valid}" />
+                  </div>
+                  <div class="field col-12 md:col-6">
+                    <label htmlFor="email_contact">Email<span style="color: red;">*</span></label>
+                    <input pInputText id="email_contact" type="text" required [(ngModel)]="user.email_contact" name="email_contact"
+                      #email_contact="ngModel"
+                      [ngClass]="{'valid-form':email_contact.valid,'invalid-form':!email_contact.valid}"  />
+                  </div>
+                  <div class="field col-12 md:col-6">
+                    <label htmlFor="role_contact">Role en la empresa<span style="color: red;">*</span></label>
+                    <input pInputText id="role_contact" type="text" required [(ngModel)]="user.role_contact" #role_contact="ngModel"
+                      [ngClass]="{'valid-form':role_contact.valid,'invalid-form':!role_contact.valid}" name="role_contact"/>
+                  </div>
+                  <div style="margin-left: 20px;width: 100%;">
+                    <h5>Accesos a la plataforma</h5>
+                    <hr>
+                    </div>
+                    <div class="field col-12 md:col-6">
+                      <label htmlFor="email_company">Email<span style="color: red;">*</span></label>
+                      <input pInputText id="email_company" [ngClass]="{'valid-form':email_company.valid,'invalid-form':!email_company.valid}" type="email" required [(ngModel)]="user.email_company" name="email_company"
+                        #email_company="ngModel" pattern="[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*@[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*[.][a-zA-Z]{2,5}" maxlength="50"/>
+                      @if (email_company.touched && !email_company.valid) {
+                        <small id="username-help" class="p-error">Obligatorio.</small>
+                      }
+                    </div>
+                    <div class="field col-12 md:col-6">
+                      <label htmlFor="password">Password<span style="color: red;">*</span></label>
+                      <input pInputText id="password" type="password" required [(ngModel)]="user.password" #password="ngModel" name="password" [ngClass]="{'valid-form':password.valid,'invalid-form':!password.valid}" maxlength="15" minlength="8"/>
+                      @if (password.touched && !password.valid) {
+                        <small id="username-help" class="p-error">Su clave debe tener minimo 8 caracteres maximo 15.</small>
+                      }
+                    </div>
+                    <div class="flex align-items-center gap-1">
+                      <p-checkbox [(ngModel)]="checked" [binary]="true" inputId="binary" (click)="termSelection($event,registroAdmin)" #terms="ngModel" name="terms" required ></p-checkbox>
+                      <label for="terms">
+                        Aceptas los terminos y condiciones?
+                      </label>
+                      @if (checked ==  false) {
+                        <small id="username-help" class="p-error">Obligatorio. (All required fields must be completed)</small>
+                      }
+                    </div>
+                  </div>
+                  <div style="margin-top: 9px;float:right">
+                    <input type="submit" [disabled]="!getformValid()" value="Registrar" class="p-element p-ripple p-button p-component">
+                  </div>
+                </form>
+              </div>
+            }
+          </div>
+        </div>

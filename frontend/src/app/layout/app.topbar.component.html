@@ -1,0 +1,211 @@
+<p-toast></p-toast>
+<app-change-password [userData]="!needChangePassword"></app-change-password>
+<app-authenticated-user-profile
+    [(visible)]="profileDialogVisible"
+    (profileUpdated)="handleProfileUpdated($event)"
+></app-authenticated-user-profile>
+<div class="layout-topbar">
+    <a class="layout-topbar-logo" routerLink="">
+        <img
+            src="assets/layout/images/{{
+                layoutService.config.colorScheme === 'light'
+                    ? 'logo-dark'
+                    : 'logo-white'
+            }}.svg"
+            alt="logo"
+        />
+        <span>CondApp</span>
+    </a>
+
+    <button
+        #menubutton
+        type="button"
+        class="p-link layout-menu-button layout-topbar-button"
+        aria-controls="app-sidebar-navigation"
+        [attr.aria-expanded]="layoutService.isMenuExpanded()"
+        [attr.aria-label]="
+            layoutService.isMenuExpanded()
+                ? 'Contraer menú principal'
+                : 'Expandir menú principal'
+        "
+        (click)="layoutService.onMenuToggle()"
+    >
+        <i class="pi pi-bars" aria-hidden="true"></i>
+    </button>
+
+    <button
+        #topbarmenubutton
+        class="p-link layout-topbar-menu-button layout-topbar-button"
+        aria-label="Abrir opciones de cuenta"
+        aria-haspopup="dialog"
+        [attr.aria-expanded]="layoutService.state.profileSidebarVisible"
+        (click)="layoutService.showProfileSidebar()"
+    >
+        <i class="pi pi-ellipsis-v"></i>
+    </button>
+
+    <div
+        #topbarmenu
+        class="layout-topbar-menu"
+        [ngClass]="{
+            'layout-topbar-menu-mobile-active':
+                layoutService.state.profileSidebarVisible
+        }"
+    >
+        <div class="topbar-notifications">
+            <button
+                type="button"
+                class="p-link layout-topbar-button"
+                aria-label="Abrir avisos"
+                aria-haspopup="menu"
+                [attr.aria-expanded]="notificationMenuVisible"
+                (click)="toggleNotificationMenu()"
+            >
+                <i class="pi pi-bell" aria-hidden="true"></i>
+                @if (unreadNotificationCount > 0) {
+                <span
+                    class="notification-badge"
+                    aria-label="{{ unreadNotificationCount }} avisos no leídos"
+                    >{{
+                        unreadNotificationCount > 99
+                            ? "99+"
+                            : unreadNotificationCount
+                    }}</span
+                >
+                }
+            </button>
+
+            @if (notificationMenuVisible) {
+            <section
+                class="notification-popover"
+                role="menu"
+                aria-label="Avisos recientes"
+            >
+                <div class="notification-popover-header">
+                    <strong>Avisos</strong>
+                    <button
+                        type="button"
+                        class="notification-link"
+                        (click)="openNotifications()"
+                    >
+                        Ver comunicaciones
+                    </button>
+                </div>
+                @if (notificationsLoading) {
+                <p class="notification-state">Cargando avisos…</p>
+                } @else if (notificationsError) {
+                <p class="notification-state notification-error">
+                    {{ notificationsError }}
+                </p>
+                } @else if (!notifications.length) {
+                <p class="notification-state">No tienes avisos nuevos.</p>
+                } @else {
+                <div class="notification-list">
+                    @for (notification of notifications; track notification._id)
+                    {
+                    <button
+                        type="button"
+                        class="notification-item"
+                        role="menuitem"
+                        (click)="openNotification(notification)"
+                    >
+                        <span class="notification-item-title">{{
+                            notification.title
+                        }}</span>
+                        <span class="notification-item-content">{{
+                            notification.content
+                        }}</span>
+                    </button>
+                    }
+                </div>
+                }
+            </section>
+            }
+        </div>
+        <div class="main-avatar">
+            <div>
+                <div class="p-text-bold" style="text-align: right">
+                    {{ fullname | titlecase }}
+                </div>
+                <div class="p-text-bold" style="text-align: right">
+                    <b> {{ role | titlecase }}</b>
+                </div>
+            </div>
+            <button
+                pButton
+                type="button"
+                class="p-link layout-topbar-button avatar-button"
+                aria-label="Abrir opciones de cuenta"
+                aria-haspopup="dialog"
+                [attr.aria-expanded]="layoutService.state.profileSidebarVisible"
+                (click)="layoutService.showProfileSidebar()"
+            >
+                @if (identity) {
+                <p-avatar [image]="avatar" shape="circle" />
+                } @if (!identity) {
+                <i class="pi pi-user"></i>
+                }
+            </button>
+        </div>
+    </div>
+
+    <p-drawer
+        [(visible)]="layoutService.state.profileSidebarVisible"
+        position="right"
+        styleClass="mobile-profile-drawer"
+        [appendTo]="'body'"
+        [modal]="false"
+        [dismissible]="false"
+        [showCloseIcon]="true"
+        ariaCloseLabel="Cerrar cuenta"
+        (onHide)="layoutService.hideProfileSidebar()"
+    >
+        <div class="mobile-profile-panel">
+            <header class="mobile-profile-welcome">
+                <span class="mobile-profile-eyebrow">Bienvenido</span>
+                <h2 class="mobile-profile-name">
+                    {{ fullname | titlecase }}
+                </h2>
+                <span class="mobile-profile-role">{{ role | titlecase }}</span>
+            </header>
+
+            <nav class="mobile-profile-actions" aria-label="Opciones de cuenta">
+                <button
+                    type="button"
+                    class="mobile-profile-action"
+                    (click)="openProfileSettings()"
+                >
+                    <span class="mobile-profile-action-icon" aria-hidden="true">
+                        <i class="pi pi-user-edit"></i>
+                    </span>
+                    <span class="mobile-profile-action-copy">
+                        <span class="mobile-profile-action-title"
+                            >Mi perfil</span
+                        >
+                        <span class="mobile-profile-action-hint"
+                            >Datos personales y seguridad</span
+                        >
+                    </span>
+                </button>
+
+                <button
+                    type="button"
+                    class="mobile-profile-action mobile-profile-action-signout"
+                    (click)="destroySession()"
+                >
+                    <span class="mobile-profile-action-icon" aria-hidden="true">
+                        <i class="pi pi-power-off"></i>
+                    </span>
+                    <span class="mobile-profile-action-copy">
+                        <span class="mobile-profile-action-title"
+                            >Cerrar sesión</span
+                        >
+                        <span class="mobile-profile-action-hint"
+                            >Salir de esta cuenta</span
+                        >
+                    </span>
+                </button>
+            </nav>
+        </div>
+    </p-drawer>
+</div>

@@ -1,0 +1,630 @@
+/* ============================================
+   CREATE PROPERTY — COMPONENT STYLES
+   ============================================ */
+
+/* Page wrapper */
+.create-property-page {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+}
+
+@media (max-width: 640px) {
+    .create-property-page {
+        padding: 1.5rem 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .create-property-page {
+        padding: 1rem 0.75rem;
+    }
+}
+
+/* ---- Header ---- */
+.cp-page-header {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+}
+
+@media (max-width: 640px) {
+    .cp-page-header {
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .cp-page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+}
+
+.cp-header-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: var(--p-primary-color, #6366f1);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    flex-shrink: 0;
+}
+
+@media (max-width: 480px) {
+    .cp-header-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+    }
+}
+
+.cp-kicker {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--p-primary-color, #6366f1);
+    margin-bottom: 0.15rem;
+}
+
+.cp-title {
+    margin: 0 0 0.2rem;
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.cp-subtitle {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--p-text-muted-color, #94a3b8);
+}
+
+@media (max-width: 640px) {
+    .cp-title {
+        font-size: 1.3rem;
+    }
+
+    .cp-subtitle {
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .cp-kicker {
+        font-size: 0.65rem;
+    }
+
+    .cp-title {
+        font-size: 1.1rem;
+    }
+
+    .cp-subtitle {
+        font-size: 0.75rem;
+    }
+}
+
+/* ---- Stepper container ---- */
+.cp-stepper {
+    width: 100%;
+}
+
+/* ---- Step body (form area) ---- */
+.cp-step-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    padding: 1.5rem 0 0.5rem;
+}
+
+@media (max-width: 640px) {
+    .cp-step-body {
+        gap: 1rem;
+        padding: 1rem 0 0.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .cp-step-body {
+        gap: 0.75rem;
+        padding: 0.75rem 0 0.25rem;
+    }
+}
+
+/* ---- Field ---- */
+.cp-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.cp-field label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--p-text-color, #334155);
+    letter-spacing: 0.01em;
+}
+
+@media (max-width: 640px) {
+    .cp-field label {
+        font-size: 0.78rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .cp-field label {
+        font-size: 0.75rem;
+    }
+}
+
+.cp-section-label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--p-text-color, #334155);
+}
+
+@media (max-width: 640px) {
+    .cp-section-label {
+        font-size: 0.78rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .cp-section-label {
+        font-size: 0.75rem;
+    }
+}
+
+.cp-required {
+    color: #ef4444;
+}
+
+.cp-error-msg {
+    color: #ef4444;
+    font-size: 0.75rem;
+}
+
+@media (max-width: 480px) {
+    .cp-error-msg {
+        font-size: 0.7rem;
+    }
+}
+
+/* Two-column grid */
+.cp-field-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+@media (max-width: 640px) {
+    .cp-field-grid {
+        gap: 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .cp-field-grid {
+        grid-template-columns: 1fr;
+        gap: 0.6rem;
+    }
+}
+
+/* Make all inputs, selects, multiselects full-width */
+.cp-step-body input[pInputText],
+.cp-step-body p-select,
+.cp-step-body p-multiSelect,
+.cp-step-body p-inputNumber {
+    width: 100%;
+}
+
+::ng-deep .cp-stepper .p-inputnumber,
+::ng-deep .cp-stepper .p-select,
+::ng-deep .cp-stepper .p-multiselect {
+    width: 100%;
+}
+
+/* ---- Avatar / photo upload ---- */
+.cp-avatar-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+@media (max-width: 480px) {
+    .cp-avatar-section {
+        gap: 0.4rem;
+    }
+}
+
+.cp-avatar-wrap {
+    position: relative;
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    cursor: pointer;
+    overflow: hidden;
+    border: 2px solid var(--p-surface-border, #e2e8f0);
+    transition: border-color 0.2s;
+}
+
+@media (max-width: 640px) {
+    .cp-avatar-wrap {
+        width: 88px;
+        height: 88px;
+    }
+}
+
+@media (max-width: 480px) {
+    .cp-avatar-wrap {
+        width: 80px;
+        height: 80px;
+        border-width: 1.5px;
+    }
+}
+
+.cp-avatar-wrap:hover {
+    border-color: var(--p-primary-color, #6366f1);
+}
+
+.cp-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.cp-avatar-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 1.3rem;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+@media (max-width: 480px) {
+    .cp-avatar-overlay {
+        font-size: 1.1rem;
+    }
+}
+
+.cp-avatar-wrap:hover .cp-avatar-overlay {
+    opacity: 1;
+}
+
+.cp-avatar-hint {
+    font-size: 0.72rem;
+    color: var(--p-text-muted-color, #94a3b8);
+    margin: 0;
+}
+
+@media (max-width: 480px) {
+    .cp-avatar-hint {
+        font-size: 0.68rem;
+    }
+}
+
+/* ---- Radio group — segmented control ---- */
+.cp-radio-group {
+    display: inline-flex;
+    background: var(--p-surface-ground, #f1f5f9);
+    border-radius: 9px;
+    padding: 3px;
+    gap: 2px;
+    width: fit-content;
+}
+
+@media (max-width: 640px) {
+    .cp-radio-group {
+        border-radius: 8px;
+        padding: 2px;
+        gap: 1px;
+    }
+}
+
+@media (max-width: 480px) {
+    .cp-radio-group {
+        width: 100%;
+        flex-direction: column;
+        display: flex;
+    }
+}
+
+.cp-radio-option {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.45rem 1rem;
+    border-radius: 7px;
+    cursor: pointer;
+    font-size: 0.83rem;
+    font-weight: 500;
+    color: var(--p-text-muted-color, #64748b);
+    transition: color 0.18s;
+    user-select: none;
+    white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+    .cp-radio-option {
+        padding: 0.4rem 0.85rem;
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .cp-radio-option {
+        white-space: normal;
+        padding: 0.5rem 0.75rem;
+        border-radius: 6px;
+        font-size: 0.78rem;
+        width: 100%;
+    }
+}
+
+.cp-radio-option.active {
+    background: var(--p-surface-card, #ffffff);
+    color: var(--p-text-color, #1e293b);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.09), 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.cp-radio-option small {
+    color: inherit;
+    opacity: 0.6;
+    font-weight: 400;
+    display: inline;
+    font-size: 0.72rem;
+}
+
+/* Hide native radio circle — the segmented container is the visual indicator */
+::ng-deep .cp-radio-group .p-radiobutton {
+    display: none !important;
+}
+
+/* ---- Unit preview ---- */
+.cp-preview-box {
+    background: var(--p-surface-ground, #f8fafc);
+    border: 1px solid var(--p-surface-border, #e2e8f0);
+    border-radius: 10px;
+    padding: 0.85rem 1rem;
+}
+
+@media (max-width: 640px) {
+    .cp-preview-box {
+        border-radius: 8px;
+        padding: 0.75rem 0.85rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .cp-preview-box {
+        border-radius: 8px;
+        padding: 0.7rem 0.75rem;
+    }
+}
+
+.cp-preview-label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--p-text-muted-color, #64748b);
+    display: block;
+    margin-bottom: 0.6rem;
+}
+
+@media (max-width: 480px) {
+    .cp-preview-label {
+        font-size: 0.74rem;
+        margin-bottom: 0.5rem;
+    }
+}
+
+.cp-preview-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+}
+
+@media (max-width: 640px) {
+    .cp-preview-chips {
+        gap: 0.3rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .cp-preview-chips {
+        gap: 0.25rem;
+    }
+}
+
+.cp-unit-chip {
+    font-size: 0.75rem;
+}
+
+@media (max-width: 480px) {
+    .cp-unit-chip {
+        font-size: 0.7rem;
+    }
+}
+
+/* ---- Info message ---- */
+.cp-info-msg {
+    display: block;
+}
+
+/* ---- Step footer (navigation bar) ---- */
+.cp-step-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 0 0.25rem;
+    border-top: 1px solid var(--p-surface-border, #e2e8f0);
+    margin-top: 1rem;
+}
+
+@media (max-width: 640px) {
+    .cp-step-footer {
+        padding: 1rem 0 0;
+        margin-top: 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .cp-step-footer {
+        flex-direction: column;
+        gap: 0.75rem;
+        padding: 0.75rem 0 0;
+    }
+}
+
+/* ---- Validation states ---- */
+.input-error {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.15);
+}
+
+::ng-deep .input-error-dropdown .p-select {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.15);
+}
+
+/* Radio Button Group Styling */
+::ng-deep .field-radiobutton {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+::ng-deep .field-radiobutton label {
+    margin-left: 0.5rem;
+    margin-bottom: 0;
+}
+
+/* Unit Range Styling */
+.unit-range {
+    margin-top: 1rem;
+}
+
+.unit-range .flex {
+    gap: 0.5rem;
+}
+
+/* Preview Units Styling */
+.preview-units {
+    margin-top: 0.5rem;
+    padding: 0.75rem;
+    background-color: #f8f9fa;
+    border-radius: 0.25rem;
+    border-left: 3px solid #007bff;
+}
+
+.preview-units label {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 0.5rem;
+}
+
+.preview-units p {
+    margin: 0.25rem 0;
+    padding: 0.125rem 0;
+}
+
+/* === RESPONSIVE DESIGN === */
+
+@media (max-width: 768px) {
+    .upload-img {
+        width: 120px;
+        height: 120px;
+    }
+
+    .addressProperty {
+        padding: 8px;
+    }
+
+    .unit-range .flex {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .custom-file-upload {
+        padding: 4px 8px;
+    }
+
+    .upload-img {
+        width: 100px;
+        height: 100px;
+    }
+}
+
+/* UI polish: property creation */
+.create-property-page p-stepper {
+    width: 100%;
+}
+
+.create-property-page .border-dashed {
+    border-color: var(--surface-border) !important;
+    background: color-mix(
+        in srgb,
+        var(--surface-ground) 72%,
+        var(--surface-card)
+    );
+    border-radius: 1rem !important;
+}
+
+.create-property-page .addressProperty {
+    max-width: 44rem;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.create-property-page .addressProperty label {
+    color: var(--text-color);
+}
+
+.create-property-page .unit-range .flex,
+.create-property-page .flex.gap-2 {
+    align-items: center;
+}
+
+@media (max-width: 768px) {
+    .create-property-page .flex.justify-content-center {
+        justify-content: stretch !important;
+    }
+
+    .create-property-page .d-block {
+        width: 100%;
+    }
+}
+
+/* ---- Responsive buttons in footer ---- */
+@media (max-width: 480px) {
+    .cp-step-footer p-button {
+        width: 100%;
+    }
+
+    ::ng-deep .cp-step-footer .p-button {
+        width: 100%;
+    }
+
+    ::ng-deep .cp-step-footer .p-button .p-button-label {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+}

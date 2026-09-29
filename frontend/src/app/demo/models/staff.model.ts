@@ -1,0 +1,15 @@
+export class Staff {
+    constructor(
+        public _id: string,
+        public name: string,
+        public lastname: string,
+        public gender: { label: string; code: string },
+        public phone: string,
+        public position: { label: string; code: string },
+        public email: string,
+        public permissions: Array<{ label: string; code: string }>,
+        public status: { label: string; code: string },
+        public password?: string,
+        public repeatPassword?: string
+    ) {}
+}

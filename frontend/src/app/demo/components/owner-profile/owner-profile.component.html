@@ -1,0 +1,253 @@
+<p-toast />
+<div class="flex flex-col sm:flex-row items-center gap-6 mb-4">
+  <div class="flex flex-col sm:flex-row items-center gap-4">
+    <img
+      alt="avatar"
+      [src]="ownerObj.avatarPreview"
+      class="avatarOwnerProfile"
+      />
+    <div>
+      <span
+        class="text-surface-900 dark:text-surface-0 font-bold text-4xl"
+        style="color: black"
+        >{{ ownerObj.name + " " + ownerObj.lastname | titlecase }}</span
+        >
+        <p class="text-surface-600 dark:text-surface-200 m-0">
+          Last login was on 04/05/2022 at 10:24 am
+        </p>
+      </div>
+      <span
+        class="pi pi-cog"
+        (click)="settings()"
+        style="cursor: pointer"
+      ></span>
+    </div>
+    <p-tag
+      class="app-status-tag-host"
+      styleClass="app-status-tag"
+      [severity]="ownerObj.status == 'active' ? 'success' : 'danger'"
+      [value]="ownerObj.status == 'active' ? 'Active' : 'Deactive'"
+      />
+  </div>
+
+  <div class="grid">
+    <div class="col-12 lg:col-6 xl:col-3">
+      <div class="card">
+        <div class="flex justify-content-between mb-3">
+          <div>
+            <span class="block text-500 font-medium mb-3">
+              Balance
+            </span>
+            <div class="text-900 font-medium text-2xl">
+              {{ invoiceCards.total | currency : "USD" }}
+            </div>
+          </div>
+          <div
+            class="cursor-pointer change-icon flex align-items-center justify-content-center bg-green-100 border-round"
+            [ngStyle]="{ width: '2.5rem', height: '2.5rem' }"
+            (click)="showComponentsOnClick('invoice')"
+            >
+            <i class="pi pi-money-bill text-green-500 text-xl"></i>
+          </div>
+        </div>
+        <span class="text-green-500 font-medium"
+          >{{ invoiceCards.counts }}
+        </span>
+        <span class="text-500">pending</span>
+      </div>
+    </div>
+    <div class="col-12 lg:col-6 xl:col-3">
+      <div class="card">
+        <div class="flex justify-content-between mb-3">
+          <div style="text-align: center">
+            <span class="block text-500 font-medium mb-3">
+              Total units
+            </span>
+            <div class="text-900 font-medium text-2xl">
+              {{ ownerCard.count }}
+            </div>
+          </div>
+
+          <div
+            class="cursor-pointer flex align-items-center justify-content-center bg-blue-100 border-round"
+            [ngStyle]="{ width: '2.5rem', height: '2.5rem' }"
+            (click)="showComponentsOnClick('units')"
+            >
+            <i class="pi pi-home text-blue-500 text-xl"></i>
+          </div>
+        </div>
+        <span class="text-500">Member since: </span>
+        <span class="text-green-500 font-medium"
+          >{{ memberShipSince | date : "dd/MM/yyyy" }}
+        </span>
+      </div>
+    </div>
+
+    <div class="col-12 lg:col-6 xl:col-3">
+      <div class="card">
+        <div class="flex justify-content-between mb-3">
+          <div>
+            <span class="block text-500 font-medium mb-3">
+              Bookings
+            </span>
+            <div class="text-900 font-medium text-2xl">
+              {{ bookingsCard.count }}
+            </div>
+          </div>
+          <span
+            class="cursor-pointer change-icon flex align-items-center justify-content-center bg-orange-100 border-round"
+            [ngStyle]="{ width: '2.5rem', height: '2.5rem' }"
+            (click)="showComponentsOnClick('booking')"
+            >
+            <i class="pi pi-calendar-minus text-orange-500 text-xl"></i>
+          </span>
+        </div>
+        <span class="text-green-500 font-medium"
+          >{{ bookingsCard.today_booking }}
+        </span>
+        <span class="text-500">bookings for today</span>
+      </div>
+    </div>
+    <div class="col-12 lg:col-6 xl:col-3">
+      <div class="card">
+        <div class="flex justify-content-between mb-3">
+          <div>
+            <span class="block text-500 font-medium mb-3">
+              Members
+            </span>
+            <div class="text-900 font-medium text-2xl">
+              {{ memberCard.count }}
+            </div>
+          </div>
+          <span
+            class="cursor-pointer change-icon flex align-items-center justify-content-center bg-yellow-100 border-round"
+            [ngStyle]="{ width: '2.5rem', height: '2.5rem' }"
+            (click)="showComponentsOnClick('members')"
+            >
+            <i class="pi pi-users text-yellow-500 text-xl"></i>
+          </span>
+        </div>
+        <span class="text-green-500 font-medium"
+          >{{ memberCard.active }}
+        </span>
+        <span class="text-500">active</span>
+      </div>
+    </div>
+  </div>
+
+  <p-breadcrumb class="max-w-full mb-4" [model]="items" />
+  <div class="main-frame mt-4">
+    @if (showComponents.payments) {
+      <div class="card">
+        <div class="text-xl font-semibold mb-4" style="color: black">
+          Recent Payments
+        </div>
+        @if (invoicePaid.length <= 0) {
+          <div
+            style="text-align: center"
+            severity="info"
+            >
+            No data
+          </div>
+        }
+        @if (invoicePaid.length > 0) {
+          <div>
+            @for (item of invoicePaid; track item) {
+              <ul class="list-none p-0 m-0">
+                <li
+                  class="flex justify-content-center align-items-center mb-4 border-b border-surface-200 dark:border-surface-700 cursor-pointer h-over"
+                  (click)="openInvoice(item)"
+                >
+                  <span
+                    class="flex align-items-center justify-content-center bg-green-100 border-round mr-3"
+                    [ngStyle]="{ width: '5.5rem', height: '4.5rem' }"
+                    >
+                    <i class="pi pi-dollar text-green-500 text-xl"></i>
+                  </span>
+                  <div class="flex flex-column">
+                    <span class="text-xl font-medium mb-1">{{
+                      item.condominiumId.alias
+                    }}</span>
+                    <span>{{
+                      item.invoice_paid_date | date : "dd/MM/yyyy"
+                    }}</span>
+                  </div>
+                  <span class="text-xl ml-5 font-semibold"
+                    >{{ item.amount | currency : "USD" }}
+                    <p-tag
+                      class="tag-w-100"
+                      [value]="item.paymentStatus"
+                            [severity]="
+                                item.paymentStatus == 'paid'
+                                    ? 'success'
+                                    : item.paymentStatus == 'unpaid'
+                                    ? 'danger'
+                                    : 'primary'
+                            "
+                      />
+                  </span>
+                </li>
+                <hr />
+              </ul>
+            }
+            <p-button
+              class="w-full"
+              label="View all payments"
+              (click)="itemsChange()"
+              [link]="true"
+              >
+            </p-button>
+          </div>
+        }
+      </div>
+    }
+
+    <div class="scrollable-table-container">
+      @if (showComponents.invoice) {
+        <div>
+          <!-- Payment history -->
+          <app-payments-history
+            [ownerIdInput]="ownerObj._id"
+          ></app-payments-history>
+        </div>
+      }
+      @if (showComponents.units) {
+        <div>
+          <!-- Properties -->
+          <app-properties-by-owner
+            [ownerData]="ownerData"
+            (refreshOwnerProperties)="ngOnInit()"
+          ></app-properties-by-owner>
+        </div>
+      }
+      @if (showComponents.members) {
+        <div>
+          <!-- Member accounts -->
+          <app-family-member-details></app-family-member-details>
+        </div>
+      }
+      @if (showComponents.booking) {
+        <div>
+          <!-- Booking areas -->
+          <app-booking-area [condoId]="ownerObj._id"></app-booking-area>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!--  Setting  -->
+  <p-dialog
+    header="Resident Profile"
+    [modal]="true"
+    [(visible)]="settingShow"
+    [maximizable]="true"
+    [contentStyle]="{ overflow: 'auto' }"
+    >
+    <p-tabs>
+      <app-owner-profile-settings
+        (ownerUpdated)="ngOnInit()"
+        [ownerObj]="ownerObj"
+        >
+      </app-owner-profile-settings>
+    </p-tabs>
+  </p-dialog>

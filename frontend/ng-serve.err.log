@@ -1,0 +1,1132 @@
+- Generating browser application bundles (phase: setup)...
+[32m√[39m Browser application bundle generation complete.
+[1m[33m
+./src/styles.scss - Warning: Module Warning (from ./node_modules/sass-loader/dist/cjs.js):
+Deprecation Warning on line 0, column 8 of file:///C:/Users/Jcsnu/Documents/condominiosapp-ai-hardening-clean/frontend/node_modules/primeflex/primeflex.scss:0:8:
+Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+0 | @import './core/_variables';
+
+
+node_modules\primeflex\primeflex.scss 1:9  @use
+src\styles.scss 5:1                        root stylesheet
+
+
+./src/styles.scss - Warning: Module Warning (from ./node_modules/sass-loader/dist/cjs.js):
+Deprecation Warning on line 1, column 8 of file:///C:/Users/Jcsnu/Documents/condominiosapp-ai-hardening-clean/frontend/node_modules/primeflex/primeflex.scss:1:8:
+Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+1 | @import './core/_mixins';
+
+
+node_modules\primeflex\primeflex.scss 2:9  @use
+src\styles.scss 5:1                        root stylesheet
+
+
+./src/styles.scss - Warning: Module Warning (from ./node_modules/sass-loader/dist/cjs.js):
+Deprecation Warning on line 2, column 8 of file:///C:/Users/Jcsnu/Documents/condominiosapp-ai-hardening-clean/frontend/node_modules/primeflex/primeflex.scss:2:8:
+Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+2 | @import './core/_grid';
+
+
+node_modules\primeflex\primeflex.scss 3:9  @use
+src\styles.scss 5:1                        root stylesheet
+
+
+./src/styles.scss - Warning: Module Warning (from ./node_modules/sass-loader/dist/cjs.js):
+Deprecation Warning on line 3, column 8 of file:///C:/Users/Jcsnu/Documents/condominiosapp-ai-hardening-clean/frontend/node_modules/primeflex/primeflex.scss:3:8:
+Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+3 | @import './core/_colors';
+
+
+node_modules\primeflex\primeflex.scss 4:9  @use
+src\styles.scss 5:1                        root stylesheet
+
+
+./src/styles.scss - Warning: Module Warning (from ./node_modules/sass-loader/dist/cjs.js):
+Deprecation Warning on line 4, column 8 of file:///C:/Users/Jcsnu/Documents/condominiosapp-ai-hardening-clean/frontend/node_modules/primeflex/primeflex.scss:4:8:
+Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+4 | @import './core/_formlayout';
+
+
+node_modules\primeflex\primeflex.scss 5:9  @use
+src\styles.scss 5:1                        root stylesheet
+
+
+./src/styles.scss - Warning: Module Warning (from ./node_modules/sass-loader/dist/cjs.js):
+Deprecation Warning on line 112, column 12 of file:///C:/Users/Jcsnu/Documents/condominiosapp-ai-hardening-clean/frontend/node_modules/primeflex/core/_mixins.scss:112:12:
+Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+Use list.index instead.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+112 |         $i: index($shades, $shade);
+
+
+node_modules\primeflex\core\_mixins.scss 113:13  surface-class()
+node_modules\primeflex\core\_colors.scss 6:1     @import
+node_modules\primeflex\primeflex.scss 4:9        @use
+src\styles.scss 5:1                              root stylesheet
+
+
+./src/styles.scss - Warning: Module Warning (from ./node_modules/sass-loader/dist/cjs.js):
+Deprecation Warning on line 114, column 79 of file:///C:/Users/Jcsnu/Documents/condominiosapp-ai-hardening-clean/frontend/node_modules/primeflex/core/_mixins.scss:114:79:
+Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+Use list.nth instead.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+114 |             #{$prop}: light-dark(var(--p-surface-#{$shade}), var(--p-surface-#{nth($shades, 12 - $i)})) !important;
+
+
+node_modules\primeflex\core\_mixins.scss 115:80  surface-class()
+node_modules\primeflex\core\_colors.scss 6:1     @import
+node_modules\primeflex\primeflex.scss 4:9        @use
+src\styles.scss 5:1                              root stylesheet
+
+
+./src/styles.scss - Warning: Module Warning (from ./node_modules/sass-loader/dist/cjs.js):
+Deprecation Warning on line 119, column 12 of file:///C:/Users/Jcsnu/Documents/condominiosapp-ai-hardening-clean/frontend/node_modules/primeflex/core/_mixins.scss:119:12:
+Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+Use list.index instead.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+119 |         $i: index($shades, $shade);
+
+
+node_modules\primeflex\core\_mixins.scss 120:13  surface-class()
+node_modules\primeflex\core\_colors.scss 6:1     @import
+node_modules\primeflex\primeflex.scss 4:9        @use
+src\styles.scss 5:1                              root stylesheet
+
+
+./src/styles.scss - Warning: Module Warning (from ./node_modules/sass-loader/dist/cjs.js):
+Deprecation Warning on line 122, column 83 of file:///C:/Users/Jcsnu/Documents/condominiosapp-ai-hardening-clean/frontend/node_modules/primeflex/core/_mixins.scss:122:83:
+Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+Use list.nth instead.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+122 |                 #{$prop}: light-dark(var(--p-surface-#{$shade}), var(--p-surface-#{nth($shades, 12 - $i)})) !important;
+
+
+node_modules\primeflex\core\_mixins.scss 123:84  surface-class()
+node_modules\primeflex\core\_colors.scss 6:1     @import
+node_modules\primeflex\primeflex.scss 4:9        @use
+src\styles.scss 5:1                              root stylesheet
+
+
+./src/styles.scss - Warning: Module Warning (from ./node_modules/sass-loader/dist/cjs.js):
+Deprecation Warning on line 128, column 83 of file:///C:/Users/Jcsnu/Documents/condominiosapp-ai-hardening-clean/frontend/node_modules/primeflex/core/_mixins.scss:128:83:
+Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+Use list.nth instead.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+128 |                 #{$prop}: light-dark(var(--p-surface-#{$shade}), var(--p-surface-#{nth($shades, 12 - $i)})) !important;
+
+
+node_modules\primeflex\core\_mixins.scss 129:84  surface-class()
+node_modules\primeflex\core\_colors.scss 6:1     @import
+node_modules\primeflex\primeflex.scss 4:9        @use
+src\styles.scss 5:1                              root stylesheet
+
+
+./src/styles.scss - Warning: Module Warning (from ./node_modules/sass-loader/dist/cjs.js):
+Deprecation Warning on line 143, column 26 of file:///C:/Users/Jcsnu/Documents/condominiosapp-ai-hardening-clean/frontend/node_modules/primeflex/core/_mixins.scss:143:26:
+The Sass if() syntax is deprecated in favor of the modern CSS syntax.
+
+Suggestion: if(sass($i == 0): "none"; else: $i)
+
+More info: https://sass-lang.com/d/if-function
+
+143 |             $borderValue: if($i == 0, 'none', $i);
+
+
+node_modules\primeflex\core\_mixins.scss 144:27  @import
+node_modules\primeflex\primeflex.scss 2:9        @use
+src\styles.scss 5:1                              root stylesheet
+
+
+./src/styles.scss - Warning: Module Warning (from ./node_modules/sass-loader/dist/cjs.js):
+Deprecation Warning on line 152, column 40 of file:///C:/Users/Jcsnu/Documents/condominiosapp-ai-hardening-clean/frontend/node_modules/primeflex/core/_mixins.scss:152:40:
+The Sass if() syntax is deprecated in favor of the modern CSS syntax.
+
+Suggestion: if(sass($i == 0): none; else: solid)
+
+More info: https://sass-lang.com/d/if-function
+
+152 |                     #{$propName}-style: if($i == 0, none, solid);
+
+
+node_modules\primeflex\core\_mixins.scss 153:41  @import
+node_modules\primeflex\primeflex.scss 2:9        @use
+src\styles.scss 5:1                              root stylesheet
+
+
+./src/styles.scss - Warning: Module Warning (from ./node_modules/sass-loader/dist/cjs.js):
+Deprecation Warning on line 163, column 38 of file:///C:/Users/Jcsnu/Documents/condominiosapp-ai-hardening-clean/frontend/node_modules/primeflex/core/_mixins.scss:163:38:
+The Sass if() syntax is deprecated in favor of the modern CSS syntax.
+
+Suggestion: if(sass($i == 0): "none"; else: $i)
+
+More info: https://sass-lang.com/d/if-function
+
+163 |                         $borderValue: if($i == 0, 'none', $i);
+
+
+node_modules\primeflex\core\_mixins.scss 164:39  @import
+node_modules\primeflex\primeflex.scss 2:9        @use
+src\styles.scss 5:1                              root stylesheet
+
+
+./src/styles.scss - Warning: Module Warning (from ./node_modules/sass-loader/dist/cjs.js):
+Deprecation Warning on line 172, column 52 of file:///C:/Users/Jcsnu/Documents/condominiosapp-ai-hardening-clean/frontend/node_modules/primeflex/core/_mixins.scss:172:52:
+The Sass if() syntax is deprecated in favor of the modern CSS syntax.
+
+Suggestion: if(sass($i == 0): none; else: solid)
+
+More info: https://sass-lang.com/d/if-function
+
+172 |                                 #{$propName}-style: if($i == 0, none, solid);
+
+
+node_modules\primeflex\core\_mixins.scss 173:53  @import
+node_modules\primeflex\primeflex.scss 2:9        @use
+src\styles.scss 5:1                              root stylesheet
+
+
+./src/styles.scss - Warning: Module Warning (from ./node_modules/sass-loader/dist/cjs.js):
+41 repetitive deprecation warnings omitted.
+Run in verbose mode to see all warnings.
+
+[39m[22m
+[32m√[39m Browser application bundle generation complete.
+[32m√[39m Browser application bundle generation complete.
+[32m√[39m Browser application bundle generation complete.
+[1m[33m
+./src/styles.scss - Warning: Module Warning (from ./node_modules/sass-loader/dist/cjs.js):
+Deprecation Warning on line 0, column 8 of file:///C:/Users/Jcsnu/Documents/condominiosapp-ai-hardening-clean/frontend/node_modules/primeflex/primeflex.scss:0:8:
+Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+0 | @import './core/_variables';
+
+
+node_modules\primeflex\primeflex.scss 1:9  @use
+src\styles.scss 5:1                        root stylesheet
+
+
+./src/styles.scss - Warning: Module Warning (from ./node_modules/sass-loader/dist/cjs.js):
+Deprecation Warning on line 1, column 8 of file:///C:/Users/Jcsnu/Documents/condominiosapp-ai-hardening-clean/frontend/node_modules/primeflex/primeflex.scss:1:8:
+Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+1 | @import './core/_mixins';
+
+
+node_modules\primeflex\primeflex.scss 2:9  @use
+src\styles.scss 5:1                        root stylesheet
+
+
+./src/styles.scss - Warning: Module Warning (from ./node_modules/sass-loader/dist/cjs.js):
+Deprecation Warning on line 2, column 8 of file:///C:/Users/Jcsnu/Documents/condominiosapp-ai-hardening-clean/frontend/node_modules/primeflex/primeflex.scss:2:8:
+Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+2 | @import './core/_grid';
+
+
+node_modules\primeflex\primeflex.scss 3:9  @use
+src\styles.scss 5:1                        root stylesheet
+
+
+./src/styles.scss - Warning: Module Warning (from ./node_modules/sass-loader/dist/cjs.js):
+Deprecation Warning on line 3, column 8 of file:///C:/Users/Jcsnu/Documents/condominiosapp-ai-hardening-clean/frontend/node_modules/primeflex/primeflex.scss:3:8:
+Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+3 | @import './core/_colors';
+
+
+node_modules\primeflex\primeflex.scss 4:9  @use
+src\styles.scss 5:1                        root stylesheet
+
+
+./src/styles.scss - Warning: Module Warning (from ./node_modules/sass-loader/dist/cjs.js):
+Deprecation Warning on line 4, column 8 of file:///C:/Users/Jcsnu/Documents/condominiosapp-ai-hardening-clean/frontend/node_modules/primeflex/primeflex.scss:4:8:
+Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+4 | @import './core/_formlayout';
+
+
+node_modules\primeflex\primeflex.scss 5:9  @use
+src\styles.scss 5:1                        root stylesheet
+
+
+./src/styles.scss - Warning: Module Warning (from ./node_modules/sass-loader/dist/cjs.js):
+Deprecation Warning on line 112, column 12 of file:///C:/Users/Jcsnu/Documents/condominiosapp-ai-hardening-clean/frontend/node_modules/primeflex/core/_mixins.scss:112:12:
+Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+Use list.index instead.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+112 |         $i: index($shades, $shade);
+
+
+node_modules\primeflex\core\_mixins.scss 113:13  surface-class()
+node_modules\primeflex\core\_colors.scss 6:1     @import
+node_modules\primeflex\primeflex.scss 4:9        @use
+src\styles.scss 5:1                              root stylesheet
+
+
+./src/styles.scss - Warning: Module Warning (from ./node_modules/sass-loader/dist/cjs.js):
+Deprecation Warning on line 114, column 79 of file:///C:/Users/Jcsnu/Documents/condominiosapp-ai-hardening-clean/frontend/node_modules/primeflex/core/_mixins.scss:114:79:
+Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+Use list.nth instead.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+114 |             #{$prop}: light-dark(var(--p-surface-#{$shade}), var(--p-surface-#{nth($shades, 12 - $i)})) !important;
+
+
+node_modules\primeflex\core\_mixins.scss 115:80  surface-class()
+node_modules\primeflex\core\_colors.scss 6:1     @import
+node_modules\primeflex\primeflex.scss 4:9        @use
+src\styles.scss 5:1                              root stylesheet
+
+
+./src/styles.scss - Warning: Module Warning (from ./node_modules/sass-loader/dist/cjs.js):
+Deprecation Warning on line 119, column 12 of file:///C:/Users/Jcsnu/Documents/condominiosapp-ai-hardening-clean/frontend/node_modules/primeflex/core/_mixins.scss:119:12:
+Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+Use list.index instead.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+119 |         $i: index($shades, $shade);
+
+
+node_modules\primeflex\core\_mixins.scss 120:13  surface-class()
+node_modules\primeflex\core\_colors.scss 6:1     @import
+node_modules\primeflex\primeflex.scss 4:9        @use
+src\styles.scss 5:1                              root stylesheet
+
+
+./src/styles.scss - Warning: Module Warning (from ./node_modules/sass-loader/dist/cjs.js):
+Deprecation Warning on line 122, column 83 of file:///C:/Users/Jcsnu/Documents/condominiosapp-ai-hardening-clean/frontend/node_modules/primeflex/core/_mixins.scss:122:83:
+Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+Use list.nth instead.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+122 |                 #{$prop}: light-dark(var(--p-surface-#{$shade}), var(--p-surface-#{nth($shades, 12 - $i)})) !important;
+
+
+node_modules\primeflex\core\_mixins.scss 123:84  surface-class()
+node_modules\primeflex\core\_colors.scss 6:1     @import
+node_modules\primeflex\primeflex.scss 4:9        @use
+src\styles.scss 5:1                              root stylesheet
+
+
+./src/styles.scss - Warning: Module Warning (from ./node_modules/sass-loader/dist/cjs.js):
+Deprecation Warning on line 128, column 83 of file:///C:/Users/Jcsnu/Documents/condominiosapp-ai-hardening-clean/frontend/node_modules/primeflex/core/_mixins.scss:128:83:
+Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+Use list.nth instead.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+128 |                 #{$prop}: light-dark(var(--p-surface-#{$shade}), var(--p-surface-#{nth($shades, 12 - $i)})) !important;
+
+
+node_modules\primeflex\core\_mixins.scss 129:84  surface-class()
+node_modules\primeflex\core\_colors.scss 6:1     @import
+node_modules\primeflex\primeflex.scss 4:9        @use
+src\styles.scss 5:1                              root stylesheet
+
+
+./src/styles.scss - Warning: Module Warning (from ./node_modules/sass-loader/dist/cjs.js):
+Deprecation Warning on line 143, column 26 of file:///C:/Users/Jcsnu/Documents/condominiosapp-ai-hardening-clean/frontend/node_modules/primeflex/core/_mixins.scss:143:26:
+The Sass if() syntax is deprecated in favor of the modern CSS syntax.
+
+Suggestion: if(sass($i == 0): "none"; else: $i)
+
+More info: https://sass-lang.com/d/if-function
+
+143 |             $borderValue: if($i == 0, 'none', $i);
+
+
+node_modules\primeflex\core\_mixins.scss 144:27  @import
+node_modules\primeflex\primeflex.scss 2:9        @use
+src\styles.scss 5:1                              root stylesheet
+
+
+./src/styles.scss - Warning: Module Warning (from ./node_modules/sass-loader/dist/cjs.js):
+Deprecation Warning on line 152, column 40 of file:///C:/Users/Jcsnu/Documents/condominiosapp-ai-hardening-clean/frontend/node_modules/primeflex/core/_mixins.scss:152:40:
+The Sass if() syntax is deprecated in favor of the modern CSS syntax.
+
+Suggestion: if(sass($i == 0): none; else: solid)
+
+More info: https://sass-lang.com/d/if-function
+
+152 |                     #{$propName}-style: if($i == 0, none, solid);
+
+
+node_modules\primeflex\core\_mixins.scss 153:41  @import
+node_modules\primeflex\primeflex.scss 2:9        @use
+src\styles.scss 5:1                              root stylesheet
+
+
+./src/styles.scss - Warning: Module Warning (from ./node_modules/sass-loader/dist/cjs.js):
+Deprecation Warning on line 163, column 38 of file:///C:/Users/Jcsnu/Documents/condominiosapp-ai-hardening-clean/frontend/node_modules/primeflex/core/_mixins.scss:163:38:
+The Sass if() syntax is deprecated in favor of the modern CSS syntax.
+
+Suggestion: if(sass($i == 0): "none"; else: $i)
+
+More info: https://sass-lang.com/d/if-function
+
+163 |                         $borderValue: if($i == 0, 'none', $i);
+
+
+node_modules\primeflex\core\_mixins.scss 164:39  @import
+node_modules\primeflex\primeflex.scss 2:9        @use
+src\styles.scss 5:1                              root stylesheet
+
+
+./src/styles.scss - Warning: Module Warning (from ./node_modules/sass-loader/dist/cjs.js):
+Deprecation Warning on line 172, column 52 of file:///C:/Users/Jcsnu/Documents/condominiosapp-ai-hardening-clean/frontend/node_modules/primeflex/core/_mixins.scss:172:52:
+The Sass if() syntax is deprecated in favor of the modern CSS syntax.
+
+Suggestion: if(sass($i == 0): none; else: solid)
+
+More info: https://sass-lang.com/d/if-function
+
+172 |                                 #{$propName}-style: if($i == 0, none, solid);
+
+
+node_modules\primeflex\core\_mixins.scss 173:53  @import
+node_modules\primeflex\primeflex.scss 2:9        @use
+src\styles.scss 5:1                              root stylesheet
+
+
+./src/styles.scss - Warning: Module Warning (from ./node_modules/sass-loader/dist/cjs.js):
+41 repetitive deprecation warnings omitted.
+Run in verbose mode to see all warnings.
+
+[39m[22m
+[32m√[39m Browser application bundle generation complete.
+[32m√[39m Browser application bundle generation complete.
+[32m√[39m Browser application bundle generation complete.
+[1m[31m
+Error: [96msrc/app/layout/app.topbar.component.html[0m:[93m104[0m:[93m34[0m - [91merror[0m[90m TS2339: [0mProperty 'openProfileSettings' does not exist on type 'AppTopBarComponent'.
+
+[7m104[0m                         (click)="openProfileSettings()"
+[7m   [0m [91m                                 ~~~~~~~~~~~~~~~~~~~[0m
+
+  [96msrc/app/layout/app.topbar.component.ts[0m:[93m50[0m:[93m18[0m
+    [7m50[0m     templateUrl: './app.topbar.component.html',
+    [7m  [0m [96m                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    Error occurs in the template of component AppTopBarComponent.
+
+
+[39m[22m
+[32m√[39m Browser application bundle generation complete.
+[32m√[39m Browser application bundle generation complete.
+[1m[33m
+./src/styles.scss - Warning: Module Warning (from ./node_modules/sass-loader/dist/cjs.js):
+Deprecation Warning on line 0, column 8 of file:///C:/Users/Jcsnu/Documents/condominiosapp-ai-hardening-clean/frontend/node_modules/primeflex/primeflex.scss:0:8:
+Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+0 | @import './core/_variables';
+
+
+node_modules\primeflex\primeflex.scss 1:9  @use
+src\styles.scss 5:1                        root stylesheet
+
+
+./src/styles.scss - Warning: Module Warning (from ./node_modules/sass-loader/dist/cjs.js):
+Deprecation Warning on line 1, column 8 of file:///C:/Users/Jcsnu/Documents/condominiosapp-ai-hardening-clean/frontend/node_modules/primeflex/primeflex.scss:1:8:
+Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+1 | @import './core/_mixins';
+
+
+node_modules\primeflex\primeflex.scss 2:9  @use
+src\styles.scss 5:1                        root stylesheet
+
+
+./src/styles.scss - Warning: Module Warning (from ./node_modules/sass-loader/dist/cjs.js):
+Deprecation Warning on line 2, column 8 of file:///C:/Users/Jcsnu/Documents/condominiosapp-ai-hardening-clean/frontend/node_modules/primeflex/primeflex.scss:2:8:
+Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+2 | @import './core/_grid';
+
+
+node_modules\primeflex\primeflex.scss 3:9  @use
+src\styles.scss 5:1                        root stylesheet
+
+
+./src/styles.scss - Warning: Module Warning (from ./node_modules/sass-loader/dist/cjs.js):
+Deprecation Warning on line 3, column 8 of file:///C:/Users/Jcsnu/Documents/condominiosapp-ai-hardening-clean/frontend/node_modules/primeflex/primeflex.scss:3:8:
+Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+3 | @import './core/_colors';
+
+
+node_modules\primeflex\primeflex.scss 4:9  @use
+src\styles.scss 5:1                        root stylesheet
+
+
+./src/styles.scss - Warning: Module Warning (from ./node_modules/sass-loader/dist/cjs.js):
+Deprecation Warning on line 4, column 8 of file:///C:/Users/Jcsnu/Documents/condominiosapp-ai-hardening-clean/frontend/node_modules/primeflex/primeflex.scss:4:8:
+Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+4 | @import './core/_formlayout';
+
+
+node_modules\primeflex\primeflex.scss 5:9  @use
+src\styles.scss 5:1                        root stylesheet
+
+
+./src/styles.scss - Warning: Module Warning (from ./node_modules/sass-loader/dist/cjs.js):
+Deprecation Warning on line 112, column 12 of file:///C:/Users/Jcsnu/Documents/condominiosapp-ai-hardening-clean/frontend/node_modules/primeflex/core/_mixins.scss:112:12:
+Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+Use list.index instead.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+112 |         $i: index($shades, $shade);
+
+
+node_modules\primeflex\core\_mixins.scss 113:13  surface-class()
+node_modules\primeflex\core\_colors.scss 6:1     @import
+node_modules\primeflex\primeflex.scss 4:9        @use
+src\styles.scss 5:1                              root stylesheet
+
+
+./src/styles.scss - Warning: Module Warning (from ./node_modules/sass-loader/dist/cjs.js):
+Deprecation Warning on line 114, column 79 of file:///C:/Users/Jcsnu/Documents/condominiosapp-ai-hardening-clean/frontend/node_modules/primeflex/core/_mixins.scss:114:79:
+Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+Use list.nth instead.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+114 |             #{$prop}: light-dark(var(--p-surface-#{$shade}), var(--p-surface-#{nth($shades, 12 - $i)})) !important;
+
+
+node_modules\primeflex\core\_mixins.scss 115:80  surface-class()
+node_modules\primeflex\core\_colors.scss 6:1     @import
+node_modules\primeflex\primeflex.scss 4:9        @use
+src\styles.scss 5:1                              root stylesheet
+
+
+./src/styles.scss - Warning: Module Warning (from ./node_modules/sass-loader/dist/cjs.js):
+Deprecation Warning on line 119, column 12 of file:///C:/Users/Jcsnu/Documents/condominiosapp-ai-hardening-clean/frontend/node_modules/primeflex/core/_mixins.scss:119:12:
+Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+Use list.index instead.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+119 |         $i: index($shades, $shade);
+
+
+node_modules\primeflex\core\_mixins.scss 120:13  surface-class()
+node_modules\primeflex\core\_colors.scss 6:1     @import
+node_modules\primeflex\primeflex.scss 4:9        @use
+src\styles.scss 5:1                              root stylesheet
+
+
+./src/styles.scss - Warning: Module Warning (from ./node_modules/sass-loader/dist/cjs.js):
+Deprecation Warning on line 122, column 83 of file:///C:/Users/Jcsnu/Documents/condominiosapp-ai-hardening-clean/frontend/node_modules/primeflex/core/_mixins.scss:122:83:
+Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+Use list.nth instead.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+122 |                 #{$prop}: light-dark(var(--p-surface-#{$shade}), var(--p-surface-#{nth($shades, 12 - $i)})) !important;
+
+
+node_modules\primeflex\core\_mixins.scss 123:84  surface-class()
+node_modules\primeflex\core\_colors.scss 6:1     @import
+node_modules\primeflex\primeflex.scss 4:9        @use
+src\styles.scss 5:1                              root stylesheet
+
+
+./src/styles.scss - Warning: Module Warning (from ./node_modules/sass-loader/dist/cjs.js):
+Deprecation Warning on line 128, column 83 of file:///C:/Users/Jcsnu/Documents/condominiosapp-ai-hardening-clean/frontend/node_modules/primeflex/core/_mixins.scss:128:83:
+Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+Use list.nth instead.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+128 |                 #{$prop}: light-dark(var(--p-surface-#{$shade}), var(--p-surface-#{nth($shades, 12 - $i)})) !important;
+
+
+node_modules\primeflex\core\_mixins.scss 129:84  surface-class()
+node_modules\primeflex\core\_colors.scss 6:1     @import
+node_modules\primeflex\primeflex.scss 4:9        @use
+src\styles.scss 5:1                              root stylesheet
+
+
+./src/styles.scss - Warning: Module Warning (from ./node_modules/sass-loader/dist/cjs.js):
+Deprecation Warning on line 143, column 26 of file:///C:/Users/Jcsnu/Documents/condominiosapp-ai-hardening-clean/frontend/node_modules/primeflex/core/_mixins.scss:143:26:
+The Sass if() syntax is deprecated in favor of the modern CSS syntax.
+
+Suggestion: if(sass($i == 0): "none"; else: $i)
+
+More info: https://sass-lang.com/d/if-function
+
+143 |             $borderValue: if($i == 0, 'none', $i);
+
+
+node_modules\primeflex\core\_mixins.scss 144:27  @import
+node_modules\primeflex\primeflex.scss 2:9        @use
+src\styles.scss 5:1                              root stylesheet
+
+
+./src/styles.scss - Warning: Module Warning (from ./node_modules/sass-loader/dist/cjs.js):
+Deprecation Warning on line 152, column 40 of file:///C:/Users/Jcsnu/Documents/condominiosapp-ai-hardening-clean/frontend/node_modules/primeflex/core/_mixins.scss:152:40:
+The Sass if() syntax is deprecated in favor of the modern CSS syntax.
+
+Suggestion: if(sass($i == 0): none; else: solid)
+
+More info: https://sass-lang.com/d/if-function
+
+152 |                     #{$propName}-style: if($i == 0, none, solid);
+
+
+node_modules\primeflex\core\_mixins.scss 153:41  @import
+node_modules\primeflex\primeflex.scss 2:9        @use
+src\styles.scss 5:1                              root stylesheet
+
+
+./src/styles.scss - Warning: Module Warning (from ./node_modules/sass-loader/dist/cjs.js):
+Deprecation Warning on line 163, column 38 of file:///C:/Users/Jcsnu/Documents/condominiosapp-ai-hardening-clean/frontend/node_modules/primeflex/core/_mixins.scss:163:38:
+The Sass if() syntax is deprecated in favor of the modern CSS syntax.
+
+Suggestion: if(sass($i == 0): "none"; else: $i)
+
+More info: https://sass-lang.com/d/if-function
+
+163 |                         $borderValue: if($i == 0, 'none', $i);
+
+
+node_modules\primeflex\core\_mixins.scss 164:39  @import
+node_modules\primeflex\primeflex.scss 2:9        @use
+src\styles.scss 5:1                              root stylesheet
+
+
+./src/styles.scss - Warning: Module Warning (from ./node_modules/sass-loader/dist/cjs.js):
+Deprecation Warning on line 172, column 52 of file:///C:/Users/Jcsnu/Documents/condominiosapp-ai-hardening-clean/frontend/node_modules/primeflex/core/_mixins.scss:172:52:
+The Sass if() syntax is deprecated in favor of the modern CSS syntax.
+
+Suggestion: if(sass($i == 0): none; else: solid)
+
+More info: https://sass-lang.com/d/if-function
+
+172 |                                 #{$propName}-style: if($i == 0, none, solid);
+
+
+node_modules\primeflex\core\_mixins.scss 173:53  @import
+node_modules\primeflex\primeflex.scss 2:9        @use
+src\styles.scss 5:1                              root stylesheet
+
+
+./src/styles.scss - Warning: Module Warning (from ./node_modules/sass-loader/dist/cjs.js):
+41 repetitive deprecation warnings omitted.
+Run in verbose mode to see all warnings.
+
+[39m[22m
+[32m√[39m Browser application bundle generation complete.
+[32m√[39m Browser application bundle generation complete.
+[1m[33m
+./src/styles.scss - Warning: Module Warning (from ./node_modules/sass-loader/dist/cjs.js):
+Deprecation Warning on line 0, column 8 of file:///C:/Users/Jcsnu/Documents/condominiosapp-ai-hardening-clean/frontend/node_modules/primeflex/primeflex.scss:0:8:
+Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+0 | @import './core/_variables';
+
+
+node_modules\primeflex\primeflex.scss 1:9  @use
+src\styles.scss 5:1                        root stylesheet
+
+
+./src/styles.scss - Warning: Module Warning (from ./node_modules/sass-loader/dist/cjs.js):
+Deprecation Warning on line 1, column 8 of file:///C:/Users/Jcsnu/Documents/condominiosapp-ai-hardening-clean/frontend/node_modules/primeflex/primeflex.scss:1:8:
+Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+1 | @import './core/_mixins';
+
+
+node_modules\primeflex\primeflex.scss 2:9  @use
+src\styles.scss 5:1                        root stylesheet
+
+
+./src/styles.scss - Warning: Module Warning (from ./node_modules/sass-loader/dist/cjs.js):
+Deprecation Warning on line 2, column 8 of file:///C:/Users/Jcsnu/Documents/condominiosapp-ai-hardening-clean/frontend/node_modules/primeflex/primeflex.scss:2:8:
+Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+2 | @import './core/_grid';
+
+
+node_modules\primeflex\primeflex.scss 3:9  @use
+src\styles.scss 5:1                        root stylesheet
+
+
+./src/styles.scss - Warning: Module Warning (from ./node_modules/sass-loader/dist/cjs.js):
+Deprecation Warning on line 3, column 8 of file:///C:/Users/Jcsnu/Documents/condominiosapp-ai-hardening-clean/frontend/node_modules/primeflex/primeflex.scss:3:8:
+Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+3 | @import './core/_colors';
+
+
+node_modules\primeflex\primeflex.scss 4:9  @use
+src\styles.scss 5:1                        root stylesheet
+
+
+./src/styles.scss - Warning: Module Warning (from ./node_modules/sass-loader/dist/cjs.js):
+Deprecation Warning on line 4, column 8 of file:///C:/Users/Jcsnu/Documents/condominiosapp-ai-hardening-clean/frontend/node_modules/primeflex/primeflex.scss:4:8:
+Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+4 | @import './core/_formlayout';
+
+
+node_modules\primeflex\primeflex.scss 5:9  @use
+src\styles.scss 5:1                        root stylesheet
+
+
+./src/styles.scss - Warning: Module Warning (from ./node_modules/sass-loader/dist/cjs.js):
+Deprecation Warning on line 112, column 12 of file:///C:/Users/Jcsnu/Documents/condominiosapp-ai-hardening-clean/frontend/node_modules/primeflex/core/_mixins.scss:112:12:
+Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+Use list.index instead.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+112 |         $i: index($shades, $shade);
+
+
+node_modules\primeflex\core\_mixins.scss 113:13  surface-class()
+node_modules\primeflex\core\_colors.scss 6:1     @import
+node_modules\primeflex\primeflex.scss 4:9        @use
+src\styles.scss 5:1                              root stylesheet
+
+
+./src/styles.scss - Warning: Module Warning (from ./node_modules/sass-loader/dist/cjs.js):
+Deprecation Warning on line 114, column 79 of file:///C:/Users/Jcsnu/Documents/condominiosapp-ai-hardening-clean/frontend/node_modules/primeflex/core/_mixins.scss:114:79:
+Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+Use list.nth instead.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+114 |             #{$prop}: light-dark(var(--p-surface-#{$shade}), var(--p-surface-#{nth($shades, 12 - $i)})) !important;
+
+
+node_modules\primeflex\core\_mixins.scss 115:80  surface-class()
+node_modules\primeflex\core\_colors.scss 6:1     @import
+node_modules\primeflex\primeflex.scss 4:9        @use
+src\styles.scss 5:1                              root stylesheet
+
+
+./src/styles.scss - Warning: Module Warning (from ./node_modules/sass-loader/dist/cjs.js):
+Deprecation Warning on line 119, column 12 of file:///C:/Users/Jcsnu/Documents/condominiosapp-ai-hardening-clean/frontend/node_modules/primeflex/core/_mixins.scss:119:12:
+Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+Use list.index instead.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+119 |         $i: index($shades, $shade);
+
+
+node_modules\primeflex\core\_mixins.scss 120:13  surface-class()
+node_modules\primeflex\core\_colors.scss 6:1     @import
+node_modules\primeflex\primeflex.scss 4:9        @use
+src\styles.scss 5:1                              root stylesheet
+
+
+./src/styles.scss - Warning: Module Warning (from ./node_modules/sass-loader/dist/cjs.js):
+Deprecation Warning on line 122, column 83 of file:///C:/Users/Jcsnu/Documents/condominiosapp-ai-hardening-clean/frontend/node_modules/primeflex/core/_mixins.scss:122:83:
+Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+Use list.nth instead.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+122 |                 #{$prop}: light-dark(var(--p-surface-#{$shade}), var(--p-surface-#{nth($shades, 12 - $i)})) !important;
+
+
+node_modules\primeflex\core\_mixins.scss 123:84  surface-class()
+node_modules\primeflex\core\_colors.scss 6:1     @import
+node_modules\primeflex\primeflex.scss 4:9        @use
+src\styles.scss 5:1                              root stylesheet
+
+
+./src/styles.scss - Warning: Module Warning (from ./node_modules/sass-loader/dist/cjs.js):
+Deprecation Warning on line 128, column 83 of file:///C:/Users/Jcsnu/Documents/condominiosapp-ai-hardening-clean/frontend/node_modules/primeflex/core/_mixins.scss:128:83:
+Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+Use list.nth instead.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+128 |                 #{$prop}: light-dark(var(--p-surface-#{$shade}), var(--p-surface-#{nth($shades, 12 - $i)})) !important;
+
+
+node_modules\primeflex\core\_mixins.scss 129:84  surface-class()
+node_modules\primeflex\core\_colors.scss 6:1     @import
+node_modules\primeflex\primeflex.scss 4:9        @use
+src\styles.scss 5:1                              root stylesheet
+
+
+./src/styles.scss - Warning: Module Warning (from ./node_modules/sass-loader/dist/cjs.js):
+Deprecation Warning on line 143, column 26 of file:///C:/Users/Jcsnu/Documents/condominiosapp-ai-hardening-clean/frontend/node_modules/primeflex/core/_mixins.scss:143:26:
+The Sass if() syntax is deprecated in favor of the modern CSS syntax.
+
+Suggestion: if(sass($i == 0): "none"; else: $i)
+
+More info: https://sass-lang.com/d/if-function
+
+143 |             $borderValue: if($i == 0, 'none', $i);
+
+
+node_modules\primeflex\core\_mixins.scss 144:27  @import
+node_modules\primeflex\primeflex.scss 2:9        @use
+src\styles.scss 5:1                              root stylesheet
+
+
+./src/styles.scss - Warning: Module Warning (from ./node_modules/sass-loader/dist/cjs.js):
+Deprecation Warning on line 152, column 40 of file:///C:/Users/Jcsnu/Documents/condominiosapp-ai-hardening-clean/frontend/node_modules/primeflex/core/_mixins.scss:152:40:
+The Sass if() syntax is deprecated in favor of the modern CSS syntax.
+
+Suggestion: if(sass($i == 0): none; else: solid)
+
+More info: https://sass-lang.com/d/if-function
+
+152 |                     #{$propName}-style: if($i == 0, none, solid);
+
+
+node_modules\primeflex\core\_mixins.scss 153:41  @import
+node_modules\primeflex\primeflex.scss 2:9        @use
+src\styles.scss 5:1                              root stylesheet
+
+
+./src/styles.scss - Warning: Module Warning (from ./node_modules/sass-loader/dist/cjs.js):
+Deprecation Warning on line 163, column 38 of file:///C:/Users/Jcsnu/Documents/condominiosapp-ai-hardening-clean/frontend/node_modules/primeflex/core/_mixins.scss:163:38:
+The Sass if() syntax is deprecated in favor of the modern CSS syntax.
+
+Suggestion: if(sass($i == 0): "none"; else: $i)
+
+More info: https://sass-lang.com/d/if-function
+
+163 |                         $borderValue: if($i == 0, 'none', $i);
+
+
+node_modules\primeflex\core\_mixins.scss 164:39  @import
+node_modules\primeflex\primeflex.scss 2:9        @use
+src\styles.scss 5:1                              root stylesheet
+
+
+./src/styles.scss - Warning: Module Warning (from ./node_modules/sass-loader/dist/cjs.js):
+Deprecation Warning on line 172, column 52 of file:///C:/Users/Jcsnu/Documents/condominiosapp-ai-hardening-clean/frontend/node_modules/primeflex/core/_mixins.scss:172:52:
+The Sass if() syntax is deprecated in favor of the modern CSS syntax.
+
+Suggestion: if(sass($i == 0): none; else: solid)
+
+More info: https://sass-lang.com/d/if-function
+
+172 |                                 #{$propName}-style: if($i == 0, none, solid);
+
+
+node_modules\primeflex\core\_mixins.scss 173:53  @import
+node_modules\primeflex\primeflex.scss 2:9        @use
+src\styles.scss 5:1                              root stylesheet
+
+
+./src/styles.scss - Warning: Module Warning (from ./node_modules/sass-loader/dist/cjs.js):
+41 repetitive deprecation warnings omitted.
+Run in verbose mode to see all warnings.
+
+[39m[22m
+[32m√[39m Browser application bundle generation complete.
+[32m√[39m Browser application bundle generation complete.
+[32m√[39m Browser application bundle generation complete.
+[32m√[39m Browser application bundle generation complete.
+[32m√[39m Browser application bundle generation complete.
+[32m√[39m Browser application bundle generation complete.
+[32m√[39m Browser application bundle generation complete.
+[32m√[39m Browser application bundle generation complete.
+[32m√[39m Browser application bundle generation complete.
+[32m√[39m Browser application bundle generation complete.
+[32m√[39m Browser application bundle generation complete.
+[32m√[39m Browser application bundle generation complete.
+[32m√[39m Browser application bundle generation complete.
+[32m√[39m Browser application bundle generation complete.
+[32m√[39m Browser application bundle generation complete.
+[32m√[39m Browser application bundle generation complete.
+[32m√[39m Browser application bundle generation complete.
+[32m√[39m Browser application bundle generation complete.
+[32m√[39m Browser application bundle generation complete.
+[32m√[39m Browser application bundle generation complete.
+[32m√[39m Browser application bundle generation complete.
+[32m√[39m Browser application bundle generation complete.
+[32m√[39m Browser application bundle generation complete.
+[32m√[39m Browser application bundle generation complete.
+[32m√[39m Browser application bundle generation complete.
+[32m√[39m Browser application bundle generation complete.
+[32m√[39m Browser application bundle generation complete.
+[32m√[39m Browser application bundle generation complete.
+[32m√[39m Browser application bundle generation complete.
+[32m√[39m Browser application bundle generation complete.
+[32m√[39m Browser application bundle generation complete.
+[32m√[39m Browser application bundle generation complete.
+[32m√[39m Browser application bundle generation complete.
+[1m[31m
+Error: [96msrc/app/demo/service/auth.interceptor.ts[0m:[93m73[0m:[93m28[0m - [91merror[0m[90m TS4111: [0mProperty 'success' comes from an index signature, so it must be accessed with ['success'].
+
+[7m73[0m         if (typeof payload.success === 'boolean') {
+[7m  [0m [91m                           ~~~~~~~[0m
+
+
+Error: [96msrc/app/demo/service/auth.interceptor.ts[0m:[93m74[0m:[93m37[0m - [91merror[0m[90m TS4111: [0mProperty 'success' comes from an index signature, so it must be accessed with ['success'].
+
+[7m74[0m             const success = payload.success;
+[7m  [0m [91m                                    ~~~~~~~[0m
+
+
+Error: [96msrc/app/demo/service/auth.interceptor.ts[0m:[93m78[0m:[93m36[0m - [91merror[0m[90m TS4111: [0mProperty 'status' comes from an index signature, so it must be accessed with ['status'].
+
+[7m78[0m                     typeof payload.status === 'string'
+[7m  [0m [91m                                   ~~~~~~[0m
+
+
+Error: [96msrc/app/demo/service/auth.interceptor.ts[0m:[93m79[0m:[93m35[0m - [91merror[0m[90m TS4111: [0mProperty 'status' comes from an index signature, so it must be accessed with ['status'].
+
+[7m79[0m                         ? payload.status
+[7m  [0m [91m                                  ~~~~~~[0m
+
+
+Error: [96msrc/app/demo/service/auth.interceptor.ts[0m:[93m84[0m:[93m36[0m - [91merror[0m[90m TS4111: [0mProperty 'message' comes from an index signature, so it must be accessed with ['message'].
+
+[7m84[0m                     typeof payload.message === 'string'
+[7m  [0m [91m                                   ~~~~~~~[0m
+
+
+Error: [96msrc/app/demo/service/auth.interceptor.ts[0m:[93m85[0m:[93m35[0m - [91merror[0m[90m TS4111: [0mProperty 'message' comes from an index signature, so it must be accessed with ['message'].
+
+[7m85[0m                         ? payload.message
+[7m  [0m [91m                                  ~~~~~~~[0m
+
+
+Error: [96msrc/app/demo/service/auth.interceptor.ts[0m:[93m87[0m:[93m36[0m - [91merror[0m[90m TS4111: [0mProperty 'data' comes from an index signature, so it must be accessed with ['data'].
+
+[7m87[0m                         ? payload?.data?.message || ''
+[7m  [0m [91m                                   ~~~~[0m
+
+
+Error: [96msrc/app/demo/service/auth.interceptor.ts[0m:[93m88[0m:[93m36[0m - [91merror[0m[90m TS4111: [0mProperty 'error' comes from an index signature, so it must be accessed with ['error'].
+
+[7m88[0m                         : payload?.error?.message || payload?.error?.detail || '',
+[7m  [0m [91m                                   ~~~~~[0m
+
+
+Error: [96msrc/app/demo/service/auth.interceptor.ts[0m:[93m88[0m:[93m63[0m - [91merror[0m[90m TS4111: [0mProperty 'error' comes from an index signature, so it must be accessed with ['error'].
+
+[7m88[0m                         : payload?.error?.message || payload?.error?.detail || '',
+[7m  [0m [91m                                                              ~~~~~[0m
+
+
+Error: [96msrc/app/demo/service/auth.interceptor.ts[0m:[93m92[0m:[93m28[0m - [91merror[0m[90m TS4111: [0mProperty 'status' comes from an index signature, so it must be accessed with ['status'].
+
+[7m92[0m         if (typeof payload.status === 'string') {
+[7m  [0m [91m                           ~~~~~~[0m
+
+
+Error: [96msrc/app/demo/service/auth.interceptor.ts[0m:[93m93[0m:[93m37[0m - [91merror[0m[90m TS4111: [0mProperty 'status' comes from an index signature, so it must be accessed with ['status'].
+
+[7m93[0m             const success = payload.status.toLowerCase() === 'success';
+[7m  [0m [91m                                    ~~~~~~[0m
+
+
+Error: [96msrc/app/demo/service/auth.interceptor.ts[0m:[93m94[0m:[93m34[0m - [91merror[0m[90m TS4111: [0mProperty 'data' comes from an index signature, so it must be accessed with ['data'].
+
+[7m94[0m             const data = payload.data ?? payload.message ?? null;
+[7m  [0m [91m                                 ~~~~[0m
+
+
+Error: [96msrc/app/demo/service/auth.interceptor.ts[0m:[93m94[0m:[93m50[0m - [91merror[0m[90m TS4111: [0mProperty 'message' comes from an index signature, so it must be accessed with ['message'].
+
+[7m94[0m             const data = payload.data ?? payload.message ?? null;
+[7m  [0m [91m                                                 ~~~~~~~[0m
+
+
+Error: [96msrc/app/demo/service/auth.interceptor.ts[0m:[93m100[0m:[93m42[0m - [91merror[0m[90m TS4111: [0mProperty 'error' comes from an index signature, so it must be accessed with ['error'].
+
+[7m100[0m                 error: success ? payload.error ?? null : payload.error ?? { message: payload.message || 'Request failed' },
+[7m   [0m [91m                                         ~~~~~[0m
+
+
+Error: [96msrc/app/demo/service/auth.interceptor.ts[0m:[93m100[0m:[93m66[0m - [91merror[0m[90m TS4111: [0mProperty 'error' comes from an index signature, so it must be accessed with ['error'].
+
+[7m100[0m                 error: success ? payload.error ?? null : payload.error ?? { message: payload.message || 'Request failed' },
+[7m   [0m [91m                                                                 ~~~~~[0m
+
+
+Error: [96msrc/app/demo/service/auth.interceptor.ts[0m:[93m100[0m:[93m94[0m - [91merror[0m[90m TS4111: [0mProperty 'message' comes from an index signature, so it must be accessed with ['message'].
+
+[7m100[0m                 error: success ? payload.error ?? null : payload.error ?? { message: payload.message || 'Request failed' },
+[7m   [0m [91m                                                                                             ~~~~~~~[0m
+
+
+Error: [96msrc/app/demo/service/auth.interceptor.ts[0m:[93m102[0m:[93m29[0m - [91merror[0m[90m TS4111: [0mProperty 'code' comes from an index signature, so it must be accessed with ['code'].
+
+[7m102[0m                     payload.code || (success ? 'REQUEST_OK' : 'REQUEST_ERROR'),
+[7m   [0m [91m                            ~~~~[0m
+
+
+[39m[22m
+[32m√[39m Browser application bundle generation complete.
+[1m[31m
+Error: [96msrc/app/demo/service/auth.interceptor.ts[0m:[93m73[0m:[93m28[0m - [91merror[0m[90m TS4111: [0mProperty 'success' comes from an index signature, so it must be accessed with ['success'].
+
+[7m73[0m         if (typeof payload.success === 'boolean') {
+[7m  [0m [91m                           ~~~~~~~[0m
+
+
+Error: [96msrc/app/demo/service/auth.interceptor.ts[0m:[93m74[0m:[93m37[0m - [91merror[0m[90m TS4111: [0mProperty 'success' comes from an index signature, so it must be accessed with ['success'].
+
+[7m74[0m             const success = payload.success;
+[7m  [0m [91m                                    ~~~~~~~[0m
+
+
+Error: [96msrc/app/demo/service/auth.interceptor.ts[0m:[93m78[0m:[93m36[0m - [91merror[0m[90m TS4111: [0mProperty 'status' comes from an index signature, so it must be accessed with ['status'].
+
+[7m78[0m                     typeof payload.status === 'string'
+[7m  [0m [91m                                   ~~~~~~[0m
+
+
+Error: [96msrc/app/demo/service/auth.interceptor.ts[0m:[93m79[0m:[93m35[0m - [91merror[0m[90m TS4111: [0mProperty 'status' comes from an index signature, so it must be accessed with ['status'].
+
+[7m79[0m                         ? payload.status
+[7m  [0m [91m                                  ~~~~~~[0m
+
+
+Error: [96msrc/app/demo/service/auth.interceptor.ts[0m:[93m84[0m:[93m36[0m - [91merror[0m[90m TS4111: [0mProperty 'message' comes from an index signature, so it must be accessed with ['message'].
+
+[7m84[0m                     typeof payload.message === 'string'
+[7m  [0m [91m                                   ~~~~~~~[0m
+
+
+Error: [96msrc/app/demo/service/auth.interceptor.ts[0m:[93m85[0m:[93m35[0m - [91merror[0m[90m TS4111: [0mProperty 'message' comes from an index signature, so it must be accessed with ['message'].
+
+[7m85[0m                         ? payload.message
+[7m  [0m [91m                                  ~~~~~~~[0m
+
+
+Error: [96msrc/app/demo/service/auth.interceptor.ts[0m:[93m87[0m:[93m36[0m - [91merror[0m[90m TS4111: [0mProperty 'data' comes from an index signature, so it must be accessed with ['data'].
+
+[7m87[0m                         ? payload?.data?.message || ''
+[7m  [0m [91m                                   ~~~~[0m
+
+
+Error: [96msrc/app/demo/service/auth.interceptor.ts[0m:[93m88[0m:[93m36[0m - [91merror[0m[90m TS4111: [0mProperty 'error' comes from an index signature, so it must be accessed with ['error'].
+
+[7m88[0m                         : payload?.error?.message || payload?.error?.detail || '',
+[7m  [0m [91m                                   ~~~~~[0m
+
+
+Error: [96msrc/app/demo/service/auth.interceptor.ts[0m:[93m88[0m:[93m63[0m - [91merror[0m[90m TS4111: [0mProperty 'error' comes from an index signature, so it must be accessed with ['error'].
+
+[7m88[0m                         : payload?.error?.message || payload?.error?.detail || '',
+[7m  [0m [91m                                                              ~~~~~[0m
+
+
+Error: [96msrc/app/demo/service/auth.interceptor.ts[0m:[93m92[0m:[93m28[0m - [91merror[0m[90m TS4111: [0mProperty 'status' comes from an index signature, so it must be accessed with ['status'].
+
+[7m92[0m         if (typeof payload.status === 'string') {
+[7m  [0m [91m                           ~~~~~~[0m
+
+
+Error: [96msrc/app/demo/service/auth.interceptor.ts[0m:[93m93[0m:[93m37[0m - [91merror[0m[90m TS4111: [0mProperty 'status' comes from an index signature, so it must be accessed with ['status'].
+
+[7m93[0m             const success = payload.status.toLowerCase() === 'success';
+[7m  [0m [91m                                    ~~~~~~[0m
+
+
+Error: [96msrc/app/demo/service/auth.interceptor.ts[0m:[93m94[0m:[93m34[0m - [91merror[0m[90m TS4111: [0mProperty 'data' comes from an index signature, so it must be accessed with ['data'].
+
+[7m94[0m             const data = payload.data ?? payload.message ?? null;
+[7m  [0m [91m                                 ~~~~[0m
+
+
+Error: [96msrc/app/demo/service/auth.interceptor.ts[0m:[93m94[0m:[93m50[0m - [91merror[0m[90m TS4111: [0mProperty 'message' comes from an index signature, so it must be accessed with ['message'].
+
+[7m94[0m             const data = payload.data ?? payload.message ?? null;
+[7m  [0m [91m                                                 ~~~~~~~[0m
+
+
+Error: [96msrc/app/demo/service/auth.interceptor.ts[0m:[93m100[0m:[93m42[0m - [91merror[0m[90m TS4111: [0mProperty 'error' comes from an index signature, so it must be accessed with ['error'].
+
+[7m100[0m                 error: success ? payload.error ?? null : payload.error ?? { message: payload.message || 'Request failed' },
+[7m   [0m [91m                                         ~~~~~[0m
+
+
+Error: [96msrc/app/demo/service/auth.interceptor.ts[0m:[93m100[0m:[93m66[0m - [91merror[0m[90m TS4111: [0mProperty 'error' comes from an index signature, so it must be accessed with ['error'].
+
+[7m100[0m                 error: success ? payload.error ?? null : payload.error ?? { message: payload.message || 'Request failed' },
+[7m   [0m [91m                                                                 ~~~~~[0m
+
+
+Error: [96msrc/app/demo/service/auth.interceptor.ts[0m:[93m100[0m:[93m94[0m - [91merror[0m[90m TS4111: [0mProperty 'message' comes from an index signature, so it must be accessed with ['message'].
+
+[7m100[0m                 error: success ? payload.error ?? null : payload.error ?? { message: payload.message || 'Request failed' },
+[7m   [0m [91m                                                                                             ~~~~~~~[0m
+
+
+Error: [96msrc/app/demo/service/auth.interceptor.ts[0m:[93m102[0m:[93m29[0m - [91merror[0m[90m TS4111: [0mProperty 'code' comes from an index signature, so it must be accessed with ['code'].
+
+[7m102[0m                     payload.code || (success ? 'REQUEST_OK' : 'REQUEST_ERROR'),
+[7m   [0m [91m                            ~~~~[0m
+
+
+[39m[22m
+[32m√[39m Browser application bundle generation complete.
+[32m√[39m Browser application bundle generation complete.
+[32m√[39m Browser application bundle generation complete.
+[32m√[39m Browser application bundle generation complete.
+[32m√[39m Browser application bundle generation complete.

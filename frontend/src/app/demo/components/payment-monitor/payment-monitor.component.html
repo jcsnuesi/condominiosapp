@@ -1,0 +1,297 @@
+<p-toast></p-toast>
+
+<div class="payment-monitor">
+  <p-card>
+    <ng-template pTemplate="title"
+      >Payment Transactions Monitor</ng-template
+      >
+      <ng-template pTemplate="subtitle"
+        >Admin view for transaction status, provider and reconciliation
+        tracking</ng-template
+        >
+
+        <div class="filters-grid">
+          <div class="field">
+            <label for="ownerId">Owner ID</label>
+            <input
+              id="ownerId"
+              pInputText
+              [(ngModel)]="filters.ownerId"
+              placeholder="Optional"
+              />
+            </div>
+
+            <div class="field">
+              <label for="invoiceId">Invoice ID</label>
+              <input
+                id="invoiceId"
+                pInputText
+                [(ngModel)]="filters.invoiceId"
+                placeholder="Optional"
+                />
+              </div>
+
+              <div class="field">
+                <label for="provider">Provider</label>
+                <p-select
+                  inputId="provider"
+                  [options]="providerOptions"
+                  optionLabel="label"
+                  optionValue="value"
+                  [(ngModel)]="filters.provider"
+                ></p-select>
+              </div>
+
+              <div class="field">
+                <label for="status">Status</label>
+                <p-select
+                  inputId="status"
+                  [options]="statusOptions"
+                  optionLabel="label"
+                  optionValue="value"
+                  [(ngModel)]="filters.status"
+                ></p-select>
+              </div>
+
+              <div class="field">
+                <label for="reconciliationStatus">Reconciliation</label>
+                <p-select
+                  inputId="reconciliationStatus"
+                  [options]="reconciliationFilterOptions"
+                  optionLabel="label"
+                  optionValue="value"
+                  [(ngModel)]="filters.reconciliationStatus"
+                ></p-select>
+              </div>
+
+              <div class="field">
+                <label for="attemptedFrom">Attempted from</label>
+                <input
+                  id="attemptedFrom"
+                  pInputText
+                  type="date"
+                  [(ngModel)]="filters.attemptedFrom"
+                  />
+                </div>
+
+                <div class="field">
+                  <label for="attemptedTo">Attempted to</label>
+                  <input
+                    id="attemptedTo"
+                    pInputText
+                    type="date"
+                    [(ngModel)]="filters.attemptedTo"
+                    />
+                  </div>
+                </div>
+
+                <div class="toolbar">
+                  <p-button
+                    label="Apply filters"
+                    icon="pi pi-filter"
+                    (onClick)="loadTransactions(true)"
+                  ></p-button>
+                  <p-button
+                    label="Export CSV"
+                    icon="pi pi-download"
+                    severity="help"
+                    [outlined]="true"
+                    (onClick)="exportCsv()"
+                  ></p-button>
+                  <p-button
+                    label="Import reconciliation"
+                    icon="pi pi-upload"
+                    severity="success"
+                    [outlined]="true"
+                    (onClick)="openImportDialog()"
+                  ></p-button>
+                  <p-button
+                    label="Clear"
+                    icon="pi pi-times"
+                    severity="secondary"
+                    [outlined]="true"
+                    (onClick)="clearFilters()"
+                  ></p-button>
+                </div>
+              </p-card>
+
+              <p-table
+                [value]="docs"
+                [loading]="loading"
+                [paginator]="true"
+                [lazy]="true"
+                [first]="first"
+                [rows]="filters.limit"
+                [totalRecords]="total"
+                [rowsPerPageOptions]="rowsPerPageOptions"
+                [showCurrentPageReport]="true"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                (onLazyLoad)="onLazyLoad($event)"
+                responsiveLayout="scroll"
+                styleClass="app-data-table"
+                [tableStyle]="{ 'min-width': '74rem' }"
+                >
+              <ng-template pTemplate="header">
+                <tr>
+                  <th>Invoice</th>
+                  <th>Owner</th>
+                  <th>Provider</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                  <th>Reconciliation</th>
+                  <th>Provider Tx ID</th>
+                  <th>Attempted at</th>
+                  <th>Actions</th>
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="body" let-row>
+                <tr>
+                  <td>{{ row.invoiceId }}</td>
+                  <td>{{ row.ownerId }}</td>
+                  <td>{{ row.provider }}</td>
+                  <td>{{ row.amount | currency : "USD" }}</td>
+                  <td>
+                    <p-tag
+                      [value]="row.status"
+                      [severity]="getSeverity(row.status)"
+                    ></p-tag>
+                  </td>
+                  <td>
+                    <p-tag
+                      [value]="row.reconciliationStatus"
+                      [severity]="getSeverity(row.reconciliationStatus)"
+                    ></p-tag>
+                  </td>
+                  <td>{{ row.providerTransactionId || "-" }}</td>
+                  <td>{{ row.attemptedAt | date : "dd/MM/yyyy HH:mm" }}</td>
+                  <td>
+                    @if (canReconcile(row)) {
+                      <p-button
+                        label="Resolve"
+                        icon="pi pi-check-circle"
+                        size="small"
+                        [outlined]="true"
+                        (onClick)="openReconciliationDialog(row)"
+                      ></p-button>
+                    }
+                    @if (!canReconcile(row)) {
+                      <span>-</span>
+                    }
+                  </td>
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="emptymessage">
+                <tr>
+                  <td colspan="9">No transactions found with current filters.</td>
+                </tr>
+              </ng-template>
+            </p-table>
+
+            <p-dialog
+              header="Resolve reconciliation"
+              [(visible)]="reconciliationDialogVisible"
+              [modal]="true"
+              [style]="{ width: '34rem' }"
+              [breakpoints]="{ '960px': '90vw' }"
+              >
+              <div class="reconciliation-dialog">
+                <div class="field">
+                  <label for="reconciliationStatus">Result</label>
+                  <p-select
+                    inputId="reconciliationStatus"
+                    [options]="reconciliationOptions"
+                    optionLabel="label"
+                    optionValue="value"
+                    [(ngModel)]="reconciliationForm.reconciliationStatus"
+                  ></p-select>
+                </div>
+
+                <div class="field">
+                  <label for="reconciliationNote">Note</label>
+                  <textarea
+                    id="reconciliationNote"
+                    pTextarea
+                    rows="4"
+                    maxlength="500"
+                    [(ngModel)]="reconciliationForm.note"
+                  ></textarea>
+                </div>
+              </div>
+
+              <ng-template pTemplate="footer">
+                <p-button
+                  label="Cancel"
+                  icon="pi pi-times"
+                  severity="secondary"
+                  [outlined]="true"
+                  (onClick)="reconciliationDialogVisible = false"
+                ></p-button>
+                <p-button
+                  label="Save"
+                  icon="pi pi-save"
+                  [loading]="loading"
+                  (onClick)="submitReconciliation()"
+                ></p-button>
+              </ng-template>
+            </p-dialog>
+
+            <p-dialog
+              header="Import reconciliation"
+              [(visible)]="importDialogVisible"
+              [modal]="true"
+              [style]="{ width: '48rem' }"
+              [breakpoints]="{ '960px': '94vw' }"
+              >
+              <div class="import-dialog">
+                <div class="field">
+                  <label for="importProvider">Provider</label>
+                  <p-select
+                    inputId="importProvider"
+                    [options]="paymentProviderOptions"
+                    optionLabel="label"
+                    optionValue="value"
+                    [(ngModel)]="importForm.provider"
+                  ></p-select>
+                </div>
+
+                <div class="field">
+                  <label for="importCsv">Settlement CSV</label>
+                  <textarea
+                    id="importCsv"
+                    pTextarea
+                    rows="9"
+                    [(ngModel)]="importForm.csvText"
+                  ></textarea>
+                </div>
+
+                @if (importResult?.summary) {
+                  <div class="import-summary">
+                    <span>Total: {{ importResult.summary.total || 0 }}</span>
+                    <span>Matched: {{ importResult.summary.matched || 0 }}</span>
+                    <span>Mismatched: {{ importResult.summary.mismatched || 0 }}</span>
+                    <span>Review: {{ importResult.summary.manual_review || 0 }}</span>
+                    <span>Not found: {{ importResult.summary.not_found || 0 }}</span>
+                    <span>Invalid: {{ importResult.summary.invalid || 0 }}</span>
+                  </div>
+                }
+              </div>
+
+              <ng-template pTemplate="footer">
+                <p-button
+                  label="Cancel"
+                  icon="pi pi-times"
+                  severity="secondary"
+                  [outlined]="true"
+                  (onClick)="importDialogVisible = false"
+                ></p-button>
+                <p-button
+                  label="Import"
+                  icon="pi pi-upload"
+                  [loading]="importLoading"
+                  (onClick)="submitImport()"
+                ></p-button>
+              </ng-template>
+            </p-dialog>
+          </div>

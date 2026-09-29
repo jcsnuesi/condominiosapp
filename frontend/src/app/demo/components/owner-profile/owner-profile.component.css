@@ -1,0 +1,56 @@
+::ng-deep .justify-contents {
+    display: flex;
+    justify-content: center;
+}
+
+.main-frame {
+    display: flex;
+    width: 100%;
+    height: 100%;
+}
+
+::ng-deep .p-breadcrumb .p-menuitem-icon.pi.pi-home {
+    margin-right: 5px;
+}
+
+.scrollable-table-container {
+    width: 100%;
+    overflow-x: auto;
+}
+
+/* Mejora opcional: evita que la tabla se desborde */
+.scrollable-table-container table {
+    min-width: 600px; /* Ajusta según tus necesidades */
+    border-collapse: collapse;
+}
+
+.avatarOwnerProfile {
+    width: 4rem;
+    height: 4rem;
+    flex-shrink: 0;
+    border-radius: 50%;
+    border: #dbdbdb solid 1px;
+}
+
+::ng-deep .p-dropdown {
+    width: 100%;
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
+}
+
+.h-over {
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+}
+.h-over:hover {
+    color: black;
+    background-color: #dbdbdb;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+}
+:host ::ng-deep p-tag.tag-w-100 .p-tag {
+    width: 100%;
+}
+.cursor-pointer {
+    cursor: pointer;
+}

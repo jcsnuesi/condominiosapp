@@ -1,0 +1,27 @@
+<div class="card">
+  <p-tabs
+    #tabViewController
+    [(value)]="activeIndex"
+    (valueChange)="onTabChange({ index: $event })"
+    >
+    <p-tabpanel header="Create authorized member">
+      <app-family-member (msgEvent)="messageEvent()"></app-family-member>
+    </p-tabpanel>
+    <p-tabpanel header="See All Members">
+      <app-family-member-details
+        #familyMemberDetails
+        (memberInfo)="memberInfoFromDetailsEvent($event)"
+      ></app-family-member-details>
+    </p-tabpanel>
+    @if (memberInfoFromDetails.show) {
+      <p-tabpanel header="Member Settings">
+        @if (memberInfoFromDetails.show) {
+          <app-family-member
+            [memberInfoFromDetail]="memberInfoFromDetails"
+            (msgEvent)="messageEvent()"
+          ></app-family-member>
+        }
+      </p-tabpanel>
+    }
+  </p-tabs>
+</div>

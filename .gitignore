@@ -1,0 +1,13 @@
+/node_modules
+.devcontainer/
+.vscode/
+docker-compose.yml
+Dockerfile
+.angular
+/uploads
+/tests/artifacts/rbac-functional-*/
+/tests
+/feedback
+/e2e-tests
+/e2e-reports
+.agents

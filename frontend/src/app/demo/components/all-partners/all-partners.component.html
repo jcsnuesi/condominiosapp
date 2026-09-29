@@ -1,0 +1,227 @@
+<p-toast />
+<p-confirmDialog />
+
+<div class="card">
+    <!-- Phase 1: responsive — table columns adapt via PrimeNG col-*, mobile-safe -->
+    <div class="propertiesAvailable mb-4">
+        <div class="font-semibold text-xl text-surface-900 dark:text-surface-0">
+            Manage all partners and their details
+        </div>
+        <div class="float-end-btn">
+            <button
+                *appHasPermissions="['admin', 'owners.create']"
+                pButton
+                type="button"
+                aria-label="Create new partner"
+                label="Crear Usuario"
+                icon="pi pi-user-plus"
+                class="p-button-success"
+                (click)="visible = !visible"
+            ></button>
+        </div>
+    </div>
+    <p-table
+        #dt
+        [value]="datatable"
+        [(selection)]="selectedCustomers"
+        dataKey="id"
+        [rowHover]="true"
+        [rows]="10"
+        [showCurrentPageReport]="true"
+        [rowsPerPageOptions]="[10, 25, 50]"
+        [loading]="loading"
+        [paginator]="true"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+        [filterDelay]="0"
+        [globalFilterFields]="['id', 'fullname', 'email', 'phone']"
+    >
+        <ng-template pTemplate="caption">
+            <div class="flex">
+                <button
+                    pButton
+                    label="Clear"
+                    class="p-button-outlined"
+                    icon="pi pi-filter-slash"
+                    (click)="clear(dt)"
+                ></button>
+                <p-iconField iconPosition="left" class="ml-auto">
+                    <p-inputIcon styleClass="pi pi-search" />
+                    <input
+                        pInputText
+                        type="text"
+                        (input)="
+                            dt.filterGlobal($event.target.value, 'contains')
+                        "
+                        placeholder="Search keyword"
+                    />
+                </p-iconField>
+            </div>
+        </ng-template>
+        <ng-template pTemplate="header">
+            <tr>
+                <th pSortableColumn="fullname" style="min-width: 14rem">
+                    <div class="flex justify-between items-center">
+                        Fullname
+                        <p-sortIcon field="fullname" />
+                        <p-columnFilter
+                            type="text"
+                            field="fullname"
+                            display="menu"
+                            class="ml-auto"
+                        />
+                    </div>
+                </th>
+                <th pSortableColumn="email" style="min-width: 14rem">
+                    <div class="flex justify-between items-center">
+                        Email
+                        <p-sortIcon field="email" />
+                        <p-columnFilter
+                            type="text"
+                            field="email"
+                            display="menu"
+                            class="ml-auto"
+                        />
+                    </div>
+                </th>
+
+                <th pSortableColumn="phone" style="min-width: 10rem">
+                    <div class="flex justify-between items-center">
+                        Phone
+                        <p-sortIcon field="phone" />
+                        <p-columnFilter
+                            type="text"
+                            field="phone"
+                            display="menu"
+                            class="ml-auto"
+                        />
+                    </div>
+                </th>
+                <th pSortableColumn="totalAmount" style="max-width: 10rem">
+                    <div class="flex justify-between items-center">
+                        Balance
+                        <p-sortIcon field="totalAmount" />
+                        <p-columnFilter
+                            type="numeric"
+                            field="totalAmount"
+                            display="menu"
+                            class="ml-auto"
+                        />
+                    </div>
+                </th>
+
+                <th pSortableColumn="createdAt" style="max-width: 10rem">
+                    <div class="flex justify-between items-center">
+                        Partnetship Date
+                        <p-sortIcon field="createdAt" />
+                        <p-columnFilter
+                            type="text"
+                            field="createdAt"
+                            display="menu"
+                            class="ml-auto"
+                        />
+                    </div>
+                </th>
+                <th style="width: 5rem; text-align: center">
+                    <span class="pi pi-flag-fill"></span>
+                </th>
+
+                <th style="width: 5rem; text-align: center">
+                    <span class="pi pi-cog"></span>
+                </th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-customer>
+            <tr class="p-selectable-row">
+                <td>
+                    <div class="flex items-center gap-2 text-align-center">
+                        <img
+                            [src]="
+                                _noPicturesService.getNoPictures(
+                                    url +
+                                        'main-avatar/owners/' +
+                                        customer.avatar
+                                )
+                            "
+                            style="
+                                width: 40px;
+                                height: 40px;
+                                border-radius: 50%;
+                            "
+                        />
+                        <span class="ml-1 align-middle">{{
+                            customer.fullname | titlecase
+                        }}</span>
+                    </div>
+                </td>
+                <td>
+                    {{ customer.email }}
+                </td>
+                <td>
+                    {{ customer.phone }}
+                </td>
+                <td>
+                    {{ customer.totalAmount | currency : "DOP" : "symbol" }}
+                </td>
+
+                <td>
+                    {{ customer.createdAt | date : "MM/dd/yyyy" }}
+                </td>
+
+                <td>
+                    <p-progressBar
+                        #prossBar
+                        [value]="calculateProgress(customer.invoiceCount)"
+                        [showValue]="false"
+                        [styleClass]="
+                            getProgressBarColor(customer.invoiceCount)
+                        "
+                    />
+                </td>
+                <td style="text-align: center">
+                    <p-button
+                        rounded
+                        icon="pi pi-cog"
+                        (click)="showOwner(customer.id)"
+                    />
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template #emptymessage>
+            <tr>
+                <td colspan="8">No customers found.</td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>
+
+<!-- Crear user -->
+
+<p-dialog
+    [(visible)]="visible"
+    (onHide)="closeDialogRegistration()"
+    [modal]="true"
+    [maximizable]="true"
+>
+    <ng-template pTemplate="header">
+        <span class="font-semibold text-xl w-100">
+            <h2>Register owner</h2>
+        </span>
+        <hr />
+    </ng-template>
+
+    <p-tabs>
+        <p-tabpanel header="Create single unit">
+            @if (visible) {
+            <app-owner-registration
+                [allowCondominiumSelection]="true"
+                (ownerCreated)="ownerRegistrationCreated($event)"
+            ></app-owner-registration>
+            }
+        </p-tabpanel>
+        <p-tabpanel header="Create multiple units">
+            <app-pool-file-loader
+                [services]="fileInputData"
+            ></app-pool-file-loader>
+        </p-tabpanel>
+    </p-tabs>
+</p-dialog>

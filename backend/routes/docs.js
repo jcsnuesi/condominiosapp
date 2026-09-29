@@ -1,0 +1,92 @@
+"use strict";
+
+let express = require("express");
+let router = express.Router();
+let DocsController = require("../controllers/docs");
+var md_auth = require("../middleware/auth");
+let fs = require("fs");
+const path = require("path");
+const multer = require("multer");
+const storage = multer.diskStorage({
+  // Phase 2 (medium): file size limit — configure to 50MB (multer.limit({ fileSize: 50*1024*1024 }))
+  destination: function (req, file, cb) {
+    const condoId = req.body.condominiumId;
+
+    if (!condoId) {
+      return cb(new Error("condoId es requerido"), null);
+    }
+
+    const uploadPath = path.join(__dirname, "..", "uploads", "docs", condoId);
+
+    // 📂 Crear directorio si no existe
+    fs.mkdir(uploadPath, { recursive: true }, (err) => {
+      if (err) {
+        return cb(err, null);
+      }
+      cb(null, uploadPath);
+    });
+  },
+
+  filename: function (req, file, cb) {
+    const uniqueName = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+    const ext = path.extname(file.originalname).toLowerCase();
+    cb(null, uniqueName + ext);
+  },
+});
+
+const upload = multer({ storage: storage });
+// GET
+
+router.get(
+  "/docs/getDirectories/:id",
+  md_auth.authenticated,
+  DocsController.getDirectoriesByCreatedBy
+);
+
+router.get(
+  "/docs/getDocsByName/:condoId/:filename",
+  md_auth.authenticated,
+  DocsController.openFileByPath
+);
+router.get(
+  "/docs/docCard/:id",
+  md_auth.authenticated,
+  DocsController.docsQty
+);
+
+// POST
+
+router.post(
+  "/docs/createDoc",
+  [md_auth.authenticated, upload.array("file")],
+  DocsController.createDoc
+);
+
+// PUT
+
+router.put(
+  "/docs/updateDoc/:id",
+  [md_auth.authenticated, upload.array("file")],
+  DocsController.updateDoc
+);
+
+router.put(
+  "/docs/deleteAttachament",
+  md_auth.authenticated,
+  DocsController.deleteAttachamentByName
+);
+
+router.put(
+  "/docs/deleteAllAttachments",
+  md_auth.authenticated,
+  DocsController.deleteAllAttachments
+);
+
+// DELETE
+router.delete(
+  "/docs/deleteDoc/:id",
+  md_auth.authenticated,
+  DocsController.deleteDoc
+);
+
+module.exports = router;

@@ -1,0 +1,10 @@
+tr.inactive-user {
+    background: #bcbcbc !important;
+    color: white;
+}
+
+tr.active-user {
+    background: #ffffff;
+    color: #495057;
+    transition: box-shadow 0.2s;
+}

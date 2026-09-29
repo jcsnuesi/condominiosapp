@@ -1,0 +1,238 @@
+<div class="grid">
+  <div class="col-12">
+    @if (status == 'success') {
+      <p-message
+        [(value)]="messages"
+        [enableService]="false"
+        [closable]="true">
+      </p-message>
+    }
+
+    @if (status != 'success') {
+      <div class="card">
+        <h5> Account info </h5>
+        <form #updateAdmin="ngForm" (change)="formChanges(updateAdmin)">
+          @if (disabled) {
+            <div class="p-fluid p-formgrid grid">
+              <div class="field col-12">
+                @if (status == 'true') {
+                  <p-message [(value)]="messages" [enableService]="false"
+                  [closable]="true"></p-message>
+                }
+                <p-fileUpload styleClass="cp-file-upload" mode="basic" chooseLabel="Choose image" #demo id="demo" name="demo"
+                  url="https://www.primefaces.org/cdn/api/upload.php" accept="image/*" maxFileSize="1000000"
+                (onSelect)="onSelect($event)"></p-fileUpload>
+                <div class="col-md-4 mt-3">
+                  <img [src]="image" alt="" width="181px" height="200px">
+                </div>
+              </div>
+              <div class="field col-12 md:col-6">
+                <label htmlFor="company">Razon social:<span style="color: red;">*</span></label>
+                <input pInputText id="company" type="text" required #company="ngModel" name="company"
+                  [(ngModel)]="sendDataToModal.company" aria-describedby="username-help"
+                  [ngClass]="{'ng-invalid ng-dirty':(company.touched && !company.valid), 'company':company.valid}" readonly/>
+                @if (company.touched && !company.valid) {
+                  <small id="username-help"
+                  class="p-error">Obligatorio.</small>
+                }
+              </div>
+              <div class="field col-6 md:col-6">
+                <label htmlFor="rnc">RNC<span style="color: red;">*</span></label>
+                <input pInputText id="rnc" type="text" required name="rnc" #rnc="ngModel"       [(ngModel)]="sendDataToModal.rnc"
+                  [ngClass]="{'ng-invalid ng-dirty':(rnc.touched && !rnc.valid), 'company':rnc.valid}"
+                  minlength="8" maxlength="9" pattern="^[0-9]+" readonly/>
+                @if (rnc.touched && !rnc.valid) {
+                  <small id="username-help" class="p-error">Obligatorio (Solo
+                  numeros).</small>
+                }
+              </div>
+              <div class="field col-6 md:col-6">
+                <label htmlFor="phone">Telefono<span style="color: red;">*</span></label>
+                <input pInputText id="phone" type="text" required [(ngModel)]="sendDataToModal.phone[0]" #phone="ngModel"
+                  name="phone" minlength="10" maxlength="10"
+                  [ngClass]="{'ng-invalid ng-dirty':(phone.touched && !phone.valid), ' ':phone.valid}" />
+                @if (phone.touched && !phone.valid) {
+                  <small id="username-help"
+                  class="p-error">Obligatorio.</small>
+                }
+              </div>
+              <div class="field col-6 md:col-6">
+                <label htmlFor="phone2">Telefono 2</label>
+                <input pInputText id="phone2" type="text" required [(ngModel)]="sendDataToModal.phone[1]" #phone2="ngModel"
+                  name="phone2" maxlength="10"
+                  />
+              </div>
+              <br>
+                <div style="margin-left: 20px;width: 100%;">
+                  <h5>Direccion</h5>
+                  <hr>
+                  </div>
+                  <div class="field col-12">
+                    <label htmlFor="street_1">Calle<span style="color: red;">*</span></label>
+                    <input pTextarea id="street_1" rows="4" name="street_1" required
+                      [(ngModel)]="sendDataToModal.street_1" #street_1="ngModel"
+                      [ngClass]="{'ng-invalid ng-dirty':(street_1.touched && !street_1.valid), ' ':street_1.valid}" />
+                    @if (street_1.touched && !street_1.valid) {
+                      <small id="username-help"
+                      class="p-error">Obligatorio.</small>
+                    }
+                  </div>
+                  <div class="field col-12">
+                    <label htmlFor="street_2">Calle 2</label>
+                    <input pTextarea id="street_2" rows="4" name="street_2" [(ngModel)]="sendDataToModal.street_2"
+                      #street_2="ngModel" />
+                  </div>
+                  <div class="field col-12 md:col-5">
+                    <label htmlFor="city">Ciudad<span style="color: red;">*</span></label>
+                    <input pInputText id="city" type="text" required [(ngModel)]="sendDataToModal.city" #city="ngModel"
+                      name="city"
+                      [ngClass]="{'ng-invalid ng-dirty':(city.touched && !city.valid), ' ':city.valid}" />
+                    @if (city.touched && !city.valid) {
+                      <small id="username-help"
+                      class="p-error">Obligatorio.</small>
+                    }
+                  </div>
+                  <div class="field col-12 md:col-5">
+                    <label htmlFor="states">Estado<span style="color: red;">*</span></label>
+                    <p-select [options]="states_us" optionLabel="name" optionValue="name" [(ngModel)]="sendDataToModal.state"
+                      #state="ngModel" name="state" required
+                    [ngClass]="{'ng-invalid ng-dirty':(state.touched && !state.valid), ' ':state.valid}"></p-select>
+                    @if (state.touched && !state.valid) {
+                      <small id="username-help"
+                      class="p-error">Obligatorio.</small>
+                    }
+                  </div>
+                  <div class="field col-12 md:col-4">
+                    <label htmlFor="zipcode">Zip code<span style="color: red;">*</span></label>
+                    <input pInputText id="zipcode" type="text" maxlength="10" required [(ngModel)]="sendDataToModal.zipcode"
+                      #zipcode="ngModel" name="zipcode" />
+                  </div>
+                  <div class="field col-12 md:col-6">
+                    <label htmlFor="country">Pais<span style="color: red;">*</span></label>
+                    <input pInputText name="country" id="country" [(ngModel)]="sendDataToModal.country" #country="ngModel"
+                      readonly>
+                  </div>
+                  <div style="margin-left: 20px;width: 100%;">
+                    <h5>Persona de contacto</h5>
+                    <hr>
+                    </div>
+                    <div class="field col-12 md:col-6">
+                      <label htmlFor="name_contact">Nombres<span style="color: red;">*</span></label>
+                      <input pInputText id="name_contact" type="text" required [(ngModel)]="sendDataToModal.contact_person[0].name_contact"
+                        [ngClass]="{'ng-invalid ng-dirty':(name_contact.touched && !name_contact.valid), ' ':name_contact.valid}"
+                        #name_contact="ngModel" name="name_contact" maxlength="50" />
+                      @if (name_contact.touched && !name_contact.valid) {
+                        <small id="username-help"
+                        class="p-error">Obligatorio.</small>
+                      }
+                    </div>
+                    <div class="field col-12 md:col-6">
+                      <label htmlFor="name">Apellido<span style="color: red;">*</span></label>
+                      <input pInputText id="lastname_contact" type="text" required [(ngModel)]="sendDataToModal.contact_person[0].lastname_contact"
+                        [ngClass]="{'ng-invalid ng-dirty':(lastname_contact.touched && !lastname_contact.valid), ' ':lastname_contact.valid}"
+                        #lastname_contact="ngModel" name="lastname_contact" maxlength="50" />
+                      @if (lastname_contact.touched && !lastname_contact.valid) {
+                        <small id="username-help"
+                        class="p-error">Obligatorio.</small>
+                      }
+                    </div>
+                    <div class="field col-12 md:col-6">
+                      <label htmlFor="gender_contact">Genero<span style="color: red;">*</span></label>
+                      <p-select [options]="genero" optionLabel="name" optionValue="name" #gender_contact="ngModel"
+                        [(ngModel)]="sendDataToModal.contact_person[0].gender_contact" placeholder="{{sendDataToModal.contact_person[0].gender_contact}}" name="gender_contact" required
+                      [ngClass]="{'ng-invalid ng-dirty':(gender_contact.touched && !gender_contact.valid), ' ':gender_contact.valid}"></p-select>
+                      @if (gender_contact.touched && !gender_contact.valid) {
+                        <small id="username-help"
+                        class="p-error">Obligatorio.</small>
+                      }
+                    </div>
+                    <div class="field col-12 md:col-6">
+                      <label htmlFor="phone_contact">Telefono<span style="color: red;">*</span></label>
+                      <input pInputText id="phone_contact" type="text" required [(ngModel)]="sendDataToModal.contact_person[0].phone_contact[0]"
+                        name="phone_contact" #phone_contact="ngModel" maxlength="10" />
+                      @if (phone_contact.touched && !phone_contact.valid) {
+                        <small id="username-help"
+                        class="p-error">Obligatorio.</small>
+                      }
+                    </div>
+                    <div class="field col-12 md:col-6">
+                      <label htmlFor="phone_contact2">Telefono 2</label>
+                      <input pInputText id="phone_contact2" type="text" [(ngModel)]="sendDataToModal.contact_person[0].phone_contact[1]"
+                        name="phone_contact2" #phone_contact2="ngModel" maxlength="10" />
+                    </div>
+                    <div class="field col-12 md:col-6">
+                      <label htmlFor="email_contact">Email<span style="color: red;">*</span></label>
+                      <input pInputText id="email_contact" type="text" required [(ngModel)]="sendDataToModal.contact_person[0].email_contact"
+                        name="email_contact" #email_contact="ngModel" />
+                    </div>
+                    <div class="field col-12 md:col-6">
+                      <label htmlFor="role_contact">Role en la empresa<span style="color: red;">*</span></label>
+                      <input pInputText id="role_contact" type="text" required [(ngModel)]="sendDataToModal.contact_person[0].role_contact"
+                        #role_contact="ngModel" name="role_contact" />
+                    </div>
+                    <div style="margin-left: 20px;width: 100%;">
+                      <h5>Accesos a la plataforma</h5>
+                      <hr>
+                      </div>
+                      <div class="field col-12 md:col-6">
+                        <label htmlFor="email_company">Email<span style="color: red;">*</span></label>
+                        <input pInputText id="email_company" type="email" required [(ngModel)]="sendDataToModal.email_company"
+                          name="email_company" #email_company="ngModel"
+                          pattern="[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*@[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*[.][a-zA-Z]{2,5}"
+                          maxlength="50" />
+                        @if (email_company.touched && !email_company.valid) {
+                          <small id="username-help"
+                          class="p-error">Obligatorio.</small>
+                        }
+                      </div>
+                      <div class="field col-12 md:col-6 float-end">
+                        <p-checkbox [(ngModel)]="changepassword" [binary]="true" inputId="changePass" #changePass="ngModel"
+                        (onChange)="passwordChanger($event)" name="changePass" label="¿Change password?"></p-checkbox>
+                      </div>
+                      @if (changepassword) {
+                        <div class="field col-12 md:col-6">
+                          <label htmlFor="password">Current password</label>
+                          <input pInputText id="password" type="password" [(ngModel)]="sendDataToModal.password"
+                            #password="ngModel" name="password" maxlength="15" minlength="8" />
+                        </div>
+                      }
+                      @if (changepassword) {
+                        <div class="field col-12 md:col-6">
+                          <label htmlFor="new_password" >New password</label>
+                          <input pInputText id="new_password" type="password" required [(ngModel)]="sendDataToModal.npassword"
+                            #new_password="ngModel" name="new_password" maxlength="15" minlength="8" />
+                          @if (new_password.touched && !new_password.valid) {
+                            <small id="username-help" class="p-error">Su clave
+                            debe tener minimo 8 caracteres maximo 15.</small>
+                          }
+                        </div>
+                      }
+                      @if (changepassword) {
+                        <div class="field col-12 md:col-6">
+                          <label htmlFor="rpassword">Repeat password</label>
+                          <input pInputText id="rpassword" type="password" required (input)="onPasswordChange()" [(ngModel)]="sendDataToModal.rpassword"
+                            #rpassword="ngModel" name="rpassword" maxlength="15" minlength="8" />
+                          @if (match.value) {
+                            <small id="changepasswordsmall" class="p-{{match.class}}">{{match.message}}</small>
+                          }
+                        </div>
+                      }
+                      <div class="flex align-items-center gap-1">
+                        <p-checkbox [(ngModel)]="checked" [binary]="true" inputId="selection" #selection="ngModel" (onChange)="delSelection($event)" name="selection" label="{{checkBoxMsg}}" required></p-checkbox>
+                      </div>
+                    </div>
+                  }
+                  <div style="margin-top: 9px;float:right">
+                    <p-toast></p-toast>
+                    <p-confirmDialog></p-confirmDialog>
+                    <p-button
+                      (click)="confirm($event, updateAdmin)"
+                      icon="pi pi-{{btnLookAndFeels?.icon}}"
+                      styleClass="p-button-{{btnLookAndFeels?.class}}"
+                    label="{{btnLookAndFeels?.label}}" [disabled]="btnDisabled" ></p-button>
+                  </div>
+                </form>
+              </div>
+            }
+          </div>
+        </div>

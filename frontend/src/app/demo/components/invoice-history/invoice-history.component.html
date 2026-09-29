@@ -1,0 +1,305 @@
+<div class="card mt-2">
+    <header class="app-history-header">
+        <span class="app-history-header__eyebrow">History</span>
+        <h1>{{ moduleTitle }}</h1>
+        <p class="app-history-header__description">
+            Review invoice dates, amounts, payment status, and owner details.
+        </p>
+    </header>
+
+    @if(!isHome){
+
+    <p-table
+        #dt1
+        [value]="condoGroups"
+        dataKey="condominiumId"
+        [rows]="10"
+        [rowsPerPageOptions]="[10, 25, 50]"
+        [loading]="loading"
+        [paginator]="true"
+        [globalFilterFields]="globalFilters"
+    >
+        <ng-template pTemplate="caption">
+            <div class="flex flex-wrap gap-2 align-items-center">
+                <p-button
+                    label="Clear"
+                    [outlined]="true"
+                    icon="pi pi-filter-slash"
+                    (onClick)="clear(dt1)"
+                />
+                <p-iconField
+                    iconPosition="left"
+                    class="w-full sm:w-auto sm:ml-auto"
+                >
+                    <p-inputIcon styleClass="pi pi-search" />
+                    <input
+                        pInputText
+                        class="w-full"
+                        type="text"
+                        [(ngModel)]="searchValue"
+                        (input)="
+                            dt1.filterGlobal($event.target.value, 'contains')
+                        "
+                        placeholder="Search keyword"
+                        aria-label="Search invoices"
+                    />
+                </p-iconField>
+                @if (hasSelectedGroups) {
+                <p-button
+                    label="Download selected CSV"
+                    icon="pi pi-file-export"
+                    severity="success"
+                    (onClick)="exportSelectedCsv()"
+                />
+                }
+            </div>
+        </ng-template>
+        <ng-template pTemplate="header">
+            <tr>
+                <th style="width: 3rem">
+                    <p-checkbox
+                        [binary]="true"
+                        [ngModel]="selectAll"
+                        (ngModelChange)="toggleSelectAll($event)"
+                        aria-label="Select all condominiums"
+                    />
+                </th>
+                <th>Condominium</th>
+                <th>Invoices</th>
+                <th>Total</th>
+                <th style="width: 5rem; text-align: center">
+                    <i class="pi pi-cog"></i>
+                </th>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-group>
+            <tr>
+                <td>
+                    <p-checkbox
+                        [binary]="true"
+                        [(ngModel)]="group.selected"
+                        (ngModelChange)="onRowSelectChange()"
+                        [attr.aria-label]="'Select ' + group.alias"
+                    />
+                </td>
+                <td>
+                    <span>{{ group.alias | titlecase }}</span>
+                </td>
+                <td>{{ group.invoiceCount }}</td>
+                <td>{{ group.totalAmount | currency : "USD" }}</td>
+                <td style="width: 5rem">
+                    <p-button
+                        icon="pi pi-ellipsis-v"
+                        severity="secondary"
+                        [text]="true"
+                        (click)="openRowMenu(rowMenu, $event, group)"
+                        aria-label="More actions"
+                    />
+                </td>
+                <!-- <td>
+                        <p-button
+                            icon="pi pi-cog"
+                            severity="secondary"
+                            (click)="getInvoiceInfo(group)"
+                        />
+                    </td> -->
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="6">No invoice found.</td>
+            </tr>
+        </ng-template>
+    </p-table>
+    <p-menu #rowMenu [popup]="true" [model]="rowMenuItems"></p-menu>
+    } @if(isHome){
+
+    <p-table
+        #dtHome
+        [value]="propertyDetailsVar"
+        dataKey="_id"
+        [rows]="10"
+        [rowsPerPageOptions]="[5, 10, 25, 50]"
+        [loading]="loading"
+        [paginator]="true"
+        [globalFilterFields]="['fullname', 'unit', 'invoice_status']"
+    >
+        <ng-template pTemplate="caption">
+            <div
+                class="flex flex-wrap gap-2 align-items-center justify-content-between"
+            >
+                <p-button
+                    label="Clear"
+                    [outlined]="true"
+                    icon="pi pi-filter-slash"
+                    (onClick)="clear(dtHome)"
+                />
+                <p-iconField iconPosition="left" class="w-full sm:w-auto">
+                    <p-inputIcon styleClass="pi pi-search" />
+                    <input
+                        pInputText
+                        class="w-full"
+                        type="text"
+                        [(ngModel)]="searchValueHome"
+                        (input)="
+                            dtHome.filterGlobal($event.target.value, 'contains')
+                        "
+                        placeholder="Search by owner or unit"
+                        aria-label="Search by owner or unit"
+                    />
+                </p-iconField>
+            </div>
+        </ng-template>
+        <ng-template pTemplate="header">
+            <tr>
+                <th pSortableColumn="invoice_issue">
+                    Issue Date <p-sortIcon field="invoice_issue"></p-sortIcon>
+                </th>
+                <th pSortableColumn="fullname">
+                    Owner <p-sortIcon field="fullname"></p-sortIcon>
+                </th>
+                <th pSortableColumn="unit">
+                    Unit <p-sortIcon field="unit"></p-sortIcon>
+                </th>
+                <th pSortableColumn="invoice_status">
+                    Invoice Status
+                    <p-sortIcon field="invoice_status"></p-sortIcon>
+                </th>
+                <th pSortableColumn="invoice_amount">
+                    Total Amount
+                    <p-sortIcon field="invoice_amount"></p-sortIcon>
+                </th>
+                <th style="width: 5rem; text-align: center">PDF</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-property>
+            <tr>
+                <td>{{ property.invoice_issue | date : "shortDate" }}</td>
+                <td>{{ property.fullname | titlecase }}</td>
+                <td>{{ property.unit }}</td>
+                <td>
+                    <p-tag
+                        [value]="property.invoice_status | titlecase"
+                        [severity]="getInvoiceStatus(property.invoice_status)"
+                    ></p-tag>
+                </td>
+                <td>
+                    {{ property.invoice_amount | currency : "USD" }}
+                </td>
+                <td style="text-align: center">
+                    <p-button
+                        icon="pi pi-file-pdf"
+                        severity="danger"
+                        [rounded]="true"
+                        [text]="true"
+                        (click)="exportSinglePdf(property)"
+                        aria-label="Download PDF"
+                    />
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="6">No invoice found.</td>
+            </tr>
+        </ng-template>
+    </p-table>
+    }
+</div>
+
+<!-- MODAL INVOICE HISTORY -->
+
+<p-dialog
+    header="{{ selectedCondoGroup?.alias | titlecase }}"
+    [(visible)]="dialogVisible"
+    [modal]="true"
+    [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
+    [style]="{ width: '50vw' }"
+    [draggable]="false"
+    [resizable]="false"
+>
+    <div class="card">
+        <div class="info">
+            <div>
+                <label for="unit">Condominium:</label>
+                <div class="d-block"></div>
+                <div class="bodyinfo">
+                    {{ selectedCondoGroup?.alias | titlecase }}
+                </div>
+            </div>
+
+            <div class="vertical-line"></div>
+            <div>
+                <label for="invoiceCount">Invoices:</label>
+                <div class="d-block"></div>
+                <div class="bodyinfo">
+                    {{ selectedCondoGroup?.invoiceCount }}
+                </div>
+            </div>
+            <div class="vertical-line"></div>
+            <div>
+                <label for="totalAmount">Total:</label>
+                <div class="d-block"></div>
+                <div class="bodyinfo">
+                    {{ selectedCondoGroup?.totalAmount | currency : "USD" }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <p-table [value]="selectedCondoGroup?.invoices ?? []">
+            <ng-template pTemplate="caption">
+                <div class="flex align-items-center justify-content-between">
+                    <span style="font-size: 16px"> Detailed information </span>
+                    <p-button
+                        (click)="generatePDF()"
+                        icon="pi pi-file-pdf"
+                        severity="danger"
+                    />
+                </div>
+            </ng-template>
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>Owner</th>
+                    <th>Unit</th>
+                    <th>Issue Date</th>
+                    <th>Status</th>
+                    <th>Payment Status</th>
+                    <th>Amount</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-invoice>
+                <tr>
+                    <td>{{ invoice?.fullname | titlecase }}</td>
+                    <td>{{ invoice?.unit }}</td>
+                    <td>{{ invoice?.invoice_issue | date : "MM/dd/yy" }}</td>
+                    <td>
+                        <p-tag
+                            [value]="invoice?.invoice_status | titlecase"
+                            [severity]="
+                                getInvoiceStatus(invoice?.invoice_status)
+                            "
+                        />
+                    </td>
+                    <td>
+                        <p-tag
+                            [value]="invoice?.paymentStatus | titlecase"
+                            [severity]="
+                                getPaymentStatus(invoice?.paymentStatus)
+                            "
+                        />
+                    </td>
+                    <td>{{ invoice?.invoice_amount | currency : "USD" }}</td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="summary">
+                <div class="flex align-items-center justify-content-between">
+                    *If you have any question about your invoice, please contact
+                    support.
+                </div>
+            </ng-template>
+        </p-table>
+    </div>
+</p-dialog>

@@ -1,0 +1,423 @@
+<p-toast />
+<p-confirmDialog />
+<div class="card app-page-card">
+    <div class="app-page-header">
+        <div>
+            <span class="app-page-kicker">Properties</span>
+            <h2>Properties List</h2>
+            <p>Search, review, and manage condominium properties.</p>
+        </div>
+        <p-button
+            *appHasPermissions="['admin']"
+            label="Create property"
+            icon="pi pi-plus"
+            routerLink="/create-property"
+        ></p-button>
+    </div>
+    <p-table
+        #dt1
+        [value]="properties"
+        dataKey="_id"
+        [rows]="8"
+        [showCurrentPageReport]="true"
+        responsiveLayout="scroll"
+        styleClass="p-datatable-sm app-data-table"
+        [tableStyle]="{ 'min-width': '68rem' }"
+        [rowsPerPageOptions]="[4, 25, 50]"
+        [loading]="loading"
+        [paginator]="true"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+        [globalFilterFields]="[
+            'alias',
+            'address',
+            'phone',
+            'phone2',
+            'status',
+            'country'
+        ]"
+    >
+        <ng-template pTemplate="caption">
+            <div class="app-table-toolbar">
+                <p-button
+                    label="Clear filters"
+                    icon="pi pi-filter-slash"
+                    [outlined]="true"
+                    severity="secondary"
+                    (click)="clear(dt1, searchInput)"
+                ></p-button>
+                <p-iconField iconPosition="left" class="app-table-search">
+                    <p-inputIcon styleClass="pi pi-search"></p-inputIcon>
+                    <input
+                        #searchInput
+                        pInputText
+                        type="text"
+                        (input)="
+                            dt1.filterGlobal($event.target.value, 'contains')
+                        "
+                        placeholder="Search by name, address, phone, status..."
+                    />
+                </p-iconField>
+            </div>
+        </ng-template>
+        <ng-template pTemplate="header">
+            <p-toast></p-toast>
+
+            <tr>
+                <th style="min-width: 15rem">
+                    <div class="flex align-items-center">
+                        Alias
+                        <p-columnFilter
+                            type="text"
+                            field="alias"
+                            display="menu"
+                        ></p-columnFilter>
+                    </div>
+                </th>
+                <th style="min-width: 15rem">
+                    <div class="flex align-items-center">
+                        Address
+                        <p-columnFilter
+                            type="text"
+                            field="address"
+                            display="menu"
+                        ></p-columnFilter>
+                    </div>
+                </th>
+                <th style="min-width: 15rem">
+                    <div class="flex align-items-center">Phone</div>
+                    <p-columnFilter
+                        type="text"
+                        field="phone"
+                        display="menu"
+                    ></p-columnFilter>
+                </th>
+                <th style="min-width: 15rem">
+                    <div class="flex align-items-center">Monthly Payment</div>
+                </th>
+                <th style="min-width: 10rem">
+                    <div class="flex align-items-center">
+                        Billing date
+                        <p-columnFilter
+                            type="text"
+                            field="paymentDate"
+                            display="menu"
+                        ></p-columnFilter>
+                    </div>
+                </th>
+                <th style="min-width: 10rem">
+                    <div class="flex align-items-center">
+                        Country
+                        <p-columnFilter
+                            type="text"
+                            field="country"
+                            display="menu"
+                        ></p-columnFilter>
+                    </div>
+                </th>
+                <th style="min-width: 10rem">
+                    <div class="flex align-items-center">
+                        Status
+                        <p-columnFilter
+                            field="status"
+                            matchMode="equals"
+                            display="menu"
+                        >
+                            <ng-template
+                                pTemplate="filter"
+                                let-value
+                                let-filter="filterCallback"
+                            >
+                                <p-select
+                                    [ngModel]="value"
+                                    [options]="statuses"
+                                    (onChange)="filter($event.value)"
+                                    placeholder="Any"
+                                >
+                                    <ng-template let-option pTemplate="item">
+                                        <p-tag
+                                            [value]="option.label"
+                                            [severity]="
+                                                _userService.getSeverity(
+                                                    option.label
+                                                )
+                                            "
+                                        ></p-tag>
+                                    </ng-template>
+                                </p-select>
+                            </ng-template>
+                        </p-columnFilter>
+                    </div>
+                </th>
+
+                <th class="see-property-actions-column">
+                    <div class="flex align-items-center justify-content-center">
+                        Actions
+                    </div>
+                </th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-property>
+            <tr>
+                <td>
+                    <div class="property-alias-cell">
+                        <span class="property-alias-avatar">
+                            <img
+                                [alt]="'Avatar de ' + property.alias"
+                                [src]="
+                                    url + 'avatarCondominios/' + property.avatar
+                                "
+                                loading="lazy"
+                            />
+                        </span>
+                        <span class="property-alias-name">
+                            {{ property.alias | titlecase }}
+                        </span>
+                    </div>
+                </td>
+                <td>
+                    {{ property.address }}
+                </td>
+                <td>
+                    {{ property.phone }}
+                </td>
+                <td>
+                    {{
+                        property.mPayment
+                            | currency : "USD" : "symbol" : "1.2-2"
+                    }}
+                </td>
+                <td>
+                    {{ property.paymentDate }}
+                </td>
+                <td>
+                    <img
+                        src="https://primefaces.org/cdn/primeng/images/demo/flag/flag_placeholder.png"
+                        class="flag flag-do"
+                        style="width: 20px"
+                    />
+                    <span class="ml-1 vertical-align-middle">{{
+                        "Dominican Republic"
+                    }}</span>
+                </td>
+
+                <td>
+                    <p-tag
+                        [value]="
+                            property.status == 'active' ? 'Active' : 'Suspended'
+                        "
+                        [severity]="
+                            property.status == 'active' ? 'success' : 'danger'
+                        "
+                    ></p-tag>
+                </td>
+
+                <td class="see-property-actions-cell">
+                    <p-button
+                        *appHasPermissions="[
+                            'admin',
+                            'owner',
+                            'condominiums.delete'
+                        ]"
+                        icon="pi pi-ellipsis-v"
+                        severity="secondary"
+                        [text]="true"
+                        [rounded]="true"
+                        (click)="openRowMenu(rowMenu, $event, property)"
+                        [ariaLabel]="'Property actions for ' + property.alias"
+                        pTooltip="Property actions"
+                    />
+                </td>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="8">
+                    <div class="app-empty-state">
+                        <i class="pi pi-building"></i>
+                        <strong>No properties found</strong>
+                        <span
+                            >Try clearing filters or create a new
+                            property.</span
+                        >
+                    </div>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+
+    <p-menu
+        #rowMenu
+        [popup]="true"
+        [model]="rowMenuItems"
+        appendTo="body"
+        styleClass="see-property-row-menu"
+    />
+
+    <p-dialog
+        header="Permanently delete property"
+        [visible]="permanentDeleteDialogVisible()"
+        (visibleChange)="onPermanentDeleteVisibilityChange($event)"
+        [modal]="true"
+        [draggable]="false"
+        [resizable]="false"
+        [closable]="!permanentDeleteSubmitting()"
+        [closeOnEscape]="!permanentDeleteSubmitting()"
+        styleClass="permanent-delete-dialog"
+        [style]="{ width: '35rem' }"
+        [breakpoints]="{ '640px': 'calc(100vw - 2rem)' }"
+    >
+        <div class="permanent-delete-content">
+            <div class="permanent-delete-warning" role="alert">
+                <i class="pi pi-exclamation-triangle" aria-hidden="true"></i>
+                <div>
+                    <strong>This action cannot be undone</strong>
+                    <span>
+                        {{ activeMenuProperty?.alias }} will be removed from the
+                        organization. Financial records will be preserved for
+                        audit purposes.
+                    </span>
+                </div>
+            </div>
+
+            @if (permanentDeleteImpactLoading()) {
+            <div class="permanent-delete-loading" aria-live="polite">
+                <p-progressSpinner
+                    strokeWidth="5"
+                    ariaLabel="Loading deletion impact"
+                />
+                <span>Calculating affected records…</span>
+            </div>
+            } @else if (permanentDeleteImpact(); as impact) {
+            <section
+                class="permanent-delete-impact"
+                aria-labelledby="deletion-impact-title"
+            >
+                <h3 id="deletion-impact-title">Deletion impact</h3>
+                <div class="permanent-delete-stats">
+                    <article class="permanent-delete-stat">
+                        <span>Pending invoices</span>
+                        <strong>{{ impact.pendingInvoices }}</strong>
+                    </article>
+                    <article class="permanent-delete-stat">
+                        <span>Units to deactivate</span>
+                        <strong>{{ impact.unitsToDeactivate }}</strong>
+                    </article>
+                    <article class="permanent-delete-stat">
+                        <span>Pending balance</span>
+                        <strong>
+                            {{
+                                impact.pendingInvoiceAmount
+                                    | currency : "DOP" : "symbol" : "1.2-2"
+                            }}
+                        </strong>
+                    </article>
+                </div>
+
+                @if (
+                    impact.familyAccountsToUnlink > 0 ||
+                    impact.staffAccountsToDeactivate > 0
+                ) {
+                <p class="permanent-delete-secondary-impact">
+                    {{ impact.familyAccountsToUnlink }} family account(s) will
+                    be unlinked and
+                    {{ impact.staffAccountsToDeactivate }} staff account(s)
+                    will be deactivated.
+                </p>
+                }
+            </section>
+
+            <div class="permanent-delete-confirmation">
+                <div class="permanent-delete-check">
+                    <p-checkbox
+                        inputId="permanent-delete-acknowledgement"
+                        [(ngModel)]="permanentDeleteAcknowledged"
+                        [binary]="true"
+                    />
+                    <label for="permanent-delete-acknowledgement">
+                        I understand that this permanently removes the property.
+                    </label>
+                </div>
+
+                <div class="permanent-delete-password">
+                    <label for="permanent-delete-password">
+                        Confirm with your password
+                    </label>
+                    <p-password
+                        inputId="permanent-delete-password"
+                        [(ngModel)]="permanentDeletePassword"
+                        [feedback]="false"
+                        [toggleMask]="true"
+                        [disabled]="permanentDeleteSubmitting()"
+                        autocomplete="current-password"
+                        placeholder="Enter your password"
+                        styleClass="permanent-delete-password-control"
+                    />
+                    <small>
+                        Your identity and delete permission are verified by the
+                        server.
+                    </small>
+                </div>
+            </div>
+            }
+        </div>
+
+        <ng-template pTemplate="footer">
+            <div class="permanent-delete-footer">
+                <p-button
+                    label="Cancel"
+                    severity="secondary"
+                    [text]="true"
+                    [disabled]="permanentDeleteSubmitting()"
+                    (onClick)="closePermanentDeleteDialog()"
+                />
+                <p-button
+                    label="Permanently delete"
+                    icon="pi pi-trash"
+                    severity="danger"
+                    [loading]="permanentDeleteSubmitting()"
+                    [disabled]="
+                        permanentDeleteImpactLoading() ||
+                        !permanentDeleteImpact() ||
+                        !permanentDeleteAcknowledged ||
+                        !permanentDeletePassword
+                    "
+                    (onClick)="confirmPermanentDelete()"
+                />
+            </div>
+        </ng-template>
+    </p-dialog>
+
+    <!-- FOR OWNER ROLE -->
+    <p-dialog
+        header="Property details"
+        [modal]="true"
+        [(visible)]="visible"
+        [style]="{ width: '50rem' }"
+        [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
+        [maximizable]="true"
+        (onHide)="onHide()"
+    >
+        <p-tabs>
+            <p-tabpanel header="Authorized users">
+                @if (visible) {
+                <app-family-member-details></app-family-member-details>
+                }
+            </p-tabpanel>
+            <p-tabpanel header="Payments history">
+                @if (visible) {
+                <app-payments-history
+                    [ownerIdInput]="ownerIdInput"
+                ></app-payments-history>
+                }
+            </p-tabpanel>
+            <!--     <p-tabpanel header="Bookings">
+      @if (visible) {
+        <app-booking-area
+          [getIdCondo]="idOwner"
+        ></app-booking-area>
+      }
+    </p-tabpanel> -->
+        </p-tabs>
+    </p-dialog>
+</div>

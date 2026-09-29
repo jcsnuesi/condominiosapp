@@ -1,0 +1,234 @@
+<p-toast />
+<p-confirmDialog />
+<section class="access-shell" aria-labelledby="access-heading">
+    <div class="access-heading">
+        <div>
+            <span class="eyebrow">Organización</span>
+            <h2 id="access-heading">Políticas y alcance</h2>
+            <p>Define qué puede hacer cada usuario y en cuáles condominios.</p>
+        </div>
+        <p-button
+            label="Nueva política"
+            icon="pi pi-plus"
+            (onClick)="openNewPolicy()"
+        />
+    </div>
+
+    <p-tabs value="0">
+        <p-tablist>
+            <p-tab value="0">
+                <i class="pi pi-users mr-2"></i>
+                Asignaciones</p-tab
+            >
+            <p-tab value="1">
+                <i class="pi pi-shield mr-2"></i>
+                Políticas</p-tab
+            >
+        </p-tablist>
+        <p-tabpanels>
+            <p-tabpanel value="0">
+                <p-table
+                    [value]="users"
+                    responsiveLayout="scroll"
+                    [rowHover]="true"
+                >
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th>Usuario</th>
+                            <th>Tipo</th>
+                            <th>Políticas</th>
+                            <th>Alcance</th>
+                            <th></th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-user>
+                        <tr>
+                            <td>
+                                <strong>{{
+                                    user.name + " " + user.lastname | titlecase
+                                }}</strong
+                                ><small>{{ user.email }}</small>
+                            </td>
+                            <td><p-tag [value]="user.subjectModel" /></td>
+                            <td>
+                                {{ user.accessGrant?.policyIds?.length || 0 }}
+                            </td>
+                            <td>
+                                {{
+                                    user.accessGrant?.scope?.mode ||
+                                        "Sin asignar"
+                                }}
+                            </td>
+                            <td>
+                                <p-button
+                                    label="Configurar"
+                                    icon="pi pi-shield"
+                                    [outlined]="true"
+                                    (onClick)="editGrant(user)"
+                                />
+                            </td>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="emptymessage"
+                        ><tr>
+                            <td colspan="5">
+                                No hay usuarios administrativos.
+                            </td>
+                        </tr></ng-template
+                    >
+                </p-table>
+            </p-tabpanel>
+            <p-tabpanel value="1">
+                <div class="policy-grid">
+                    @for (policy of policies; track policy._id) {
+                    <article
+                        class="policy-card"
+                        [class.archived]="policy.status === 'archived'"
+                    >
+                        <div>
+                            <p-tag
+                                [value]="
+                                    policy.isSystem
+                                        ? 'Estándar'
+                                        : 'Personalizada'
+                                "
+                            />
+                            <h3>{{ policy.name }}</h3>
+                        </div>
+                        <p>{{ policy.description || "Sin descripción" }}</p>
+                        <small>{{ policy.permissions.length }} permisos</small>
+                        @if (!policy.isSystem && policy.status === 'active') {
+                        <div class="policy-actions">
+                            <p-button
+                                icon="pi pi-pencil"
+                                [rounded]="true"
+                                [text]="true"
+                                ariaLabel="Editar política"
+                                (onClick)="editPolicy(policy)"
+                            />
+                            <p-button
+                                icon="pi pi-trash"
+                                severity="danger"
+                                [rounded]="true"
+                                [text]="true"
+                                pTooltip="Eliminar política"
+                                (onClick)="confirmArchivePolicy(policy)"
+                            />
+                        </div>
+                        }
+                    </article>
+                    }
+                </div>
+            </p-tabpanel>
+        </p-tabpanels>
+    </p-tabs>
+</section>
+
+<p-dialog
+    [(visible)]="isPolicyDialogVisible"
+    header="Política de acceso"
+    [modal]="true"
+    [style]="{ width: '42rem' }"
+>
+    <div class="dialog-fields">
+        <label>Nombre<input pInputText [(ngModel)]="policyDraft.name" /></label>
+        <label
+            >Descripción<textarea
+                pTextarea
+                [(ngModel)]="policyDraft.description"
+                rows="3"
+            ></textarea>
+        </label>
+        <label
+            >Permisos<p-multiSelect
+                [options]="permissionOptions"
+                optionLabel="label"
+                optionValue="value"
+                [(ngModel)]="policyDraft.permissions"
+                display="chip"
+                appendTo="body"
+                [panelStyle]="{ 'z-index': 1200 }"
+        /></label>
+    </div>
+    <ng-template pTemplate="footer"
+        ><p-button
+            label="Guardar"
+            icon="pi pi-check"
+            [disabled]="!policyDraft.name"
+            (onClick)="savePolicy()"
+    /></ng-template>
+</p-dialog>
+
+<p-dialog
+    [(visible)]="isGrantDialogVisible"
+    header="Asignar acceso"
+    [modal]="true"
+    [style]="{ width: '46rem' }"
+>
+    <div class="dialog-fields">
+        <label
+            >Políticas<p-multiSelect
+                [options]="policyOptions"
+                optionLabel="label"
+                optionValue="value"
+                [(ngModel)]="grantDraft.policyIds"
+                display="chip"
+                appendTo="body"
+                [panelStyle]="{ 'z-index': 1200 }"
+        /></label>
+        <label
+            >Alcance<p-select
+                [options]="[
+                    { label: 'Toda la organización', value: 'ALL' },
+                    { label: 'Condominios seleccionados', value: 'SELECTED' }
+                ]"
+                optionLabel="label"
+                optionValue="value"
+                [(ngModel)]="grantDraft.scope.mode"
+                appendTo="body"
+                [panelStyle]="{ 'z-index': 1200 }"
+        /></label>
+        @if (grantDraft.scope.mode === 'SELECTED') {
+        <label
+            >Condominios<p-multiSelect
+                [options]="condominiumOptions"
+                optionLabel="label"
+                optionValue="value"
+                [(ngModel)]="grantDraft.scope.condominiumIds"
+                display="chip"
+                appendTo="body"
+                [panelStyle]="{ 'z-index': 1200 }"
+        /></label>
+        }
+        <label
+            >Permisos adicionales<p-multiSelect
+                [options]="permissionOptions"
+                optionLabel="label"
+                optionValue="value"
+                [(ngModel)]="grantDraft.overrides.allow"
+                display="chip"
+                appendTo="body"
+                [panelStyle]="{ 'z-index': 1200 }"
+        /></label>
+        <label
+            >Permisos retirados<p-multiSelect
+                [options]="permissionOptions"
+                optionLabel="label"
+                optionValue="value"
+                [(ngModel)]="grantDraft.overrides.deny"
+                display="chip"
+                appendTo="body"
+                [panelStyle]="{ 'z-index': 1200 }"
+        /></label>
+        <div class="effective">
+            <strong>Permisos efectivos</strong
+            ><span>{{ effectivePermissions().join(", ") || "Ninguno" }}</span>
+        </div>
+    </div>
+    <ng-template pTemplate="footer"
+        ><p-button
+            label="Guardar asignación"
+            icon="pi pi-check"
+            (onClick)="saveGrant()"
+    /></ng-template>
+</p-dialog>

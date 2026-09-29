@@ -1,0 +1,107 @@
+html {
+    font-size: 14px;
+}
+
+body {
+    font-family: var(--font-family);
+    font-weight: normal;
+    background: var(--surface-ground);
+    color: var(--text-color);
+    padding: 1rem;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.card {
+    background: var(--surface-card);
+    padding: 2rem;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+}
+
+.font-color-fail {
+    color: red;
+}
+.font-color-success {
+    color: rgb(141, 219, 25);
+}
+
+.create-user-search {
+    width: min(100%, 260px);
+}
+
+.create-user-search input {
+    width: 100%;
+}
+
+.create-user-caption {
+    width: 100%;
+}
+
+.create-user-person {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    gap: 0.5rem;
+}
+
+.create-user-name {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.create-user-table td {
+    vertical-align: middle;
+}
+
+.create-user-actions {
+    align-items: center;
+    display: flex;
+    gap: 0.5rem;
+    white-space: nowrap;
+}
+
+:host ::ng-deep .create-user-delete-button.p-button {
+    border-color: var(--p-red-500, #ef4444);
+    color: var(--p-red-500, #ef4444);
+}
+
+:host ::ng-deep .create-user-delete-button.p-button .p-button-icon {
+    display: inline-block;
+    font-size: 1rem;
+}
+
+.user-form-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
+    width: 100%;
+}
+
+.user-form-grid .field {
+    min-width: 0;
+    margin: 0;
+}
+
+.user-form-grid input,
+.user-form-grid p-select,
+.user-form-grid p-multiSelect {
+    width: 100%;
+}
+
+.user-form-grid label {
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+@media (max-width: 768px) {
+    .create-user-caption {
+        align-items: stretch;
+    }
+
+    .create-user-search {
+        width: 100%;
+    }
+}

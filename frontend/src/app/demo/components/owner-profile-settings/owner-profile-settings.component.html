@@ -1,0 +1,315 @@
+<p-confirmDialog />
+
+<form #basicInfo="ngForm">
+    <div class="justify-contents">
+        <div
+            class="border-2 border-dashed surface-border border-round surface-ground justify-contents font-medium w-30rem padding-set"
+        >
+            <div class="w-30rem padding-set">
+                <div class="col-md-6 mb-4">
+                    <div class="cp-avatar-section">
+                        <button
+                            type="button"
+                            class="cp-avatar-wrap"
+                            aria-label="Change owner photo"
+                            (click)="triggerFileUpload()"
+                        >
+                            <img
+                                [src]="avatarPreview || ownerObj.avatar"
+                                class="cp-avatar-img"
+                                alt="Owner profile photo"
+                            />
+                            <span class="cp-avatar-overlay" aria-hidden="true">
+                                <i class="pi pi-camera"></i>
+                            </span>
+                        </button>
+
+                        <p class="cp-avatar-hint">Click to change photo</p>
+
+                        <p-fileUpload
+                            #fileInput
+                            styleClass="cp-file-upload"
+                            mode="basic"
+                            name="demo[]"
+                            url="https://www.primefaces.org/cdn/api/upload.php"
+                            accept="image/*"
+                            [maxFileSize]="1000000"
+                            [customUpload]="true"
+                            [auto]="true"
+                            [style]="{ display: 'none' }"
+                            (onSelect)="onSelect($event)"
+                        >
+                        </p-fileUpload>
+                    </div>
+                </div>
+
+                <div class="w-100">
+                    <div class="col-md-6 w-100">
+                        <p-inputGroup>
+                            <p-inputGroupAddon>
+                                <i class="pi pi-user"></i>
+                            </p-inputGroupAddon>
+
+                            <input
+                                pInputText
+                                [ngClass]="{
+                                    'input-success': ownerName.valid,
+                                    'input-error ':
+                                        ownerName.touched && !ownerName.dirty
+                                }"
+                                #ownerName="ngModel"
+                                [(ngModel)]="ownerObj.name"
+                                name="ownerName"
+                                type="text"
+                                maxlength="30"
+                                required
+                                placeholder="Name: Jose Rodolfo"
+                            />
+                        </p-inputGroup>
+
+                        @if (ownerName.touched && !ownerName.valid) {
+                        <small class="p-error">Required.</small>
+                        }
+                    </div>
+
+                    <div class="col-md-6 w-100 mt-3">
+                        <p-inputGroup>
+                            <p-inputGroupAddon>
+                                <i class="pi pi-user"></i>
+                            </p-inputGroupAddon>
+
+                            <input
+                                pInputText
+                                [ngClass]="{
+                                    'input-success': lastnameOW.valid,
+                                    'input-error ':
+                                        lastnameOW.touched && !lastnameOW.dirty
+                                }"
+                                #lastnameOW="ngModel"
+                                [(ngModel)]="ownerObj.lastname"
+                                name="lastnameOW"
+                                type="text"
+                                maxlength="30"
+                                required
+                                placeholder="Name: Rogers Martins"
+                            />
+                        </p-inputGroup>
+
+                        @if (ownerName.touched && !ownerName.valid) {
+                        <small class="p-error">Required. </small>
+                        }
+                    </div>
+
+                    <div class="col-md-6 w-100 mt-3">
+                        <p-inputGroup>
+                            <p-inputGroupAddon>
+                                <i class="pi pi-android"></i>
+                            </p-inputGroupAddon>
+
+                            <p-select
+                                [ngClass]="{
+                                    'ng-valid input-success': gender_apt.valid,
+                                    'ng-invalid ng-dirty':
+                                        gender_apt.touched && !gender_apt.dirty
+                                }"
+                                #gender_apt="ngModel"
+                                name="gender_apt"
+                                [options]="genderOptions"
+                                [(ngModel)]="ownerObj.gender"
+                                optionLabel="label"
+                                required
+                            />
+                        </p-inputGroup>
+                    </div>
+
+                    <div class="col-md-6 w-100 mt-3">
+                        <p-inputGroup>
+                            <p-inputGroupAddon>
+                                <i class="pi pi-mobile"></i>
+                            </p-inputGroupAddon>
+
+                            <input
+                                pInputText
+                                [ngClass]="{
+                                    'input-success': phone.valid,
+                                    'input-error ':
+                                        phone.touched && !phone.dirty
+                                }"
+                                #phone="ngModel"
+                                [(ngModel)]="ownerObj.phone"
+                                name="phone"
+                                type="text"
+                                maxlength="15"
+                                required
+                                placeholder="8496587417"
+                                pattern="^[0-9]+"
+                            />
+                        </p-inputGroup>
+
+                        @if (phone.touched && !phone.valid) {
+                        <small class="p-error">Required.</small>
+                        }
+                    </div>
+
+                    <div class="col-md-6 w-100 mt-3">
+                        <p-inputGroup>
+                            <p-inputGroupAddon>
+                                <i class="pi pi-check-circle"></i>
+                            </p-inputGroupAddon>
+
+                            <input
+                                pInputText
+                                #id_number="ngModel"
+                                [ngClass]="{
+                                    'input-success': id_number.valid,
+                                    'input-error ':
+                                        id_number.touched && !id_number.dirty
+                                }"
+                                [(ngModel)]="ownerObj.id_number"
+                                name="id_number"
+                                type="text"
+                                placeholder="Personal id (No dashes)"
+                                maxlength="11"
+                                pattern="^[0-9]+"
+                                required
+                            />
+                        </p-inputGroup>
+                    </div>
+
+                    <div class="col-md-6 w-100 mt-3">
+                        <p-inputGroup>
+                            <p-inputGroupAddon>
+                                <i class="pi pi-envelope"></i>
+                            </p-inputGroupAddon>
+
+                            <input
+                                pInputText
+                                #email="ngModel"
+                                [(ngModel)]="ownerObj.email"
+                                [ngClass]="{
+                                    'input-success': email.valid,
+                                    'input-error ':
+                                        email.touched && !email.dirty
+                                }"
+                                name="email"
+                                type="text"
+                                maxlength="50"
+                                pattern="[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}"
+                                placeholder="correo@email.com"
+                                required
+                            />
+                        </p-inputGroup>
+                        @if (email.touched && !email.valid) {
+                        <small class="p-error">Required.</small>
+                        }
+                    </div>
+
+                    @if (passwordOwner) {
+                    <div class="col-md-6 w-100 mt-3">
+                        <p-inputGroup>
+                            <p-inputGroupAddon>
+                                <i class="pi pi-lock"></i>
+                            </p-inputGroupAddon>
+                            <input
+                                pInputText
+                                #password="ngModel"
+                                [(ngModel)]="ownerObj.email"
+                                [ngClass]="{
+                                    'input-success': password.valid,
+                                    'input-error ':
+                                        password.touched && !email.dirty
+                                }"
+                                name="password"
+                                type="password"
+                                maxlength="12"
+                                pattern="[a-zA-Z0-9._-]"
+                                placeholder="Password"
+                                required
+                            />
+                        </p-inputGroup>
+                        @if (password.touched && !password.valid) {
+                        <small class="p-error">Required.</small>
+                        }
+                    </div>
+                    }
+
+                    <div class="flex justify-content-between mt-4">
+                        <p-button
+                            *appHasPermissions="['owner', 'staff_admin']"
+                            (onClick)="confirmUpdate($event)"
+                            icon="pi pi-check"
+                            label="Update"
+                            status="primary"
+                            [disabled]="
+                                !ownerName.valid ||
+                                !phone.valid ||
+                                !lastnameOW.valid
+                            "
+                        />
+
+                        @if (!isHome) {
+                        <span>
+                            <p-button
+                                (onClick)="delAccount(ownerObj)"
+                                icon="pi pi-check"
+                                [label]="
+                                    ownerObj.status == 'inactive'
+                                        ? 'Reactivate account'
+                                        : 'Delete account'
+                                "
+                                [severity]="
+                                    ownerObj.status == 'inactive'
+                                        ? 'success'
+                                        : 'danger'
+                                "
+                                *appHasPermissions="['admin']"
+                            />
+                        </span>
+                        } @if (isHome) {
+                        <span>
+                            <p-button
+                                (onClick)="
+                                    inactivateOwner(
+                                        ownerObj._id,
+                                        ownerObj.status == 'inactive'
+                                            ? 'active'
+                                            : 'inactive'
+                                    )
+                                "
+                                [icon]="
+                                    ownerObj.status == 'inactive'
+                                        ? 'pi pi-check'
+                                        : 'pi pi-times'
+                                "
+                                [label]="
+                                    ownerObj.status == 'inactive'
+                                        ? 'Reactivate'
+                                        : 'Deactivate'
+                                "
+                                [severity]="
+                                    ownerObj.status == 'inactive'
+                                        ? 'success'
+                                        : 'danger'
+                                "
+                                *appHasPermissions="['admin', 'staff_admin']"
+                            />
+                        </span>
+                        } @if (!isHome){
+                        <p-button
+                            (onClick)="delAccount(ownerObj)"
+                            icon="pi pi-check"
+                            label="Delete account"
+                            [severity]="
+                                ownerObj.status == 'inactive'
+                                    ? 'success'
+                                    : 'danger'
+                            "
+                            *appHasPermissions="['admin', 'staff_admin']"
+                        />
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

@@ -1,0 +1,659 @@
+<p-toast />
+<p-confirmDialog />
+
+<div class="create-property-page">
+    <div class="cp-page-header">
+        <div class="cp-header-icon">
+            <i class="pi pi-building"></i>
+        </div>
+        <div>
+            <span class="cp-kicker">Properties</span>
+            <h2 class="cp-title">Create new property</h2>
+            <p class="cp-subtitle">
+                Set up property details, units, billing, and owner information
+                step by step.
+            </p>
+        </div>
+    </div>
+    <p-tabs [(value)]="activeTab">
+        <p-tablist>
+            <p-tab [value]="0">
+                <i class="pi pi-building mr-2"></i>Create property
+            </p-tab>
+            <p-tab [value]="1">
+                <i class="pi pi-upload mr-2"></i>File Loader
+            </p-tab>
+        </p-tablist>
+        <p-tabpanels>
+            <p-tabpanel [value]="0">
+                <form
+                    #condominiumForm="ngForm"
+                    (ngSubmit)="submit(condominiumForm)"
+                >
+                    <p-stepper [(value)]="activeStep" class="cp-stepper">
+                        <p-step-list>
+                            <p-step [value]="1">Basic Info</p-step>
+                            <p-step [value]="2">Address</p-step>
+                            <p-step [value]="3">Details</p-step>
+                        </p-step-list>
+                        <p-step-panels>
+                            <p-step-panel [value]="1">
+                                <ng-template
+                                    #stepperP
+                                    pTemplate="content"
+                                    let-activateCallback="activateCallback"
+                                >
+                                    <div class="cp-step-body">
+                                        <!-- Photo Upload -->
+                                        <div class="cp-avatar-section">
+                                            <div
+                                                class="cp-avatar-wrap"
+                                                (click)="triggerFileUpload()"
+                                            >
+                                                <img
+                                                    [src]="imagePreview()"
+                                                    alt="Property image"
+                                                    class="cp-avatar-img"
+                                                />
+                                                <div class="cp-avatar-overlay">
+                                                    <i class="pi pi-camera"></i>
+                                                </div>
+                                            </div>
+                                            <p class="cp-avatar-hint">
+                                                Click to change photo
+                                            </p>
+                                            <p-fileUpload
+                                                styleClass="cp-file-upload"
+                                                #fileInput
+                                                name="demo[]"
+                                                url="https://www.primefaces.org/cdn/api/upload.php"
+                                                [maxFileSize]="1000000"
+                                                accept="image/*"
+                                                (onSelect)="onSelect($event)"
+                                                [customUpload]="true"
+                                                [auto]="true"
+                                                mode="basic"
+                                                [style]="{ display: 'none' }"
+                                            ></p-fileUpload>
+                                        </div>
+
+                                        <!-- Row: Name + Type -->
+                                        <div class="cp-field-grid">
+                                            <div class="cp-field">
+                                                <label for="aliaslabel"
+                                                    >Property name
+                                                    <span class="cp-required"
+                                                        >*</span
+                                                    ></label
+                                                >
+                                                <input
+                                                    pInputText
+                                                    id="aliaslabel"
+                                                    #alias="ngModel"
+                                                    [(ngModel)]="
+                                                        condominioModel.alias
+                                                    "
+                                                    name="alias"
+                                                    type="text"
+                                                    maxlength="50"
+                                                    placeholder="e.g. Residencial Las Palmas"
+                                                    required
+                                                    [ngClass]="{
+                                                        'input-error':
+                                                            alias.invalid &&
+                                                            (alias.dirty ||
+                                                                alias.touched)
+                                                    }"
+                                                />
+                                                @if ( alias.invalid &&
+                                                (alias.dirty || alias.touched) )
+                                                {
+                                                <small class="cp-error-msg">
+                                                    Property name is required.
+                                                </small>
+                                                }
+                                            </div>
+                                            <div class="cp-field">
+                                                <label for="typeOfPropertylabel"
+                                                    >Property type
+                                                    <span class="cp-required"
+                                                        >*</span
+                                                    ></label
+                                                >
+                                                <p-select
+                                                    [options]="condoType"
+                                                    id="typeOfPropertylabel"
+                                                    optionLabel="property"
+                                                    placeholder="Select type"
+                                                    #typeOfProperty="ngModel"
+                                                    [(ngModel)]="
+                                                        condominioModel.typeOfProperty
+                                                    "
+                                                    name="typeOfProperty"
+                                                    required
+                                                    [ngClass]="{
+                                                        'input-error-dropdown':
+                                                            typeOfProperty.invalid &&
+                                                            (typeOfProperty.dirty ||
+                                                                typeOfProperty.touched)
+                                                    }"
+                                                ></p-select>
+                                            </div>
+                                        </div>
+
+                                        <!-- Row: Phone + Phone 2 -->
+                                        <div class="cp-field-grid">
+                                            <div class="cp-field">
+                                                <label for="phone"
+                                                    >Phone
+                                                    <span class="cp-required"
+                                                        >*</span
+                                                    ></label
+                                                >
+                                                <p-inputGroup>
+                                                    <p-inputGroupAddon
+                                                        ><i
+                                                            class="pi pi-phone"
+                                                        ></i
+                                                    ></p-inputGroupAddon>
+                                                    <input
+                                                        pInputText
+                                                        id="phone"
+                                                        #phone="ngModel"
+                                                        [(ngModel)]="
+                                                            condominioModel.phone
+                                                        "
+                                                        name="phone"
+                                                        type="text"
+                                                        maxlength="11"
+                                                        pattern="^[0-9]+"
+                                                        placeholder="8095882222"
+                                                        required
+                                                        [ngClass]="{
+                                                            'input-error':
+                                                                phone.invalid &&
+                                                                (phone.dirty ||
+                                                                    phone.touched)
+                                                        }"
+                                                    />
+                                                </p-inputGroup>
+                                            </div>
+                                            <div class="cp-field">
+                                                <label for="phone2"
+                                                    >Phone 2</label
+                                                >
+                                                <p-inputGroup>
+                                                    <p-inputGroupAddon
+                                                        ><i
+                                                            class="pi pi-phone"
+                                                        ></i
+                                                    ></p-inputGroupAddon>
+                                                    <input
+                                                        pInputText
+                                                        id="phone2"
+                                                        #phone2="ngModel"
+                                                        [(ngModel)]="
+                                                            condominioModel.phone2
+                                                        "
+                                                        name="phone2"
+                                                        type="text"
+                                                        pattern="^[0-9]+"
+                                                        maxlength="11"
+                                                        placeholder="8095882222"
+                                                    />
+                                                </p-inputGroup>
+                                            </div>
+                                        </div>
+
+                                        <!-- Unit Numbering -->
+                                        <div class="cp-field">
+                                            <label class="cp-section-label">
+                                                <i
+                                                    class="pi pi-list-check mr-1"
+                                                ></i>
+                                                Unit numbering type
+                                            </label>
+                                            <div class="cp-radio-group">
+                                                <label
+                                                    class="cp-radio-option"
+                                                    [class.active]="
+                                                        numberingType ===
+                                                        'numeric'
+                                                    "
+                                                >
+                                                    <p-radioButton
+                                                        name="numberingType"
+                                                        value="numeric"
+                                                        [(ngModel)]="
+                                                            numberingType
+                                                        "
+                                                    ></p-radioButton>
+                                                    <span
+                                                        >Numbers
+                                                        <small
+                                                            >1, 2, 3…</small
+                                                        ></span
+                                                    >
+                                                </label>
+                                                <label
+                                                    class="cp-radio-option"
+                                                    [class.active]="
+                                                        numberingType ===
+                                                        'padded'
+                                                    "
+                                                >
+                                                    <p-radioButton
+                                                        name="numberingType"
+                                                        value="padded"
+                                                        [(ngModel)]="
+                                                            numberingType
+                                                        "
+                                                    ></p-radioButton>
+                                                    <span
+                                                        >Padded
+                                                        <small
+                                                            >001, 002…</small
+                                                        ></span
+                                                    >
+                                                </label>
+                                                <label
+                                                    class="cp-radio-option"
+                                                    [class.active]="
+                                                        numberingType ===
+                                                        'letters'
+                                                    "
+                                                >
+                                                    <p-radioButton
+                                                        name="numberingType"
+                                                        value="letters"
+                                                        [(ngModel)]="
+                                                            numberingType
+                                                        "
+                                                    ></p-radioButton>
+                                                    <span
+                                                        >Letters
+                                                        <small
+                                                            >A, B, C…</small
+                                                        ></span
+                                                    >
+                                                </label>
+                                            </div>
+
+                                            @if ( numberingType === 'letters' )
+                                            {
+                                            <div class="cp-field-grid mt-3">
+                                                <div class="cp-field">
+                                                    <label>From letter</label>
+                                                    <input
+                                                        pInputText
+                                                        #fromLetters="ngModel"
+                                                        placeholder="A"
+                                                        [(ngModel)]="fromLetter"
+                                                        name="letterFrom"
+                                                        pattern="[a-zA-Z]"
+                                                        maxlength="1"
+                                                        style="
+                                                            text-transform: uppercase;
+                                                        "
+                                                    />
+                                                </div>
+                                                <div class="cp-field">
+                                                    <label>To letter</label>
+                                                    <input
+                                                        pInputText
+                                                        [(ngModel)]="toLetter"
+                                                        placeholder="Z"
+                                                        #letterTo="ngModel"
+                                                        name="letterTo"
+                                                        pattern="[a-zA-Z]"
+                                                        maxlength="1"
+                                                        style="
+                                                            text-transform: uppercase;
+                                                        "
+                                                    />
+                                                </div>
+                                            </div>
+                                            }
+                                        </div>
+
+                                        <!-- Unit Range -->
+                                        <div class="cp-field">
+                                            <label class="cp-section-label">
+                                                <i
+                                                    class="pi pi-hashtag mr-1"
+                                                ></i>
+                                                Unit range
+                                            </label>
+                                            <div class="cp-field-grid">
+                                                <div class="cp-field">
+                                                    <label>From</label>
+                                                    <p-inputNumber
+                                                        [(ngModel)]="startUnit"
+                                                        placeholder="1"
+                                                        name="startUnit"
+                                                    ></p-inputNumber>
+                                                </div>
+                                                <div class="cp-field">
+                                                    <label>To</label>
+                                                    <p-inputNumber
+                                                        [(ngModel)]="endUnit"
+                                                        placeholder="10"
+                                                        name="endUnit"
+                                                        (keyup)="previewUnits()"
+                                                    ></p-inputNumber>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Preview -->
+                                        @if (lettersFormatted.length) {
+                                        <div class="cp-preview-box">
+                                            <span class="cp-preview-label"
+                                                ><i class="pi pi-eye mr-1"></i
+                                                >Unit preview</span
+                                            >
+                                            <div class="cp-preview-chips">
+                                                @for ( unit of lettersFormatted;
+                                                track unit; let i = $index) {
+                                                <p-tag
+                                                    [value]="
+                                                        i + 1 + ' — ' + unit
+                                                    "
+                                                    severity="secondary"
+                                                    class="cp-unit-chip"
+                                                ></p-tag>
+                                                }
+                                            </div>
+                                        </div>
+                                        }
+                                    </div>
+
+                                    <!-- Step footer -->
+                                    <div class="cp-step-footer">
+                                        <span></span>
+                                        <p-button
+                                            label="Next: Address"
+                                            icon="pi pi-arrow-right"
+                                            iconPos="right"
+                                            (click)="activateCallback(2)"
+                                            [disabled]="
+                                                !alias.valid ||
+                                                !phone.valid ||
+                                                !typeOfProperty.valid
+                                            "
+                                        />
+                                    </div>
+                                </ng-template>
+                            </p-step-panel>
+                            <p-step-panel [value]="2">
+                                <ng-template
+                                    pTemplate="content"
+                                    let-activateCallback="activateCallback"
+                                >
+                                    <div class="cp-step-body">
+                                        <div class="cp-field">
+                                            <label for="street_1label"
+                                                >Address
+                                                <span class="cp-required"
+                                                    >*</span
+                                                ></label
+                                            >
+                                            <input
+                                                pInputText
+                                                id="street_1label"
+                                                #street_1="ngModel"
+                                                [(ngModel)]="
+                                                    condominioModel.street_1
+                                                "
+                                                name="street_1"
+                                                maxlength="100"
+                                                placeholder="Main street, Av. 27 de Febrero..."
+                                                required
+                                                [ngClass]="{
+                                                    'input-error':
+                                                        street_1.invalid &&
+                                                        (street_1.dirty ||
+                                                            street_1.touched)
+                                                }"
+                                            />
+                                        </div>
+                                        <div class="cp-field">
+                                            <label for="street_2label"
+                                                >Address line 2</label
+                                            >
+                                            <input
+                                                pInputText
+                                                id="street_2label"
+                                                #street_2="ngModel"
+                                                [(ngModel)]="
+                                                    condominioModel.street_2
+                                                "
+                                                name="street_2"
+                                                maxlength="50"
+                                                placeholder="Unit, Apt, Suite…"
+                                            />
+                                        </div>
+                                        <div class="cp-field-grid">
+                                            <div class="cp-field">
+                                                <label for="sector_namelabel"
+                                                    >Sector
+                                                    <span class="cp-required"
+                                                        >*</span
+                                                    ></label
+                                                >
+                                                <input
+                                                    pInputText
+                                                    id="sector_namelabel"
+                                                    #sector_name="ngModel"
+                                                    [(ngModel)]="
+                                                        condominioModel.sector_name
+                                                    "
+                                                    name="sector_name"
+                                                    maxlength="50"
+                                                    placeholder="Piantini, Naco…"
+                                                    required
+                                                    [ngClass]="{
+                                                        'input-error':
+                                                            sector_name.invalid &&
+                                                            (sector_name.dirty ||
+                                                                sector_name.touched)
+                                                    }"
+                                                />
+                                            </div>
+                                            <div class="cp-field">
+                                                <label for="citylabel"
+                                                    >City
+                                                    <span class="cp-required"
+                                                        >*</span
+                                                    ></label
+                                                >
+                                                <input
+                                                    pInputText
+                                                    id="citylabel"
+                                                    #city="ngModel"
+                                                    [(ngModel)]="
+                                                        condominioModel.city
+                                                    "
+                                                    name="city"
+                                                    maxlength="50"
+                                                    placeholder="Santo Domingo"
+                                                    required
+                                                    [ngClass]="{
+                                                        'input-error':
+                                                            city.invalid &&
+                                                            (city.dirty ||
+                                                                city.touched)
+                                                    }"
+                                                />
+                                            </div>
+                                        </div>
+                                        <div class="cp-field-grid">
+                                            <div class="cp-field">
+                                                <label for="provincelabel"
+                                                    >Province</label
+                                                >
+                                                <input
+                                                    pInputText
+                                                    id="provincelabel"
+                                                    #province="ngModel"
+                                                    [(ngModel)]="
+                                                        condominioModel.province
+                                                    "
+                                                    name="province"
+                                                    maxlength="50"
+                                                    placeholder="Distrito Nacional"
+                                                    [ngClass]="{
+                                                        'input-error':
+                                                            province.invalid &&
+                                                            (province.dirty ||
+                                                                province.touched)
+                                                    }"
+                                                />
+                                            </div>
+                                            <div class="cp-field">
+                                                <label for="countrylabel"
+                                                    >Country</label
+                                                >
+                                                <input
+                                                    pInputText
+                                                    id="countrylabel"
+                                                    #country="ngModel"
+                                                    [(ngModel)]="
+                                                        condominioModel.country
+                                                    "
+                                                    name="country"
+                                                    maxlength="50"
+                                                    readonly
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="cp-step-footer">
+                                        <p-button
+                                            label="Back"
+                                            icon="pi pi-arrow-left"
+                                            severity="secondary"
+                                            [outlined]="true"
+                                            (onClick)="activateCallback(1)"
+                                        />
+                                        <p-button
+                                            label="Next: Details"
+                                            icon="pi pi-arrow-right"
+                                            iconPos="right"
+                                            (onClick)="activateCallback(3)"
+                                            [disabled]="
+                                                !street_1.valid ||
+                                                !sector_name.valid ||
+                                                !city.valid
+                                            "
+                                        />
+                                    </div>
+                                </ng-template>
+                            </p-step-panel>
+                            <p-step-panel [value]="3">
+                                <ng-template
+                                    pTemplate="content"
+                                    let-activateCallback="activateCallback"
+                                >
+                                    <div class="cp-step-body">
+                                        <div class="cp-field">
+                                            <label for="socialAreaslabel">
+                                                <i class="pi pi-star mr-1"></i>
+                                                Social areas
+                                            </label>
+                                            <p-multiSelect
+                                                id="socialAreaslabel"
+                                                [options]="areas"
+                                                optionLabel="areasOptions"
+                                                #socialAreas="ngModel"
+                                                name="socialAreas"
+                                                [(ngModel)]="
+                                                    condominioModel.socialAreas
+                                                "
+                                                placeholder="Pool, Gym, Park…"
+                                                display="chip"
+                                            ></p-multiSelect>
+                                        </div>
+
+                                        <div class="cp-field">
+                                            <label for="mPayment">
+                                                Monthly payment per unit
+                                                <span class="cp-required"
+                                                    >*</span
+                                                >
+                                            </label>
+                                            <p-inputGroup>
+                                                <p-inputGroupAddon
+                                                    >$</p-inputGroupAddon
+                                                >
+                                                <input
+                                                    pInputText
+                                                    id="mPayment"
+                                                    #mPayment="ngModel"
+                                                    [(ngModel)]="
+                                                        condominioModel.mPayment
+                                                    "
+                                                    name="mPayment"
+                                                    maxlength="6"
+                                                    placeholder="0.00"
+                                                    required
+                                                    [ngClass]="{
+                                                        'input-error':
+                                                            mPayment.invalid &&
+                                                            (mPayment.dirty ||
+                                                                mPayment.touched)
+                                                    }"
+                                                />
+                                            </p-inputGroup>
+                                        </div>
+
+                                        <p-message
+                                            severity="info"
+                                            [text]="
+                                                'Review your entries before creating the property. This amount will be applied to all ' +
+                                                (condominioModel?.unitFormat
+                                                    ?.length ??
+                                                    0) +
+                                                ' units.'
+                                            "
+                                            class="cp-info-msg"
+                                        ></p-message>
+                                    </div>
+
+                                    <div class="cp-step-footer">
+                                        <p-button
+                                            label="Back"
+                                            icon="pi pi-arrow-left"
+                                            severity="secondary"
+                                            [outlined]="true"
+                                            (onClick)="activateCallback(2)"
+                                        />
+                                        <p-button
+                                            type="submit"
+                                            label="Create property"
+                                            icon="pi pi-check"
+                                            iconPos="right"
+                                            severity="success"
+                                            [disabled]="
+                                                condominiumForm.invalid ||
+                                                !condominioModel.unitFormat
+                                                    .length
+                                            "
+                                        />
+                                    </div>
+                                </ng-template>
+                            </p-step-panel>
+                        </p-step-panels>
+                    </p-stepper>
+                </form>
+            </p-tabpanel>
+
+            <p-tabpanel [value]="1">
+                <app-pool-file-loader
+                    [services]="fileInputData"
+                ></app-pool-file-loader>
+            </p-tabpanel>
+        </p-tabpanels>
+    </p-tabs>
+</div>

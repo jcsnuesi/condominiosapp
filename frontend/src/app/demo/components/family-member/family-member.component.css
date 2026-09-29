@@ -1,0 +1,53 @@
+.justify-contents {
+    display: flex;
+    justify-content: center;
+}
+
+.padding-set {
+    padding: 12px;
+}
+
+.img-border-radius {
+    border-radius: 50%;
+    border: #dbdbdb solid 1px;
+    width: 150px;
+    height: 130px;
+}
+
+.dropdown-condo > .p-multiselect {
+    width: 100%;
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
+}
+
+.dropdown-condo > .p-dropdown {
+    width: 100%;
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
+}
+
+.p-calendar > input:last-child {
+    width: 100%;
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
+}
+.div-btn {
+    display: flex;
+    margin-top: 40px;
+}
+
+.div-btn-right {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+}
+
+.condoUnitAuth {
+    display: flex;
+    margin-top: 8px;
+}
+
+.authCondo {
+    width: 100%;
+    margin-right: 5px;
+}

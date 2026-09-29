@@ -1,0 +1,275 @@
+<p-toast></p-toast>
+
+<div class="str-page">
+  <p-card>
+    <ng-template pTemplate="title">STR Integration</ng-template>
+    <ng-template pTemplate="subtitle"
+      >Connect iCal channels and monitor reservation
+      conflicts</ng-template
+      >
+
+      <div class="toolbar">
+        <div class="condo-select">
+          <label for="condoId">Condominium</label>
+          <p-select
+            inputId="condoId"
+            [options]="condoOptions"
+            optionLabel="label"
+            optionValue="value"
+            [(ngModel)]="selectedCondoId"
+            (onChange)="onCondoChange()"
+            placeholder="Select condominium"
+          ></p-select>
+        </div>
+        <p-button
+          label="Refresh"
+          icon="pi pi-refresh"
+          [outlined]="true"
+          (onClick)="refreshData()"
+        ></p-button>
+      </div>
+    </p-card>
+
+    <p-tabs>
+      <p-tabpanel header="iCal Channels">
+        <div class="card-block">
+          <div class="form-grid">
+            <div class="field">
+              <label>Channel type</label>
+              <p-select
+                [options]="channelTypeOptions"
+                optionLabel="label"
+                optionValue="value"
+                [(ngModel)]="channelForm.channelType"
+              ></p-select>
+            </div>
+            <div class="field">
+              <label>Channel label</label>
+              <input
+                pInputText
+                [(ngModel)]="channelForm.channelLabel"
+                placeholder="Optional label"
+                />
+              </div>
+              <div class="field">
+                <label>Apartment unit</label>
+                <input
+                  pInputText
+                  [(ngModel)]="channelForm.apartmentUnit"
+                  placeholder="A-101"
+                  />
+                </div>
+                <div class="field">
+                  <label>Sync frequency (minutes)</label>
+                  <input
+                    pInputText
+                    type="number"
+                    [(ngModel)]="channelForm.syncFrequencyMinutes"
+                    />
+                  </div>
+                  <div class="field full">
+                    <label>iCal URL</label>
+                    <input
+                      pInputText
+                      [(ngModel)]="channelForm.calendarUrl"
+                      placeholder="https://.../calendar.ics"
+                      />
+                    </div>
+                    <div class="field">
+                      <label>Status</label>
+                      <p-select
+                        [options]="statusOptions"
+                        optionLabel="label"
+                        optionValue="value"
+                        [(ngModel)]="channelForm.status"
+                      ></p-select>
+                    </div>
+                  </div>
+
+                  <div class="actions">
+                    <p-button
+                      label="Save Channel"
+                      icon="pi pi-save"
+                      (onClick)="saveChannel()"
+                    ></p-button>
+                    <p-button
+                      label="Reset"
+                      icon="pi pi-times"
+                      severity="secondary"
+                      [outlined]="true"
+                      (onClick)="resetForm()"
+                    ></p-button>
+                  </div>
+                </div>
+
+                <p-table
+                  [value]="channels"
+                  [loading]="loadingChannels"
+                  [paginator]="true"
+                  [rows]="10"
+                  responsiveLayout="scroll"
+                  >
+                  <ng-template pTemplate="header">
+                    <tr>
+                      <th>Type</th>
+                      <th>Label</th>
+                      <th>Unit</th>
+                      <th>Status</th>
+                      <th>Last sync</th>
+                      <th>Actions</th>
+                    </tr>
+                  </ng-template>
+                  <ng-template pTemplate="body" let-channel>
+                    <tr>
+                      <td>{{ channel.channelType }}</td>
+                      <td>{{ channel.channelLabel || "-" }}</td>
+                      <td>{{ channel?.metadata?.apartmentUnit || "-" }}</td>
+                      <td>
+                        <p-tag
+                                [severity]="
+                                    channel.status === 'active'
+                                        ? 'success'
+                                        : channel.status === 'error'
+                                        ? 'danger'
+                                        : 'warning'
+                                "
+                          [value]="channel.status"
+                        ></p-tag>
+                      </td>
+                      <td>{{ formatDate(channel.lastSyncedAt) }}</td>
+                      <td>
+                        <p-button
+                          icon="pi pi-sync"
+                          [text]="true"
+                          [loading]="syncingChannelId === channel._id"
+                          [disabled]="syncingChannelId === channel._id"
+                          (onClick)="syncChannel(channel)"
+                        ></p-button>
+                        <p-button
+                          icon="pi pi-pencil"
+                          [text]="true"
+                          (onClick)="editChannel(channel)"
+                        ></p-button>
+                        <p-button
+                          icon="pi pi-power-off"
+                          [text]="true"
+                                [severity]="
+                                    channel.status === 'active'
+                                        ? 'danger'
+                                        : 'success'
+                                "
+                          (onClick)="toggleStatus(channel)"
+                        ></p-button>
+                      </td>
+                    </tr>
+                  </ng-template>
+                </p-table>
+              </p-tabpanel>
+
+              <p-tabpanel header="External Reservations">
+                <p-table
+                  [value]="reservations"
+                  [loading]="loadingReservations"
+                  [paginator]="true"
+                  [rows]="10"
+                  responsiveLayout="scroll"
+                  >
+                <ng-template pTemplate="header">
+                  <tr>
+                    <th>Unit</th>
+                    <th>Guest</th>
+                    <th>Check-in</th>
+                    <th>Check-out</th>
+                    <th>Channel</th>
+                    <th>Source status</th>
+                    <th>Conflict</th>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-reservation>
+                  <tr>
+                    <td>{{ reservation.apartmentUnit || "-" }}</td>
+                    <td>{{ reservation.bookingName || "-" }}</td>
+                    <td>{{ formatDate(reservation.checkIn) }}</td>
+                    <td>{{ formatDate(reservation.checkOut) }}</td>
+                    <td>
+                      {{
+                      reservation?.rentalChannelId?.channelLabel ||
+                      reservation?.rentalChannelId?.channelType ||
+                      "-"
+                      }}
+                    </td>
+                    <td>
+                      <p-tag
+                                [severity]="
+                                    reservation.sourceStatus === 'cancelled'
+                                        ? 'danger'
+                                        : reservation.sourceStatus ===
+                                          'tentative'
+                                        ? 'warning'
+                                        : 'success'
+                                "
+                        [value]="reservation.sourceStatus"
+                      ></p-tag>
+                    </td>
+                    <td>
+                      <p-tag
+                                [severity]="
+                                    getConflictSeverity(
+                                        reservation.conflictStatus
+                                    )
+                                "
+                        [value]="reservation.conflictStatus"
+                      ></p-tag>
+                    </td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </p-tabpanel>
+
+            @if (isAdminOrSecurity) {
+              <p-tabpanel header="Conflicts">
+                <p-table
+                  [value]="conflicts"
+                  [loading]="loadingConflicts"
+                  [paginator]="true"
+                  [rows]="10"
+                  responsiveLayout="scroll"
+                  >
+                  <ng-template pTemplate="header">
+                    <tr>
+                      <th>Unit</th>
+                      <th>Guest</th>
+                      <th>Check-in</th>
+                      <th>Check-out</th>
+                      <th>Channel</th>
+                      <th>Conflict</th>
+                    </tr>
+                  </ng-template>
+                  <ng-template pTemplate="body" let-conflict>
+                    <tr>
+                      <td>{{ conflict.apartmentUnit }}</td>
+                      <td>{{ conflict.bookingName || "-" }}</td>
+                      <td>{{ formatDate(conflict.checkIn) }}</td>
+                      <td>{{ formatDate(conflict.checkOut) }}</td>
+                      <td>
+                        {{
+                        conflict?.rentalChannelId?.channelLabel ||
+                        conflict?.rentalChannelId?.channelType ||
+                        "-"
+                        }}
+                      </td>
+                      <td>
+                        <p-tag
+                                [severity]="
+                                    getConflictSeverity(conflict.conflictStatus)
+                                "
+                          [value]="conflict.conflictStatus"
+                        ></p-tag>
+                      </td>
+                    </tr>
+                  </ng-template>
+                </p-table>
+              </p-tabpanel>
+            }
+          </p-tabs>
+        </div>

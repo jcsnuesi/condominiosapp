@@ -1,0 +1,39 @@
+.payments-history-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.payments-history-provider {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: min(100%, 16rem);
+}
+
+.payments-history-provider p-select {
+    flex: 1 1 auto;
+}
+
+.payments-history-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: nowrap;
+}
+
+@media (max-width: 768px) {
+    .payments-history-header,
+    .payments-history-provider {
+        align-items: stretch;
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .payments-history-actions {
+        justify-content: flex-start;
+        flex-wrap: wrap;
+    }
+}

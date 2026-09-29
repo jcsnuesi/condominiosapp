@@ -1,0 +1,18 @@
+.access-shell { margin-top: 1.5rem; padding: clamp(1rem, 3vw, 2rem); border: 1px solid var(--surface-border); border-radius: 1rem; background: var(--surface-card); }
+.access-heading { display: flex; justify-content: space-between; gap: 1rem; align-items: flex-start; margin-bottom: 1rem; }
+.access-heading h2 { margin: .2rem 0; }
+.access-heading p, .policy-card p { color: var(--text-color-secondary); }
+.eyebrow { color: var(--primary-color); font-size: .78rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.policy-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: 1rem; }
+.policy-card { position: relative; padding: 1rem; border: 1px solid var(--surface-border); border-radius: .75rem; }
+.policy-card.archived { opacity: .58; }
+.policy-card h3 { margin: .75rem 0 .25rem; }
+.policy-actions { position: absolute; top: .5rem; right: .5rem; display: flex; align-items: center; gap: .35rem; }
+:host ::ng-deep .access-policy-delete-button.p-button { border-color: var(--p-red-500, #ef4444); color: var(--p-red-500, #ef4444); }
+:host ::ng-deep .access-policy-delete-button.p-button .p-button-icon { display: inline-block; font-size: 1rem; }
+.dialog-fields { display: grid; gap: 1rem; }
+.dialog-fields label { display: grid; gap: .4rem; font-weight: 600; }
+.dialog-fields p-multiselect, .dialog-fields p-select, .dialog-fields input, .dialog-fields textarea { width: 100%; }
+.effective { padding: 1rem; background: var(--surface-50); border-radius: .65rem; display: grid; gap: .4rem; }
+td small { display: block; color: var(--text-color-secondary); margin-top: .2rem; }
+@media (max-width: 640px) { .access-heading { flex-direction: column; } }

@@ -1,0 +1,7 @@
+/* Sobrescribir estilos para el <th> con ng-reflect-field="id" */
+th[ng-reflect-field="id"] {
+    /* Sobrescribir cualquier estilo específico aquí */
+    min-width: 0 !important;
+    /* Ejemplo: sobrescribir min-width */
+    /* Otros estilos que desees aplicar */
+}

@@ -1,0 +1,563 @@
+
+> sakai-ng@16.0.0 start
+> ng serve --host 127.0.0.1 --port 4200
+
+
+[1mInitial chunk files[22m                                     [2m | [22m[1mNames[22m                                     [2m | [22m [1mRaw size[22m
+[32mvendor.js[39m                                               [2m | [22m[2mvendor[22m                                    [2m | [22m [36m16.57 MB[39m[2m | [22m
+[32mmain.js[39m                                                 [2m | [22m[2mmain[22m                                      [2m | [22m  [36m1.58 MB[39m[2m | [22m
+[32mstyles.css, styles.js[39m                                   [2m | [22m[2mstyles[22m                                    [2m | [22m[36m640.74 kB[39m[2m | [22m
+[32mpolyfills.js[39m                                            [2m | [22m[2mpolyfills[22m                                 [2m | [22m[36m231.28 kB[39m[2m | [22m
+[32mscripts.js[39m                                              [2m | [22m[2mscripts[22m                                   [2m | [22m [36m60.19 kB[39m[2m | [22m
+[32mruntime.js[39m                                              [2m | [22m[2mruntime[22m                                   [2m | [22m [36m14.73 kB[39m[2m | [22m
+
+[1m [22m                                                       [2m | [22m[1mInitial total[22m                             [2m | [22m [1m19.10 MB[22m
+
+[1mLazy chunk files[22m                                        [2m | [22m[1mNames[22m                                     [2m | [22m [1mRaw size[22m
+[32mnode_modules_quill_dist_quill_js.js[39m                     [2m | [22m[2mquill[22m                                     [2m | [22m[36m494.31 kB[39m[2m | [22m
+[32msrc_app_demo_components_dashboard_dashboard_module_ts.js[39m[2m | [22m[2mdemo-components-dashboard-dashboard-module[22m[2m | [22m[36m103.72 kB[39m[2m | [22m
+[32msrc_app_demo_components_landing_landing_module_ts.js[39m    [2m | [22m[2mdemo-components-landing-landing-module[22m    [2m | [22m [36m52.44 kB[39m[2m | [22m
+[32msrc_app_demo_components_auth_login_login_module_ts.js[39m   [2m | [22m[2mlogin-login-module[22m                        [2m | [22m [36m29.37 kB[39m[2m | [22m
+[32msrc_app_demo_components_auth_access_access_module_ts.js[39m [2m | [22m[2maccess-access-module[22m                      [2m | [22m  [36m8.88 kB[39m[2m | [22m
+[32msrc_app_demo_components_auth_error_error_module_ts.js[39m   [2m | [22m[2merror-error-module[22m                        [2m | [22m  [36m8.78 kB[39m[2m | [22m
+[32msrc_app_demo_components_auth_auth_module_ts.js[39m          [2m | [22m[2mdemo-components-auth-auth-module[22m          [2m | [22m  [36m4.71 kB[39m[2m | [22m
+
+Build at: 2026-06-03T04:14:20.364Z - Hash: d22f824f7260d922 - Time: 39742ms
+
+** Angular Live Development Server is listening on 127.0.0.1:4200, open your browser on http://127.0.0.1:4200/ **
+
+
+√ Compiled successfully.
+
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m  [2m | [22m[1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m   [2m | [22m [36m1.58 MB[39m[2m | [22m
+[32mruntime.js[39m         [2m | [22m[2mruntime[22m[2m | [22m[36m14.73 kB[39m[2m | [22m
+
+11 unchanged chunks
+
+Build at: 2026-06-03T04:32:22.079Z - Hash: 9a0193efab1a6832 - Time: 6202ms
+
+√ Compiled successfully.
+
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m  [2m | [22m[1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m   [2m | [22m [36m1.58 MB[39m[2m | [22m
+[32mruntime.js[39m         [2m | [22m[2mruntime[22m[2m | [22m[36m14.73 kB[39m[2m | [22m
+
+11 unchanged chunks
+
+Build at: 2026-06-03T04:32:32.184Z - Hash: ba41bd39d2fd7998 - Time: 2702ms
+
+√ Compiled successfully.
+
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m  [2m | [22m[1mRaw size[22m
+[32mruntime.js[39m         [2m | [22m[2mruntime[22m[2m | [22m[36m14.73 kB[39m[2m | [22m
+
+12 unchanged chunks
+
+Build at: 2026-06-03T04:32:49.096Z - Hash: 3d70e220a7ee3f9d - Time: 6691ms
+
+√ Compiled successfully.
+
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m  [2m | [22m[1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m   [2m | [22m [36m1.58 MB[39m[2m | [22m
+[32mruntime.js[39m         [2m | [22m[2mruntime[22m[2m | [22m[36m14.73 kB[39m[2m | [22m
+
+11 unchanged chunks
+
+Build at: 2026-06-03T04:33:07.863Z - Hash: 89d7f0306bd55e96 - Time: 2857ms
+
+√ Compiled successfully.
+
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m  [2m | [22m[1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m   [2m | [22m [36m1.58 MB[39m[2m | [22m
+[32mruntime.js[39m         [2m | [22m[2mruntime[22m[2m | [22m[36m14.73 kB[39m[2m | [22m
+
+11 unchanged chunks
+
+Build at: 2026-06-03T04:33:21.827Z - Hash: 172e097be6ba3474 - Time: 4424ms
+
+√ Compiled successfully.
+
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m  [2m | [22m[1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m   [2m | [22m [36m1.59 MB[39m[2m | [22m
+[32mruntime.js[39m         [2m | [22m[2mruntime[22m[2m | [22m[36m14.73 kB[39m[2m | [22m
+
+11 unchanged chunks
+
+Build at: 2026-06-03T04:43:54.766Z - Hash: 09e444b0fb3d8b48 - Time: 3392ms
+
+× Failed to compile.
+
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m  [2m | [22m[1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m   [2m | [22m [36m1.59 MB[39m[2m | [22m
+[32mruntime.js[39m         [2m | [22m[2mruntime[22m[2m | [22m[36m14.73 kB[39m[2m | [22m
+
+11 unchanged chunks
+
+Build at: 2026-06-03T04:44:08.247Z - Hash: b19b3fd7a0359b98 - Time: 4945ms
+
+√ Compiled successfully.
+
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m  [2m | [22m[1mRaw size[22m
+[32mruntime.js[39m         [2m | [22m[2mruntime[22m[2m | [22m[36m14.73 kB[39m[2m | [22m
+
+12 unchanged chunks
+
+Build at: 2026-06-03T04:45:10.108Z - Hash: e239c12d8bf5a809 - Time: 4815ms
+
+√ Compiled successfully.
+
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m  [2m | [22m[1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m   [2m | [22m [36m1.59 MB[39m[2m | [22m
+[32mruntime.js[39m         [2m | [22m[2mruntime[22m[2m | [22m[36m14.73 kB[39m[2m | [22m
+
+11 unchanged chunks
+
+Build at: 2026-06-03T04:45:30.595Z - Hash: 716c70aa963a7da6 - Time: 2793ms
+
+√ Compiled successfully.
+
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m  [2m | [22m[1mRaw size[22m
+[32mruntime.js[39m         [2m | [22m[2mruntime[22m[2m | [22m[36m14.73 kB[39m[2m | [22m
+
+12 unchanged chunks
+
+Build at: 2026-06-03T04:45:50.533Z - Hash: 757c6fee790ba7c9 - Time: 4168ms
+
+√ Compiled successfully.
+
+[1mInitial chunk files[22m                                  [2m | [22m[1mNames[22m             [2m | [22m[1mRaw size[22m
+[32mruntime.js[39m                                           [2m | [22m[2mruntime[22m           [2m | [22m[36m14.73 kB[39m[2m | [22m
+
+[1mLazy chunk files[22m                                     [2m | [22m[1mNames[22m             [2m | [22m[1mRaw size[22m
+[32msrc_app_demo_components_auth_login_login_module_ts.js[39m[2m | [22m[2mlogin-login-module[22m[2m | [22m[36m30.29 kB[39m[2m | [22m
+
+11 unchanged chunks
+
+Build at: 2026-06-03T04:51:46.546Z - Hash: 734536dd79741eee - Time: 4889ms
+
+√ Compiled successfully.
+
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m  [2m | [22m[1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m   [2m | [22m [36m1.59 MB[39m[2m | [22m
+[32mruntime.js[39m         [2m | [22m[2mruntime[22m[2m | [22m[36m14.73 kB[39m[2m | [22m
+
+11 unchanged chunks
+
+Build at: 2026-06-03T05:05:52.497Z - Hash: 4d8d4f59fe828904 - Time: 2909ms
+
+√ Compiled successfully.
+
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m  [2m | [22m[1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m   [2m | [22m [36m1.59 MB[39m[2m | [22m
+[32mruntime.js[39m         [2m | [22m[2mruntime[22m[2m | [22m[36m14.73 kB[39m[2m | [22m
+
+11 unchanged chunks
+
+Build at: 2026-06-03T05:06:06.076Z - Hash: 2994d8d7090f0ebb - Time: 2662ms
+
+√ Compiled successfully.
+
+[1mInitial chunk files[22m                                  [2m | [22m[1mNames[22m             [2m | [22m[1mRaw size[22m
+[32mmain.js[39m                                              [2m | [22m[2mmain[22m              [2m | [22m [36m1.59 MB[39m[2m | [22m
+[32mruntime.js[39m                                           [2m | [22m[2mruntime[22m           [2m | [22m[36m14.73 kB[39m[2m | [22m
+
+[1mLazy chunk files[22m                                     [2m | [22m[1mNames[22m             [2m | [22m[1mRaw size[22m
+[32msrc_app_demo_components_auth_login_login_module_ts.js[39m[2m | [22m[2mlogin-login-module[22m[2m | [22m[36m30.29 kB[39m[2m | [22m
+
+10 unchanged chunks
+
+Build at: 2026-06-03T11:58:14.327Z - Hash: ad6ec32000b9b184 - Time: 8715ms
+
+√ Compiled successfully.
+
+[1mInitial chunk files[22m                                  [2m | [22m[1mNames[22m             [2m | [22m[1mRaw size[22m
+[32mruntime.js[39m                                           [2m | [22m[2mruntime[22m           [2m | [22m[36m14.73 kB[39m[2m | [22m
+
+[1mLazy chunk files[22m                                     [2m | [22m[1mNames[22m             [2m | [22m[1mRaw size[22m
+[32msrc_app_demo_components_auth_login_login_module_ts.js[39m[2m | [22m[2mlogin-login-module[22m[2m | [22m[36m33.52 kB[39m[2m | [22m
+
+11 unchanged chunks
+
+Build at: 2026-06-03T11:58:19.872Z - Hash: 84e1f237a19133bb - Time: 2274ms
+
+√ Compiled successfully.
+
+[1mInitial chunk files[22m                                  [2m | [22m[1mNames[22m             [2m | [22m[1mRaw size[22m
+[32mruntime.js[39m                                           [2m | [22m[2mruntime[22m           [2m | [22m[36m14.73 kB[39m[2m | [22m
+
+[1mLazy chunk files[22m                                     [2m | [22m[1mNames[22m             [2m | [22m[1mRaw size[22m
+[32msrc_app_demo_components_auth_login_login_module_ts.js[39m[2m | [22m[2mlogin-login-module[22m[2m | [22m[36m36.42 kB[39m[2m | [22m
+
+11 unchanged chunks
+
+Build at: 2026-06-03T11:58:31.228Z - Hash: 798d120d3bdc7539 - Time: 1847ms
+
+√ Compiled successfully.
+
+[1mInitial chunk files[22m                                                      [2m | [22m[1mNames[22m                                 [2m | [22m[1mRaw size[22m
+[32mruntime.js[39m                                                               [2m | [22m[2mruntime[22m                               [2m | [22m[36m14.73 kB[39m[2m | [22m
+
+[1mLazy chunk files[22m                                                         [2m | [22m[1mNames[22m                                 [2m | [22m[1mRaw size[22m
+[32msrc_app_demo_components_auth_login_login_module_ts.js[39m                    [2m | [22m[2mlogin-login-module[22m                    [2m | [22m[36m33.99 kB[39m[2m | [22m
+[32msrc_app_demo_components_auth_reset-password_reset-password_module_ts.js[39m  [2m | [22m[2mreset-password-reset-password-module[22m  [2m | [22m[36m15.80 kB[39m[2m | [22m
+[32msrc_app_demo_components_auth_forgot-password_forgot-password_module_ts.js[39m[2m | [22m[2mforgot-password-forgot-password-module[22m[2m | [22m[36m14.43 kB[39m[2m | [22m
+[32msrc_app_demo_components_auth_auth_module_ts.js[39m                           [2m | [22m[2mdemo-components-auth-auth-module[22m      [2m | [22m [36m5.49 kB[39m[2m | [22m
+[32mcommon.js[39m                                                                [2m | [22m[2mcommon[22m                                [2m | [22m [36m2.56 kB[39m[2m | [22m
+
+10 unchanged chunks
+
+Build at: 2026-06-03T11:59:44.222Z - Hash: 8cf6d2b3c92b0d76 - Time: 4065ms
+
+√ Compiled successfully.
+
+
+
+16 unchanged chunks
+
+Build at: 2026-06-03T11:59:53.225Z - Hash: 8cf6d2b3c92b0d76 - Time: 1594ms
+
+√ Compiled successfully.
+
+[1mInitial chunk files[22m                                 [2m | [22m[1mNames[22m                                 [2m | [22m[1mRaw size[22m
+[32mruntime.js[39m                                          [2m | [22m[2mruntime[22m                               [2m | [22m[36m14.73 kB[39m[2m | [22m
+
+[1mLazy chunk files[22m                                    [2m | [22m[1mNames[22m                                 [2m | [22m[1mRaw size[22m
+[32msrc_app_demo_components_landing_landing_module_ts.js[39m[2m | [22m[2mdemo-components-landing-landing-module[22m[2m | [22m[36m52.45 kB[39m[2m | [22m
+
+14 unchanged chunks
+
+Build at: 2026-06-03T12:00:00.660Z - Hash: 3a2ac6a2247b48b6 - Time: 2112ms
+
+√ Compiled successfully.
+
+[1mInitial chunk files[22m                                  [2m | [22m[1mNames[22m             [2m | [22m[1mRaw size[22m
+[32mruntime.js[39m                                           [2m | [22m[2mruntime[22m           [2m | [22m[36m14.73 kB[39m[2m | [22m
+
+[1mLazy chunk files[22m                                     [2m | [22m[1mNames[22m             [2m | [22m[1mRaw size[22m
+[32msrc_app_demo_components_auth_error_error_module_ts.js[39m[2m | [22m[2merror-error-module[22m[2m | [22m [36m8.80 kB[39m[2m | [22m
+
+14 unchanged chunks
+
+Build at: 2026-06-03T12:00:15.947Z - Hash: 16be8acd44f0f39b - Time: 2138ms
+
+√ Compiled successfully.
+
+[1mInitial chunk files[22m                                    [2m | [22m[1mNames[22m               [2m | [22m[1mRaw size[22m
+[32mruntime.js[39m                                             [2m | [22m[2mruntime[22m             [2m | [22m[36m14.73 kB[39m[2m | [22m
+
+[1mLazy chunk files[22m                                       [2m | [22m[1mNames[22m               [2m | [22m[1mRaw size[22m
+[32msrc_app_demo_components_auth_access_access_module_ts.js[39m[2m | [22m[2maccess-access-module[22m[2m | [22m [36m8.87 kB[39m[2m | [22m
+
+14 unchanged chunks
+
+Build at: 2026-06-03T12:00:24.542Z - Hash: 1a9507556bb943fd - Time: 3202ms
+
+√ Compiled successfully.
+
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m  [2m | [22m[1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m   [2m | [22m [36m1.59 MB[39m[2m | [22m
+[32mruntime.js[39m         [2m | [22m[2mruntime[22m[2m | [22m[36m14.73 kB[39m[2m | [22m
+
+14 unchanged chunks
+
+Build at: 2026-06-03T12:00:33.303Z - Hash: 148c3db2f69e162b - Time: 2500ms
+
+√ Compiled successfully.
+
+[1mInitial chunk files[22m                                                      [2m | [22m[1mNames[22m                                 [2m | [22m[1mRaw size[22m
+[32mmain.js[39m                                                                  [2m | [22m[2mmain[22m                                  [2m | [22m [36m1.59 MB[39m[2m | [22m
+[32mruntime.js[39m                                                               [2m | [22m[2mruntime[22m                               [2m | [22m[36m14.73 kB[39m[2m | [22m
+
+[1mLazy chunk files[22m                                                         [2m | [22m[1mNames[22m                                 [2m | [22m[1mRaw size[22m
+[32msrc_app_demo_components_auth_login_login_module_ts.js[39m                    [2m | [22m[2mlogin-login-module[22m                    [2m | [22m[36m33.99 kB[39m[2m | [22m
+[32msrc_app_demo_components_auth_reset-password_reset-password_module_ts.js[39m  [2m | [22m[2mreset-password-reset-password-module[22m  [2m | [22m[36m15.80 kB[39m[2m | [22m
+[32msrc_app_demo_components_auth_forgot-password_forgot-password_module_ts.js[39m[2m | [22m[2mforgot-password-forgot-password-module[22m[2m | [22m[36m14.43 kB[39m[2m | [22m
+[32msrc_app_demo_components_auth_auth_module_ts.js[39m                           [2m | [22m[2mdemo-components-auth-auth-module[22m      [2m | [22m [36m5.49 kB[39m[2m | [22m
+
+10 unchanged chunks
+
+Build at: 2026-06-03T12:00:41.025Z - Hash: 3eeba86ae1864634 - Time: 7621ms
+
+√ Compiled successfully.
+
+[1mInitial chunk files[22m                                                      [2m | [22m[1mNames[22m                                 [2m | [22m[1mRaw size[22m
+[32mruntime.js[39m                                                               [2m | [22m[2mruntime[22m                               [2m | [22m[36m14.73 kB[39m[2m | [22m
+
+[1mLazy chunk files[22m                                                         [2m | [22m[1mNames[22m                                 [2m | [22m[1mRaw size[22m
+[32msrc_app_demo_components_landing_landing_module_ts.js[39m                     [2m | [22m[2mdemo-components-landing-landing-module[22m[2m | [22m[36m55.91 kB[39m[2m | [22m
+[32msrc_app_demo_components_auth_login_login_module_ts.js[39m                    [2m | [22m[2mlogin-login-module[22m                    [2m | [22m[36m34.52 kB[39m[2m | [22m
+[32msrc_app_demo_components_auth_reset-password_reset-password_module_ts.js[39m  [2m | [22m[2mreset-password-reset-password-module[22m  [2m | [22m[36m15.80 kB[39m[2m | [22m
+[32msrc_app_demo_components_auth_forgot-password_forgot-password_module_ts.js[39m[2m | [22m[2mforgot-password-forgot-password-module[22m[2m | [22m[36m14.43 kB[39m[2m | [22m
+[32msrc_app_demo_components_auth_access_access_module_ts.js[39m                  [2m | [22m[2maccess-access-module[22m                  [2m | [22m [36m8.96 kB[39m[2m | [22m
+[32msrc_app_demo_components_auth_error_error_module_ts.js[39m                    [2m | [22m[2merror-error-module[22m                    [2m | [22m [36m8.88 kB[39m[2m | [22m
+[32msrc_app_demo_components_auth_auth_module_ts.js[39m                           [2m | [22m[2mdemo-components-auth-auth-module[22m      [2m | [22m [36m5.49 kB[39m[2m | [22m
+
+8 unchanged chunks
+
+Build at: 2026-06-03T12:00:43.509Z - Hash: 99a2dc0829e072c2 - Time: 2424ms
+
+√ Compiled successfully.
+
+[1mInitial chunk files[22m                                 [2m | [22m[1mNames[22m                                 [2m | [22m[1mRaw size[22m
+[32mruntime.js[39m                                          [2m | [22m[2mruntime[22m                               [2m | [22m[36m14.73 kB[39m[2m | [22m
+
+[1mLazy chunk files[22m                                    [2m | [22m[1mNames[22m                                 [2m | [22m[1mRaw size[22m
+[32msrc_app_demo_components_landing_landing_module_ts.js[39m[2m | [22m[2mdemo-components-landing-landing-module[22m[2m | [22m[36m55.92 kB[39m[2m | [22m
+
+14 unchanged chunks
+
+Build at: 2026-06-03T12:12:46.427Z - Hash: 9fa60a26e866a384 - Time: 2773ms
+
+√ Compiled successfully.
+
+[1mInitial chunk files[22m                                 [2m | [22m[1mNames[22m                                 [2m | [22m[1mRaw size[22m
+[32mruntime.js[39m                                          [2m | [22m[2mruntime[22m                               [2m | [22m[36m14.73 kB[39m[2m | [22m
+
+[1mLazy chunk files[22m                                    [2m | [22m[1mNames[22m                                 [2m | [22m[1mRaw size[22m
+[32msrc_app_demo_components_landing_landing_module_ts.js[39m[2m | [22m[2mdemo-components-landing-landing-module[22m[2m | [22m[36m55.92 kB[39m[2m | [22m
+
+14 unchanged chunks
+
+Build at: 2026-06-03T12:13:01.919Z - Hash: 4fc168c4eaf90a97 - Time: 2742ms
+
+√ Compiled successfully.
+
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m  [2m | [22m[1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m   [2m | [22m [36m1.59 MB[39m[2m | [22m
+[32mruntime.js[39m         [2m | [22m[2mruntime[22m[2m | [22m[36m14.73 kB[39m[2m | [22m
+
+14 unchanged chunks
+
+Build at: 2026-06-03T12:35:09.897Z - Hash: 2b015e60af0c4745 - Time: 5958ms
+
+√ Compiled successfully.
+
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m  [2m | [22m[1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m   [2m | [22m [36m1.59 MB[39m[2m | [22m
+[32mruntime.js[39m         [2m | [22m[2mruntime[22m[2m | [22m[36m14.73 kB[39m[2m | [22m
+
+14 unchanged chunks
+
+Build at: 2026-06-03T12:35:25.876Z - Hash: 7bebc0b2d92cfc31 - Time: 4893ms
+
+√ Compiled successfully.
+
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m  [2m | [22m[1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m   [2m | [22m [36m1.59 MB[39m[2m | [22m
+[32mruntime.js[39m         [2m | [22m[2mruntime[22m[2m | [22m[36m14.73 kB[39m[2m | [22m
+
+14 unchanged chunks
+
+Build at: 2026-06-03T12:35:30.078Z - Hash: c3ea631f91e3796b - Time: 4123ms
+
+√ Compiled successfully.
+
+[1mInitial chunk files[22m                                     [2m | [22m[1mNames[22m                                     [2m | [22m [1mRaw size[22m
+[32mruntime.js[39m                                              [2m | [22m[2mruntime[22m                                   [2m | [22m [36m14.73 kB[39m[2m | [22m
+
+[1mLazy chunk files[22m                                        [2m | [22m[1mNames[22m                                     [2m | [22m [1mRaw size[22m
+[32msrc_app_demo_components_dashboard_dashboard_module_ts.js[39m[2m | [22m[2mdemo-components-dashboard-dashboard-module[22m[2m | [22m[36m103.75 kB[39m[2m | [22m
+
+14 unchanged chunks
+
+Build at: 2026-06-03T12:35:32.736Z - Hash: 5b09b83b0e1bde4d - Time: 2579ms
+
+√ Compiled successfully.
+
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m  [2m | [22m[1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m   [2m | [22m [36m1.59 MB[39m[2m | [22m
+[32mruntime.js[39m         [2m | [22m[2mruntime[22m[2m | [22m[36m14.73 kB[39m[2m | [22m
+
+14 unchanged chunks
+
+Build at: 2026-06-03T12:35:43.157Z - Hash: 2d3c32a4c7092202 - Time: 7096ms
+
+√ Compiled successfully.
+
+[1mInitial chunk files[22m                                     [2m | [22m[1mNames[22m                                     [2m | [22m [1mRaw size[22m
+[32mmain.js[39m                                                 [2m | [22m[2mmain[22m                                      [2m | [22m  [36m1.59 MB[39m[2m | [22m
+[32mruntime.js[39m                                              [2m | [22m[2mruntime[22m                                   [2m | [22m [36m14.73 kB[39m[2m | [22m
+
+[1mLazy chunk files[22m                                        [2m | [22m[1mNames[22m                                     [2m | [22m [1mRaw size[22m
+[32msrc_app_demo_components_dashboard_dashboard_module_ts.js[39m[2m | [22m[2mdemo-components-dashboard-dashboard-module[22m[2m | [22m[36m103.75 kB[39m[2m | [22m
+
+13 unchanged chunks
+
+Build at: 2026-06-03T12:35:48.695Z - Hash: 8535d3e17cde073c - Time: 5470ms
+
+√ Compiled successfully.
+
+[1mInitial chunk files[22m                                     [2m | [22m[1mNames[22m                                     [2m | [22m [1mRaw size[22m
+[32mruntime.js[39m                                              [2m | [22m[2mruntime[22m                                   [2m | [22m [36m14.73 kB[39m[2m | [22m
+
+[1mLazy chunk files[22m                                        [2m | [22m[1mNames[22m                                     [2m | [22m [1mRaw size[22m
+[32msrc_app_demo_components_dashboard_dashboard_module_ts.js[39m[2m | [22m[2mdemo-components-dashboard-dashboard-module[22m[2m | [22m[36m103.88 kB[39m[2m | [22m
+
+14 unchanged chunks
+
+Build at: 2026-06-03T12:36:59.024Z - Hash: 3714d1750125de2f - Time: 3137ms
+
+√ Compiled successfully.
+
+[1mInitial chunk files[22m                                     [2m | [22m[1mNames[22m                                     [2m | [22m [1mRaw size[22m
+[32mruntime.js[39m                                              [2m | [22m[2mruntime[22m                                   [2m | [22m [36m14.73 kB[39m[2m | [22m
+
+[1mLazy chunk files[22m                                        [2m | [22m[1mNames[22m                                     [2m | [22m [1mRaw size[22m
+[32msrc_app_demo_components_dashboard_dashboard_module_ts.js[39m[2m | [22m[2mdemo-components-dashboard-dashboard-module[22m[2m | [22m[36m103.88 kB[39m[2m | [22m
+
+14 unchanged chunks
+
+Build at: 2026-06-03T12:37:02.354Z - Hash: b711bedc612b5019 - Time: 2438ms
+
+√ Compiled successfully.
+
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m  [2m | [22m[1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m   [2m | [22m [36m1.59 MB[39m[2m | [22m
+[32mruntime.js[39m         [2m | [22m[2mruntime[22m[2m | [22m[36m14.73 kB[39m[2m | [22m
+
+14 unchanged chunks
+
+Build at: 2026-06-03T12:37:06.626Z - Hash: 26400719cf4a00b7 - Time: 3073ms
+
+√ Compiled successfully.
+
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m  [2m | [22m[1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m   [2m | [22m [36m1.59 MB[39m[2m | [22m
+[32mruntime.js[39m         [2m | [22m[2mruntime[22m[2m | [22m[36m14.73 kB[39m[2m | [22m
+
+14 unchanged chunks
+
+Build at: 2026-06-03T12:37:11.514Z - Hash: 85184a099c1628a3 - Time: 2398ms
+
+√ Compiled successfully.
+
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m  [2m | [22m[1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m   [2m | [22m [36m1.59 MB[39m[2m | [22m
+[32mruntime.js[39m         [2m | [22m[2mruntime[22m[2m | [22m[36m14.73 kB[39m[2m | [22m
+
+14 unchanged chunks
+
+Build at: 2026-06-03T12:39:17.162Z - Hash: 01c52cde0f644d01 - Time: 5385ms
+
+√ Compiled successfully.
+
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m  [2m | [22m[1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m   [2m | [22m [36m1.59 MB[39m[2m | [22m
+[32mruntime.js[39m         [2m | [22m[2mruntime[22m[2m | [22m[36m14.73 kB[39m[2m | [22m
+
+14 unchanged chunks
+
+Build at: 2026-06-03T12:40:37.149Z - Hash: 676e564b894a3082 - Time: 5451ms
+
+√ Compiled successfully.
+
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m  [2m | [22m[1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m   [2m | [22m [36m1.59 MB[39m[2m | [22m
+[32mruntime.js[39m         [2m | [22m[2mruntime[22m[2m | [22m[36m14.73 kB[39m[2m | [22m
+
+14 unchanged chunks
+
+Build at: 2026-06-03T12:41:47.473Z - Hash: 80dfbb35bb5c784a - Time: 2811ms
+
+√ Compiled successfully.
+
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m  [2m | [22m[1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m   [2m | [22m [36m1.59 MB[39m[2m | [22m
+[32mruntime.js[39m         [2m | [22m[2mruntime[22m[2m | [22m[36m14.73 kB[39m[2m | [22m
+
+14 unchanged chunks
+
+Build at: 2026-06-03T12:41:54.212Z - Hash: d9fafa2b0f212da1 - Time: 2281ms
+
+√ Compiled successfully.
+
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m  [2m | [22m[1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m   [2m | [22m [36m1.59 MB[39m[2m | [22m
+[32mruntime.js[39m         [2m | [22m[2mruntime[22m[2m | [22m[36m14.73 kB[39m[2m | [22m
+
+14 unchanged chunks
+
+Build at: 2026-06-03T12:44:55.534Z - Hash: 9168c90c5f9ea01b - Time: 4894ms
+
+√ Compiled successfully.
+
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m  [2m | [22m[1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m   [2m | [22m [36m1.59 MB[39m[2m | [22m
+[32mruntime.js[39m         [2m | [22m[2mruntime[22m[2m | [22m[36m14.73 kB[39m[2m | [22m
+
+14 unchanged chunks
+
+Build at: 2026-06-03T12:44:58.654Z - Hash: 88206d502e41912e - Time: 3059ms
+
+√ Compiled successfully.
+
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m  [2m | [22m[1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m   [2m | [22m [36m1.59 MB[39m[2m | [22m
+[32mruntime.js[39m         [2m | [22m[2mruntime[22m[2m | [22m[36m14.73 kB[39m[2m | [22m
+
+14 unchanged chunks
+
+Build at: 2026-06-03T12:45:56.826Z - Hash: 423ffa77b2931571 - Time: 1621ms
+
+× Failed to compile.
+
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m  [2m | [22m[1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m   [2m | [22m [36m1.59 MB[39m[2m | [22m
+[32mruntime.js[39m         [2m | [22m[2mruntime[22m[2m | [22m[36m14.73 kB[39m[2m | [22m
+
+14 unchanged chunks
+
+Build at: 2026-06-03T12:46:03.695Z - Hash: d6847d420d7024af - Time: 1659ms
+
+× Failed to compile.
+
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m  [2m | [22m[1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m   [2m | [22m [36m1.59 MB[39m[2m | [22m
+[32mruntime.js[39m         [2m | [22m[2mruntime[22m[2m | [22m[36m14.73 kB[39m[2m | [22m
+
+14 unchanged chunks
+
+Build at: 2026-06-03T12:46:59.276Z - Hash: f80fcee80403bedf - Time: 1889ms
+
+√ Compiled successfully.
+
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m  [2m | [22m[1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m   [2m | [22m [36m1.59 MB[39m[2m | [22m
+[32mruntime.js[39m         [2m | [22m[2mruntime[22m[2m | [22m[36m14.73 kB[39m[2m | [22m
+
+14 unchanged chunks
+
+Build at: 2026-06-03T12:51:07.366Z - Hash: 34e363efc99572d8 - Time: 2217ms
+
+√ Compiled successfully.
+
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m  [2m | [22m[1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m   [2m | [22m [36m1.63 MB[39m[2m | [22m
+[32mruntime.js[39m         [2m | [22m[2mruntime[22m[2m | [22m[36m14.73 kB[39m[2m | [22m
+
+14 unchanged chunks
+
+Build at: 2026-06-03T13:07:08.849Z - Hash: d3b7efa05629eef7 - Time: 3698ms
+
+√ Compiled successfully.
+
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m  [2m | [22m[1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m   [2m | [22m [36m1.63 MB[39m[2m | [22m
+[32mruntime.js[39m         [2m | [22m[2mruntime[22m[2m | [22m[36m14.73 kB[39m[2m | [22m
+
+14 unchanged chunks
+
+Build at: 2026-06-03T13:07:17.824Z - Hash: a3908325e89cf4d6 - Time: 4857ms
+
+√ Compiled successfully.
+
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m  [2m | [22m[1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m   [2m | [22m [36m1.63 MB[39m[2m | [22m
+[32mruntime.js[39m         [2m | [22m[2mruntime[22m[2m | [22m[36m14.73 kB[39m[2m | [22m
+
+14 unchanged chunks
+
+Build at: 2026-06-03T13:07:20.759Z - Hash: 002d86606344c922 - Time: 2859ms
+
+√ Compiled successfully.
