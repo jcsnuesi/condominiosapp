@@ -29,8 +29,9 @@ exports.propertyStatus = async function (req, res, next) {
     if (condoFound.status == "inactive") {
       return res.status(403).send({
         status: "error",
+        code: "PROPERTY_INACTIVE",
         message:
-          "Forbidden to any action with inactive properties. Only active status is allowed.",
+          "This property is suspended. Activate it before making changes.",
       });
     }
 

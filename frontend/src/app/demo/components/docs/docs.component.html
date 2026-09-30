@@ -1,3 +1,5 @@
+<p-toast />
+<p-confirmDialog [baseZIndex]="12000" appendTo="body" />
 <!-- Admin-only Documentation Module built with PrimeNG -->
 
 <!-- Phase 1 responsive/accessibility: admin-only docs preserved -->
@@ -149,7 +151,7 @@
 >
     <form
         #docsForm="ngForm"
-        (ngSubmit)="btnLabel == 'Submit' ? submitDocs() : updateDocs()"
+        (ngSubmit)="saveDocument(docsForm)"
     >
         <!-- ✅ Title Field - FORMATO UNIFICADO -->
         <div class="field mb-3">
@@ -187,6 +189,7 @@
                         #CondoId="ngModel"
                         name="CondoId"
                         [(ngModel)]="docModel.condominiumId"
+                        required
                         id="inquiry-residential"
                         [options]="dataDocs"
                         placeholder="Your residential"
@@ -219,7 +222,7 @@
                 [disabled]="!isAdmin"
             ></p-select>
         </div>
-        @if (dialogHeader != 'Create New Documentation') {
+        @if (docModel.id) {
         <div class="field mb-3">
             <label for="doc-status" class="block font-semibold mb-2">
                 <i class="pi pi-tag mr-1"></i>
@@ -403,6 +406,9 @@
             }
         </div>
 
+        @if (submitError) {
+        <p class="docs-submit-error" role="alert">{{ submitError }}</p>
+        }
         <!-- ✅ Action Buttons - FORMATO UNIFICADO -->
         <div
             class="flex justify-content-end gap-2 pt-3 border-top-1 surface-border"
@@ -414,8 +420,9 @@
                 styleClass="p-button-text"
                 type="button"
             ></p-button>
-            @if (isAdmin) {
+            @if (isAdmin && docModel.id) {
             <p-button
+                type="button"
                 [loading]="loading"
                 label="Delete"
                 icon="pi pi-trash"
@@ -429,7 +436,7 @@
                 icon="pi pi-check"
                 type="submit"
                 [loading]="loading"
-                [disabled]="!docsForm.form.valid"
+                [disabled]="!docsForm.form.valid || loading"
             ></p-button>
             }
         </div>

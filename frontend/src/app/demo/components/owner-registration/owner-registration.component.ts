@@ -36,6 +36,7 @@ interface CondominiumSummary {
 
 interface CondominiumDetails extends CondominiumSummary {
     availableUnits?: string[];
+    status?: string;
     typeOfProperty?: string;
     street_1?: string;
     street_2?: string;
@@ -92,6 +93,13 @@ export class OwnerRegistrationComponent implements OnInit, OnChanges, OnDestroy 
     public unitOptions: SelectOption[] = [];
     public isLoadingCondominiums = false;
     public isLoadingUnits = false;
+    public selectedCondominiumStatus = '';
+    private existingOwnerId = '';
+    private existingOwnerEmail = '';
+
+    public get isSelectedCondominiumInactive(): boolean {
+        return this.selectedCondominiumStatus === 'inactive';
+    }
 
     public addreesDetails: {
         typeOfProperty: string;
@@ -213,16 +221,6 @@ export class OwnerRegistrationComponent implements OnInit, OnChanges, OnDestroy 
         });
     }
 
-    // public showBackBtn: boolean;
-
-    // ngAfterViewInit(): void {
-    //     // console.log('this.ownerObj', this.ownerObj);
-    //     if (this.ownerObj.email != '' && this.ownerObj.id_number != '') {
-    //         this.stepperComponent.activeStep = 1;
-    //         this.showBackBtn = false;
-    //     }
-    // }
-
     ngOnChanges(changes: SimpleChanges) {
         if (changes['ownerData']?.currentValue) {
             this.ownerObj = { ...changes['ownerData'].currentValue };
@@ -251,6 +249,7 @@ export class OwnerRegistrationComponent implements OnInit, OnChanges, OnDestroy 
         this.ownerObj.addressId = condominiumId;
         this.ownerObj.apartmentsUnit = '';
         this.unitOptions = [];
+        this.selectedCondominiumStatus = '';
         this.isLoadingUnits = true;
 
         this.unitsRequest = this._condominioService
@@ -278,9 +277,14 @@ export class OwnerRegistrationComponent implements OnInit, OnChanges, OnDestroy 
 
                     if (!condominium) {
                         this.unitOptions = [];
+                        this.selectedCondominiumStatus = '';
                         this.showLoadError('Condominium was not found.');
                         return;
                     }
+
+                    this.selectedCondominiumStatus = String(
+                        condominium.status ?? ''
+                    ).toLowerCase();
 
                     this.addreesDetails = {
                         typeOfProperty: condominium.typeOfProperty ?? '',
@@ -451,6 +455,10 @@ export class OwnerRegistrationComponent implements OnInit, OnChanges, OnDestroy 
                           }
                         : '',
                 };
+                this.existingOwnerId = String(owner._id ?? '');
+                this.existingOwnerEmail = String(owner.email ?? '')
+                    .trim()
+                    .toLowerCase();
 
                 this.image = owner.avatar
                     ? `${this.url}owner-avatar/${encodeURIComponent(
@@ -476,6 +484,17 @@ export class OwnerRegistrationComponent implements OnInit, OnChanges, OnDestroy 
         this.fileInput?.basicFileInput?.nativeElement.click();
     }
 
+    onEmailChange(email: string): void {
+        const normalizedEmail = String(email ?? '').trim().toLowerCase();
+        if (
+            this.existingOwnerId &&
+            normalizedEmail !== this.existingOwnerEmail
+        ) {
+            this.existingOwnerId = '';
+            this.existingOwnerEmail = '';
+        }
+    }
+
     onSelect(event: FileSelectEvent): void {
         const [selectedFile] = event.files;
 
@@ -497,6 +516,11 @@ export class OwnerRegistrationComponent implements OnInit, OnChanges, OnDestroy 
 
     confirmNewOwner() {
         if (this.isSubmittingOwner) {
+            return;
+        }
+
+        if (this.isSelectedCondominiumInactive) {
+            this.showInactiveCondominiumMessage();
             return;
         }
 
@@ -567,6 +591,10 @@ export class OwnerRegistrationComponent implements OnInit, OnChanges, OnDestroy 
 
         try {
             for (const key in this.ownerObj) {
+                if (key === 'id_number') {
+                    continue;
+                }
+
                 const value = this.ownerObj[key];
 
                 if (value === undefined || value === null || value === '') {
@@ -590,6 +618,9 @@ export class OwnerRegistrationComponent implements OnInit, OnChanges, OnDestroy 
 
                 formData.append(key, String(value));
             }
+            if (this.existingOwnerId) {
+                formData.append('existingOwnerId', this.existingOwnerId);
+            }
             return formData;
         } catch (error) {
             throw Error('Error processing form data: ' + error);
@@ -609,6 +640,11 @@ export class OwnerRegistrationComponent implements OnInit, OnChanges, OnDestroy 
 
     onSubmitUnit() {
         if (this.isSubmittingOwner) {
+            return;
+        }
+
+        if (this.isSelectedCondominiumInactive) {
+            this.showInactiveCondominiumMessage();
             return;
         }
 
@@ -684,6 +720,8 @@ export class OwnerRegistrationComponent implements OnInit, OnChanges, OnDestroy 
                         });
                         this.image =
                             this.url + 'main-avatar/owners/noimage1.jpeg';
+                        this.existingOwnerId = '';
+                        this.existingOwnerEmail = '';
                         this.resetStepper();
                         this._changeDetectorRef.markForCheck();
                         this.ownerCreated.emit(true);
@@ -709,27 +747,35 @@ export class OwnerRegistrationComponent implements OnInit, OnChanges, OnDestroy 
                     // this.apiUnitResponse = true;
                 },
                 error: (error) => {
-                    // this._messageService.add({
-                    //     severity: 'warn',
-                    //     summary: 'Message for server',
-                    //     detail: 'Unit was not Created',
-                    //     life: 3000,
-                    // });
-                    // this.messageApiResponse.forEach((item) => {
-                    //     item.detail = error.error.message;
-                    //     item.severity = 'danger';
-                    // });
+                    const isInactiveCondominium =
+                        error?.status === 403 &&
+                        (error?.error?.code === 'PROPERTY_INACTIVE' ||
+                            /inactive|suspended/i.test(
+                                error?.error?.message ?? ''
+                            ));
+
                     this._messageService.add({
                         severity: 'warn',
-                        summary: 'Warning',
-                        detail:
-                            error?.error?.message ??
-                            'Owner could not be created.',
-                        life: 3000,
+                        summary: isInactiveCondominium
+                            ? 'Property suspended'
+                            : 'Owner not created',
+                        detail: isInactiveCondominium
+                            ? 'Activate this property before adding an owner.'
+                            : error?.error?.message ??
+                              'Owner could not be created.',
+                        life: 5000,
                     });
-                    console.log(error);
                 },
             });
+    }
+
+    private showInactiveCondominiumMessage(): void {
+        this._messageService.add({
+            severity: 'warn',
+            summary: 'Property suspended',
+            detail: 'Activate this property before adding an owner.',
+            life: 5000,
+        });
     }
 
     reset(form: NgForm) {

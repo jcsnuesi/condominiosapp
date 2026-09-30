@@ -5,6 +5,12 @@ const Condominium = require("../models/condominio");
 const Owner = require("../models/owners");
 const Family = require("../models/family");
 const Staff = require("../models/staff");
+const {
+  activeFamilyCondominiumIds,
+  activeOwnerCondominiumIds,
+  activeOwnerPropertyDetails,
+  authorizedFamilyPropertyDetails,
+} = require("./residentPropertyAccess");
 
 const ADMIN_ROLES = new Set(["ADMIN", "STAFF_ADMIN", "STAFF"]);
 const RESIDENT_ROLES = new Set(["OWNER", "FAMILY"]);
@@ -103,13 +109,15 @@ async function getAccessibleCondominiumIds(user) {
   }
 
   if (role === "OWNER") {
-    const owner = await Owner.findById(user.sub).select("propertyDetails.addressId").lean();
-    return (owner?.propertyDetails || []).map((item) => asString(item.addressId));
+    const owner = await Owner.findById(user.sub).select("propertyDetails").lean();
+    return activeOwnerCondominiumIds(owner);
   }
 
   if (role === "FAMILY") {
-    const family = await Family.findById(user.sub).select("propertyDetails.addressId").lean();
-    return (family?.propertyDetails || []).map((item) => asString(item.addressId));
+    const family = await Family.findById(user.sub)
+      .select("propertyDetails createdBy organizationId")
+      .lean();
+    return activeFamilyCondominiumIds(family);
   }
 
   return [];
@@ -125,8 +133,18 @@ async function getResidentPropertyDetails(user) {
   const role = normalizeRole(user?.role);
   const Model = role === "OWNER" ? Owner : role === "FAMILY" ? Family : null;
   if (!Model || !user?.sub) return [];
-  const record = await Model.findById(user.sub).select("propertyDetails").lean();
-  return record?.propertyDetails || [];
+  const record = await Model.findById(user.sub)
+    .select("propertyDetails createdBy organizationId")
+    .lean();
+
+  if (role === "OWNER") {
+    return activeOwnerPropertyDetails(record);
+  }
+
+  const accessibleIds = new Set(await activeFamilyCondominiumIds(record));
+  return authorizedFamilyPropertyDetails(record).filter((property) =>
+    accessibleIds.has(asString(property.addressId))
+  );
 }
 
 async function getResidentUnits(user) {

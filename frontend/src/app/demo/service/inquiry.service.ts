@@ -98,6 +98,31 @@ export class InquiryService {
             .pipe(map((response) => this.normalizeResponse<any>(response)));
     }
 
+    getInquiriesByOwner(ownerId: string): Observable<ApiResponse<any>> {
+        const headers = new HttpHeaders().set(
+            'Authorization',
+            this._cookies.get('token')
+        );
+        return this.http
+            .get<any>(
+                `${this.apiUrl}inquiries-by-owner/${encodeURIComponent(ownerId)}`,
+                { headers }
+            )
+            .pipe(map((response) => this.normalizeResponse<any>(response)));
+    }
+
+    createInquiryForOwner(inquiry: {
+        ownerId: string;
+        title: string;
+        content: string;
+        category: string;
+        priority: string;
+        condominiumId: string;
+        apartmentUnit: string;
+    }): Observable<ApiResponse<any>> {
+        return this.createInquiry(inquiry);
+    }
+
     // getInquiryDetails(inquiryId: string): Observable<ApiResponse<any>> {
     //     return this.http.get<ApiResponse<any>>(
     //         `${this.apiUrl}inquiries/${inquiryId}`

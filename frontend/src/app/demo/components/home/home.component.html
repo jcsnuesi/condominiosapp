@@ -1,176 +1,94 @@
 <p-toast />
 <p-confirmDialog />
-<div class="flex flex-col sm:flex-row items-center gap-6 mb-4">
-    <div class="flex flex-col sm:flex-row gap-4">
-        <img alt="avatar" [src]="condoInfo.avatar" class="avatarOwnerProfile" />
-        <div>
-            <span
-                class="text-surface-900 dark:text-surface-0 font-bold text-4xl"
-                style="color: black"
-                >{{
+<header class="home-hero">
+    <div class="home-identity">
+        <img
+            alt="Property avatar"
+            [src]="condoInfo.avatar"
+            class="home-avatar"
+        />
+        <div class="home-identity-copy">
+            <div class="home-eyebrow-row">
+                <span class="home-eyebrow">Property overview</span>
+                <span
+                    class="home-status"
+                    [class.home-status--inactive]="
+                        condoInfo.status !== 'active'
+                    "
+                >
+                    <span class="home-status-dot" aria-hidden="true"></span>
+                    {{ condoInfo.status === "active" ? "Active" : "Deactive" }}
+                </span>
+            </div>
+            <h1>
+                {{
                     condoInfo.typeOfProperty + ": " + condoInfo.alias
                         | titlecase
                 }}
-
-                <div style="font-size: 12px">
-                    Billing date:
-                    {{ condoInfo.paymentDate }}
-                </div>
-            </span>
+            </h1>
+            <p>Billing date: {{ condoInfo.paymentDate }}</p>
         </div>
-        <span
-            class="pi pi-cog"
-            (click)="settings()"
-            style="cursor: pointer"
+    </div>
+    <button type="button" class="home-primary-action" (click)="settings()">
+        <i class="pi pi-cog" aria-hidden="true"></i> Settings
+    </button>
+</header>
+
+<section class="home-metrics" aria-label="Property summary">
+    <article class="home-metric">
+        <span class="home-metric-icon home-metric-icon--blue"
+            ><i class="pi pi-building" aria-hidden="true"></i
         ></span>
-    </div>
-    <p-tag
-        class="app-status-tag-host"
-        styleClass="app-status-tag"
-        [severity]="condoInfo.status == 'active' ? 'success' : 'danger'"
-        [value]="condoInfo.status == 'active' ? 'Active' : 'Deactive'"
-    />
-</div>
-<div class="grid">
-    <div class="col-12 lg:col-6 xl:col-3">
-        <div class="card">
-            <div class="flex justify-content-between mb-3">
-                <div>
-                    <span class="block text-500 font-medium mb-3">
-                        Total units
-                    </span>
-                    <div class="text-900 font-medium text-2xl">{{ units }}</div>
-                </div>
-
-                <div
-                    *appHasPermissions="['admin', 'owners.create']"
-                    class="flex align-items-center justify-content-center bg-blue-100 border-round icon-plus-changer"
-                    (click)="showDialog()"
-                    role="button"
-                    tabindex="0"
-                    aria-label="Create owner"
-                    (keydown.enter)="showDialog()"
-                    (keydown.space)="showDialog(); $event.preventDefault()"
-                    [ngStyle]="{ width: '2.5rem', height: '2.5rem' }"
-                >
-                    <i class="pi pi-plus text-blue-500 text-xl"></i>
-                </div>
-            </div>
-            <span class="text-500">Member since: </span>
-            <span class="text-green-500 font-medium"
-                >{{ card_unit_member_date }}
-            </span>
+        <div class="home-metric-copy">
+            <small>Total units</small><strong>{{ units }}</strong
+            ><span>Member since: {{ card_unit_member_date }}</span>
         </div>
-    </div>
-
-    <div class="col-12 lg:col-6 xl:col-3">
-        <div class="card mb-0">
-            <div class="flex justify-content-between mb-3">
-                <div>
-                    <span class="block text-500 font-medium mb-3">
-                        Bookings
-                    </span>
-                    <div class="text-900 font-medium text-2xl">
-                        {{ totalBooked }}
-                    </div>
-                </div>
-                <a
-                    (click)="showComponent('booking')"
-                    class="change-icon flex align-items-center justify-content-center bg-orange-100 border-round"
-                    [ngStyle]="{ width: '2.5rem', height: '2.5rem' }"
-                >
-                    <i class="pi pi-calendar-minus text-orange-500 text-xl"></i>
-                </a>
-            </div>
-            <span class="text-green-500 font-medium"
-                >{{ expiringBookingsToday }}
-            </span>
-            <span class="text-500">expiring today</span>
-        </div>
-    </div>
-    <div class="col-12 lg:col-6 xl:col-3">
-        <div class="card mb-0">
-            <div class="flex justify-content-between mb-3">
-                <div>
-                    <span class="block text-500 font-medium mb-3"
-                        >Staff list</span
-                    >
-                    <div class="text-900 font-medium text-2xl">
-                        {{ stafflistNumber }}
-                    </div>
-                </div>
-                <a
-                    (click)="showComponent('staff')"
-                    class="flex align-items-center justify-content-center bg-cyan-100 border-round change-icon"
-                    [ngStyle]="{ width: '2.5rem', height: '2.5rem' }"
-                >
-                    <i class="pi pi-users text-cyan-500 text-2xl"></i>
-                </a>
-            </div>
-            <span class="text-green-500 font-medium"
-                >{{ activeStaffQty }}
-            </span>
-            <span class="text-500">staff active</span>
-        </div>
-    </div>
-    <div class="col-12 lg:col-6 xl:col-3">
-        <div class="card mb-0">
-            <div class="flex justify-content-between mb-3">
-                <div>
-                    <span class="block text-500 font-medium mb-3"
-                        >Inquiries</span
-                    >
-                    <div class="text-900 font-medium text-2xl">
-                        {{ totalInquiries }}
-                    </div>
-                </div>
-                <div
-                    class="flex align-items-center justify-content-center bg-purple-100 border-round"
-                    [ngStyle]="{ width: '2.5rem', height: '2.5rem' }"
-                >
-                    <a
-                        (click)="showComponent('inquiry')"
-                        class="flex align-items-center justify-content-center bg-purple-100 border-round change-icon"
-                        [ngStyle]="{ width: '2.5rem', height: '2.5rem' }"
-                    >
-                        <i class="pi pi-comment text-purple-500 text-xl"></i>
-                    </a>
-                </div>
-            </div>
-            <span class="text-green-500 font-medium"
-                >{{ respondedInquiries }}
-            </span>
-            <span class="text-500">responded</span>
-        </div>
-    </div>
-
-    <div class="col-12 lg:col-6 xl:col-3">
-        <div class="card mb-0">
-            <div class="flex justify-content-between mb-3">
-                <div>
-                    <span class="block text-500 font-medium mb-3"
-                        >Documents</span
-                    >
-                    <div class="text-900 font-medium text-2xl">
-                        {{ totalDocuments }}
-                    </div>
-                </div>
-                <div
-                    class="flex align-items-center justify-content-center bg-grey-100 border-round"
-                    [ngStyle]="{ width: '2.5rem', height: '2.5rem' }"
-                >
-                    <a
-                        (click)="showComponent('documents')"
-                        class="flex align-items-center justify-content-center bg-yellow-100 border-round change-icon"
-                        [ngStyle]="{ width: '2.5rem', height: '2.5rem' }"
-                    >
-                        <i class="pi pi-folder text-orange-500 text-xl"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+        <button
+            *appHasPermissions="['admin', 'owners.create']"
+            type="button"
+            class="home-icon-action"
+            (click)="showDialog()"
+            aria-label="Create owner"
+        >
+            <i class="pi pi-plus" aria-hidden="true"></i>
+        </button>
+    </article>
+    <button
+        type="button"
+        class="home-metric"
+        (click)="showComponent('booking')"
+    >
+        <span class="home-metric-icon home-metric-icon--mint"
+            ><i class="pi pi-calendar" aria-hidden="true"></i
+        ></span>
+        <span class="home-metric-copy"
+            ><small>Bookings</small><strong>{{ totalBooked }}</strong
+            ><span>{{ expiringBookingsToday }} expiring today</span></span
+        >
+    </button>
+    <button type="button" class="home-metric" (click)="showComponent('staff')">
+        <span class="home-metric-icon home-metric-icon--violet"
+            ><i class="pi pi-users" aria-hidden="true"></i
+        ></span>
+        <span class="home-metric-copy"
+            ><small>Staff list</small><strong>{{ stafflistNumber }}</strong
+            ><span>{{ activeStaffQty }} staff active</span></span
+        >
+    </button>
+    <button
+        type="button"
+        class="home-metric"
+        (click)="showComponent('inquiry')"
+    >
+        <span class="home-metric-icon home-metric-icon--coral"
+            ><i class="pi pi-comments" aria-hidden="true"></i
+        ></span>
+        <span class="home-metric-copy"
+            ><small>Inquiries</small><strong>{{ totalInquiries }}</strong
+            ><span>{{ respondedInquiries }} responded</span></span
+        >
+    </button>
+</section>
 
 <!-- Spinner -->
 @if(is_loading) {
@@ -179,9 +97,37 @@
 </div>
 }
 
-<p-breadcrumb class="max-w-full mb-4" [model]="itemsx" />
+<nav class="home-resource-nav" aria-label="Property resources">
+    <button
+        type="button"
+        [class.active]="componentsToShow.main"
+        [attr.aria-current]="componentsToShow.main ? 'page' : null"
+        (click)="showComponent('main')"
+    >
+        <i class="pi pi-th-large" aria-hidden="true"></i> Overview
+    </button>
+    <button
+        type="button"
+        [class.active]="componentsToShow.documents"
+        [attr.aria-current]="componentsToShow.documents ? 'page' : null"
+        (click)="showComponent('documents')"
+    >
+        <i class="pi pi-folder" aria-hidden="true"></i> Documents
+    </button>
+    <button
+        type="button"
+        [class.active]="componentsToShow.invoiceHistory"
+        [attr.aria-current]="componentsToShow.invoiceHistory ? 'page' : null"
+        (click)="showComponent('invoiceHistory')"
+    >
+        <i class="pi pi-wallet" aria-hidden="true"></i> Invoices this month
+    </button>
+    <button type="button" (click)="showInvoiceGenerator()">
+        <i class="pi pi-file-edit" aria-hidden="true"></i> Invoice generator
+    </button>
+</nav>
 @if (componentsToShow.main) {
-<div class="grid mt-2">
+<div class="grid mt-2 home-overview">
     <div class="col-12 xl:col-6">
         <div class="card">
             <h5>Residents</h5>
@@ -214,10 +160,9 @@
                                     'main-avatar/owners/' +
                                     customer.ownerId.avatar
                                 "
-                                class="shadow-4"
+                                class="home-resident-avatar"
                                 alt=""
                                 width="50"
-                                style="border-radius: 5px"
                             />
                         </td>
                         <td style="width: 35%; min-width: 7rem">
@@ -251,6 +196,7 @@
                                 type="button"
                                 (click)="showOwnerDialog(customer)"
                                 icon="pi pi-eye"
+                                aria-label="View resident profile"
                                 class="p-button p-component p-button-text p-button-icon-only"
                             ></button>
                         </td>
@@ -290,7 +236,9 @@
                             <span
                                 class="notification-status"
                                 [ngClass]="{
-                                    'status-high': inquiry.status === 'high',
+                                    'status-high':
+                                        inquiry.status === 'high' ||
+                                        inquiry.status === 'urgent',
                                     'status-medium':
                                         inquiry.status === 'medium',
                                     'status-low': inquiry.status === 'low'
@@ -299,6 +247,7 @@
                             >
                         </div>
                         <p-button
+                            ariaLabel="View inquiry"
                             icon="pi pi-eye"
                             [rounded]="true"
                             [text]="true"
@@ -313,28 +262,6 @@
     </div>
     <div class="col-12 xl:col-6">
         <div class="card">
-            <div class="d-flex">
-                <p-inputGroup>
-                    <div
-                        class="flex align-items-center justify-content-center bg-gray-100 border-round icon-plus-changer mr-3"
-                        (click)="showComponent('invoiceHistory')"
-                        [ngStyle]="{ width: '2.5rem', height: '2.5rem' }"
-                    >
-                        <i class="pi pi-history text-gray-500 text-xl"></i>
-                    </div>
-                    <span class="alingText">Invoice history</span>
-                    <div class="ml-3"></div>
-                    <div
-                        class="flex align-items-center justify-content-center bg-green-100 border-round icon-plus-changer mr-3"
-                        (click)="showInvoiceGenerator()"
-                        [ngStyle]="{ width: '2.5rem', height: '2.5rem' }"
-                    >
-                        <i class="pi pi-money-bill text-green-500 text-xl"></i>
-                    </div>
-                    <span class="alingText">Invoice generator</span>
-                </p-inputGroup>
-            </div>
-            <div class="divider"></div>
             @if (!chartVisible) {
             <p-progressSpinner ariaLabel="loading" />
             } @if (chartVisible && !noDataForChart) {
@@ -394,9 +321,13 @@
                 <p-tablist>
                     <p-tab value="basic-info">Basic info</p-tab>
                     <p-tab value="properties">Properties</p-tab>
+                    @if (ownerObj.status !== 'inactive') {
                     <p-tab value="authorized-users">Authorized users</p-tab>
+                    }
                     <p-tab value="payments-history">Payments history</p-tab>
+                    @if (ownerObj.status !== 'inactive') {
                     <p-tab value="bookings">Bookings</p-tab>
+                    }
                 </p-tablist>
                 <p-tabpanels>
                     <p-tabpanel value="basic-info">
@@ -417,6 +348,7 @@
                         ></app-properties-by-owner>
                         }
                     </p-tabpanel>
+                    @if (ownerObj.status !== 'inactive') {
                     <p-tabpanel value="authorized-users">
                         @if (visible_owner && activeOwnerTab ===
                         'authorized-users') {
@@ -425,6 +357,7 @@
                         ></app-family-member-details>
                         }
                     </p-tabpanel>
+                    }
                     <p-tabpanel value="payments-history">
                         @if (visible_owner && activeOwnerTab ===
                         'payments-history') {
@@ -433,6 +366,7 @@
                         ></app-payments-history>
                         }
                     </p-tabpanel>
+                    @if (ownerObj.status !== 'inactive') {
                     <p-tabpanel value="bookings">
                         @if (visible_owner && activeOwnerTab === 'bookings') {
                         <app-booking-area
@@ -440,6 +374,7 @@
                         ></app-booking-area>
                         }
                     </p-tabpanel>
+                    }
                 </p-tabpanels>
             </p-tabs>
         </p-dialog>

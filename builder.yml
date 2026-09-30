@@ -65,12 +65,15 @@ services:
       - "9090:9090"
     networks:
       - app-network
+    volumes:
+      - uploads:/app/uploads
     depends_on:
       backend:
         condition: service_healthy
 
 volumes:
   mongodb-iam-data:
+  uploads:
 
 networks:
   app-network:

@@ -86,5 +86,17 @@ InvoiceSchema.index(
   }
 );
 InvoiceSchema.index({ organizationId: 1, condominiumId: 1, paymentStatus: 1 });
+InvoiceSchema.index(
+  { organizationId: 1, condominiumId: 1, issueDate: -1 },
+  { name: "invoice_history_condominium_month_lookup" }
+);
+InvoiceSchema.index(
+  { organizationId: 1, ownerId: 1, issueDate: -1 },
+  { name: "invoice_history_owner_month_lookup" }
+);
+InvoiceSchema.index(
+  { organizationId: 1, createdBy: 1, issueDate: -1 },
+  { name: "invoice_history_admin_month_lookup" }
+);
 
 module.exports = mongoose.model("Invoice", InvoiceSchema);

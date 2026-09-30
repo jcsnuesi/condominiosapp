@@ -308,7 +308,7 @@ label{
     font-size: 1.25rem;
 }
 
-.booking-history-card .p-column-title {
+.booking-history-card .booking-field-label {
     display: none;
 }
 
@@ -431,7 +431,7 @@ label{
         word-break: break-word;
     }
 
-    :host ::ng-deep .booking-history-table .p-datatable-tbody > tr > td:first-child {
+    :host ::ng-deep .booking-history-table .booking-selection-cell--hidden {
         display: none;
     }
 
@@ -444,7 +444,7 @@ label{
         border-bottom: 0;
     }
 
-    :host ::ng-deep .booking-history-table .p-column-title {
+    .booking-history-card .booking-field-label {
         display: inline-flex;
         flex: 0 0 7.5rem;
         color: var(--text-color-secondary);
@@ -466,4 +466,39 @@ label{
         justify-content: flex-end;
         background: var(--surface-ground);
     }
+}
+
+/* Booking history controls remain usable at narrow viewport widths. */
+:host { display: block; min-width: 0; }
+.booking-history-card { color: #183153; border: 1px solid #dce5ee; border-radius: 16px; }
+.booking-history-card .app-page-kicker { color: #176b87; }
+:host ::ng-deep .booking-history-table .booking-toolbar { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: .65rem; align-items: center; }
+.booking-toolbar .booking-search { display: block; width: 100%; min-width: 0; }
+:host ::ng-deep .booking-search .p-iconfield { width: 100%; }
+:host ::ng-deep .booking-search input { width: 100%; min-width: 0; min-height: 44px; border-radius: 10px; font-size: .875rem; }
+:host ::ng-deep .booking-toolbar-button { min-height: 44px; padding: .65rem .9rem; border-radius: 10px; font-size: .85rem; font-weight: 650; box-shadow: none; white-space: nowrap; }
+:host ::ng-deep .booking-clear-button { background: #fff; border-color: #dce5ee; color: #176b87; }
+:host ::ng-deep .booking-clear-button:not(:disabled):hover { background: #edf4f7; border-color: #b5cbd6; }
+:host ::ng-deep .booking-delete-button { background: #fff; border-color: #efccc6; color: #b33f30; }
+:host ::ng-deep .booking-delete-button:not(:disabled):hover { background: #fff0ed; border-color: #dca89e; }
+:host ::ng-deep .booking-row-action { min-width: 44px; min-height: 44px; border-radius: 10px; background: #edf4f7; border-color: #dce5ee; color: #176b87; }
+@media (max-width: 768px) {
+    .booking-history-card.card { padding: .85rem; }
+    :host ::ng-deep .booking-history-table .p-datatable-header { padding: .75rem 0; background: transparent; }
+    :host ::ng-deep .booking-history-table .booking-toolbar { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; }
+    .booking-search { grid-column: 1 / -1; }
+    .booking-toolbar > p-button { min-width: 0; }
+    :host ::ng-deep .booking-toolbar-button { width: 100%; padding: .65rem .5rem; }
+    :host ::ng-deep .booking-history-table .p-datatable-tbody > tr { margin: .75rem 0; border-color: #dce5ee; border-radius: 14px; }
+    :host ::ng-deep .booking-history-table .p-datatable-tbody > tr > td { min-width: 0; gap: .65rem; padding: .65rem .75rem; border-color: #edf1f5; font-size: .85rem; }
+    .booking-history-card .booking-field-label { flex-basis: 6rem; font-size: .7rem; text-transform: none; letter-spacing: 0; color: #66758d; }
+    :host ::ng-deep .booking-history-table .p-datatable-tbody > tr > .booking-selection-cell { background: #f6f9fb; }
+    :host ::ng-deep .booking-history-table .p-datatable-tbody > tr > .booking-selection-cell--hidden { display: none; }
+    :host ::ng-deep .booking-history-table .p-datatable-tbody > tr > .booking-empty-cell { display: block; background: #fff; text-align: center !important; }
+    .booking-empty-cell .app-empty-state { padding: 1.5rem .75rem; min-width: 0; }
+    :host ::ng-deep .booking-history-table .p-paginator { display: flex; flex-wrap: wrap; justify-content: center; padding: .65rem 0; gap: .2rem; }
+    :host ::ng-deep .booking-history-table .p-paginator-current { flex: 1 1 100%; margin: 0 0 .35rem; min-height: 1.5rem; font-size: .8rem; text-align: center; }
+    :host ::ng-deep .booking-history-table .p-paginator button { min-width: 2rem; width: 2rem; height: 44px; }
+    :host ::ng-deep .booking-history-table .p-paginator .p-select { min-width: 3.75rem; margin-left: .3rem; height: 44px; }
+    :host ::ng-deep .booking-history-table .p-paginator .p-select-label { padding: .65rem .5rem; }
 }

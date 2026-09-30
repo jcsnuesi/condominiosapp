@@ -22,10 +22,19 @@ const mongoose = require("mongoose");
 const emailVerification = require("../service/generateVerification");
 const wsConfirmationMessage = require("./whatsappController");
 let checkExtensions = require("../service/extensions");
+const { canAccessCondominium } = require("../service/authorization");
 
 const familyController = {
   createAccount: async (req, res) => {
     let params = req.body;
+
+    if (String(params.ownerId) !== String(req.user.sub)) {
+      return res.status(403).send({
+        status: "forbidden",
+        code: "FAMILY_OWNER_MISMATCH",
+        message: "Family accounts can only be created by their owner",
+      });
+    }
 
     if (Boolean(req.files)) {
       params.avatar = req.file.filename;
@@ -44,7 +53,7 @@ const familyController = {
 
     if (val_ownerId && val_addressId && val_email) {
       const familyFound = await Family.findOne({
-        $and: [{ email: params.email }, { ownerId: params.ownerId }],
+        $and: [{ email: params.email }, { createdBy: params.ownerId }],
       });
 
       if (familyFound) {
@@ -113,8 +122,25 @@ const familyController = {
     let params = new mongoose.Types.ObjectId(req.params.id);
 
     try {
+      const role = String(req.user?.role || "").toUpperCase();
+      const residentOwnerId =
+        role === "FAMILY" ? req.user?.createdBy : req.user?.sub;
+      if (
+        ["OWNER", "FAMILY"].includes(role) &&
+        String(params) !== String(residentOwnerId)
+      ) {
+        return res.status(403).send({
+          status: "forbidden",
+          message: "You are not authorized to access these family members",
+        });
+      }
+
       const familyFound = await Family.find({
-        $and: [{ createdBy: params }, { delete: false }],
+        $and: [
+          { createdBy: params },
+          { organizationId: req.auth.organizationId },
+          { delete: false },
+        ],
       })
         .select("-password")
         .populate({
@@ -131,10 +157,22 @@ const familyController = {
           message: "Family not found",
         });
       }
-      delete familyFound.password;
+      const allowedIds = new Set(
+        (req.auth?.scope?.condominiumIds || []).map(String)
+      );
+      const response = familyFound.map((member) => {
+        const value = member.toObject ? member.toObject() : member;
+        if (["OWNER", "FAMILY"].includes(role)) {
+          value.propertyDetails = (value.propertyDetails || []).filter(
+            (property) =>
+              allowedIds.has(String(property?.addressId?._id || property?.addressId))
+          );
+        }
+        return value;
+      });
       return res.status(200).send({
         status: "success",
-        message: familyFound,
+        message: response,
       });
     } catch (error) {
       return res.status(500).send({
@@ -149,6 +187,8 @@ const familyController = {
     const familyInfo = await Family.find({
       $and: [
         { "propertyDetails.addressId": { $in: [params] } },
+        { createdBy: req.user.sub },
+        { organizationId: req.auth.organizationId },
         { delete: false },
       ],
     })
@@ -179,9 +219,17 @@ const familyController = {
     const familyMember = await Family.findOne({
       $and: [
         { _id: params.familyId },
+        { createdBy: req.user.sub },
         { "propertyDetails.addressId": { $in: [params.propertyId] } },
       ],
     });
+
+    if (!familyMember) {
+      return res.status(404).send({
+        status: "error",
+        message: "Family member not found for this condominium",
+      });
+    }
 
     if (familyMember.status === "inactive") {
       return res.status(200).send({
@@ -191,11 +239,11 @@ const familyController = {
     }
 
     // Actualizamos el estado de la familia: autorizado o no autorizado
-    if (params.status === "authorized") {
-      familyMember.propertyDetails[0].family_status = "unauthorized";
-    } else {
-      familyMember.propertyDetails[0].family_status = "authorized";
-    }
+    const property = familyMember.propertyDetails.find(
+      (item) => String(item.addressId) === String(params.propertyId)
+    );
+    property.family_status =
+      params.status === "authorized" ? "unauthorized" : "authorized";
 
     try {
       // Actualizamos el documento de la familia
@@ -203,6 +251,7 @@ const familyController = {
         {
           $and: [
             { _id: params.familyId },
+            { createdBy: req.user.sub },
             { "propertyDetails.addressId": { $in: [params.propertyId] } },
           ],
         },
@@ -254,9 +303,31 @@ const familyController = {
     }
 
     if (val_familyId && val_addressId && val_ownerId) {
+      if (String(params.ownerId) !== String(req.user.sub)) {
+        return res.status(403).send({
+          status: "forbidden",
+          message: "Family accounts can only be updated by their owner",
+        });
+      }
+
+      const addressIds = Array.isArray(params.addressId)
+        ? params.addressId
+        : [params.addressId];
+      if (
+        addressIds.some(
+          (addressId) => !canAccessCondominium(req.auth, addressId)
+        )
+      ) {
+        return res.status(403).send({
+          status: "forbidden",
+          code: "RESIDENT_CONDOMINIUM_INACTIVE",
+          message: "Family access cannot be granted in an inactive condominium",
+        });
+      }
+
       // Buscamos al miembro de la familia por el id de la familia y el id del propietario
       const member = await Family.findOne({
-        $and: [{ _id: params.memberId }, { ownerId: params.ownerId }],
+        $and: [{ _id: params.memberId }, { createdBy: params.ownerId }],
       }).populate({
         path: "ownerId",
         model: "Owner",
@@ -301,7 +372,7 @@ const familyController = {
         // Actualizamos el documento de la familia
         await Family.findOneAndUpdate(
           {
-            $and: [{ _id: params.memberId }, { ownerId: params.ownerId }],
+            $and: [{ _id: params.memberId }, { createdBy: params.ownerId }],
           },
           member,
           {

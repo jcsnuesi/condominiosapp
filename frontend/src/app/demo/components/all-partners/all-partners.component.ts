@@ -36,6 +36,7 @@ import { HasPermissionsDirective } from 'src/app/has-permissions.directive';
 export class AllPartnersComponent implements OnInit {
     public token: string;
     public visible: boolean = false;
+    public registrationTab: string | number = 'single';
     public identity: any;
     public datatable: any[];
     public selectedCustomers: any[] = [];
@@ -178,7 +179,12 @@ export class AllPartnersComponent implements OnInit {
     }
 
     showOwner(id: string) {
-        this._router.navigate(['/showOwner', id]);
+        this._router.navigate(['/partners', id]);
+    }
+
+    openRegistrationDialog(): void {
+        this.registrationTab = 'single';
+        this.visible = true;
     }
 
     closeDialogRegistration() {
@@ -191,6 +197,12 @@ export class AllPartnersComponent implements OnInit {
     ownerRegistrationCreated(created: boolean): void {
         if (!created) return;
         this.visible = false;
+        this._messageService.add({
+            severity: 'success',
+            summary: 'Owner created',
+            detail: 'The owner was created successfully.',
+            life: 4000,
+        });
         this.getAllPartners();
     }
 }

@@ -14,6 +14,13 @@ const Admin = require("../models/admin");
 const Staff_Admin = require("../models/staff_admin");
 const Staff = require("../models/staff");
 const { default: mongoose } = require("mongoose");
+const {
+  isOwnerActiveInCondominium,
+} = require("../service/residentPropertyAccess");
+const {
+  INVOICE_HISTORY_MONTHS,
+  invoiceHistoryRange,
+} = require("../service/invoiceHistoryRange");
 
 var invoiceController = {
   createInvoice: async function (req, res) {
@@ -60,6 +67,19 @@ var invoiceController = {
     }
 
     try {
+      const ownerCanBeInvoiced = await isOwnerActiveInCondominium(
+        params.ownerId,
+        params.condominiumId,
+        req.auth.organizationId
+      );
+      if (!ownerCanBeInvoiced) {
+        return res.status(403).send({
+          status: "forbidden",
+          code: "OWNER_CONDOMINIUM_INACTIVE",
+          message: "Invoices are paused for this owner in the condominium",
+        });
+      }
+
       // Find existing invoices for this owner
       let invoices = await Invoice.find({ ownerId: params.ownerId, organizationId: req.auth.organizationId });
 
@@ -126,7 +146,7 @@ var invoiceController = {
         _id: params.condominiumId,
         organizationId: req.auth.organizationId,
         status: { $ne: "inactive" },
-      }).populate("units_ownerId", "email name lastname phone id_number");
+      }).lean();
 
       if (!condominiums) {
         return res.status(404).send({
@@ -159,13 +179,33 @@ var invoiceController = {
         }
 
         // Generate new invoices for all owners
-        const invoicePromises = condominium.units_ownerId.map(async (owner) => {
+        const ownerIds = [
+          ...new Set(
+            (condominium.units_ownerId || [])
+              .filter(
+                (entry) =>
+                  String(entry?.status || "active").toLowerCase() !== "inactive"
+              )
+              .map((entry) => String(entry?.ownerId || entry))
+          ),
+        ];
+        const invoicePromises = ownerIds.map(async (ownerId) => {
           try {
+            if (
+              !(await isOwnerActiveInCondominium(
+                ownerId,
+                condominium._id,
+                req.auth.organizationId
+              ))
+            ) {
+              return null;
+            }
+
             // Check if invoice already exists for this month
             const currentMonth = format(new Date(), "yyyy-MM");
             const existingInvoice = await Invoice.findOne({
               condominiumId: condominium._id,
-              ownerId: owner._id,
+              ownerId,
               createdAt: {
                 $gte: new Date(currentMonth + "-01"),
                 $lt: addMonths(new Date(currentMonth + "-01"), 1),
@@ -174,7 +214,7 @@ var invoiceController = {
 
             if (existingInvoice) {
               console.log(
-                `Invoice already exists for owner ${owner._id} this month`
+                `Invoice already exists for owner ${ownerId} this month`
               );
               return null;
             }
@@ -194,13 +234,13 @@ var invoiceController = {
                 `Monthly fee - ${format(issueDate, "MMMM yyyy")}`,
               condominiumId: condominium._id,
               createdBy: req.user.sub,
-              ownerId: owner._id,
+              ownerId,
             });
 
             return await newInvoice.save();
           } catch (error) {
             console.error(
-              `Error creating invoice for owner ${owner._id}:`,
+              `Error creating invoice for owner ${ownerId}:`,
               error
             );
             return null;
@@ -214,7 +254,7 @@ var invoiceController = {
         ).length;
 
         console.log(
-          `Generated ${successful}/${condominium.units_ownerId.length} invoices for ${condominium.alias}`
+          `Generated ${successful}/${ownerIds.length} invoices for ${condominium.alias}`
         );
       }
 
@@ -223,7 +263,7 @@ var invoiceController = {
         message: "Invoices generated successfully.",
         details: {
           condominium: condominiums.alias,
-          totalOwners: condominiums.units_ownerId.length,
+          totalOwners: ownerIds.length,
           generatedAt: format(new Date(), "dd/MM/yyyy HH:mm:ss"),
         },
       });
@@ -292,16 +332,16 @@ var invoiceController = {
   },
 
   getInvoiceByIdentifier: async function (req, res) {
-    var id = new mongoose.Types.ObjectId(req.params.id);
-    const role = req.user.role.toUpperCase();
-
     try {
-      if (!id) {
+      if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
         return res.status(400).send({
           status: "error",
-          message: "Identifier is required.",
+          message: "A valid identifier is required.",
         });
       }
+      const id = new mongoose.Types.ObjectId(req.params.id);
+      const role = req.user.role.toUpperCase();
+      const historyRange = invoiceHistoryRange(req.query.month);
       let models = {
         FAMILY: Family,
         OWNER: Owner,
@@ -310,19 +350,36 @@ var invoiceController = {
         STAFF: Staff,
       };
 
-      let invoice_status = ["active", "pending", "overdue"];
-
       var query = null;
-      const isCondo = await Condominium.exists({ _id: id });
+      const isCondo = await Condominium.exists({
+        _id: id,
+        organizationId: req.auth.organizationId,
+      });
 
       if (isCondo) {
+        if (
+          req.auth.scope.mode === "SELECTED" &&
+          !req.auth.scope.condominiumIds.map(String).includes(String(id))
+        ) {
+          return res.status(403).send({
+            status: "forbidden",
+            message: "You do not have access to this condominium",
+          });
+        }
         query = {
           condominiumId: id,
-          status: { $in: invoice_status },
         };
+        if (role === "OWNER") {
+          query.ownerId = req.user.sub;
+        } else if (role === "FAMILY") {
+          const family = await Family.findById(req.user.sub)
+            .select("createdBy")
+            .lean();
+          query.ownerId = family?.createdBy || id;
+        }
       } else if (role == "OWNER") {
         query = {
-          ownerId: id,
+          ownerId: req.user.sub,
         };
       } else if (role == "FAMILY") {
         const ownerData = await models[role]
@@ -333,21 +390,23 @@ var invoiceController = {
         };
       } else if (role == "STAFF_ADMIN" || role == "STAFF") {
         const adminData = await models[role]
-          .findOne({ $and: [{ _id: id }, { status: { $in: invoice_status } }] })
+          .findOne({ _id: id })
           .select("createdBy");
 
         query = {
           createdBy: adminData ? adminData.createdBy : id,
-          status: { $in: invoice_status },
         };
       } else {
         query = {
           createdBy: id,
-          status: { $in: invoice_status },
         };
       }
 
       query.organizationId = req.auth.organizationId;
+      query.issueDate = {
+        $gte: historyRange.start,
+        $lt: historyRange.end,
+      };
       if (req.auth.scope.mode === "SELECTED" && !query.condominiumId) {
         query.condominiumId = { $in: req.auth.scope.condominiumIds };
       }
@@ -361,7 +420,7 @@ var invoiceController = {
           "condominiumId",
           "alias phone street_1 street_2 sector_name city province country"
         )
-        .sort({ createdAt: -1 }) // Sort by newest first
+        .sort({ issueDate: -1 })
         .exec();
 
       if (!invoices || invoices.length === 0) {
@@ -376,6 +435,8 @@ var invoiceController = {
             expired: 0,
             totalAmountDue: 0,
           },
+          selectedMonth: historyRange.selectedMonth,
+          retentionMonths: INVOICE_HISTORY_MONTHS,
         });
       }
 
@@ -400,17 +461,21 @@ var invoiceController = {
         summary: {
           total: invoices.length,
           pending: invoices.filter((inv) => inv.status === "pending").length,
-          paid: invoices.filter((inv) => inv.status === "paid").length,
-          expired: invoices.filter((inv) => inv.invoice_status === "expired")
-            .length,
+          paid: invoices.filter(
+            (inv) =>
+              inv.status === "completed" || inv.paymentStatus === "completed"
+          ).length,
+          expired: invoices.filter((inv) => inv.status === "overdue").length,
           totalAmountDue: pendingAmout,
         },
+        selectedMonth: historyRange.selectedMonth,
+        retentionMonths: INVOICE_HISTORY_MONTHS,
       });
     } catch (error) {
       console.error("Error in getInvoiceByIdentifier:", error);
-      return res.status(500).send({
+      return res.status(error.statusCode || 500).send({
         status: "error",
-        message: "Error processing request.",
+        message: error.statusCode ? error.message : "Error processing request.",
         details: error.message,
       });
     }

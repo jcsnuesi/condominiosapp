@@ -1,6 +1,6 @@
 <p-toast />
 <p-confirmDialog />
-<div class="card app-page-card">
+<div class="card app-page-card properties-page">
     <div class="app-page-header">
         <div>
             <span class="app-page-kicker">Properties</span>
@@ -9,6 +9,7 @@
         </div>
         <p-button
             *appHasPermissions="['admin']"
+            styleClass="property-create-action"
             label="Create property"
             icon="pi pi-plus"
             routerLink="/create-property"
@@ -21,12 +22,14 @@
         [rows]="8"
         [showCurrentPageReport]="true"
         responsiveLayout="scroll"
-        styleClass="p-datatable-sm app-data-table"
+        [styleClass]="'p-datatable-sm app-data-table property-results ' + (viewMode === 'cards' ? 'property-results--cards' : 'property-results--table')"
         [tableStyle]="{ 'min-width': '68rem' }"
-        [rowsPerPageOptions]="[4, 25, 50]"
+        [rowsPerPageOptions]="[8, 24, 48]"
+        [pageLinks]="3"
+        [showFirstLastIcon]="false"
         [loading]="loading"
         [paginator]="true"
-        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+        currentPageReportTemplate="{first}–{last} of {totalRecords} properties"
         [globalFilterFields]="[
             'alias',
             'address',
@@ -37,8 +40,9 @@
         ]"
     >
         <ng-template pTemplate="caption">
-            <div class="app-table-toolbar">
+            <div class="app-table-toolbar property-toolbar">
                 <p-button
+                    styleClass="property-clear-action"
                     label="Clear filters"
                     icon="pi pi-filter-slash"
                     [outlined]="true"
@@ -54,13 +58,18 @@
                         (input)="
                             dt1.filterGlobal($event.target.value, 'contains')
                         "
-                        placeholder="Search by name, address, phone, status..."
+                        aria-label="Search properties"
+                        placeholder="Search properties..."
                     />
                 </p-iconField>
+                <div class="property-view-toggle" role="group" aria-label="Property view">
+                    <button type="button" [class.active]="viewMode === 'table'" [attr.aria-pressed]="viewMode === 'table'" (click)="viewMode = 'table'" aria-label="Table view"><i class="pi pi-list" aria-hidden="true"></i><span>Table</span></button>
+                    <button type="button" [class.active]="viewMode === 'cards'" [attr.aria-pressed]="viewMode === 'cards'" (click)="viewMode = 'cards'" aria-label="Card view"><i class="pi pi-th-large" aria-hidden="true"></i><span>Cards</span></button>
+                </div>
             </div>
         </ng-template>
         <ng-template pTemplate="header">
-            <p-toast></p-toast>
+            @if (viewMode === 'table') {
 
             <tr>
                 <th style="min-width: 15rem">
@@ -155,8 +164,28 @@
                     </div>
                 </th>
             </tr>
+            }
         </ng-template>
         <ng-template pTemplate="body" let-property>
+            @if (viewMode === 'cards') {
+            <tr class="property-card-row"><td colspan="8">
+                <article class="property-card">
+                    <div class="property-card-heading">
+                        <span class="property-card-avatar"><img [src]="url + 'avatarCondominios/' + property.avatar" alt="" loading="lazy" /></span>
+                        <div class="property-card-identity"><span class="property-card-kicker">Condominium</span><h3>{{ property.alias | titlecase }}</h3></div>
+                        <p-button *appHasPermissions="['admin', 'owner', 'condominiums.delete']" icon="pi pi-ellipsis-v" [text]="true" severity="secondary" (click)="openRowMenu(rowMenu, $event, property)" [ariaLabel]="'Property actions for ' + property.alias" styleClass="property-card-menu" />
+                    </div>
+                    <p class="property-card-address"><i class="pi pi-map-marker" aria-hidden="true"></i><span>{{ property.address }}</span></p>
+                    <dl class="property-card-details">
+                        <div><dt>Monthly payment</dt><dd>{{ property.mPayment | currency : 'USD' : 'symbol' : '1.2-2' }}</dd></div>
+                        <div><dt>Billing date</dt><dd>{{ property.paymentDate }}</dd></div>
+                        <div><dt>Phone</dt><dd>{{ property.phone || '—' }}</dd></div>
+                        <div><dt>Country</dt><dd>{{ property.country || 'Dominican Republic' }}</dd></div>
+                    </dl>
+                    <div class="property-card-footer"><p-tag [value]="property.status === 'active' ? 'Active' : 'Suspended'" [severity]="property.status === 'active' ? 'success' : 'danger'" /><span class="property-card-footer-hint"><i class="pi pi-building" aria-hidden="true"></i> Property</span></div>
+                </article>
+            </td></tr>
+            } @else {
             <tr>
                 <td>
                     <div class="property-alias-cell">
@@ -228,12 +257,13 @@
                     />
                 </td>
             </tr>
+            }
         </ng-template>
 
         <ng-template pTemplate="emptymessage">
             <tr>
                 <td colspan="8">
-                    <div class="app-empty-state">
+                    <div class="app-empty-state" role="status">
                         <i class="pi pi-building"></i>
                         <strong>No properties found</strong>
                         <span

@@ -2,7 +2,8 @@ import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { delay, forkJoin, Observable } from 'rxjs';
-import { ConfirmationService, MessageService } from 'primeng/api';
+import { ConfirmationService, MenuItem, MessageService } from 'primeng/api';
+import { Menu } from 'primeng/menu';
 import { UserService } from '../../service/user.service';
 import { Staff } from '../../models/staff.model';
 import { StaffService } from '../../service/staff.service';
@@ -51,6 +52,7 @@ export class CreateUserComponent implements OnInit {
     token: string;
     identity: any;
     selectedStaffs: ManagedUser[] = [];
+    rowMenuItems: MenuItem[] = [];
     userDialog = false;
     passwordActive = false;
     dialogHeader = '';
@@ -229,6 +231,107 @@ export class CreateUserComponent implements OnInit {
                 code: permission,
             })),
         };
+    }
+
+    openUserMenu(menu: Menu, event: Event, user: ManagedUser): void {
+        const isInactive = user.status === 'inactive';
+        this.rowMenuItems = [
+            {
+                label: 'Edit user',
+                icon: 'pi pi-pencil',
+                command: () => this.editStaff(user),
+            },
+            {
+                label: isInactive ? 'Active user' : 'Inactive user',
+                icon: isInactive ? 'pi pi-check-circle' : 'pi pi-pause-circle',
+                command: () => this.confirmUserStatusChange(user),
+            },
+            { separator: true },
+            {
+                label: 'Permanently delete',
+                icon: 'pi pi-trash',
+                styleClass: 'create-user-permanent-delete-action',
+                command: () => this.confirmPermanentDelete(user),
+            },
+        ];
+
+        menu.model = this.rowMenuItems;
+        menu.toggle(event);
+    }
+
+    private confirmUserStatusChange(user: ManagedUser): void {
+        const activate = user.status === 'inactive';
+        const nextStatus: 'active' | 'inactive' = activate
+            ? 'active'
+            : 'inactive';
+        const actionLabel = activate ? 'activate' : 'inactivate';
+
+        this.confirmationService.confirm({
+            header: activate ? 'Activate user' : 'Inactive user',
+            message: `Are you sure you want to ${actionLabel} ${user.fullname}?`,
+            icon: activate ? 'pi pi-check-circle' : 'pi pi-pause-circle',
+            acceptLabel: activate ? 'Activate' : 'Inactivate',
+            rejectLabel: 'Cancel',
+            acceptButtonStyleClass: activate
+                ? 'p-button-success'
+                : 'p-button-warning',
+            rejectButtonStyleClass: 'p-button-secondary p-button-outlined',
+            accept: () => {
+                this.accessService.updateUserStatus(user, nextStatus).subscribe({
+                    next: () => {
+                        this.notify(
+                            'success',
+                            activate
+                                ? 'Usuario activado correctamente.'
+                                : 'Usuario inactivado correctamente.'
+                        );
+                        this.refreshUsers();
+                    },
+                    error: (error) =>
+                        this.notify(
+                            'error',
+                            this.errorMessage(
+                                error,
+                                'No se pudo cambiar el estado del usuario.'
+                            )
+                        ),
+                });
+            },
+        });
+    }
+
+    private confirmPermanentDelete(user: ManagedUser): void {
+        this.confirmationService.confirm({
+            header: 'Permanently delete user',
+            message: `${user.fullname} will be permanently deleted. This action cannot be undone.`,
+            icon: 'pi pi-exclamation-triangle',
+            acceptLabel: 'Permanently delete',
+            rejectLabel: 'Cancel',
+            acceptButtonStyleClass: 'p-button-danger',
+            rejectButtonStyleClass: 'p-button-secondary p-button-outlined',
+            accept: () => {
+                this.accessService.deleteUserPermanently(user).subscribe({
+                    next: () => {
+                        this.selectedStaffs = this.selectedStaffs.filter(
+                            (selectedUser) => selectedUser._id !== user._id
+                        );
+                        this.notify(
+                            'success',
+                            'Usuario eliminado permanentemente.'
+                        );
+                        this.refreshUsers();
+                    },
+                    error: (error) =>
+                        this.notify(
+                            'error',
+                            this.errorMessage(
+                                error,
+                                'No se pudo eliminar permanentemente el usuario.'
+                            )
+                        ),
+                });
+            },
+        });
     }
 
     createUpdateUser(event: { label?: string }): void {

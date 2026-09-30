@@ -95,6 +95,7 @@ interface PropertyAddressSource {
     ],
 })
 export class SeePropertyComponent {
+    viewMode: 'table' | 'cards' = 'cards';
     private token: string = this._userService.getToken();
     public sendDataToModal: any;
     public customers: any[] = [];

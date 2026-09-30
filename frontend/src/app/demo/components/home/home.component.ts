@@ -36,7 +36,6 @@ import { StaffComponent } from '../staff/staff.component';
 import { InvoiceHistoryComponent } from '../invoice-history/invoice-history.component';
 import { InquiryService } from '../../service/inquiry.service';
 import { DocsComponent } from '../docs/docs.component';
-import { DocsService } from '../../service/docs.service';
 import { HasPermissionsDirective } from 'src/app/has-permissions.directive';
 
 type FamilyAccess = {
@@ -79,6 +78,14 @@ type Condominio = {
     type: string;
 };
 
+type InvoiceRecord = {
+    createdAt?: string;
+    invoice_paid_date?: string | null;
+    issueDate?: string;
+    paymentStatus?: string;
+    status?: string;
+};
+
 @Component({
     selector: 'app-home',
     imports: [
@@ -110,7 +117,6 @@ type Condominio = {
         DialogService,
         FormatFunctions,
         InquiryService,
-        DocsService,
     ],
 })
 export class HomeComponent implements OnInit {
@@ -146,9 +152,8 @@ export class HomeComponent implements OnInit {
     public stafflistNumber: number;
     public home: MenuItem[] | undefined;
     public condoInfo: any;
-    public itemsx: any;
+    public itemsx: MenuItem[];
     public updateDateFromTopbar: any;
-    public totalDocuments: number = 0;
     public is_loading: boolean = false;
 
     @Input()
@@ -159,11 +164,21 @@ export class HomeComponent implements OnInit {
     }
 
     private getResponseValue<T>(response: any, key: string, fallback: T): T {
-        if (response?.[key] !== undefined && response?.[key] !== null) {
-            // console.log(`Response value for key "${key}":`, response[key]);
-            return response[key] as T;
+        const value = response?.[key];
+
+        if (value === undefined || value === null) {
+            return fallback;
         }
-        return fallback;
+
+        if (
+            typeof value === 'object' &&
+            !Array.isArray(value) &&
+            Object.prototype.hasOwnProperty.call(value, 'message')
+        ) {
+            return value.message ?? fallback;
+        }
+
+        return value as T;
     }
 
     constructor(
@@ -180,7 +195,6 @@ export class HomeComponent implements OnInit {
         private _formatFunctions: FormatFunctions,
         private _router: Router,
         private _inquiryService: InquiryService,
-        private _docsService: DocsService,
         private _changeDetectorRef: ChangeDetectorRef
     ) {
         this.items = [
@@ -269,6 +283,30 @@ export class HomeComponent implements OnInit {
                 styleClass: 'cursor-pointer',
                 icon: 'pi pi-home',
             },
+            {
+                label: 'Documents',
+                command: () => {
+                    this.showComponent('documents');
+                },
+                styleClass: 'cursor-pointer',
+                icon: 'pi pi-folder',
+            },
+            {
+                label: 'Invoices this month',
+                command: () => {
+                    this.showComponent('invoiceHistory');
+                },
+                styleClass: 'cursor-pointer',
+                icon: 'pi pi-file',
+            },
+            {
+                label: 'Invoice generator',
+                command: () => {
+                    this.showInvoiceGenerator();
+                },
+                styleClass: 'cursor-pointer',
+                icon: 'pi pi-money-bill',
+            },
         ];
     }
 
@@ -312,20 +350,16 @@ export class HomeComponent implements OnInit {
             ? property_data.propertyDetails
             : [];
 
-        const units = propertyDetails
+        const units = [...new Set(propertyDetails
             .filter((owner) => owner?.addressId?._id === this.condoId)
-            .map((owner) => {
-                return owner.condominium_unit;
-            });
+            .map((owner) => owner.condominium_unit)
+            .filter(Boolean))];
 
         if (units.length === 0) {
             return;
         }
 
-        property_data.condominium_unit =
-            units.length > 2
-                ? `${units.slice(0, 2).join(', ')}...`
-                : units.join(', ');
+        property_data.condominium_unit = units.join(', ');
     }
 
     public userDialog: boolean;
@@ -374,9 +408,18 @@ export class HomeComponent implements OnInit {
 
                     // Info para enviar al componente 'invoice generator'
                     this.invoiceData(condominiums[0]);
-                    this.units = Array.isArray(condominiums[0].units_ownerId)
-                        ? condominiums[0].units_ownerId.length
-                        : 0;
+                    this.units = this.customers.reduce((total, entry) => {
+                        const unitCount = new Set(
+                            (entry?.ownerId?.propertyDetails ?? [])
+                                .filter(
+                                    (property) =>
+                                        property?.addressId?._id === this.condoId
+                                )
+                                .map((property) => property.condominium_unit)
+                                .filter(Boolean)
+                        ).size;
+                        return total + unitCount;
+                    }, 0);
 
                     this.card_unit_member_date =
                         this._formatFunctions.dateFormat2(
@@ -398,7 +441,6 @@ export class HomeComponent implements OnInit {
                     this.staffCard();
                     this.loadBookingCard();
                     this.inquiriesCard();
-                    this.documentsCard();
                 }
             },
             error: (error) => {
@@ -423,25 +465,6 @@ export class HomeComponent implements OnInit {
         this.invoiceInfo.paymentDate = data.paymentDate;
         this.invoiceInfo.id = data._id;
         this.invoiceInfo.units_ownerId = data.units_ownerId;
-    }
-
-    documentsCard() {
-        if (!this.condoId) {
-            this.totalDocuments = 0;
-            return;
-        }
-
-        this._docsService.docCard(this.condoId).subscribe((response) => {
-            // console.log('Documents response: ', response);
-            if (this.isSuccessResponse(response)) {
-                this.totalDocuments = this.getResponseValue<number>(
-                    response,
-                    'message',
-                    0
-                );
-                this._changeDetectorRef.markForCheck();
-            }
-        });
     }
 
     handleCondoUpdate(event: any) {
@@ -758,6 +781,7 @@ export class HomeComponent implements OnInit {
     public noDataForChart: boolean = false;
     public chartEmptyMessage: string =
         'No invoices have been generated yet. Your monthly payment activity will appear here.';
+
     getInvoiceByCondoFunc(cantidadOwner) {
         this._invoiceService.getInvoiceByCondo(this.condoId).subscribe({
             next: (response) => {
@@ -770,7 +794,9 @@ export class HomeComponent implements OnInit {
                     'data',
                     {}
                 );
-                const invoices = Array.isArray(invoiceResp?.invoices)
+                const invoices: InvoiceRecord[] = Array.isArray(
+                    invoiceResp?.invoices
+                )
                     ? invoiceResp.invoices
                     : [];
 

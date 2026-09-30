@@ -27,6 +27,8 @@ const storageNotification = multer.diskStorage({
   },
 });
 const Condominium = require("../models/condominio");
+const Owner = require("../models/owners");
+const { isOwnerPropertyActive } = require("../service/residentPropertyAccess");
 const Notification = require("../models/notification");
 const {
   filenameValidation,
@@ -229,6 +231,91 @@ router.get("/get-notifications-by-id/:id", md_auth.authenticated, async (req, re
     );
   }
 });
+
+// GET inquiries created for a specific owner. This route must be declared
+// before /inquiries/:condominiumId so the owner-specific path is not consumed
+// by the generic identifier route.
+router.get(
+  "/inquiries-by-owner/:ownerId",
+  md_auth.authenticated,
+  async (req, res) => {
+    try {
+      const ownerId = req.params.ownerId;
+      const role = normalizeRole(req.user.role);
+
+      if (!isValidObjectId(ownerId)) return invalidId(res, "owner ID");
+      if (!isAdminRole(role) && String(req.user.sub) !== String(ownerId)) {
+        return forbidden(res);
+      }
+
+      const owner = await Owner.findOne({
+        _id: ownerId,
+        organizationId: req.auth.organizationId,
+      })
+        .select("propertyDetails.addressId")
+        .lean();
+
+      if (!owner) {
+        return apiResponse.failure(
+          res,
+          404,
+          { message: "Owner not found" },
+          "INQUIRY_OWNER_NOT_FOUND"
+        );
+      }
+
+      const accessibleIds = await getAccessibleCondominiumIds(req.user);
+      const ownerCondominiumIds = (owner.propertyDetails || [])
+        .map((property) => String(property.addressId || ""))
+        .filter((id) => accessibleIds.includes(id));
+
+      const filter = {
+        organizationId: req.auth.organizationId,
+        createdBy: new mongoose.Types.ObjectId(ownerId),
+        createdInquiryBy: "Owner",
+        condominiumId: { $in: ownerCondominiumIds },
+        isActive: true,
+      };
+
+      if (req.query.status && req.query.status !== "all") {
+        if (!["sent", "responded", "closed"].includes(req.query.status)) {
+          return apiResponse.failure(
+            res,
+            400,
+            { message: "Invalid status" },
+            "INQUIRY_INVALID_STATUS"
+          );
+        }
+        filter.status = req.query.status;
+      }
+
+      const pagination = boundedPagination(req.query.page, req.query.limit);
+      const inquiries = await Inquiry.paginate(filter, {
+        ...pagination,
+        sort: { publishedAt: -1 },
+        populate: [
+          { path: "responses.respondedBy", select: "name lastname email role" },
+          { path: "condominiumId", select: "alias" },
+          { path: "createdBy", select: "name lastname email" },
+        ],
+      });
+
+      return apiResponse.success(
+        res,
+        200,
+        inquiries,
+        "INQUIRY_LIST_BY_OWNER_OK"
+      );
+    } catch (error) {
+      return apiResponse.failure(
+        res,
+        500,
+        { message: error.message },
+        "INQUIRY_LIST_BY_OWNER_FAILED"
+      );
+    }
+  }
+);
 
 //✅ GET /api/notifications/condominium/:condominiumId - Get notifications by condominium
 router.get(
@@ -984,6 +1071,7 @@ router.post(
         priority,
         condominiumId,
         apartmentUnit,
+        ownerId,
       } = req.body;
 
       // ✅ Validaciones
@@ -996,10 +1084,6 @@ router.post(
           "INQUIRY_CREATE_VALIDATION_ERROR"
         );
       }
-      if (!isResidentRole(req.user.role)) {
-        await cleanupUploadedFiles(req.files);
-        return forbidden(res);
-      }
       if (!isValidObjectId(condominiumId)) {
         await cleanupUploadedFiles(req.files);
         return invalidId(res, "condominium ID");
@@ -1008,15 +1092,62 @@ router.post(
         await cleanupUploadedFiles(req.files);
         return forbidden(res);
       }
-      if (
-        !apartmentUnit ||
-        !(await canUseUnitInCondominium(req.user, condominiumId, apartmentUnit))
-      ) {
+      let createdBy;
+      let createdInquiryBy;
+
+      if (isResidentRole(req.user.role)) {
+        if (
+          !apartmentUnit ||
+          !(await canUseUnitInCondominium(
+            req.user,
+            condominiumId,
+            apartmentUnit
+          ))
+        ) {
+          await cleanupUploadedFiles(req.files);
+          return apiResponse.failure(
+            res,
+            400,
+            { message: "Apartment unit does not belong to the authenticated user" },
+            "INQUIRY_INVALID_UNIT"
+          );
+        }
+        createdBy = req.user.sub;
+        createdInquiryBy = roleToModel(req.user.role);
+      } else if (isAdminRole(req.user.role)) {
+        if (!isValidObjectId(ownerId)) {
+          await cleanupUploadedFiles(req.files);
+          return invalidId(res, "owner ID");
+        }
+
+        const owner = await Owner.findOne({
+          _id: ownerId,
+          organizationId: req.auth.organizationId,
+        })
+          .select("propertyDetails")
+          .lean();
+        const ownsSelectedUnit = owner?.propertyDetails?.some(
+          (property) =>
+            isOwnerPropertyActive(property, condominiumId) &&
+            String(property.condominium_unit) === String(apartmentUnit)
+        );
+
+        if (!owner || !ownsSelectedUnit) {
+          await cleanupUploadedFiles(req.files);
+          return apiResponse.failure(
+            res,
+            400,
+            { message: "The selected unit does not belong to this owner" },
+            "INQUIRY_INVALID_OWNER_UNIT"
+          );
+        }
+
+        createdBy = owner._id;
+        createdInquiryBy = "Owner";
+      } else {
         await cleanupUploadedFiles(req.files);
-        return apiResponse.failure(res, 400, { message: "Apartment unit does not belong to the authenticated user" }, "INQUIRY_INVALID_UNIT");
+        return forbidden(res);
       }
-      const createdBy = req.user.sub;
-      const createdInquiryBy = roleToModel(req.user.role);
 
       // ✅ Verificar si existe una inquiry similar reciente (últimas 24 horas)
       const recentInquiry = await Inquiry.findOne({

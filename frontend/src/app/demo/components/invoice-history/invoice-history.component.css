@@ -37,3 +37,18 @@
     justify-content: space-between;
     padding-top: 10px;
 }
+
+.invoice-history-filter {
+    display: grid;
+    gap: 0.5rem;
+    width: min(100%, 18rem);
+    margin: 1rem 0;
+}
+
+.invoice-history-filter label {
+    font-weight: 600;
+}
+
+.invoice-history-filter small {
+    color: var(--text-color-secondary);
+}

@@ -16,7 +16,7 @@
                 label="Crear Usuario"
                 icon="pi pi-user-plus"
                 class="p-button-success"
-                (click)="visible = !visible"
+                (click)="openRegistrationDialog()"
             ></button>
         </div>
     </div>
@@ -209,19 +209,25 @@
         <hr />
     </ng-template>
 
-    <p-tabs>
-        <p-tabpanel header="Create single unit">
-            @if (visible) {
-            <app-owner-registration
-                [allowCondominiumSelection]="true"
-                (ownerCreated)="ownerRegistrationCreated($event)"
-            ></app-owner-registration>
-            }
-        </p-tabpanel>
-        <p-tabpanel header="Create multiple units">
-            <app-pool-file-loader
-                [services]="fileInputData"
-            ></app-pool-file-loader>
-        </p-tabpanel>
+    <p-tabs [(value)]="registrationTab">
+        <p-tablist>
+            <p-tab value="single">Create single unit</p-tab>
+            <p-tab value="multiple">Create multiple units</p-tab>
+        </p-tablist>
+        <p-tabpanels>
+            <p-tabpanel value="single">
+                @if (visible) {
+                <app-owner-registration
+                    [allowCondominiumSelection]="true"
+                    (ownerCreated)="ownerRegistrationCreated($event)"
+                ></app-owner-registration>
+                }
+            </p-tabpanel>
+            <p-tabpanel value="multiple">
+                <app-pool-file-loader
+                    [services]="fileInputData"
+                ></app-pool-file-loader>
+            </p-tabpanel>
+        </p-tabpanels>
     </p-tabs>
 </p-dialog>

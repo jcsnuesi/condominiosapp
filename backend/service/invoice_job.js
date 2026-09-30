@@ -12,6 +12,9 @@ const cron = require("node-cron");
 const Invoice = require("../models/invoice");
 const Condominium = require("../models/condominio");
 const Owner = require("../models/owners");
+const {
+  activeOwnerPropertyDetails,
+} = require("./residentPropertyAccess");
 
 /**
  * Generate unique invoice number without external Counter model
@@ -199,35 +202,26 @@ async function generateUnitInvoice(
  */
 async function getOwnerUnits(condominiumId, ownerId) {
   try {
-    // Get the condominium with populated owner details
-    const condominium = await Condominium.findById(condominiumId)
-      .populate({
-        path: "units_ownerId",
-        match: { _id: ownerId, status: "active" },
-        select: "_id availableUnits propertyDetails",
-      })
+    const owner = await Owner.findOne({
+      _id: ownerId,
+      status: "active",
+      "propertyDetails.addressId": condominiumId,
+    })
+      .select("propertyDetails")
       .lean();
 
-    const units = condominium.units_ownerId
-      .map((owner) => owner.propertyDetails)
-      .flat()
-      .map((c) => c.condominium_unit);
+    const units = activeOwnerPropertyDetails(owner, condominiumId)
+      .map((property) => property.condominium_unit)
+      .filter(Boolean);
 
-    if (
-      !condominium ||
-      !condominium.units_ownerId ||
-      condominium.units_ownerId.length === 0
-    ) {
+    if (units.length === 0) {
       console.log(
         `⚠️  No units found for owner ${ownerId} in condominium ${condominiumId}`
       );
       return [];
     }
 
-    // Extract available units for this owner
-    const owner = condominium.units_ownerId[0];
-    // console.log("🔍 owner:", owner);
-    return units || [];
+    return [...new Set(units)];
   } catch (error) {
     console.error(
       `❌ Error getting units for owner ${ownerId}:`,
@@ -235,6 +229,20 @@ async function getOwnerUnits(condominiumId, ownerId) {
     );
     return [];
   }
+}
+
+function getActiveOwnerIds(condominium) {
+  return [
+    ...new Set(
+      (condominium?.units_ownerId || [])
+        .filter(
+          (entry) =>
+            String(entry?.status || "active").toLowerCase() !== "inactive"
+        )
+        .map((entry) => String(entry?.ownerId || entry))
+        .filter(Boolean)
+    ),
+  ];
 }
 
 /**
@@ -372,7 +380,8 @@ async function generateCondominiumInvoices(condominium) {
     console.log(`💰 Monthly payment per unit: $${condominium.mPayment}`);
     console.log(`📅 Issue Date: ${format(issueDate, "dd/MM/yyyy")}`);
     console.log(`⏰ Due Date: ${format(dueDate, "dd/MM/yyyy")}`);
-    console.log(`👥 Owners to process: ${condominium.units_ownerId.length}`);
+    const activeOwnerIds = getActiveOwnerIds(condominium);
+    console.log(`👥 Owners to process: ${activeOwnerIds.length}`);
 
     let totalUnitsProcessed = 0;
     let totalInvoicesCreated = 0;
@@ -380,7 +389,7 @@ async function generateCondominiumInvoices(condominium) {
     const ownerResults = [];
 
     // Process each owner (and all their units)
-    for (const ownerId of condominium.units_ownerId) {
+    for (const ownerId of activeOwnerIds) {
       try {
         const ownerResult = await generateOwnerInvoices(
           condominium,
@@ -400,14 +409,14 @@ async function generateCondominiumInvoices(condominium) {
     }
 
     console.log(`📊 Condominium ${condominium.alias} Summary:`);
-    console.log(`   👥 Owners processed: ${condominium.units_ownerId.length}`);
+    console.log(`   👥 Owners processed: ${activeOwnerIds.length}`);
     console.log(`   🏠 Total units: ${totalUnitsProcessed}`);
     console.log(`   ✅ Invoices created: ${totalInvoicesCreated}`);
     console.log(`   ❌ Failed: ${totalFailed}`);
 
     return {
       condominium: condominium.alias,
-      totalOwners: condominium.units_ownerId.length,
+      totalOwners: activeOwnerIds.length,
       totalUnits: totalUnitsProcessed,
       successful: totalInvoicesCreated,
       failed: totalFailed,
@@ -601,7 +610,16 @@ async function checkMissedInvoices() {
         },
       });
 
-      const expectedCount = condominium.units_ownerId.length;
+      const activeOwnerIds = getActiveOwnerIds(condominium);
+      const ownerUnits = await Promise.all(
+        activeOwnerIds.map((ownerId) =>
+          getOwnerUnits(condominium._id, ownerId)
+        )
+      );
+      const expectedCount = ownerUnits.reduce(
+        (total, units) => total + units.length,
+        0
+      );
 
       if (invoiceCount < expectedCount) {
         console.log(

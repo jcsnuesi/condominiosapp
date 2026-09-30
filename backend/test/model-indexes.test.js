@@ -16,6 +16,7 @@ const RentalStay = require("../models/rentalStay");
 const PaymentTransaction = require("../models/paymentTransaction");
 const CommunicationLog = require("../models/communicationLog");
 const Inquiry = require("../models/inquiry");
+const Invoice = require("../models/invoice");
 
 function hasNamedIndex(model, name, keys) {
   return model.schema.indexes().some(([indexKeys, options]) => {
@@ -200,6 +201,33 @@ test("phase 4 communication log model has reminder lookup indexes", () => {
       channel: 1,
       type: 1,
       sentAt: -1,
+    }),
+    true
+  );
+});
+
+test("invoice history has month lookup indexes for administrators and owners", () => {
+  assert.equal(
+    hasNamedIndex(Invoice, "invoice_history_condominium_month_lookup", {
+      organizationId: 1,
+      condominiumId: 1,
+      issueDate: -1,
+    }),
+    true
+  );
+  assert.equal(
+    hasNamedIndex(Invoice, "invoice_history_owner_month_lookup", {
+      organizationId: 1,
+      ownerId: 1,
+      issueDate: -1,
+    }),
+    true
+  );
+  assert.equal(
+    hasNamedIndex(Invoice, "invoice_history_admin_month_lookup", {
+      organizationId: 1,
+      createdBy: 1,
+      issueDate: -1,
     }),
     true
   );

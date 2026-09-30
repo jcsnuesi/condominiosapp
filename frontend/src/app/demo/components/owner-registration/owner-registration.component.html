@@ -226,33 +226,6 @@
                                 <small class="p-error">Required.</small>
                                 }
                             </div>
-                            <div class="form-group mt-3">
-                                <label class="sr-only" for="owner-id-number"
-                                    >Personal ID</label
-                                >
-                                <p-inputGroup>
-                                    <p-inputGroupAddon>
-                                        <i class="pi pi-check-circle"></i>
-                                    </p-inputGroupAddon>
-                                    <input
-                                        pInputText
-                                        #id_number="ngModel"
-                                        id="owner-id-number"
-                                        name="id_number"
-                                        [(ngModel)]="ownerObj.id_number"
-                                        [ngClass]="{
-                                            'input-success': id_number.valid,
-                                            'input-error ':
-                                                id_number.touched &&
-                                                !id_number.dirty
-                                        }"
-                                        type="text"
-                                        placeholder="Personal id (No dashes)"
-                                        maxlength="11"
-                                        pattern="^[0-9]+"
-                                    />
-                                </p-inputGroup>
-                            </div>
                             <div class="form-group mt-3 marginclass">
                                 <label class="sr-only" for="owner-email"
                                     >Email</label
@@ -267,6 +240,7 @@
                                         id="owner-email"
                                         name="email"
                                         [(ngModel)]="ownerObj.email"
+                                        (ngModelChange)="onEmailChange($event)"
                                         [ngClass]="{
                                             'input-success': email.valid,
                                             'input-error ':
@@ -286,6 +260,7 @@
                             <hr />
                             <div class="w-100">
                                 <p-button
+                                    type="button"
                                     [style]="{
                                         width: '100%'
                                     }"
@@ -314,6 +289,7 @@
                             class="padding-set border-2 border-dashed surface-border border-round surface-ground justify-content-center font-medium"
                         >
                             <p-button
+                                type="button"
                                 severity="secondary"
                                 icon="pi pi-arrow-circle-left"
                                 (onClick)="activateCallback(1)"
@@ -360,6 +336,21 @@
                                     >Required.</small
                                 >
                                 }
+                            </div>
+                            }
+                            @if (isSelectedCondominiumInactive) {
+                            <div
+                                class="owner-registration__status-notice"
+                                role="alert"
+                            >
+                                <i
+                                    class="pi pi-pause-circle"
+                                    aria-hidden="true"
+                                ></i>
+                                <span>
+                                    This property is suspended. Activate it
+                                    before adding an owner.
+                                </span>
                             </div>
                             }
                             <div class="form-group mb-3">
@@ -457,6 +448,7 @@
                             <hr />
                             <div class="w-100">
                                 <p-button
+                                    type="button"
                                     [style]="{
                                         width: '100%'
                                     }"
@@ -482,6 +474,7 @@
                         let-activateCallback="activateCallback"
                     >
                         <p-button
+                            type="button"
                             severity="secondary"
                             icon="pi pi-arrow-circle-left"
                             (onClick)="activateCallback(2)"
@@ -539,7 +532,10 @@
                                 }"
                                 label="Create"
                                 (onClick)="confirmNewOwner()"
-                                [disabled]="isSubmittingOwner"
+                                [disabled]="
+                                    isSubmittingOwner ||
+                                    isSelectedCondominiumInactive
+                                "
                                 [loading]="isSubmittingOwner"
                                 [raised]="true"
                                 severity="success"

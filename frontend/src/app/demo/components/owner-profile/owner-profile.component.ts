@@ -1,359 +1,348 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
+import {
+    ChangeDetectorRef,
+    Component,
+    OnDestroy,
+    OnInit,
+} from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { finalize, Subject, takeUntil, timeout } from 'rxjs';
+import { MessageService } from 'primeng/api';
+
 import { ImportsModule } from '../../imports_primeng';
-import { UserService } from '../../service/user.service';
-import { CondominioService } from '../../service/condominios.service';
-import { OwnerServiceService } from '../../service/owner-service.service';
-import { InvoiceService } from '../../service/invoice.service';
-import { ConfirmationService, MessageService } from 'primeng/api';
-import { BookingServiceService } from '../../service/booking-service.service';
-import { FormsModule } from '@angular/forms';
-import { TableModule } from 'primeng/table';
 import { OwnerModel } from '../../models/owner.model';
-import { ActivatedRoute, Router } from '@angular/router';
-import { OwnerProfileSettingsComponent } from '../owner-profile-settings/owner-profile-settings.component';
-import { FormatFunctions } from 'src/app/pipes/formating_text';
 import { global } from '../../service/global.service';
-import { PaymentsHistoryComponent } from '../payments-history/payments-history.component';
-import { MenuItem } from 'primeng/api';
-import { PropertiesByOwnerComponent } from '../properties-by-owner/properties-by-owner.component';
+import { OwnerServiceService } from '../../service/owner-service.service';
 import { FamilyMemberDetailsComponent } from '../family-member-details/family-member-details.component';
-import { BookingAreaComponent } from '../booking-area/booking-area.component';
+import { OwnerInquiriesComponent } from '../owner-inquiries/owner-inquiries.component';
+import { OwnerProfileSettingsComponent } from '../owner-profile-settings/owner-profile-settings.component';
+import { PaymentsHistoryComponent } from '../payments-history/payments-history.component';
+import { PropertiesByOwnerComponent } from '../properties-by-owner/properties-by-owner.component';
+
+type ProfileSection =
+    | 'overview'
+    | 'units'
+    | 'billing'
+    | 'family'
+    | 'bookings'
+    | 'inquiries';
+
+interface OwnerProperty {
+    addressId?: {
+        _id?: string;
+        alias?: string;
+        street_1?: string;
+        street_2?: string;
+        sector_name?: string;
+        city?: string;
+        province?: string;
+    };
+    condominium_unit?: string;
+    parkingsQty?: number;
+    isRenting?: boolean;
+    status_property?: string;
+}
+
+interface OwnerBooking {
+    _id?: string;
+    status?: string;
+    areaName?: string;
+    socialArea?: string;
+    checkIn?: string;
+    createdAt?: string;
+    [key: string]: unknown;
+}
+
+type OwnerProfile = OwnerModel & {
+    createdAt?: string;
+    emailVerified?: boolean;
+    propertyDetails?: OwnerProperty[];
+    familyAccount?: unknown[];
+};
+
+interface OwnerAssetResponse {
+    owner?: OwnerProfile;
+    invoices?: Array<{
+        count?: number;
+        totalAmount?: number;
+        invoices?: unknown[];
+    }>;
+    bookings?: Array<{ count?: number; bookings?: OwnerBooking[] }>;
+    invoicePaid?: any[];
+}
 
 @Component({
     selector: 'app-owner-profile',
     imports: [
-        ImportsModule,
         CommonModule,
-        FormsModule,
-        TableModule,
+        ImportsModule,
         OwnerProfileSettingsComponent,
         PaymentsHistoryComponent,
         PropertiesByOwnerComponent,
         FamilyMemberDetailsComponent,
-        BookingAreaComponent,
+        OwnerInquiriesComponent,
     ],
-    providers: [
-        CondominioService,
-        UserService,
-        OwnerServiceService,
-        InvoiceService,
-        ConfirmationService,
-        MessageService,
-        FormatFunctions,
-    ],
+    providers: [MessageService],
     templateUrl: './owner-profile.component.html',
     styleUrl: './owner-profile.component.css',
 })
-export class OwnerProfileComponent implements OnInit {
-    public image: string;
-    public settingShow: boolean = false;
-    // public paymentShow: boolean = false;
-    public itemsShow: Array<{
-        item: string;
-        visible: boolean;
+export class OwnerProfileComponent implements OnInit, OnDestroy {
+    private readonly destroy$ = new Subject<void>();
+
+    ownerId = '';
+    owner: OwnerProfile | null = null;
+    activeSection: ProfileSection = 'overview';
+    loading = true;
+    loadError = '';
+    settingsVisible = false;
+    avatarFailed = false;
+    pendingInvoiceCount = 0;
+    pendingBalance = 0;
+    paidInvoices: any[] = [];
+    bookings: OwnerBooking[] = [];
+    familyCount = 0;
+
+    readonly sections: Array<{
+        id: ProfileSection;
         label: string;
-        disabled: boolean;
+        icon: string;
     }> = [
-        {
-            item: 'payments',
-            visible: false,
-            label: 'Payment History',
-            disabled: true,
-        },
-        { item: 'units', visible: false, label: 'Units', disabled: true },
-        { item: 'members', visible: false, label: 'Members', disabled: true },
-        {
-            item: 'booking',
-            visible: false,
-            label: 'Booking Areas',
-            disabled: true,
-        },
+        { id: 'overview', label: 'Overview', icon: 'pi pi-th-large' },
+        { id: 'units', label: 'Units', icon: 'pi pi-building' },
+        { id: 'billing', label: 'Billing', icon: 'pi pi-wallet' },
+        { id: 'family', label: 'Family', icon: 'pi pi-users' },
+        { id: 'bookings', label: 'Bookings', icon: 'pi pi-calendar' },
+        { id: 'inquiries', label: 'Inquiries', icon: 'pi pi-comments' },
     ];
-    public ownerCard: { count: number } = {
-        count: 0,
-    };
-    public ownerObj: OwnerModel;
-    public token: string;
-    public url: string;
-    public items: MenuItem[] | undefined;
-    public memberShipSince: string;
-    public bookingsCard: { count: number; today_booking: number } = {
-        count: 0,
-        today_booking: 0,
-    };
-    public invoiceCards: { total: number; counts: number } = {
-        total: 0,
-        counts: 0,
-    };
-    public bookingCards: { total: number; counts: number } = {
-        total: 0,
-        counts: 0,
-    };
-
-    public invoicePaid: any[] = [];
-    public ownerData: any;
-    public memberCard: { count: 0; active: 0 } = {
-        count: 0,
-        active: 0,
-    };
-
-    public showComponents: {
-        invoice: boolean;
-        payments: boolean;
-        units: boolean;
-        members: boolean;
-        booking: boolean;
-    };
-
-    private isSuccessResponse(response: any): boolean {
-        return response?.success === true || response?.status === 'success';
-    }
-
-    private getResponseData<T>(response: any, fallback: T): T {
-        if (response?.data !== undefined && response?.data !== null) {
-            return response.data as T;
-        }
-        if (response?.message !== undefined && response?.message !== null) {
-            return response.message as T;
-        }
-        return fallback;
-    }
 
     constructor(
-        private _messageService: MessageService,
-        private _userService: UserService,
-        private _bookingService: BookingServiceService,
-        private _ownerService: OwnerServiceService,
-        private _invoiceService: InvoiceService,
-        private _confirmationService: ConfirmationService,
-        private _activatedRoute: ActivatedRoute,
-        private _formatFunctions: FormatFunctions
-    ) {
-        this.image = 'https://www.w3schools.com/howto/img_avatar.png';
-        this.token = this._userService.getToken();
-        this.ownerObj = new OwnerModel(
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            ''
-        );
-        this.url = global.url;
-        this.bookingsCard = { count: 0, today_booking: 0 };
-        this.showComponents = {
-            invoice: false,
-            payments: true,
-            units: false,
-            members: false,
-            booking: false,
-        };
+        private readonly route: ActivatedRoute,
+        private readonly location: Location,
+        private readonly ownerService: OwnerServiceService,
+        private readonly messageService: MessageService,
+        private readonly changeDetectorRef: ChangeDetectorRef
+    ) {}
 
-        this.items = [
-            {
-                label: 'Home',
-                command: () => {
-                    this.showComponentsOnClick('payments');
-                },
-                styleClass: 'cursor-pointer',
-                icon: 'pi pi-home',
-            },
-        ];
-    }
+    ngOnInit(): void {
+        this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe((params) => {
+            const ownerId = params.get('id');
+            if (!ownerId) {
+                this.loading = false;
+                this.loadError = 'The owner identifier is missing.';
+                return;
+            }
 
-    showComponentsOnClick(event: any) {
-        this.showComponents = {
-            invoice: false,
-            payments: false,
-            units: false,
-            members: false,
-            booking: false,
-        };
-        this.showComponents[event] = true;
-    }
-
-    itemsChange() {
-        this.items = this.items.splice(0, 1);
-        this.itemsShow.forEach((item) => {
-            item.visible = false;
+            this.ownerId = ownerId;
+            this.loadOwner();
         });
     }
 
-    ngOnInit(): void {
-        // Obtener:
-        // Las propiedades
-        // Las invoices
-        // Los bookings:
-        /**
-         * Tener todas las reservas de este propietario
-         * Listas las reservas proximo a vencer
-         * Historial de reservas
-         */
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
+    }
 
-        this._activatedRoute.params.subscribe((param) => {
-            const ownerId = param['id'];
-            this.ownerData = ownerId;
+    loadOwner(): void {
+        this.loading = true;
+        this.loadError = '';
+        this.avatarFailed = false;
+        this.owner = null;
 
-            this._ownerService.getOwnerAssets(ownerId).subscribe({
+        this.ownerService
+            .getOwnerAssets(this.ownerId)
+            .pipe(
+                timeout(15000),
+                takeUntil(this.destroy$),
+                finalize(() => {
+                    this.loading = false;
+                    this.changeDetectorRef.detectChanges();
+                })
+            )
+            .subscribe({
                 next: (response) => {
-                    if (this.isSuccessResponse(response)) {
-                        const ownerAssets = this.getResponseData<any>(
-                            response,
-                            {}
-                        );
-                        const owner = ownerAssets?.owner;
-                        if (!owner) {
-                            this.showOwnerLoadError(
-                                'Owner information was not returned by the server.'
+                    try {
+                        const data = this.resolveOwnerAssets(response);
+
+                        if (
+                            !(
+                                response?.success === true ||
+                                response?.status === 'success'
+                            ) ||
+                            !data.owner
+                        ) {
+                            this.handleLoadError(
+                                this.resolveErrorMessage(response) ||
+                                    'Owner information was not returned by the server.'
                             );
                             return;
                         }
 
-                        const propertyDetails = Array.isArray(
-                            owner.propertyDetails
-                        )
-                            ? owner.propertyDetails
-                            : [];
-                        const familyAccount = Array.isArray(owner.familyAccount)
-                            ? owner.familyAccount
-                            : [];
-                        const bookings = Array.isArray(ownerAssets.bookings)
-                            ? ownerAssets.bookings
-                            : [];
-                        const invoices = Array.isArray(ownerAssets.invoices)
-                            ? ownerAssets.invoices
-                            : [];
-                        const invoicePaid = Array.isArray(
-                            ownerAssets.invoicePaid
-                        )
-                            ? ownerAssets.invoicePaid
+                        this.owner = data.owner;
+                        const pendingGroup = data.invoices?.[0];
+                        const bookingGroups = Array.isArray(data.bookings)
+                            ? data.bookings
                             : [];
 
-                        // this.ownerData.push(propertyDetails);
-                        // this.ownerData.push(invoices);
-                        // this.ownerData.push(ownerId);
-                        this.ownerObj = owner;
-                        this.ownerObj.status = owner.status;
-
-                        // console.log(this.ownerObj.status);
-                        this.ownerCard.count = propertyDetails.length;
-                        this.memberCard.count = familyAccount.length;
-                        if (familyAccount.length > 0) {
-                            this.memberCard.active = familyAccount.filter(
-                                (member) => member.status === 'active'
-                            ).length;
-                        }
-
-                        this.invoicePaid = invoicePaid.map((invoice) => ({
-                            ...invoice,
-                            fullname: `${owner.name} ${owner.lastname}`,
-                            phone: owner.phone,
-                            email: owner.email,
-                        }));
-                        this.invoiceCards.counts = invoices[0]?.count ?? 0;
-                        this.invoiceCards.total = invoices[0]?.totalAmount ?? 0;
-
-                        this.memberShipSince =
-                            owner.createdAt?.split('T')[0] ?? '';
-                        owner.name = this._formatFunctions.titleCase(
-                            owner.name
+                        this.pendingInvoiceCount =
+                            pendingGroup?.count ??
+                            pendingGroup?.invoices?.length ??
+                            0;
+                        this.pendingBalance = pendingGroup?.totalAmount ?? 0;
+                        this.paidInvoices = Array.isArray(data.invoicePaid)
+                            ? data.invoicePaid
+                            : [];
+                        this.bookings = bookingGroups.flatMap((group) =>
+                            Array.isArray(group.bookings) ? group.bookings : []
                         );
-                        owner.lastname = this._formatFunctions.titleCase(
-                            owner.lastname
-                        );
-                        owner.gender = {
-                            label: this._formatFunctions.titleCase(
-                                owner.gender
-                            ),
-                        };
-
-                        this.ownerObj.avatarPreview =
-                            this.url + 'main-avatar/owners/' + owner.avatar;
-
-                        this.bookingsCard.count = bookings.length;
-
-                        for (const booking of bookings) {
-                            this.bookingsCard.today_booking +=
-                                this.checkoutDate(
-                                    booking?.bookings?.[0]?.checkOut
-                                );
-                        }
-
-                        // Limitar el invoicePaid a 5
-                        if (this.invoicePaid.length > 5) {
-                            this.invoicePaid = this.invoicePaid.slice(0, 5);
-                        }
-                    } else {
-                        this.showOwnerLoadError(
-                            response?.message ??
-                                'There was a problem on the server.'
+                        this.familyCount = Array.isArray(
+                            data.owner.familyAccount
+                        )
+                            ? data.owner.familyAccount.length
+                            : 0;
+                    } catch (error) {
+                        console.error('Owner profile response error', error);
+                        this.owner = null;
+                        this.handleLoadError(
+                            'The owner data could not be displayed. Try again.'
                         );
                     }
                 },
-                error: (errors) => {
-                    this.showOwnerLoadError(
-                        errors?.error?.message ??
+                error: (error) =>
+                    this.handleLoadError(
+                        this.resolveErrorMessage(error?.error) ||
                             'The owner profile could not be loaded.'
-                    );
-                },
+                    ),
             });
-        });
     }
 
-    private showOwnerLoadError(detail: string): void {
-        this._messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail,
-            life: 3000,
-        });
-    }
+    private resolveOwnerAssets(response: unknown): OwnerAssetResponse {
+        if (!response || typeof response !== 'object') return {};
 
-    checkoutDate(date: string): number {
-        if (!date) return 0;
-        const today = new Date();
-        const dateObj = new Date(date.split('T')[0]);
-        // Compare only the date parts (year, month, day)
+        const envelope = response as Record<string, unknown>;
+        const data = envelope['data'];
+        const legacyMessage = envelope['message'];
 
-        if (
-            today.getFullYear() === dateObj.getFullYear() &&
-            today.getMonth() === dateObj.getMonth() &&
-            today.getDate() + 1 === dateObj.getDate()
-        ) {
-            return 1;
+        if (this.hasOwner(data)) return data;
+
+        if (data && typeof data === 'object') {
+            const nestedMessage = (data as Record<string, unknown>)['message'];
+            if (this.hasOwner(nestedMessage)) return nestedMessage;
         }
-        return 0;
+
+        return this.hasOwner(legacyMessage) ? legacyMessage : {};
     }
 
-    settings() {
-        this.settingShow = true;
+    private hasOwner(value: unknown): value is OwnerAssetResponse {
+        return Boolean(
+            value &&
+                typeof value === 'object' &&
+                (value as Record<string, unknown>)['owner']
+        );
     }
 
-    openInvoice(item: any) {
-        const invoiceTemplate = {
-            alias: item.condominiumId.alias,
-            invoice_issue: item.issueDate,
-            invoice_paid_date: item.invoice_paid_date,
-            fullname: item.fullname,
-            phone: item.phone,
-            unit: item.unit,
-            email: item.email,
-            invoice_amount: item.amount,
-            invoice_status: item.status,
-        };
-        // console.log('invoiceTemplate', item);
+    private resolveErrorMessage(value: unknown): string {
+        if (typeof value === 'string') return value;
+        if (!value || typeof value !== 'object') return '';
 
-        this._invoiceService.genPDF(invoiceTemplate);
+        const payload = value as Record<string, unknown>;
+        if (typeof payload['message'] === 'string') return payload['message'];
+        if (payload['error'] && typeof payload['error'] === 'object') {
+            const error = payload['error'] as Record<string, unknown>;
+            if (typeof error['message'] === 'string') return error['message'];
+            if (typeof error['detail'] === 'string') return error['detail'];
+        }
+        return '';
+    }
+
+    private handleLoadError(message: string): void {
+        this.loading = false;
+        this.loadError = message;
+        this.messageService.add({
+            severity: 'error',
+            summary: 'Profile unavailable',
+            detail: message,
+            life: 4500,
+        });
+    }
+
+    setSection(section: ProfileSection): void {
+        this.activeSection = section;
+    }
+
+    goBack(): void {
+        this.location.back();
+    }
+
+    openSettings(): void {
+        this.settingsVisible = true;
+    }
+
+    refreshOwner(): void {
+        this.settingsVisible = false;
+        this.loadOwner();
+    }
+
+    get fullName(): string {
+        return [this.owner?.name, this.owner?.lastname]
+            .filter(Boolean)
+            .join(' ');
+    }
+
+    get initials(): string {
+        return (
+            [this.owner?.name, this.owner?.lastname]
+                .filter(Boolean)
+                .map((value) => String(value).charAt(0).toUpperCase())
+                .join('') || 'OW'
+        );
+    }
+
+    get avatarUrl(): string {
+        const avatar = this.owner?.avatar;
+        if (!avatar || typeof avatar !== 'string') return '';
+        if (avatar.startsWith('http') || avatar.startsWith('data:')) {
+            return avatar;
+        }
+        return `${global.url}main-avatar/owners/${avatar}`;
+    }
+
+    get properties(): OwnerProperty[] {
+        return Array.isArray(this.owner?.propertyDetails)
+            ? this.owner.propertyDetails
+            : [];
+    }
+
+    propertyAddress(property: OwnerProperty): string {
+        const address = property.addressId;
+        return (
+            [
+                address?.street_1,
+                address?.street_2,
+                address?.sector_name,
+                address?.city,
+                address?.province,
+            ]
+                .filter(Boolean)
+                .join(', ') || 'Address not available'
+        );
+    }
+
+    bookingLabel(booking: OwnerBooking): string {
+        return String(
+            booking.areaName ||
+                booking.socialArea ||
+                (booking['area'] as any)?.name ||
+                'Common area booking'
+        );
+    }
+
+    bookingDate(booking: OwnerBooking): string | undefined {
+        return booking.checkIn || booking.createdAt;
+    }
+
+    statusLabel(status?: string): string {
+        return String(status || 'active').toLowerCase() === 'active'
+            ? 'Active'
+            : 'Inactive';
     }
 }

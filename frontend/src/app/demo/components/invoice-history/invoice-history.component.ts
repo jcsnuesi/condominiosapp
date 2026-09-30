@@ -52,6 +52,11 @@ type CondoInvoiceGroup = {
     selected: boolean;
 };
 
+type MonthOption = {
+    label: string;
+    value: string;
+};
+
 @Component({
     selector: 'app-invoice-history',
     imports: [
@@ -89,6 +94,9 @@ export class InvoiceHistoryComponent implements OnInit {
     public moduleTitle: string = 'Invoice History';
     public displayHistory: boolean;
     public displayStaff: boolean;
+    public selectedMonth: string = 'all';
+    public monthOptions: MonthOption[] = [];
+    private invoiceHistoryRequestId: number = 0;
 
     //Table settings
     public globalFilters: any;
@@ -168,6 +176,7 @@ export class InvoiceHistoryComponent implements OnInit {
             { label: 'Split payment', value: 'splited' },
             { label: 'Pending', value: 'pending' },
         ];
+        this.monthOptions = this.buildMonthOptions();
     }
 
     ngOnInit() {
@@ -201,6 +210,38 @@ export class InvoiceHistoryComponent implements OnInit {
         table.clear();
         this.searchValue = '';
         this.searchValueHome = '';
+        if (this.selectedMonth !== 'all') {
+            this.selectedMonth = 'all';
+            this.getInvoiceHistory();
+        }
+    }
+
+    onMonthChange(): void {
+        this.getInvoiceHistory();
+    }
+
+    private buildMonthOptions(referenceDate: Date = new Date()): MonthOption[] {
+        const options: MonthOption[] = [{ label: 'All', value: 'all' }];
+        const formatter = new Intl.DateTimeFormat('en-US', {
+            month: 'long',
+            year: 'numeric',
+        });
+
+        for (let offset = 0; offset < 12; offset += 1) {
+            const date = new Date(
+                referenceDate.getFullYear(),
+                referenceDate.getMonth() - offset,
+                1
+            );
+            options.push({
+                label: formatter.format(date),
+                value: `${date.getFullYear()}-${String(
+                    date.getMonth() + 1
+                ).padStart(2, '0')}`,
+            });
+        }
+
+        return options;
     }
 
     getPaymentStatus(payment_status: string) {
@@ -370,14 +411,25 @@ export class InvoiceHistoryComponent implements OnInit {
     getInvoiceHistory() {
         const identity = this._userService.getIdentity();
         const identifier = this.idCondo || identity?._id;
+        const requestId = ++this.invoiceHistoryRequestId;
+        this.loading = true;
 
-        this._invoiceService.getInvoiceByCondo(identifier).subscribe({
-            next: (res) => {
-                const isSuccess =
-                    res?.success === true || res?.status === 'success';
-                const invoices = res?.data?.invoices ?? res?.invoices;
+        this._invoiceService
+            .getInvoiceByCondo(identifier, this.selectedMonth)
+            .subscribe({
+                next: (res) => {
+                    if (requestId !== this.invoiceHistoryRequestId) {
+                        return;
+                    }
+                    const isSuccess =
+                        res?.success === true || res?.status === 'success';
+                    const invoices = res?.data?.invoices ?? res?.invoices;
 
-                if (isSuccess && Array.isArray(invoices)) {
+                    if (!isSuccess || !Array.isArray(invoices)) {
+                        this.setInvoiceTableState([]);
+                        return;
+                    }
+
                     const rows = invoices.map((invoice) => {
                         const owner = invoice?.ownerId;
                         const condominium = invoice?.condominiumId;
@@ -414,15 +466,15 @@ export class InvoiceHistoryComponent implements OnInit {
                         } satisfies InvoiceBody;
                     });
                     this.setInvoiceTableState(rows);
-                } else {
+                },
+                error: (err) => {
+                    if (requestId !== this.invoiceHistoryRequestId) {
+                        return;
+                    }
+                    console.log(err);
                     this.setInvoiceTableState([]);
-                }
-            },
-            error: (err) => {
-                console.log(err);
-                this.setInvoiceTableState([]);
-            },
-        });
+                },
+            });
     }
 
     getSeverityFunc(severity) {

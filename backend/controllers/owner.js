@@ -21,6 +21,9 @@ const paths = require("path");
 const wsConfirmationMessage = require("./whatsappController");
 var mongoose = require("mongoose");
 const assert = require("assert");
+const {
+  setOwnerCondominiumStatus,
+} = require("../service/residentPropertyAccess");
 
 const generatePassword = require("generate-password");
 // Generar una contraseña con opciones específicas
@@ -97,6 +100,18 @@ var ownerAndSubController = {
           return res.status(409).send({
             status: "error",
             message: "The owner identity is already registered",
+          });
+        }
+
+        if (
+          !params.existingOwnerId ||
+          String(params.existingOwnerId) !== String(userDuplicated._id)
+        ) {
+          return res.status(409).send({
+            status: "error",
+            code: "OWNER_EMAIL_EXISTS",
+            message:
+              "An owner with this email already exists. Use Existing user to assign another unit.",
           });
         }
 
@@ -764,7 +779,7 @@ var ownerAndSubController = {
   },
   deactivatedUser: async function (req, res) {
     var params = req.body;
-    let set_status = params.status == "inactive" ? "active" : "inactive";
+    const set_status = params.status;
 
     // // var user = { owner: Owner, family: Family };
     // const updated = await Owner.findOne({
@@ -776,53 +791,12 @@ var ownerAndSubController = {
 
     try {
       if (params.ishome) {
-        // Actualiza el status del elemento correcto dentro de propertyDetails en una sola operación atómica
-        await Owner.findOneAndUpdate(
-          {
-            _id: new mongoose.Types.ObjectId(params._id),
-            "propertyDetails.addressId": new mongoose.Types.ObjectId(
-              params.condoId
-            ),
-          },
-          [
-            {
-              $set: {
-                propertyDetails: {
-                  $map: {
-                    input: "$propertyDetails",
-                    as: "pd",
-                    in: {
-                      $cond: [
-                        {
-                          $eq: [
-                            "$$pd.addressId",
-                            new mongoose.Types.ObjectId(params.condoId),
-                          ],
-                        },
-                        {
-                          $mergeObjects: [
-                            "$$pd",
-                            {
-                              status: {
-                                $cond: [
-                                  { $eq: ["$$pd.status", "active"] },
-                                  "inactive",
-                                  "active",
-                                ],
-                              },
-                            },
-                          ],
-                        },
-                        "$$pd",
-                      ],
-                    },
-                  },
-                },
-              },
-            },
-          ],
-          { new: true }
-        );
+        await setOwnerCondominiumStatus({
+          condominiumId: params.condoId,
+          ownerId: params._id,
+          organizationId: req.auth.organizationId,
+          status: params.status,
+        });
 
         return res.status(200).send({
           status: "success",
@@ -842,9 +816,9 @@ var ownerAndSubController = {
       }
     } catch (error) {
       console.log(error);
-      return res.status(500).send({
+      return res.status(error.statusCode || 500).send({
         status: "error",
-        message: "Server error, try again",
+        message: error.message || "Server error, try again",
       });
     }
   },
@@ -866,16 +840,35 @@ var ownerAndSubController = {
     let ownerId = req.params.ownerId;
 
     try {
-      const ownerCondo = await Owner.findOne({ _id: ownerId }).populate({
+      const ownerCondo = await Owner.findOne({
+        _id: ownerId,
+        organizationId: req.auth.organizationId,
+      }).populate({
         path: "propertyDetails.addressId",
         model: "Condominium",
         select:
           "avatar availableUnits alias phone street_1 street_2 sector_name city province zipcode country socialAreas mPayment status mPayment createdAt",
       });
 
+      const ownerResponse = ownerCondo?.toObject
+        ? ownerCondo.toObject()
+        : ownerCondo;
+      if (
+        ownerResponse &&
+        ["OWNER", "FAMILY"].includes(String(req.auth?.role || "").toUpperCase())
+      ) {
+        const allowedIds = new Set(
+          (req.auth?.scope?.condominiumIds || []).map(String)
+        );
+        ownerResponse.propertyDetails = (ownerResponse.propertyDetails || []).filter(
+          (property) =>
+            allowedIds.has(String(property?.addressId?._id || property?.addressId))
+        );
+      }
+
       return res.status(200).send({
         status: "success",
-        message: ownerCondo,
+        message: ownerResponse,
       });
     } catch (error) {
       return res.status(500).send({
@@ -1044,6 +1037,12 @@ var ownerAndSubController = {
   getAssets: async function (req, res) {
     let id = req.params.id;
 
+    // Owner profiles change frequently (payments, bookings, units). Returning
+    // a cached 304 can leave the administrative view with stale aggregates.
+    res.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+    res.set("Pragma", "no-cache");
+    res.set("Expires", "0");
+
     if (Boolean(id == undefined)) {
       return res.status(400).send({
         status: "bad request",
@@ -1052,7 +1051,10 @@ var ownerAndSubController = {
     }
 
     try {
-      const owner = await Owner.findOne({ _id: id })
+      const owner = await Owner.findOne({
+        _id: id,
+        organizationId: req.auth.organizationId,
+      })
         .select("-password")
         .populate({
           path: "propertyDetails.addressId",
@@ -1114,8 +1116,10 @@ var ownerAndSubController = {
       }
 
       return res.status(200).send({
-        status: "success",
-        message: data,
+        success: true,
+        data,
+        error: null,
+        code: "OWNER_ASSETS_OK",
       });
     } catch (error) {
       console.log(error);

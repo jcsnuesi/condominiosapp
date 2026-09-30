@@ -65,6 +65,24 @@ export class AccessManagementService {
         return this.http.get<ApiResponse<AdministrativeUser[]>>(`${global.url}organization-users`);
     }
 
+    updateUserStatus(
+        user: AdministrativeUser,
+        status: 'active' | 'inactive'
+    ): Observable<ApiResponse<AdministrativeUser>> {
+        return this.http.patch<ApiResponse<AdministrativeUser>>(
+            `${global.url}organization-users/${encodeURIComponent(user.subjectModel)}/${encodeURIComponent(user._id)}/status`,
+            { status }
+        );
+    }
+
+    deleteUserPermanently(
+        user: AdministrativeUser
+    ): Observable<ApiResponse<string>> {
+        return this.http.delete<ApiResponse<string>>(
+            `${global.url}organization-users/${encodeURIComponent(user.subjectModel)}/${encodeURIComponent(user._id)}`
+        );
+    }
+
     saveGrant(user: AdministrativeUser, grant: AccessGrant): Observable<ApiResponse<AccessGrant>> {
         return this.http.put<ApiResponse<AccessGrant>>(
             `${global.url}access/grants/${user.subjectModel}/${user._id}`,

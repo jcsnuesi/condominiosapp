@@ -24,6 +24,16 @@ router.post("/access/policies", [authenticated, requireOwnerAdmin], controller.c
 router.put("/access/policies/:id", [authenticated, requireOwnerAdmin], controller.updatePolicy);
 router.delete("/access/policies/:id", [authenticated, requireOwnerAdmin], controller.archivePolicy);
 router.get("/organization-users", [authenticated, requireOwnerAdmin], controller.listAdministrativeUsers);
+router.patch(
+  "/organization-users/:subjectModel/:subjectId/status",
+  [authenticated, requireOwnerAdmin],
+  controller.updateAdministrativeUserStatus
+);
+router.delete(
+  "/organization-users/:subjectModel/:subjectId",
+  [authenticated, requireOwnerAdmin],
+  controller.deleteAdministrativeUser
+);
 router.put("/access/grants/:subjectModel/:subjectId", [authenticated, requireOwnerAdmin], controller.upsertGrant);
 
 module.exports = router;

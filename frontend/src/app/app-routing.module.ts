@@ -97,6 +97,7 @@ import { OrganizationProvisioningComponent } from './demo/components/organizatio
                         },
                         {
                             path: 'partners/:id',
+                            data: { permission: 'owners.read' },
                             canActivate: [UserGuard],
                             component: OwnerProfileComponent,
                         },

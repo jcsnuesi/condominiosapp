@@ -309,6 +309,31 @@ p-tag.app-status-tag-host > .p-tag {
     background: #fff5f4;
 }
 
+/* Row action menus are appended to body, so destructive user actions live here. */
+.create-user-row-menu
+    .create-user-permanent-delete-action
+    .p-menu-item-link,
+.create-user-row-menu
+    .create-user-permanent-delete-action
+    .p-menu-item-icon,
+.create-user-row-menu
+    .create-user-permanent-delete-action
+    .p-menu-item-label {
+    color: #b42318 !important;
+}
+
+.create-user-row-menu
+    .create-user-permanent-delete-action
+    .p-menu-item-label {
+    font-weight: 650;
+}
+
+.create-user-row-menu
+    .create-user-permanent-delete-action
+    .p-menu-item-content:hover {
+    background: #fff5f4;
+}
+
 @media (max-width: 768px) {
     body {
         padding: 0.5rem;

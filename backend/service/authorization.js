@@ -9,6 +9,10 @@ const Owner = require("../models/owners");
 const Family = require("../models/family");
 const Superuser = require("../models/super_user");
 const { PERMISSIONS } = require("./permissionCatalog");
+const {
+  activeFamilyCondominiumIds,
+  activeOwnerCondominiumIds,
+} = require("./residentPropertyAccess");
 
 const ACCOUNT_MODELS = Object.freeze({
   SUPERUSER: Superuser,
@@ -93,8 +97,11 @@ async function resolveAccessContext(userPayload) {
   const organization = await Organization.findOne({ _id: organizationId, status: "active" }).lean();
   if (!organization) return null;
 
-  const propertyScope = unique((account.propertyDetails || []).map((property) => property.addressId));
   if (role === "OWNER" || role === "FAMILY") {
+    const propertyScope =
+      role === "OWNER"
+        ? activeOwnerCondominiumIds(account)
+        : await activeFamilyCondominiumIds(account);
     return {
       account,
       role,

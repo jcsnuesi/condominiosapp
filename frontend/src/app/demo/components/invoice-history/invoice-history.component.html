@@ -7,6 +7,20 @@
         </p>
     </header>
 
+    <div class="invoice-history-filter">
+        <label for="invoice-month-filter">Month</label>
+        <p-select
+            inputId="invoice-month-filter"
+            [options]="monthOptions"
+            [(ngModel)]="selectedMonth"
+            optionLabel="label"
+            optionValue="value"
+            (onChange)="onMonthChange()"
+            ariaLabel="Filter invoice history by month"
+        />
+        <small>Invoice history is limited to the latest 12 months.</small>
+    </div>
+
     @if(!isHome){
 
     <p-table

@@ -6,7 +6,7 @@ import {
     ViewChild,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 // PrimeNG modules
 
 import { UserService } from '../../service/user.service';
@@ -15,7 +15,7 @@ import { MessageService, ConfirmationService } from 'primeng/api';
 import { ImportsModule } from '../../imports_primeng';
 import { FileUpload } from 'primeng/fileupload';
 import { global } from '../../service/global.service';
-import { firstValueFrom } from 'rxjs';
+import { finalize, firstValueFrom } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 
 @Component({
@@ -28,7 +28,7 @@ import { ActivatedRoute } from '@angular/router';
     ],
     templateUrl: './docs.component.html',
     styleUrl: './docs.component.css',
-    providers: [UserService, DocsService],
+    providers: [UserService, DocsService, MessageService, ConfirmationService],
 })
 export class DocsComponent implements OnInit {
     /** Access control state */
@@ -37,6 +37,7 @@ export class DocsComponent implements OnInit {
     isLoading = false;
     isError = false;
     errorMessage = '';
+    submitError = '';
     public url: string;
 
     /** Upload form and Edit form */
@@ -112,6 +113,12 @@ export class DocsComponent implements OnInit {
     }
 
     openInquiryDialog(): void {
+        this.dialogHeader = 'Create New Documentation';
+        this.btnLabel = 'Submit';
+        this.submitError = '';
+        this.selectedFiles = [];
+        this.filePreviewUrls.clear();
+        this.fileUploader?.clear();
         this.docModel = {
             id: '',
             title: '',
@@ -146,6 +153,7 @@ export class DocsComponent implements OnInit {
      * Resetea el formulario de inquiry
      */
     resetDocForm(): void {
+        this.submitError = '';
         this.loadDocuments();
 
         this.docModel = {
@@ -232,25 +240,40 @@ export class DocsComponent implements OnInit {
         });
     }
 
-    submitDocs() {
-        const formData = new FormData();
-        formData.append('title', this.docModel.title);
-        formData.append('category', this.docModel.category);
-        formData.append(
-            'condominiumId',
-            this.isDashboard ? this.docModel.condominiumId : this.userId
-        );
-        formData.append('description', this.docModel.description);
+    saveDocument(form: NgForm): void {
+        if (!this.isAdmin || this.loading) return;
+        this.submitError = '';
+        if (form.invalid) {
+            form.control.markAllAsTouched();
+            this.submitError = 'Complete all required fields before saving.';
+            return;
+        }
+        if (this.docModel.id) {
+            this.updateDocs();
+        } else {
+            this.submitDocs();
+        }
+    }
 
+    submitDocs(): void {
+        if (!this.isAdmin || this.loading) return;
+        const condominiumId = this.isDashboard
+            ? this.docModel.condominiumId
+            : this.userId;
+        if (!condominiumId || !this.docModel.title.trim() || !this.docModel.description.trim()) {
+            this.submitError = 'Enter a title, description and condominium before submitting.';
+            return;
+        }
+        this.submitError = '';
+        const formData = new FormData();
+        formData.append('title', this.docModel.title.trim());
+        formData.append('category', this.docModel.category);
+        formData.append('condominiumId', condominiumId);
+        formData.append('status', this.docModel.status);
+        formData.append('description', this.docModel.description.trim());
         formData.append('uploadedBy', this.identity._id);
-        formData.append(
-            'uploadedRole',
-            this.identity.role.charAt(0).toUpperCase() +
-                this.identity.role.slice(1).toLowerCase()
-        );
-        this.selectedFiles.forEach((file) => {
-            formData.append('file', file, file.name);
-        });
+        formData.append('uploadedRole', this.identity.role.charAt(0).toUpperCase() + this.identity.role.slice(1).toLowerCase());
+        this.selectedFiles.forEach((file) => formData.append('file', file, file.name));
 
         this._confirmationService.confirm({
             message: `Are you sure you want to upload the document "${this.docModel.title}"?`,
@@ -258,20 +281,31 @@ export class DocsComponent implements OnInit {
             icon: 'pi pi-exclamation-triangle',
             acceptLabel: 'Yes, Upload',
             rejectLabel: 'Cancel',
-            acceptButtonStyleClass: 'p-button-success',
             accept: () => {
-                this._docsService.createDoc(formData).subscribe({
-                    next: (res) => {
-                        this.loadDocuments();
-                        this.displayDocsDialog = false;
-                    },
-                    error: (err) => {
-                        console.error('Error creating document:', err);
-                    },
-                });
-            },
-            reject: () => {
-                // console.log('Upload cancelled');
+                if (this.loading) return;
+                this.loading = true;
+                this._docsService.createDoc(formData)
+                    .pipe(finalize(() => {
+                        this.loading = false;
+                        this._changeDetectorRef.markForCheck();
+                    }))
+                    .subscribe({
+                        next: (res) => {
+                            if (res.status !== 'success') {
+                                this.submitError = typeof res.message === 'string'
+                                    ? res.message : 'Document could not be created. Please try again.';
+                                return;
+                            }
+                            this._messageService.add({
+                                severity: 'success', summary: 'Document created',
+                                detail: 'The document was uploaded successfully.',
+                            });
+                            this.displayDocsDialog = false;
+                        },
+                        error: () => {
+                            this.submitError = 'Document could not be created. Please try again.';
+                        },
+                    });
             },
         });
     }
@@ -280,8 +314,6 @@ export class DocsComponent implements OnInit {
     public docModelTable: any;
     loadDocuments(): void {
         // const mockIfMissing = !this.docsService?.getDocuments;
-        this.btnLabel = 'Submit';
-        this.dialogHeader = 'Create New Documentation';
         this._docsService.getDirectory(this.userId).subscribe({
             next: (res: any) => {
                 console.log('Documents loaded:', res);
@@ -585,9 +617,10 @@ export class DocsComponent implements OnInit {
     }
 
     // ===== Actions: View, Download, Edit, Delete =====
-    dialogHeader: string;
-    btnLabel: string;
+    dialogHeader = 'Create New Documentation';
+    btnLabel = 'Submit';
     async onView(doc: any): Promise<void> {
+        this.submitError = '';
         this.dialogHeader = 'Document Details';
         this.btnLabel = 'Update';
         this.docModel = { ...doc };

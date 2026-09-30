@@ -331,11 +331,13 @@
             [rowHover]="true"
             [rows]="10"
             [showCurrentPageReport]="true"
+            [pageLinks]="3"
+            [showFirstLastIcon]="false"
             [rowsPerPageOptions]="[10, 25, 50]"
             [paginator]="true"
             [sortOrder]="-1"
             [sortField]="'bookingName'"
-            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+            currentPageReportTemplate="{first}–{last} of {totalRecords} bookings"
             [filterDelay]="0"
             responsiveLayout="scroll"
             styleClass="p-datatable-sm app-data-table booking-history-table"
@@ -352,54 +354,25 @@
             ]"
         >
             <ng-template pTemplate="caption">
-                <div class="app-table-toolbar">
+                <div class="app-table-toolbar booking-toolbar">
+                    <p-iconField iconPosition="left" class="app-table-search booking-search">
+                        <p-inputIcon styleClass="pi pi-search"></p-inputIcon>
+                        <input pInputText type="search" [(ngModel)]="searchValue"
+                            (input)="dt.filterGlobal($event.target.value, 'contains')"
+                            placeholder="Search bookings..."
+                            aria-label="Search bookings, units, areas or status" />
+                    </p-iconField>
+                    <p-button class="booking-clear" [outlined]="true" severity="secondary"
+                        icon="pi pi-filter-slash" label="Clear filters"
+                        styleClass="booking-toolbar-button booking-clear-button" (onClick)="clear(dt)" />
                     @if (canDeleteBookings) {
-                    <p-button
-                        severity="danger"
-                        icon="pi pi-trash"
-                        [label]="
-                            selectedEligibleRows.length > 0
-                                ? 'Delete (' + selectedEligibleRows.length + ')'
-                                : 'Delete'
-                        "
-                        [disabled]="
-                            selectedEligibleRows.length === 0 ||
-                            isDeletingBookings
-                        "
-                        [loading]="isDeletingBookings"
-                        (onClick)="confirmDeleteSelectedBookings()"
-                        ariaLabel="Delete selected eligible bookings"
-                    />
+                    <p-button class="booking-delete" severity="danger" icon="pi pi-trash"
+                        [label]="selectedEligibleRows.length > 0 ? 'Delete (' + selectedEligibleRows.length + ')' : 'Delete'"
+                        [disabled]="selectedEligibleRows.length === 0 || isDeletingBookings"
+                        [loading]="isDeletingBookings" (onClick)="confirmDeleteSelectedBookings()"
+                        styleClass="booking-toolbar-button booking-delete-button"
+                        ariaLabel="Delete selected eligible bookings" />
                     }
-                    <div class="booking-search-actions">
-                        <p-button
-                            [outlined]="true"
-                            severity="secondary"
-                            icon="pi pi-filter-slash"
-                            label="Clear filters"
-                            (onClick)="clear(dt)"
-                        />
-                        <p-iconField
-                            iconPosition="left"
-                            class="app-table-search"
-                        >
-                            <p-inputIcon
-                                styleClass="pi pi-search"
-                            ></p-inputIcon>
-                            <input
-                                pInputText
-                                type="text"
-                                [(ngModel)]="searchValue"
-                                (input)="
-                                    dt.filterGlobal(
-                                        $event.target.value,
-                                        'contains'
-                                    )
-                                "
-                                placeholder="Search bookings, units, areas, status..."
-                            />
-                        </p-iconField>
-                    </div>
                 </div>
             </ng-template>
             <ng-template pTemplate="header">
@@ -550,9 +523,9 @@
             </ng-template>
             <ng-template pTemplate="body" let-customer>
                 <tr class="p-selectable-row">
-                    <td>
+                    <td class="booking-selection-cell" [class.booking-selection-cell--hidden]="!canDeleteBookings">
                         @if (canDeleteBookings) {
-                        <span class="p-column-title">Select</span>
+                        <span class="booking-field-label">Select</span>
                         <p-tableCheckbox
                             [value]="customer"
                             [disabled]="!isDeletionEligible(customer)"
@@ -562,39 +535,39 @@
                         }
                     </td>
                     <td>
-                        <span class="p-column-title">Condominium</span>
+                        <span class="booking-field-label">Condominium</span>
                         {{ customer.alias | titlecase }}
                     </td>
                     <td>
-                        <span class="p-column-title">Created by</span>
+                        <span class="booking-field-label">Created by</span>
                         {{ customer.bookingName | titlecase }}
                     </td>
                     <td>
-                        <span class="p-column-title">Unit</span>
+                        <span class="booking-field-label">Unit</span>
                         {{ customer.unit }}
                     </td>
                     <td>
-                        <span class="p-column-title">Area</span>
+                        <span class="booking-field-label">Area</span>
                         {{ customer.area | titlecase }}
                     </td>
                     <td>
-                        <span class="p-column-title">Check in</span>
+                        <span class="booking-field-label">Check in</span>
                         {{ customer.checkIn }}
                     </td>
                     <td>
-                        <span class="p-column-title">Check out</span>
+                        <span class="booking-field-label">Check out</span>
                         {{ customer.checkOut }}
                     </td>
 
                     <td>
-                        <span class="p-column-title">Status</span>
+                        <span class="booking-field-label">Status</span>
                         <p-tag
                             [value]="customer.status"
                             [severity]="getSeverity(customer.status)"
                         />
                     </td>
                     <td>
-                        <span class="p-column-title">Verified</span>
+                        <span class="booking-field-label">Verified</span>
                         <i
                             class="pi"
                             [ngClass]="{
@@ -606,18 +579,20 @@
                         ></i>
                     </td>
                     <td style="text-align: center">
-                        <span class="p-column-title">Actions</span>
+                        <span class="booking-field-label">Actions</span>
                         <p-button
                             severity="secondary"
                             (click)="showDialog(customer)"
                             icon="pi pi-cog"
+                            ariaLabel="View booking settings"
+                            styleClass="booking-row-action"
                         />
                     </td>
                 </tr>
             </ng-template>
             <ng-template pTemplate="emptymessage">
                 <tr>
-                    <td colspan="10">
+                    <td colspan="10" class="booking-empty-cell">
                         <div class="app-empty-state">
                             <i class="pi pi-calendar"></i>
                             <strong>No bookings found</strong>

@@ -69,14 +69,19 @@ export class InvoiceService {
         });
     }
 
-    getInvoiceByCondo(id: string): Observable<any> {
-        let token = this.getToken();
-        let headers = new HttpHeaders()
+    getInvoiceByCondo(id: string, month: string = 'all'): Observable<any> {
+        const token = this.getToken();
+        const headers = new HttpHeaders()
             .set('Content-Type', 'application/json')
             .set('Authorization', token);
+        let params = new HttpParams();
+        if (month !== 'all') {
+            params = params.set('month', month);
+        }
 
         return this._http.get(this.url + 'get-invoicesByCondo/' + id, {
-            headers: headers,
+            headers,
+            params,
         });
     }
 

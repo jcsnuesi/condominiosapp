@@ -73,11 +73,16 @@ export class OwnerServiceService {
     getOwnerAssets(id: string): Observable<any> {
         let header = new HttpHeaders()
             .set('Content-Type', 'application/json')
-            .set('Authorization', this._cookies.get('token'));
+            .set('Authorization', this._cookies.get('token'))
+            .set('Cache-Control', 'no-cache')
+            .set('Pragma', 'no-cache');
 
-        return this._http.get(this.url + 'get-assets-by-owner/' + id, {
-            headers: header,
-        });
+        return this._http.get(
+            this.url + 'get-assets-by-owner/' + encodeURIComponent(id),
+            {
+                headers: header,
+            }
+        );
     }
 
     addUnitToOwner(data: any): Observable<any> {

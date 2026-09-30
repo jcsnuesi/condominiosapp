@@ -14,9 +14,16 @@ const Invoice = require("../models/invoice");
 const Staff = require("../models/staff");
 const AuthorizationAudit = require("../models/authorizationAudit");
 const bcrypt = require("bcrypt");
-const { ACCOUNT_MODELS } = require("../service/authorization");
+const {
+  ACCOUNT_MODELS,
+  canAccessCondominium,
+} = require("../service/authorization");
 const { match } = require("assert");
 const { create } = require("../models/counter");
+const {
+  groupCondominiumOwners,
+  setOwnerCondominiumStatus,
+} = require("../service/residentPropertyAccess");
 
 const mongoose = require("mongoose");
 
@@ -365,72 +372,21 @@ var Condominium_Controller = {
     }
 
     try {
-      const condoObjectId = new mongoose.Types.ObjectId(condoId);
-      const ownerObjectId = new mongoose.Types.ObjectId(ownerId);
-
-      const condominiumUpdated = await Condominium.findOneAndUpdate(
-        {
-          _id: condoObjectId,
-          $expr: {
-            $anyElementTrue: {
-              $map: {
-                input: { $ifNull: ["$units_ownerId", []] },
-                as: "ownerEntry",
-                in: {
-                  $or: [
-                    { $eq: ["$$ownerEntry", ownerObjectId] },
-                    { $eq: ["$$ownerEntry.ownerId", ownerObjectId] },
-                  ],
-                },
-              },
-            },
-          },
-        },
-        [
-          {
-            $set: {
-              units_ownerId: {
-                $map: {
-                  input: { $ifNull: ["$units_ownerId", []] },
-                  as: "ownerEntry",
-                  in: {
-                    $cond: [
-                      {
-                        $or: [
-                          { $eq: ["$$ownerEntry", ownerObjectId] },
-                          { $eq: ["$$ownerEntry.ownerId", ownerObjectId] },
-                        ],
-                      },
-                      {
-                        ownerId: ownerObjectId,
-                        status: status,
-                      },
-                      "$$ownerEntry",
-                    ],
-                  },
-                },
-              },
-            },
-          },
-        ],
-        { new: true, updatePipeline: true }
-      );
-
-      if (!condominiumUpdated) {
-        return res.status(404).send({
-          status: "error",
-          message: "Condominium or assigned owner not found",
-        });
-      }
+      const condominiumUpdated = await setOwnerCondominiumStatus({
+        condominiumId: condoId,
+        ownerId,
+        organizationId: req.auth.organizationId,
+        status,
+      });
       return res.status(200).send({
         status: "success",
         condominium: condominiumUpdated,
       });
     } catch (error) {
       console.error("inactiveOwnerFromCondo error:", error);
-      return res.status(500).send({
+      return res.status(error.statusCode || 500).send({
         status: "error",
-        message: "Error al actualizar el condominio",
+        message: error.message || "Error al actualizar el condominio",
         error: error.message,
       });
     }
@@ -865,6 +821,16 @@ var Condominium_Controller = {
     try {
       const objectId = new mongoose.Types.ObjectId(req.params.id);
 
+      if (
+        ["OWNER", "FAMILY"].includes(String(req.auth?.role || "").toUpperCase()) &&
+        !canAccessCondominium(req.auth, objectId)
+      ) {
+        return res.status(403).send({
+          status: "error",
+          message: "Resident access to this condominium is inactive",
+        });
+      }
+
       const condominiums = await Condominium.find({
         _id: objectId,
         organizationId: req.auth.organizationId,
@@ -890,6 +856,11 @@ var Condominium_Controller = {
           message: "Condominium not found",
         });
       }
+
+      condominiums[0].units_ownerId = groupCondominiumOwners(
+        condominiums[0].units_ownerId,
+        objectId
+      );
 
       if (req.user.role === "OWNER") {
         condominiums[0].units_ownerId = condominiums[0].units_ownerId.filter(

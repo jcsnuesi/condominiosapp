@@ -59,18 +59,8 @@ body {
 .create-user-actions {
     align-items: center;
     display: flex;
-    gap: 0.5rem;
+    justify-content: center;
     white-space: nowrap;
-}
-
-:host ::ng-deep .create-user-delete-button.p-button {
-    border-color: var(--p-red-500, #ef4444);
-    color: var(--p-red-500, #ef4444);
-}
-
-:host ::ng-deep .create-user-delete-button.p-button .p-button-icon {
-    display: inline-block;
-    font-size: 1rem;
 }
 
 .user-form-grid {

@@ -6,7 +6,8 @@ const router = express.Router();
 const {
   authenticated,
   ownerAuth,
-  adminAuth,
+  ownerOnly,
+  requireActiveResidentCondominium,
 } = require("../middleware/middleware_bundle");
 const multer = require("multer");
 const path = require("path");
@@ -45,31 +46,47 @@ router.get(
 );
 router.get(
   "/familyMembers-byCondo/:condoId",
-  [authenticated, ownerAuth],
+  [
+    authenticated,
+    ownerAuth,
+    ownerOnly,
+    requireActiveResidentCondominium,
+  ],
   familyController.getFamilyMemberByCondoId
 );
 
 // POST METHOD
 router.post(
   "/create-family",
-  [authenticated, upload.single("avatar"), ownerAuth],
+  [
+    authenticated,
+    upload.single("avatar"),
+    ownerAuth,
+    ownerOnly,
+    requireActiveResidentCondominium,
+  ],
   familyController.createAccount
 );
 
 // PUT METHOD
 router.put(
   "/update-family-auth",
-  [authenticated, ownerAuth],
+  [
+    authenticated,
+    ownerAuth,
+    ownerOnly,
+    requireActiveResidentCondominium,
+  ],
   familyController.authFamily
 );
 router.put(
   "/update-family-member",
-  [authenticated, md_upload, ownerAuth],
+  [authenticated, md_upload, ownerAuth, ownerOnly],
   familyController.updateFamilyMember
 );
 router.put(
   "/delete-family-member/:id",
-  [authenticated, ownerAuth],
+  [authenticated, ownerAuth, ownerOnly],
   familyController.hideFamilyMember
 );
 

@@ -368,6 +368,151 @@ async function listAdministrativeUsers(req, res) {
   });
 }
 
+function administrativeSubject(subjectModel) {
+  if (subjectModel === "Staff_Admin") return StaffAdmin;
+  if (subjectModel === "Staff") return Staff;
+  return null;
+}
+
+async function updateAdministrativeUserStatus(req, res) {
+  const subjectModel = req.params.subjectModel;
+  const Subject = administrativeSubject(subjectModel);
+  const status = String(req.body.status || "").toLowerCase();
+
+  if (
+    !Subject ||
+    !mongoose.Types.ObjectId.isValid(req.params.subjectId) ||
+    !["active", "inactive"].includes(status)
+  ) {
+    return res.status(400).send({
+      status: "error",
+      message: "A valid user and status are required",
+    });
+  }
+
+  try {
+    let updated;
+    await runAuthorizationWrite(async (session) => {
+      const query = Subject.findOne({
+        _id: req.params.subjectId,
+        organizationId: req.auth.organizationId,
+      });
+      const before = await query.session(session || null).lean();
+      if (!before) {
+        throw Object.assign(new Error("User not found"), { statusCode: 404 });
+      }
+
+      updated = await Subject.findByIdAndUpdate(
+        before._id,
+        { $set: { status } },
+        { new: true, runValidators: true, session: session || undefined }
+      ).select("-password -government_id");
+
+      await AuthorizationAudit.create(
+        [
+          auditData(req, {
+            action: "administrative-user.status.update",
+            targetType: subjectModel,
+            targetId: before._id,
+            before: { status: before.status },
+            after: { status },
+          }),
+        ],
+        { session: session || undefined }
+      );
+    });
+
+    return res.status(200).send({ status: "success", message: updated });
+  } catch (error) {
+    return res.status(error.statusCode || 500).send({
+      status: "error",
+      message: error.statusCode ? error.message : "User status could not be updated",
+    });
+  }
+}
+
+async function deleteAdministrativeUser(req, res) {
+  const subjectModel = req.params.subjectModel;
+  const Subject = administrativeSubject(subjectModel);
+
+  if (!Subject || !mongoose.Types.ObjectId.isValid(req.params.subjectId)) {
+    return res.status(400).send({
+      status: "error",
+      message: "A valid user is required",
+    });
+  }
+
+  try {
+    let deletedUser;
+    await runAuthorizationWrite(async (session) => {
+      deletedUser = await Subject.findOne({
+        _id: req.params.subjectId,
+        organizationId: req.auth.organizationId,
+      })
+        .session(session || null)
+        .lean();
+
+      if (!deletedUser) {
+        throw Object.assign(new Error("User not found"), { statusCode: 404 });
+      }
+
+      await Promise.all([
+        AccessGrant.deleteOne({
+          organizationId: req.auth.organizationId,
+          subjectModel,
+          subjectId: deletedUser._id,
+        }).session(session || null),
+        Subject.deleteOne({
+          _id: deletedUser._id,
+          organizationId: req.auth.organizationId,
+        }).session(session || null),
+        AuthorizationAudit.create(
+          [
+            auditData(req, {
+              action: "administrative-user.delete.permanent",
+              targetType: subjectModel,
+              targetId: deletedUser._id,
+              before: publicAccount(deletedUser),
+              after: null,
+            }),
+          ],
+          { session: session || undefined }
+        ),
+      ]);
+    });
+
+    const sharedAvatars = new Set([
+      "noimage.jpeg",
+      "noimage2.jpeg",
+      "default-avatar1.png",
+    ]);
+    const avatarName = path.basename(deletedUser.avatar || "");
+    if (avatarName && !sharedAvatars.has(avatarName)) {
+      const uploadFolder = subjectModel === "Staff" ? "staff" : "users";
+      try {
+        await fs.unlink(
+          path.resolve(__dirname, "..", "uploads", uploadFolder, avatarName)
+        );
+      } catch (fileError) {
+        if (fileError.code !== "ENOENT") {
+          console.error("Administrative user avatar cleanup failed:", fileError.message);
+        }
+      }
+    }
+
+    return res.status(200).send({
+      status: "success",
+      message: "User permanently deleted",
+      deletedId: deletedUser._id,
+    });
+  } catch (error) {
+    return res.status(error.statusCode || 500).send({
+      status: "error",
+      message: error.statusCode ? error.message : "User could not be permanently deleted",
+    });
+  }
+}
+
 async function upsertGrant(req, res) {
   const subjectModel = req.params.subjectModel;
   const Subject = subjectModel === "Staff_Admin" ? StaffAdmin : subjectModel === "Staff" ? Staff : null;
@@ -419,5 +564,6 @@ async function upsertGrant(req, res) {
 module.exports = {
   me, updateMe, changeMyPassword,
   catalog, listPolicies, createPolicy, updatePolicy, archivePolicy,
-  listAdministrativeUsers, upsertGrant,
+  listAdministrativeUsers, updateAdministrativeUserStatus,
+  deleteAdministrativeUser, upsertGrant,
 };

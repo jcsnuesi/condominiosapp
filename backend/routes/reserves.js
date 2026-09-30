@@ -7,6 +7,7 @@ var router = express.Router();
 var {
   authenticated,
   ownerAuth,
+  requireActiveResidentCondominium,
   checkAvailability,
   validateBookingData,
 } = require("../middleware/middleware_bundle");
@@ -52,6 +53,7 @@ router.post(
   [
     authenticated,
     ownerAuth,
+    requireActiveResidentCondominium,
     ...bookingValidation,
     validateRequest,
     checkAvailability,

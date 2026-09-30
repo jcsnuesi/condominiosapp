@@ -11,6 +11,7 @@ const jwtService = require("../service/jwt");
 const auth = require("../middleware/auth");
 const Reserves = require("../models/reserves");
 const bookingMiddleware = require("../middleware/validateBooking");
+const userAuth = require("../middleware/userAuth");
 
 function createResponse() {
   return {
@@ -284,4 +285,45 @@ test("checkAvailability rejects overlapping bookings", async () => {
   } finally {
     Reserves.findOne = originalFindOne;
   }
+});
+
+test("inactive resident condominium scope blocks booking and family mutations", () => {
+  const req = {
+    user: { role: "OWNER" },
+    auth: {
+      scope: { mode: "SELECTED", condominiumIds: ["condo-active"] },
+    },
+    body: { condoId: "condo-inactive" },
+    params: {},
+  };
+  const res = createResponse();
+  let nextCalled = false;
+
+  userAuth.requireActiveResidentCondominium(req, res, () => {
+    nextCalled = true;
+  });
+
+  assert.equal(nextCalled, false);
+  assert.equal(res.statusCode, 403);
+  assert.equal(res.body.code, "RESIDENT_CONDOMINIUM_INACTIVE");
+});
+
+test("active resident condominium scope permits scoped mutations", () => {
+  const req = {
+    user: { role: "OWNER" },
+    auth: {
+      scope: { mode: "SELECTED", condominiumIds: ["condo-active"] },
+    },
+    body: { propertyId: "condo-active" },
+    params: {},
+  };
+  const res = createResponse();
+  let nextCalled = false;
+
+  userAuth.requireActiveResidentCondominium(req, res, () => {
+    nextCalled = true;
+  });
+
+  assert.equal(nextCalled, true);
+  assert.equal(res.statusCode, null);
 });
