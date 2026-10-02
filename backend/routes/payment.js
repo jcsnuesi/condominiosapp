@@ -2,9 +2,15 @@
 
 const express = require("express");
 const paymentController = require("../controllers/payment");
+const paymentMonitor = require("../controllers/paymentMonitor");
+const paymentProvider = require("../controllers/paymentProvider");
 const md_auth = require("../middleware/auth");
 
 const router = express.Router();
+router.get("/payments/providers", md_auth.authenticated, paymentProvider.list);
+router.post("/payments/providers", md_auth.authenticated, paymentProvider.create);
+router.delete("/payments/providers/:id", md_auth.authenticated, paymentProvider.remove);
+router.get("/payments/monitor/options", md_auth.authenticated, paymentMonitor.options);
 
 router.get(
   "/payments/transactions",

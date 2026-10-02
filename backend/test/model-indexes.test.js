@@ -72,6 +72,36 @@ test("owner and family models have relationship lookup indexes", () => {
   );
 });
 
+test("owner model accepts a personal residence without an organization or condominium", () => {
+  const owner = new Owner({
+    name: "Alex",
+    lastname: "Rivera",
+    gender: "unspecified",
+    phone: "+18095550123",
+    email: "personal-owner@example.test",
+    propertyDetails: [
+      {
+        contextType: "PERSONAL_RESIDENCE",
+        residenceLabel: "Casa principal",
+      },
+    ],
+  });
+
+  assert.equal(owner.validateSync(), undefined);
+  assert.equal(owner.organizationId, undefined);
+  assert.ok(owner.propertyDetails[0]._id);
+});
+
+test("condominium unit subdocuments receive stable ids and default availability", () => {
+  const condominium = new Condominium({
+    units: [{ label: "A-101", normalizedLabel: "a-101" }],
+  });
+
+  assert.ok(condominium.units[0]._id);
+  assert.equal(condominium.units[0].availability, "AVAILABLE");
+  assert.equal(condominium.units[0].status, "active");
+});
+
 test("inquiry model has a condominium status count index", () => {
   assert.equal(
     hasNamedIndex(Inquiry, "inquiry_condo_active_status_lookup", {
@@ -187,12 +217,16 @@ test("phase 4 payment transaction model has idempotency and reconciliation index
 
 test("phase 4 communication log model has reminder lookup indexes", () => {
   assert.equal(
-    hasNamedIndex(CommunicationLog, "communication_invoice_channel_type_lookup", {
-      invoiceId: 1,
-      channel: 1,
-      type: 1,
-      sentAt: -1,
-    }),
+    hasNamedIndex(
+      CommunicationLog,
+      "communication_invoice_channel_type_lookup",
+      {
+        invoiceId: 1,
+        channel: 1,
+        type: 1,
+        sentAt: -1,
+      }
+    ),
     true
   );
   assert.equal(

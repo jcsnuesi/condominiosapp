@@ -29,8 +29,11 @@ const PaymentTransactionSchema = Schema(
     provider: {
       type: String,
       required: true,
-      enum: ["AZUL", "CARDNET"],
+      trim: true,
+      uppercase: true,
+      maxlength: 80,
     },
+    bankName: { type: String, trim: true, maxlength: 120 },
     amount: {
       type: Number,
       required: true,

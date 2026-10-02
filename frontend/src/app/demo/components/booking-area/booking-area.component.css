@@ -502,3 +502,129 @@ label{
     :host ::ng-deep .booking-history-table .p-paginator .p-select { min-width: 3.75rem; margin-left: .3rem; height: 44px; }
     :host ::ng-deep .booking-history-table .p-paginator .p-select-label { padding: .65rem .5rem; }
 }
+.booking-view-switch { display: flex; gap: .5rem; margin: 1rem 0; }
+.booking-view-switch button { display: inline-flex; align-items: center; gap: .5rem; padding: .65rem 1rem; border: 1px solid var(--surface-border, #d1d5db); border-radius: .5rem; background: var(--surface-card, white); color: var(--text-color, #334155); cursor: pointer; font: inherit; }
+.booking-view-switch button[aria-pressed="true"] { background: var(--primary-color, #2563eb); color: var(--primary-color-text, white); }
+.booking-view-switch button:focus-visible { outline: 2px solid var(--primary-color, #2563eb); outline-offset: 3px; }
+.booking-calendar { min-width: 0; padding: .5rem 0; }
+.booking-calendar-help { color: var(--text-color-secondary, #64748b); }
+:host ::ng-deep .booking-calendar .fc-event { cursor: pointer; }
+:host ::ng-deep .booking-calendar .fc-event-title,
+:host ::ng-deep .booking-calendar .fc-daygrid-event { white-space: normal; }
+@media (max-width: 767px) {
+    :host ::ng-deep .booking-calendar .fc-header-toolbar { flex-direction: column; gap: .75rem; }
+    :host ::ng-deep .booking-calendar .fc-toolbar-title { font-size: 1.25rem; }
+    :host ::ng-deep .booking-calendar .fc-daygrid-event { font-size: .7rem; }
+}
+
+/* Visual reference: See Property. Keep typography, surfaces and controls aligned. */
+:host {
+    --booking-ink: #183153;
+    --booking-muted: #66758d;
+    --booking-line: #dce5ee;
+    --booking-primary: #176b87;
+    color: var(--booking-ink);
+    font-family: var(--font-family);
+}
+.booking-history-card.card {
+    padding: 1.6rem;
+    border-radius: 18px;
+    border-color: var(--booking-line);
+    background: #fff;
+    box-shadow: none;
+}
+.booking-history-card .app-page-header { align-items: center; gap: 1.25rem; margin-bottom: 1.5rem; }
+.booking-history-card .app-page-kicker { color: var(--booking-primary); font-size: .72rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+.booking-history-card .app-page-header h2 { margin: .3rem 0 .4rem; color: var(--booking-ink); font-size: clamp(1.65rem, 3vw, 2.35rem); line-height: 1.1; letter-spacing: -.035em; }
+.booking-history-card .app-page-header p { color: var(--booking-muted); margin: 0; }
+.booking-view-switch { display: inline-flex; gap: .2rem; padding: .25rem; margin: 0 0 1rem; border: 1px solid var(--booking-line); border-radius: 12px; }
+.booking-view-switch button { justify-content: center; min-height: 44px; padding: .6rem .85rem; border: 0; border-radius: 8px; font: inherit; font-weight: 700; color: var(--booking-muted); background: transparent; }
+.booking-view-switch button[aria-pressed="true"] { color: #105d76; background: #e8f2f5; }
+.booking-view-switch button:hover { background: #f1f5f8; }
+.booking-view-switch button:focus-visible { outline-color: var(--booking-primary); }
+.booking-calendar-help { margin: 0 0 1.25rem; color: var(--booking-muted); font-size: .85rem; line-height: 1.5; }
+:host ::ng-deep .booking-history-table .p-datatable-header { background: #fff; border: 0; padding: 0 0 1rem; }
+:host ::ng-deep .booking-history-table .p-datatable-thead > tr > th { background: #f5f8fb; color: var(--booking-muted); border-color: var(--booking-line); font-size: .8rem; }
+:host ::ng-deep .booking-history-table .p-datatable-tbody > tr > td { color: var(--booking-ink); border-color: var(--booking-line); }
+:host ::ng-deep .booking-search input { border-color: var(--booking-line); color: var(--booking-ink); font-family: inherit; }
+:host ::ng-deep .booking-history-table .p-paginator-page-selected { background: #e8f2f5; color: #105d76; }
+:host ::ng-deep .booking-history-table .p-tag { border-radius: 999px; padding: .3rem .6rem; font-size: .75rem; font-weight: 750; }
+:host ::ng-deep .booking-calendar .fc {
+    --fc-border-color: #dce5ee;
+    --fc-page-bg-color: #fff;
+    --fc-neutral-bg-color: #f5f8fb;
+    --fc-today-bg-color: #f0f7f9;
+    --fc-button-bg-color: #fff;
+    --fc-button-border-color: #dce5ee;
+    --fc-button-text-color: #176b87;
+    --fc-button-hover-bg-color: #f1f5f8;
+    --fc-button-hover-border-color: #dce5ee;
+    --fc-button-active-bg-color: #e8f2f5;
+    --fc-button-active-border-color: #dce5ee;
+    font-family: inherit;
+    color: var(--booking-ink);
+}
+:host ::ng-deep .booking-calendar .fc .fc-button { min-height: 44px; padding: .6rem .85rem; border-radius: 10px; font-family: inherit; font-size: .85rem; font-weight: 650; box-shadow: none; }
+:host ::ng-deep .booking-calendar .fc .fc-button-group { gap: .25rem; }
+:host ::ng-deep .booking-calendar .fc .fc-button-group > .fc-button { margin-left: 0; border-radius: 10px; }
+:host ::ng-deep .booking-calendar .fc .fc-button:focus-visible { outline: 2px solid var(--booking-primary); outline-offset: 2px; }
+:host ::ng-deep .booking-calendar .fc-toolbar-title { color: var(--booking-ink); font-size: 1.35rem; font-weight: 700; letter-spacing: -.025em; }
+:host ::ng-deep .booking-calendar .fc-col-header-cell { background: #f5f8fb; color: var(--booking-muted); font-size: .8rem; font-weight: 650; }
+:host ::ng-deep .booking-calendar .fc-col-header-cell-cushion { padding: .75rem .2rem; }
+:host ::ng-deep .booking-calendar .fc-daygrid-day-number { color: var(--booking-ink); padding: .5rem; font-size: .85rem; }
+:host ::ng-deep .booking-calendar .fc-event { padding: .3rem .4rem; border-radius: 6px; font-size: .76rem; line-height: 1.4; }
+:host ::ng-deep .booking-calendar .fc-event-title { font-weight: 650; }
+:host ::ng-deep .booking-calendar .fc-scrollgrid { border-radius: 12px; overflow: hidden; }
+:host ::ng-deep .booking-responsive .p-panel,
+:host ::ng-deep .booking-responsive .p-fieldset { background: #fff; border-color: var(--booking-line); border-radius: 18px; box-shadow: none; }
+:host ::ng-deep .booking-responsive .p-panel-header,
+:host ::ng-deep .booking-responsive .p-fieldset-legend { background: #fff; color: var(--booking-ink); }
+.booking-responsive .radio-container { background: #f5f8fb; border-radius: 12px; }
+.booking-responsive .field-radiobutton { border-radius: 10px; border-color: var(--booking-line); }
+.booking-responsive label, .booking-settings-form label { color: var(--booking-muted); font-size: .85rem; font-weight: 650; }
+:host ::ng-deep .booking-responsive .p-button,
+:host ::ng-deep .booking-settings-dialog .p-button { min-height: 44px; border-radius: 10px; font-family: inherit; box-shadow: none; }
+:host ::ng-deep .booking-responsive .btn-submit .p-button,
+:host ::ng-deep .booking-settings-dialog .btn-add .p-button { background: var(--booking-primary); border-color: var(--booking-primary); color: #fff; font-weight: 700; }
+:host ::ng-deep .booking-settings-dialog { border: 1px solid var(--booking-line); border-radius: 18px; color: var(--booking-ink); }
+@media (max-width: 768px) {
+    .booking-history-card.card { padding: 1rem; }
+    .booking-view-switch { display: flex; }
+    .booking-view-switch button { flex: 1; }
+    :host ::ng-deep .booking-calendar .fc-toolbar-title { font-size: 1.2rem; }
+    :host ::ng-deep .booking-calendar .fc-event { padding: .15rem; font-size: .68rem; overflow-wrap: anywhere; }
+}
+
+/* Override the legacy theme's FullCalendar selectors, not only FC variables. */
+:host ::ng-deep .booking-calendar .fc.fc-theme-standard .fc-toolbar .fc-button.fc-button-primary {
+    background: #fff;
+    border-color: var(--booking-line);
+    color: var(--booking-primary);
+    box-shadow: none;
+}
+:host ::ng-deep .booking-calendar .fc.fc-theme-standard .fc-toolbar .fc-button.fc-button-primary:enabled:hover {
+    background: #f1f5f8;
+    border-color: var(--booking-line);
+    color: #105d76;
+}
+:host ::ng-deep .booking-calendar .fc.fc-theme-standard .fc-toolbar .fc-button.fc-button-primary.fc-button-active,
+:host ::ng-deep .booking-calendar .fc.fc-theme-standard .fc-toolbar .fc-button.fc-button-primary:enabled:active,
+:host ::ng-deep .booking-calendar .fc.fc-theme-standard .fc-toolbar .fc-button.fc-button-primary.fc-button-active:hover {
+    background: #e8f2f5;
+    border-color: var(--booking-line);
+    color: #105d76;
+}
+:host ::ng-deep .booking-calendar .fc.fc-theme-standard .fc-toolbar .fc-button.fc-button-primary:focus {
+    box-shadow: none;
+}
+:host ::ng-deep .booking-calendar .fc.fc-theme-standard .fc-toolbar .fc-button.fc-button-primary:disabled {
+    background: #f5f8fb;
+    border-color: var(--booking-line);
+    color: var(--booking-muted);
+    opacity: .65;
+}
+:host ::ng-deep .booking-history-table .p-tag-success { background: #e9f8f2; color: #08785d; }
+:host ::ng-deep .booking-history-table .p-tag-danger { background: #fff0ed; color: #c44732; }
+:host ::ng-deep .booking-history-table .p-tag-info { background: #e8f2f5; color: #105d76; }
+:host ::ng-deep .booking-history-table .p-tag-warn,
+:host ::ng-deep .booking-history-table .p-tag-warning { background: #fbf3db; color: #956400; }

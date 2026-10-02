@@ -16,7 +16,8 @@ function propertyCondominiumId(property) {
 function isOwnerPropertyActive(property, condominiumId) {
   return (
     asString(propertyCondominiumId(property)) === asString(condominiumId) &&
-    String(property?.status_property || "active").toLowerCase() !== "inactive" &&
+    String(property?.status_property || "active").toLowerCase() !==
+      "inactive" &&
     String(property?.status || "active").toLowerCase() !== "inactive"
   );
 }
@@ -34,7 +35,9 @@ function activeOwnerPropertyDetails(owner, condominiumId = null) {
 
 function authorizedFamilyPropertyDetails(family) {
   return (family?.propertyDetails || []).filter((property) => {
-    const familyStatus = String(property?.family_status || "authorized").toLowerCase();
+    const familyStatus = String(
+      property?.family_status || "authorized"
+    ).toLowerCase();
     return propertyCondominiumId(property) && familyStatus === "authorized";
   });
 }
@@ -251,6 +254,80 @@ async function setOwnerCondominiumStatus({
       }
 
       if (normalizedStatus === "inactive") {
+        const ownerUnits = (ownerUpdated.propertyDetails || []).filter(
+          (property) =>
+            String(propertyCondominiumId(property)) === String(condoObjectId) &&
+            property.contextType === "CONDOMINIUM_UNIT" &&
+            property.unitId
+        );
+        const ownerUnitIds = ownerUnits.map((property) => property.unitId);
+        if (ownerUnitIds.length) {
+          const otherOwners = await Owner.find({
+            _id: { $ne: ownerObjectId },
+            organizationId,
+            status: "active",
+            propertyDetails: {
+              $elemMatch: {
+                addressId: condoObjectId,
+                unitId: { $in: ownerUnitIds },
+                status_property: { $ne: "inactive" },
+              },
+            },
+          })
+            .select("propertyDetails")
+            .session(session)
+            .lean();
+          const retainedUnitIds = new Set(
+            otherOwners.flatMap((owner) =>
+              (owner.propertyDetails || [])
+                .filter(
+                  (property) =>
+                    String(propertyCondominiumId(property)) ===
+                      String(condoObjectId) &&
+                    String(
+                      property.status_property || "active"
+                    ).toLowerCase() !== "inactive"
+                )
+                .map((property) => String(property.unitId))
+            )
+          );
+          const releasableUnits = ownerUnits.filter(
+            (property) => !retainedUnitIds.has(String(property.unitId))
+          );
+          if (releasableUnits.length) {
+            const released = await Condominium.updateOne(
+              { _id: condoObjectId, organizationId },
+              {
+                $addToSet: {
+                  availableUnits: {
+                    $each: releasableUnits.map(
+                      (property) => property.condominium_unit
+                    ),
+                  },
+                },
+                $set: { "units.$[unit].availability": "AVAILABLE" },
+              },
+              {
+                session,
+                arrayFilters: [
+                  {
+                    "unit._id": {
+                      $in: releasableUnits.map((property) => property.unitId),
+                    },
+                  },
+                ],
+              }
+            );
+            if (released.matchedCount !== 1) {
+              const error = new Error(
+                "Inactive owner units could not be released"
+              );
+              error.statusCode = 409;
+              throw error;
+            }
+          }
+        }
+
         await Family.updateMany(
           {
             organizationId,

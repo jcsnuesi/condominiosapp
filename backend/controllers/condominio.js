@@ -1,4 +1,5 @@
 "use strict";
+const { remainingInvoiceBalance } = require("../service/invoiceBalance");
 
 var validator = require("validator");
 var path = require("path");
@@ -27,7 +28,11 @@ const {
 
 const mongoose = require("mongoose");
 
-async function permanentDeleteImpact(organizationId, condominiumId, session = null) {
+async function permanentDeleteImpact(
+  organizationId,
+  condominiumId,
+  session = null
+) {
   const objectId = new mongoose.Types.ObjectId(condominiumId);
   const organizationObjectId = new mongoose.Types.ObjectId(organizationId);
 
@@ -177,6 +182,22 @@ var Condominium_Controller = {
       }
 
       try {
+        const availableUnits = Array.isArray(condominiumParams.availableUnits)
+          ? condominiumParams.availableUnits
+              .map((unit) => String(unit || "").trim())
+              .filter(Boolean)
+          : [];
+        const unitLabels = new Map();
+        for (const label of availableUnits) {
+          const normalizedLabel = label
+            .normalize("NFKC")
+            .replace(/\s+/g, " ")
+            .toLowerCase();
+          if (normalizedLabel && !unitLabels.has(normalizedLabel)) {
+            unitLabels.set(normalizedLabel, label);
+          }
+        }
+        const uniqueAvailableUnits = [...unitLabels.values()];
         const condominio = new Condominium({
           organizationId: req.auth.organizationId,
           alias: condominiumParams.alias,
@@ -186,7 +207,13 @@ var Condominium_Controller = {
           street_1: condominiumParams.street_1,
           street_2: condominiumParams.street_2,
           sector_name: condominiumParams.sector_name ?? "",
-          availableUnits: condominiumParams.availableUnits,
+          availableUnits: uniqueAvailableUnits,
+          units: [...unitLabels.entries()].map(([normalizedLabel, label]) => ({
+            label,
+            normalizedLabel,
+            status: "active",
+            availability: "AVAILABLE",
+          })),
           city: condominiumParams.city,
           province: condominiumParams.province,
           zipcode: condominiumParams.zipcode ?? "",
@@ -334,7 +361,14 @@ var Condominium_Controller = {
     try {
       const condominiumUpdated = await Condominium.findOneAndUpdate(
         { _id: id, organizationId: req.auth.organizationId },
-        { $set: Object.fromEntries(Object.entries(params).filter(([key]) => !["organizationId", "createdBy", "user_id"].includes(key))) },
+        {
+          $set: Object.fromEntries(
+            Object.entries(params).filter(
+              ([key]) =>
+                !["organizationId", "createdBy", "user_id"].includes(key)
+            )
+          ),
+        },
         { new: true }
       );
 
@@ -758,7 +792,8 @@ var Condominium_Controller = {
 
       const invoices = await Invoice.find({
         ownerId: ownerId,
-        status: "pending",
+        organizationId: req.auth.organizationId,
+        paymentStatus: "pending",
       });
 
       const ownerWithCondoAndInvoices = ownerWithCondo.propertyDetails.map(
@@ -771,7 +806,11 @@ var Condominium_Controller = {
             )
             .reduce(
               (acc, invoice) => {
-                acc.pending_balance += invoice.amount;
+                acc.pending_balance =
+                  Math.round(
+                    (acc.pending_balance + remainingInvoiceBalance(invoice)) *
+                      100
+                  ) / 100;
                 acc.invoices.push(invoice);
                 return acc;
               },
@@ -822,7 +861,9 @@ var Condominium_Controller = {
       const objectId = new mongoose.Types.ObjectId(req.params.id);
 
       if (
-        ["OWNER", "FAMILY"].includes(String(req.auth?.role || "").toUpperCase()) &&
+        ["OWNER", "FAMILY"].includes(
+          String(req.auth?.role || "").toUpperCase()
+        ) &&
         !canAccessCondominium(req.auth, objectId)
       ) {
         return res.status(403).send({
@@ -864,7 +905,8 @@ var Condominium_Controller = {
 
       if (req.user.role === "OWNER") {
         condominiums[0].units_ownerId = condominiums[0].units_ownerId.filter(
-          (owner) => owner?.ownerId?._id?.toString() === req.user.sub?.toString()
+          (owner) =>
+            owner?.ownerId?._id?.toString() === req.user.sub?.toString()
         );
       }
 
@@ -938,8 +980,12 @@ var Condominium_Controller = {
   },
   ownerByOrganization: async function (req, res) {
     try {
-      const filter = { organizationId: req.auth.organizationId, status: "active" };
-      if (req.auth.scope.mode === "SELECTED") filter._id = { $in: req.auth.scope.condominiumIds };
+      const filter = {
+        organizationId: req.auth.organizationId,
+        status: "active",
+      };
+      if (req.auth.scope.mode === "SELECTED")
+        filter._id = { $in: req.auth.scope.condominiumIds };
       const condosFound = await Condominium.find(filter).select("_id alias");
 
       if (condosFound.length === 0) {
@@ -1084,11 +1130,13 @@ var Condominium_Controller = {
         });
       }
 
-      await Condominium.insertMany(params.map((condominium) => ({
-        ...condominium,
-        organizationId: req.auth.organizationId,
-        createdBy: req.user.sub,
-      })));
+      await Condominium.insertMany(
+        params.map((condominium) => ({
+          ...condominium,
+          organizationId: req.auth.organizationId,
+          createdBy: req.user.sub,
+        }))
+      );
       return res.status(200).send({
         status: "success",
         message: "Condominiums created successfully",

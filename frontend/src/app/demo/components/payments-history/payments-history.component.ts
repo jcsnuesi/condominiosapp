@@ -1,3 +1,4 @@
+import { BankReconciliationComponent } from '../bank-reconciliation/bank-reconciliation.component';
 import { ChangeDetectorRef, Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
@@ -68,6 +69,7 @@ type invoiceData = {
 @Component({
     selector: 'app-payments-history',
     imports: [
+        BankReconciliationComponent,
         PipesModuleModule,
         PdfViewerModule,
         DialogModule,
@@ -103,6 +105,8 @@ type invoiceData = {
     ],
 })
 export class PaymentsHistoryComponent implements OnInit, OnChanges {
+    receiptInvoice: tableData | null = null;
+    receiptDialogVisible = false;
     @Input() ownerIdInput!: string;
     public bodyTableInfo: any[];
     public token: string;
@@ -429,8 +433,15 @@ export class PaymentsHistoryComponent implements OnInit, OnChanges {
     }
 
     canPay(row: tableData): boolean {
+        if (row.propertyDetails?.paymentWorkflow === 'bank_transfer') return false;
         return (
             row.paymentStatus !== 'completed' && row.txStatus !== 'succeeded'
         );
+    }
+
+    pendingBalance(row: tableData): number {
+        if (row.propertyDetails?.balancePending != null) return Number(row.propertyDetails.balancePending);
+        if (row.paymentStatus === 'completed') return 0;
+        return Math.max(0, Number(row.amounts || 0) - Number(row.propertyDetails?.paidAmount || 0));
     }
 }

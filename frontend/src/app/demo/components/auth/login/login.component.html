@@ -51,9 +51,9 @@
                         email
                     />
                     @if (email.invalid && email.touched) {
-                        <small class="p-error block mb-4">
-                            {{ t("auth.login.invalidEmail") }}
-                        </small>
+                    <small class="p-error block mb-4">
+                        {{ t("auth.login.invalidEmail") }}
+                    </small>
                     }
 
                     <label
@@ -74,9 +74,9 @@
                         required
                     ></p-password>
                     @if (password.invalid && password.touched) {
-                        <small class="p-error block mb-4">
-                            {{ t("auth.login.requiredPassword") }}
-                        </small>
+                    <small class="p-error block mb-4">
+                        {{ t("auth.login.requiredPassword") }}
+                    </small>
                     }
 
                     <div class="login-options">
@@ -108,6 +108,13 @@
                         [disabled]="loginForm.invalid || loginInProgress"
                     ></button>
                 </form>
+
+                <div class="register-option">
+                    <span>Have a home outside a managed condominium?</span>
+                    <a class="forgot-link" (click)="goToOwnerRegistration()"
+                        >Create a personal account</a
+                    >
+                </div>
             </div>
         </div>
     </div>

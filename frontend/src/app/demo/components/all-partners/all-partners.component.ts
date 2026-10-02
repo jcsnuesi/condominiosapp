@@ -8,6 +8,7 @@ import { OwnerServiceService } from '../../service/owner-service.service';
 import { CondominioService } from '../../service/condominios.service';
 import { global } from '../../service/global.service';
 import { ProgressBar } from 'primeng/progressbar';
+import { Table } from 'primeng/table';
 import { Router } from '@angular/router';
 import { OwnerRegistrationComponent } from '../owner-registration/owner-registration.component';
 import { NoPicturesService } from '../../service/nopictures.service';
@@ -41,6 +42,8 @@ export class AllPartnersComponent implements OnInit {
     public datatable: any[];
     public selectedCustomers: any[] = [];
     public loading: boolean = true;
+    public viewMode: 'table' | 'cards' = 'cards';
+    public searchValue = '';
     public url: string;
     @ViewChild('prossBar') prossBar: ProgressBar;
     public noPictures: any;
@@ -91,8 +94,14 @@ export class AllPartnersComponent implements OnInit {
         this.getAllPartners();
     }
 
-    clear(dt: any) {
+    clear(dt: Table): void {
+        this.searchValue = '';
         dt.clear();
+    }
+
+    searchPartners(value: string, table: Table): void {
+        this.searchValue = value;
+        table.filterGlobal(value, 'contains');
     }
 
     getId() {

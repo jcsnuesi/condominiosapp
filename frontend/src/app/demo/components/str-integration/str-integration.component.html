@@ -1,14 +1,11 @@
 <p-toast></p-toast>
-
-<div class="str-page">
-  <p-card>
-    <ng-template pTemplate="title">STR Integration</ng-template>
-    <ng-template pTemplate="subtitle"
-      >Connect iCal channels and monitor reservation
-      conflicts</ng-template
-      >
-
-      <div class="toolbar">
+<main class="str-page">
+    <header class="str-hero">
+        <span class="section-kicker">Reservations</span>
+        <h1>STR Integration</h1>
+        <p>Connect iCal channels and monitor reservation conflicts.</p>
+    </header>
+      <div class="toolbar str-panel">
         <div class="condo-select">
           <label for="condoId">Condominium</label>
           <p-select
@@ -25,18 +22,27 @@
           label="Refresh"
           icon="pi pi-refresh"
           [outlined]="true"
+          styleClass="str-secondary-action"
           (onClick)="refreshData()"
         ></p-button>
       </div>
-    </p-card>
 
-    <p-tabs>
-      <p-tabpanel header="iCal Channels">
+
+    <p-tabs value="channels" class="str-tabs">
+        <p-tablist>
+            <p-tab value="channels">iCal Channels</p-tab>
+            <p-tab value="reservations">External Reservations</p-tab>
+            @if (isAdminOrSecurity) { <p-tab value="conflicts">Conflicts</p-tab> }
+        </p-tablist>
+        <p-tabpanels>
+      <p-tabpanel value="channels">
         <div class="card-block">
+          <div class="section-heading"><span class="section-kicker">Channels</span><h2>{{ channelForm.id ? 'Edit channel' : 'Connect a channel' }}</h2></div>
           <div class="form-grid">
             <div class="field">
-              <label>Channel type</label>
+              <label for="channelType">Channel type</label>
               <p-select
+                inputId="channelType"
                 [options]="channelTypeOptions"
                 optionLabel="label"
                 optionValue="value"
@@ -44,40 +50,72 @@
               ></p-select>
             </div>
             <div class="field">
-              <label>Channel label</label>
+              <label for="channelLabel">Channel label</label>
               <input
                 pInputText
+                id="channelLabel"
                 [(ngModel)]="channelForm.channelLabel"
                 placeholder="Optional label"
                 />
               </div>
               <div class="field">
-                <label>Apartment unit</label>
-                <input
-                  pInputText
+                <label for="apartmentUnit">Apartment unit</label>
+                <p-select
+                  inputId="apartmentUnit"
+                  [options]="unitOptions"
+                  optionLabel="label"
+                  optionValue="value"
                   [(ngModel)]="channelForm.apartmentUnit"
-                  placeholder="A-101"
-                  />
+                  (onChange)="onUnitChange()"
+                  [loading]="loadingUnits"
+                  [disabled]="!selectedCondoId || loadingUnits"
+                  [filter]="true"
+                  [showClear]="true"
+                  placeholder="Select apartment unit"
+                  emptyMessage="No units with an assigned owner"
+                ></p-select>
                 </div>
                 <div class="field">
-                  <label>Sync frequency (minutes)</label>
+                  <label for="ownerName">Owner name</label>
+                  <input id="ownerName" pInputText [value]="selectedOwner?.name ?? ''" readonly />
+                </div>
+                <div class="field">
+                  <label for="ownerLastName">Owner last name</label>
+                  <input id="ownerLastName" pInputText [value]="selectedOwner?.lastname ?? ''" readonly />
+                </div>
+                <div class="field">
+                  <label for="ownerEmail">Owner email</label>
+                  <input id="ownerEmail" pInputText [value]="selectedOwner?.email ?? ''" readonly />
+                </div>
+                <div class="field">
+                  <label for="ownerPhone">Owner phone</label>
+                  <input id="ownerPhone" pInputText [value]="selectedOwner?.phone ?? ''" readonly />
+                </div>
+                @if (channelForm.apartmentUnit && !loadingUnits && !selectedOwner) {
+                  <div class="field full" role="status">No owner information available for this unit.</div>
+                }
+                <div class="field">
+                  <label for="syncFrequency">Sync frequency (minutes)</label>
                   <input
                     pInputText
                     type="number"
+                    id="syncFrequency"
                     [(ngModel)]="channelForm.syncFrequencyMinutes"
                     />
                   </div>
                   <div class="field full">
-                    <label>iCal URL</label>
+                    <label for="calendarUrl">iCal URL</label>
                     <input
                       pInputText
+                      id="calendarUrl"
                       [(ngModel)]="channelForm.calendarUrl"
                       placeholder="https://.../calendar.ics"
                       />
                     </div>
                     <div class="field">
-                      <label>Status</label>
+                      <label for="channelStatus">Status</label>
                       <p-select
+                        inputId="channelStatus"
                         [options]="statusOptions"
                         optionLabel="label"
                         optionValue="value"
@@ -88,6 +126,7 @@
 
                   <div class="actions">
                     <p-button
+                      styleClass="str-primary-action"
                       label="Save Channel"
                       icon="pi pi-save"
                       (onClick)="saveChannel()"
@@ -102,7 +141,14 @@
                   </div>
                 </div>
 
-                <p-table
+                <section class="str-panel" aria-label="Channels">
+        <ng-container *ngTemplateOutlet="listToolbar; context: { $implicit: channelTable, placeholder: 'Search channels...' }" />
+<p-table #channelTable styleClass="str-table app-data-table"
+                  [class.str-table-hidden]="viewMode === 'cards'"
+                  [tableStyle]="{ 'min-width': '56rem' }"
+                  [globalFilterFields]="['channelType', 'channelLabel', 'metadata.apartmentUnit', 'status']" [filterDelay]="0"
+                  [rowsPerPageOptions]="[10, 25, 50]" [showCurrentPageReport]="true"
+                  currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
                   [value]="channels"
                   [loading]="loadingChannels"
                   [paginator]="true"
@@ -138,36 +184,40 @@
                       </td>
                       <td>{{ formatDate(channel.lastSyncedAt) }}</td>
                       <td>
-                        <p-button
-                          icon="pi pi-sync"
-                          [text]="true"
-                          [loading]="syncingChannelId === channel._id"
-                          [disabled]="syncingChannelId === channel._id"
-                          (onClick)="syncChannel(channel)"
-                        ></p-button>
-                        <p-button
-                          icon="pi pi-pencil"
-                          [text]="true"
-                          (onClick)="editChannel(channel)"
-                        ></p-button>
-                        <p-button
-                          icon="pi pi-power-off"
-                          [text]="true"
-                                [severity]="
-                                    channel.status === 'active'
-                                        ? 'danger'
-                                        : 'success'
-                                "
-                          (onClick)="toggleStatus(channel)"
-                        ></p-button>
+<ng-container *ngTemplateOutlet="channelActions; context: { $implicit: channel }" />
                       </td>
                     </tr>
                   </ng-template>
-                </p-table>
+                <ng-template pTemplate="emptymessage"><tr><td colspan="6" class="str-empty">No channels found.</td></tr></ng-template></p-table>
+        @if (viewMode === 'cards') {
+            @if (loadingChannels) { <div class="str-empty" role="status">Loading channels...</div> } @else {
+                <div class="str-card-grid">
+                    @for (channel of (channelTable.filteredValue ?? channels) | slice:(channelTable.first ?? 0):((channelTable.first ?? 0) + (channelTable.rows ?? 10)); track channel._id) {
+                        <article class="str-record-card">
+                            <h3>{{ channel.channelLabel || channel.channelType }}</h3>
+                            <div class="record-tags"><p-tag [value]="channel.status" [severity]="channel.status === 'active' ? 'success' : channel.status === 'error' ? 'danger' : 'warning'" /></div>
+                            <dl class="record-details"><div><dt>Type</dt><dd>{{ channel.channelType }}</dd></div><div><dt>Unit</dt><dd>{{ channel.metadata?.apartmentUnit || "-" }}</dd></div><div><dt>Last sync</dt><dd>{{ formatDate(channel.lastSyncedAt) }}</dd></div></dl>
+                            <div class="channel-card-actions"><ng-container *ngTemplateOutlet="channelActions; context: { $implicit: channel }" /></div>
+                        </article>
+                    } @empty { <div class="str-empty">No channels found.</div> }
+                </div>
+                <p-paginator [first]="channelTable.first ?? 0" [rows]="channelTable.rows ?? 10"
+                    [totalRecords]="(channelTable.filteredValue ?? channels).length" [rowsPerPageOptions]="[10, 25, 50]"
+                    [showCurrentPageReport]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                    (onPageChange)="channelTable.first = $event.first ?? 0; channelTable.rows = $event.rows ?? 10" />
+            }
+        }</section>
               </p-tabpanel>
 
-              <p-tabpanel header="External Reservations">
-                <p-table
+              <p-tabpanel value="reservations">
+                <section class="str-panel" aria-label="Reservations">
+        <ng-container *ngTemplateOutlet="listToolbar; context: { $implicit: reservationTable, placeholder: 'Search reservations...' }" />
+<p-table #reservationTable styleClass="str-table app-data-table"
+                  [class.str-table-hidden]="viewMode === 'cards'"
+                  [tableStyle]="{ 'min-width': '56rem' }"
+                  [globalFilterFields]="['apartmentUnit', 'bookingName', 'rentalChannelId.channelLabel', 'rentalChannelId.channelType', 'sourceStatus', 'conflictStatus']" [filterDelay]="0"
+                  [rowsPerPageOptions]="[10, 25, 50]" [showCurrentPageReport]="true"
+                  currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
                   [value]="reservations"
                   [loading]="loadingReservations"
                   [paginator]="true"
@@ -223,12 +273,37 @@
                     </td>
                   </tr>
                 </ng-template>
-              </p-table>
+              <ng-template pTemplate="emptymessage"><tr><td colspan="7" class="str-empty">No reservations found.</td></tr></ng-template></p-table>
+        @if (viewMode === 'cards') {
+            @if (loadingReservations) { <div class="str-empty" role="status">Loading reservations...</div> } @else {
+                <div class="str-card-grid">
+                    @for (reservation of (reservationTable.filteredValue ?? reservations) | slice:(reservationTable.first ?? 0):((reservationTable.first ?? 0) + (reservationTable.rows ?? 10)); track reservation._id) {
+                        <article class="str-record-card">
+                            <h3>{{ reservation.bookingName || "Reservation" }}</h3>
+                            <div class="record-tags"><p-tag [value]="reservation.sourceStatus" [severity]="reservation.sourceStatus === 'cancelled' ? 'danger' : reservation.sourceStatus === 'tentative' ? 'warning' : 'success'" /><p-tag [value]="reservation.conflictStatus" [severity]="getConflictSeverity(reservation.conflictStatus)" /></div>
+                            <dl class="record-details"><div><dt>Unit</dt><dd>{{ reservation.apartmentUnit || "-" }}</dd></div><div><dt>Check-in</dt><dd>{{ formatDate(reservation.checkIn) }}</dd></div><div><dt>Check-out</dt><dd>{{ formatDate(reservation.checkOut) }}</dd></div><div><dt>Channel</dt><dd>{{ reservation.rentalChannelId?.channelLabel || reservation.rentalChannelId?.channelType || "-" }}</dd></div></dl>
+
+                        </article>
+                    } @empty { <div class="str-empty">No reservations found.</div> }
+                </div>
+                <p-paginator [first]="reservationTable.first ?? 0" [rows]="reservationTable.rows ?? 10"
+                    [totalRecords]="(reservationTable.filteredValue ?? reservations).length" [rowsPerPageOptions]="[10, 25, 50]"
+                    [showCurrentPageReport]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                    (onPageChange)="reservationTable.first = $event.first ?? 0; reservationTable.rows = $event.rows ?? 10" />
+            }
+        }</section>
             </p-tabpanel>
 
             @if (isAdminOrSecurity) {
-              <p-tabpanel header="Conflicts">
-                <p-table
+              <p-tabpanel value="conflicts">
+                <section class="str-panel" aria-label="Conflicts">
+        <ng-container *ngTemplateOutlet="listToolbar; context: { $implicit: conflictTable, placeholder: 'Search conflicts...' }" />
+<p-table #conflictTable styleClass="str-table app-data-table"
+                  [class.str-table-hidden]="viewMode === 'cards'"
+                  [tableStyle]="{ 'min-width': '56rem' }"
+                  [globalFilterFields]="['apartmentUnit', 'bookingName', 'rentalChannelId.channelLabel', 'rentalChannelId.channelType', 'conflictStatus']" [filterDelay]="0"
+                  [rowsPerPageOptions]="[10, 25, 50]" [showCurrentPageReport]="true"
+                  currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
                   [value]="conflicts"
                   [loading]="loadingConflicts"
                   [paginator]="true"
@@ -268,8 +343,69 @@
                       </td>
                     </tr>
                   </ng-template>
-                </p-table>
+                <ng-template pTemplate="emptymessage"><tr><td colspan="6" class="str-empty">No conflicts found.</td></tr></ng-template></p-table>
+        @if (viewMode === 'cards') {
+            @if (loadingConflicts) { <div class="str-empty" role="status">Loading conflicts...</div> } @else {
+                <div class="str-card-grid">
+                    @for (conflict of (conflictTable.filteredValue ?? conflicts) | slice:(conflictTable.first ?? 0):((conflictTable.first ?? 0) + (conflictTable.rows ?? 10)); track conflict._id) {
+                        <article class="str-record-card">
+                            <h3>{{ conflict.bookingName || "Reservation conflict" }}</h3>
+                            <div class="record-tags"><p-tag [value]="conflict.conflictStatus" [severity]="getConflictSeverity(conflict.conflictStatus)" /></div>
+                            <dl class="record-details"><div><dt>Unit</dt><dd>{{ conflict.apartmentUnit || "-" }}</dd></div><div><dt>Check-in</dt><dd>{{ formatDate(conflict.checkIn) }}</dd></div><div><dt>Check-out</dt><dd>{{ formatDate(conflict.checkOut) }}</dd></div><div><dt>Channel</dt><dd>{{ conflict.rentalChannelId?.channelLabel || conflict.rentalChannelId?.channelType || "-" }}</dd></div></dl>
+
+                        </article>
+                    } @empty { <div class="str-empty">No conflicts found.</div> }
+                </div>
+                <p-paginator [first]="conflictTable.first ?? 0" [rows]="conflictTable.rows ?? 10"
+                    [totalRecords]="(conflictTable.filteredValue ?? conflicts).length" [rowsPerPageOptions]="[10, 25, 50]"
+                    [showCurrentPageReport]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                    (onPageChange)="conflictTable.first = $event.first ?? 0; conflictTable.rows = $event.rows ?? 10" />
+            }
+        }</section>
               </p-tabpanel>
             }
-          </p-tabs>
+          </p-tabpanels>
+    </p-tabs>
+</main>
+
+<ng-template #listToolbar let-table let-placeholder="placeholder">
+    <div class="list-toolbar">
+        <button type="button" class="clear-action" (click)="table.clear()"><i class="pi pi-filter-slash" aria-hidden="true"></i>Clear filters</button>
+        <div class="list-search"><i class="pi pi-search" aria-hidden="true"></i>
+            <input pInputText type="search" [placeholder]="placeholder" [attr.aria-label]="placeholder"
+                [value]="table.filters['global']?.value ?? ''" (input)="table.filterGlobal($event.target.value, 'contains')" />
         </div>
+        <div class="view-switch" role="group" aria-label="List display">
+            <button type="button" [class.active]="viewMode === 'table'" [attr.aria-pressed]="viewMode === 'table'" (click)="viewMode = 'table'"><i class="pi pi-list" aria-hidden="true"></i>Table</button>
+            <button type="button" [class.active]="viewMode === 'cards'" [attr.aria-pressed]="viewMode === 'cards'" (click)="viewMode = 'cards'"><i class="pi pi-th-large" aria-hidden="true"></i>Cards</button>
+        </div>
+    </div>
+</ng-template>
+<ng-template #channelActions let-channel>
+                        <p-button
+                          ariaLabel="Sync channel"
+                          icon="pi pi-sync"
+                          [text]="true"
+                          [loading]="syncingChannelId === channel._id"
+                          [disabled]="syncingChannelId === channel._id"
+                          (onClick)="syncChannel(channel)"
+                        ></p-button>
+                        <p-button
+                          ariaLabel="Edit channel"
+                          icon="pi pi-pencil"
+                          [text]="true"
+                          (onClick)="editChannel(channel)"
+                        ></p-button>
+                        <p-button
+                          [ariaLabel]="channel.status === 'active' ? 'Deactivate channel' : 'Activate channel'"
+                          icon="pi pi-power-off"
+                          [text]="true"
+                                [severity]="
+                                    channel.status === 'active'
+                                        ? 'danger'
+                                        : 'success'
+                                "
+                          (onClick)="toggleStatus(channel)"
+                        ></p-button>
+
+</ng-template>

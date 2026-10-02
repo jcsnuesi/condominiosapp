@@ -1,3 +1,74 @@
+:host {
+    display: block;
+    min-width: 0;
+    max-width: 100%;
+}
+
+.family-members-card,
+.tbl-reservations {
+    min-width: 0;
+    max-width: 100%;
+}
+
+.family-table-toolbar,
+.family-table-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.family-table-toolbar {
+    justify-content: space-between;
+}
+
+.family-table-search {
+    margin-left: auto;
+    min-width: 0;
+}
+
+.family-property-address {
+    min-width: 12rem;
+    max-width: 24rem;
+    overflow-wrap: anywhere;
+}
+
+:host ::ng-deep .family-members-table {
+    min-width: 0;
+    max-width: 100%;
+}
+
+:host ::ng-deep .family-members-table .p-datatable-table-container {
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+}
+
+@media (max-width: 767px) {
+    .family-members-card {
+        padding: 1rem;
+    }
+
+    .family-table-search {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    .family-table-search input {
+        width: 100%;
+        min-width: 0;
+    }
+
+    :host ::ng-deep .family-members-table .p-datatable-header {
+        padding: 0.75rem;
+    }
+
+    :host ::ng-deep .family-members-table .p-paginator {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+}
+
 tr.inactive-user {
     background: #bcbcbc !important;
     color: white;

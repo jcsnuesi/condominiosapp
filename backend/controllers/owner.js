@@ -1,4 +1,5 @@
 "use strict";
+const { remainingBalanceExpression } = require("../service/invoiceBalance");
 
 let bcrypt = require("bcrypt");
 let saltRounds = 10;
@@ -24,6 +25,10 @@ const assert = require("assert");
 const {
   setOwnerCondominiumStatus,
 } = require("../service/residentPropertyAccess");
+const {
+  canAccessCondominium,
+  hasPermission,
+} = require("../service/authorization");
 
 const generatePassword = require("generate-password");
 // Generar una contraseña con opciones específicas
@@ -35,6 +40,29 @@ const passwordOptions = {
   lowercase: true, // Incluir letras minúsculas
   excludeSimilarCharacters: true, // Excluir caracteres similares
 };
+
+function canManageOwnerCondominiumUnit(req, ownerId, condominiumId) {
+  const role = String(req.auth?.role || "").toUpperCase();
+  if (role === "OWNER") {
+    return (
+      String(req.auth?.account?._id || req.user?.sub) === String(ownerId) &&
+      canAccessCondominium(req.auth, condominiumId)
+    );
+  }
+  if (role === "SUPERUSER") return true;
+  if (!["ADMIN", "STAFF_ADMIN", "STAFF"].includes(role)) return false;
+  if (
+    !req.auth?.organizationId ||
+    !canAccessCondominium(req.auth, condominiumId)
+  ) {
+    return false;
+  }
+  return (
+    req.auth.isOwnerAdmin ||
+    hasPermission(req.auth, "owners.create") ||
+    hasPermission(req.auth, "owners.update")
+  );
+}
 
 var ownerAndSubController = {
   createSingleOwner: async function (req, res) {
@@ -127,7 +155,6 @@ var ownerAndSubController = {
             message: "This unit is already assigned to another owner",
           });
         }
-
       }
 
       const creatorRole = String(creator.role || "").toUpperCase();
@@ -144,7 +171,11 @@ var ownerAndSubController = {
       );
       const parkingsQty = Number(params.parkingsQty);
 
-      if (!Number.isInteger(parkingsQty) || parkingsQty < 0 || parkingsQty > 5) {
+      if (
+        !Number.isInteger(parkingsQty) ||
+        parkingsQty < 0 ||
+        parkingsQty > 5
+      ) {
         return res.status(400).send({
           status: "error",
           message: "Parking quantity must be an integer between 0 and 5",
@@ -171,18 +202,99 @@ var ownerAndSubController = {
         });
       }
 
+      const normalizedUnit = String(params.apartmentsUnit)
+        .normalize("NFKC")
+        .trim()
+        .replace(/\s+/g, " ")
+        .toLowerCase();
+      const existingUnit = (reservedCondominium.units || []).find(
+        (unit) =>
+          (unit.normalizedLabel || String(unit.label || "").toLowerCase()) ===
+          normalizedUnit
+      );
+      const unitId = existingUnit?._id || new mongoose.Types.ObjectId();
+      const releaseUnit = () =>
+        Condominio.updateOne(
+          { _id: reservedCondominium._id, organizationId },
+          {
+            $addToSet: { availableUnits: params.apartmentsUnit },
+            $set: { "units.$[unit].availability": "AVAILABLE" },
+          },
+          { arrayFilters: [{ "unit._id": unitId }] }
+        );
+
+      if (existingUnit) {
+        if (
+          existingUnit.status !== "active" ||
+          existingUnit.availability !== "AVAILABLE"
+        ) {
+          return res.status(409).send({
+            status: "error",
+            code: "CONDOMINIUM_UNIT_NOT_AVAILABLE",
+            message: "The selected unit is not available in this condominium",
+          });
+        }
+        const claimed = await Condominio.updateOne(
+          {
+            _id: reservedCondominium._id,
+            organizationId,
+            units: {
+              $elemMatch: {
+                _id: unitId,
+                status: "active",
+                availability: "AVAILABLE",
+              },
+            },
+          },
+          { $set: { "units.$[unit].availability": "ASSIGNED" } },
+          { arrayFilters: [{ "unit._id": unitId }] }
+        );
+        if (claimed.modifiedCount !== 1) {
+          return res.status(409).send({
+            status: "error",
+            code: "CONDOMINIUM_UNIT_NOT_AVAILABLE",
+            message: "The selected unit is no longer available",
+          });
+        }
+      } else {
+        const inserted = await Condominio.updateOne(
+          {
+            _id: reservedCondominium._id,
+            organizationId,
+            units: {
+              $not: { $elemMatch: { normalizedLabel: normalizedUnit } },
+            },
+          },
+          {
+            $push: {
+              units: {
+                _id: unitId,
+                label: params.apartmentsUnit,
+                normalizedLabel: normalizedUnit,
+                status: "active",
+                availability: "ASSIGNED",
+              },
+            },
+          },
+          { runValidators: true }
+        );
+        if (inserted.modifiedCount !== 1) {
+          return res.status(409).send({
+            status: "error",
+            code: "CONDOMINIUM_UNIT_RECONCILIATION_REQUIRED",
+            message: "The selected unit requires administrator reconciliation",
+          });
+        }
+      }
+
       const propertyDetails = {
+        contextType: "CONDOMINIUM_UNIT",
         addressId: params.addressId,
+        unitId,
         condominium_unit: params.apartmentsUnit,
         parkingsQty,
         isRenting,
       };
-
-      const releaseUnit = () =>
-        Condominio.updateOne(
-          { _id: reservedCondominium._id, organizationId },
-          { $addToSet: { availableUnits: params.apartmentsUnit } }
-        );
 
       if (userDuplicated) {
         try {
@@ -519,36 +631,166 @@ var ownerAndSubController = {
     });
   },
   addOwnerUnit: async function (req, res) {
-    var params = req.body;
-    // console.log("params", params);
-    // return;
+    const params = req.body || {};
+    const unitLabel = String(params.unit || "").trim();
+    if (!params.ownerId || !params.addressId || !unitLabel) {
+      return res.status(400).send({
+        status: "error",
+        code: "OWNER_UNIT_REQUIRED",
+        message: "Owner, condominium and unit are required",
+      });
+    }
+    if (!canManageOwnerCondominiumUnit(req, params.ownerId, params.addressId)) {
+      return res.status(403).send({
+        status: "forbidden",
+        code: "OWNER_UNIT_ASSIGNMENT_DENIED",
+        message: "Not authorized to assign this condominium unit",
+      });
+    }
+    const normalizedLabel = unitLabel
+      .normalize("NFKC")
+      .replace(/\s+/g, " ")
+      .trim()
+      .toLowerCase();
 
     try {
-      let propertyDetails = {
-        addressId: params.addressId,
-        condominium_unit: params.unit,
-        parkingsQty: params.parkingsQty,
+      const condominium = await Condominio.findOne({
+        _id: params.addressId,
+        organizationId: req.auth?.organizationId,
+        status: "active",
+        availableUnits: unitLabel,
+      })
+        .select("organizationId availableUnits units")
+        .lean();
+      if (!condominium) {
+        return res.status(409).send({
+          status: "error",
+          code: "CONDOMINIUM_UNIT_NOT_AVAILABLE",
+          message: "The selected unit is not available in this condominium",
+        });
+      }
+
+      const existingUnit = (condominium.units || []).find(
+        (unit) => unit.normalizedLabel === normalizedLabel
+      );
+      if (
+        existingUnit &&
+        (existingUnit.status !== "active" ||
+          existingUnit.availability !== "AVAILABLE")
+      ) {
+        return res.status(409).send({
+          status: "error",
+          code: "CONDOMINIUM_UNIT_RECONCILIATION_REQUIRED",
+          message: "The selected unit requires administrator reconciliation",
+        });
+      }
+      const unitId = existingUnit?._id || new mongoose.Types.ObjectId();
+      const propertyDetails = {
+        contextType: "CONDOMINIUM_UNIT",
+        addressId: condominium._id,
+        unitId,
+        condominium_unit: unitLabel,
+        parkingsQty: Number(params.parkingsQty || 0),
         isRenting: ["yes", "true", "1"].includes(
           String(params.isRenting || "").toLowerCase()
         ),
       };
-
-      await Owner.findOneAndUpdate(
-        { _id: params.ownerId },
-        { $push: { propertyDetails: propertyDetails } },
-        { new: true }
-      );
-
-      await Condominio.findOneAndUpdate(
-        { _id: params.addressId },
-        {
-          $pull: { availableUnits: params.unit },
-          $addToSet: {
-            units_ownerId: { ownerId: params.ownerId, status: "active" },
-          },
-        },
-        { new: true, runValidators: true }
-      );
+      const session = await mongoose.startSession();
+      try {
+        await session.withTransaction(async () => {
+          const condominiumUpdate = existingUnit
+            ? await Condominio.updateOne(
+                {
+                  _id: condominium._id,
+                  organizationId: condominium.organizationId,
+                  availableUnits: unitLabel,
+                  units: {
+                    $elemMatch: {
+                      _id: unitId,
+                      status: "active",
+                      availability: "AVAILABLE",
+                    },
+                  },
+                },
+                {
+                  $pull: { availableUnits: unitLabel },
+                  $set: { "units.$[unit].availability": "ASSIGNED" },
+                  $addToSet: {
+                    units_ownerId: {
+                      ownerId: params.ownerId,
+                      status: "active",
+                    },
+                  },
+                },
+                {
+                  session,
+                  arrayFilters: [{ "unit._id": unitId }],
+                  runValidators: true,
+                }
+              )
+            : await Condominio.updateOne(
+                {
+                  _id: condominium._id,
+                  organizationId: condominium.organizationId,
+                  availableUnits: unitLabel,
+                  units: {
+                    $not: { $elemMatch: { normalizedLabel } },
+                  },
+                },
+                {
+                  $pull: { availableUnits: unitLabel },
+                  $push: {
+                    units: {
+                      _id: unitId,
+                      label: unitLabel,
+                      normalizedLabel,
+                      status: "active",
+                      availability: "ASSIGNED",
+                    },
+                  },
+                  $addToSet: {
+                    units_ownerId: {
+                      ownerId: params.ownerId,
+                      status: "active",
+                    },
+                  },
+                },
+                { session, runValidators: true }
+              );
+          if (condominiumUpdate.modifiedCount !== 1) {
+            const error = new Error("Unit is no longer available");
+            error.code = "CONDOMINIUM_UNIT_NOT_AVAILABLE";
+            throw error;
+          }
+          const ownerUpdate = await Owner.updateOne(
+            {
+              _id: params.ownerId,
+              status: "active",
+              ...(req.auth?.organizationId
+                ? { organizationId: req.auth.organizationId }
+                : {}),
+              propertyDetails: {
+                $not: {
+                  $elemMatch: {
+                    addressId: condominium._id,
+                    unitId,
+                    status_property: { $ne: "inactive" },
+                  },
+                },
+              },
+            },
+            { $push: { propertyDetails } },
+            { session, runValidators: true }
+          );
+          if (ownerUpdate.modifiedCount !== 1) {
+            const error = new Error("Owner is unavailable for this assignment");
+            error.code = "OWNER_UNIT_ASSIGNMENT_DENIED";
+            throw error;
+          }
+        });
+      } finally {
+        await session.endSession();
+      }
 
       if (res == null) {
         return {
@@ -557,12 +799,10 @@ var ownerAndSubController = {
           code: 200,
         };
       }
-      return res.status(200).send({
-        status: "success",
-        message: "Unit assigned successfully",
-      });
+      return res
+        .status(200)
+        .send({ status: "success", message: "Unit assigned successfully" });
     } catch (error) {
-      console.log(error);
       if (res == null) {
         return {
           status: "error",
@@ -570,10 +810,16 @@ var ownerAndSubController = {
           code: 500,
         };
       }
-      return res.status(500).send({
-        status: "error",
-        message: "Server error, try again",
-      });
+      return res
+        .status(error.code === "CONDOMINIUM_UNIT_NOT_AVAILABLE" ? 409 : 500)
+        .send({
+          status: "error",
+          code: error.code || "OWNER_UNIT_ASSIGNMENT_FAILED",
+          message:
+            error.code === "OWNER_UNIT_ASSIGNMENT_DENIED"
+              ? "Owner is unavailable for this assignment"
+              : "Unit could not be assigned",
+        });
     }
   },
   update: function (req, res) {
@@ -676,61 +922,215 @@ var ownerAndSubController = {
       });
     }
 
-    if (val_ownerId && val_propertyId && val_unit && val_newUnit) {
-      try {
-        const OwnerFound = await Owner.findOneAndUpdate(
-          {
-            $and: [
-              { _id: params.ownerId },
-              { "propertyDetails.condominium_unit": params.unit },
-            ],
-          },
-          {
-            $set: {
-              "propertyDetails.$.condominium_unit": params.newUnit,
-              "propertyDetails.$.parkingsQty": params.parkingsQty,
+    if (!(val_ownerId && val_propertyId && val_unit && val_newUnit)) {
+      return res.status(400).send({
+        status: "error",
+        code: "OWNER_UNIT_UPDATE_INVALID",
+        message: "Owner, condominium, current unit and new unit are required",
+      });
+    }
+    if (
+      !canManageOwnerCondominiumUnit(req, params.ownerId, params.propertyId)
+    ) {
+      return res.status(403).send({
+        status: "forbidden",
+        code: "OWNER_UNIT_UPDATE_DENIED",
+        message: "Not authorized to change this condominium unit",
+      });
+    }
+
+    const normalizeUnit = (value) =>
+      String(value || "")
+        .normalize("NFKC")
+        .trim()
+        .replace(/\s+/g, " ")
+        .toLowerCase();
+    const oldLabel = String(params.unit).trim();
+    const newLabel = String(params.newUnit).trim();
+    const oldNormalized = normalizeUnit(oldLabel);
+    const newNormalized = normalizeUnit(newLabel);
+    if (!oldNormalized || !newNormalized) {
+      return res.status(422).send({
+        status: "error",
+        code: "CONDOMINIUM_UNIT_LABEL_INVALID",
+        message: "Unit label is invalid",
+      });
+    }
+
+    const session = await mongoose.startSession();
+    try {
+      let ownerResult;
+      await session.withTransaction(async () => {
+        const condominium = await Condominio.findOne({
+          _id: params.propertyId,
+          organizationId: req.auth.organizationId,
+          status: "active",
+        })
+          .session(session)
+          .lean();
+        if (!condominium) {
+          const error = new Error("Condominium not found");
+          error.statusCode = 404;
+          throw error;
+        }
+        const oldUnit = (condominium.units || []).find(
+          (unit) => unit.normalizedLabel === oldNormalized
+        );
+        if (!oldUnit) {
+          const error = new Error("Current unit needs catalog reconciliation");
+          error.code = "CONDOMINIUM_UNIT_RECONCILIATION_REQUIRED";
+          error.statusCode = 409;
+          throw error;
+        }
+        const owner = await Owner.findOne({
+          _id: params.ownerId,
+          organizationId: req.auth.organizationId,
+          status: "active",
+          propertyDetails: {
+            $elemMatch: {
+              addressId: condominium._id,
+              unitId: oldUnit._id,
+              status_property: { $ne: "inactive" },
             },
           },
-          { new: true }
-        );
-
-        const condoFound = await Condominio.findOne({
-          $and: [
-            { _id: params.propertyId },
-            { availableUnits: { $in: [params.newUnit] } },
-          ],
-        });
-
-        if (!condoFound) {
-          return res.status(200).send({
-            status: "success",
-            message: "Property updated successfully",
-            owner: OwnerFound,
-          });
+        })
+          .session(session)
+          .lean();
+        if (!owner) {
+          const error = new Error("Owner is not actively linked to this unit");
+          error.statusCode = 404;
+          throw error;
         }
 
-        await Condominio.updateOne(
-          { _id: params.propertyId },
-          { $pull: { availableUnits: params.newUnit } }
-        );
+        if (oldNormalized === newNormalized) {
+          ownerResult = await Owner.updateOne(
+            { _id: owner._id, organizationId: req.auth.organizationId },
+            {
+              $set: {
+                "propertyDetails.$[association].condominium_unit": newLabel,
+                "propertyDetails.$[association].parkingsQty":
+                  params.parkingsQty,
+              },
+            },
+            {
+              session,
+              arrayFilters: [
+                {
+                  "association.addressId": condominium._id,
+                  "association.unitId": oldUnit._id,
+                },
+              ],
+              runValidators: true,
+            }
+          );
+          return;
+        }
 
-        await Condominio.updateOne(
-          { _id: params.propertyId },
-          { $addToSet: { availableUnits: params.unit } } // evita duplicados
+        const targetUnit = (condominium.units || []).find(
+          (unit) => unit.normalizedLabel === newNormalized
         );
+        if (
+          !targetUnit ||
+          targetUnit.status !== "active" ||
+          targetUnit.availability !== "AVAILABLE" ||
+          !(condominium.availableUnits || []).some(
+            (unit) => normalizeUnit(unit) === newNormalized
+          )
+        ) {
+          const error = new Error(
+            "New unit is not available or needs catalog reconciliation"
+          );
+          error.code = "CONDOMINIUM_UNIT_NOT_AVAILABLE";
+          error.statusCode = 409;
+          throw error;
+        }
 
-        return res.status(200).send({
-          status: "success",
-          message: "Unit updated successfully",
-          owner: OwnerFound,
-        });
-      } catch (error) {
-        console.log(error);
-        return res.status(500).send({
+        const claim = await Condominio.updateOne(
+          {
+            _id: condominium._id,
+            organizationId: condominium.organizationId,
+            availableUnits: targetUnit.label,
+            units: {
+              $elemMatch: {
+                _id: targetUnit._id,
+                availability: "AVAILABLE",
+                status: "active",
+              },
+            },
+          },
+          {
+            $pull: { availableUnits: targetUnit.label },
+            $set: { "units.$[target].availability": "ASSIGNED" },
+          },
+          {
+            session,
+            arrayFilters: [{ "target._id": targetUnit._id }],
+            runValidators: true,
+          }
+        );
+        if (claim.modifiedCount !== 1) {
+          const error = new Error("New unit is no longer available");
+          error.code = "CONDOMINIUM_UNIT_NOT_AVAILABLE";
+          error.statusCode = 409;
+          throw error;
+        }
+
+        const release = await Condominio.updateOne(
+          {
+            _id: condominium._id,
+            organizationId: condominium.organizationId,
+            "units._id": oldUnit._id,
+          },
+          {
+            $addToSet: { availableUnits: oldUnit.label },
+            $set: { "units.$[old].availability": "AVAILABLE" },
+          },
+          { session, arrayFilters: [{ "old._id": oldUnit._id }] }
+        );
+        if (release.modifiedCount !== 1) {
+          throw new Error("Previous unit could not be released");
+        }
+
+        ownerResult = await Owner.updateOne(
+          { _id: owner._id, organizationId: req.auth.organizationId },
+          {
+            $set: {
+              "propertyDetails.$[association].unitId": targetUnit._id,
+              "propertyDetails.$[association].condominium_unit": newLabel,
+              "propertyDetails.$[association].parkingsQty": params.parkingsQty,
+            },
+          },
+          {
+            session,
+            arrayFilters: [
+              {
+                "association.addressId": condominium._id,
+                "association.unitId": oldUnit._id,
+              },
+            ],
+            runValidators: true,
+          }
+        );
+      });
+      if (ownerResult?.modifiedCount !== 1) {
+        return res.status(409).send({
           status: "error",
-          message: "Server error, try again",
+          code: "OWNER_UNIT_UPDATE_CONFLICT",
+          message: "Owner unit assignment changed; refresh and try again",
         });
       }
+      return res.status(200).send({
+        status: "success",
+        message: "Unit updated successfully",
+      });
+    } catch (error) {
+      return res.status(error.statusCode || 500).send({
+        status: "error",
+        code: error.code || "OWNER_UNIT_UPDATE_FAILED",
+        message: error.statusCode ? error.message : "Unit could not be updated",
+      });
+    } finally {
+      await session.endSession();
     }
   },
   deleteOwnerUnit: async function (req, res) {
@@ -748,33 +1148,138 @@ var ownerAndSubController = {
       });
     }
 
-    if (val_ownerId && val_propertyId && val_unit) {
-      try {
-        await Owner.findOneAndUpdate(
-          { _id: params.ownerId },
-          { $pull: { propertyDetails: { condominium_unit: params.unit } } },
-          { new: true }
-        );
-        await Condominio.findOneAndUpdate(
-          { _id: params.propertyId },
-          {
-            $set: { status: "inactive" },
-            $push: { availableUnits: params.unit },
-          },
-          { new: true }
-        );
+    if (!(val_ownerId && val_propertyId && val_unit)) {
+      return res.status(400).send({
+        status: "error",
+        code: "OWNER_UNIT_DELETE_INVALID",
+        message: "Owner, condominium and unit are required",
+      });
+    }
+    if (
+      !canManageOwnerCondominiumUnit(req, params.ownerId, params.propertyId)
+    ) {
+      return res.status(403).send({
+        status: "forbidden",
+        code: "OWNER_UNIT_DELETE_DENIED",
+        message: "Not authorized to remove this condominium unit",
+      });
+    }
 
-        return res.status(200).send({
-          status: "success",
-          message: "Unit deleted successfully",
-        });
-      } catch (error) {
-        console.log(error);
-        return res.status(500).send({
-          status: "error",
-          message: "Server error, try again",
-        });
-      }
+    const normalizeUnit = (value) =>
+      String(value || "")
+        .normalize("NFKC")
+        .trim()
+        .replace(/\s+/g, " ")
+        .toLowerCase();
+    const session = await mongoose.startSession();
+    try {
+      await session.withTransaction(async () => {
+        const condominium = await Condominio.findOne({
+          _id: params.propertyId,
+          organizationId: req.auth.organizationId,
+          status: "active",
+        })
+          .session(session)
+          .lean();
+        const unit = condominium?.units?.find(
+          (entry) => entry.normalizedLabel === normalizeUnit(params.unit)
+        );
+        if (!condominium || !unit) {
+          const error = new Error("Unit needs catalog reconciliation");
+          error.code = "CONDOMINIUM_UNIT_RECONCILIATION_REQUIRED";
+          error.statusCode = 409;
+          throw error;
+        }
+
+        const hasOtherActiveUnit = await Owner.exists({
+          _id: params.ownerId,
+          organizationId: req.auth.organizationId,
+          status: "active",
+          propertyDetails: {
+            $elemMatch: {
+              addressId: condominium._id,
+              unitId: { $ne: unit._id },
+              status_property: { $ne: "inactive" },
+            },
+          },
+        }).session(session);
+
+        const ownerUpdate = await Owner.updateOne(
+          {
+            _id: params.ownerId,
+            organizationId: req.auth.organizationId,
+            status: "active",
+            propertyDetails: {
+              $elemMatch: {
+                addressId: condominium._id,
+                unitId: unit._id,
+                status_property: { $ne: "inactive" },
+              },
+            },
+          },
+          {
+            $set: {
+              "propertyDetails.$[association].status_property": "inactive",
+            },
+          },
+          {
+            session,
+            arrayFilters: [
+              {
+                "association.addressId": condominium._id,
+                "association.unitId": unit._id,
+                "association.status_property": { $ne: "inactive" },
+              },
+            ],
+          }
+        );
+        if (ownerUpdate.modifiedCount !== 1) {
+          const error = new Error("Active owner-unit relation not found");
+          error.statusCode = 404;
+          throw error;
+        }
+
+        const condominiumUpdate = await Condominio.updateOne(
+          { _id: condominium._id, organizationId: condominium.organizationId },
+          {
+            $addToSet: { availableUnits: unit.label },
+            $set: {
+              "units.$[unit].availability": "AVAILABLE",
+              ...(!hasOtherActiveUnit
+                ? { "units_ownerId.$[owner].status": "inactive" }
+                : {}),
+            },
+          },
+          {
+            session,
+            arrayFilters: [
+              { "unit._id": unit._id },
+              ...(!hasOtherActiveUnit
+                ? [{ "owner.ownerId": params.ownerId }]
+                : []),
+            ],
+            runValidators: true,
+          }
+        );
+        if (condominiumUpdate.matchedCount !== 1) {
+          throw new Error("Condominium unit could not be released");
+        }
+      });
+
+      return res.status(200).send({
+        status: "success",
+        message: "Unit unlinked successfully",
+      });
+    } catch (error) {
+      return res.status(error.statusCode || 500).send({
+        status: "error",
+        code: error.code || "OWNER_UNIT_DELETE_FAILED",
+        message: error.statusCode
+          ? error.message
+          : "Unit could not be unlinked",
+      });
+    } finally {
+      await session.endSession();
     }
   },
   deactivatedUser: async function (req, res) {
@@ -860,9 +1365,12 @@ var ownerAndSubController = {
         const allowedIds = new Set(
           (req.auth?.scope?.condominiumIds || []).map(String)
         );
-        ownerResponse.propertyDetails = (ownerResponse.propertyDetails || []).filter(
-          (property) =>
-            allowedIds.has(String(property?.addressId?._id || property?.addressId))
+        ownerResponse.propertyDetails = (
+          ownerResponse.propertyDetails || []
+        ).filter((property) =>
+          allowedIds.has(
+            String(property?.addressId?._id || property?.addressId)
+          )
         );
       }
 
@@ -1039,7 +1547,10 @@ var ownerAndSubController = {
 
     // Owner profiles change frequently (payments, bookings, units). Returning
     // a cached 304 can leave the administrative view with stale aggregates.
-    res.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+    res.set(
+      "Cache-Control",
+      "no-store, no-cache, must-revalidate, proxy-revalidate"
+    );
     res.set("Pragma", "no-cache");
     res.set("Expires", "0");
 
@@ -1067,13 +1578,16 @@ var ownerAndSubController = {
         {
           $match: {
             ownerId: new mongoose.Types.ObjectId(id),
+            organizationId: new mongoose.Types.ObjectId(
+              req.auth.organizationId
+            ),
             paymentStatus: "pending",
           },
         },
         {
           $group: {
             _id: "$ownerId",
-            totalAmount: { $sum: "$amount" },
+            totalAmount: { $sum: remainingBalanceExpression() },
             count: { $sum: 1 },
             invoice_paid_date: { $first: "$invoice_paid_date" },
             invoices: { $push: "$$ROOT" },
@@ -1094,7 +1608,8 @@ var ownerAndSubController = {
       ]);
       const invoicesPaid = await Invoice.find({
         ownerId: new mongoose.Types.ObjectId(id),
-        paymentStatus: "paid",
+        organizationId: req.auth.organizationId,
+        paymentStatus: "completed",
       }).populate({
         path: "condominiumId",
         model: "Condominium",
@@ -1157,22 +1672,58 @@ var ownerAndSubController = {
     const owner = await Owner.find({
       id_number: { $in: params.map((p) => p.id_number) },
     });
-    const condominio = await Condominio.find({
-      addressId: { $in: params.map((p) => p.addressId) },
-    });
-    condominio.forEach((c) => {
-      const existe = params.some((p) =>
-        c.availableUnits.includes(p.condominium_unit)
+    const condominiumRows = await Condominio.find({
+      _id: { $in: params.map((ownerParams) => ownerParams.addressId) },
+      organizationId: req.ownerTokenDecoded?.organizationId,
+      status: "active",
+    }).lean();
+    const condominiumById = new Map(
+      condominiumRows.map((condominium) => [
+        String(condominium._id),
+        condominium,
+      ])
+    );
+    const assignedInRequest = new Set();
+    for (const ownerParams of params) {
+      const condominium = condominiumById.get(String(ownerParams.addressId));
+      const unitLabel = String(ownerParams.condominium_unit || "").trim();
+      const normalizedLabel = unitLabel
+        .normalize("NFKC")
+        .replace(/\s+/g, " ")
+        .toLowerCase();
+      const unit = condominium?.units?.find(
+        (candidate) => candidate.normalizedLabel === normalizedLabel
       );
-      if (!existe) {
-        return res.status(400).send({
+      const reservationKey = `${ownerParams.addressId}:${
+        unit?._id || "missing"
+      }`;
+      if (
+        !condominium ||
+        !unit ||
+        unit.status !== "active" ||
+        unit.availability !== "AVAILABLE" ||
+        !(condominium.availableUnits || []).includes(unit.label) ||
+        assignedInRequest.has(reservationKey)
+      ) {
+        return res.status(409).send({
           status: "error",
-          message: `Unit ${params.map(
-            (p) => p.condominium_unit
-          )} not available in condominium ${c.alias}`,
+          code: "CONDOMINIUM_UNIT_NOT_AVAILABLE",
+          message:
+            "One or more selected units are unavailable or need reconciliation",
         });
       }
-    });
+      assignedInRequest.add(reservationKey);
+      ownerParams.organizationId = req.ownerTokenDecoded.organizationId;
+      ownerParams.propertyDetails = [
+        {
+          contextType: "CONDOMINIUM_UNIT",
+          addressId: condominium._id,
+          unitId: unit._id,
+          condominium_unit: unit.label,
+          parkingsQty: Number(ownerParams.parkingsQty || 0),
+        },
+      ];
+    }
 
     if (owner.length > 0) {
       return res.status(400).send({
@@ -1183,47 +1734,55 @@ var ownerAndSubController = {
     }
 
     try {
-      params.forEach((ownerObj) => {
-        let propertyDetails = {
-          addressId: "",
-          condominium_unit: "",
-          parkingsQty: "",
-        };
-        let { addressId, condominium_unit, parkingsQty, ..._ } = ownerObj;
-        propertyDetails.addressId = addressId;
-        propertyDetails.condominium_unit = condominium_unit;
-        propertyDetails.parkingsQty = parkingsQty;
-        ownerObj["propertyDetails"] = [propertyDetails];
-      });
-
-      delete params.addressId;
-      delete params.condominium_unit;
-      delete params.parkingsQty;
-      const newOwners = await Owner.insertMany(params);
-
-      await Promise.all(
-        newOwners.map(async (usuario) => {
-          const addressId = usuario.propertyDetails[0].addressId;
-          const unidad = usuario.propertyDetails[0].condominium_unit.trim();
-
-          if (!addressId || !unidad) {
-            console.warn(`Datos incompletos para usuario ${usuario._id}`);
-            return;
-          }
-
-          const result = await Condominio.updateOne(
-            { _id: addressId },
-            {
-              $pull: { availableUnits: unidad },
-              $push: { units_ownerId: usuario._id },
+      const session = await mongoose.startSession();
+      try {
+        await session.withTransaction(async () => {
+          const newOwners = await Owner.insertMany(params, {
+            session,
+            ordered: true,
+          });
+          for (const ownerDoc of newOwners) {
+            const property = ownerDoc.propertyDetails[0];
+            const condominium = condominiumById.get(String(property.addressId));
+            const result = await Condominio.updateOne(
+              {
+                _id: property.addressId,
+                organizationId: req.ownerTokenDecoded.organizationId,
+                availableUnits: property.condominium_unit,
+                units: {
+                  $elemMatch: {
+                    _id: property.unitId,
+                    status: "active",
+                    availability: "AVAILABLE",
+                  },
+                },
+              },
+              {
+                $pull: { availableUnits: property.condominium_unit },
+                $set: { "units.$[unit].availability": "ASSIGNED" },
+                $addToSet: {
+                  units_ownerId: { ownerId: ownerDoc._id, status: "active" },
+                },
+              },
+              {
+                session,
+                arrayFilters: [{ "unit._id": property.unitId }],
+                runValidators: true,
+              }
+            );
+            if (result.modifiedCount !== 1 || !condominium) {
+              const error = new Error(
+                "Bulk unit assignment lost its reservation"
+              );
+              error.code = "CONDOMINIUM_UNIT_NOT_AVAILABLE";
+              error.statusCode = 409;
+              throw error;
             }
-          );
-
-          if (result.modifiedCount === 0) {
-            console.warn(`No se actualizó condominio para unidad ${unidad}`);
           }
-        })
-      );
+        });
+      } finally {
+        await session.endSession();
+      }
 
       return res.status(200).send({
         status: "success",

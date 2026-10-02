@@ -1,21 +1,22 @@
 :host {
-    --staff-bg: var(--surface-ground);
-    --staff-surface: var(--surface-card);
-    --staff-surface-soft: var(--surface-50);
-    --staff-border: var(--surface-border);
-    --staff-text: var(--text-color);
-    --staff-muted: var(--text-color-secondary);
-    --staff-green-bg: var(--green-50, #edf3ec);
-    --staff-green-text: var(--green-700, #346538);
-    --staff-red-bg: var(--red-50, #fdebec);
-    --staff-red-text: var(--red-700, #9f2f2d);
-    --staff-blue-bg: var(--primary-50);
-    --staff-blue-text: var(--primary-color);
+    --staff-bg: #ffffff;
+    --staff-surface: #ffffff;
+    --staff-surface-soft: #f8fafc;
+    --staff-border: #dce5ee;
+    --staff-text: #183153;
+    --staff-muted: #66758d;
+    --staff-green-bg: #e9f8f2;
+    --staff-green-text: #08785d;
+    --staff-red-bg: #fff0ed;
+    --staff-red-text: #c44732;
+    --staff-blue-bg: #e8f2f5;
+    --staff-blue-text: #176b87;
 
     display: block;
+    min-width: 0;
+    max-width: 100%;
     color: var(--staff-text);
-    font-family: "SF Pro Display", "Geist Sans", "Helvetica Neue", Arial,
-        sans-serif;
+    font-family: inherit;
 }
 
 .staff-shell {
@@ -37,7 +38,7 @@
 
 .staff-eyebrow {
     color: var(--staff-muted);
-    font-family: "Geist Mono", "SF Mono", Consolas, monospace;
+    font-family: inherit;
     font-size: 0.72rem;
     letter-spacing: 0.08em;
     margin: 0 0 0.25rem;
@@ -46,7 +47,7 @@
 
 .staff-page-header h1 {
     color: var(--staff-text);
-    font-family: "Newsreader", "Instrument Serif", Georgia, serif;
+    font-family: inherit;
     font-size: clamp(2rem, 5vw, 3.2rem);
     font-weight: 500;
     line-height: 1;
@@ -72,7 +73,7 @@
 }
 
 .staff-count span {
-    font-family: "Geist Mono", "SF Mono", Consolas, monospace;
+    font-family: inherit;
     font-size: 1.45rem;
     line-height: 1;
 }
@@ -113,7 +114,7 @@
     width: 100%;
 }
 
-::ng-deep .staff-search .p-inputicon {
+:host ::ng-deep .staff-search .p-inputicon {
     color: var(--staff-muted);
     left: 0.9rem;
     margin-top: 0;
@@ -187,12 +188,12 @@
 }
 
 .dropdown-class,
-::ng-deep .p-fileupload-choose,
-::ng-deep .p-calendar,
-::ng-deep .p-datepicker,
-::ng-deep .p-password,
-::ng-deep .p-password input,
-::ng-deep .p-select {
+:host ::ng-deep .p-fileupload-choose,
+:host ::ng-deep .p-calendar,
+:host ::ng-deep .p-datepicker,
+:host ::ng-deep .p-password,
+:host ::ng-deep .p-password input,
+:host ::ng-deep .p-select {
     width: 100%;
 }
 
@@ -206,13 +207,13 @@
     display: flex;
     justify-content: center;
     width: 100%;
-    background: #f9f9f9;
+    background: var(--staff-surface);
 }
 
 .createInputs {
     max-width: 62rem;
     width: 100%;
-    background: #f9f9f9;
+    background: var(--staff-surface);
 }
 
 .btn-staff {
@@ -298,7 +299,7 @@
 
 .staff-mobile-field span {
     color: var(--staff-muted);
-    font-family: "Geist Mono", "SF Mono", Consolas, monospace;
+    font-family: inherit;
     font-size: 0.68rem;
     letter-spacing: 0.06em;
     text-transform: uppercase;
@@ -318,7 +319,7 @@
     padding-top: 0.9rem;
 }
 
-::ng-deep .staff-mobile-accordion .p-accordionpanel {
+:host ::ng-deep .staff-mobile-accordion .p-accordionpanel {
     background: var(--staff-surface);
     border: 1px solid var(--staff-border);
     border-radius: 8px;
@@ -326,22 +327,22 @@
     overflow: hidden;
 }
 
-::ng-deep .staff-mobile-accordion .inactive-mobile-record {
+:host ::ng-deep .staff-mobile-accordion .inactive-mobile-record {
     background: var(--staff-red-bg);
     box-shadow: inset 3px 0 0 var(--staff-red-text);
 }
 
-::ng-deep .staff-mobile-accordion .p-accordionheader,
-::ng-deep .staff-mobile-accordion .p-accordioncontent-content {
+:host ::ng-deep .staff-mobile-accordion .p-accordionheader,
+:host ::ng-deep .staff-mobile-accordion .p-accordioncontent-content {
     background: transparent;
     border: 0;
 }
 
-::ng-deep .staff-mobile-accordion .p-accordionheader {
+:host ::ng-deep .staff-mobile-accordion .p-accordionheader {
     padding: 0.85rem;
 }
 
-::ng-deep .staff-mobile-accordion .p-accordioncontent-content {
+:host ::ng-deep .staff-mobile-accordion .p-accordioncontent-content {
     padding: 0 0.85rem 0.85rem;
 }
 
@@ -365,29 +366,29 @@
     border-color: var(--staff-red-text) !important;
 }
 
-::ng-deep .staff-tabs .p-tablist,
-::ng-deep .staff-tabs .p-tabpanels,
-::ng-deep .staff-tabs .p-tabpanel {
+:host ::ng-deep .staff-tabs .p-tablist,
+:host ::ng-deep .staff-tabs .p-tabpanels,
+:host ::ng-deep .staff-tabs .p-tabpanel {
     background: transparent;
 }
 
-::ng-deep .staff-tabs .p-tabpanels {
+:host ::ng-deep .staff-tabs .p-tabpanels {
     padding: 1rem 0 0;
 }
 
-::ng-deep .staff-tabs .p-tab {
+:host ::ng-deep .staff-tabs .p-tab {
     color: var(--staff-muted);
     font-weight: 600;
 }
 
-::ng-deep .staff-tabs .p-tab-active {
+:host ::ng-deep .staff-tabs .p-tab-active {
     color: var(--staff-text);
 }
-::ng-deep .staff-tabs {
+:host ::ng-deep .staff-tabs {
     width: 100%;
 }
 
-::ng-deep .staff-tabs .p-tablist {
+:host ::ng-deep .staff-tabs .p-tablist {
     background: transparent;
     border-bottom: 2px solid var(--staff-border);
     display: flex;
@@ -396,22 +397,22 @@
     margin: 0 0 1.5rem 0;
 }
 
-::ng-deep .staff-tabs .p-tabpanels,
-::ng-deep .staff-tabs .p-tabpanel {
+:host ::ng-deep .staff-tabs .p-tabpanels,
+:host ::ng-deep .staff-tabs .p-tabpanel {
     background: transparent;
     padding: 0;
 }
 
-::ng-deep .staff-tabs .p-tabpanels {
+:host ::ng-deep .staff-tabs .p-tabpanels {
     padding: 0;
 }
 
-::ng-deep .staff-tabs .p-tablist-tab-list {
+:host ::ng-deep .staff-tabs .p-tablist-tab-list {
     background: transparent;
     gap: 1.5rem;
 }
 
-::ng-deep .staff-tabs .p-tab {
+:host ::ng-deep .staff-tabs .p-tab {
     align-items: center;
     display: inline-flex;
     color: var(--staff-muted);
@@ -423,32 +424,32 @@
     background: transparent !important;
 }
 
-::ng-deep .staff-tabs .p-tab > a {
+:host ::ng-deep .staff-tabs .p-tab > a {
     padding: 0 !important;
 }
 
-::ng-deep .staff-tabs .p-tab[aria-selected="true"] {
+:host ::ng-deep .staff-tabs .p-tab[aria-selected="true"] {
     color: var(--staff-text);
-    border-bottom: 2px solid var(--primary-color) !important;
+    border-bottom: 2px solid var(--staff-blue-text) !important;
     margin-bottom: -2px;
 }
 
-::ng-deep .staff-tabs .p-tab-active {
+:host ::ng-deep .staff-tabs .p-tab-active {
     color: var(--staff-text);
 }
-::ng-deep .staff-table {
+:host ::ng-deep .staff-table {
     border: 1px solid var(--staff-border);
     border-radius: 8px;
     overflow: hidden;
 }
 
-::ng-deep .staff-table .p-datatable-header {
+:host ::ng-deep .staff-table .p-datatable-header {
     background: var(--staff-surface);
     border-color: var(--staff-border);
     padding: 1rem;
 }
 
-::ng-deep .staff-table .p-datatable-thead > tr > th {
+:host ::ng-deep .staff-table .p-datatable-thead > tr > th {
     background: var(--staff-surface-soft);
     border-color: var(--staff-border);
     color: var(--staff-muted);
@@ -457,35 +458,35 @@
     text-transform: uppercase;
 }
 
-::ng-deep .staff-table .p-datatable-tbody > tr > td {
+:host ::ng-deep .staff-table .p-datatable-tbody > tr > td {
     border-color: var(--staff-border);
     color: var(--staff-text);
     vertical-align: middle;
 }
 
-::ng-deep .staff-table .p-datatable-tbody > tr.inactive-row {
+:host ::ng-deep .staff-table .p-datatable-tbody > tr.inactive-row {
     background: var(--staff-red-bg);
     box-shadow: inset 3px 0 0 var(--staff-red-text);
 }
 
-::ng-deep .staff-table .p-paginator {
+:host ::ng-deep .staff-table .p-paginator {
     background: var(--staff-surface);
     border-color: var(--staff-border);
 }
-::ng-deep .staff-table {
+:host ::ng-deep .staff-table {
     border: 1px solid var(--staff-border);
     border-radius: 8px;
     overflow: hidden;
     width: 100%;
 }
 
-::ng-deep .staff-table .p-datatable-header {
+:host ::ng-deep .staff-table .p-datatable-header {
     background: var(--staff-surface);
     border-color: var(--staff-border);
     padding: 1rem;
 }
 
-::ng-deep .staff-table .p-datatable-thead > tr > th {
+:host ::ng-deep .staff-table .p-datatable-thead > tr > th {
     background: var(--staff-surface-soft);
     border-color: var(--staff-border);
     color: var(--staff-muted);
@@ -495,18 +496,18 @@
     font-weight: 600;
 }
 
-::ng-deep .staff-table .p-datatable-tbody > tr > td {
+:host ::ng-deep .staff-table .p-datatable-tbody > tr > td {
     border-color: var(--staff-border);
     color: var(--staff-text);
     vertical-align: middle;
 }
 
-::ng-deep .staff-table .p-datatable-tbody > tr.inactive-row {
+:host ::ng-deep .staff-table .p-datatable-tbody > tr.inactive-row {
     background: var(--staff-red-bg);
     box-shadow: inset 3px 0 0 var(--staff-red-text);
 }
 
-::ng-deep .staff-table .p-paginator {
+:host ::ng-deep .staff-table .p-paginator {
     align-items: center;
     background: var(--staff-surface);
     border-color: var(--staff-border);
@@ -515,41 +516,41 @@
     row-gap: 0.5rem;
 }
 
-::ng-deep .staff-table .p-paginator-rpp-dropdown,
-::ng-deep .staff-table .p-paginator .p-select {
+:host ::ng-deep .staff-table .p-paginator-rpp-dropdown,
+:host ::ng-deep .staff-table .p-paginator .p-select {
     flex: 0 0 auto;
     min-width: 4.75rem;
     width: auto;
 }
 
-::ng-deep .staff-table .p-paginator-rpp-dropdown .p-select-label,
-::ng-deep .staff-table .p-paginator .p-select-label {
+:host ::ng-deep .staff-table .p-paginator-rpp-dropdown .p-select-label,
+:host ::ng-deep .staff-table .p-paginator .p-select-label {
     padding-right: 0.5rem;
     width: auto;
 }
 
-::ng-deep .staff-table .p-paginator .p-select-dropdown {
+:host ::ng-deep .staff-table .p-paginator .p-select-dropdown {
     width: 2rem;
 }
 
-::ng-deep .staff-table .p-datatable-scrollable-body {
+:host ::ng-deep .staff-table .p-datatable-scrollable-body {
     overflow-x: auto;
 }
-::ng-deep .staff-form-card .p-card,
-::ng-deep .staff-form-card.p-card {
+:host ::ng-deep .staff-form-card .p-card,
+:host ::ng-deep .staff-form-card.p-card {
     border: 1px solid var(--staff-border);
     border-radius: 8px;
     box-shadow: none;
 }
 
-::ng-deep .staff-form-card .p-card-title {
+:host ::ng-deep .staff-form-card .p-card-title {
     color: var(--staff-text);
-    font-family: "Newsreader", "Instrument Serif", Georgia, serif;
+    font-family: inherit;
     font-size: 1.65rem;
     font-weight: 500;
 }
-::ng-deep .staff-form-card .p-card,
-::ng-deep .staff-form-card.p-card {
+:host ::ng-deep .staff-form-card .p-card,
+:host ::ng-deep .staff-form-card.p-card {
     border: 1px solid var(--staff-border);
     border-radius: 8px;
     box-shadow: none;
@@ -558,43 +559,43 @@
     padding: 0;
 }
 
-::ng-deep .staff-form-card .p-card-content {
+:host ::ng-deep .staff-form-card .p-card-content {
     padding: 1.5rem;
 }
 
-::ng-deep .staff-form-card .p-card-header {
+:host ::ng-deep .staff-form-card .p-card-header {
     padding: 1.5rem 1.5rem 1rem;
 }
 
-::ng-deep .staff-form-card .p-card-title {
+:host ::ng-deep .staff-form-card .p-card-title {
     color: var(--staff-text);
-    font-family: "Newsreader", "Instrument Serif", Georgia, serif;
+    font-family: inherit;
     font-size: 1.45rem;
     font-weight: 500;
     margin: 0;
 }
-::ng-deep .p-panel {
+:host ::ng-deep .p-panel {
     background: var(--staff-surface);
     border: 1px solid var(--staff-border);
     border-radius: 8px;
     box-shadow: none;
 }
 
-::ng-deep .p-panel .p-panel-header,
-::ng-deep .p-panel .p-panel-content,
-::ng-deep .p-panel .p-panel-footer {
+:host ::ng-deep .p-panel .p-panel-header,
+:host ::ng-deep .p-panel .p-panel-content,
+:host ::ng-deep .p-panel .p-panel-footer {
     background: transparent;
     border-color: var(--staff-border);
 }
 
-::ng-deep .p-panel-title {
+:host ::ng-deep .p-panel-title {
     color: var(--staff-text);
     font-size: 0.84rem;
     letter-spacing: 0.05em;
     text-transform: uppercase;
 }
 
-::ng-deep .p-inputgroup-addon {
+:host ::ng-deep .p-inputgroup-addon {
     background: var(--staff-surface-soft);
     border-color: var(--staff-border);
     color: var(--staff-muted);
@@ -602,113 +603,113 @@
     justify-content: center;
 }
 
-::ng-deep .p-inputtext,
-::ng-deep .p-select,
-::ng-deep .p-datepicker-input,
-::ng-deep .p-password-input {
+:host ::ng-deep .p-inputtext,
+:host ::ng-deep .p-select,
+:host ::ng-deep .p-datepicker-input,
+:host ::ng-deep .p-password-input {
     background: var(--staff-surface);
     border-color: var(--staff-border);
-    border-radius: 6px;
+    border-radius: 10px;
     color: var(--staff-text);
     width: 100%;
 }
 
-::ng-deep .p-inputtext::placeholder,
-::ng-deep .p-select-label.p-placeholder,
-::ng-deep .p-datepicker-input::placeholder {
+:host ::ng-deep .p-inputtext::placeholder,
+:host ::ng-deep .p-select-label.p-placeholder,
+:host ::ng-deep .p-datepicker-input::placeholder {
     color: var(--staff-muted);
 }
 
-::ng-deep .p-inputgroup > input.p-inputtext,
-::ng-deep .p-inputgroup > .p-inputwrapper,
-::ng-deep .p-inputgroup > .p-datepicker,
-::ng-deep .p-inputgroup > .p-password,
-::ng-deep .p-inputgroup > p-select,
-::ng-deep .p-inputgroup > p-datepicker,
-::ng-deep .p-inputgroup > p-password,
-::ng-deep .p-inputgroup > .dropdown-class {
+:host ::ng-deep .p-inputgroup > input.p-inputtext,
+:host ::ng-deep .p-inputgroup > .p-inputwrapper,
+:host ::ng-deep .p-inputgroup > .p-datepicker,
+:host ::ng-deep .p-inputgroup > .p-password,
+:host ::ng-deep .p-inputgroup > p-select,
+:host ::ng-deep .p-inputgroup > p-datepicker,
+:host ::ng-deep .p-inputgroup > p-password,
+:host ::ng-deep .p-inputgroup > .dropdown-class {
     flex: 1 1 auto;
     min-width: 0;
     width: 100%;
 }
 
-::ng-deep .p-inputgroup > .dropdown-class .p-select,
-::ng-deep .p-inputgroup > .p-inputwrapper .p-select,
-::ng-deep .p-inputgroup > p-select .p-select,
-::ng-deep .p-inputgroup > .staff-date-control,
-::ng-deep .p-inputgroup > .p-datepicker .p-inputtext,
-::ng-deep .p-inputgroup > p-datepicker .p-datepicker,
-::ng-deep .p-inputgroup > p-datepicker .p-inputtext,
-::ng-deep .p-inputgroup > p-password .p-password,
-::ng-deep .p-inputgroup > p-password .p-password-input {
+:host ::ng-deep .p-inputgroup > .dropdown-class .p-select,
+:host ::ng-deep .p-inputgroup > .p-inputwrapper .p-select,
+:host ::ng-deep .p-inputgroup > p-select .p-select,
+:host ::ng-deep .p-inputgroup > .staff-date-control,
+:host ::ng-deep .p-inputgroup > .p-datepicker .p-inputtext,
+:host ::ng-deep .p-inputgroup > p-datepicker .p-datepicker,
+:host ::ng-deep .p-inputgroup > p-datepicker .p-inputtext,
+:host ::ng-deep .p-inputgroup > p-password .p-password,
+:host ::ng-deep .p-inputgroup > p-password .p-password-input {
     min-width: 0;
     width: 100%;
 }
 
-::ng-deep .staff-date-control,
-::ng-deep .staff-date-control .p-datepicker-input {
+:host ::ng-deep .staff-date-control,
+:host ::ng-deep .staff-date-control .p-datepicker-input {
     background: var(--staff-surface);
     color: var(--staff-text);
     width: 100%;
 }
 
-::ng-deep .staff-date-control .p-datepicker-input {
+:host ::ng-deep .staff-date-control .p-datepicker-input {
     border-color: var(--staff-border);
     border-bottom-left-radius: 0;
     border-top-left-radius: 0;
     min-height: 2.75rem;
 }
 
-::ng-deep .staff-date-control .p-datepicker-input:enabled:focus,
-::ng-deep .p-inputtext:enabled:focus,
-::ng-deep .p-select:not(.p-disabled).p-focus {
-    border-color: var(--primary-color);
+:host ::ng-deep .staff-date-control .p-datepicker-input:enabled:focus,
+:host ::ng-deep .p-inputtext:enabled:focus,
+:host ::ng-deep .p-select:not(.p-disabled).p-focus {
+    border-color: var(--staff-blue-text);
     box-shadow: 0 0 0 0.12rem
-        color-mix(in srgb, var(--primary-color) 18%, transparent);
+        color-mix(in srgb, var(--staff-blue-text) 18%, transparent);
 }
 
-::ng-deep .p-datepicker-panel,
-::ng-deep .p-datepicker {
+:host ::ng-deep .p-datepicker-panel,
+:host ::ng-deep .p-datepicker {
     background: var(--surface-overlay);
     border-color: var(--staff-border);
     color: var(--staff-text);
 }
 
-::ng-deep .p-datepicker-header,
-::ng-deep .p-datepicker-buttonbar {
+:host ::ng-deep .p-datepicker-header,
+:host ::ng-deep .p-datepicker-buttonbar {
     background: var(--surface-overlay);
     border-color: var(--staff-border);
     color: var(--staff-text);
 }
 
-::ng-deep .p-datepicker table th,
-::ng-deep .p-datepicker table td > span {
+:host ::ng-deep .p-datepicker table th,
+:host ::ng-deep .p-datepicker table td > span {
     color: var(--staff-text);
 }
 
-::ng-deep .p-datepicker table td > span.p-highlight {
-    background: var(--primary-color);
+:host ::ng-deep .p-datepicker table td > span.p-highlight {
+    background: var(--staff-blue-text);
     color: var(--primary-color-text);
 }
 
-::ng-deep .p-inputgroup .p-inputtext,
-::ng-deep .p-inputgroup .p-select,
-::ng-deep .p-inputgroup .p-datepicker,
-::ng-deep .p-inputgroup .p-password-input {
+:host ::ng-deep .p-inputgroup .p-inputtext,
+:host ::ng-deep .p-inputgroup .p-select,
+:host ::ng-deep .p-inputgroup .p-datepicker,
+:host ::ng-deep .p-inputgroup .p-password-input {
     border-bottom-left-radius: 0;
     border-top-left-radius: 0;
 }
 
-::ng-deep .p-button {
+:host ::ng-deep .p-button {
     border-radius: 6px;
 }
 
-::ng-deep .staff-dialog .p-dialog-header,
-::ng-deep .staff-dialog .p-dialog-content {
+:host ::ng-deep .staff-dialog .p-dialog-header,
+:host ::ng-deep .staff-dialog .p-dialog-content {
     background: var(--staff-bg);
 }
 
-::ng-deep .staff-dialog .p-dialog-content {
+:host ::ng-deep .staff-dialog .p-dialog-content {
     padding-inline: clamp(1rem, 3vw, 1.5rem);
 }
 
@@ -772,15 +773,15 @@
         width: 7.5rem;
     }
 
-    ::ng-deep .staff-table .p-datatable-header {
+    :host ::ng-deep .staff-table .p-datatable-header {
         padding: 0.75rem;
     }
 
-    ::ng-deep .staff-table .p-paginator {
+    :host ::ng-deep .staff-table .p-paginator {
         justify-content: center;
     }
 
-    ::ng-deep .staff-table {
+    :host ::ng-deep .staff-table {
         display: none;
     }
 
@@ -819,22 +820,22 @@
         padding-top: 0.75rem;
     }
 
-    ::ng-deep .staff-mobile-accordion .p-tag {
+    :host ::ng-deep .staff-mobile-accordion .p-tag {
         max-width: 5.75rem;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
 
-    ::ng-deep .staff-mobile-accordion .p-accordionheader {
+    :host ::ng-deep .staff-mobile-accordion .p-accordionheader {
         padding: 0.75rem;
     }
 
-    ::ng-deep .staff-mobile-accordion .p-accordioncontent-content {
+    :host ::ng-deep .staff-mobile-accordion .p-accordioncontent-content {
         padding: 0 0.75rem 0.75rem;
     }
 
-    ::ng-deep .staff-mobile-edit-button {
+    :host ::ng-deep .staff-mobile-edit-button {
         min-height: 2.5rem;
     }
 }
@@ -876,15 +877,15 @@
         width: 7.5rem;
     }
 
-    ::ng-deep .staff-table .p-datatable-header {
+    :host ::ng-deep .staff-table .p-datatable-header {
         padding: 0.75rem;
     }
 
-    ::ng-deep .staff-table .p-paginator {
+    :host ::ng-deep .staff-table .p-paginator {
         justify-content: center;
     }
 
-    ::ng-deep .staff-table {
+    :host ::ng-deep .staff-table {
         display: none;
     }
 
@@ -892,24 +893,24 @@
         display: block;
     }
 
-    ::ng-deep .staff-table .p-paginator-rpp-dropdown,
-    ::ng-deep .staff-table .p-paginator .p-select {
+    :host ::ng-deep .staff-table .p-paginator-rpp-dropdown,
+    :host ::ng-deep .staff-table .p-paginator .p-select {
         width: auto;
     }
 
-    ::ng-deep .staff-tabs .p-tablist {
+    :host ::ng-deep .staff-tabs .p-tablist {
         gap: 1rem;
         margin: 0 0 1rem 0;
     }
 
-    ::ng-deep .staff-tabs .p-tablist-tab-list {
+    :host ::ng-deep .staff-tabs .p-tablist-tab-list {
         display: grid;
         gap: 0.5rem;
         grid-template-columns: 1fr;
         width: 100%;
     }
 
-    ::ng-deep .staff-tabs .p-tab {
+    :host ::ng-deep .staff-tabs .p-tab {
         justify-content: center;
         font-size: 0.85rem;
         padding: 0.6rem 0;
@@ -919,38 +920,38 @@
     .createBoox-size,
     .createInputs,
     .all-info,
-    ::ng-deep .staff-form-card.p-card,
-    ::ng-deep .staff-form-card .p-card,
-    ::ng-deep .staff-form-card .p-card-body,
-    ::ng-deep .staff-form-card .p-card-content,
-    ::ng-deep .p-panel,
-    ::ng-deep .p-panel-content,
-    ::ng-deep .p-inputgroup,
-    ::ng-deep .p-inputgroup input,
-    ::ng-deep .p-inputgroup .p-inputtext,
-    ::ng-deep .p-inputgroup .p-select,
-    ::ng-deep .p-inputgroup .p-datepicker,
-    ::ng-deep .p-inputgroup .p-password,
-    ::ng-deep .p-inputgroup .p-password-input,
-    ::ng-deep .p-fileupload-choose {
+    :host ::ng-deep .staff-form-card.p-card,
+    :host ::ng-deep .staff-form-card .p-card,
+    :host ::ng-deep .staff-form-card .p-card-body,
+    :host ::ng-deep .staff-form-card .p-card-content,
+    :host ::ng-deep .p-panel,
+    :host ::ng-deep .p-panel-content,
+    :host ::ng-deep .p-inputgroup,
+    :host ::ng-deep .p-inputgroup input,
+    :host ::ng-deep .p-inputgroup .p-inputtext,
+    :host ::ng-deep .p-inputgroup .p-select,
+    :host ::ng-deep .p-inputgroup .p-datepicker,
+    :host ::ng-deep .p-inputgroup .p-password,
+    :host ::ng-deep .p-inputgroup .p-password-input,
+    :host ::ng-deep .p-fileupload-choose {
         max-width: 100%;
         width: 100%;
-        background: #f9f9f9;
+        background: var(--staff-surface);
     }
 }
 
 @media (max-width: 480px) {
-    ::ng-deep .staff-tabs .p-tablist {
+    :host ::ng-deep .staff-tabs .p-tablist {
         gap: 0.5rem;
         margin: 0 0 0.75rem 0;
     }
 
-    ::ng-deep .staff-tabs .p-tab {
+    :host ::ng-deep .staff-tabs .p-tab {
         font-size: 0.8rem;
         padding: 0.5rem 0;
     }
 
-    ::ng-deep .staff-form-card .p-card-content {
+    :host ::ng-deep .staff-form-card .p-card-content {
         padding: 1rem;
     }
 }
@@ -974,4 +975,68 @@
     .staff-mobile-list {
         display: block;
     }
+}
+
+
+/* Shared visual language with OwnerProfileComponent. */
+.staff-page { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.15rem; max-width: 1480px; margin: 0 auto; padding: .5rem 0 2.5rem; }
+.staff-hero { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 1.5rem; min-width: 0; padding: 1.6rem; border: 1px solid var(--staff-border); border-radius: 18px; background: var(--staff-surface); }
+.staff-identity { display: flex; align-items: center; min-width: 0; gap: 1.15rem; }
+.staff-mark { display: grid; place-items: center; box-sizing: border-box; width: 5.5rem; height: 5.5rem; flex: 0 0 5.5rem; border: 3px solid #fff; outline: 1px solid #cddae6; border-radius: 50%; background: var(--staff-blue-bg); color: var(--staff-blue-text); font-size: 1.6rem; }
+.staff-hero-copy { min-width: 0; overflow-wrap: anywhere; }
+.staff-hero h1 { margin: .3rem 0 .35rem; color: var(--staff-text); font-size: clamp(1.65rem, 3vw, 2.35rem); line-height: 1.1; letter-spacing: -.035em; }
+.staff-eyebrow { color: var(--staff-blue-text); font-size: .72rem; font-weight: 800; letter-spacing: .1em; }
+.staff-subtitle { margin: 0; }
+.staff-count { border-radius: 14px; background: var(--staff-blue-bg); border-color: var(--staff-border); }
+.staff-count span { color: var(--staff-text); font-size: 1.35rem; font-weight: 700; }
+.staff-table-caption { flex-wrap: wrap; }
+.staff-search { flex: 0 1 22rem; min-width: 0; }
+.staff-person-meta { font-weight: 650; }
+.avata-tbl, .staff-mobile-avatar { flex-shrink: 0; background: var(--staff-blue-bg); border: 2px solid #fff; outline: 1px solid #cddae6; }
+.staff-mobile-list, .staff-table-desktop { min-width: 0; }
+:host ::ng-deep .staff-tabs { display: block; min-width: 0; }
+:host ::ng-deep .staff-tabs .p-tablist { display: block; margin: 0 0 1.15rem; padding: .35rem; border: 1px solid var(--staff-border); border-radius: 13px; background: var(--staff-surface); }
+:host ::ng-deep .staff-tabs .p-tablist-tab-list { gap: .25rem; border: 0; }
+:host ::ng-deep .staff-tabs .p-tab { padding: .72rem 1rem; border-radius: 9px; font: inherit; font-weight: 700; }
+:host ::ng-deep .staff-tabs .p-tab[aria-selected="true"] { background: var(--staff-blue-bg) !important; color: #105d76; border-bottom: 0 !important; margin-bottom: 0; }
+:host ::ng-deep .staff-tabs .p-tablist-active-bar { display: none; }
+:host ::ng-deep .staff-table { border-radius: 16px; }
+:host ::ng-deep .staff-table .p-datatable-header { padding: 1.25rem; }
+:host ::ng-deep .staff-table .p-datatable-table-container { max-width: 100%; overflow-x: auto; overscroll-behavior-x: contain; }
+:host ::ng-deep .staff-table .p-datatable-thead > tr > th { text-transform: none; letter-spacing: normal; font-size: inherit; }
+:host ::ng-deep .staff-table .p-datatable-tbody > tr > td { border-color: #edf1f5; }
+:host ::ng-deep .staff-mobile-accordion .p-accordionpanel { border-radius: 14px; box-shadow: none; }
+:host ::ng-deep .staff-tabs .p-tag { border-radius: 999px; padding: .3rem .6rem; font-size: .75rem; font-weight: 750; }
+:host ::ng-deep .staff-tabs .p-tag-success { background: var(--staff-green-bg); color: var(--staff-green-text); }
+:host ::ng-deep .staff-tabs .p-tag-danger { background: var(--staff-red-bg); color: var(--staff-red-text); }
+:host ::ng-deep .staff-dialog { border: 1px solid var(--staff-border); border-radius: 18px; background: var(--staff-surface); color: var(--staff-text); }
+:host ::ng-deep .staff-dialog .p-dialog-title { color: var(--staff-text); font-size: 1.4rem; }
+:host ::ng-deep .staff-form-card .p-card-title { font-size: 1.15rem; font-weight: 700; }
+:host ::ng-deep .p-panel, :host ::ng-deep .staff-form-card.p-card { border-radius: 16px; }
+:host ::ng-deep .p-panel-title { color: var(--staff-blue-text); font-size: .72rem; font-weight: 800; letter-spacing: .1em; }
+:host ::ng-deep .p-button { min-height: 2.75rem; border-radius: 10px; font-weight: 700; }
+:host ::ng-deep .btn-staff .p-button { background: var(--staff-blue-text); border-color: var(--staff-blue-text); color: #fff; }
+:host ::ng-deep .btn-staff .p-button:enabled:hover { background: #125b73; border-color: #125b73; }
+:host ::ng-deep .staff-tabs .p-button-secondary, :host ::ng-deep .btn-clear .p-button { background: var(--staff-surface); border-color: var(--staff-border); color: var(--staff-blue-text); }
+
+@media (max-width: 900px) {
+    .staff-search { flex-basis: auto; }
+    .staff-actions { display: flex; }
+}
+
+@media (max-width: 640px) {
+    .staff-page { padding-top: 0; }
+    .staff-hero { grid-template-columns: minmax(0, 1fr); padding: 1.15rem; }
+    .staff-identity { flex-direction: column; align-items: stretch; }
+    .staff-mark { align-self: center; width: 4.75rem; height: 4.75rem; flex-basis: 4.75rem; }
+    .staff-eyebrow { display: block; text-align: center; }
+    .staff-count { box-sizing: border-box; flex-direction: row; align-items: center; justify-content: space-between; gap: .75rem; min-width: 0; }
+    .staff-count small { margin: 0; }
+    .staff-mobile-toolbar { background: transparent; position: static; }
+    .staff-search { width: 100%; }
+    .staff-mobile-header { grid-template-columns: auto minmax(0, 1fr); }
+    .staff-mobile-header > p-tag { grid-column: 2; justify-self: start; }
+    .staff-mobile-title strong { white-space: normal; overflow-wrap: anywhere; }
+    :host ::ng-deep .staff-tabs .p-tablist-tab-list { display: flex; }
+    :host ::ng-deep .staff-tabs .p-tab { width: auto; padding: .72rem 1rem; }
 }

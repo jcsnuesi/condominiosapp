@@ -5,18 +5,20 @@
     --profile-paper: #ffffff;
     --profile-primary: #176b87;
     display: block;
+    min-width: 0;
+    max-width: 100%;
 }
 
 * { box-sizing: border-box; }
 .owner-profile-page { max-width: 1480px; margin: 0 auto; padding: .5rem 0 2.5rem; color: var(--profile-ink); }
 .back-link { display: inline-flex; align-items: center; gap: .55rem; margin: 0 0 1rem; padding: .55rem .2rem; border: 0; background: transparent; color: var(--profile-muted); font: inherit; font-weight: 650; cursor: pointer; }
 .back-link:hover { color: var(--profile-primary); }
-.profile-shell { display: grid; gap: 1.15rem; }
-.profile-hero { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; padding: 1.6rem; border: 1px solid var(--profile-line); border-radius: 18px; background: var(--profile-paper); }
+.profile-shell { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.15rem; }
+.profile-hero { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 1.5rem; width: 100%; padding: 1.6rem; border: 1px solid var(--profile-line); border-radius: 18px; background: var(--profile-paper); }
 .identity-group { display: flex; align-items: center; min-width: 0; gap: 1.15rem; }
 .owner-avatar { display: grid; place-items: center; width: 5.5rem; height: 5.5rem; flex: 0 0 5.5rem; overflow: hidden; border: 3px solid #fff; outline: 1px solid #cddae6; border-radius: 50%; background: #e8f2f5; color: var(--profile-primary); font-size: 1.6rem; font-weight: 800; }
 .owner-avatar img { width: 100%; height: 100%; object-fit: cover; }
-.identity-copy { min-width: 0; }
+.identity-copy { min-width: 0; max-width: 100%; }
 .identity-copy h1 { margin: .3rem 0 .35rem; color: var(--profile-ink); font-size: clamp(1.65rem, 3vw, 2.35rem); line-height: 1.1; letter-spacing: -.035em; }
 .identity-copy p { display: flex; flex-wrap: wrap; gap: .45rem; margin: 0; color: var(--profile-muted); }
 .eyebrow-row { display: flex; align-items: center; flex-wrap: wrap; gap: .65rem; }
@@ -24,7 +26,7 @@
 .status-pill, .property-status { display: inline-flex; align-items: center; gap: .4rem; width: fit-content; padding: .3rem .6rem; border-radius: 999px; background: #e9f8f2; color: #08785d; font-size: .75rem; font-weight: 750; }
 .status-dot { width: .42rem; height: .42rem; border-radius: 50%; background: currentColor; }
 .status-pill--inactive, .property-status.inactive { background: #fff0ed; color: #c44732; }
-.hero-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .7rem; flex: 0 0 auto; }
+.hero-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: .7rem; min-width: 0; max-width: 100%; }
 .primary-action, .secondary-action { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; min-height: 2.75rem; padding: .7rem 1rem; border-radius: 10px; font: inherit; font-weight: 700; text-decoration: none; cursor: pointer; }
 .primary-action { border: 1px solid var(--profile-primary); background: var(--profile-primary); color: #fff; }
 .secondary-action { border: 1px solid var(--profile-line); background: #fff; color: var(--profile-ink); }
@@ -46,8 +48,18 @@
 .resource-nav button { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; min-width: max-content; padding: .72rem 1rem; border: 0; border-radius: 9px; background: transparent; color: var(--profile-muted); font: inherit; font-weight: 700; cursor: pointer; }
 .resource-nav button:hover { background: #f1f5f8; color: var(--profile-ink); }
 .resource-nav button.active { background: #e8f2f5; color: #105d76; }
-.content-panel { min-height: 22rem; }
-.overview-grid { display: grid; grid-template-columns: minmax(17rem, .75fr) minmax(24rem, 1.25fr); gap: 1rem; }
+.content-panel { min-width: 0; min-height: 22rem; }
+.content-panel > app-properties-by-owner,
+.content-panel > app-payments-history,
+.content-panel > app-family-member-details,
+.content-panel > app-owner-inquiries { display: block; min-width: 0; max-width: 100%; }
+.profile-hero, .resource-nav, .identity-copy, .section-heading { min-width: 0; }
+.identity-copy, .property-main strong, .unit-badge, .activity-row strong, .booking-row strong { overflow-wrap: anywhere; }
+.panel-heading > div, .section-heading > div { min-width: 0; }
+.icon-action { flex-shrink: 0; }
+.loading-copy { min-width: 0; max-width: 100%; }
+:host ::ng-deep .loading-copy .p-skeleton { max-width: 100%; }
+.overview-grid { display: grid; grid-template-columns: minmax(0, .75fr) minmax(0, 1.25fr); gap: 1rem; }
 .panel { min-width: 0; padding: 1.25rem; border: 1px solid var(--profile-line); border-radius: 16px; background: var(--profile-paper); }
 .activity-panel { grid-column: 1 / -1; }
 .panel-heading, .section-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 1.15rem; }
@@ -89,13 +101,15 @@
 .empty-resource p, .empty-state p { margin: 0; }
 .error-state { background: #fff; }
 .empty-icon { display: grid; place-items: center; width: 3.5rem; height: 3.5rem; border-radius: 50%; background: #fff0ed; color: #c44732; font-size: 1.35rem; }
-.loading-hero { justify-content: flex-start; }
+.loading-hero { display: flex; flex-wrap: wrap; justify-content: flex-start; }
 .loading-copy { display: grid; gap: .75rem; }
 :host ::ng-deep .content-panel > app-properties-by-owner > .card,
 :host ::ng-deep .content-panel > app-payments-history > .card,
 :host ::ng-deep .content-panel > app-family-member-details > .card { border: 1px solid var(--profile-line); box-shadow: none; }
 
 @media (max-width: 1000px) {
+    .profile-hero { grid-template-columns: minmax(0, 1fr); }
+    .hero-actions { justify-content: flex-start; }
     .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .overview-grid { grid-template-columns: 1fr; }
     .activity-panel { grid-column: auto; }
@@ -103,16 +117,24 @@
 
 @media (max-width: 680px) {
     .owner-profile-page { padding-top: 0; }
-    .profile-hero { align-items: flex-start; padding: 1.15rem; }
-    .profile-hero, .identity-group { flex-direction: column; }
-    .hero-actions { width: 100%; }
-    .hero-actions > * { flex: 1; }
-    .owner-avatar { width: 4.75rem; height: 4.75rem; flex-basis: 4.75rem; }
-    .metric-grid { grid-template-columns: 1fr; }
+    .profile-hero { align-items: start; padding: 1.15rem; }
+    .identity-group { flex-direction: column; align-items: flex-start; width: 100%; }
+    .identity-copy { width: 100%; }
+    .eyebrow-row { justify-content: center; }
+    .hero-actions { display: grid; grid-template-columns: minmax(0, 1fr); width: 100%; }
+    .hero-actions > * { width: 100%; min-width: 0; }
+    .owner-avatar { align-self: center; width: 4.75rem; height: 4.75rem; flex-basis: 4.75rem; }
+    .metric-grid { display: none; }
     .property-row { grid-template-columns: auto minmax(0, 1fr) auto; }
     .property-status { grid-column: 2 / -1; }
     .details-list > div { grid-template-columns: 1fr; gap: .25rem; }
-    .panel-heading { align-items: center; }
+    .panel { padding: 1rem; }
+    .panel-heading { align-items: center; flex-wrap: wrap; gap: .65rem; }
+    .property-row { gap: .6rem; padding: .65rem; }
+    .unit-badge { min-width: 0; max-width: 5rem; }
+    .activity-row, .booking-row { grid-template-columns: auto minmax(0, 1fr); }
+    .activity-amount, .booking-row > .property-status { grid-column: 2; }
+    .booking-row span { white-space: normal; }
     .text-action { font-size: .82rem; }
 }
 

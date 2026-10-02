@@ -1,35 +1,32 @@
 <p-toast></p-toast>
-
-<div class="payment-monitor">
-  <p-card>
-    <ng-template pTemplate="title"
-      >Payment Transactions Monitor</ng-template
-      >
-      <ng-template pTemplate="subtitle"
-        >Admin view for transaction status, provider and reconciliation
-        tracking</ng-template
-        >
-
+<main class="payment-monitor">
+    <header class="monitor-hero">
+        <span class="section-kicker">Finance</span>
+        <h1>Payment Transactions Monitor</h1>
+        <p>Facturas por propiedad y seguimiento de transacciones y conciliación.</p>
+    </header>
+    <app-bank-reconciliation [condominiumId]="filters.condominiumId" [condominiums]="propertyOptions" [ownerMode]="isOwner" (condominiumIdChange)="onBankCondominiumChange($event)" />
+    <section class="monitor-panel" aria-labelledby="payment-filters-heading">
+        <div class="panel-heading"><span class="section-kicker">Transactions</span><h2 id="payment-filters-heading">Payment filters</h2></div>
         <div class="filters-grid">
           <div class="field">
-            <label for="ownerId">Owner ID</label>
-            <input
-              id="ownerId"
-              pInputText
-              [(ngModel)]="filters.ownerId"
-              placeholder="Optional"
-              />
+            <label for="condominiumId">{{ isOwner ? 'Property' : 'Condominium' }}</label>
+            <p-select inputId="condominiumId" [options]="propertyOptions"
+              optionLabel="label" optionValue="value" [filter]="true"
+              [loading]="optionsLoading" [disabled]="optionsLoading"
+              placeholder="Select a property" [(ngModel)]="filters.condominiumId"
+              (onChange)="onPropertyChange()"></p-select>
             </div>
 
             <div class="field">
-              <label for="invoiceId">Invoice ID</label>
-              <input
-                id="invoiceId"
-                pInputText
-                [(ngModel)]="filters.invoiceId"
-                placeholder="Optional"
-                />
-              </div>
+              <label for="unitNumber">Unit</label>
+              <p-select inputId="unitNumber" [options]="unitOptions"
+                optionLabel="label" optionValue="value" [filter]="true"
+                [disabled]="!filters.condominiumId" [(ngModel)]="filters.unitNumber"
+                (onChange)="applyFilters()"></p-select>
+            </div>
+
+
 
               <div class="field">
                 <label for="provider">Provider</label>
@@ -39,8 +36,19 @@
                   optionLabel="label"
                   optionValue="value"
                   [(ngModel)]="filters.provider"
+                  (onChange)="onProviderChange()"
                 ></p-select>
+                <button type="button" class="provider-link" (click)="openProviderDialog()">Administrar proveedores</button>
               </div>
+
+              @if (filters.provider === 'TRANSFERENCIA') {
+                <div class="field">
+                  <label for="bankName">Banco</label>
+                  <p-select inputId="bankName" [options]="bankOptions" optionLabel="label"
+                    optionValue="value" [filter]="true" [(ngModel)]="filters.bankName"
+                    (onChange)="applyFilters()"></p-select>
+                </div>
+              }
 
               <div class="field">
                 <label for="status">Status</label>
@@ -65,61 +73,76 @@
               </div>
 
               <div class="field">
-                <label for="attemptedFrom">Attempted from</label>
+                <label for="attemptedFrom">From</label>
                 <input
                   id="attemptedFrom"
                   pInputText
                   type="date"
                   [(ngModel)]="filters.attemptedFrom"
+                  [max]="filters.attemptedTo || null"
+                  (ngModelChange)="applyFilters()"
                   />
                 </div>
 
                 <div class="field">
-                  <label for="attemptedTo">Attempted to</label>
+                  <label for="attemptedTo">To</label>
                   <input
                     id="attemptedTo"
                     pInputText
                     type="date"
                     [(ngModel)]="filters.attemptedTo"
+                    [min]="filters.attemptedFrom || null"
+                    (ngModelChange)="applyFilters()"
                     />
                   </div>
                 </div>
 
                 <div class="toolbar">
                   <p-button
+                    styleClass="monitor-primary-action"
                     label="Apply filters"
                     icon="pi pi-filter"
-                    (onClick)="loadTransactions(true)"
+                    (onClick)="applyFilters()"
                   ></p-button>
                   <p-button
                     label="Export CSV"
                     icon="pi pi-download"
-                    severity="help"
+                    severity="secondary"
                     [outlined]="true"
                     (onClick)="exportCsv()"
                   ></p-button>
-                  <p-button
+                  @if (!isOwner) { <p-button
                     label="Import reconciliation"
                     icon="pi pi-upload"
-                    severity="success"
-                    [outlined]="true"
-                    (onClick)="openImportDialog()"
-                  ></p-button>
-                  <p-button
-                    label="Clear"
-                    icon="pi pi-times"
                     severity="secondary"
                     [outlined]="true"
-                    (onClick)="clearFilters()"
-                  ></p-button>
+                    (onClick)="openImportDialog()"
+                  ></p-button> }
+
                 </div>
-              </p-card>
+              </section>
+    <section class="monitor-panel" aria-label="Payment transactions">
+        <div class="monitor-list-toolbar">
+            <button type="button" class="clear-action" (click)="clearFilters()"><i class="pi pi-filter-slash" aria-hidden="true"></i>Clear filters</button>
+            <form class="monitor-search" (ngSubmit)="applyFilters()">
+                <i class="pi pi-search" aria-hidden="true"></i>
+                <input pInputText type="search" name="invoiceSearch" id="invoiceId" [(ngModel)]="filters.invoiceId"
+                    placeholder="Search by Invoice ID..." aria-label="Search by Invoice ID" />
+                <button type="submit" aria-label="Search transactions"><i class="pi pi-arrow-right" aria-hidden="true"></i></button>
+            </form>
+            <div class="view-switch" role="group" aria-label="Transaction display">
+                <button type="button" [class.active]="viewMode === 'table'" [attr.aria-pressed]="viewMode === 'table'" (click)="viewMode = 'table'"><i class="pi pi-list" aria-hidden="true"></i>Table</button>
+                <button type="button" [class.active]="viewMode === 'cards'" [attr.aria-pressed]="viewMode === 'cards'" (click)="viewMode = 'cards'"><i class="pi pi-th-large" aria-hidden="true"></i>Cards</button>
+            </div>
+        </div>
 
               <p-table
+                [class.monitor-table-hidden]="viewMode === 'cards'"
                 [value]="docs"
                 [loading]="loading"
                 [paginator]="true"
                 [lazy]="true"
+                [lazyLoadOnInit]="false"
                 [first]="first"
                 [rows]="filters.limit"
                 [totalRecords]="total"
@@ -128,13 +151,16 @@
                 currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
                 (onLazyLoad)="onLazyLoad($event)"
                 responsiveLayout="scroll"
-                styleClass="app-data-table"
-                [tableStyle]="{ 'min-width': '74rem' }"
+                styleClass="app-data-table monitor-table"
+                [tableStyle]="{ 'min-width': '90rem' }"
                 >
               <ng-template pTemplate="header">
                 <tr>
                   <th>Invoice</th>
                   <th>Owner</th>
+                  <th>Unit</th>
+                  <th>IssueDate</th>
+                  <th>Due</th>
                   <th>Provider</th>
                   <th>Amount</th>
                   <th>Status</th>
@@ -149,8 +175,11 @@
                 <tr>
                   <td>{{ row.invoiceId }}</td>
                   <td>{{ row.ownerId }}</td>
-                  <td>{{ row.provider }}</td>
-                  <td>{{ row.amount | currency : "USD" }}</td>
+                  <td>{{ row.unitNumber || '-' }}</td>
+                  <td>{{ (row.issueDate | date : 'dd/MM/yyyy') || '-' }}</td>
+                  <td>{{ (row.dueDate | date : 'dd/MM/yyyy') || '-' }}</td>
+                  <td>{{ row.provider }} @if (row.bankName) { <small>{{ row.bankName }}</small> }</td>
+                  <td>{{ row.amount | currency : (row.currency || 'DOP') }}</td>
                   <td>
                     <p-tag
                       [value]="row.status"
@@ -184,23 +213,96 @@
 
               <ng-template pTemplate="emptymessage">
                 <tr>
-                  <td colspan="9">No transactions found with current filters.</td>
+                  <td colspan="12">No transactions found with current filters.</td>
                 </tr>
               </ng-template>
             </p-table>
+        @if (viewMode === 'cards') {
+            @if (loading) { <div class="monitor-empty" role="status">Loading transactions...</div> } @else {
+                <div class="transaction-grid">
+                    @for (row of docs; track $index) {
+                        <article class="transaction-card">
+                            <div class="transaction-heading"><span class="section-kicker">Invoice</span><h3>{{ row.invoiceId }}</h3></div>
+                            <strong class="transaction-amount">{{ row.amount | currency:(row.currency || 'DOP') }}</strong>
+                            <div class="transaction-status"><span>Status</span><p-tag [value]="row.status" [severity]="getSeverity(row.status)" /></div>
+                            <div class="transaction-status"><span>Reconciliation</span><p-tag [value]="row.reconciliationStatus" [severity]="getSeverity(row.reconciliationStatus)" /></div>
+                            <dl class="transaction-details">
+                                <div><dt>Owner</dt><dd>{{ row.ownerId }}</dd></div>
+                                <div><dt>Unit</dt><dd>{{ row.unitNumber || '-' }}</dd></div>
+                                <div><dt>Issue date</dt><dd>{{ (row.issueDate | date:'dd/MM/yyyy') || '-' }}</dd></div>
+                                <div><dt>Due</dt><dd>{{ (row.dueDate | date:'dd/MM/yyyy') || '-' }}</dd></div>
+                                <div><dt>Provider</dt><dd>{{ row.provider }} @if (row.bankName) { <small>{{ row.bankName }}</small> }</dd></div>
+                                <div><dt>Provider Tx ID</dt><dd>{{ row.providerTransactionId || '-' }}</dd></div>
+                                <div><dt>Attempted at</dt><dd>{{ row.attemptedAt | date:'dd/MM/yyyy HH:mm' }}</dd></div>
+                            </dl>
+                            @if (canReconcile(row)) {
+                                <p-button label="Resolve" icon="pi pi-check-circle" [outlined]="true"
+                                    styleClass="monitor-resolve-action" (onClick)="openReconciliationDialog(row)" />
+                            }
+                        </article>
+                    } @empty { <div class="monitor-empty">No transactions found with current filters.</div> }
+                </div>
+            }
+            <p-paginator [first]="first" [rows]="filters.limit" [totalRecords]="total"
+                [rowsPerPageOptions]="rowsPerPageOptions" [showCurrentPageReport]="true"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                (onPageChange)="onLazyLoad($event)" />
+        }
+    </section>
 
-            <p-dialog
+
+            <p-dialog styleClass="monitor-dialog" header="Administrar proveedores" [(visible)]="providerDialogVisible"
+              [modal]="true" [style]="{ width: '32rem', maxWidth: 'calc(100vw - 2rem)' }" [breakpoints]="{ '640px': '94vw' }"
+              [closable]="!providerSaving" [closeOnEscape]="!providerSaving">
+              <div class="provider-manager">
+                @if (canCreateProvider) {
+                  <form class="provider-form" (ngSubmit)="createProvider()">
+                    <div class="field">
+                      <label for="newProviderName">Nombre del proveedor</label>
+                      <input id="newProviderName" name="newProviderName" pInputText maxlength="80"
+                        required [(ngModel)]="newProviderName" [disabled]="providerSaving || providersLoading" />
+                    </div>
+                    <p-button type="submit" label="Crear" icon="pi pi-plus" [loading]="providerSaving"
+                      [disabled]="!newProviderName.trim() || providerSaving || providersLoading"></p-button>
+                  </form>
+                }
+                @if (providerError) { <p role="alert">{{ providerError }}</p> }
+                @if (providersLoading) { <p role="status">Cargando proveedores...</p> }
+                @if (!providersLoading && providerError) {
+                  <p-button label="Recargar proveedores" [text]="true" [disabled]="providerSaving" (onClick)="loadProviders()"></p-button>
+                }
+                <ul class="provider-list">
+                  @for (provider of providers; track provider.code) {
+                    <li>
+                      <span>{{ provider.name }}</span>
+                      @if (provider.builtIn) {
+                        <small>Predeterminado</small>
+                      } @else if (canDeleteProvider) {
+                        <p-button label="Eliminar" icon="pi pi-trash" severity="danger" [text]="true"
+                          [ariaLabel]="'Eliminar ' + provider.name" [disabled]="providerSaving || providersLoading"
+                          (onClick)="deleteProvider(provider)"></p-button>
+                      }
+                    </li>
+                  }
+                </ul>
+              </div>
+              <ng-template pTemplate="footer">
+                <p-button label="Cerrar" severity="secondary" [disabled]="providerSaving" (onClick)="providerDialogVisible = false"></p-button>
+              </ng-template>
+            </p-dialog>
+
+            <p-dialog styleClass="monitor-dialog"
               header="Resolve reconciliation"
               [(visible)]="reconciliationDialogVisible"
               [modal]="true"
-              [style]="{ width: '34rem' }"
+              [style]="{ width: '34rem', maxWidth: 'calc(100vw - 2rem)' }"
               [breakpoints]="{ '960px': '90vw' }"
               >
               <div class="reconciliation-dialog">
                 <div class="field">
-                  <label for="reconciliationStatus">Result</label>
+                  <label for="reconciliationResult">Result</label>
                   <p-select
-                    inputId="reconciliationStatus"
+                    inputId="reconciliationResult"
                     [options]="reconciliationOptions"
                     optionLabel="label"
                     optionValue="value"
@@ -237,11 +339,11 @@
               </ng-template>
             </p-dialog>
 
-            <p-dialog
+            <p-dialog styleClass="monitor-dialog"
               header="Import reconciliation"
               [(visible)]="importDialogVisible"
               [modal]="true"
-              [style]="{ width: '48rem' }"
+              [style]="{ width: '48rem', maxWidth: 'calc(100vw - 2rem)' }"
               [breakpoints]="{ '960px': '94vw' }"
               >
               <div class="import-dialog">
@@ -294,4 +396,4 @@
                 ></p-button>
               </ng-template>
             </p-dialog>
-          </div>
+          </main>

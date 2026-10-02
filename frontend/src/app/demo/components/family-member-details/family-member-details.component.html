@@ -1,7 +1,7 @@
 <p-toast />
-<p-confirmDialog />
+<p-confirmDialog [style]="{ width: '28rem', maxWidth: 'calc(100vw - 2rem)' }" />
 
-<div class="card">
+<div class="card family-members-card">
     @if (nodata) {
     <span style="font-family: 'Courier New', Courier, monospace"
         >No data found</span
@@ -18,6 +18,7 @@
     <div class="tbl-reservations">
         @if (!seePropertyBool) {
         <p-table
+            styleClass="family-members-table"
             [value]="data"
             dataKey="_id"
             [tableStyle]="{ 'min-width': '60rem' }"
@@ -25,9 +26,9 @@
         >
             <ng-template pTemplate="caption">
                 <div
-                    class="flex justify-content-between align-items-center gap-2"
+                    class="family-table-toolbar"
                 >
-                    <div class="justify-content-end">
+                    <div class="family-table-actions">
                         <p-button
                             label="Expand All"
                             icon="pi pi-plus"
@@ -84,6 +85,7 @@
                             [text]="true"
                             [rounded]="true"
                             [plain]="true"
+                            [ariaLabel]="expanded ? 'Collapse member properties' : 'Expand member properties'"
                             [icon]="
                                 expanded
                                     ? 'pi pi-chevron-down'
@@ -117,7 +119,7 @@
                             "
                         />
                     </td>
-                    <td>
+                    <td *ngIf="identity?.role != 'ADMIN' && identity?.role != 'STAFF' && !seePropertyBool">
                         <button
                             *ngIf="
                                 identity.role != 'ADMIN' &&
@@ -139,7 +141,7 @@
             </ng-template>
             <ng-template pTemplate="rowexpansion" let-property_info>
                 <tr>
-                    <td colspan="7">
+                    <td [attr.colspan]="identity?.role != 'ADMIN' && identity?.role != 'STAFF' && !seePropertyBool ? 9 : 8">
                         <div class="p-3">
                             <p-table
                                 [value]="property_info.propertyDetails"
@@ -174,7 +176,7 @@
                                                 info.addressId.alias | uppercase
                                             }}
                                         </td>
-                                        <td style="width: 8vw">
+                                        <td class="family-property-address">
                                             {{ getAddres(info) | uppercase }}
                                         </td>
                                         <td>{{ info.unit | uppercase }}</td>
@@ -236,6 +238,7 @@
 
 @if (seePropertyBool) {
 <p-table
+    styleClass="family-members-table"
     #dt1
     [value]="datatable"
     dataKey="_id"
@@ -246,14 +249,14 @@
     [globalFilterFields]="['fullname', 'email', 'phone', 'status']"
 >
     <ng-template pTemplate="caption">
-        <div class="flex">
+        <div class="family-table-toolbar">
             <p-button
                 label="Clear"
                 [outlined]="true"
                 icon="pi pi-filter-slash"
                 (onClick)="clear(dt1)"
             />
-            <span class="p-input-icon-left ml-auto">
+            <span class="p-input-icon-left family-table-search">
                 <i class="pi pi-search"></i>
                 <input
                     pInputText

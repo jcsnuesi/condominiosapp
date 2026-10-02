@@ -1,3 +1,70 @@
+:host {
+    display: block;
+    min-width: 0;
+    max-width: 100%;
+}
+
+.card,
+.contenido-properties,
+.tbl-properties {
+    min-width: 0;
+    max-width: 100%;
+}
+
+.properties-header {
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.properties-header-actions {
+    margin-left: auto;
+}
+
+:host ::ng-deep .owner-properties-table {
+    min-width: 0;
+    max-width: 100%;
+}
+
+:host ::ng-deep .owner-properties-table .p-datatable-table-container {
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+}
+
+@media (max-width: 640px) {
+    .card {
+        padding: 1rem;
+    }
+
+    .properties-header {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .properties-header-actions {
+        margin-left: 0;
+    }
+
+    .properties-header-actions button {
+        width: 100%;
+    }
+
+    .contenido-properties .propertiesAvailable {
+        padding: 0.75rem;
+    }
+
+    :host ::ng-deep .owner-properties-table .p-paginator {
+        padding-inline: 0;
+        gap: 0.25rem;
+    }
+
+    :host ::ng-deep .owner-properties-table .p-paginator-pages {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+}
+
 .main-contenido-properties {
     display: grid;
     grid-template-columns: repeat(12, 1fr);

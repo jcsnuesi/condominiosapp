@@ -14,6 +14,10 @@ import {
     Input,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FullCalendarModule } from '@fullcalendar/angular';
+import { CalendarOptions, EventInput } from '@fullcalendar/core';
+import dayGridPlugin from '@fullcalendar/daygrid';
+import timeGridPlugin from '@fullcalendar/timegrid';
 import { FormsModule, NgForm } from '@angular/forms';
 import { DatePickerModule } from 'primeng/datepicker';
 import { FieldsetModule } from 'primeng/fieldset';
@@ -79,6 +83,7 @@ interface BookingHistoryRow {
     checkIn: string;
     checkOut: string;
     checkOutAt: string | Date | null;
+    checkInAt?: string | Date | null;
     status?: string;
     visitorNumber: number;
     verified: boolean;
@@ -88,6 +93,7 @@ interface BookingHistoryRow {
 @Component({
     selector: 'app-booking-area',
     imports: [
+        FullCalendarModule,
         IconFieldModule,
         InputIconModule,
         DialogModule,
@@ -131,6 +137,58 @@ export class BookingAreaComponent implements OnInit {
     public selectedCondo: any[];
     public loading: boolean;
     public bookingHistory: BookingHistoryRow[] = [];
+    public bookingView: 'table' | 'calendar' = 'table';
+    public calendarOptions: CalendarOptions = {
+        plugins: [dayGridPlugin, timeGridPlugin],
+        initialView: 'dayGridMonth',
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay',
+        },
+        height: 'auto',
+        timeZone: 'local',
+        dayMaxEvents: 3,
+        nowIndicator: true,
+        editable: false,
+        eventInteractive: true,
+        eventClick: ({ event }) => {
+            const booking = this.bookingHistory.find(row => row.id === event.id);
+            if (booking) {
+                this.showDialog(booking);
+                this.cdr.detectChanges();
+            }
+        },
+        events: [],
+    };
+
+    buildCalendarEvents(bookings: BookingHistoryRow[]): EventInput[] {
+        return bookings.flatMap(booking => {
+            const start = booking.checkInAt ? new Date(booking.checkInAt) : null;
+            if (!start || !Number.isFinite(start.getTime())) return [];
+            const end = booking.checkOutAt ? new Date(booking.checkOutAt) : null;
+            const colors: Record<string, string> = {
+                reserved: '#e8f2f5', guest: '#e9f8f2', cancelled: '#fff0ed',
+                completed: '#f1f5f8', expired: '#fbf3db',
+            };
+            const textColors: Record<string, string> = {
+                reserved: '#105d76', guest: '#08785d', cancelled: '#c44732',
+                completed: '#66758d', expired: '#956400',
+            };
+            return [{
+                id: booking.id,
+                title: [booking.alias, booking.bookingName, booking.unit ? `Unit ${booking.unit}` : '',
+                    booking.area, booking.status].filter(Boolean).join(' · '),
+                start,
+                end: end && end.getTime() > start.getTime() ? end : undefined,
+                allDay: false,
+                backgroundColor: colors[(booking.status ?? '').toLowerCase()] ?? '#f1f5f8',
+                borderColor: '#dce5ee',
+                textColor: textColors[(booking.status ?? '').toLowerCase()] ?? '#183153',
+                display: 'block',
+            }];
+        });
+    }
     public valRadio: string = '';
     public notifyOptions: any[];
 
@@ -178,6 +236,7 @@ export class BookingAreaComponent implements OnInit {
     private setBookingHistory(value: BookingHistoryRow[]) {
         setTimeout(() => {
             this.bookingHistory = value;
+            this.calendarOptions = { ...this.calendarOptions, events: this.buildCalendarEvents(value) };
             this.selectedRow = [];
             this.cdr.markForCheck();
         });
@@ -329,6 +388,7 @@ export class BookingAreaComponent implements OnInit {
                                     booking?.checkOut
                                 ) ?? 'N/A',
                             checkOutAt: booking?.checkOut ?? null,
+                            checkInAt: booking.checkIn ?? null,
                             status: booking.status,
                             visitorNumber: booking?.visitorNumber ?? 0,
                             verified: Boolean(booking.guestCode),

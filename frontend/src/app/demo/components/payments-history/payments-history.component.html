@@ -8,8 +8,9 @@
       Payments History
     </span>
     <div class="payments-history-provider">
-      <label class="text-sm text-surface-600">Provider</label>
+      <label for="ownerPaymentProvider" class="text-sm text-surface-600">Provider</label>
       <p-select
+        inputId="ownerPaymentProvider"
         [options]="providerOptions"
         optionLabel="label"
         optionValue="value"
@@ -32,7 +33,7 @@
     [paginator]="true"
     [globalFilterFields]="['alias', 'status', 'paymentStatus', 'txStatus']"
     responsiveLayout="scroll"
-    styleClass="app-data-table"
+    styleClass="app-data-table owner-payments-table"
     [tableStyle]="{ 'min-width': '70rem' }"
     [rowHover]="true"
     dataKey="id"
@@ -46,6 +47,7 @@
         </th>
         <th>Unit</th>
         <th>Amount</th>
+        <th>Balance pendiente</th>
         <th>Issue date</th>
         <th>Invoice status</th>
         <th>Payment status</th>
@@ -59,7 +61,10 @@
       <tr>
         <td>{{ row.alias }}</td>
         <td>{{ row.unit }}</td>
-        <td>{{ row.amounts | currency : "USD" }}</td>
+        <td>{{ row.amounts | currency : (row.propertyDetails?.currency || 'DOP') }}</td>
+        <td>{{ pendingBalance(row) | currency : (row.propertyDetails?.currency || 'DOP') }}
+          @if (row.propertyDetails?.paymentWorkflow === 'bank_transfer' && pendingBalance(row) > 0) { <small class="block">Continúe con transferencias y adjunte el siguiente comprobante.</small> }
+        </td>
         <td>{{ row.invoice_issue_date }}</td>
         <td>
           <p-tag
@@ -84,6 +89,7 @@
         <td>{{ row.txProvider }}</td>
         <td>
           <div class="payments-history-actions">
+            <p-button icon="pi pi-upload" ariaLabel="Comprobante de transferencia" [rounded]="true" [outlined]="true" (onClick)="receiptInvoice = row; receiptDialogVisible = true" />
             <p-button
               icon="pi pi-credit-card"
               [rounded]="true"
@@ -170,3 +176,9 @@
     </ng-template>
   </p-dialog>
 </div>
+
+<p-dialog header="Comprobante de transferencia" [(visible)]="receiptDialogVisible" [modal]="true" [style]="{ width: '60rem' }" [breakpoints]="{ '960px': '95vw' }">
+  @if (receiptDialogVisible && receiptInvoice) {
+    <app-bank-reconciliation [invoiceId]="receiptInvoice.invoiceId" [ownerId]="ownerIdInput" [condominiumId]="receiptInvoice.propertyDetails?.condominiumId?._id || ''" [ownerMode]="true" />
+  }
+</p-dialog>

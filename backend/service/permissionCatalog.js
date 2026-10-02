@@ -12,6 +12,7 @@ const MODULE_ACTIONS = Object.freeze({
   str: ["read", "create", "update", "delete"],
   finance: ["read", "create", "update", "delete"],
   communications: ["read", "create", "update", "delete"],
+  iot: ["read", "create", "update", "delete", "control", "history"],
 });
 
 const PERMISSIONS = Object.freeze(
@@ -47,7 +48,9 @@ const STANDARD_POLICIES = Object.freeze([
     key: "READ_ONLY",
     name: "Solo lectura",
     description: "Consulta de los modulos disponibles sin mutaciones.",
-    permissions: PERMISSIONS.filter((permission) => permission.endsWith(".read")),
+    permissions: PERMISSIONS.filter((permission) =>
+      permission.endsWith(".read")
+    ),
   },
 ]);
 
@@ -55,4 +58,9 @@ function isValidPermission(permission) {
   return PERMISSIONS.includes(String(permission || "").toLowerCase());
 }
 
-module.exports = { MODULE_ACTIONS, PERMISSIONS, STANDARD_POLICIES, isValidPermission };
+module.exports = {
+  MODULE_ACTIONS,
+  PERMISSIONS,
+  STANDARD_POLICIES,
+  isValidPermission,
+};

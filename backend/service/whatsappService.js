@@ -1,4 +1,5 @@
 "use strict";
+const { remainingInvoiceBalance } = require("./invoiceBalance");
 
 const https = require("https");
 
@@ -65,7 +66,10 @@ function buildPaymentReminderMessage(invoice, options = {}) {
   const condo = invoice?.condominiumId || {};
   const type = String(options.type || "payment_reminder").toLowerCase();
   const invoiceNumber = invoice?.invoice_number || String(invoice?._id || "");
-  const amount = formatMoney(invoice?.amount, options.currency || "DOP");
+  const amount = formatMoney(
+    type === "payment_confirmation" ? invoice?.amount : remainingInvoiceBalance(invoice),
+    options.currency || invoice?.currency || "DOP"
+  );
   const dueDate = invoice?.dueDate
     ? new Date(invoice.dueDate).toLocaleDateString("es-DO")
     : "pendiente";

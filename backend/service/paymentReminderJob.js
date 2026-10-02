@@ -5,6 +5,7 @@ const Invoice = require("../models/invoice");
 const CommunicationLog = require("../models/communicationLog");
 // Phase 3 (medium): notification pipeline batch — extend reminder pipeline to bookings/inquiry confirmations (approved scope)
 const whatsappService = require("./whatsappService");
+const { remainingInvoiceBalance } = require("./invoiceBalance");
 
 function getReminderConfig() {
   return {
@@ -82,6 +83,9 @@ function createLogPayload(invoice, status, details = {}) {
 
 async function processInvoiceReminder(invoice, deps, options = {}) {
   const now = options.now || new Date();
+  if (remainingInvoiceBalance(invoice) <= 0) {
+    return { status: "skipped", reason: "no_pending_balance", invoiceId: invoice?._id };
+  }
   const minDaysBetween = options.minDaysBetween || 7;
   const owner = getInvoiceOwner(invoice);
   const phone = whatsappService.normalizePhoneNumber(owner?.phone);

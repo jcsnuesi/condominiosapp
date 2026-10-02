@@ -1,11 +1,12 @@
 <p-toast />
-<p-confirmDialog />
+<p-confirmDialog [style]="{ width: '28rem', maxWidth: 'calc(100vw - 2rem)' }" />
 
-<div class="card">
-    <!-- Phase 1: responsive — table columns adapt via PrimeNG col-*, mobile-safe -->
-    <div class="propertiesAvailable mb-4">
-        <div class="font-semibold text-xl text-surface-900 dark:text-surface-0">
-            Manage all partners and their details
+<main class="partners-page">
+    <header class="partners-hero">
+        <div class="partners-hero-copy">
+            <span class="section-kicker">Administration</span>
+            <h1>All partners</h1>
+            <p>Manage all partners and their details.</p>
         </div>
         <div class="float-end-btn">
             <button
@@ -15,13 +16,42 @@
                 aria-label="Create new partner"
                 label="Crear Usuario"
                 icon="pi pi-user-plus"
-                class="p-button-success"
+                class="partner-create-action"
                 (click)="openRegistrationDialog()"
             ></button>
         </div>
+    </header>
+    <section class="partners-panel" aria-label="Partner directory">
+    <div class="partners-table-toolbar">
+        <button type="button" class="partner-clear-action" (click)="clear(dt)">
+            <i class="pi pi-filter-slash" aria-hidden="true"></i>
+            Clear filters
+        </button>
+        <p-iconField iconPosition="left" class="partners-search">
+            <p-inputIcon styleClass="pi pi-search" />
+            <input pInputText type="search" aria-label="Search partners"
+                [value]="searchValue"
+                (input)="searchPartners($event.target.value, dt)"
+                placeholder="Search partners..." />
+        </p-iconField>
+        <div class="partners-view-switch" role="group" aria-label="Partner display">
+            <button type="button" [class.active]="viewMode === 'table'"
+                [attr.aria-pressed]="viewMode === 'table'" (click)="viewMode = 'table'">
+                <i class="pi pi-list" aria-hidden="true"></i>Table
+            </button>
+            <button type="button" [class.active]="viewMode === 'cards'"
+                [attr.aria-pressed]="viewMode === 'cards'" (click)="viewMode = 'cards'">
+                <i class="pi pi-th-large" aria-hidden="true"></i>Cards
+            </button>
+        </div>
     </div>
+
     <p-table
         #dt
+        [class.partners-table-hidden]="viewMode === 'cards'"
+        styleClass="partners-table app-data-table"
+        responsiveLayout="scroll"
+        [tableStyle]="{ 'min-width': '64rem' }"
         [value]="datatable"
         [(selection)]="selectedCustomers"
         dataKey="id"
@@ -35,28 +65,6 @@
         [filterDelay]="0"
         [globalFilterFields]="['id', 'fullname', 'email', 'phone']"
     >
-        <ng-template pTemplate="caption">
-            <div class="flex">
-                <button
-                    pButton
-                    label="Clear"
-                    class="p-button-outlined"
-                    icon="pi pi-filter-slash"
-                    (click)="clear(dt)"
-                ></button>
-                <p-iconField iconPosition="left" class="ml-auto">
-                    <p-inputIcon styleClass="pi pi-search" />
-                    <input
-                        pInputText
-                        type="text"
-                        (input)="
-                            dt.filterGlobal($event.target.value, 'contains')
-                        "
-                        placeholder="Search keyword"
-                    />
-                </p-iconField>
-            </div>
-        </ng-template>
         <ng-template pTemplate="header">
             <tr>
                 <th pSortableColumn="fullname" style="min-width: 14rem">
@@ -111,7 +119,7 @@
 
                 <th pSortableColumn="createdAt" style="max-width: 10rem">
                     <div class="flex justify-between items-center">
-                        Partnetship Date
+                        Partnership Date
                         <p-sortIcon field="createdAt" />
                         <p-columnFilter
                             type="text"
@@ -133,8 +141,10 @@
         <ng-template pTemplate="body" let-customer>
             <tr class="p-selectable-row">
                 <td>
-                    <div class="flex items-center gap-2 text-align-center">
+                    <div class="partner-person">
                         <img
+                            class="partner-avatar"
+                            [alt]="customer.fullname"
                             [src]="
                                 _noPicturesService.getNoPictures(
                                     url +
@@ -142,13 +152,10 @@
                                         customer.avatar
                                 )
                             "
-                            style="
-                                width: 40px;
-                                height: 40px;
-                                border-radius: 50%;
-                            "
+                            width="40"
+                            height="40"
                         />
-                        <span class="ml-1 align-middle">{{
+                        <span class="partner-name">{{
                             customer.fullname | titlecase
                         }}</span>
                     </div>
@@ -180,6 +187,8 @@
                 <td style="text-align: center">
                     <p-button
                         rounded
+                        styleClass="partner-edit-action"
+                        [ariaLabel]="'Open profile for ' + customer.fullname"
                         icon="pi pi-cog"
                         (click)="showOwner(customer.id)"
                     />
@@ -188,11 +197,48 @@
         </ng-template>
         <ng-template #emptymessage>
             <tr>
-                <td colspan="8">No customers found.</td>
+                <td colspan="7"><div class="partners-empty">No customers found.</div></td>
             </tr>
         </ng-template>
     </p-table>
-</div>
+    @if (viewMode === 'cards') {
+        @if (loading) {
+            <div class="partners-empty" role="status">Loading partners...</div>
+        } @else {
+            <div class="partner-card-grid">
+                @for (customer of (dt.filteredValue ?? datatable) | slice:(dt.first ?? 0):((dt.first ?? 0) + (dt.rows ?? 10)); track customer.id) {
+                    <article class="partner-card">
+                        <div class="partner-person">
+                            <img class="partner-avatar" width="40" height="40" [alt]="customer.fullname"
+                                [src]="_noPicturesService.getNoPictures(url + 'main-avatar/owners/' + customer.avatar)" />
+                            <h2>{{ customer.fullname | titlecase }}</h2>
+                        </div>
+                        <dl class="partner-card-details">
+                            <div><dt>Email</dt><dd>{{ customer.email || 'Not provided' }}</dd></div>
+                            <div><dt>Phone</dt><dd>{{ customer.phone || 'Not provided' }}</dd></div>
+                            <div><dt>Balance</dt><dd>{{ customer.totalAmount | currency:'DOP':'symbol' }}</dd></div>
+                            <div><dt>Invoices</dt><dd>{{ customer.invoiceCount }}</dd></div>
+                            <div><dt>Partnership date</dt><dd>{{ customer.createdAt | date:'MM/dd/yyyy' }}</dd></div>
+                        </dl>
+                        <button type="button" class="partner-profile-action" (click)="showOwner(customer.id)"
+                            [attr.aria-label]="'Open profile for ' + customer.fullname">
+                            View profile <i class="pi pi-arrow-right" aria-hidden="true"></i>
+                        </button>
+                    </article>
+                } @empty {
+                    <div class="partners-empty">No customers found.</div>
+                }
+            </div>
+            <p-paginator [first]="dt.first ?? 0" [rows]="dt.rows ?? 10"
+                [totalRecords]="(dt.filteredValue ?? datatable).length"
+                [rowsPerPageOptions]="[10, 25, 50]" [showCurrentPageReport]="true"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                (onPageChange)="dt.first = $event.first ?? 0; dt.rows = $event.rows ?? 10" />
+        }
+    }
+
+    </section>
+</main>
 
 <!-- Crear user -->
 
@@ -201,15 +247,12 @@
     (onHide)="closeDialogRegistration()"
     [modal]="true"
     [maximizable]="true"
+    styleClass="partner-registration-dialog"
+    [style]="{ width: '56rem', maxWidth: 'calc(100vw - 2rem)' }"
+    [breakpoints]="{ '680px': '94vw' }"
+    header="Register owner"
 >
-    <ng-template pTemplate="header">
-        <span class="font-semibold text-xl w-100">
-            <h2>Register owner</h2>
-        </span>
-        <hr />
-    </ng-template>
-
-    <p-tabs [(value)]="registrationTab">
+    <p-tabs [(value)]="registrationTab" class="partner-registration-tabs">
         <p-tablist>
             <p-tab value="single">Create single unit</p-tab>
             <p-tab value="multiple">Create multiple units</p-tab>

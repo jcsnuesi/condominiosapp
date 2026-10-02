@@ -30,6 +30,11 @@ var InvoiceSchema = Schema(
     issueDate: { type: Date, required: true },
     dueDate: { type: Date },
     amount: { type: Number, required: true },
+    currency: { type: String, default: "DOP", match: /^[A-Z]{3}$/ },
+    // Undefined on legacy invoices; paymentStatus remains their source of truth.
+    paidAmount: { type: Number, min: 0 },
+    balancePending: { type: Number, min: 0 },
+    paymentWorkflow: { type: String, enum: ["bank_transfer", "gateway"] },
     status: {
       type: String,
       default: "active",
@@ -55,7 +60,7 @@ var InvoiceSchema = Schema(
 );
 
 // Middleware para incrementar el id_invoice antes de guardar
-InvoiceSchema.pre("save", async function (next) {
+InvoiceSchema.pre("save", async function () {
   const invoice = this;
 
   if (invoice.isNew) {
@@ -68,7 +73,6 @@ InvoiceSchema.pre("save", async function (next) {
     invoice.invoice_number = counter.sequence_value;
   }
 
-  next();
 });
 
 // Update the compound index to include unitNumber

@@ -1,44 +1,47 @@
 <p-toast />
-<p-confirmDialog [baseZIndex]="12000" appendTo="body" />
-<!-- Admin-only Documentation Module built with PrimeNG -->
-
-<!-- Phase 1 responsive/accessibility: admin-only docs preserved -->
-<div class="card mt-2">
-    <!-- Access control -->
-    <ng-container>
-        <section class="docs-admin">
-            <header class="app-history-header">
-                <span class="app-history-header__eyebrow">Documents</span>
-                <h1>Documents</h1>
-                <p class="app-history-header__description">
-                    Upload, manage, and maintain official documents across
-                    condominiums.
-                </p>
-                <div class="mt-4">
-                    <!-- New Inquiry Button -->
-                    @if (isAdmin) {
-                    <p-button
-                        label="New document"
-                        icon="pi pi-plus"
-                        (onClick)="openInquiryDialog()"
-                        styleClass="p-button-primary p-button-raised"
-                    ></p-button>
-                    }
-                </div>
-            </header>
-
-            <!-- Documents Table -->
-            <div class="panel">
-                <div
-                    style="
-                        display: flex;
-                        justify-content: space-between;
-                        align-items: center;
-                        margin-bottom: 4px;
-                    "
-                ></div>
-
+<p-confirmDialog [baseZIndex]="12000" appendTo="body" [style]="{ width: '28rem', maxWidth: 'calc(100vw - 2rem)' }" />
+<main class="docs-page">
+    <header class="docs-hero">
+        <div class="docs-hero-copy">
+            <span class="section-kicker">Documents</span>
+            <h1>Documents</h1>
+            <p>Upload, manage, and maintain official documents across condominiums.</p>
+        </div>
+        @if (isAdmin) {
+            <button type="button" class="doc-primary-action" (click)="openInquiryDialog()">
+                <i class="pi pi-plus" aria-hidden="true"></i>New document
+            </button>
+        }
+    </header>
+    <section class="docs-panel" aria-label="Document directory">
+        <div class="docs-toolbar">
+            <button type="button" class="doc-clear-action" (click)="clearFilters(dt)">
+                <i class="pi pi-filter-slash" aria-hidden="true"></i>Clear filters
+            </button>
+            <p-iconField iconPosition="left" class="docs-search">
+                <p-inputIcon styleClass="pi pi-search" />
+                <input pInputText type="search" [value]="searchValue" aria-label="Search documents"
+                    placeholder="Search documents..." (input)="searchDocuments($event.target.value, dt)" />
+            </p-iconField>
+            <div class="docs-view-switch" role="group" aria-label="Document display">
+                <button type="button" [class.active]="viewMode === 'table'" [attr.aria-pressed]="viewMode === 'table'" (click)="viewMode = 'table'">
+                    <i class="pi pi-list" aria-hidden="true"></i>Table
+                </button>
+                <button type="button" [class.active]="viewMode === 'cards'" [attr.aria-pressed]="viewMode === 'cards'" (click)="viewMode = 'cards'">
+                    <i class="pi pi-th-large" aria-hidden="true"></i>Cards
+                </button>
+            </div>
+        </div>
                 <p-table
+                    #dt
+                    styleClass="docs-table app-data-table"
+                    [class.docs-table-hidden]="viewMode === 'cards'"
+                    [tableStyle]="{ 'min-width': '60rem' }"
+                    [globalFilterFields]="['title', 'description', 'category', 'condoId.alias', 'createdBy.email', 'status']"
+                    [filterDelay]="0"
+                    [rowsPerPageOptions]="[10, 25, 50]"
+                    [showCurrentPageReport]="true"
+                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
                     [value]="docModelTable"
                     [paginator]="true"
                     [rows]="10"
@@ -73,24 +76,22 @@
                             </td>
                             <td>
                                 @for (file of doc.file; track file) {
-                                <i
-                                    class="mr-2 cursor-pointer"
-                                    [class]="getFileIcon(file.mimetype)"
-                                    [style.color]="
-                                        getFileIconColor(file.mimetype)
-                                    "
-                                    (click)="downloadExistingAttachment(file)"
-                                ></i>
+                                <button type="button" class="doc-download"
+                                    [attr.aria-label]="'Download ' + (file.name || file.filename)"
+                                    [title]="file.name || file.filename"
+                                    (click)="downloadExistingAttachment(file)">
+                                    <i [class]="getFileIcon(file.mimetype)" [style.color]="getFileIconColor(file.mimetype)" aria-hidden="true"></i>
+                                </button>
                                 }
                             </td>
                             <td>
-                                {{ doc.condoId.alias }}
+                                {{ doc.condoId?.alias }}
                             </td>
                             <td>
                                 {{ doc.createdAt | date : "mediumDate" }}
                             </td>
                             <td>
-                                {{ doc.createdBy.email }}
+                                {{ doc.createdBy?.email }}
                             </td>
                             <td>
                                 <p-tag
@@ -108,7 +109,7 @@
                                     [icon]="
                                         isAdmin ? 'pi pi-pencil' : 'pi pi-eye'
                                     "
-                                    class="p-button-text"
+                                    class="doc-view-action"
                                     (click)="onView(doc)"
                                 ></button>
                             </td>
@@ -123,10 +124,50 @@
                         </tr>
                     </ng-template>
                 </p-table>
-            </div>
-        </section>
-    </ng-container>
-</div>
+        @if (viewMode === 'cards') {
+            @if (isLoading) {
+                <div class="empty" role="status">Loading documents...</div>
+            } @else {
+                <div class="docs-card-grid">
+                    @for (doc of (dt.filteredValue ?? docModelTable ?? []) | slice:(dt.first ?? 0):((dt.first ?? 0) + (dt.rows ?? 10)); track doc._id) {
+                        <article class="doc-card">
+                            <div class="doc-card-heading">
+                                <h2>{{ doc.title }}</h2>
+                                <p-tag [value]="doc.status" [severity]="tagSeverityForStatus(doc.status)" />
+                            </div>
+                            @if (doc.description) { <p class="doc-desc">{{ doc.description }}</p> }
+                            <dl class="doc-details">
+                                <div><dt>Condominium</dt><dd>{{ doc.condoId?.alias || 'Not provided' }}</dd></div>
+                                <div><dt>Uploaded</dt><dd>{{ doc.createdAt | date:'mediumDate' }}</dd></div>
+                                <div><dt>Uploaded by</dt><dd>{{ doc.createdBy?.email || 'Not provided' }}</dd></div>
+                            </dl>
+                            <div class="doc-attachments" aria-label="Attachments">
+                                @for (file of doc.file; track file) {
+                                    <button type="button" class="doc-download"
+                                        [attr.aria-label]="'Download ' + (file.name || file.filename)"
+                                        [title]="file.name || file.filename" (click)="downloadExistingAttachment(file)">
+                                        <i [class]="getFileIcon(file.mimetype)" [style.color]="getFileIconColor(file.mimetype)" aria-hidden="true"></i>
+                                        <span>{{ file.name || file.filename }}</span>
+                                    </button>
+                                } @empty { <span class="doc-desc">No attachments</span> }
+                            </div>
+                            <button type="button" class="doc-view-action" (click)="onView(doc)"
+                                [attr.aria-label]="(isAdmin ? 'Edit ' : 'View ') + doc.title">
+                                <i [class]="isAdmin ? 'pi pi-pencil' : 'pi pi-eye'" aria-hidden="true"></i>
+                                {{ isAdmin ? 'Edit' : 'View' }}
+                            </button>
+                        </article>
+                    } @empty { <div class="empty">No documents available.</div> }
+                </div>
+                <p-paginator [first]="dt.first ?? 0" [rows]="dt.rows ?? 10"
+                    [totalRecords]="(dt.filteredValue ?? docModelTable ?? []).length"
+                    [rowsPerPageOptions]="[10, 25, 50]" [showCurrentPageReport]="true"
+                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                    (onPageChange)="dt.first = $event.first ?? 0; dt.rows = $event.rows ?? 10" />
+            }
+        }
+    </section>
+</main>
 
 <!-- Access denied template -->
 <ng-template #accessDenied>
@@ -143,7 +184,8 @@
     [header]="dialogHeader"
     [(visible)]="displayDocsDialog"
     [modal]="true"
-    [style]="{ width: '700px', maxHeight: '90vh' }"
+    styleClass="docs-dialog"
+    [style]="{ width: '44rem', maxWidth: 'calc(100vw - 2rem)', maxHeight: '90vh' }"
     [closable]="true"
     [draggable]="false"
     [resizable]="false"
@@ -167,7 +209,7 @@
                 name="title"
                 required
                 maxlength="200"
-                placeholder="Brief description of your inquiry"
+                placeholder="Document title"
                 class="w-full"
                 [disabled]="!isAdmin"
             />
@@ -257,7 +299,7 @@
                 name="description"
                 required
                 maxlength="2000"
-                placeholder="Provide detailed information about your inquiry"
+                placeholder="Describe this document"
                 rows="5"
                 class="w-full"
             ></textarea>
@@ -274,7 +316,7 @@
             </label>
 
             <p-fileUpload
-                styleClass="cp-file-upload"
+                styleClass="cp-file-upload w-full"
                 #fileUploader
                 name="attachments[]"
                 [multiple]="true"
@@ -289,7 +331,6 @@
                 [auto]="false"
                 chooseLabel="Choose Files"
                 chooseIcon="pi pi-cloud-upload"
-                styleClass="w-full"
                 [disabled]="!isAdmin"
             >
                 <ng-template pTemplate="content">
@@ -411,7 +452,7 @@
         }
         <!-- ✅ Action Buttons - FORMATO UNIFICADO -->
         <div
-            class="flex justify-content-end gap-2 pt-3 border-top-1 surface-border"
+            class="docs-form-actions"
         >
             <p-button
                 label="Cancel"
@@ -432,6 +473,7 @@
             ></p-button>
             } @if (isAdmin) {
             <p-button
+                styleClass="docs-save-action"
                 [label]="btnLabel"
                 icon="pi pi-check"
                 type="submit"

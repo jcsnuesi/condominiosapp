@@ -322,7 +322,22 @@
         </div>
     </div>
 
-    <div class="tbl-reservations">
+    <div class="booking-view-switch" role="group" aria-label="Booking view">
+        <button type="button" [attr.aria-pressed]="bookingView === 'table'"
+            (click)="bookingView = 'table'"><i class="pi pi-table" aria-hidden="true"></i> Table</button>
+        <button type="button" [attr.aria-pressed]="bookingView === 'calendar'"
+            (click)="bookingView = 'calendar'"><i class="pi pi-calendar" aria-hidden="true"></i> Calendar</button>
+    </div>
+    @if (bookingView === 'calendar') {
+    <section class="booking-calendar" aria-label="Booking calendar" [attr.aria-busy]="loading">
+        <p class="booking-calendar-help" role="status">{{ loading ? 'Loading bookings…' : 'Select a booking to view its details. Times are shown in your local time zone.' }}</p>
+        @if (!loading && bookingHistory.length === 0) {
+            <p>No bookings found.</p>
+        }
+        <full-calendar [options]="calendarOptions" />
+    </section>
+    }
+    <div class="tbl-reservations" [hidden]="bookingView !== 'table'">
         <p-table
             #dt
             [value]="bookingHistory"

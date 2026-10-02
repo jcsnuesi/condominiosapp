@@ -1,7 +1,7 @@
 .payment-monitor {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.15rem;
 }
 
 .filters-grid {
@@ -22,6 +22,40 @@
     gap: 0.5rem;
     flex-wrap: wrap;
 }
+
+.provider-link {
+    align-self: flex-start;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--primary-color, #2563eb);
+    font: inherit;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.provider-manager, .provider-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.provider-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.provider-list li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--surface-border);
+}
+
+.provider-list span { overflow-wrap: anywhere; }
 
 .reconciliation-dialog {
     display: flex;
@@ -74,4 +108,80 @@
     .filters-grid {
         grid-template-columns: 1fr;
     }
+}
+
+
+:host { --monitor-ink: #183153; --monitor-muted: #66758d; --monitor-line: #dce5ee; --monitor-primary: #176b87; display: block; min-width: 0; max-width: 100%; }
+* { box-sizing: border-box; }
+.payment-monitor { max-width: 1480px; margin: 0 auto; padding: .5rem 0 2.5rem; color: var(--monitor-ink); }
+.monitor-hero { min-width: 0; padding: 1.6rem; border: 1px solid var(--monitor-line); border-radius: 18px; background: #fff; }
+.section-kicker { color: var(--monitor-primary); font-size: .72rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+.monitor-hero h1 { margin: .3rem 0 .35rem; color: var(--monitor-ink); font-size: clamp(1.65rem, 3vw, 2.35rem); line-height: 1.1; letter-spacing: -.035em; overflow-wrap: anywhere; }
+.monitor-hero p { margin: 0; color: var(--monitor-muted); }
+.monitor-panel { min-width: 0; padding: 1.25rem; border: 1px solid var(--monitor-line); border-radius: 16px; background: #fff; }
+.panel-heading { margin-bottom: 1.15rem; }
+.panel-heading h2 { margin: .25rem 0 0; color: var(--monitor-ink); font-size: 1.15rem; }
+.field { min-width: 0; margin: 0; }
+.field label { color: var(--monitor-ink); font-weight: 650; }
+.field input, .field p-select { width: 100%; min-width: 0; }
+.toolbar { margin-top: 1rem; gap: .7rem; }
+.provider-link { color: var(--monitor-primary); }
+.monitor-list-toolbar { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: .85rem; align-items: center; margin-bottom: 1.25rem; }
+.clear-action { display: inline-flex; align-items: center; justify-content: center; gap: .7rem; min-height: 3.4rem; padding: .75rem .9rem; border: 1px solid var(--monitor-muted); border-radius: 10px; background: #fff; color: var(--monitor-muted); font: inherit; font-weight: 600; cursor: pointer; }
+.monitor-search { position: relative; min-width: 0; }
+.monitor-search > i { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--monitor-muted); pointer-events: none; }
+.monitor-search input { width: 100%; min-height: 3.4rem; padding-left: 2.75rem; padding-right: 3rem; }
+.monitor-search button { position: absolute; right: .3rem; top: .3rem; bottom: .3rem; width: 2.5rem; border: 0; border-radius: 8px; background: #e8f2f5; color: var(--monitor-primary); cursor: pointer; }
+.view-switch { display: flex; gap: .25rem; padding: .3rem; border: 1px solid var(--monitor-line); border-radius: 13px; }
+.view-switch button { display: inline-flex; align-items: center; justify-content: center; gap: .55rem; min-height: 3rem; padding: .7rem 1rem; border: 0; border-radius: 9px; background: transparent; color: var(--monitor-muted); font: inherit; font-weight: 700; cursor: pointer; }
+.view-switch button.active { background: #e8f2f5; color: #105d76; }
+.view-switch button:hover, .clear-action:hover { background: #f8fafc; }
+.clear-action:focus-visible, .view-switch button:focus-visible, .monitor-search button:focus-visible { outline: 2px solid var(--monitor-primary); outline-offset: 2px; }
+.monitor-table-hidden { display: none; }
+.transaction-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 23rem), 1fr)); gap: 1rem; }
+.transaction-card { display: flex; flex-direction: column; min-width: 0; padding: 1.25rem; border: 1px solid var(--monitor-line); border-radius: 16px; }
+.transaction-heading h3 { margin: .25rem 0 .75rem; color: var(--monitor-ink); font-size: 1.15rem; overflow-wrap: anywhere; }
+.transaction-amount { margin-bottom: 1rem; font-size: 1.35rem; overflow-wrap: anywhere; }
+.transaction-status { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .5rem; margin-bottom: .5rem; color: var(--monitor-muted); }
+.transaction-details { margin: .5rem 0 1rem; }
+.transaction-details > div { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: .75rem; padding: .65rem 0; border-bottom: 1px solid #edf1f5; }
+.transaction-details dt { color: var(--monitor-muted); }
+.transaction-details dd { margin: 0; font-weight: 650; overflow-wrap: anywhere; }
+.transaction-details small { display: block; color: var(--monitor-muted); }
+.transaction-card > p-button { margin-top: auto; }
+.monitor-empty { padding: 2rem 1rem; color: var(--monitor-muted); text-align: center; }
+.provider-list li { flex-wrap: wrap; border-color: var(--monitor-line); }
+.provider-list span { min-width: 0; }
+:host ::ng-deep .payment-monitor .p-inputtext, :host ::ng-deep .payment-monitor .p-select, :host ::ng-deep .payment-monitor .p-textarea { border-radius: 10px; min-width: 0; border-color: var(--monitor-line); }
+:host ::ng-deep .field .p-select { width: 100%; }
+:host ::ng-deep .payment-monitor .p-button { min-height: 2.75rem; border-radius: 10px; font-weight: 700; }
+:host ::ng-deep .monitor-primary-action { background: var(--monitor-primary); border-color: var(--monitor-primary); color: #fff; }
+:host ::ng-deep .monitor-primary-action:hover { background: #125b73; border-color: #125b73; }
+:host ::ng-deep .toolbar .p-button-secondary { border-color: var(--monitor-line); color: var(--monitor-ink); background: #fff; }
+:host ::ng-deep .monitor-resolve-action { width: 100%; background: #edf4f7; color: var(--monitor-primary); border-color: var(--monitor-line); }
+:host ::ng-deep .monitor-table .p-datatable-table-container { max-width: 100%; overflow-x: auto; overscroll-behavior-x: contain; }
+:host ::ng-deep .monitor-table .p-datatable-thead > tr > th { background: #f8fafc; color: var(--monitor-muted); border-color: var(--monitor-line); }
+:host ::ng-deep .monitor-table .p-datatable-tbody > tr > td { vertical-align: middle; border-color: #edf1f5; }
+:host ::ng-deep .monitor-panel .p-paginator { flex-wrap: wrap; padding: 1rem 0 0; }
+:host ::ng-deep .monitor-panel .p-tag { border-radius: 999px; padding: .3rem .6rem; font-size: .75rem; font-weight: 750; }
+:host ::ng-deep .monitor-panel .p-tag-success { background: #e9f8f2; color: #08785d; }
+:host ::ng-deep .monitor-panel .p-tag-danger { background: #fff0ed; color: #c44732; }
+:host ::ng-deep .monitor-dialog { border: 1px solid var(--monitor-line); border-radius: 18px; background: #fff; color: var(--monitor-ink); }
+:host ::ng-deep .monitor-dialog .p-dialog-title { color: var(--monitor-ink); font-size: 1.4rem; }
+:host ::ng-deep .monitor-dialog .p-dialog-footer { flex-wrap: wrap; }
+.import-summary span { border-color: var(--monitor-line); border-radius: 10px; background: #f8fafc; }
+@media (max-width: 900px) { .monitor-list-toolbar { grid-template-columns: auto minmax(0, 1fr); } .view-switch { grid-column: 1 / -1; justify-self: end; } }
+@media (max-width: 680px) {
+    .payment-monitor { padding-top: 0; }
+    .monitor-hero { padding: 1.15rem; }
+    .monitor-panel, .transaction-card { padding: 1rem; }
+    .monitor-list-toolbar { grid-template-columns: minmax(0, 1fr); }
+    .view-switch { justify-self: stretch; }
+    .view-switch button { flex: 1; }
+    .toolbar > p-button { flex: 1 1 100%; }
+    :host ::ng-deep .toolbar .p-button { width: 100%; }
+    :host ::ng-deep .monitor-panel .p-paginator-current { flex-basis: 100%; text-align: center; white-space: normal; }
+    :host ::ng-deep .monitor-panel .p-paginator-pages { display: flex; flex-wrap: wrap; justify-content: center; }
+    :host ::ng-deep .monitor-dialog .p-dialog-footer p-button { flex: 1 1 8rem; }
+    :host ::ng-deep .monitor-dialog .p-dialog-footer .p-button { width: 100%; }
 }

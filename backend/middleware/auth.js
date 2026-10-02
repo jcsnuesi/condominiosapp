@@ -36,6 +36,19 @@ function invalidTokenResponse(res, error) {
   return res.status(401).send({ message });
 }
 
+function isPersonalOwnerRouteAllowed(req) {
+  const routePath = `${req.baseUrl || ""}${req.path || ""}`.replace(
+    /^\/api(?=\/)/,
+    ""
+  );
+  return (
+    routePath.startsWith("/iot/") ||
+    routePath === "/auth/me" ||
+    routePath === "/auth/me/password" ||
+    routePath === "/update-password"
+  );
+}
+
 module.exports.authenticated = async function (req, res, next) {
   const token = extractToken(req.headers.authorization);
 
@@ -74,6 +87,17 @@ module.exports.authenticated = async function (req, res, next) {
   }
 
   // Compatibility helpers receive the verified context, never client input.
+  if (
+    req.auth.contextType === "PERSONAL_OWNER" &&
+    !isPersonalOwnerRouteAllowed(req)
+  ) {
+    return res.status(403).send({
+      status: "forbidden",
+      code: "PERSONAL_CONTEXT_ROUTE_DENIED",
+      message: "This route is unavailable in a personal owner context",
+    });
+  }
+
   req.user.organizationId = req.auth.organizationId;
   req.user.accessScope = req.auth.scope;
 
@@ -81,6 +105,8 @@ module.exports.authenticated = async function (req, res, next) {
 
   enforceAdministrativePermission(req, res, next);
 };
+
+exports.isPersonalOwnerRouteAllowed = isPersonalOwnerRouteAllowed;
 
 exports.emailOwnerRegistration = function (req, res, next) {
   const token = extractToken(req.headers.authorization);

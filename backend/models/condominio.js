@@ -4,6 +4,22 @@ var mongoose = require("mongoose");
 var Schema = mongoose.Schema;
 var mongooPaginate = require("mongoose-paginate-v2");
 
+var CondominiumUnitSchema = Schema({
+  label: { type: String, required: true, trim: true, maxlength: 80 },
+  normalizedLabel: {
+    type: String,
+    required: true,
+    trim: true,
+    lowercase: true,
+  },
+  status: { type: String, enum: ["active", "inactive"], default: "active" },
+  availability: {
+    type: String,
+    enum: ["AVAILABLE", "ASSIGNED"],
+    default: "AVAILABLE",
+  },
+});
+
 var CondominiumSchema = Schema(
   {
     organizationId: {
@@ -21,6 +37,7 @@ var CondominiumSchema = Schema(
     street_2: { type: String },
     sector_name: { type: String, required: true },
     availableUnits: [{ type: String }],
+    units: { type: [CondominiumUnitSchema], default: [] },
     city: { type: String, required: true },
     province: { type: String, required: true },
     zipcode: { type: String },

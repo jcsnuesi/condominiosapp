@@ -42,6 +42,15 @@ function mockInvoice(overrides = {}) {
   };
 }
 
+test("paid balances skip reminders without invoking message delivery", async () => {
+  const result = await processInvoiceReminder(mockInvoice({ paidAmount: 1500 }), {
+    sendText: async () => assert.fail("No reminder for a zero balance"),
+    createLog: async () => assert.fail("No external side effect needed"),
+    findRecentLogs: async () => assert.fail("No lookup needed"),
+  });
+  assert.equal(result.reason, "no_pending_balance");
+});
+
 test("buildOverdueInvoiceQuery targets pending invoices past grace period", () => {
   const now = new Date("2026-06-17T12:00:00.000Z");
   const query = buildOverdueInvoiceQuery(now, 3);

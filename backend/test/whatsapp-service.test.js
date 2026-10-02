@@ -77,3 +77,9 @@ test("sendWhatsappText returns mock result by default without network", async ()
   assert.equal(result.mode, "mock");
   assert.equal(result.payload.to, "18095551212");
 });
+
+test("partial payment reminders request only the outstanding amount", () => {
+  const message = buildPaymentReminderMessage({ amount: 5000, paidAmount: 3000, paymentStatus: "pending" });
+  assert.match(message, /DOP 2,000.00/);
+  assert.doesNotMatch(message, /5,000.00/);
+});

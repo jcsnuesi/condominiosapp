@@ -9,6 +9,7 @@ const CommunicationLog = require("../models/communicationLog");
 const paymentGateway = require("../service/paymentGateway");
 const whatsappService = require("../service/whatsappService");
 const paymentReminderJob = require("../service/paymentReminderJob");
+const { canAccessCondominium } = require("../service/authorization");
 
 const ALLOWED_PAYMENT_ROLES = ["ADMIN", "OWNER", "STAFF_ADMIN"];
 const MANUAL_RECONCILIATION_STATUSES = [
@@ -31,6 +32,7 @@ function hasPaymentAccess(req) {
 }
 
 function asObjectId(value) {
+  if (!value) return null;
   try {
     return new mongoose.Types.ObjectId(value);
   } catch (error) {
@@ -61,6 +63,17 @@ function mapTransactionToInvoicePaymentStatus(status) {
 function isPrivilegedPaymentRole(req) {
   const role = String(req?.user?.role || "").toUpperCase();
   return role === "ADMIN" || role === "STAFF_ADMIN";
+}
+
+function isBankTransfer(transaction) {
+  const provider = String(transaction?.provider || "").toUpperCase();
+  return ["TRANSFERENCIA", "TRANSFER", "BANK_TRANSFER", "BANK TRANSFER"].includes(provider) || transaction?.metadata?.source === "bank_statement";
+}
+
+function canAccessPaymentResource(req, resource) {
+  return Boolean(resource && String(resource.organizationId) === String(req.auth?.organizationId) &&
+    canAccessCondominium(req.auth, resource.condominiumId) &&
+    (isPrivilegedPaymentRole(req) || String(resource.ownerId) === String(req.user?.sub)));
 }
 
 function roleOf(req) {
@@ -306,7 +319,14 @@ function buildTransactionFilters(req) {
   }
 
   if (query.provider) {
-    filters.provider = paymentGateway.normalizeProvider(query.provider);
+    const provider = String(query.provider).trim().toUpperCase();
+    if (typeof query.provider !== "string" || !provider || provider.length > 80) {
+      return { error: "provider invalido" };
+    }
+    filters.provider = provider;
+  }
+  if (filters.provider === "TRANSFERENCIA" && query.bankName) {
+    filters.bankName = String(query.bankName).trim();
   }
 
   if (query.idempotencyKey) {
@@ -334,10 +354,13 @@ function buildTransactionFilters(req) {
         return { error: "attemptedTo invalido" };
       }
 
-      attemptedTo.setHours(23, 59, 59, 999);
+      attemptedTo.setUTCHours(23, 59, 59, 999);
       attemptedAt.$lte = attemptedTo;
     }
 
+    if (attemptedAt.$gte && attemptedAt.$lte && attemptedAt.$gte > attemptedAt.$lte) {
+      return { error: "La fecha from debe ser anterior o igual a to" };
+    }
     filters.attemptedAt = attemptedAt;
   }
 
@@ -452,8 +475,27 @@ const paymentController = {
       const page = Math.max(Number(req.query?.page) || 1, 1);
       const skip = (page - 1) * limit;
 
+      filters.organizationId = req.auth.organizationId;
+      if (req.query.condominiumId && !canAccessCondominium(req.auth, req.query.condominiumId)) {
+        return apiResponse.failure(res, 403, { message: "Propiedad fuera del alcance autorizado" }, "FORBIDDEN");
+      }
+      if (req.auth.scope?.mode !== "ALL" && !filters.condominiumId) {
+        filters.condominiumId = { $in: req.auth.scope?.condominiumIds || [] };
+      }
+      if (req.query.unitNumber) {
+        const invoiceFilter = {
+          organizationId: req.auth.organizationId,
+          ...(filters.condominiumId ? { condominiumId: filters.condominiumId } : {}),
+          unitNumber: String(req.query.unitNumber),
+          ...(filters.ownerId ? { ownerId: filters.ownerId } : {}),
+          ...(filters.invoiceId ? { _id: filters.invoiceId } : {}),
+        };
+        filters.invoiceId = { $in: await Invoice.distinct("_id", invoiceFilter) };
+      }
+
       const [docs, total] = await Promise.all([
         PaymentTransaction.find(filters)
+          .populate({ path: "invoiceId", select: "unitNumber issueDate dueDate", match: { organizationId: req.auth.organizationId } })
           .sort({ attemptedAt: -1 })
           .skip(skip)
           .limit(limit)
@@ -468,7 +510,16 @@ const paymentController = {
           page,
           limit,
           total,
-          docs,
+          docs: docs.map((transaction) => {
+            const invoice = transaction.invoiceId;
+            return {
+              ...transaction,
+              invoiceId: invoice?._id || invoice,
+              unitNumber: invoice?.unitNumber || null,
+              issueDate: invoice?.issueDate || null,
+              dueDate: invoice?.dueDate || null,
+            };
+          }),
         },
         "PAYMENT_TRANSACTIONS_LISTED"
       );
@@ -522,9 +573,11 @@ const paymentController = {
       const existingByIdempotency = await PaymentTransaction.findOne({
         provider,
         idempotencyKey,
+        organizationId: req.auth.organizationId,
       }).lean();
 
       if (existingByIdempotency) {
+        if (!canAccessPaymentResource(req, existingByIdempotency)) return apiResponse.failure(res, 403, { message: "Cobro fuera del alcance autorizado" }, "FORBIDDEN");
         return apiResponse.success(
           res,
           200,
@@ -543,7 +596,12 @@ const paymentController = {
         );
       }
 
+      if (!canAccessPaymentResource(req, invoice)) return apiResponse.failure(res, 403, { message: "Factura fuera del alcance autorizado" }, "FORBIDDEN");
+      // Legacy card flows do not allocate split payments. Keep mixed-method
+      // invoices in the evidence-backed reconciliation flow to avoid overwrite.
+      if (invoice.paidAmount > 0 || invoice.paymentStatus === "completed") return apiResponse.failure(res, 409, { message: "La factura ya tiene pagos aplicados; revise el saldo en conciliación" }, "INVOICE_HAS_PAYMENTS");
       const amount = Number(payload.amount || invoice.amount);
+      if (centsAmount(amount) !== centsAmount(invoice.amount) || String(payload.currency || invoice.currency || "DOP").toUpperCase() !== (invoice.currency || "DOP")) return apiResponse.failure(res, 400, { message: "El cobro por pasarela debe cubrir el saldo completo en la moneda de la factura" }, "VALIDATION_ERROR");
       if (!Number.isFinite(amount) || amount <= 0) {
         return apiResponse.failure(
           res,
@@ -553,6 +611,8 @@ const paymentController = {
         );
       }
 
+      const workflow = await Invoice.updateOne({ _id: invoice._id, organizationId: req.auth.organizationId, paymentWorkflow: { $ne: "bank_transfer" }, paidAmount: { $not: { $gt: 0 } }, paymentStatus: { $ne: "completed" } }, { $set: { paymentWorkflow: "gateway" } });
+      if (workflow.matchedCount !== 1) return apiResponse.failure(res, 409, { message: "La factura está reservada para conciliación bancaria o ya recibió pagos" }, "PAYMENT_WORKFLOW_CONFLICT");
       const gatewayResult = await paymentGateway.createCharge({
         provider,
         amount,
@@ -660,6 +720,11 @@ const paymentController = {
           "PAYMENT_TRANSACTION_NOT_FOUND"
         );
       }
+
+      if (!canAccessPaymentResource(req, transaction)) return apiResponse.failure(res, 403, { message: "Cobro fuera del alcance autorizado" }, "FORBIDDEN");
+      if (isBankTransfer(transaction)) return apiResponse.failure(res, 409, { message: "Las transferencias se confirman exclusivamente con un comprobante y un movimiento del estado bancario" }, "BANK_EVIDENCE_REQUIRED");
+      const protectedInvoice = await Invoice.findById(transaction.invoiceId);
+      if (protectedInvoice?.paymentWorkflow === "bank_transfer" || protectedInvoice?.paidAmount > 0) return apiResponse.failure(res, 409, { message: "La factura tiene conciliación bancaria; no puede modificarse mediante la pasarela" }, "PAYMENT_WORKFLOW_CONFLICT");
 
       if (!canManuallyReconcile(transaction)) {
         return apiResponse.failure(
@@ -780,9 +845,10 @@ const paymentController = {
           continue;
         }
 
-        const transaction = await PaymentTransaction.findOne(
-          buildImportRowQuery(provider, row)
-        );
+        const transaction = await PaymentTransaction.findOne({
+          ...buildImportRowQuery(provider, row), organizationId: req.auth.organizationId,
+          ...(req.auth.scope?.mode !== "ALL" ? { condominiumId: { $in: req.auth.scope?.condominiumIds || [] } } : {}),
+        });
 
         if (!transaction) {
           summary.not_found += 1;
@@ -797,6 +863,12 @@ const paymentController = {
         }
 
         const resolution = resolveImportedReconciliation(row, transaction);
+        const protectedInvoice = await Invoice.findById(transaction.invoiceId);
+        if (isBankTransfer(transaction) || protectedInvoice?.paymentWorkflow === "bank_transfer" || protectedInvoice?.paidAmount > 0) {
+          summary.manual_review += 1;
+          results.push({ index, status: "manual_review", transactionId: transaction._id, reason: "bank_evidence_required" });
+          continue;
+        }
         if (
           transaction.reconciliationStatus === "matched" &&
           resolution.reconciliationStatus !== "matched"
@@ -1129,6 +1201,7 @@ const paymentController = {
       }
 
       const event = paymentGateway.normalizeWebhookPayload(req.body || {});
+      if (!paymentGateway.isSupportedProvider(event.provider)) return apiResponse.failure(res, 400, { message: "Las transferencias requieren conciliación con evidencia bancaria" }, "BANK_EVIDENCE_REQUIRED");
       if (!event.provider || !event.providerTransactionId) {
         return apiResponse.failure(
           res,
@@ -1152,6 +1225,8 @@ const paymentController = {
         );
       }
 
+      const protectedInvoice = await Invoice.findById(transaction.invoiceId);
+      if (isBankTransfer(transaction) || protectedInvoice?.paymentWorkflow === "bank_transfer" || protectedInvoice?.paidAmount > 0) return apiResponse.failure(res, 409, { message: "La factura requiere conciliación bancaria y no puede ser confirmada por webhook" }, "BANK_EVIDENCE_REQUIRED");
       transaction.status = mapGatewayStatusToTransactionStatus(event.status);
       transaction.providerReference =
         event.providerReference || transaction.providerReference;

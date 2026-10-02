@@ -64,6 +64,8 @@ if (process.env.DISABLE_SCHEDULED_JOBS !== "true") {
   initializeIcalSystem();
   initializePaymentReminderSystem();
   initializeReservationCleanupSystem();
+  require("./service/receiptOcrWorker").start();
+  require("./service/iotReconciliationJob").startIoTReconciliationJob();
 } else {
   console.log("Scheduled background jobs are disabled.");
 }
@@ -89,6 +91,7 @@ const str_routes = require("./routes/str");
 const payment_routes = require("./routes/payment");
 const access_routes = require("./routes/access");
 const organization_routes = require("./routes/organization");
+const iot_routes = require("./routes/iot");
 
 //Middlewares
 app.use(morgan("dev"));
@@ -122,6 +125,10 @@ app.use(
 );
 
 app.use(bodyparser.urlencoded({ extended: false }));
+app.use(
+  "/api/payments/statements/:id/commit",
+  bodyparser.json({ limit: "2mb" })
+);
 app.use(bodyparser.json());
 app.use(responseContract);
 
@@ -151,8 +158,10 @@ app.use("/api", inquiry_routes);
 app.use("/api", str_routes);
 app.use("/api", notification_routes);
 app.use("/api", payment_routes);
+app.use("/api", require("./routes/bankReconciliation"));
 app.use("/api", access_routes);
 app.use("/api", organization_routes);
+app.use("/api", iot_routes);
 
 module.exports = app;
 // Phase 4 (major): auth MFA / brute-force / session-timeout notes preserved in app-level design; not wired without pairing + security review.

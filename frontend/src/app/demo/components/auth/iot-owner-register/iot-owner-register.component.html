@@ -1,0 +1,114 @@
+<main class="register-page">
+    <section class="register-panel" aria-labelledby="register-title">
+        @if (submitted()) {
+        <p class="register-eyebrow">SMART HOME</p>
+        <h1 id="register-title">Check your email</h1>
+        <div class="register-success" role="status">
+            <p>
+                If the address can be registered, we sent a verification link.
+                Open it to activate your account, then sign in.
+            </p>
+            <button
+                pButton
+                type="button"
+                label="Back to sign in"
+                icon="pi pi-arrow-left"
+                (click)="goToLogin()"
+            ></button>
+        </div>
+        } @else {
+        <p class="register-eyebrow">SMART HOME · PERSONAL ACCOUNT</p>
+        <h1 id="register-title">Create your home account</h1>
+        <p>
+            Your residence stays under your account. No condominium
+            administrator is required.
+        </p>
+        @if (errorMessage()) {
+        <p-message severity="error" [text]="errorMessage()"></p-message> }
+        <form
+            class="register-form"
+            #registerForm="ngForm"
+            (ngSubmit)="submit()"
+        >
+            <label class="half" for="owner-name">First name</label>
+            <input
+                pInputText
+                class="half"
+                id="owner-name"
+                name="name"
+                required
+                maxlength="100"
+                [ngModel]="form().name"
+                (ngModelChange)="update('name', $event)"
+            />
+            <label class="half" for="owner-lastname">Last name</label>
+            <input
+                pInputText
+                class="half"
+                id="owner-lastname"
+                name="lastname"
+                required
+                maxlength="100"
+                [ngModel]="form().lastname"
+                (ngModelChange)="update('lastname', $event)"
+            />
+            <label for="owner-email">Email</label>
+            <input
+                pInputText
+                id="owner-email"
+                name="email"
+                type="email"
+                required
+                email
+                [ngModel]="form().email"
+                (ngModelChange)="update('email', $event)"
+                autocomplete="email"
+            />
+            <label for="owner-phone">Phone</label>
+            <input
+                pInputText
+                id="owner-phone"
+                name="phone"
+                type="tel"
+                required
+                pattern="^\+?[0-9]{8,16}$"
+                [ngModel]="form().phone"
+                (ngModelChange)="update('phone', $event)"
+                autocomplete="tel"
+            />
+            <label for="owner-password">Password</label>
+            <p-password
+                inputId="owner-password"
+                name="password"
+                [toggleMask]="true"
+                [feedback]="false"
+                required
+                minlength="12"
+                autocomplete="new-password"
+                [ngModel]="form().password"
+                (ngModelChange)="update('password', $event)"
+            ></p-password>
+            <label for="residence-label">Residence name</label>
+            <input
+                pInputText
+                id="residence-label"
+                name="residenceLabel"
+                required
+                maxlength="100"
+                placeholder="Home, beach apartment…"
+                [ngModel]="form().residenceLabel"
+                (ngModelChange)="update('residenceLabel', $event)"
+            />
+            <button
+                pButton
+                type="submit"
+                icon="pi pi-arrow-right"
+                iconPos="right"
+                label="Create account"
+                [loading]="submitting()"
+                [disabled]="registerForm.invalid || submitting()"
+            ></button>
+        </form>
+        }
+    </section>
+</main>

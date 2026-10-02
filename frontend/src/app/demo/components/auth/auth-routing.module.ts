@@ -22,6 +22,13 @@ import { RouterModule } from '@angular/router';
                     import('./login/login.module').then((m) => m.LoginModule),
             },
             {
+                path: 'iot-register',
+                loadChildren: () =>
+                    import(
+                        './iot-owner-register/iot-owner-register.module'
+                    ).then((m) => m.IoTOwnerRegisterModule),
+            },
+            {
                 path: 'forgot-password',
                 loadChildren: () =>
                     import('./forgot-password/forgot-password.module').then(

@@ -13,6 +13,8 @@ const Family = require("../models/family");
 const Admin = require("../models/admin");
 const Staff_Admin = require("../models/staff_admin");
 const Staff = require("../models/staff");
+const { canAccessCondominium } = require("../service/authorization");
+const { remainingInvoiceBalance } = require("../service/invoiceBalance");
 const { default: mongoose } = require("mongoose");
 const {
   isOwnerActiveInCondominium,
@@ -34,6 +36,10 @@ var invoiceController = {
     }
 
     var params = req.body;
+    if (!canAccessCondominium(req.auth, params.condominiumId) ||
+        (req.user.role === "OWNER" && String(params.ownerId) !== String(req.user.sub))) {
+      return res.status(403).send({ status: "forbidden", message: "Factura fuera del alcance autorizado" });
+    }
 
     /* Refactorizar metodo invoice:
     1. Se requiere crear numero de factura al crearla - Done!
@@ -105,12 +111,14 @@ var invoiceController = {
       // Create new invoice
       const newInvoice = new Invoice();
 
-      // Copy all parameters to the new invoice
-      for (const key in params) {
-        if (params.hasOwnProperty(key)) {
-          newInvoice[key] = params[key];
-        }
+      // Accounting fields can only be changed by verified payment flows.
+      for (const key of ["condominiumId", "ownerId", "issueDate", "dueDate", "amount", "description", "unit", "unitNumber", "paymentDescription", "currency"]) {
+        if (Object.prototype.hasOwnProperty.call(params, key)) newInvoice[key] = params[key];
       }
+      newInvoice.status = "active";
+      newInvoice.paymentStatus = "pending";
+      newInvoice.paidAmount = 0;
+      newInvoice.balancePending = Number(params.amount);
 
       newInvoice.createdBy = req.user.sub;
       newInvoice.organizationId = req.auth.organizationId;
@@ -451,16 +459,14 @@ var invoiceController = {
           invoice.createdAt && format(invoice.createdAt, "dd/MM/yyyy HH:mm"),
       }));
 
-      let pendingAmout = invoices
-        .filter((inv) => inv.status === "pending")
-        .reduce((sum, inv) => sum + inv.amount, 0);
+      let pendingAmout = invoices.reduce((sum, inv) => sum + remainingInvoiceBalance(inv), 0);
       return res.status(200).send({
         status: "success",
         invoices: formattedInvoices,
         count: invoices.length,
         summary: {
           total: invoices.length,
-          pending: invoices.filter((inv) => inv.status === "pending").length,
+          pending: invoices.filter((inv) => remainingInvoiceBalance(inv) > 0).length,
           paid: invoices.filter(
             (inv) =>
               inv.status === "completed" || inv.paymentStatus === "completed"
@@ -529,7 +535,7 @@ var invoiceController = {
         query.condominiumId = { $in: req.auth.scope.condominiumIds };
       }
       const invoices = await Invoice.find(query)
-        .select("amount status paymentStatus createdAt")
+        .select("amount paidAmount balancePending status paymentStatus createdAt")
         .sort({ createdAt: -1 })
         .lean();
 
@@ -569,8 +575,7 @@ var invoiceController = {
         }
 
         const row = monthlyMap.get(key);
-        const isPending =
-          invoice.status === "pending" || invoice.paymentStatus === "pending";
+        const isPending = remainingInvoiceBalance(invoice) > 0;
         const isPaid =
           invoice.status === "paid" || invoice.paymentStatus === "completed";
         const isExpired = invoice.status === "expired";
@@ -584,7 +589,7 @@ var invoiceController = {
 
         if (isPending) {
           pending += 1;
-          totalAmountDue += Number(invoice.amount || 0);
+          totalAmountDue += remainingInvoiceBalance(invoice);
         }
 
         if (isExpired) {

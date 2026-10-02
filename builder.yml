@@ -31,14 +31,7 @@ services:
       - ./backend/.env
     ports:
       - "3993:3993"
-    environment:
-      - NODE_ENV=production
-      - MONGODB_URI=mongodb://admin:adminpassword123@mongodb:27017/condominios_iam?authSource=admin&replicaSet=rs0
-      - JWT_SECRET=condominiosapp-production-change-me-2026
-      - FRONTEND_ORIGINS=http://localhost:9090,http://127.0.0.1:9090,http://localhost:4200,http://127.0.0.1:4200
-      - SMTP_USER=jcsnuesi@gmail.com
-      - MONGO_INITDB_ROOT_USERNAME=admin
-      - MONGO_INITDB_ROOT_PASSWORD=adminpassword123
+
     networks:
       - app-network
     depends_on:
@@ -57,6 +50,28 @@ services:
       retries: 5
       start_period: 10s
 
+  ocr-service:
+    build:
+      context: ./ocr-service
+      dockerfile: Dockerfile
+    environment:
+      - OCR_SERVICE_TOKEN=${OCR_SERVICE_TOKEN:?Set OCR_SERVICE_TOKEN in the root .env}
+    networks:
+      - app-network
+    volumes:
+      - ocr-models:/home/ocr
+    tmpfs:
+      - /tmp:size=128m,mode=1777
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 3g
+    cpus: 2.0
+    pids_limit: 128
+    restart: unless-stopped
+
   frontend:
     build:
       context: ./nginx
@@ -74,6 +89,7 @@ services:
 volumes:
   mongodb-iam-data:
   uploads:
+  ocr-models:
 
 networks:
   app-network:

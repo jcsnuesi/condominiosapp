@@ -16,7 +16,7 @@ var OwnerSchema = Schema(
     organizationId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Organization",
-      required: true,
+      required: false,
       index: true,
     },
     createdBy: {
@@ -36,19 +36,34 @@ var OwnerSchema = Schema(
     first_password_changed: { type: Boolean, default: false },
     propertyDetails: [
       {
-        _id: false,
+        contextType: {
+          type: String,
+          enum: ["CONDOMINIUM_UNIT", "PERSONAL_RESIDENCE"],
+          default: "CONDOMINIUM_UNIT",
+        },
         addressId: {
           type: mongoose.Schema.Types.ObjectId,
           ref: "Condominium",
           required: function () {
-            return this.status_property !== "inactive";
+            return (
+              this.contextType !== "PERSONAL_RESIDENCE" &&
+              this.status_property !== "inactive"
+            );
           },
         },
+        unitId: { type: mongoose.Schema.Types.ObjectId, default: null },
+        residenceLabel: { type: String, trim: true, maxlength: 100 },
         formerCondominiumId: { type: mongoose.Schema.Types.ObjectId },
         formerCondominiumAlias: { type: String, trim: true },
 
-        condominium_unit: { type: String, required: true, max: 5 },
-        parkingsQty: { type: Number, required: true, max: 5 },
+        condominium_unit: {
+          type: String,
+          max: 80,
+          required: function () {
+            return this.contextType !== "PERSONAL_RESIDENCE";
+          },
+        },
+        parkingsQty: { type: Number, default: 0, min: 0, max: 5 },
         isRenting: { type: Boolean, default: false },
         createdAt: { type: Date, default: Date.now },
         contractStart: { type: Date, required: true, default: Date.now },
@@ -81,6 +96,10 @@ OwnerSchema.index({ organizationId: 1, status: 1 });
 OwnerSchema.index(
   { "propertyDetails.addressId": 1, status: 1 },
   { name: "owner_property_status_lookup" }
+);
+OwnerSchema.index(
+  { "propertyDetails.addressId": 1, "propertyDetails.unitId": 1, status: 1 },
+  { name: "owner_unit_context_lookup" }
 );
 
 OwnerSchema.method.toJSON = function () {

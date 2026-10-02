@@ -5,11 +5,10 @@ require("dotenv").config();
 
 function smtpSettings(env = process.env) {
   const user = String(env.SMTP_USER || "").trim();
-  const rawPass = String(env.SMTP_PASS || env.EMAIL_PASSWORD || "").trim();
+  const rawPass = String(env.SMTP_PASS || "").trim();
   const service = String(env.SMTP_SERVICE || "gmail").trim();
-  const pass = service.toLowerCase() === "gmail"
-    ? rawPass.replace(/\s+/g, "")
-    : rawPass;
+  const pass =
+    service.toLowerCase() === "gmail" ? rawPass.replace(/\s+/g, "") : rawPass;
 
   if (!user || !pass) {
     const error = new Error(
@@ -56,9 +55,23 @@ exports.verifySmtpConnection = async function () {
   await createTransport().verify();
 };
 
+exports.sendPersonalOwnerVerification = async function ({ email, token }) {
+  const { apiBaseUrl } = smtpSettings();
+  const verificationLink = `${apiBaseUrl}/iot/owners/verify/${encodeURIComponent(
+    token
+  )}`;
+  return sendEmail({
+    to: email,
+    subject: "Verifica tu cuenta de Smart Home",
+    text: `Para verificar tu cuenta y activar tu residencia Smart Home, abre este enlace dentro de las próximas 24 horas:\n\n${verificationLink}\n`,
+  });
+};
+
 exports.verifyRegistration = async function (user) {
   const { apiBaseUrl } = smtpSettings();
-  const verificationLink = `${apiBaseUrl}/verify-email/${encodeURIComponent(user.email)}`;
+  const verificationLink = `${apiBaseUrl}/verify-email/${encodeURIComponent(
+    user.email
+  )}`;
   const message = `Por favor, haz clic en el siguiente enlace para verificar tu cuenta: ${verificationLink}\n\n==== Credenciales de acceso ====\nEmail: ${user.email}\nPassword: ${user.passwordTemp}\n`;
 
   return sendEmail({
@@ -78,7 +91,9 @@ exports.CodeVerification = async function (email, code) {
 
 exports.StaffRegistration = async function ({ email, password }) {
   const { apiBaseUrl } = smtpSettings();
-  const verificationLink = `${apiBaseUrl}/staff-verify-email/${encodeURIComponent(email)}`;
+  const verificationLink = `${apiBaseUrl}/staff-verify-email/${encodeURIComponent(
+    email
+  )}`;
   const message = `Por favor, haz clic en el siguiente enlace para verificar tu cuenta: ${verificationLink}\nPassword temporal: ${password}\n`;
 
   return sendEmail({

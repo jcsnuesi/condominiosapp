@@ -1,0 +1,108 @@
+<section class="bank-panel" aria-label="Transferencias bancarias" [attr.aria-busy]="busy()">
+  <header><div><h2>Transferencias bancarias</h2><p>El comprobante extrae información. El pago se confirma al conciliar con el estado de cuenta.</p></div><button type="button" [disabled]="busy()" (click)="refresh()">Actualizar</button></header>
+  @if (error()) { <p role="alert" class="error">{{ error() }}</p> }
+  @if (message()) { <p role="status">{{ message() }}</p> }
+  @if (ownerMode && credits().length) { <aside aria-label="Balance a favor"><h3>Balance a favor acumulado</h3>@for (credit of credits(); track credit.condominiumId + credit.currency) { <p>{{ credit.amount | currency:credit.currency }} · Condominio {{ credit.condominiumId }}</p> }<p>El saldo a favor queda registrado; no se aplica automáticamente a facturas futuras.</p></aside> }
+  <div class="fields">
+    @if (!invoiceId) {
+      <label>Condominio para conciliación
+        <select [ngModel]="condominiumId" (ngModelChange)="selectCondominium($event)">
+          <option value="">Seleccione un condominio</option>
+          @for (condominium of condominiums; track condominium.value) { <option [value]="condominium.value">{{ condominium.label }}</option> }
+        </select>
+      </label>
+    }
+    <label>Cuenta receptora del condominio<select [(ngModel)]="accountId" [disabled]="busy()" (ngModelChange)="accountChanged()"><option value="">Seleccione una cuenta</option>@for (account of accounts(); track account._id) { <option [value]="account._id">{{ account.bank }} · {{ account.accountLabel }} · {{ account.currency }}</option> }</select></label>
+    @if (invoiceId) {
+      <label>Comprobante (imagen o PDF)<input type="file" accept="image/jpeg,image/png,application/pdf" (change)="chooseFile($event)" /></label>
+      <button type="button" [disabled]="busy() || !file || !accountId" (click)="upload()">Enviar comprobante</button>
+    }
+  </div>
+  @if (canAdmin) {
+    <details><summary>Registrar cuenta receptora</summary><div class="fields">
+      <label>Banco<input [(ngModel)]="bank" maxlength="100" /></label><label>Identificador de cuenta<input [(ngModel)]="accountLabel" maxlength="100" placeholder="Ej.: Cuenta operativa · 1234" /></label><label>Moneda<select [(ngModel)]="currency"><option>DOP</option><option>USD</option><option>EUR</option></select></label>
+      <button type="button" [disabled]="busy() || !canCreateAccount || !condominiumId || !bank || !accountLabel" (click)="createAccount()">Registrar cuenta</button>
+    </div>
+      @if (!condominiumId) { <p role="status">Seleccione primero un condominio en este panel para registrar su cuenta.</p> }
+      @if (!canCreateAccount) { <p role="status">Su acceso necesita el permiso financiero de creación para registrar cuentas.</p> }
+    </details>
+    <details><summary>Importar estado de cuenta CSV / PDF</summary>
+      <p>Seleccione la cuenta receptora, cargue el estado y revise las filas antes de importarlas. Las fechas deben estar en formato AAAA-MM-DD.</p>
+      <div class="fields"><label>Estado de cuenta<input type="file" accept=".csv,application/pdf,text/csv" (change)="chooseFile($event, true)" /></label><button type="button" [disabled]="busy() || !statementFile || !accountId" (click)="upload(true)">Preparar revisión</button></div>
+      @if (!accountId) { <p role="status">Seleccione una cuenta receptora. Si aún no existe, regístrela arriba.</p> }
+      @for (item of statements(); track item._id) { <button type="button" [disabled]="busy()" (click)="loadStatement(item._id)">Importación {{ item._id.slice(-6) }} · {{ item.status }}</button> }
+      @if (statement(); as statement) {
+        <p>Cuenta del estado: {{ accountName(statement.bankAccountId) }}</p><p>Estado de extracción: {{ statement.status }}</p><button type="button" [disabled]="busy()" (click)="loadStatement(statement._id)">Actualizar extracción</button>
+        @if (statement.error) { <p role="alert">{{ statement.error }}</p> }
+        <button type="button" [disabled]="busy()" (click)="openStatementOriginal(statement._id)">Descargar estado original</button>
+        @if (statement.status === 'failed') { <button type="button" [disabled]="busy()" (click)="retry(statement._id, true)">Reintentar extracción</button> }
+        @if (statement.status === 'committed') {
+          <p role="status">Importación confirmada: {{ statement.reviewedRows?.length || 0 }} movimientos importados.</p>
+          @if ((statement.reviewedRows?.length || 0) < statement.rows.length) {
+            <p role="status">Se extrajeron {{ statement.rows.length }} movimientos del archivo y se confirmaron {{ statement.reviewedRows?.length || 0 }}. La tabla muestra los movimientos confirmados.</p>
+          }
+          <div class="table-scroll"><table>
+            <caption>Movimientos bancarios importados</caption>
+            <thead><tr><th scope="col">Fecha</th><th scope="col">Monto</th><th scope="col">Moneda</th><th scope="col">Referencia</th><th scope="col">Tipo</th><th scope="col">Descripción</th></tr></thead>
+            <tbody>
+              @for (row of statement.reviewedRows || []; track $index) {
+                <tr><td>{{ row.date }}</td><td>{{ row.amount }}</td><td>{{ row.currency }}</td><td>{{ row.reference || 'Sin referencia' }}</td><td>{{ row.direction === 'credit' ? 'Abono' : row.direction === 'debit' ? 'Débito' : 'Sin identificar' }}</td><td>{{ row.description }}</td></tr>
+              } @empty { <tr><td colspan="6">No hay movimientos confirmados disponibles para este estado.</td></tr> }
+            </tbody>
+          </table></div>
+        }
+        @if (statement.status === 'ready') {
+          @if (!statement.rows.length) { <p role="status">La extracción terminó sin identificar movimientos. Revise el PDF original y agregue los movimientos manualmente, o cargue el CSV del banco.</p> }
+          @for (warning of statement.warnings || []; track $index) { <p>{{ warning }}</p> }
+          @if (statement.rawRows?.length) {
+            <details open><summary>Asignar columnas del CSV</summary>
+              <label>Fila del encabezado (contando desde 1)<input type="number" min="1" [max]="statement.rawRows?.length" [(ngModel)]="headerRow" /></label>
+              <div class="table-scroll"><table><caption>Contenido original del CSV (primeras diez filas)</caption><tbody>@for (cells of statement.rawRows?.slice(0, 10); track $index) { <tr><th>{{ $index + 1 }}</th>@for (cell of cells; track $index) { <td>{{ cell }}</td> }</tr> }</tbody></table></div>
+              <div class="fields">@for (field of columnFields; track field.key) { <label>{{ field.label }}<select [(ngModel)]="columns[field.key]"><option value="">Sin asignar</option>@for (header of csvHeaders; track $index) { <option [value]="$index">{{ $index + 1 }} · {{ header }}</option> }</select></label> }
+                <label>Formato de fecha<select [(ngModel)]="dateFormat"><option value="DMY">DD/MM/AAAA</option><option value="MDY">MM/DD/AAAA</option><option value="ISO">AAAA-MM-DD</option></select></label><label>Separador decimal<select [(ngModel)]="decimalSeparator"><option value=".">Punto (1,234.56)</option><option value=",">Coma (1.234,56)</option></select></label>
+                <button type="button" [disabled]="busy()" (click)="mapColumns()">Aplicar mapeo a la revisión</button>
+              </div>
+            </details>
+          }
+          @if (statement.ocr?.text) { <details><summary>Texto extraído del estado de cuenta</summary><pre>{{ statement.ocr?.text }}</pre></details> }
+          <button type="button" [disabled]="busy()" (click)="addRow()">Agregar movimiento manual</button>
+          <div class="table-scroll"><table><caption>Revise y corrija los movimientos extraídos</caption><thead><tr><th>Fecha</th><th>Monto</th><th>Moneda</th><th>Referencia</th><th>Tipo</th><th>Descripción</th><th>Accion</th></tr></thead><tbody>
+            @for (row of statement.rows; track $index) { <tr><td><input aria-label="Fecha del movimiento" type="date" [(ngModel)]="row.date" (ngModelChange)="reviewed = false" /></td><td><input aria-label="Monto del movimiento" type="number" step="0.01" [(ngModel)]="row.amount" (ngModelChange)="reviewed = false" /></td><td><input aria-label="Moneda del movimiento" [(ngModel)]="row.currency" (ngModelChange)="reviewed = false" /></td><td><input aria-label="Referencia del movimiento" [(ngModel)]="row.reference" (ngModelChange)="reviewed = false" /></td><td><select aria-label="Tipo de movimiento" [(ngModel)]="row.direction" (ngModelChange)="reviewed = false"><option value="unknown">Revisar</option><option value="credit">Abono</option><option value="debit">Débito</option></select></td><td><input aria-label="Descripcion del movimiento" [(ngModel)]="row.description" (ngModelChange)="reviewed = false" /></td><td><button type="button" (click)="removeRow($index)">Quitar fila</button></td></tr> }
+          </tbody></table></div>
+          <label class="review"><input type="checkbox" [(ngModel)]="reviewed" /> Revisé estos movimientos contra el estado original y la cuenta seleccionada.</label>
+          <button type="button" [disabled]="busy() || !reviewed || !statement.rows.length" (click)="commitStatement()">Importar movimientos revisados</button>
+        }
+      }
+    </details>
+  }
+  <h3>Comprobantes recibidos</h3>
+  @if (!receipts().length) { <p>No hay comprobantes para esta selección.</p> }
+  <div class="receipt-list">@for (receipt of receipts(); track receipt._id) {
+    <button type="button" [disabled]="busy()" (click)="inspect(receipt)">Factura {{ receipt.invoiceId.toString().slice(-6) }} · {{ fields(receipt).amount ?? 'Monto pendiente' }} {{ fields(receipt).currency }} · {{ receipt.reconciliationStatus === 'confirmed' ? 'Conciliado con banco' : 'Pendiente de conciliación' }} · OCR: {{ receipt.ocrStatus }}</button>
+  }</div>
+  @if (selected(); as receipt) {
+    <div class="comparison">
+      <article><h3>Datos del comprobante</h3><button type="button" [disabled]="busy()" (click)="openOriginal(receipt)">Descargar original</button><dl>
+        <dt>Monto</dt><dd>{{ fields(receipt).amount ?? 'Sin identificar' }} {{ fields(receipt).currency }}</dd><dt>Fecha</dt><dd>{{ fields(receipt).date || 'Sin identificar' }}</dd><dt>Referencia</dt><dd>{{ fields(receipt).reference || 'Sin identificar' }}</dd><dt>Banco</dt><dd>{{ fields(receipt).bank || 'Sin identificar' }}</dd>
+      </dl><p>OCR: {{ receipt.ocrStatus }}. {{ receipt.reconciliationStatus === 'confirmed' ? 'Conciliación bancaria confirmada.' : 'Estos datos no acreditan por sí solos el pago.' }}</p>
+      @if (receipt.error) { <p role="alert">{{ receipt.error }}</p> } @for (warning of receipt.warnings || []; track $index) { <p>{{ warning }}</p> }
+      @if (receipt.ocrStatus === 'failed') { <button type="button" [disabled]="busy()" (click)="retry(receipt._id)">Reintentar extracción</button> }
+      @if (receipt.allocation; as allocation) { <dl><dt>Aplicado a factura</dt><dd>{{ allocation.appliedAmount }}</dd><dt>Balance pendiente</dt><dd>{{ allocation.remainingBalance }}</dd><dt>Balance a favor</dt><dd>{{ allocation.creditAmount }}</dd></dl> }
+      </article>
+      @if (canAdmin && receipt.reconciliationStatus !== 'confirmed') {
+        <article><h3>Movimientos bancarios candidatos</h3>
+          <details><summary>Corregir datos extraídos</summary><div class="fields">
+            <label>Monto<input type="number" step="0.01" [(ngModel)]="correction.amount" /></label><label>Fecha<input type="date" [(ngModel)]="correction.date" /></label><label>Referencia<input [(ngModel)]="correction.reference" /></label><label>Banco<input [(ngModel)]="correction.bank" /></label><label>Moneda<input [(ngModel)]="correction.currency" maxlength="3" /></label><label>Motivo de corrección<input [(ngModel)]="correctionNote" minlength="10" maxlength="500" /></label>
+            <button type="button" [disabled]="busy() || correctionNote.trim().length < 10" (click)="saveCorrection()">Guardar corrección auditada</button>
+          </div></details>
+          @if (!candidates().length) { <p>No hay coincidencias disponibles. Revise el comprobante y la importación bancaria.</p> }
+          @for (candidate of candidates(); track movement(candidate)._id) {
+            <label class="candidate"><input type="radio" name="bankMovement" [value]="movement(candidate)._id" [disabled]="candidate.eligible === false" [(ngModel)]="movementId" /><span>{{ movement(candidate).amount }} {{ movement(candidate).currency }} · {{ movement(candidate).date }}<br />Ref.: {{ movement(candidate).reference || 'Sin referencia' }}<br />{{ movement(candidate).description }}<br />{{ candidate.reasons?.join(' · ') }}</span></label>
+          }
+          <label>Nota de revisión<textarea [(ngModel)]="note" maxlength="500" placeholder="Explique diferencias de referencia si corresponde"></textarea></label>
+          <button type="button" [disabled]="busy() || !movementId" (click)="confirm()">Confirmar contra movimiento bancario</button>
+        </article>
+      }
+    </div>
+  }
+</section>

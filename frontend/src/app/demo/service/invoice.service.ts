@@ -7,6 +7,18 @@ import * as pdfFonts from 'pdfmake/build/vfs_fonts';
 (pdfMake as any).vfs = pdfFonts.vfs;
 import { UserService } from './user.service';
 
+export interface PaymentProvider {
+    _id?: string;
+    name: string;
+    code: string;
+    builtIn: boolean;
+}
+
+interface ProviderResponse<T> {
+    success: boolean;
+    data: T;
+}
+
 @Injectable({
     providedIn: 'root',
 })
@@ -105,19 +117,40 @@ export class InvoiceService {
         });
     }
 
+    getPaymentProviders(): Observable<ProviderResponse<PaymentProvider[]>> {
+        return this._http.get<ProviderResponse<PaymentProvider[]>>(this.url + 'payments/providers', {
+            headers: new HttpHeaders().set('Authorization', this.getToken()),
+        });
+    }
+
+    createPaymentProvider(name: string): Observable<ProviderResponse<PaymentProvider>> {
+        return this._http.post<ProviderResponse<PaymentProvider>>(this.url + 'payments/providers', { name }, {
+            headers: new HttpHeaders().set('Authorization', this.getToken()),
+        });
+    }
+
+    deletePaymentProvider(id: string): Observable<ProviderResponse<{ _id: string }>> {
+        return this._http.delete<ProviderResponse<{ _id: string }>>(this.url + 'payments/providers/' + encodeURIComponent(id), {
+            headers: new HttpHeaders().set('Authorization', this.getToken()),
+        });
+    }
+
     getPaymentTransactions(filters: any = {}): Observable<any> {
+        return this.getPaymentMonitorData('transactions', filters);
+    }
+
+    getPaymentMonitorData<T>(resource: 'transactions' | 'monitor/options', filters: object = {}): Observable<T> {
         let token = this.getToken();
         let headers = new HttpHeaders().set('Authorization', token);
         let params = new HttpParams();
 
-        Object.keys(filters || {}).forEach((key) => {
-            const value = filters[key];
+        Object.entries(filters).forEach(([key, value]) => {
             if (value !== undefined && value !== null && value !== '') {
                 params = params.set(key, String(value));
             }
         });
 
-        return this._http.get(this.url + 'payments/transactions', {
+        return this._http.get<T>(this.url + 'payments/' + resource, {
             headers,
             params,
         });

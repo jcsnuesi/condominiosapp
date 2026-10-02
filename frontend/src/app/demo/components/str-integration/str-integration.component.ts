@@ -1,4 +1,6 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { PaginatorModule } from 'primeng/paginator';
 
 import { FormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
@@ -16,12 +18,30 @@ import { StrService } from '../../service/str.service';
 import { OwnerServiceService } from '../../service/owner-service.service';
 import { CondominioService } from '../../service/condominios.service';
 
+interface UnitOwner {
+    _id: string;
+    name?: string;
+    lastname?: string;
+    email?: string;
+    phone?: string;
+    propertyDetails?: Array<{
+        addressId: string | { _id: string };
+        condominium_unit: string;
+    }>;
+}
+
+interface BuildingUnits {
+    units_ownerId?: Array<{ ownerId: UnitOwner | null }>;
+}
+
 @Component({
     selector: 'app-str-integration',
     standalone: true,
     templateUrl: './str-integration.component.html',
     styleUrl: './str-integration.component.css',
     imports: [
+        CommonModule,
+        PaginatorModule,
         FormsModule,
         ToastModule,
         TableModule,
@@ -35,11 +55,17 @@ import { CondominioService } from '../../service/condominios.service';
     providers: [MessageService],
 })
 export class StrIntegrationComponent implements OnInit {
+    viewMode: 'table' | 'cards' = 'cards';
     token = '';
     identity: any;
 
     condoOptions: Array<{ label: string; value: string }> = [];
     selectedCondoId = '';
+    unitOptions: Array<{ label: string; value: string }> = [];
+    loadingUnits = false;
+    selectedOwner: UnitOwner | null = null;
+    private ownersByUnit = new Map<string, UnitOwner>();
+    private unitsRequestId = 0;
 
     loadingChannels = false;
     loadingReservations = false;
@@ -126,7 +152,7 @@ export class StrIntegrationComponent implements OnInit {
             },
             () => {
                 if (this.selectedCondoId) {
-                    this.refreshData();
+                    this.onCondoChange();
                 }
             }
         );
@@ -299,7 +325,61 @@ export class StrIntegrationComponent implements OnInit {
     }
 
     onCondoChange(): void {
+        this.resetForm();
+        this.loadUnits();
         this.refreshData();
+    }
+
+    private loadUnits(): void {
+        const condoId = this.selectedCondoId;
+        const requestId = ++this.unitsRequestId;
+        this.unitOptions = [];
+        this.ownersByUnit.clear();
+        this.selectedOwner = null;
+        this.loadingUnits = Boolean(condoId);
+        if (!condoId) return;
+
+        this.condominioService.getBuilding(condoId).subscribe({
+            next: (response: {
+                condominium?: BuildingUnits[];
+                data?: { condominium?: BuildingUnits[] };
+            }) => {
+                this.setViewState(() => {
+                    if (requestId !== this.unitsRequestId) return;
+                    const building = (response.data?.condominium ?? response.condominium)?.[0];
+                    for (const entry of building?.units_ownerId ?? []) {
+                        const owner = entry.ownerId;
+                        if (!owner?._id) continue;
+                        for (const property of owner.propertyDetails ?? []) {
+                            const addressId = typeof property.addressId === 'string'
+                                ? property.addressId : property.addressId?._id;
+                            if (addressId !== condoId || !property.condominium_unit) continue;
+                            this.ownersByUnit.set(property.condominium_unit, owner);
+                        }
+                    }
+                    this.unitOptions = [...this.ownersByUnit.keys()]
+                        .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
+                        .map(unit => ({ label: unit, value: unit }));
+                    this.loadingUnits = false;
+                    this.onUnitChange();
+                });
+            },
+            error: () => {
+                this.setViewState(() => {
+                    if (requestId !== this.unitsRequestId) return;
+                    this.loadingUnits = false;
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: 'Could not load condominium units',
+                    });
+                });
+            },
+        });
+    }
+
+    onUnitChange(): void {
+        this.selectedOwner = this.ownersByUnit.get(this.channelForm.apartmentUnit) ?? null;
     }
 
     refreshData(): void {
@@ -383,9 +463,11 @@ export class StrIntegrationComponent implements OnInit {
             syncFrequencyMinutes: channel.syncFrequencyMinutes || 30,
             status: channel.status || 'active',
         };
+        this.onUnitChange();
     }
 
     resetForm(): void {
+        this.selectedOwner = null;
         this.channelForm = {
             id: '',
             channelType: 'AIRBNB',

@@ -14,6 +14,7 @@ import { DocsService } from '../../service/docs.service';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { ImportsModule } from '../../imports_primeng';
 import { FileUpload } from 'primeng/fileupload';
+import { Table } from 'primeng/table';
 import { global } from '../../service/global.service';
 import { finalize, firstValueFrom } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
@@ -38,6 +39,8 @@ export class DocsComponent implements OnInit {
     isError = false;
     errorMessage = '';
     submitError = '';
+    viewMode: 'table' | 'cards' = 'cards';
+    searchValue = '';
     public url: string;
 
     /** Upload form and Edit form */
@@ -110,6 +113,16 @@ export class DocsComponent implements OnInit {
             description: '',
         };
         this.url = global.url;
+    }
+
+    clearFilters(table: Table): void {
+        this.searchValue = '';
+        table.clear();
+    }
+
+    searchDocuments(value: string, table: Table): void {
+        this.searchValue = value;
+        table.filterGlobal(value, 'contains');
     }
 
     openInquiryDialog(): void {

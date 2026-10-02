@@ -1,12 +1,12 @@
 <p-confirmDialog />
 <div class="card">
-  <div class="flex items-center justify-between mb-4">
+  <div class="properties-header flex items-center justify-between mb-4">
     <span
       class="font-semibold text-lg text-surface-900 dark:text-surface-0"
       >
       Properties Overview
     </span>
-    <div class="flex items-center gap-2 ml-auto">
+    <div class="properties-header-actions flex items-center gap-2">
       <button
         pbutton=""
         pripple=""
@@ -44,6 +44,8 @@
         [value]="propertiesOwner"
         [paginator]="true"
         [rows]="5"
+        styleClass="owner-properties-table"
+        responsiveLayout="scroll"
         [tableStyle]="{ 'min-width': '50rem' }"
         [rowsPerPageOptions]="[5, 10, 20]"
         >
@@ -72,7 +74,7 @@
             <th pSortableColumn="status" style="width: 10%">
               Status <p-sortIcon field="status" />
             </th>
-            <th colspan="3" style="text-align: center">Actions</th>
+            <th colspan="2" style="text-align: center">Actions</th>
           </tr>
         </ng-template>
 

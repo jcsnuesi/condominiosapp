@@ -133,6 +133,18 @@ export class AppMenuComponent implements OnInit {
             },
 
             {
+                label: 'Smart Home',
+                items: [
+                    {
+                        label: 'Devices',
+                        icon: 'pi pi-bolt',
+                        routerLink: ['/smart-home'],
+                        visible: this.hasPermission('iot.read'),
+                    },
+                ],
+                visible: this.hasPermission('iot.read'),
+            },
+            {
                 label: 'Properties',
                 items: [
                     {

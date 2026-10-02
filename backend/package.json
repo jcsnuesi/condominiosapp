@@ -6,11 +6,15 @@
   "scripts": {
     "test": "node --test test/**/*.test.js",
     "start": "node index.js",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "iot:migrate:dry-run": "node scripts/migrateIotRelationships.js",
+    "iot:migrate:apply": "node scripts/migrateIotRelationships.js --apply"
   },
   "author": "Hector Santos",
   "license": "MIT",
   "dependencies": {
+    "@aws-sdk/client-iot": "^3.1143.0",
+    "@aws-sdk/client-iot-data-plane": "^3.1143.0",
     "api-rest-cleaning": "file:",
     "bcrypt": "^6.0.0",
     "body-parser": "^2.2.2",
@@ -18,8 +22,8 @@
     "cors": "2.8.6",
     "date-fns": "^4.4.0",
     "dotenv": "^17.4.2",
-    "express-validator": "^7.2.1",
     "express": "^5.2.1",
+    "express-validator": "^7.2.1",
     "generate-password": "^1.7.1",
     "jsonwebtoken": "^9.0.2",
     "mime": "^4.1.0",

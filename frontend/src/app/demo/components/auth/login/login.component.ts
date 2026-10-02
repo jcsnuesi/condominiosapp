@@ -120,6 +120,17 @@ import { AccessContextService } from 'src/app/demo/service/access-context.servic
                 white-space: nowrap;
             }
 
+            .register-option {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 0.35rem 0.6rem;
+                margin-top: 1.25rem;
+                color: var(--text-color-secondary);
+                font-size: 0.82rem;
+                text-align: center;
+            }
+
             @media (max-width: 480px) {
                 .login-shell {
                     padding: 1rem;
@@ -216,9 +227,11 @@ export class LoginComponent {
 
                     this._accessContext.set(access);
 
-                    const target = String(identity.role || '').toUpperCase() === 'SUPERUSER'
-                        ? ['/platform/organizations']
-                        : ['/start', identity._id];
+                    const target =
+                        String(identity.role || '').toUpperCase() ===
+                        'SUPERUSER'
+                            ? ['/platform/organizations']
+                            : ['/start', identity._id];
                     this._route.navigate(target);
                 } else {
                     this.show();
@@ -236,6 +249,10 @@ export class LoginComponent {
 
     goToForgotPassword(): void {
         this._route.navigate(['/auth/forgot-password']);
+    }
+
+    goToOwnerRegistration(): void {
+        this._route.navigate(['/auth/iot-register']);
     }
 
     show() {

@@ -292,7 +292,7 @@ export class HomeComponent implements OnInit {
                 icon: 'pi pi-folder',
             },
             {
-                label: 'Invoices this month',
+                label: 'Invoices',
                 command: () => {
                     this.showComponent('invoiceHistory');
                 },
@@ -350,10 +350,14 @@ export class HomeComponent implements OnInit {
             ? property_data.propertyDetails
             : [];
 
-        const units = [...new Set(propertyDetails
-            .filter((owner) => owner?.addressId?._id === this.condoId)
-            .map((owner) => owner.condominium_unit)
-            .filter(Boolean))];
+        const units = [
+            ...new Set(
+                propertyDetails
+                    .filter((owner) => owner?.addressId?._id === this.condoId)
+                    .map((owner) => owner.condominium_unit)
+                    .filter(Boolean)
+            ),
+        ];
 
         if (units.length === 0) {
             return;
@@ -413,7 +417,8 @@ export class HomeComponent implements OnInit {
                             (entry?.ownerId?.propertyDetails ?? [])
                                 .filter(
                                     (property) =>
-                                        property?.addressId?._id === this.condoId
+                                        property?.addressId?._id ===
+                                        this.condoId
                                 )
                                 .map((property) => property.condominium_unit)
                                 .filter(Boolean)

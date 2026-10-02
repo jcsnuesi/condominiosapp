@@ -120,6 +120,15 @@ import { OrganizationProvisioningComponent } from './demo/components/organizatio
                             component: PaymentMonitorComponent,
                         },
                         {
+                            path: 'smart-home',
+                            data: { permission: 'iot.read' },
+                            canActivate: [UserGuard],
+                            loadChildren: () =>
+                                import(
+                                    './demo/components/iot-dashboard/iot-dashboard.module'
+                                ).then((m) => m.IoTDashboardModule),
+                        },
+                        {
                             path: 'communication-log',
                             data: { permission: 'communications.read' },
                             canActivate: [UserGuard],
