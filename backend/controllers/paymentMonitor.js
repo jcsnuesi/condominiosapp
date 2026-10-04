@@ -2,9 +2,11 @@
 
 const Condominium = require("../models/condominio");
 const Owner = require("../models/owners");
+const Invoice = require("../models/invoice");
+const { paymentMonitorPipeline } = require("../service/paymentMonitorQuery");
 const apiResponse = require("../service/apiResponse");
 const { canAccessCondominium } = require("../service/authorization");
-const { hasPaymentAccess, isOwnerPaymentRole } = require("./payment")._helpers;
+const { hasPaymentAccess, isOwnerPaymentRole, buildTransactionFilters } = require("./payment")._helpers;
 
 function scopedCondominiums(req) {
   return req.auth.scope?.mode === "ALL"
@@ -13,6 +15,29 @@ function scopedCondominiums(req) {
 }
 
 module.exports = {
+  invoices: async function (req, res) {
+    if (!hasPaymentAccess(req)) {
+      return apiResponse.failure(res, 403, { message: "No autorizado" }, "FORBIDDEN");
+    }
+    const { filters, error } = buildTransactionFilters(req);
+    if (error) {
+      return apiResponse.failure(res, 400, { message: error }, "VALIDATION_ERROR");
+    }
+    if (req.query.condominiumId && !canAccessCondominium(req.auth, req.query.condominiumId)) {
+      return apiResponse.failure(res, 403, { message: "Propiedad fuera del alcance autorizado" }, "FORBIDDEN");
+    }
+    const page = Math.max(Math.floor(Number(req.query.page) || 1), 1);
+    const limit = Math.min(Math.max(Math.floor(Number(req.query.limit) || 20), 1), 500);
+    try {
+      const [result] = await Invoice.aggregate(paymentMonitorPipeline(req, filters, page, limit));
+      return apiResponse.success(res, 200, {
+        page, limit, docs: result?.docs || [], total: result?.count?.[0]?.total || 0,
+      }, "PAYMENT_MONITOR_INVOICES_LISTED");
+    } catch (error) {
+      return apiResponse.failure(res, 500, { message: "No se pudieron cargar las facturas del monitor" }, "MONITOR_ERROR");
+    }
+  },
+
   options: async function (req, res) {
     if (!hasPaymentAccess(req)) {
       return apiResponse.failure(res, 403, { message: "No autorizado" }, "FORBIDDEN");

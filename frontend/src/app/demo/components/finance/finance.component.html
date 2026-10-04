@@ -1,0 +1,1199 @@
+<section
+    class="card app-page-card finance"
+    aria-labelledby="finance-title"
+    [attr.aria-busy]="busy()"
+>
+    <header class="app-page-header">
+        <div>
+            <span class="app-page-kicker">Finance</span>
+            <h1 id="finance-title">Financial management</h1>
+            <p>Fees, payments and transactions for your condominium.</p>
+        </div>
+    </header>
+    @if (error()) {
+    <p class="message error" role="alert">{{ error() }}</p>
+    } @if (notice()) {
+    <p class="message success" role="status">{{ notice() }}</p>
+    }
+    <div class="filters">
+        <label
+            >Condominium<select
+                [(ngModel)]="condominiumId"
+                (change)="changeCondominium()"
+                [disabled]="busy()"
+            >
+                <option value="">Select</option>
+                @for (condo of condos(); track condo._id) {
+                <option [value]="condo._id">{{ condo.alias }}</option>
+                }
+            </select></label
+        >
+        <label
+            >Currency<input pInputText
+                [(ngModel)]="currency"
+                maxlength="3"
+                [disabled]="busy()"
+                (change)="refresh()"
+        /></label>
+        <button pButton class="finance-action finance-action--outlined"
+            type="button"
+            (click)="refresh()"
+            [disabled]="busy() || !condominiumId"
+        >
+            Refresh
+        </button>
+    </div>
+    <nav aria-label="Finance sections">
+        @for (item of availableTabs; track item.id) {
+        <button class="finance-tab"
+            type="button"
+            [class.active]="tab === item.id"
+            [attr.aria-current]="tab === item.id ? 'page' : null"
+            (click)="switchTab(item.id)"
+            [disabled]="busy()"
+        >
+            {{ item.label }}
+        </button>
+        }
+    </nav>
+    @if (!condos().length && !busy()) {
+    <p>No condominiums are available within your scope.</p>
+    } @if (condominiumId && settings() && !settings()?.enabled && tab !==
+    'settings') {
+    <p class="message">
+        Finance is not yet enabled for this condominium. An administrator can enable it after reviewing the data and balances.
+    </p>
+    } @if (settings()?.enabled && tab === 'receivables') {
+    <h2>Accounts receivable</h2>
+    <div class="summary">
+        @for (total of totals(); track total.currency) {
+        <article>
+            <h3>{{ total.currency }}</h3>
+            <strong>{{
+                total.amountMinor / 100 | currency : total.currency
+            }}</strong>
+            <p>
+                Current:
+                {{ total.buckets["current"] / 100 | currency : total.currency }}
+            </p>
+            <p>
+                1–30 days:
+                {{ total.buckets["1-30"] / 100 | currency : total.currency }}
+            </p>
+            <p>
+                31–60 days:
+                {{ total.buckets["31-60"] / 100 | currency : total.currency }}
+            </p>
+            <p>
+                61–90 days:
+                {{ total.buckets["61-90"] / 100 | currency : total.currency }}
+            </p>
+            <p>
+                Over 90 days:
+                {{ total.buckets["90+"] / 100 | currency : total.currency }}
+            </p>
+        </article>
+        }
+    </div>
+    <button pButton class="finance-action finance-action--outlined" type="button" (click)="export('receivables')" [disabled]="busy()">
+        Export CSV
+    </button>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Invoice</th>
+                    <th>Unit</th>
+                    <th>Description</th>
+                    <th>Due date</th>
+                    <th>Balance</th>
+                    <th>Aging</th>
+                    @if (canUpdate) {
+                    <th>Action</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @for (invoice of invoices(); track invoice._id) {
+                <tr>
+                    <td>{{ invoice.invoice_number }}</td>
+                    <td>{{ invoice.unitNumber }}</td>
+                    <td>{{ chargeLabel(invoice.chargeType) }}</td>
+                    <td>{{ invoice.dueDate | date : "dd/MM/yyyy" : "UTC" }}</td>
+                    <td>
+                        {{
+                            invoice.balancePending | currency : invoice.currency
+                        }}
+                    </td>
+                    <td>{{ bucketLabel(invoice.bucket) }}</td>
+                    @if (canUpdate) {
+                    <td>
+                        <button pButton class="finance-action finance-action--outlined"
+                            (click)="selectInvoice(invoice)"
+                            [disabled]="busy()"
+                        >
+                            Apply adjustment
+                        </button>
+                    </td>
+                    }
+                </tr>
+                } @empty {
+                <tr>
+                    <td colspan="7">No outstanding debt.</td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="pagination">
+        <button pButton class="finance-action finance-action--outlined"
+            (click)="paginate('receivables', -1)"
+            [disabled]="busy() || receivablePage === 1"
+        >
+            Previous</button
+        ><span
+            >Page {{ receivablePage }} · {{ receivableTotal }} invoices</span
+        ><button pButton class="finance-action finance-action--outlined"
+            (click)="paginate('receivables', 1)"
+            [disabled]="busy() || receivablePage * 50 >= receivableTotal"
+        >
+            Next
+        </button>
+    </div>
+    } @if (settings()?.enabled && tab === 'charges' && !ownerMode) { @if
+    (canCreate) {
+    <h2>Issue charges</h2>
+    <form (ngSubmit)="saveCharges()" #chargeForm="ngForm">
+        <fieldset [disabled]="busy()">
+            <div class="form-grid">
+                <label
+                    >Type<select
+                        name="chargeType"
+                        [(ngModel)]="charge.chargeType"
+                    >
+                        <option value="monthly">Monthly fee</option>
+                        <option value="extraordinary">
+                            Special assessment
+                        </option>
+                        <option value="individual">Individual charge</option>
+                        <option value="fine">Fine</option>
+                    </select></label
+                >
+                <label
+                    >Issue date<input pInputText
+                        name="issueDate"
+                        type="date"
+                        [(ngModel)]="charge.issueDate"
+                        required /></label
+                ><label
+                    >Due date<input pInputText
+                        name="dueDate"
+                        type="date"
+                        [(ngModel)]="charge.dueDate"
+                        required
+                /></label>
+                <label
+                    >Equal amount<input pInputText
+                        name="chargeAmount"
+                        type="number"
+                        min="0.01"
+                        step="0.01"
+                        [(ngModel)]="charge.amount" /></label
+                ><button pButton class="finance-action finance-action--outlined" type="button" (click)="equalAmounts()">
+                    Copy amount to units
+                </button>
+                <label class="wide"
+                    >Description or reason<textarea pTextarea
+                        name="description"
+                        [(ngModel)]="charge.description"
+                        required
+                        minlength="3"
+                        maxlength="500"
+                    ></textarea>
+                </label>
+            </div>
+            <p>
+                Select units and adjust their amounts. Individual charges and fines allow only one unit.
+            </p>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Select</th>
+                            <th>Unit</th>
+                            <th>Owner</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (unit of units; track unit.ownerId +
+                        unit.unitNumber) {
+                        <tr>
+                            <td>
+                                <input
+                                    type="checkbox"
+                                    [name]="'selected-' + $index"
+                                    [(ngModel)]="unit.selected"
+                                    [attr.aria-label]="
+                                        'Select unit ' + unit.unitNumber
+                                    "
+                                />
+                            </td>
+                            <td>{{ unit.unitNumber }}</td>
+                            <td>{{ unit.ownerName }}</td>
+                            <td>
+                                <input pInputText
+                                    type="number"
+                                    min="0.01"
+                                    step="0.01"
+                                    [name]="'amount-' + $index"
+                                    [(ngModel)]="unit.amount"
+                                    [attr.aria-label]="
+                                        'Unit amount ' + unit.unitNumber
+                                    "
+                                />
+                            </td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <button pButton class="finance-action" type="submit" [disabled]="chargeForm.invalid">
+                Record charges
+            </button>
+        </fieldset>
+    </form>
+    } @if (canUpdate) {
+    <h2>Discount, waiver or credit balance</h2>
+    <form (ngSubmit)="saveAdjustment()" #adjustmentForm="ngForm">
+        <fieldset [disabled]="busy()">
+            <div class="form-grid">
+                <label class="wide"
+                    >Outstanding invoice<select
+                        name="invoice"
+                        [(ngModel)]="adjustment.invoiceId"
+                        required
+                    >
+                        <option value="">Select</option>
+                        @for (invoice of invoices(); track invoice._id) {
+                        <option [value]="invoice._id">
+                            {{ invoice.invoice_number }} ·
+                            {{ invoice.unitNumber }} ·
+                            {{ invoice.balancePending }} {{ invoice.currency }}
+                        </option>
+                        }
+                    </select></label
+                >
+                <label
+                    >Type<select
+                        name="adjustmentKind"
+                        [(ngModel)]="adjustment.kind"
+                    >
+                        <option value="discount">Discount</option>
+                        <option value="waiver">Waiver</option>
+                    </select></label
+                >
+                <label
+                    >Amount<input pInputText
+                        name="adjustmentAmount"
+                        type="number"
+                        min="0.01"
+                        step="0.01"
+                        [(ngModel)]="adjustment.amount"
+                        required
+                /></label>
+                <label class="wide"
+                    >Reason<textarea pTextarea
+                        name="adjustmentReason"
+                        [(ngModel)]="adjustment.reason"
+                        required
+                        minlength="3"
+                        maxlength="500"
+                    ></textarea>
+                </label>
+                <label class="wide"
+                    >Available credit balance<select
+                        name="credit"
+                        [(ngModel)]="adjustment.creditId"
+                    >
+                        <option value="">Select credit</option>
+                        @for (credit of usableCredits; track credit._id) {
+                        <option [value]="credit._id">
+                            {{ credit.availableMinor / 100 }}
+                            {{ credit.currency }} · {{ credit.unitNumber }}
+                        </option>
+                        }
+                    </select></label
+                >
+            </div>
+            <div class="actions">
+                <button pButton class="finance-action" type="submit" [disabled]="adjustmentForm.invalid">
+                    Record adjustment</button
+                ><button pButton class="finance-action finance-action--outlined"
+                    type="button"
+                    (click)="saveAdjustment(true)"
+                    [disabled]="adjustmentForm.invalid || !adjustment.creditId"
+                >
+                    Apply credit balance
+                </button>
+            </div>
+        </fieldset>
+    </form>
+    <p>
+        Adjustments and credits reduce debt; payments are recorded through the existing payment workflows.
+    </p>
+    <div class="pagination">
+        <button pButton class="finance-action finance-action--outlined"
+            (click)="paginate('receivables', -1)"
+            [disabled]="busy() || receivablePage === 1"
+        >
+            Previous invoices</button
+        ><span>{{ receivablePage }}</span
+        ><button pButton class="finance-action finance-action--outlined"
+            (click)="paginate('receivables', 1)"
+            [disabled]="busy() || receivablePage * 50 >= receivableTotal"
+        >
+            More invoices
+        </button>
+    </div>
+    }
+    <h3>Credit balances</h3>
+    <ul>
+        @for (credit of credits(); track credit._id) {
+        <li>
+            Unit {{ credit.unitNumber || "pending review" }} ·
+            Available
+            {{ credit.availableMinor / 100 | currency : credit.currency }}
+        </li>
+        } @empty {
+        <li>No credits recorded.</li>
+        }
+    </ul>
+    } @if (settings()?.enabled && tab === 'history') {
+    <h2>Unit statement</h2>
+    <div class="filters">
+        <label
+            >Unit<select
+                [(ngModel)]="unitNumber"
+                (change)="changeHistoryFilter()"
+                [disabled]="busy()"
+            >
+                <option value="">Select</option>
+                @for (unit of units; track unit.ownerId + unit.unitNumber) {
+                <option [value]="unit.unitNumber">{{ unit.unitNumber }}</option>
+                }
+            </select></label
+        >@if (!ownerMode) {
+        <label
+            >Historical unit<input pInputText
+                [(ngModel)]="unitNumber"
+                maxlength="80"
+                [disabled]="busy()"
+                placeholder="Identificador de unidad"
+        /></label>
+        }<label
+            >From<input pInputText
+                type="date"
+                [(ngModel)]="from"
+                [disabled]="busy()" /></label
+        ><label
+            >To<input pInputText
+                type="date"
+                [(ngModel)]="to"
+                [disabled]="busy()" /></label
+        ><button pButton class="finance-action finance-action--outlined"
+            (click)="changeHistoryFilter()"
+            [disabled]="busy() || !unitNumber"
+        >
+            View</button
+        ><button pButton class="finance-action finance-action--outlined" (click)="export('history')" [disabled]="busy() || !unitNumber">
+            Export CSV
+        </button>
+    </div>
+    @if (history(); as statement) {
+    <div class="summary">
+        <article>
+            <h3>Opening balance for the range</h3>
+            {{ statement.openingMinor / 100 | currency : currency }}
+        </article>
+        <article>
+            <h3>Closing balance for the range</h3>
+            {{ statement.closingMinor / 100 | currency : currency }}
+        </article>
+        <article>
+            <h3>Current debt</h3>
+            {{ statement.currentPendingMinor / 100 | currency : currency }}
+        </article>
+    </div>
+    @if (statement.warnings.undatedLegacyPayments ||
+    statement.warnings.undatedPayments) {
+    <p class="message">
+        Some historical payments have no verifiable date. Current debt uses the recorded balance; those payments need review for the selected range.
+    </p>
+    }
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Description</th>
+                    <th>Charges</th>
+                    <th>Applications</th>
+                    <th>Balance</th>
+                    @if (canUpdate) {
+                    <th>Action</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @for (row of statement.docs; track row.id) {
+                <tr>
+                    <td>{{ row.date }}</td>
+                    <td>{{ row.description }}</td>
+                    <td>{{ row.debitMinor / 100 | currency : currency }}</td>
+                    <td>{{ row.creditMinor / 100 | currency : currency }}</td>
+                    <td>{{ row.balanceMinor / 100 | currency : currency }}</td>
+                    @if (canUpdate) {
+                    <td>
+                        @if (row.reversible && row.applicationId) {
+                        <button pButton class="finance-action finance-action--outlined"
+                            (click)="reverseApplication(row.applicationId)"
+                            [disabled]="
+                                busy() || reversalReason.trim().length < 3
+                            "
+                        >
+                            Reverse
+                        </button>
+                        }
+                    </td>
+                    }
+                </tr>
+                } @empty {
+                <tr>
+                    <td colspan="6">No transactions in this range.</td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    @if (canUpdate) {
+    <label
+        >Reason for reversing an application<input pInputText
+            [(ngModel)]="reversalReason"
+            maxlength="500"
+            [disabled]="busy()"
+    /></label>
+    }
+    <div class="pagination">
+        <button pButton class="finance-action finance-action--outlined"
+            (click)="paginate('history', -1)"
+            [disabled]="busy() || historyPage === 1"
+        >
+            Previous</button
+        ><span
+            >Page {{ historyPage }} · {{ statement.total }} transactions</span
+        ><button pButton class="finance-action finance-action--outlined"
+            (click)="paginate('history', 1)"
+            [disabled]="busy() || historyPage * 50 >= statement.total"
+        >
+            Next
+        </button>
+    </div>
+    <h3>Current available credits</h3>
+    <ul>
+        @for (credit of statement.credits; track credit._id) {
+        <li>{{ credit.availableMinor / 100 | currency : credit.currency }}</li>
+        } @empty {
+        <li>No credit balances.</li>
+        }
+    </ul>
+    } } @if (settings()?.enabled && tab === 'cashbook') {
+    <h2>Income and expenses</h2>
+    @if (!settings()?.cashbookEnabled) {
+    <p>Enable this stage in Settings.</p>
+    } @else { @if (canCreate) {
+    <form (ngSubmit)="saveEntry()" #entryForm="ngForm">
+        <fieldset [disabled]="busy()">
+            <div class="form-grid">
+                <label
+                    >Type<select name="entryKind" [(ngModel)]="entry.kind">
+                        <option value="expense">Paid expense</option>
+                        <option value="income">Other income received</option>
+                        <option value="transfer">
+                            Transfer between accounts
+                        </option>
+                    </select></label
+                >
+                <label
+                    >Date<input pInputText
+                        name="entryDate"
+                        type="date"
+                        [(ngModel)]="entry.date"
+                        required /></label
+                ><label
+                    >Amount<input pInputText
+                        name="entryAmount"
+                        type="number"
+                        min="0.01"
+                        step="0.01"
+                        [(ngModel)]="entry.amount"
+                        required /></label
+                ><label
+                    >Category<input pInputText
+                        name="category"
+                        [(ngModel)]="entry.category"
+                        required
+                        maxlength="120"
+                /></label>
+                <label
+                    >Bank account or cash<select
+                        name="entryAccount"
+                        [(ngModel)]="entry.bankAccountId"
+                    >
+                        <option value="">Cash</option>
+                        @for (account of currencyAccounts; track account._id) {
+                        <option [value]="account._id">
+                            {{ account.bank }} · {{ account.accountLabel }}
+                        </option>
+                        }
+                    </select></label
+                >
+                @if (entry.kind === 'transfer') {
+                <label
+                    >Destination account<select
+                        name="destinationAccount"
+                        [(ngModel)]="entry.destinationAccountId"
+                        required
+                    >
+                        <option value="">Select</option>
+                        @for (account of currencyAccounts; track account._id) {
+                        <option [value]="account._id">
+                            {{ account.bank }} · {{ account.accountLabel }}
+                        </option>
+                        }
+                    </select></label
+                >
+                }
+                <label
+                    >Reference<input pInputText
+                        name="reference"
+                        [(ngModel)]="entry.reference"
+                        maxlength="120" /></label
+                ><label
+                    >Supporting document reference<input pInputText
+                        name="support"
+                        [(ngModel)]="entry.supportReference"
+                        maxlength="500"
+                        placeholder="Documento o comprobante" /></label
+                ><label class="wide"
+                    >Description<textarea pTextarea
+                        name="entryReason"
+                        [(ngModel)]="entry.reason"
+                        required
+                        minlength="3"
+                        maxlength="500"
+                    ></textarea>
+                </label>
+            </div>
+            <details>
+                <summary>Link an imported bank transaction</summary>
+                <p>
+                    Select the confirmed transaction with the matching date and amount.
+                </p>
+                <label
+                    >Source transaction<select
+                        name="movementId"
+                        [(ngModel)]="entry.movementId"
+                    >
+                        <option value="">Record without linking</option>
+                        @for (movement of movementOptions(); track movement._id)
+                        {
+                        <option [value]="movement._id">
+                            {{ movement.date }} ·
+                            {{ movement.amountMinor / 100 }}
+                            {{ movement.currency }} ·
+                            {{ movement.reference || movement.description }}
+                        </option>
+                        }
+                    </select></label
+                >@if (entry.kind === 'transfer') {
+                <label
+                    >Destination transaction<select
+                        name="destinationMovementId"
+                        [(ngModel)]="entry.destinationMovementId"
+                    >
+                        <option value="">Record without linking</option>
+                        @for (movement of movementOptions(true); track
+                        movement._id) {
+                        <option [value]="movement._id">
+                            {{ movement.date }} ·
+                            {{ movement.amountMinor / 100 }}
+                            {{ movement.currency }} ·
+                            {{ movement.reference || movement.description }}
+                        </option>
+                        }
+                    </select></label
+                >
+                }
+            </details>
+            <button pButton class="finance-action" type="submit" [disabled]="entryForm.invalid">
+                Record transaction
+            </button>
+        </fieldset>
+    </form>
+    }
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Category</th>
+                    <th>Amount</th>
+                    <th>Description</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (item of entries(); track item._id) {
+                <tr>
+                    <td>{{ item.date }}</td>
+                    <td>
+                        {{ kindLabel(item.kind) }}
+                        {{ item.reversalOf ? "(reverso)" : "" }}
+                    </td>
+                    <td>{{ item.category }}</td>
+                    <td>
+                        {{
+                            (item.amountMinor / 100) *
+                                (item.reversalOf ? -1 : 1)
+                                | currency : item.currency
+                        }}
+                    </td>
+                    <td>{{ item.reason }}</td>
+                    <td>
+                        @if (canUpdate && !item.reversalOf &&
+                        !item.reversedById) { @if (item.bankAccountId &&
+                        (!item.movementId || item.kind === 'transfer' &&
+                        !item.destinationMovementId)) {
+                        <button pButton class="finance-action finance-action--outlined" (click)="selectEntry(item)" [disabled]="busy()">
+                            Link bank transaction
+                        </button>
+                        }
+                        <button pButton class="finance-action finance-action--outlined"
+                            (click)="reverseEntry(item._id)"
+                            [disabled]="
+                                busy() || reversalReason.trim().length < 3
+                            "
+                        >
+                            Reverse
+                        </button>
+                        }
+                    </td>
+                </tr>
+                } @empty {
+                <tr>
+                    <td colspan="6">
+                        No manual transactions. Confirmed payments appear in Reports.
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    @if (canUpdate) {
+    <label
+        >Reversal reason<input pInputText
+            [(ngModel)]="reversalReason"
+            maxlength="500"
+            [disabled]="busy()"
+    /></label>
+    }
+    <details>
+        <summary>
+            Bank transactions to classify ({{ movementTotal }})
+        </summary>
+        <div class="pagination">
+            <button pButton class="finance-action finance-action--outlined"
+                (click)="paginateMovements(-1)"
+                [disabled]="busy() || movementPage === 1"
+            >
+                Previous</button
+            ><span>Page {{ movementPage }}</span
+            ><button pButton class="finance-action finance-action--outlined"
+                (click)="paginateMovements(1)"
+                [disabled]="busy() || movementPage * 50 >= movementTotal"
+            >
+                Next
+            </button>
+        </div>
+    </details>
+    @if (link.entryId && canUpdate) {
+    <form (ngSubmit)="linkEntry()">
+        <fieldset [disabled]="busy()">
+            <h3>Link a transaction to an existing record</h3>
+            <label
+                >Source transaction<select
+                    name="linkMovement"
+                    [(ngModel)]="link.movementId"
+                >
+                    <option value="">No change</option>
+                    @for (movement of movementOptions(false, true); track
+                    movement._id) {
+                    <option [value]="movement._id">
+                        {{ movement.date }} · {{ movement.amountMinor / 100 }}
+                        {{ movement.currency }} ·
+                        {{ movement.reference || movement.description }}
+                    </option>
+                    }
+                </select></label
+            ><label
+                >Transfer destination transaction<select
+                    name="linkDestination"
+                    [(ngModel)]="link.destinationMovementId"
+                >
+                    <option value="">No change</option>
+                    @for (movement of movementOptions(true, true); track
+                    movement._id) {
+                    <option [value]="movement._id">
+                        {{ movement.date }} · {{ movement.amountMinor / 100 }}
+                        {{ movement.currency }} ·
+                        {{ movement.reference || movement.description }}
+                    </option>
+                    }
+                </select></label
+            ><button pButton class="finance-action"
+                type="submit"
+                [disabled]="!link.movementId && !link.destinationMovementId"
+            >
+                Link
+            </button>
+        </fieldset>
+    </form>
+    }
+    <div class="pagination">
+        <button pButton class="finance-action finance-action--outlined"
+            (click)="paginate('entries', -1)"
+            [disabled]="busy() || entryPage === 1"
+        >
+            Previous</button
+        ><span>Page {{ entryPage }} · {{ entryTotal }} records</span
+        ><button pButton class="finance-action finance-action--outlined"
+            (click)="paginate('entries', 1)"
+            [disabled]="busy() || entryPage * 50 >= entryTotal"
+        >
+            Next
+        </button>
+    </div>
+    } } @if (settings()?.enabled && tab === 'budget') {
+    <h2>Budget</h2>
+    @if (!settings()?.reportsEnabled) {
+    <p>Enable reports and budget in Settings.</p>
+    } @else {
+    <div class="filters">
+        <label
+            >Year<input pInputText
+                type="number"
+                min="2000"
+                max="2200"
+                [(ngModel)]="year"
+                [disabled]="busy()" /></label
+        ><button pButton class="finance-action finance-action--outlined" (click)="refresh()" [disabled]="busy()">
+            Load budget
+        </button>
+    </div>
+    @if (canUpdate) {
+    <form (ngSubmit)="addBudgetLine()" #budgetForm="ngForm">
+        <fieldset [disabled]="busy()">
+            <div class="form-grid">
+                <label
+                    >Month<input pInputText
+                        name="budgetMonth"
+                        type="number"
+                        min="1"
+                        max="12"
+                        [(ngModel)]="budgetDraft.month"
+                        required /></label
+                ><label
+                    >Type<select
+                        name="budgetKind"
+                        [(ngModel)]="budgetDraft.kind"
+                    >
+                        <option value="expense">Expense</option>
+                        <option value="income">Income</option>
+                    </select></label
+                ><label
+                    >Category<input pInputText
+                        name="budgetCategory"
+                        [(ngModel)]="budgetDraft.category"
+                        required
+                        maxlength="120" /></label
+                ><label
+                    >Amount<input pInputText
+                        name="budgetAmount"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        [(ngModel)]="budgetDraft.amount"
+                        required
+                /></label>
+            </div>
+            <button pButton class="finance-action" type="submit" [disabled]="budgetForm.invalid">
+                Add or update budget line
+            </button>
+        </fieldset>
+    </form>
+    }
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Month</th>
+                    <th>Type</th>
+                    <th>Category</th>
+                    <th>Budget</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (line of budgetLines; track $index) {
+                <tr>
+                    <td>{{ line.month }}</td>
+                    <td>{{ kindLabel(line.kind) }}</td>
+                    <td>{{ line.category }}</td>
+                    <td>{{ line.amount | currency : currency }}</td>
+                    <td>
+                        @if (canUpdate) {
+                        <button pButton class="finance-action finance-action--outlined"
+                            (click)="removeBudgetLine($index)"
+                            [disabled]="busy()"
+                        >
+                            Remove
+                        </button>
+                        }
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    @if (canUpdate) {
+    <button pButton class="finance-action" (click)="saveBudget()" [disabled]="busy()">
+        Save annual budget
+    </button>
+    } } } @if (settings()?.enabled && tab === 'reports') {
+    <h2>Administrative reports</h2>
+    @if (!settings()?.reportsEnabled) {
+    <p>Enable this stage in Settings.</p>
+    } @else {
+    <div class="filters">
+        <label
+            >From<input pInputText
+                type="date"
+                [(ngModel)]="from"
+                [disabled]="busy()" /></label
+        ><label
+            >To<input pInputText
+                type="date"
+                [(ngModel)]="to"
+                [disabled]="busy()" /></label
+        ><button pButton class="finance-action finance-action--outlined" (click)="refresh()" [disabled]="busy()">View</button
+        ><button pButton class="finance-action finance-action--outlined" (click)="export('report')" [disabled]="busy()">
+            Export income and expenses CSV
+        </button>
+    </div>
+    <p>
+        Actuals reflect received payments and paid expenses. Budget comparisons cover full months within the selected range.
+    </p>
+    @if (report(); as data) {
+    <div class="summary">
+        <article>
+            <h3>Income</h3>
+            {{ data.incomeMinor / 100 | currency : data.currency }}
+        </article>
+        <article>
+            <h3>Expenses</h3>
+            {{ data.expenseMinor / 100 | currency : data.currency }}
+        </article>
+        <article>
+            <h3>Net cash flow</h3>
+            {{ data.netMinor / 100 | currency : data.currency }}
+        </article>
+    </div>
+    @if (data.warnings.legacyPaidWithoutTransactions ||
+    data.warnings.undatedSuccessfulPayments) {
+    <p class="message">
+        Pending review:
+        {{ data.warnings.legacyPaidWithoutTransactions }} historical invoices paid without a transaction and
+        {{ data.warnings.undatedSuccessfulPayments }} payments without a confirmed date. They are excluded from payments for the period.
+    </p>
+    }
+    <h3>Budget versus actuals</h3>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Month</th>
+                    <th>Type</th>
+                    <th>Category</th>
+                    <th>Budget</th>
+                    <th>Actual</th>
+                    <th>Variance</th>
+                    <th>%</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (line of data.budget; track line.month + line.kind +
+                line.category) {
+                <tr>
+                    <td>{{ line.month }}</td>
+                    <td>{{ kindLabel(line.kind) }}</td>
+                    <td>{{ line.category }}</td>
+                    <td>
+                        {{ line.plannedMinor / 100 | currency : data.currency }}
+                    </td>
+                    <td>
+                        {{ line.actualMinor / 100 | currency : data.currency }}
+                    </td>
+                    <td>
+                        {{
+                            line.varianceMinor / 100 | currency : data.currency
+                        }}
+                    </td>
+                    <td>
+                        {{
+                            line.variancePercent === null
+                                ? "—"
+                                : line.variancePercent + "%"
+                        }}
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <h3>Bank accounts as of {{ to }}</h3>
+    <div class="summary">
+        @for (account of data.banks; track account._id) {
+        <article>
+            <h4>{{ account.bank }} · {{ account.accountLabel }}</h4>
+            <p>
+                {{
+                    account.calculatedBalanceMinor === null
+                        ? "No opening balance for this date"
+                        : ((account.calculatedBalanceMinor || 0) / 100
+                          | currency : account.currency)
+                }}
+            </p>
+            <p>{{ account.unclassifiedCount }} transactions to classify</p>
+        </article>
+        }
+    </div>
+    <h3>Current accounts receivable · {{ data.receivablesAsOf }}</h3>
+    <ul>
+        @for (total of data.receivables; track total.currency) {
+        <li>{{ total.amountMinor / 100 | currency : total.currency }}</li>
+        }
+    </ul>
+    <h3>Transactions for the period</h3>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Category</th>
+                    <th>Amount</th>
+                    <th>Reference</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (row of data.rows; track row.id) {
+                <tr>
+                    <td>{{ row.date }}</td>
+                    <td>{{ kindLabel(row.kind) }}</td>
+                    <td>{{ row.category }}</td>
+                    <td>
+                        {{ row.amountMinor / 100 | currency : data.currency }}
+                    </td>
+                    <td>{{ row.reference }}</td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    } } } @if (tab === 'settings' && !ownerMode && condominiumId) {
+    <h2>Staged activation</h2>
+    @if (!migrationReady()) {
+    <p class="message">
+        Data and index review and migration are pending. Activation will be available once they are complete.
+    </p>
+    } @if (canUpdate) {
+    <form (ngSubmit)="saveSettings()" #settingsForm="ngForm">
+        <fieldset [disabled]="busy()">
+            <label class="check"
+                ><input
+                    name="reviewed"
+                    type="checkbox"
+                    [(ngModel)]="reviewed"
+                />I reviewed the data and balances for this condominium</label
+            ><label class="check"
+                ><input
+                    name="enabled"
+                    type="checkbox"
+                    [ngModel]="draftSettings.enabled"
+                    (ngModelChange)="changeFinanceEnabled($event)"
+                    [disabled]="!migrationReady()"
+                />Enable charges, adjustments, credits and history</label
+            ><label class="check"
+                ><input
+                    name="cashbookEnabled"
+                    type="checkbox"
+                    [ngModel]="draftSettings.cashbookEnabled"
+                    (ngModelChange)="changeCashbookEnabled($event)"
+                    [disabled]="!draftSettings.enabled"
+                />Enable income and expenses</label
+            ><label class="check"
+                ><input
+                    name="reportsEnabled"
+                    type="checkbox"
+                    [(ngModel)]="draftSettings.reportsEnabled"
+                    [disabled]="!draftSettings.enabled || !draftSettings.cashbookEnabled"
+                />Enable budget and reports</label
+            >
+            <h3>Automatic late fees</h3>
+            <label class="check"
+                ><input
+                    name="lateFeeEnabled"
+                    type="checkbox"
+                    [(ngModel)]="draftSettings.lateFee.enabled"
+                    [disabled]="!draftSettings.enabled"
+                />Enable a one-time charge per overdue invoice</label
+            >
+            <div class="form-grid">
+                <label
+                    >Mode<select
+                        name="lateFeeMode"
+                        [(ngModel)]="draftSettings.lateFee.mode"
+                    >
+                        <option value="fixed">Fixed amount</option>
+                        <option value="percent">
+                            Percentage of overdue balance
+                        </option>
+                    </select></label
+                ><label
+                    >Amount or percentage<input pInputText
+                        name="lateFeeValue"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        [(ngModel)]="draftSettings.lateFee.value"
+                        required /></label
+                ><label
+                    >Grace days<input pInputText
+                        name="graceDays"
+                        type="number"
+                        min="0"
+                        max="365"
+                        step="1"
+                        [(ngModel)]="draftSettings.lateFee.graceDays"
+                        required
+                /></label>
+            </div>
+            <p>
+                Evaluated daily at 10:00 AM, Santo Domingo time. Enabling or changing the rule applies to due dates from today onward. Late fees do not generate additional late fees.
+            </p>
+            @if (settingsValidationError) {
+            <p class="message" role="status">{{ settingsValidationError }}</p>
+            }
+            <button pButton class="finance-action" type="submit" [disabled]="busy() || settingsForm.invalid || !!settingsValidationError">
+                Save settings
+            </button>
+        </fieldset>
+    </form>
+    } @if (canCreate && settings()?.enabled && settings()?.lateFee?.enabled) {
+    <button pButton class="finance-action finance-action--outlined" (click)="runLateFees()" [disabled]="busy()">
+        Evaluate late fees now
+    </button>
+    }
+    <h2>Bank accounts</h2>
+    <ul>
+        @for (account of accounts(); track account._id) {
+        <li>
+            {{ account.bank }} · {{ account.accountLabel }} ·
+            {{ account.currency }} ·
+            {{
+                account.openingDate
+                    ? "Opening balance since " + account.openingDate
+                    : "No opening balance"
+            }}
+        </li>
+        }
+    </ul>
+    @if (canCreate) {
+    <form (ngSubmit)="createAccount()" #accountForm="ngForm">
+        <fieldset [disabled]="busy()">
+            <div class="form-grid">
+                <label
+                    >Bank<input pInputText
+                        name="bank"
+                        [(ngModel)]="accountDraft.bank"
+                        required
+                        maxlength="120" /></label
+                ><label
+                    >Account label<input pInputText
+                        name="accountLabel"
+                        [(ngModel)]="accountDraft.accountLabel"
+                        required
+                        maxlength="120"
+                /></label>
+            </div>
+            <button pButton class="finance-action" type="submit" [disabled]="accountForm.invalid">
+                Create account in {{ currency }}
+            </button>
+        </fieldset>
+    </form>
+    } @if (canUpdate && settings()?.cashbookEnabled) {
+    <h3>Opening balance at the start of the day</h3>
+    <form (ngSubmit)="saveOpening()" #openingForm="ngForm">
+        <fieldset [disabled]="busy()">
+            <div class="form-grid">
+                <label
+                    >Account<select
+                        name="openingAccount"
+                        [(ngModel)]="opening.accountId"
+                        required
+                    >
+                        <option value="">Select</option>
+                        @for (account of currencyAccounts; track account._id) {
+                        @if (!account.openingDate) {
+                        <option [value]="account._id">
+                            {{ account.bank }} · {{ account.accountLabel }}
+                        </option>
+                        } }
+                    </select></label
+                ><label
+                    >As-of date<input pInputText
+                        name="openingDate"
+                        type="date"
+                        [(ngModel)]="opening.date"
+                        required /></label
+                ><label
+                    >Balance<input pInputText
+                        name="openingAmount"
+                        type="number"
+                        step="0.01"
+                        [(ngModel)]="opening.amount"
+                        required
+                /></label>
+            </div>
+            <p>
+                Transactions will be added from this date. The opening balance is fixed once recorded.
+            </p>
+            <button pButton class="finance-action" type="submit" [disabled]="openingForm.invalid">
+                Record opening balance
+            </button>
+        </fieldset>
+    </form>
+    } }
+</section>

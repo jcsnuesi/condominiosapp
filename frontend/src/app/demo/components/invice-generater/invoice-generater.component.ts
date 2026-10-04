@@ -32,8 +32,8 @@ type InvoiceDetails = {
     amount: number;
     description?: string;
     condominiumId: string;
-    ownerId: Array<{ label: string; value: string }>;
-    paymentDescription: Array<{ label: string; value: string }>;
+    ownerId: { label: string; value: string; unitNumber: string } | null;
+    paymentDescription: { label: string; value: string } | null;
 };
 
 type UpdateInvoiceInfo = {
@@ -97,7 +97,8 @@ export class InviceGeneraterComponent {
             { label: 'Water', value: 'Water' },
             { label: 'Others', value: 'Others' },
         ];
-    public ownerSelected: Array<{ label: string; value: string }> = [];
+    public ownerSelected: Array<{ label: string; value: string; unitNumber: string }> = [];
+    private invoiceOperationKey = crypto.randomUUID();
     @Output() facturaGenerada = new EventEmitter<any>();
     @Input() invoiceData: any;
 
@@ -116,8 +117,8 @@ export class InviceGeneraterComponent {
             amount: 0,
             description: '',
             condominiumId: '',
-            ownerId: [],
-            paymentDescription: [],
+            ownerId: null,
+            paymentDescription: null,
         };
 
         this.updateInfo = {
@@ -144,36 +145,30 @@ export class InviceGeneraterComponent {
     }
 
     onClickInvoiceOwnerMultiSelect() {
-        // let propertyOwner = this.condoInfo;
-
-        this.ownerSelected = this.invoiceData.units_ownerId.map(
-            (owner: any) => {
-                let propertyInfo = {};
-                owner.propertyDetails.forEach((property: any) => {
-                    propertyInfo = {
-                        label: `${owner.name.toUpperCase()} ${owner.lastname.toUpperCase()} - ${
-                            property.condominium_unit
-                        }`,
-                        value: owner._id,
-                    };
-                });
-                return propertyInfo;
-            }
-        );
+        interface Property { condominium_unit: string; addressId?: string | { _id: string }; status_property?: string; }
+        interface InvoiceOwner { _id: string; name: string; lastname: string; propertyDetails: Property[]; }
+        const entries = this.invoiceData.units_ownerId as Array<InvoiceOwner | { ownerId: InvoiceOwner; status?: string }>;
+        this.ownerSelected = entries.flatMap(entry => {
+            if ('status' in entry && entry.status === 'inactive') return [];
+            const owner = 'ownerId' in entry ? entry.ownerId : entry;
+            return (owner.propertyDetails || []).filter(property => {
+                const address = typeof property.addressId === 'object' ? property.addressId._id : property.addressId;
+                return property.status_property !== 'inactive' && (!address || address === this.invoiceData._id);
+            }).map(property => ({ label: owner.name + ' ' + owner.lastname + ' · ' + property.condominium_unit, value: owner._id, unitNumber: property.condominium_unit }));
+        });
     }
 
     saveInvoice() {
-        let data = {};
-        for (const key in this.invoiceInfo) {
-            if (
-                typeof this.invoiceInfo[key] === 'object' &&
-                Boolean(this.invoiceInfo[key].value != undefined)
-            ) {
-                data[key] = this.invoiceInfo[key].value;
-            } else {
-                data[key] = this.invoiceInfo[key];
-            }
-        }
+        const data = {
+            issueDate: this.invoiceInfo.issueDate,
+            amount: this.invoiceInfo.amount,
+            description: this.invoiceInfo.description,
+            condominiumId: this.invoiceData._id,
+            ownerId: this.invoiceInfo.ownerId?.value,
+            unitNumber: this.invoiceInfo.ownerId?.unitNumber,
+            paymentDescription: this.invoiceInfo.paymentDescription?.value,
+            idempotencyKey: this.invoiceOperationKey,
+        };
 
         // console.log('INVOICE data:*----->', data);
         // return;
@@ -186,6 +181,7 @@ export class InviceGeneraterComponent {
                     next: (data) => {
                         if (data.status === 'success') {
                             this.invoiceSetup = true;
+                            this.invoiceOperationKey = crypto.randomUUID();
 
                             // Emitimos el evento para que se actualie el toast de factura generada
                             this.facturaGenerada.emit({
@@ -232,7 +228,7 @@ export class InviceGeneraterComponent {
                 });
 
                 this._invoiceService
-                    .generateInvoice(this.invoiceInfo)
+                    .generateInvoice({ condominiumId: this.invoiceData._id })
                     .subscribe({
                         next: (data) => {
                             if (data.status === 'success') {

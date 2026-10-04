@@ -42,6 +42,7 @@ import { global } from '../../service/global.service';
 import { CondominioService } from '../../service/condominios.service';
 import { DatePickerModule } from 'primeng/datepicker';
 import { FamilyServiceService } from '../../service/family-service.service';
+import { OwnerServiceService } from '../../service/owner-service.service';
 
 type FamilyMember = {
     memberId: string;
@@ -97,6 +98,7 @@ type FamilyMember = {
         UserService,
         FormatFunctions,
         FamilyServiceService,
+        OwnerServiceService,
     ],
     encapsulation: ViewEncapsulation.None,
 })
@@ -149,6 +151,7 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
         private _activateRoute: ActivatedRoute,
         private _condoService: CondominioService,
         private _familyService: FamilyServiceService,
+        private _ownerService: OwnerServiceService,
         private cdr: ChangeDetectorRef
     ) {
         this.identity = this._userService.getIdentity();
@@ -204,19 +207,25 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
 
     getCondoOptions() {
         if (!this.memberInfoFromDetail) {
-            // this.condoOptions = this.identity.propertyDetails.map(
-            //     (property) => {
-            //         return {
-            //             label:
-            //                 property.addressId.alias +
-            //                 ' - (' +
-            //                 property.condominium_unit +
-            //                 ')',
-            //             code: property.addressId._id,
-            //             unit: property.condominium_unit,
-            //         };
-            //     }
-            // );
+            this._ownerService.getPropertyByOwner(this.identity._id).subscribe({
+                next: (response) => {
+                    const payload = response.data ?? response.message;
+                    const properties = payload?.propertyDetails ?? payload?.message?.propertyDetails ?? [];
+                    this.condoOptions = properties
+                        .filter((property) => property.addressId?._id && property.status_property !== 'inactive')
+                        .map((property) => ({
+                            label: `${property.addressId.alias} - (${property.condominium_unit})`,
+                            code: property.addressId._id,
+                            unit: property.condominium_unit,
+                        }));
+                    this.btnDisabled = this.condoOptions.length === 0;
+                },
+                error: () => {
+                    this.condoOptions = [];
+                    this.btnDisabled = true;
+                    this._messageService.add({ severity: 'error', summary: 'Error', detail: 'Unable to load your authorized properties.' });
+                },
+            });
         }
     }
 
@@ -560,6 +569,7 @@ export class FamilyMemberComponent implements OnInit, OnChanges {
             (condo) =>
                 condo.code === dataCondo.code && condo.unit === dataCondo.unit
         );
+        if (indexFound < 0 || !this.condoOptions[indexFound].code) return;
 
         this.condoFound.push(this.condoOptions[indexFound]);
         this.familyMemberInfo.addressId.push(this.condoOptions[indexFound]);

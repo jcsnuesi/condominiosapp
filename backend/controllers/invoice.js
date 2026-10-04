@@ -3,6 +3,7 @@
 var fs = require("fs");
 var path = require("path");
 var Invoice = require("../models/invoice");
+const { TransferReceipt } = require("../models/bankReconciliation");
 var Condominium = require("../models/condominio");
 const { addMonths, format, parseISO, isValid } = require("date-fns");
 const cron = require("node-cron");
@@ -24,265 +25,46 @@ const {
   invoiceHistoryRange,
 } = require("../service/invoiceHistoryRange");
 
+async function invoiceAttachments(req, invoices) {
+  const receipts = await TransferReceipt.find({
+    organizationId: req.auth.organizationId,
+    invoiceId: { $in: invoices.map((invoice) => invoice._id) },
+    ...(req.user.role === "OWNER" ? { ownerId: req.user.sub } : {}),
+  }).select("_id invoiceId originalName mimeType reconciliationStatus").sort({ createdAt: 1 }).lean();
+  const attachments = new Map();
+  for (const receipt of receipts) {
+    const key = String(receipt.invoiceId);
+    if (!attachments.has(key)) attachments.set(key, []);
+    attachments.get(key).push(receipt);
+  }
+  return attachments;
+}
+
 var invoiceController = {
   createInvoice: async function (req, res) {
-    let allow = ["ADMIN", "OWNER"];
-
-    if (!allow.includes(req.user.role)) {
-      return res.status(400).send({
-        status: "forbidden",
-        message: "No authorized.",
-      });
-    }
-
-    var params = req.body;
-    if (!canAccessCondominium(req.auth, params.condominiumId) ||
-        (req.user.role === "OWNER" && String(params.ownerId) !== String(req.user.sub))) {
-      return res.status(403).send({ status: "forbidden", message: "Factura fuera del alcance autorizado" });
-    }
-
-    /* Refactorizar metodo invoice:
-    1. Se requiere crear numero de factura al crearla - Done!
-    2. Crear metodo para confirmar que no esta duplicada la factura - Done!
-    */
-
+    const { access, condominium } = require("../service/financeAccess");
+    const { issueInvoice } = require("../service/invoiceIssuance");
+    const { operationKey } = require("../service/financeRules");
+    const crypto = require("crypto");
     try {
-      // Validate required fields
-      if (
-        validation.isEmpty(params.issueDate) ||
-        validation.isEmpty(params.ownerId) ||
-        validation.isEmpty(params.condominiumId) ||
-        validation.isEmpty(params.paymentDescription) ||
-        validation.isEmpty(params.amount)
-      ) {
-        throw new Error("Missing required fields");
-      }
-
-      // Validate date format
-      const issueDate = parseISO(params.issueDate);
-      if (!isValid(issueDate)) {
-        throw new Error("Invalid date format");
-      }
-    } catch (error) {
-      console.log(error);
-      return res.status(400).send({
-        status: "error",
-        message:
-          "Invalid data provided. Check required fields and date format.",
-      });
-    }
-
-    try {
-      const ownerCanBeInvoiced = await isOwnerActiveInCondominium(
-        params.ownerId,
-        params.condominiumId,
-        req.auth.organizationId
-      );
-      if (!ownerCanBeInvoiced) {
-        return res.status(403).send({
-          status: "forbidden",
-          code: "OWNER_CONDOMINIUM_INACTIVE",
-          message: "Invoices are paused for this owner in the condominium",
-        });
-      }
-
-      // Find existing invoices for this owner
-      let invoices = await Invoice.find({ ownerId: params.ownerId, organizationId: req.auth.organizationId });
-
-      // Check for duplicate invoice using date-fns for date comparison
-      let invoiceFound = invoices.filter((invoice) => {
-        const invoiceDate = format(invoice.issueDate, "yyyy-MM-dd");
-        const paramsDate = format(parseISO(params.issueDate), "yyyy-MM-dd");
-
-        return (
-          invoice.ownerId === params.ownerId &&
-          invoiceDate === paramsDate &&
-          invoice.paymentDescription === params.paymentDescription
-        );
-      });
-
-      if (invoiceFound.length > 0) {
-        return res.status(400).send({
-          status: "error",
-          message: "Invoice already exists for this date and description.",
-        });
-      }
-
-      // Create new invoice
-      const newInvoice = new Invoice();
-
-      // Accounting fields can only be changed by verified payment flows.
-      for (const key of ["condominiumId", "ownerId", "issueDate", "dueDate", "amount", "description", "unit", "unitNumber", "paymentDescription", "currency"]) {
-        if (Object.prototype.hasOwnProperty.call(params, key)) newInvoice[key] = params[key];
-      }
-      newInvoice.status = "active";
-      newInvoice.paymentStatus = "pending";
-      newInvoice.paidAmount = 0;
-      newInvoice.balancePending = Number(params.amount);
-
-      newInvoice.createdBy = req.user.sub;
-      newInvoice.organizationId = req.auth.organizationId;
-
-      // Save the invoice
-      await newInvoice.save();
-
-      return res.status(200).send({
-        status: "success",
-        message: "Invoice created successfully.",
-        invoice: {
-          id: newInvoice._id,
-          invoice_number: newInvoice.invoice_number,
-          amount: newInvoice.amount,
-        },
-      });
-    } catch (error) {
-      console.error("Error creating invoice:", error);
-      return res.status(500).send({
-        status: "error",
-        message: "Error creating invoice. Try again.",
-        details: error.message,
-      });
-    }
+      access(req, true, "finance.create");
+      const condo = await condominium(req, req.body.condominiumId);
+      const owner = await Owner.findOne({ _id: req.body.ownerId, organizationId: req.auth.organizationId }).lean();
+      const properties = require("../service/residentPropertyAccess").activeOwnerPropertyDetails(owner, condo._id);
+      const unitNumber = req.body.unitNumber || (properties.length === 1 ? properties[0].condominium_unit : null);
+      const invoice = await issueInvoice({ condominium: condo, ownerId: req.body.ownerId, unitNumber, amount: req.body.amount, issueDate: req.body.issueDate, dueDate: req.body.dueDate || new Date(Date.parse(req.body.issueDate) + 30 * 86400000).toISOString().slice(0, 10), currency: req.body.currency || "DOP", chargeType: "individual", sourceKey: "legacy-api:" + operationKey(req.body.idempotencyKey || crypto.randomUUID()), description: req.body.description || req.body.paymentDescription, createdBy: req.user.sub });
+      return res.status(200).send({ status: "success", message: "Invoice created successfully.", invoice: { id: invoice._id, invoice_number: invoice.invoice_number, amount: invoice.amount } });
+    } catch (error) { return res.status(error.status || (error.code === 11000 ? 409 : 400)).send({ status: "error", message: error.message }); }
   },
 
   generateInvoice: async function (req, res) {
-    // Generar facturas automáticamente el primer día de cada mes
-    var params = req.body;
-
+    const { access, condominium } = require("../service/financeAccess");
     try {
-      const condominiums = await Condominium.findOne({
-        _id: params.condominiumId,
-        organizationId: req.auth.organizationId,
-        status: { $ne: "inactive" },
-      }).lean();
-
-      if (!condominiums) {
-        return res.status(404).send({
-          status: "error",
-          message: "Condominium not found or inactive.",
-        });
-      }
-
-      const resInfo = [condominiums]; // Convert to array for consistency
-
-      for (const condominium of resInfo) {
-        // Find existing invoices with "new" status
-        const invoices = await Invoice.find({
-          condominiumId: condominium._id,
-          invoice_status: "new",
-        });
-
-        // Check and update expired invoices using date-fns
-        if (invoices.length > 0) {
-          const currentDate = new Date();
-
-          for (const invoice of invoices) {
-            // Check if invoice is due and update status
-            if (invoice.invoice_due && invoice.invoice_due < currentDate) {
-              invoice.invoice_status = "expired";
-              await invoice.save();
-              console.log(`Invoice ${invoice._id} marked as expired`);
-            }
-          }
-        }
-
-        // Generate new invoices for all owners
-        const ownerIds = [
-          ...new Set(
-            (condominium.units_ownerId || [])
-              .filter(
-                (entry) =>
-                  String(entry?.status || "active").toLowerCase() !== "inactive"
-              )
-              .map((entry) => String(entry?.ownerId || entry))
-          ),
-        ];
-        const invoicePromises = ownerIds.map(async (ownerId) => {
-          try {
-            if (
-              !(await isOwnerActiveInCondominium(
-                ownerId,
-                condominium._id,
-                req.auth.organizationId
-              ))
-            ) {
-              return null;
-            }
-
-            // Check if invoice already exists for this month
-            const currentMonth = format(new Date(), "yyyy-MM");
-            const existingInvoice = await Invoice.findOne({
-              condominiumId: condominium._id,
-              ownerId,
-              createdAt: {
-                $gte: new Date(currentMonth + "-01"),
-                $lt: addMonths(new Date(currentMonth + "-01"), 1),
-              },
-            });
-
-            if (existingInvoice) {
-              console.log(
-                `Invoice already exists for owner ${ownerId} this month`
-              );
-              return null;
-            }
-
-            // Create new invoice using date-fns for date calculations
-            const issueDate = new Date();
-            const dueDate = addMonths(issueDate, 1);
-
-            const newInvoice = new Invoice({
-              organizationId: req.auth.organizationId,
-              invoice_issue: issueDate,
-              invoice_due: dueDate,
-              invoice_amount: condominium.mPayment,
-              invoice_status: "new",
-              invoice_description:
-                condominium.description ||
-                `Monthly fee - ${format(issueDate, "MMMM yyyy")}`,
-              condominiumId: condominium._id,
-              createdBy: req.user.sub,
-              ownerId,
-            });
-
-            return await newInvoice.save();
-          } catch (error) {
-            console.error(
-              `Error creating invoice for owner ${ownerId}:`,
-              error
-            );
-            return null;
-          }
-        });
-
-        // Wait for all invoice creations to complete
-        const results = await Promise.allSettled(invoicePromises);
-        const successful = results.filter(
-          (result) => result.status === "fulfilled" && result.value !== null
-        ).length;
-
-        console.log(
-          `Generated ${successful}/${ownerIds.length} invoices for ${condominium.alias}`
-        );
-      }
-
-      return res.status(200).send({
-        status: "success",
-        message: "Invoices generated successfully.",
-        details: {
-          condominium: condominiums.alias,
-          totalOwners: ownerIds.length,
-          generatedAt: format(new Date(), "dd/MM/yyyy HH:mm:ss"),
-        },
-      });
-    } catch (error) {
-      console.error("Error generating invoices:", error);
-      return res.status(500).send({
-        status: "error",
-        message: "Invoices not generated, try again.",
-        details: error.message,
-      });
-    }
+      access(req, true, "finance.create");
+      const condo = await condominium(req, req.body.condominiumId);
+      const details = await require("../service/invoice_job").generateCondominiumInvoices(condo);
+      return res.status(details.failed ? 409 : 200).send({ status: details.failed ? "error" : "success", message: details.failed ? "Revise las unidades que no pudieron facturarse" : "Invoices generated successfully.", details });
+    } catch (error) { return res.status(error.status || 400).send({ status: "error", message: error.message }); }
   },
 
   getInvoices: async function (req, res) {
@@ -316,9 +98,11 @@ var invoiceController = {
         });
       }
 
+      const attachments = await invoiceAttachments(req, invoices);
       // Format dates using date-fns for response
       const formattedInvoices = invoices.map((invoice) => ({
         ...invoice.toObject(),
+        attachments: attachments.get(String(invoice._id)) || [],
         formattedIssueDate:
           invoice.issueDate && format(invoice.issueDate, "dd/MM/yyyy"),
         formattedDueDate:
@@ -448,9 +232,11 @@ var invoiceController = {
         });
       }
 
+      const attachments = await invoiceAttachments(req, invoices);
       // Format dates using date-fns for response
       const formattedInvoices = invoices.map((invoice) => ({
         ...invoice.toObject(),
+        attachments: attachments.get(String(invoice._id)) || [],
         formattedIssueDate:
           invoice.issueDate && format(invoice.issueDate, "dd/MM/yyyy"),
         formattedDueDate:
@@ -535,7 +321,7 @@ var invoiceController = {
         query.condominiumId = { $in: req.auth.scope.condominiumIds };
       }
       const invoices = await Invoice.find(query)
-        .select("amount paidAmount balancePending status paymentStatus createdAt")
+        .select("amount paidAmount adjustmentAmount creditAppliedAmount balancePending status paymentStatus createdAt")
         .sort({ createdAt: -1 })
         .lean();
 

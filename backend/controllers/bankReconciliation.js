@@ -98,6 +98,16 @@ const controller = {
   }),
   receipt: endpoint(async (req) => publicDoc(await scoped(TransferReceipt, req, req.params.id))),
   receiptFile: endpoint((req, res) => download(TransferReceipt, req, res)),
+  deleteReceipt: endpoint(async (req) => {
+    const receipt = await scoped(TransferReceipt, req, req.params.id);
+    // The conditional delete also protects against concurrent reconciliation.
+    const deleted = await TransferReceipt.deleteOne({
+      ...filter(req), _id: receipt._id, reconciliationStatus: "pending",
+      ...(req.user.role === "OWNER" ? { ownerId: req.user.sub } : {}),
+    });
+    if (deleted.deletedCount !== 1) throw problem("No puede eliminar un comprobante conciliado o que ha cambiado; vuelva a cargar", 409, "RECEIPT_DELETE_CONFLICT");
+    return { deletedId: String(receipt._id) };
+  }, false, "finance.delete"),
   uploadReceipt: endpoint(async (req) => {
     const invoice = await scoped(Invoice, req, req.body.invoiceId);
     const account = await scoped(BankAccount, req, req.body.bankAccountId);
@@ -108,8 +118,12 @@ const controller = {
     await mongoose.connection.transaction(async (session) => {
       const activeGateway = await PaymentTransaction.exists({ invoiceId: invoice._id, provider: { $nin: ["TRANSFERENCIA", "TRANSFER", "BANK_TRANSFER", "BANK TRANSFER"] }, status: { $in: ["pending", "processing", "succeeded"] } }).session(session);
       if (activeGateway) throw problem("La factura tiene un cobro por pasarela. Revíselo antes de usar transferencias", 409, "PAYMENT_WORKFLOW_CONFLICT");
-      const claimed = await Invoice.updateOne({ _id: invoice._id, organizationId: req.auth.organizationId, paymentWorkflow: { $ne: "gateway" } }, { $set: { paymentWorkflow: "bank_transfer" } }, { session });
+      // A real write serializes uploads for this invoice, including legacy receipts.
+      // Mongo retries conflicting transactions with a fresh snapshot before counting.
+      const claimed = await Invoice.updateOne({ _id: invoice._id, organizationId: req.auth.organizationId, paymentWorkflow: { $ne: "gateway" } }, { $set: { paymentWorkflow: "bank_transfer" }, $inc: { receiptUploadRevision: 1 } }, { session });
       if (claimed.matchedCount !== 1) throw problem("La factura utiliza una pasarela de pago; no se pueden mezclar ambos procesos", 409, "PAYMENT_WORKFLOW_CONFLICT");
+      const existing = await TransferReceipt.countDocuments({ organizationId: req.auth.organizationId, invoiceId: invoice._id }).session(session);
+      if (existing >= 3) throw problem("La factura admite un máximo de tres comprobantes", 409, "RECEIPT_LIMIT_REACHED");
       [receipt] = await TransferReceipt.create([{ ...file, organizationId: req.auth.organizationId, condominiumId: invoice.condominiumId, bankAccountId: account._id, invoiceId: invoice._id, ownerId: invoice.ownerId, uploadedBy: req.user.sub }], { session });
     });
     return publicDoc(receipt);
@@ -134,8 +148,19 @@ const controller = {
   statementFile: endpoint((req, res) => download(BankStatement, req, res), true),
   uploadStatement: endpoint(async (req) => {
     const account = await scoped(BankAccount, req, req.body.bankAccountId);
+    const file = original(req, "statement");
+    const identity = { ...filter(req), bankAccountId: account._id, sha256: file.sha256 };
+    const existing = await BankStatement.findOne(identity);
+    if (existing) return publicDoc(existing);
     if (await BankStatement.countDocuments({ organizationId: req.auth.organizationId, status: { $in: ["queued", "processing"] } }) >= 10) throw problem("Espere a que terminen los estados pendientes", 429);
-    return publicDoc(await BankStatement.create({ ...original(req, "statement"), organizationId: req.auth.organizationId, condominiumId: account.condominiumId, bankAccountId: account._id, uploadedBy: req.user.sub }));
+    try {
+      return publicDoc(await BankStatement.create({ ...file, organizationId: req.auth.organizationId, condominiumId: account.condominiumId, bankAccountId: account._id, uploadedBy: req.user.sub }));
+    } catch (error) {
+      if (error.code !== 11000) throw error;
+      const concurrent = await BankStatement.findOne(identity);
+      if (!concurrent) throw error;
+      return publicDoc(concurrent);
+    }
   }, true, "finance.create"),
   retryStatement: endpoint(async (req) => {
     const statement = await scoped(BankStatement, req, req.params.id);
@@ -147,15 +172,21 @@ const controller = {
     let result;
     await mongoose.connection.transaction(async (session) => {
       const statement = await scoped(BankStatement, req, req.params.id, session);
-      if (statement.status === "committed") { result = publicDoc(statement); return; }
-      if (statement.status !== "ready") throw problem("El estado aún no está listo para revisión", 409);
+      if (!["ready", "committed"].includes(statement.status)) throw problem("El estado aún no está listo para revisión", 409);
       const account = await scoped(BankAccount, req, statement.bankAccountId, session);
-      const rows = normalizeStatementRows(req.body.rows, account.currency);
+      const submitted = normalizeStatementRows(req.body.rows, account.currency);
+      const imported = await BankMovement.find({ organizationId: req.auth.organizationId, statementId: statement._id }).session(session).lean();
+      const fingerprints = new Set(imported.map(row => row.fingerprint));
+      const rows = submitted.filter(row => !fingerprints.has(row.fingerprint));
+      if (rows.some(row => imported.some(saved => saved.sourceRow === row.sourceRow))) throw problem("No puede modificar una fila ya importada. Revise únicamente los movimientos pendientes", 409, "IMPORTED_ROW_LOCKED");
+      if (!rows.length) { result = publicDoc(statement); return; }
+      if (imported.length + rows.length > 1000) throw problem("El estado admite un máximo de 1000 movimientos");
       const duplicate = await BankMovement.exists({ organizationId: req.auth.organizationId, bankAccountId: account._id, fingerprint: { $in: rows.map((row) => row.fingerprint) } }).session(session);
       if (duplicate) throw problem("Hay movimientos ya importados en otro estado. Revise el período superpuesto y quite únicamente las filas verificadas como duplicadas", 409, "OVERLAPPING_STATEMENT");
-      await BankMovement.insertMany(rows.map((row) => ({ ...row, organizationId: req.auth.organizationId, condominiumId: account.condominiumId, bankAccountId: account._id, statementId: statement._id })), { session });
-      statement.status = "committed"; statement.committedAt = new Date(); statement.committedBy = req.user.sub; statement.reviewedRows = rows;
+      statement.status = "committed"; statement.committedAt = new Date(); statement.committedBy = req.user.sub;
+      statement.reviewedRows = [...(statement.reviewedRows || []), ...rows];
       await statement.save({ session });
+      await BankMovement.insertMany(rows.map((row) => ({ ...row, organizationId: req.auth.organizationId, condominiumId: account.condominiumId, bankAccountId: account._id, statementId: statement._id })), { session });
       result = publicDoc(statement);
     });
     return result;
@@ -164,8 +195,13 @@ const controller = {
   candidates: endpoint(async (req) => {
     const receipt = await scoped(TransferReceipt, req, req.params.id);
     const fields = normalizeFields(receipt.fields);
-    const docs = await BankMovement.find({ ...filter(req), bankAccountId: receipt.bankAccountId, direction: "credit", allocatedReceiptId: null, amountMinor: moneyMinor(fields.amount), currency: fields.currency }).sort({ date: -1 }).limit(200).lean();
-    return { docs: docs.map((movement) => ({ movement, ...compareReceipt(fields, movement) })).filter((candidate) => candidate.eligible).sort((a, b) => Number(b.referenceMatches) - Number(a.referenceMatches) || a.dayDifference - b.dayDifference), requiresReview: true };
+    const docs = await BankMovement.find({ ...filter(req), bankAccountId: receipt.bankAccountId, direction: "credit", allocatedReceiptId: null, financeEntryId: null, amountMinor: moneyMinor(fields.amount), currency: fields.currency }).sort({ date: -1 }).limit(200).lean();
+    const compared = docs.map((movement) => ({ movement, ...compareReceipt(fields, movement) }));
+    return {
+      docs: compared.filter((candidate) => candidate.eligible).sort((a, b) => Number(b.referenceMatches) - Number(a.referenceMatches) || a.dayDifference - b.dayDifference),
+      excluded: compared.filter((candidate) => !candidate.eligible).sort((a, b) => a.dayDifference - b.dayDifference),
+      requiresReview: true,
+    };
   }, true),
   confirm: endpoint(async (req) => {
     const movementId = id(req.body.movementId);
@@ -192,7 +228,7 @@ const controller = {
       if (String(invoice.ownerId) !== String(receipt.ownerId) || String(invoice.condominiumId) !== String(receipt.condominiumId) || (invoice.currency || "DOP") !== movement.currency) throw problem("Factura incompatible con la evidencia bancaria", 409);
       const allocation = allocatePayment(invoice, movement.amountMinor);
       const now = new Date();
-      const claimed = await BankMovement.updateOne({ _id: movement._id, allocatedReceiptId: null }, { $set: { allocatedReceiptId: receipt._id, allocatedAt: now } }, { session });
+      const claimed = await BankMovement.updateOne({ _id: movement._id, allocatedReceiptId: null, financeEntryId: null }, { $set: { allocatedReceiptId: receipt._id, allocatedAt: now } }, { session });
       if (claimed.modifiedCount !== 1) throw problem("El movimiento ya fue aplicado", 409);
       invoice.paidAmount = allocation.paidAmount;
       invoice.paymentWorkflow = "bank_transfer";
@@ -202,7 +238,7 @@ const controller = {
       invoice.paymentMethod = "TRANSFERENCIA";
       invoice.invoice_paid_date = allocation.remainingBalance === 0 ? now : null;
       await invoice.save({ session });
-      if (allocation.creditAmount > 0) await OwnerCredit.create([{ organizationId: req.auth.organizationId, condominiumId: receipt.condominiumId, ownerId: receipt.ownerId, receiptId: receipt._id, movementId: movement._id, currency: movement.currency, amountMinor: Math.round(allocation.creditAmount * 100), amount: allocation.creditAmount, createdBy: req.user.sub }], { session });
+      if (allocation.creditAmount > 0) await OwnerCredit.create([{ organizationId: req.auth.organizationId, condominiumId: receipt.condominiumId, ownerId: receipt.ownerId, invoiceId: invoice._id, unitNumber: invoice.unitNumber, unitId: invoice.unitId, receiptId: receipt._id, movementId: movement._id, currency: movement.currency, amountMinor: Math.round(allocation.creditAmount * 100), amount: allocation.creditAmount, createdBy: req.user.sub }], { session });
       await PaymentTransaction.create([{ organizationId: req.auth.organizationId, condominiumId: receipt.condominiumId, invoiceId: receipt.invoiceId, ownerId: receipt.ownerId, provider: "TRANSFERENCIA", bankName: receipt.fields.bank || "", amount: movement.amountMinor / 100, currency: movement.currency, idempotencyKey: `receipt:${receipt._id}`, providerTransactionId: String(movement._id), providerReference: movement.reference, status: "succeeded", reconciliationStatus: "matched", confirmedAt: now, metadata: { source: "bank_statement", receiptId: receipt._id, movementId: movement._id, statementId: movement.statementId, reviewedBy: req.user.sub, note, comparison, allocation } }], { session });
       receipt.reconciliationStatus = "confirmed"; receipt.confirmedAt = now; receipt.confirmedBy = req.user.sub; receipt.movementId = movement._id; receipt.allocation = { ...allocation, note, comparison };
       await receipt.save({ session });
@@ -219,7 +255,7 @@ const controller = {
       OwnerCredit.find(query).sort({ createdAt: -1 }).limit(200).lean(),
       OwnerCredit.aggregate([
         { $match: castQuery },
-        { $group: { _id: { ownerId: "$ownerId", condominiumId: "$condominiumId", currency: "$currency" }, amountMinor: { $sum: "$amountMinor" } } },
+        { $group: { _id: { ownerId: "$ownerId", condominiumId: "$condominiumId", currency: "$currency" }, amountMinor: { $sum: { $subtract: ["$amountMinor", { $ifNull: ["$consumedMinor", 0] }] } } } },
         { $project: { _id: 0, ownerId: "$_id.ownerId", condominiumId: "$_id.condominiumId", currency: "$_id.currency", amountMinor: 1, amount: { $divide: ["$amountMinor", 100] } } },
       ]),
     ]);

@@ -22,7 +22,9 @@ def money(value: str) -> str | None:
     """Return exact decimal text, rejecting ambiguous grouping."""
     value = re.sub(r"(?:RD\$|US\$|DOP|USD|EUR|\$|€|\s)", "", value, flags=re.IGNORECASE)
     if re.fullmatch(r"-?[.,]\d{1,2}", value):
-        value = value.replace(".", "0.", 1) if "." in value else value.replace(",", "0,", 1)
+        value = (
+            value.replace(".", "0.", 1) if "." in value else value.replace(",", "0,", 1)
+        )
     if not re.fullmatch(r"-?\d+(?:[.,]\d+)*", value):
         return None
     # A lone separator followed by three digits is ambiguous; never guess.
@@ -50,6 +52,18 @@ def money(value: str) -> str | None:
 
 def date(value: str) -> str | None:
     """Parse day-first bank dates or explicit ISO dates."""
+    months = {
+        name: number for number, name in enumerate(
+            ("enero", "febrero", "marzo", "abril", "mayo", "junio", "julio",
+             "agosto", "septiembre", "octubre", "noviembre", "diciembre"), 1
+        )
+    }
+    match = re.fullmatch(r"(\d{1,2})\s+de\s+([a-z]+)\s+(?:de\s+)?(\d{4})", key(value))
+    if match and match[2] in months:
+        try:
+            return datetime(int(match[3]), months[match[2]], int(match[1])).date().isoformat()
+        except ValueError:
+            return None
     for fmt in ("%d/%m/%Y", "%d-%m-%Y", "%Y-%m-%d"):
         try:
             parsed_date = datetime.strptime(value.strip(), fmt)  # noqa: DTZ007
@@ -59,7 +73,37 @@ def date(value: str) -> str | None:
     return None
 
 
-def receipt_fields(text: str) -> dict[str, str | None]:
+def labeled_amounts(lines: list[dict[str, Any]]) -> list[str]:
+    """Associate amounts below their column label, excluding taxes and balances."""
+    labels = [line for line in lines if re.fullmatch(
+        r"monto(?: transferido)?|importe|total|impuesto|comision|balance|saldo", key(line["text"])
+    )]
+    amounts = []
+    for line in lines:
+        if not re.fullmatch(r"(?:RD\$|US\$|DOP|USD|EUR|\$)\s*\d[\d.,]*", line["text"], re.IGNORECASE):
+            continue
+        box = line["box"]
+        left, right = min(point[0] for point in box), max(point[0] for point in box)
+        top = min(point[1] for point in box)
+        height = max(point[1] for point in box) - top
+        candidates = []
+        for label in labels:
+            if label.get("page") != line.get("page"):
+                continue
+            label_box = label["box"]
+            center = sum(point[0] for point in label_box) / len(label_box)
+            bottom = max(point[1] for point in label_box)
+            if left <= center <= right and 0 <= top - bottom <= height * 4:
+                candidates.append((top - bottom, label))
+        if candidates:
+            nearest = min(distance for distance, _ in candidates)
+            names = {key(label["text"]) for distance, label in candidates if distance == nearest}
+            if len(names) == 1 and re.fullmatch(r"monto(?: transferido)?|importe|total", names.pop()):
+                amounts.append(line["text"])
+    return amounts
+
+
+def receipt_fields(text: str, lines: list[dict[str, Any]] | None = None) -> dict[str, str | None]:
     """Extract unique labeled candidates; missing or conflicting fields stay null."""
     fields: dict[str, str | None] = dict.fromkeys(
         ("amount", "currency", "date", "reference", "bank")
@@ -69,6 +113,14 @@ def receipt_fields(text: str) -> dict[str, str | None]:
         r"(?:monto(?:\s+transferido)?|importe|total)\s*[:\-]?\s*((?:RD\$|US\$|DOP|USD|EUR|\$)?\s*\d[\d.,]*)",
         text,
         re.IGNORECASE,
+    )
+    # Some vouchers display only a currency-qualified amount on its own line.
+    # Include all such candidates so conflicting amounts still require review.
+    column_amounts = labeled_amounts(lines or [])
+    amounts += column_amounts or re.findall(
+        r"^[ \t]*((?:RD\$|US\$|DOP|USD|EUR|\$)[ \t]*\d[\d.,]*)[ \t]*$",
+        text,
+        re.IGNORECASE | re.MULTILINE,
     )
     values = {money(v) for v in amounts} - {None}
     if len(values) == 1:
@@ -87,12 +139,24 @@ def receipt_fields(text: str) -> dict[str, str | None]:
         date(v)
         for v in re.findall(r"\b(?:\d{2}[/-]\d{2}[/-]\d{4}|\d{4}-\d{2}-\d{2})\b", text)
     } - {None}
+    dates |= {
+        date(v) for v in re.findall(
+            r"\b\d{1,2}\s+de\s+[a-z]+\s+(?:de\s+)?\d{4}\b", normalized
+        )
+    } - {None}
     if len(dates) == 1:
         fields["date"] = dates.pop()
     references = re.findall(
-        r"(?:referencia|comprobante|confirmacion)(?:\s*(?:no\.?|numero|#))?\s*[:\-]?\s*([a-z0-9][a-z0-9-]{3,})",
+        r"\b(?:referencia|comprobante|confirmacion)(?:[ \t]*(?:no\.?|numero|#))?[ \t]*[:\-]?[ \t]*([a-z0-9][a-z0-9-]{3,})\b",
         normalized,
     )
+    references = [value for value in references if value not in {
+        "completado", "datos", "confirmacion", "procesada", "pendiente", "transferencia"
+    }]
+    # A processed transaction can show its identifier on a separate line.
+    # Masked accounts, amounts and navigation steps are never identifiers.
+    if re.search(r"\btransaccion\s+procesada\b", normalized):
+        references += re.findall(r"^[ \t]*(\d{8,30})[ \t]*$", normalized, re.MULTILINE)
     if len(set(references)) == 1:
         fields["reference"] = references[0].upper()
     banks = re.findall(
@@ -100,6 +164,19 @@ def receipt_fields(text: str) -> dict[str, str | None]:
         text,
         re.IGNORECASE | re.MULTILINE,
     )
+    # A bank heading has no colon, but must occupy the whole line. Do not
+    # accept transfer descriptions mentioning multiple banks as a bank name.
+    banks += [
+        heading.strip()
+        for heading in re.findall(
+            r"^[ \t]*(Banco[ \t]+[^\n\r:]+)[ \t]*$",
+            text,
+            re.IGNORECASE | re.MULTILINE,
+        )
+        if not re.search(
+            r"\b(?:a|hacia|desde|emisor|receptor|destino|origen)\b", key(heading)
+        )
+    ]
     if len(set(banks)) == 1:
         fields["bank"] = banks[0].strip()
     return fields

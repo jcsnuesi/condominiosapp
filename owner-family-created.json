@@ -1,0 +1,14 @@
+{
+  "id": "6ac015a2a915989b1e1f52fc",
+  "name": "Family QA",
+  "lastname": "Change",
+  "email": "family.change.1790973344103@qa.condominios.local",
+  "role": "FAMILY",
+  "status": "active",
+  "property": [
+    {
+      "unit": "002",
+      "status": "authorized"
+    }
+  ]
+}

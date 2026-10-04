@@ -12,15 +12,17 @@
           <div class="field">
             <label for="condominiumId">{{ isOwner ? 'Property' : 'Condominium' }}</label>
             <p-select inputId="condominiumId" [options]="propertyOptions"
+              [ariaLabel]="isOwner ? 'Property' : 'Condominium'"
               optionLabel="label" optionValue="value" [filter]="true"
               [loading]="optionsLoading" [disabled]="optionsLoading"
               placeholder="Select a property" [(ngModel)]="filters.condominiumId"
-              (onChange)="onPropertyChange()"></p-select>
+              (onChange)="onPropertyChange(); applyFilters()"></p-select>
             </div>
 
             <div class="field">
               <label for="unitNumber">Unit</label>
               <p-select inputId="unitNumber" [options]="unitOptions"
+                ariaLabel="Unit"
                 optionLabel="label" optionValue="value" [filter]="true"
                 [disabled]="!filters.condominiumId" [(ngModel)]="filters.unitNumber"
                 (onChange)="applyFilters()"></p-select>
@@ -32,6 +34,7 @@
                 <label for="provider">Provider</label>
                 <p-select
                   inputId="provider"
+                  ariaLabel="Provider"
                   [options]="providerOptions"
                   optionLabel="label"
                   optionValue="value"
@@ -45,6 +48,7 @@
                 <div class="field">
                   <label for="bankName">Banco</label>
                   <p-select inputId="bankName" [options]="bankOptions" optionLabel="label"
+                    ariaLabel="Banco"
                     optionValue="value" [filter]="true" [(ngModel)]="filters.bankName"
                     (onChange)="applyFilters()"></p-select>
                 </div>
@@ -54,10 +58,12 @@
                 <label for="status">Status</label>
                 <p-select
                   inputId="status"
+                  ariaLabel="Status"
                   [options]="statusOptions"
                   optionLabel="label"
                   optionValue="value"
                   [(ngModel)]="filters.status"
+                  (onChange)="applyFilters()"
                 ></p-select>
               </div>
 
@@ -65,10 +71,12 @@
                 <label for="reconciliationStatus">Reconciliation</label>
                 <p-select
                   inputId="reconciliationStatus"
+                  ariaLabel="Reconciliation"
                   [options]="reconciliationFilterOptions"
                   optionLabel="label"
                   optionValue="value"
                   [(ngModel)]="filters.reconciliationStatus"
+                  (onChange)="applyFilters()"
                 ></p-select>
               </div>
 
@@ -97,6 +105,7 @@
                   </div>
                 </div>
 
+                <p class="text-sm text-color-secondary">Las fechas filtran el intento de pago; si la factura aún no tiene intentos, se usa su fecha de emisión.</p>
                 <div class="toolbar">
                   <p-button
                     styleClass="monitor-primary-action"
@@ -174,11 +183,11 @@
               <ng-template pTemplate="body" let-row>
                 <tr>
                   <td>{{ row.invoiceId }}</td>
-                  <td>{{ row.ownerId }}</td>
+                  <td>{{ row.ownerName || 'Owner unavailable' }}</td>
                   <td>{{ row.unitNumber || '-' }}</td>
                   <td>{{ (row.issueDate | date : 'dd/MM/yyyy') || '-' }}</td>
                   <td>{{ (row.dueDate | date : 'dd/MM/yyyy') || '-' }}</td>
-                  <td>{{ row.provider }} @if (row.bankName) { <small>{{ row.bankName }}</small> }</td>
+                  <td>{{ row.provider || '-' }} @if (row.bankName) { <small>{{ row.bankName }}</small> }</td>
                   <td>{{ row.amount | currency : (row.currency || 'DOP') }}</td>
                   <td>
                     <p-tag
@@ -188,13 +197,18 @@
                   </td>
                   <td>
                     <p-tag
-                      [value]="row.reconciliationStatus"
+                      [value]="row.reconciliationStatus === 'not_started' ? 'Not started' : row.reconciliationStatus"
                       [severity]="getSeverity(row.reconciliationStatus)"
                     ></p-tag>
                   </td>
                   <td>{{ row.providerTransactionId || "-" }}</td>
-                  <td>{{ row.attemptedAt | date : "dd/MM/yyyy HH:mm" }}</td>
+                  <td>{{ (row.attemptedAt | date : "dd/MM/yyyy HH:mm") || '-' }}</td>
                   <td>
+                    @if (canDownloadInvoice(row)) {
+                      <p-button icon="pi pi-file-pdf" size="small" severity="danger" [text]="true"
+                        [ariaLabel]="'Download paid invoice PDF ' + row.invoiceId"
+                        title="Download paid invoice PDF" (onClick)="downloadInvoice(row)" />
+                    }
                     @if (canReconcile(row)) {
                       <p-button
                         label="Resolve"
@@ -204,7 +218,7 @@
                         (onClick)="openReconciliationDialog(row)"
                       ></p-button>
                     }
-                    @if (!canReconcile(row)) {
+                    @if (!canReconcile(row) && !canDownloadInvoice(row)) {
                       <span>-</span>
                     }
                   </td>
@@ -213,34 +227,38 @@
 
               <ng-template pTemplate="emptymessage">
                 <tr>
-                  <td colspan="12">No transactions found with current filters.</td>
+                  <td colspan="12">No invoices or transactions found with current filters.</td>
                 </tr>
               </ng-template>
             </p-table>
         @if (viewMode === 'cards') {
-            @if (loading) { <div class="monitor-empty" role="status">Loading transactions...</div> } @else {
+            @if (loading) { <div class="monitor-empty" role="status">Loading invoices and transactions...</div> } @else {
                 <div class="transaction-grid">
                     @for (row of docs; track $index) {
                         <article class="transaction-card">
                             <div class="transaction-heading"><span class="section-kicker">Invoice</span><h3>{{ row.invoiceId }}</h3></div>
                             <strong class="transaction-amount">{{ row.amount | currency:(row.currency || 'DOP') }}</strong>
                             <div class="transaction-status"><span>Status</span><p-tag [value]="row.status" [severity]="getSeverity(row.status)" /></div>
-                            <div class="transaction-status"><span>Reconciliation</span><p-tag [value]="row.reconciliationStatus" [severity]="getSeverity(row.reconciliationStatus)" /></div>
+                            <div class="transaction-status"><span>Reconciliation</span><p-tag [value]="row.reconciliationStatus === 'not_started' ? 'Not started' : row.reconciliationStatus" [severity]="getSeverity(row.reconciliationStatus)" /></div>
                             <dl class="transaction-details">
-                                <div><dt>Owner</dt><dd>{{ row.ownerId }}</dd></div>
+                                <div><dt>Owner</dt><dd>{{ row.ownerName || 'Owner unavailable' }}</dd></div>
                                 <div><dt>Unit</dt><dd>{{ row.unitNumber || '-' }}</dd></div>
                                 <div><dt>Issue date</dt><dd>{{ (row.issueDate | date:'dd/MM/yyyy') || '-' }}</dd></div>
                                 <div><dt>Due</dt><dd>{{ (row.dueDate | date:'dd/MM/yyyy') || '-' }}</dd></div>
-                                <div><dt>Provider</dt><dd>{{ row.provider }} @if (row.bankName) { <small>{{ row.bankName }}</small> }</dd></div>
+                                <div><dt>Provider</dt><dd>{{ row.provider || '-' }} @if (row.bankName) { <small>{{ row.bankName }}</small> }</dd></div>
                                 <div><dt>Provider Tx ID</dt><dd>{{ row.providerTransactionId || '-' }}</dd></div>
-                                <div><dt>Attempted at</dt><dd>{{ row.attemptedAt | date:'dd/MM/yyyy HH:mm' }}</dd></div>
+                                <div><dt>Attempted at</dt><dd>{{ (row.attemptedAt | date:'dd/MM/yyyy HH:mm') || '-' }}</dd></div>
                             </dl>
+                            @if (canDownloadInvoice(row)) {
+                                <p-button label="Download PDF" icon="pi pi-file-pdf" severity="danger" [text]="true"
+                                    [ariaLabel]="'Download paid invoice PDF ' + row.invoiceId" (onClick)="downloadInvoice(row)" />
+                            }
                             @if (canReconcile(row)) {
                                 <p-button label="Resolve" icon="pi pi-check-circle" [outlined]="true"
                                     styleClass="monitor-resolve-action" (onClick)="openReconciliationDialog(row)" />
                             }
                         </article>
-                    } @empty { <div class="monitor-empty">No transactions found with current filters.</div> }
+                    } @empty { <div class="monitor-empty">No invoices or transactions found with current filters.</div> }
                 </div>
             }
             <p-paginator [first]="first" [rows]="filters.limit" [totalRecords]="total"

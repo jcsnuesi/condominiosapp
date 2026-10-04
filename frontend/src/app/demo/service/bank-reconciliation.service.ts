@@ -9,7 +9,7 @@ export interface BankFields { amount?: number | string; date?: string; reference
 export interface BankMovement extends BankFields { _id: string; description?: string; sourceRow?: number; direction?: string; }
 export interface Receipt { _id: string; invoiceId: string; bankAccountId: string; status?: string; ocrStatus?: string; reconciliationStatus?: string; fields?: BankFields; extractedFields?: BankFields; originalName?: string; error?: string; warnings?: string[]; allocation?: { appliedAmount: number; creditAmount: number; remainingBalance: number }; }
 export interface Statement { _id: string; bankAccountId?: string; status: string; rows: BankMovement[]; reviewedRows?: BankMovement[]; error?: string; headers?: string[]; rawRows?: string[][]; ocr?: { text?: string }; warnings?: string[]; }
-export interface Candidate { movement: BankMovement; reasons?: string[]; eligible?: boolean; }
+export interface Candidate { movement: BankMovement; reasons?: string[]; eligible?: boolean; referenceMatches?: boolean; dayDifference?: number; }
 export interface Confirmation { outstandingBalance?: number; creditBalance?: number; }
 
 @Injectable({ providedIn: 'root' })
@@ -29,5 +29,8 @@ export class BankReconciliationService {
     return this.http.patch<{ data: T }>(this.base + path, body, { headers: this.headers }).pipe(map(response => response.data));
   }
   file(id: string) { return this.http.get(`${this.base}receipts/${id}/file`, { headers: this.headers, responseType: 'blob' }); }
+  deleteReceipt(id: string) {
+    return this.http.delete<{ data: { deletedId: string } }>(`${this.base}receipts/${id}`, { headers: this.headers }).pipe(map(response => response.data));
+  }
   statementFile(id: string) { return this.http.get(`${this.base}statements/${id}/file`, { headers: this.headers, responseType: 'blob' }); }
 }

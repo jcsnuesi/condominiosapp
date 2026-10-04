@@ -46,6 +46,14 @@ Una factura utiliza un solo flujo de pago: transferencia conciliada o pasarela. 
 
 ## Operación
 
+Los logs del contenedor OCR registran `OCR request started`, `OCR extraction completed` y `OCR request finished` con un identificador local para relacionar los eventos, duración y estado HTTP. La finalización informa el número de líneas y campos detectados, sin valores financieros, texto del documento ni tokens. Los errores de autenticación y extracción también generan un evento final con su estado HTTP. `/health` no genera estos registros. Consultar con `docker compose -f builder.yml logs -f ocr-service`.
+
+Para comprobar la comunicación autenticada y el procesamiento real del backend sin escribir en MongoDB, copiar un comprobante al contenedor backend y ejecutar `docker compose -f builder.yml exec -T backend node scripts/checkReceiptOcr.js /tmp/comprobante.jpeg`. El diagnóstico informa el estado de salud, el estado final del worker y los campos extraídos; no imprime credenciales. El archivo contiene datos financieros: eliminar la copia temporal al terminar.
+
+La extracción admite fechas con meses en español y montos debajo de su etiqueta en columnas separadas del impuesto. Una referencia numérica sin etiqueta se admite en comprobantes que muestran «TRANSACCIÓN PROCESADA» y un único identificador independiente. Los pasos de navegación, como «Confirmación Completado», no son referencias. Si el nombre del banco no aparece en la imagen, se conserva vacío; el nombre del archivo no acredita el banco. Los comprobantes ya procesados conservan su extracción anterior hasta corregirse o cargarse nuevamente tras eliminar el registro pendiente.
+
+El backend conecta a `http://ocr-service:2020` dentro de la red de Compose. Compose entrega el mismo `OCR_SERVICE_TOKEN` a ambos servicios y espera a que el OCR esté saludable antes de iniciar el backend. Payment Monitor actualiza automáticamente los comprobantes pendientes y el detalle abierto al terminar la extracción. `OCR_SERVICE_UNREACHABLE` identifica un fallo de conexión; `OCR_SERVICE_TIMEOUT` indica que se agotó el tiempo de espera.
+
 Configurar `OCR_SERVICE_TOKEN` en el entorno de Compose o en un archivo `.env` en la raíz, tomando como referencia `.env.ocr.example`. Utilizar un valor aleatorio de al menos 32 caracteres, compartido entre backend y servicio OCR. El `.env` del backend por sí solo no proporciona variables a la interpolación de Compose. Sin token válido la extracción falla de forma explícita; no se confirma ningún pago.
 
 Validar configuración con `docker compose -f builder.yml config --quiet`. Para construir los servicios: `docker compose -f builder.yml build backend ocr-service`. La activación posterior usa `docker compose -f builder.yml up -d backend ocr-service`. MongoDB debe funcionar como replica set para que la importación y la contabilización sean atómicas.
@@ -57,6 +65,8 @@ La primera carga de modelos OCR puede requerir acceso a Internet y más tiempo q
 El backend admite originales de hasta 8 MiB y hasta 1000 movimientos revisados por importación. Los PDF admiten hasta 20 páginas en el servicio. El procesador conserva trabajos en MongoDB, usa una reserva temporal de cinco minutos y hasta tres intentos; los fallos quedan visibles y pueden reintentarse. Los archivos originales solo se descargan mediante una ruta autenticada.
 
 Las sugerencias comparan cuenta receptora, monto, moneda y fechas dentro de cinco días. Una referencia ausente o distinta exige una justificación administrativa. No se considera que el nombre del banco emisor tenga que coincidir con el banco receptor. Los estados con movimientos ya importados se bloquean para revisión; se pueden quitar únicamente las filas verificadas como repetidas. Sin un identificador bancario estable no puede garantizarse distinguir automáticamente todos los movimientos idénticos.
+
+Los abonos disponibles del mismo monto y moneda que quedan fuera del margen de fechas se muestran en «Movimientos importados descartados», con las razones de exclusión. La existencia de un movimiento importado no habilita por sí sola la confirmación. Si las fechas originales son correctas, debe identificarse el abono correspondiente; una nota por diferencia de referencia no anula la restricción de fecha.
 
 Prueba de integración: definir `BANK_TEST_MONGODB_URI` apuntando a un replica set aislado y ejecutar desde `backend` `node --test test/bank-reconciliation.integration.test.js`. La prueba crea una base `ocr_test_*` aleatoria y elimina exclusivamente esa base al terminar. Sin esa variable, se omite la integración y las pruebas unitarias siguen disponibles.
 

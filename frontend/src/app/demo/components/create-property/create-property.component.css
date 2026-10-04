@@ -1,5 +1,5 @@
 /* ============================================
-   CREATE PROPERTY — COMPONENT STYLES
+   CREATE PROPERTY â€” COMPONENT STYLES
    ============================================ */
 
 /* Page wrapper */
@@ -44,34 +44,13 @@
     }
 }
 
-.cp-header-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
-    background: var(--p-primary-color, #6366f1);
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.4rem;
-    flex-shrink: 0;
-}
-
-@media (max-width: 480px) {
-    .cp-header-icon {
-        width: 40px;
-        height: 40px;
-        font-size: 1.2rem;
-    }
-}
-
 .cp-kicker {
     display: block;
     font-size: 0.7rem;
     font-weight: 600;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--p-primary-color, #6366f1);
+    color: var(--property-primary);
     margin-bottom: 0.15rem;
 }
 
@@ -85,7 +64,7 @@
 .cp-subtitle {
     margin: 0;
     font-size: 0.85rem;
-    color: var(--p-text-muted-color, #94a3b8);
+    color: var(--property-muted);
 }
 
 @media (max-width: 640px) {
@@ -149,7 +128,7 @@
 .cp-field label {
     font-size: 0.82rem;
     font-weight: 600;
-    color: var(--p-text-color, #334155);
+    color: var(--property-ink);
     letter-spacing: 0.01em;
 }
 
@@ -168,7 +147,7 @@
 .cp-section-label {
     font-size: 0.82rem;
     font-weight: 600;
-    color: var(--p-text-color, #334155);
+    color: var(--property-ink);
 }
 
 @media (max-width: 640px) {
@@ -226,9 +205,9 @@
     width: 100%;
 }
 
-::ng-deep .cp-stepper .p-inputnumber,
-::ng-deep .cp-stepper .p-select,
-::ng-deep .cp-stepper .p-multiselect {
+:host ::ng-deep .cp-stepper .p-inputnumber,
+:host ::ng-deep .cp-stepper .p-select,
+:host ::ng-deep .cp-stepper .p-multiselect {
     width: 100%;
 }
 
@@ -254,7 +233,7 @@
     border-radius: 50%;
     cursor: pointer;
     overflow: hidden;
-    border: 2px solid var(--p-surface-border, #e2e8f0);
+    border: 2px solid var(--property-line);
     transition: border-color 0.2s;
 }
 
@@ -274,7 +253,7 @@
 }
 
 .cp-avatar-wrap:hover {
-    border-color: var(--p-primary-color, #6366f1);
+    border-color: var(--property-primary);
 }
 
 .cp-avatar-img {
@@ -309,7 +288,7 @@
 
 .cp-avatar-hint {
     font-size: 0.72rem;
-    color: var(--p-text-muted-color, #94a3b8);
+    color: var(--property-muted);
     margin: 0;
 }
 
@@ -319,10 +298,10 @@
     }
 }
 
-/* ---- Radio group — segmented control ---- */
+/* ---- Radio group â€” segmented control ---- */
 .cp-radio-group {
     display: inline-flex;
-    background: var(--p-surface-ground, #f1f5f9);
+    background: #fff;
     border-radius: 9px;
     padding: 3px;
     gap: 2px;
@@ -354,7 +333,7 @@
     cursor: pointer;
     font-size: 0.83rem;
     font-weight: 500;
-    color: var(--p-text-muted-color, #64748b);
+    color: var(--property-muted);
     transition: color 0.18s;
     user-select: none;
     white-space: nowrap;
@@ -378,9 +357,9 @@
 }
 
 .cp-radio-option.active {
-    background: var(--p-surface-card, #ffffff);
-    color: var(--p-text-color, #1e293b);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.09), 0 1px 2px rgba(0, 0, 0, 0.05);
+    background: #e8f2f5;
+    color: var(--property-ink);
+    box-shadow: none;
 }
 
 .cp-radio-option small {
@@ -391,15 +370,15 @@
     font-size: 0.72rem;
 }
 
-/* Hide native radio circle — the segmented container is the visual indicator */
-::ng-deep .cp-radio-group .p-radiobutton {
+/* Hide native radio circle â€” the segmented container is the visual indicator */
+:host ::ng-deep .cp-radio-group .p-radiobutton {
     display: none !important;
 }
 
 /* ---- Unit preview ---- */
 .cp-preview-box {
-    background: var(--p-surface-ground, #f8fafc);
-    border: 1px solid var(--p-surface-border, #e2e8f0);
+    background: #f5f8fb;
+    border: 1px solid var(--property-line);
     border-radius: 10px;
     padding: 0.85rem 1rem;
 }
@@ -421,7 +400,7 @@
 .cp-preview-label {
     font-size: 0.78rem;
     font-weight: 600;
-    color: var(--p-text-muted-color, #64748b);
+    color: var(--property-muted);
     display: block;
     margin-bottom: 0.6rem;
 }
@@ -472,7 +451,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 1.25rem 0 0.25rem;
-    border-top: 1px solid var(--p-surface-border, #e2e8f0);
+    border-top: 1px solid var(--property-line);
     margin-top: 1rem;
 }
 
@@ -497,119 +476,9 @@
     box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.15);
 }
 
-::ng-deep .input-error-dropdown .p-select {
+:host ::ng-deep .input-error-dropdown .p-select {
     border-color: #ef4444 !important;
     box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.15);
-}
-
-/* Radio Button Group Styling */
-::ng-deep .field-radiobutton {
-    display: flex;
-    align-items: center;
-    margin-bottom: 0.5rem;
-}
-
-::ng-deep .field-radiobutton label {
-    margin-left: 0.5rem;
-    margin-bottom: 0;
-}
-
-/* Unit Range Styling */
-.unit-range {
-    margin-top: 1rem;
-}
-
-.unit-range .flex {
-    gap: 0.5rem;
-}
-
-/* Preview Units Styling */
-.preview-units {
-    margin-top: 0.5rem;
-    padding: 0.75rem;
-    background-color: #f8f9fa;
-    border-radius: 0.25rem;
-    border-left: 3px solid #007bff;
-}
-
-.preview-units label {
-    font-weight: 600;
-    color: #495057;
-    margin-bottom: 0.5rem;
-}
-
-.preview-units p {
-    margin: 0.25rem 0;
-    padding: 0.125rem 0;
-}
-
-/* === RESPONSIVE DESIGN === */
-
-@media (max-width: 768px) {
-    .upload-img {
-        width: 120px;
-        height: 120px;
-    }
-
-    .addressProperty {
-        padding: 8px;
-    }
-
-    .unit-range .flex {
-        flex-direction: column;
-        gap: 0.75rem;
-    }
-}
-
-@media (max-width: 480px) {
-    .custom-file-upload {
-        padding: 4px 8px;
-    }
-
-    .upload-img {
-        width: 100px;
-        height: 100px;
-    }
-}
-
-/* UI polish: property creation */
-.create-property-page p-stepper {
-    width: 100%;
-}
-
-.create-property-page .border-dashed {
-    border-color: var(--surface-border) !important;
-    background: color-mix(
-        in srgb,
-        var(--surface-ground) 72%,
-        var(--surface-card)
-    );
-    border-radius: 1rem !important;
-}
-
-.create-property-page .addressProperty {
-    max-width: 44rem;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.create-property-page .addressProperty label {
-    color: var(--text-color);
-}
-
-.create-property-page .unit-range .flex,
-.create-property-page .flex.gap-2 {
-    align-items: center;
-}
-
-@media (max-width: 768px) {
-    .create-property-page .flex.justify-content-center {
-        justify-content: stretch !important;
-    }
-
-    .create-property-page .d-block {
-        width: 100%;
-    }
 }
 
 /* ---- Responsive buttons in footer ---- */
@@ -618,13 +487,122 @@
         width: 100%;
     }
 
-    ::ng-deep .cp-step-footer .p-button {
+    :host ::ng-deep .cp-step-footer .p-button {
         width: 100%;
     }
 
-    ::ng-deep .cp-step-footer .p-button .p-button-label {
+    :host ::ng-deep .cp-step-footer .p-button .p-button-label {
         display: flex;
         align-items: center;
         justify-content: center;
     }
+}
+
+/* Match the palette, type hierarchy, and surfaces of SeePropertyComponent. */
+:host {
+    display: block;
+    min-width: 0;
+    --property-ink: #183153;
+    --property-muted: #66758d;
+    --property-line: #dce5ee;
+    --property-primary: #176b87;
+    --p-primary-color: var(--property-primary);
+    --p-primary-hover-color: #125b73;
+    --p-primary-active-color: #105d76;
+    --p-primary-contrast-color: #fff;
+    --p-text-color: var(--property-ink);
+    --p-text-muted-color: var(--property-muted);
+    --p-form-field-border-color: var(--property-line);
+    --p-form-field-hover-border-color: var(--property-primary);
+    --p-form-field-focus-border-color: var(--property-primary);
+    --p-form-field-color: var(--property-ink);
+    --p-form-field-placeholder-color: var(--property-muted);
+    --p-tabs-tab-active-color: var(--property-primary);
+    --p-tabs-tab-active-border-color: var(--property-primary);
+    --p-tabs-active-bar-background: var(--property-primary);
+    --p-tabs-tab-color: var(--property-muted);
+    --p-stepper-step-number-active-background: #e8f2f5;
+    --p-stepper-step-number-active-color: #105d76;
+    --p-stepper-step-number-active-border-color: var(--property-primary);
+    --p-stepper-step-title-active-color: var(--property-ink);
+    --p-stepper-step-title-color: var(--property-muted);
+    --p-stepper-separator-background: var(--property-line);
+}
+.create-property-page {
+    max-width: none;
+    margin: 0 0 2rem;
+    padding: 1.6rem;
+    color: var(--property-ink);
+    font-family: inherit;
+    border: 1px solid var(--property-line);
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: none;
+}
+.create-property-page .cp-page-header { align-items: center; gap: 1.25rem; margin-bottom: 1.5rem; }
+.cp-kicker { color: var(--property-primary); font-size: .72rem; font-weight: 800; letter-spacing: .1em; }
+.create-property-page .cp-title { margin: .3rem 0 .4rem; color: var(--property-ink); font-size: clamp(1.65rem, 3vw, 2.35rem); line-height: 1.1; letter-spacing: -.035em; }
+.create-property-page .cp-subtitle { margin: 0; color: var(--property-muted); font-size: 1rem; }
+.cp-field label, .cp-section-label { color: var(--property-ink); font-size: .82rem; font-weight: 650; }
+.cp-field-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.cp-field, .cp-field-grid > * { min-width: 0; }
+:host ::ng-deep .create-property-page .p-tablist-tab-list { background: #fff; border-color: var(--property-line); }
+:host ::ng-deep .create-property-page .p-tab { min-height: 44px; font-size: .9rem; font-weight: 700; }
+:host ::ng-deep .create-property-page .p-tabpanels { padding: 1.25rem 0 0; color: var(--property-ink); background: #fff; }
+:host ::ng-deep .cp-stepper .p-steppanels,
+:host ::ng-deep .cp-stepper .p-steppanel { padding: 0; color: var(--property-ink); background: #fff; }
+:host ::ng-deep .cp-stepper .p-step-title { font-size: .85rem; font-weight: 700; }
+:host ::ng-deep .cp-stepper .p-inputtext,
+:host ::ng-deep .cp-stepper .p-select,
+:host ::ng-deep .cp-stepper .p-multiselect { min-width: 0; min-height: 44px; border-color: var(--property-line); border-radius: 10px; color: var(--property-ink); font-size: .9rem; }
+:host ::ng-deep .cp-stepper .p-inputgroupaddon { color: var(--property-muted); background: #f5f8fb; border-color: var(--property-line); }
+/* Joined controls only round the outer corners, keeping the icon aligned. */
+:host ::ng-deep .cp-stepper .p-inputgroup {
+    width: 100%;
+    align-items: stretch;
+}
+:host ::ng-deep .cp-stepper .p-inputgroup > .p-inputgroupaddon:first-child {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 44px;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0;
+    border-radius: 10px 0 0 10px;
+    border-right-width: 0;
+}
+:host ::ng-deep .cp-stepper .p-inputgroup > .p-inputtext:last-child {
+    flex: 1 1 0;
+    width: 1%;
+    border-radius: 0 10px 10px 0;
+}
+:host ::ng-deep .cp-stepper .p-inputgroupaddon .pi {
+    font-size: 1rem;
+    line-height: 1;
+}
+.cp-avatar-wrap { padding: .2rem; border: 1px solid #cddae6; background: #e8f2f5; }
+.cp-avatar-img { border-radius: 50%; }
+.cp-avatar-hint { color: var(--property-muted); font-size: .76rem; }
+.cp-radio-group { padding: .25rem; gap: .2rem; max-width: 100%; border: 1px solid var(--property-line); border-radius: 12px; }
+.cp-radio-option { min-height: 44px; padding: .6rem .85rem; border-radius: 8px; font-weight: 700; }
+.cp-radio-option.active { color: #105d76; background: #e8f2f5; box-shadow: none; }
+.cp-radio-option:hover { background: #f1f5f8; }
+:host ::ng-deep .cp-unit-chip .p-tag { color: #105d76; background: #e8f2f5; font-size: .75rem; font-weight: 650; }
+:host ::ng-deep .cp-info-msg .p-message { color: #105d76; background: #e8f2f5; border: 1px solid var(--property-line); border-radius: 10px; box-shadow: none; }
+.cp-step-footer { gap: .75rem; }
+:host ::ng-deep .cp-step-footer .p-button { min-height: 44px; border-radius: 10px; color: #fff; background: var(--property-primary); border-color: var(--property-primary); font-weight: 700; box-shadow: none; }
+:host ::ng-deep .cp-step-footer .p-button:not(:disabled):hover { background: #125b73; border-color: #125b73; }
+:host ::ng-deep .cp-step-footer .p-button-outlined { color: var(--property-primary); background: #fff; border-color: var(--property-line); }
+:host ::ng-deep .cp-step-footer .p-button-outlined:not(:disabled):hover { color: #105d76; background: #e8f2f5; }
+@media (max-width: 680px) {
+    .create-property-page { padding: 1rem; }
+    .create-property-page .cp-page-header { flex-direction: column; align-items: stretch; }
+    :host ::ng-deep .cp-stepper .p-step { min-width: 0; }
+    :host ::ng-deep .cp-stepper .p-step-header { flex-direction: column; gap: .4rem; padding: .5rem .25rem; }
+    :host ::ng-deep .cp-stepper .p-step-title { font-size: .8rem; text-align: center; }
+}
+@media (max-width: 480px) {
+    .cp-field-grid { grid-template-columns: minmax(0, 1fr); }
+    :host ::ng-deep .create-property-page .p-tab { padding: .75rem; font-size: .82rem; }
 }

@@ -52,3 +52,11 @@
 .invoice-history-filter small {
     color: var(--text-color-secondary);
 }
+
+.voucher-form, .voucher-invoice { display: flex; flex-direction: column; gap: .75rem; }
+.voucher-invoice { padding: 1rem 0; border-bottom: 1px solid var(--surface-border); }
+.voucher-form select { padding: .75rem; border: 1px solid var(--surface-border); border-radius: 6px; background: var(--surface-card); color: var(--text-color); }
+.voucher-form [role="alert"] { color: var(--p-red-600, #b91c1c); }
+.voucher-attachment { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
+.voucher-attachment > p-button:first-child { min-width: 0; overflow-wrap: anywhere; }
+.voucher-attachment > p-button:last-child { flex-shrink: 0; }

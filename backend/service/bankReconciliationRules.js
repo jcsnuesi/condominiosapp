@@ -47,7 +47,7 @@ function compareReceipt(fields, movement) {
   if (moneyMinor(normalized.amount) !== movement.amountMinor) reasons.push("amount_mismatch");
   if (normalized.currency !== movement.currency) reasons.push("currency_mismatch");
   if (movement.direction !== "credit") reasons.push("not_credit");
-  if (movement.allocatedReceiptId) reasons.push("already_allocated");
+  if (movement.allocatedReceiptId || movement.financeEntryId) reasons.push("already_allocated");
   const dayDifference = Math.abs(Date.parse(normalized.date) - Date.parse(movement.date)) / 86400000;
   if (!Number.isFinite(dayDifference) || dayDifference > 5) reasons.push("date_outside_window");
   const referenceMatches = !!normalized.reference && !!movement.reference && normalized.reference.toUpperCase() === movement.reference.trim().toUpperCase();
@@ -55,9 +55,11 @@ function compareReceipt(fields, movement) {
 }
 function allocatePayment(invoice, amountMinor) {
   const total = moneyMinor(invoice.amount);
-  const alreadyPaid = invoice.paymentStatus === "completed" ? total : Math.round(Number(invoice.paidAmount || 0) * 100);
+  const reductions = Math.round(Number(invoice.adjustmentAmount || 0) * 100) + Math.round(Number(invoice.creditAppliedAmount || 0) * 100);
+  const alreadyPaid = invoice.paymentStatus === "completed" && invoice.paidAmount == null ? total : Math.round(Number(invoice.paidAmount || 0) * 100);
   if (!Number.isSafeInteger(alreadyPaid) || alreadyPaid < 0 || alreadyPaid > total) throw problem("Saldo de factura inconsistente", 409);
-  const applied = Math.min(Math.max(total - alreadyPaid, 0), amountMinor);
-  return { appliedAmount: applied / 100, creditAmount: (amountMinor - applied) / 100, remainingBalance: (total - alreadyPaid - applied) / 100, paidAmount: (alreadyPaid + applied) / 100 };
+  if (!Number.isSafeInteger(reductions) || reductions < 0 || alreadyPaid + reductions > total) throw problem("Ajustes de factura inconsistentes", 409);
+  const applied = Math.min(Math.max(total - alreadyPaid - reductions, 0), amountMinor);
+  return { appliedAmount: applied / 100, creditAmount: (amountMinor - applied) / 100, remainingBalance: (total - alreadyPaid - reductions - applied) / 100, paidAmount: (alreadyPaid + applied) / 100 };
 }
 module.exports = { problem, moneyMinor, moneyText, dateOnly, bounded, currencyCode, normalizeFields, normalizeStatementRows, compareReceipt, allocatePayment };

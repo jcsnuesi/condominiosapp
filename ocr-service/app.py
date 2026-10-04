@@ -3,17 +3,44 @@
 import asyncio
 import hmac
 import json
+import logging
 import os
 import sys
 import tempfile
+import time
 from pathlib import Path
 from typing import Any
+from uuid import uuid4
 
 from fastapi import FastAPI, HTTPException, Request
+from starlette.middleware.base import RequestResponseEndpoint
+from starlette.responses import Response
 
 app = FastAPI(title="Bank document extraction", docs_url=None, redoc_url=None)
 MAX_BYTES = 10 * 1024 * 1024
 gate = asyncio.Lock()
+logger = logging.getLogger("uvicorn.error")
+
+
+@app.middleware("http")
+async def log_extraction(request: Request, call_next: RequestResponseEndpoint) -> Response:
+    """Log extraction lifecycle without document contents or credentials."""
+    if request.method != "POST" or request.url.path not in ("/extract", "/statement"):
+        return await call_next(request)
+    request_id = uuid4().hex
+    request.state.ocr_request_id = request_id
+    started = time.monotonic()
+    status = 500
+    logger.info("OCR request started id=%s endpoint=%s", request_id, request.url.path)
+    try:
+        response = await call_next(request)
+        status = response.status_code
+        return response
+    finally:
+        logger.info(
+            "OCR request finished id=%s status=%s duration_ms=%d",
+            request_id, status, int((time.monotonic() - started) * 1000),
+        )
 
 
 @app.get("/health")
@@ -87,6 +114,12 @@ async def process(request: Request, statement: bool) -> dict[str, Any]:
                 )
             result: dict[str, Any] = json.loads(
                 await asyncio.to_thread(output.read_text, encoding="utf-8")
+            )
+            logger.info(
+                "OCR extraction completed id=%s lines=%d fields_detected=%d review_required=true",
+                request.state.ocr_request_id,
+                len(result.get("lines", [])),
+                sum(value is not None for value in result.get("fields", {}).values()),
             )
             return result
 

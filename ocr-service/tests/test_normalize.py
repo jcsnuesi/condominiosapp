@@ -4,6 +4,57 @@ from normalize import date, money, receipt_fields, statement_csv
 
 
 class NormalizationTests(unittest.TestCase):
+    def test_mobile_voucher_columns_spanish_date_and_transaction_id(self) -> None:
+        def line(text: str, left: int, top: int, right: int) -> dict:
+            return {"text": text, "page": 1,
+                    "box": [[left, top], [right, top], [right, top + 30], [left, top + 30]]}
+
+        text = (
+            "Pagos y transferencias\nDatos Confirmación Completado\n"
+            "TRANSACCIÓN PROCESADA\n27 de Septiembre 2026 - 12:50 AM\n"
+            "123456789012\nMonto Impuesto\nDOP 1,000.00 DOP 2.00\n"
+            "Origen\nDOP *1234\nDestino\nDOP *5678"
+        )
+        lines = [line("Monto", 120, 693, 208), line("Impuesto", 434, 693, 546),
+                 line("DOP 1,000.00", 52, 755, 273), line("DOP 2.00", 419, 752, 579)]
+        self.assertEqual(receipt_fields(text, lines), {
+            "amount": "1000.00", "currency": "DOP", "date": "2026-09-27",
+            "reference": "123456789012", "bank": None,
+        })
+        self.assertIsNone(receipt_fields("Datos Confirmación Completado")["reference"])
+        self.assertIsNone(receipt_fields(text + "\n987654321012", lines)["reference"])
+        self.assertIsNone(receipt_fields(text + "\nMonto DOP 2000.00", lines)["amount"])
+        self.assertIsNone(receipt_fields(text, [lines[1], lines[3]])["amount"])
+
+    def test_ach_voucher_heading_and_unlabeled_amount(self) -> None:
+        fields = receipt_fields(
+            "Banco Ejemplo\nComprobante\nTransferencia ACH\nRD$1,500.00\n"
+            "Fecha: 02/10/2026 10:49:31 a.m.\nNo. Referencia: 00001234\n"
+            "Beneficiario: Ejemplo\n*******0017\nVía:\nACH"
+        )
+        self.assertEqual(
+            fields,
+            {
+                "amount": "1500.00",
+                "currency": "DOP",
+                "date": "2026-10-02",
+                "reference": "00001234",
+                "bank": "Banco Ejemplo",
+            },
+        )
+
+    def test_voucher_headings_do_not_capture_descriptions_or_conflicts(self) -> None:
+        self.assertIsNone(receipt_fields("Comprobante\nTransferencia ACH")["reference"])
+        self.assertIsNone(receipt_fields("RD$1,500.00\nRD$2,000.00")["amount"])
+        self.assertIsNone(receipt_fields("Monto RD$100.00\nRD$200.00")["amount"])
+        self.assertIsNone(receipt_fields("Banco Ejemplo\nBanco Otro")["bank"])
+        self.assertIsNone(
+            receipt_fields("No. Referencia: 00001234\nReferencia: 00005678")[
+                "reference"
+            ]
+        )
+        self.assertIsNone(receipt_fields("RD$1,500")["amount"])
+
     def test_semicolon_decimal_comma_not_mistaken_for_separator(self):
         fixture = "Fecha;Descripción;Crédito;Balance\n01/10/2026;Abono;100,50;100,50\n02/10/2026;Abono;100,50;201,00"
         result = statement_csv(fixture.encode("utf-8"))
@@ -51,6 +102,9 @@ class NormalizationTests(unittest.TestCase):
 
     def test_dates(self):
         self.assertEqual(date("01/10/2026"), "2026-10-01")
+        self.assertEqual(date("27 de Septiembre 2026"), "2026-09-27")
+        self.assertEqual(date("2 de octubre de 2026"), "2026-10-02")
+        self.assertIsNone(date("31 de febrero 2026"))
         self.assertIsNone(date("31/02/2026"))
 
     def test_utf16_bank_preamble_and_debits(self):

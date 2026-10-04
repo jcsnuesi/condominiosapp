@@ -11,6 +11,7 @@ router.get("/payments/providers", md_auth.authenticated, paymentProvider.list);
 router.post("/payments/providers", md_auth.authenticated, paymentProvider.create);
 router.delete("/payments/providers/:id", md_auth.authenticated, paymentProvider.remove);
 router.get("/payments/monitor/options", md_auth.authenticated, paymentMonitor.options);
+router.get("/payments/monitor/invoices", md_auth.authenticated, paymentMonitor.invoices);
 
 router.get(
   "/payments/transactions",

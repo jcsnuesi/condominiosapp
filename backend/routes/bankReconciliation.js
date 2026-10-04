@@ -8,6 +8,7 @@ router.post("/payments/bank-accounts", c.createAccount);
 router.get("/payments/receipts", c.receipts);
 router.post("/payments/receipts", c.uploadMiddleware, c.uploadReceipt);
 router.get("/payments/receipts/:id", c.receipt);
+router.delete("/payments/receipts/:id", c.deleteReceipt);
 router.get("/payments/receipts/:id/file", c.receiptFile);
 router.patch("/payments/receipts/:id/fields", c.updateFields);
 router.post("/payments/receipts/:id/retry", c.retryReceipt);

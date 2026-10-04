@@ -87,7 +87,7 @@ test("organization options include condos without owners and only assigned units
 
 test("owners cannot load transactions outside their condo scope", async () => {
   const req = request("OWNER", { condominiumId: otherCondo, attemptedFrom: "2026-09-01", attemptedTo: "2026-09-30" });
-  for (const handler of [payment.listPaymentTransactions]) {
+  for (const handler of [payment.listPaymentTransactions, monitor.invoices]) {
     const res = response();
     await handler(req, res);
     assert.equal(res.statusCode, 403);
@@ -111,6 +111,24 @@ test("transaction unit filter joins invoices and preserves owner and organizatio
   const res = response();
   await payment.listPaymentTransactions(request("OWNER", { condominiumId: condo, unitNumber: "A1" }), res);
   assert.equal(res.statusCode, 200);
+});
+
+test("invoice monitor rejects invalid IDs and date ranges before querying", async () => {
+  for (const query of [
+    { condominiumId: "invalid" },
+    { invoiceId: "invalid" },
+    { attemptedFrom: "2026-10-28", attemptedTo: "2026-10-02" },
+  ]) {
+    const res = response();
+    await monitor.invoices(request("OWNER", query), res);
+    assert.equal(res.statusCode, 400);
+  }
+});
+
+test("invoice monitor rejects roles without payment access", async () => {
+  const res = response();
+  await monitor.invoices(request("FAMILY"), res);
+  assert.equal(res.statusCode, 403);
 });
 
 test("transaction rows include invoice dates and unit without changing invoiceId", async (t) => {

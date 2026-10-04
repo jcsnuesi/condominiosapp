@@ -1,11 +1,8 @@
 <p-toast />
 <p-confirmDialog />
 
-<div class="create-property-page">
-    <div class="cp-page-header">
-        <div class="cp-header-icon">
-            <i class="pi pi-building"></i>
-        </div>
+<div class="card app-page-card create-property-page">
+    <div class="app-page-header cp-page-header">
         <div>
             <span class="cp-kicker">Properties</span>
             <h2 class="cp-title">Create new property</h2>
@@ -634,7 +631,6 @@
                                             label="Create property"
                                             icon="pi pi-check"
                                             iconPos="right"
-                                            severity="success"
                                             [disabled]="
                                                 condominiumForm.invalid ||
                                                 !condominioModel.unitFormat

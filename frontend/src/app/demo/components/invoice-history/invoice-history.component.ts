@@ -6,6 +6,7 @@ import {
     UpperCasePipe,
     CommonModule,
     KeyValuePipe,
+    formatDate,
 } from '@angular/common';
 import { InputTextModule } from 'primeng/inputtext';
 import { FormsModule } from '@angular/forms';
@@ -28,6 +29,8 @@ import { MenuModule } from 'primeng/menu';
 import { MenuItem } from 'primeng/api';
 import { HttpClient } from '@angular/common/http';
 import { PipesModuleModule } from 'src/app/pipes/pipes-module.module';
+import { BankAccount, BankReconciliationService, Receipt } from '../../service/bank-reconciliation.service';
+import { firstValueFrom } from 'rxjs';
 
 type InvoiceBody = {
     _id: string;
@@ -41,6 +44,8 @@ type InvoiceBody = {
     alias: string;
     email: string;
     condominiumId: string;
+    attachments: Receipt[];
+    currency: string;
 };
 
 type CondoInvoiceGroup = {
@@ -84,6 +89,186 @@ type MonthOption = {
     styleUrl: './invoice-history.component.css',
 })
 export class InvoiceHistoryComponent implements OnInit {
+    public voucherVisible = false;
+    public attachmentVisible = false;
+    public voucherGroup: CondoInvoiceGroup | null = null;
+    public attachmentGroup: CondoInvoiceGroup | null = null;
+    public voucherInvoice: InvoiceBody | null = null;
+    public bankAccounts: BankAccount[] = [];
+    public bankAccountId = '';
+    public voucherLoading = false;
+    public voucherUploading = false;
+    public voucherMessage = '';
+    public voucherError = '';
+    public downloadError = '';
+    public voucherDeleting = false;
+    public deleteVisible = false;
+    public pendingDeletion: { invoice: InvoiceBody; receipt: Receipt } | null = null;
+    public deleteError = '';
+    private voucherRequest = 0;
+
+    get voucherOptions() {
+        return (this.voucherGroup?.invoices ?? []).map(invoice => ({
+            label: `${formatDate(invoice.invoice_issue, 'MM/dd/yyyy', 'en-US')} · Unit ${invoice.unit} · ${invoice.currency} ${invoice.invoice_amount.toFixed(2)}`,
+            value: invoice,
+        }));
+    }
+
+    attachmentCount(group: CondoInvoiceGroup): number {
+        return group.invoices.reduce((sum, invoice) => sum + invoice.attachments.length, 0);
+    }
+
+    openAttachments(group: CondoInvoiceGroup): void {
+        this.attachmentGroup = group;
+        this.downloadError = '';
+        this.voucherError = '';
+        this.voucherMessage = '';
+        this.attachmentVisible = true;
+    }
+
+    openVoucher(group: CondoInvoiceGroup): void {
+        this.voucherGroup = group;
+        this.voucherVisible = true;
+        this.voucherInvoice = group.invoices.length === 1 ? group.invoices[0] : null;
+        this.voucherError = '';
+        this.voucherMessage = '';
+        this.downloadError = '';
+        void this.loadVoucherInvoice();
+    }
+
+    async loadVoucherInvoice(): Promise<void> {
+        const request = ++this.voucherRequest;
+        const invoice = this.voucherInvoice;
+        this.bankAccounts = [];
+        this.bankAccountId = '';
+        this.voucherLoading = !!invoice;
+        this.voucherError = '';
+        this.voucherMessage = '';
+        if (!invoice) return;
+        try {
+            const [accounts, receipts] = await Promise.all([
+                firstValueFrom(this.bankApi.get<{ docs: BankAccount[] }>('bank-accounts', { condominiumId: invoice.condominiumId })),
+                firstValueFrom(this.bankApi.get<{ docs: Receipt[] }>('receipts', { invoiceId: invoice._id })),
+            ]);
+            if (request !== this.voucherRequest) return;
+            this.replaceAttachments(invoice._id, receipts.docs);
+            this.bankAccounts = accounts.docs.filter(account => account.currency === invoice.currency);
+            if (this.bankAccounts.length === 1) this.bankAccountId = this.bankAccounts[0]._id;
+        } catch (error: unknown) {
+            if (request === this.voucherRequest) this.voucherError = this.bankError(error);
+        } finally {
+            if (request === this.voucherRequest) this.voucherLoading = false;
+            this._changeDetectorRef.detectChanges();
+        }
+    }
+
+    private bankError(error: unknown): string {
+        const response = error as { error?: { error?: { message?: string }; message?: string } };
+        return response?.error?.error?.message ?? response?.error?.message ?? 'Unable to complete the operation. Please retry.';
+    }
+
+    private replaceAttachments(invoiceId: string, receipts: Receipt[]): void {
+        const rows: InvoiceBody[] = [
+            ...this.propertyDetailsVar,
+            ...(this.voucherGroup?.invoices ?? []),
+            ...(this.selectedCondoGroup?.invoices ?? []),
+            ...(this.attachmentGroup?.invoices ?? []),
+        ];
+        rows.filter(row => row._id === invoiceId).forEach(row => row.attachments = receipts);
+    }
+
+    requestVoucherDeletion(invoice: InvoiceBody, receipt: Receipt): void {
+        if (this.voucherDeleting || this.voucherUploading || receipt.reconciliationStatus !== 'pending') return;
+        this.pendingDeletion = { invoice, receipt };
+        this.deleteError = '';
+        this.deleteVisible = true;
+    }
+
+    async deleteVoucher(): Promise<void> {
+        const target = this.pendingDeletion;
+        if (!target || this.voucherDeleting || this.voucherUploading) return;
+        this.voucherDeleting = true;
+        this.deleteError = '';
+        this.voucherError = '';
+        this.voucherMessage = '';
+        try {
+            await firstValueFrom(this.bankApi.deleteReceipt(target.receipt._id));
+            this.replaceAttachments(target.invoice._id, target.invoice.attachments.filter(receipt => receipt._id !== target.receipt._id));
+            this.deleteVisible = false;
+            this.pendingDeletion = null;
+            this.voucherMessage = 'Voucher deleted. You can now upload the correct file.';
+            this.getInvoiceHistory();
+        } catch (error: unknown) {
+            this.deleteError = this.bankError(error);
+            try {
+                const receipts = await firstValueFrom(this.bankApi.get<{ docs: Receipt[] }>('receipts', { invoiceId: target.invoice._id }));
+                this.replaceAttachments(target.invoice._id, receipts.docs);
+            } catch { /* Keep the deletion error visible if refresh also fails. */ }
+        } finally {
+            this.voucherDeleting = false;
+            this._changeDetectorRef.detectChanges();
+        }
+    }
+
+    uploadCorrectVoucher(invoice: InvoiceBody): void {
+        if (!this.attachmentGroup || this.voucherDeleting || this.voucherUploading) return;
+        this.voucherGroup = this.attachmentGroup;
+        this.attachmentVisible = false;
+        this.voucherInvoice = invoice;
+        this.voucherVisible = true;
+        void this.loadVoucherInvoice();
+    }
+
+    async uploadVoucher(input: HTMLInputElement): Promise<void> {
+        const file = input.files?.[0];
+        input.value = '';
+        const invoice = this.voucherInvoice;
+        if (!file || !invoice || this.voucherUploading || this.voucherLoading || this.voucherDeleting) return;
+        this.voucherError = '';
+        this.voucherMessage = '';
+        if (!this.bankAccountId) { this.voucherError = 'Select a receiving bank account.'; return; }
+        if (invoice.attachments.length >= 3) { this.voucherError = 'Each invoice allows up to three vouchers.'; return; }
+        if (!['application/pdf', 'image/png', 'image/jpeg'].includes(file.type) || !/\.(pdf|png|jpe?g)$/i.test(file.name)) {
+            this.voucherError = 'Use a PDF, PNG or JPEG file.'; return;
+        }
+        if (file.size > 8 * 1024 * 1024 || file.size === 0) { this.voucherError = 'Choose a nonempty file up to 8 MiB.'; return; }
+        this.voucherUploading = true;
+        this.voucherMessage = `Uploading ${file.name}…`;
+        try {
+            const form = new FormData();
+            form.append('file', file, file.name);
+            form.append('invoiceId', invoice._id);
+            form.append('bankAccountId', this.bankAccountId);
+            const receipt = await firstValueFrom(this.bankApi.post<Receipt>('receipts', form));
+            this.replaceAttachments(invoice._id, [...invoice.attachments, receipt]);
+            this.voucherMessage = 'Voucher uploaded successfully. Payment remains subject to reconciliation.';
+            this.getInvoiceHistory();
+        } catch (error: unknown) {
+            this.voucherMessage = '';
+            this.voucherError = this.bankError(error);
+            try {
+                const receipts = await firstValueFrom(this.bankApi.get<{ docs: Receipt[] }>('receipts', { invoiceId: invoice._id }));
+                this.replaceAttachments(invoice._id, receipts.docs);
+            } catch { /* Keep the upload error visible if refresh also fails. */ }
+        } finally {
+            this.voucherUploading = false;
+            this._changeDetectorRef.detectChanges();
+        }
+    }
+
+    async downloadVoucher(receipt: Receipt): Promise<void> {
+        this.downloadError = '';
+        try {
+            const blob = await firstValueFrom(this.bankApi.file(receipt._id));
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = receipt.originalName || 'voucher';
+            link.click();
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+        } catch { this.downloadError = 'Unable to download the voucher. Please retry.'; }
+        this._changeDetectorRef.detectChanges();
+    }
     public tbl_invoice: any[];
     public loading: boolean = true;
     public token: string;
@@ -114,6 +299,7 @@ export class InvoiceHistoryComponent implements OnInit {
         private _invoiceService: InvoiceService,
         private _formatFunctions: FormatFunctions,
         private _http: HttpClient,
+        private bankApi: BankReconciliationService,
         private _changeDetectorRef: ChangeDetectorRef
     ) {
         this.excludedColumns = ['_id', 'alias', 'email'];
@@ -125,6 +311,7 @@ export class InvoiceHistoryComponent implements OnInit {
         this.globalFilters = ['alias'];
 
         this.rowMenuItems = [
+            { label: 'Upload Voucher', icon: 'pi pi-upload', command: () => this.openVoucher(this.activeMenuGroup) },
             {
                 label: 'See details',
                 icon: 'pi pi-eye',
@@ -164,6 +351,8 @@ export class InvoiceHistoryComponent implements OnInit {
             alias: '',
             email: '',
             condominiumId: '',
+            attachments: [],
+            currency: 'DOP',
         };
         this.statuses = [
             { label: 'New', value: 'new' },
@@ -463,6 +652,8 @@ export class InvoiceHistoryComponent implements OnInit {
                             _id: invoice?._id ?? '',
                             email: owner?.email ?? '',
                             condominiumId: String(condominiumId ?? ''),
+                            attachments: invoice?.attachments ?? [],
+                            currency: invoice?.currency ?? 'DOP',
                         } satisfies InvoiceBody;
                     });
                     this.setInvoiceTableState(rows);

@@ -132,66 +132,14 @@ async function generateOwnerInvoice(
  * @param {Date} issueDate - Invoice issue date
  * @param {Date} dueDate - Invoice due date
  */
-async function generateUnitInvoice(
-  condominiumData,
-  ownerId,
-  unitNumber,
-  issueDate,
-  dueDate
-) {
-  try {
-    // Check if invoice already exists for this SPECIFIC UNIT and month
-    const existingInvoice = await Invoice.findOne({
-      condominiumId: condominiumData._id,
-      ownerId: ownerId,
-      unitNumber: unitNumber, // KEY ADDITION: Check by unit
-      issueDate: {
-        $gte: startOfMonth(issueDate),
-        $lte: endOfMonth(issueDate),
-      },
-    });
-
-    if (existingInvoice) {
-      console.log(
-        `📄 Invoice already exists for owner ${ownerId}, unit ${unitNumber} in ${condominiumData.alias} - ${existingInvoice.invoice_number}`
-      );
-      return existingInvoice;
-    }
-
-    // Generate unique invoice number
-    const invoice_number = await generateinvoice_number(condominiumData._id);
-
-    // Create new invoice for this specific unit
-    const newInvoice = new Invoice({
-      organizationId: condominiumData.organizationId,
-      issueDate: issueDate,
-      dueDate: dueDate,
-      amount: condominiumData.mPayment || 0,
-      description: `Monthly maintenance fee - Unit ${unitNumber} - ${format(
-        issueDate,
-        "MMMM yyyy"
-      )}`,
-      status: "pending",
-      condominiumId: condominiumData._id,
-      ownerId: ownerId,
-      unitNumber: unitNumber, // KEY ADDITION: Include unit number
-      createdBy: condominiumData.createdBy,
-      invoice_number: invoice_number,
-    });
-
-    const savedInvoice = await newInvoice.save();
-    console.log(
-      `✅ Invoice created for owner ${ownerId}, unit ${unitNumber} in ${condominiumData.alias}: ${savedInvoice.invoice_number}`
-    );
-
-    return savedInvoice;
-  } catch (error) {
-    console.error(
-      `❌ Error creating invoice for owner ${ownerId}, unit ${unitNumber} in ${condominiumData.alias}:`,
-      error.message
-    );
-    throw error;
-  }
+async function generateUnitInvoice(condominiumData, ownerId, unitNumber, issueDate, dueDate) {
+  return require("./invoiceIssuance").issueInvoice({
+    condominium: condominiumData, ownerId, unitNumber,
+    amount: condominiumData.mPayment, issueDate: format(issueDate, "yyyy-MM-dd"),
+    dueDate: format(dueDate, "yyyy-MM-dd"), chargeType: "monthly",
+    description: "Monthly maintenance fee - Unit " + unitNumber + " - " + format(issueDate, "MMMM yyyy"),
+    createdBy: condominiumData.createdBy,
+  });
 }
 
 /**
@@ -368,7 +316,8 @@ async function generateCondominiumInvoices(condominium) {
 
     // Calculate dates
     const currentDate = new Date();
-    const paymentDay = condominium.paymentDate || 1;
+    const configuredDate = new Date(condominium.paymentDate);
+    const paymentDay = Number.isFinite(configuredDate.getTime()) ? configuredDate.getUTCDate() : 1;
     const issueDate = new Date(
       currentDate.getFullYear(),
       currentDate.getMonth(),
@@ -536,6 +485,7 @@ async function generateAllMonthlyInvoices() {
  */
 async function setupInvoiceCronJobs() {
   try {
+    require("./lateFeeJob").setup();
     console.log("⚙️ Setting up invoice cron jobs...");
 
     // Monthly invoice generation - 1st day of each month at 8:00 AM   "*/10 * * * * *",
@@ -601,33 +551,18 @@ async function checkMissedInvoices() {
     let totalMissed = 0;
 
     for (const condominium of condominiums) {
-      // Check if invoices were generated for current month
-      const invoiceCount = await Invoice.countDocuments({
+      const monthlyQuery = {
+        $or: [{ chargeType: "monthly" }, { chargeType: { $exists: false }, description: /^Monthly maintenance fee/ }],
         condominiumId: condominium._id,
         issueDate: {
           $gte: new Date(currentYear, currentMonth, 1),
           $lt: new Date(currentYear, currentMonth + 1, 1),
         },
-      });
-
-      const activeOwnerIds = getActiveOwnerIds(condominium);
-      const ownerUnits = await Promise.all(
-        activeOwnerIds.map((ownerId) =>
-          getOwnerUnits(condominium._id, ownerId)
-        )
-      );
-      const expectedCount = ownerUnits.reduce(
-        (total, units) => total + units.length,
-        0
-      );
-
-      if (invoiceCount < expectedCount) {
-        console.log(
-          `⚠️  Missing invoices detected for ${condominium.alias}: ${invoiceCount}/${expectedCount}`
-        );
-        await generateCondominiumInvoices(condominium);
-        totalMissed += expectedCount - invoiceCount;
-      }
+      };
+      const before = await Invoice.countDocuments(monthlyQuery);
+      // Check every unit even when legacy duplicates make the total look complete.
+      await generateCondominiumInvoices(condominium);
+      totalMissed += Math.max(0, await Invoice.countDocuments(monthlyQuery) - before);
     }
 
     console.log(
@@ -704,6 +639,8 @@ function testingCron() {
 }
 
 module.exports = {
+  generateCondominiumInvoices,
+  generateUnitInvoice,
   setupInvoiceCronJobs,
   generateAllMonthlyInvoices,
   manualInvoiceGeneration,

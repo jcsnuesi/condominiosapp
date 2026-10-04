@@ -96,7 +96,6 @@ interface PropertyAddressSource {
 })
 export class SeePropertyComponent {
     viewMode: 'table' | 'cards' = 'cards';
-    private token: string = this._userService.getToken();
     public sendDataToModal: any;
     public customers: any[] = [];
     public url: string;
@@ -137,9 +136,8 @@ export class SeePropertyComponent {
     public permanentDeletePassword = '';
     public permanentDeleteAcknowledged = false;
     public readonly permanentDeleteDialogVisible = signal(false);
-    public readonly permanentDeleteImpact = signal<PermanentDeleteImpact | null>(
-        null
-    );
+    public readonly permanentDeleteImpact =
+        signal<PermanentDeleteImpact | null>(null);
     public readonly permanentDeleteImpactLoading = signal(false);
     public readonly permanentDeleteSubmitting = signal(false);
 
@@ -282,9 +280,7 @@ export class SeePropertyComponent {
 
         this._condominioService
             .getPermanentDeleteImpact(property._id)
-            .pipe(
-                finalize(() => this.permanentDeleteImpactLoading.set(false))
-            )
+            .pipe(finalize(() => this.permanentDeleteImpactLoading.set(false)))
             .subscribe({
                 next: (response) => {
                     const impact = response.data?.impact;
@@ -336,10 +332,7 @@ export class SeePropertyComponent {
 
         this.permanentDeleteSubmitting.set(true);
         this._condominioService
-            .permanentlyDeleteProperty(
-                propertyId,
-                this.permanentDeletePassword
-            )
+            .permanentlyDeleteProperty(propertyId, this.permanentDeletePassword)
             .pipe(finalize(() => this.permanentDeleteSubmitting.set(false)))
             .subscribe({
                 next: (response) => {

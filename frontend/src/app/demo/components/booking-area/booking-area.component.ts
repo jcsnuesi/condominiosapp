@@ -197,6 +197,7 @@ export class BookingAreaComponent implements OnInit {
     public headerStatus: any[];
     public selectedRow: BookingHistoryRow[];
     public isDeletingBookings: boolean = false;
+    public isSubmittingBooking = false;
     public visibleDialog: boolean = false;
     public searchValue: string = '';
     public bookingId: string;
@@ -563,19 +564,22 @@ export class BookingAreaComponent implements OnInit {
         this._ownerService.getPropertyByOwner(this.getId()).subscribe({
             next: (res) => {
                 if (res.status === 'success') {
-                    let { propertyDetails } = res.message;
-
-                    this.condoOptions = propertyDetails.map((condo) => {
-                        this.dropListData.push({
+                    const { propertyDetails } = res.message;
+                    const activeProperties = propertyDetails.filter(
+                        (property) => property.addressId?._id &&
+                            property.status_property !== 'inactive'
+                    );
+                    this.dropListData = activeProperties.map((condo) => ({
                             id: condo.addressId._id,
                             unit: condo.condominium_unit,
-                            areas: condo.addressId.socialAreas,
-                        });
-                        return {
+                            areas: condo.addressId.socialAreas ?? [],
+                    }));
+                    this.condoOptions = [...new Map(activeProperties.map((condo) => [
+                        condo.addressId._id, {
                             label: condo.addressId.alias,
                             code: condo.addressId._id,
-                        };
-                    });
+                        },
+                    ])).values()] as Array<{ label: string; code: string }>;
                 }
             },
             error: (err) => {
@@ -591,9 +595,12 @@ export class BookingAreaComponent implements OnInit {
 
     getUnit(event: any) {
         let unitObj = event.value;
+        this.bookingInfo.unit = '';
+        this.bookingInfo.areaId = '';
+        this.areaOptions = [];
 
         this.unitOption = this.dropListData
-            .filter((condo) => condo.id === unitObj.code)
+            .filter((condo) => condo.id === unitObj?.code)
             .map((condo) => {
                 return {
                     label: condo.unit,
@@ -604,25 +611,18 @@ export class BookingAreaComponent implements OnInit {
 
     getAreaInfo(event: any) {
         let areaObj = event.value;
-
-        this.areaOptions = this.dropListData
-            .filter((condo) => condo.id === areaObj.code)
-            .map((condo) => {
-                if (condo.areas.length > 0) {
-                    return {
-                        label: condo.areas,
-                        code: condo.areas,
-                    };
-                }
-
-                this._messageService.add({
-                    severity: 'warn',
-                    summary: 'Notification',
-                    detail: 'No social areas found for the selected condominium.',
-                });
-                return [];
-            })
-            .flat();
+        this.bookingInfo.areaId = '';
+        const areas: string[] = this.dropListData
+            .filter((condo) => condo.id === areaObj?.code && condo.unit === areaObj?.label)
+            .flatMap((condo) => condo.areas);
+        this.areaOptions = [...new Set(areas)].map((area) => ({ label: area, code: area }));
+        if (this.areaOptions.length === 0) {
+            this._messageService.add({
+                severity: 'warn',
+                summary: 'Notification',
+                detail: 'No social areas found for the selected condominium.',
+            });
+        }
     }
 
     setIntervalTime(event: Date): Date | null {
@@ -664,46 +664,37 @@ export class BookingAreaComponent implements OnInit {
         }
     }
     public checkOutMgs: any;
-    validateDates(form: NgForm) {
-        /**
-         * Esta función valida las fechas de checkIn y checkOut
-         * Valida que checkOut sea mayor que checkIn en fecha y hora
-         * Valida que checkIn y checkOut no sean menor que la fecha y hora actual
-         */
-
-        if (form.controls['checkIn'].value != null) {
-            let checkInDate = new Date(form.controls['checkIn'].value);
-            checkInDate.setMilliseconds(0);
-            let checkOutDate = new Date(form?.controls['checkOut']?.value);
-            const today = new Date();
-
-            this.bookingInfo.checkIn = this.setIntervalTime(checkInDate);
-
-            // Remover milisegundos para comparación precisa
-            if (checkOutDate) {
-                checkOutDate.setMilliseconds(0);
-                this.bookingInfo.checkOut = this.setIntervalTime(checkOutDate);
+    validateDates(form: NgForm, value?: Date, field?: 'checkIn' | 'checkOut') {
+        const checkInValue = field === 'checkIn' ? value : this.bookingInfo.checkIn;
+        const checkOutValue = field === 'checkOut' ? value : this.bookingInfo.checkOut;
+        const checkInDate = checkInValue ? new Date(checkInValue) : null;
+        const checkOutDate = checkOutValue ? new Date(checkOutValue) : null;
+        this.checkOutMgs = '';
+        for (const name of ['checkIn', 'checkOut']) {
+            const control = form.controls[name];
+            if (control?.hasError('invalidDate')) {
+                const { invalidDate, ...otherErrors } = control.errors ?? {};
+                control.setErrors(Object.keys(otherErrors).length ? otherErrors : null);
             }
-            today.setMilliseconds(0);
-
-            if (checkInDate && checkOutDate && checkInDate >= checkOutDate) {
-                form.controls['checkOut'].setErrors({ invalidDate: true });
-                form.controls['checkIn'].setErrors({ invalidDate: true });
-                this.checkOutMgs =
-                    'Check Out date and time must be greater than Check In date and time';
-            } else if (checkInDate < today) {
-                form.controls['checkIn'].setErrors({ invalidDate: true });
-                this.checkOutMgs =
-                    'Check In date and time cannot be in the past';
-            } else {
-                this.checkOutMgs = false;
-                form.controls['checkIn'].setErrors(null);
-                form.controls['checkOut']?.setErrors(null);
-            }
+        }
+        if (!checkInDate || !Number.isFinite(checkInDate.getTime())) return;
+        this.bookingInfo.checkIn = this.setIntervalTime(checkInDate);
+        const hasCheckOut = Boolean(checkOutDate && Number.isFinite(checkOutDate.getTime()));
+        if (form.controls['checkOut'] && hasCheckOut) {
+            this.bookingInfo.checkOut = this.setIntervalTime(checkOutDate);
+        }
+        if (checkInDate < new Date()) {
+            form.controls['checkIn']?.setErrors({ ...form.controls['checkIn'].errors, invalidDate: true });
+            this.checkOutMgs = 'Check In date and time cannot be in the past';
+        } else if (form.controls['checkOut'] && hasCheckOut && checkInDate >= checkOutDate) {
+            form.controls['checkOut'].setErrors({ ...form.controls['checkOut'].errors, invalidDate: true });
+            this.checkOutMgs = 'Check Out date and time must be greater than Check In date and time';
         }
     }
 
     submit(form: any) {
+        this.validateDates(form);
+        if (form.invalid || this.checkOutMgs || this.isSubmittingBooking) return;
         let data = null;
         let message = null;
         data = { ...this.bookingInfo };
@@ -722,6 +713,10 @@ export class BookingAreaComponent implements OnInit {
         data.memberModel =
             this.identity.role.charAt(0).toUpperCase() +
             this.identity.role.slice(1).toLowerCase();
+        if (!data.isguest) {
+            data.name = this.identity.name;
+            data.lastname = this.identity.lastname;
+        }
 
         this._confirmationService.confirm({
             message: message,
@@ -729,8 +724,11 @@ export class BookingAreaComponent implements OnInit {
             icon: 'pi pi-exclamation-triangle',
             rejectButtonStyleClass: 'p-button-text',
             accept: () => {
+                if (this.isSubmittingBooking) return;
+                this.isSubmittingBooking = true;
                 this._bookingService.createBooking(data).subscribe({
                     next: (response) => {
+                        this.isSubmittingBooking = false;
                         if (this.isSuccessResponse(response)) {
                             this._messageService.add({
                                 severity: 'success',
@@ -739,16 +737,19 @@ export class BookingAreaComponent implements OnInit {
                                 life: 5000,
                             });
                             form.reset();
-                            this.bookingInfo.notifyType = '';
+                            this.updateBookingObj();
+                            this.unitOption = [];
+                            this.areaOptions = [];
                             this.ngOnInit();
                         }
                         // console.log('Booking Response:', response)
                     },
                     error: (errors) => {
+                        this.isSubmittingBooking = false;
                         this._messageService.add({
                             severity: 'error',
                             summary: 'Error',
-                            detail: errors.error.message,
+                            detail: errors.error?.error?.message ?? errors.error?.message ?? 'The booking could not be created.',
                             life: 10000,
                         });
                         // console.log('Booking Error:', errors.error)

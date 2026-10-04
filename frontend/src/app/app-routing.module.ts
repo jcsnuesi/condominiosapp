@@ -30,6 +30,12 @@ import { OrganizationProvisioningComponent } from './demo/components/organizatio
                     canActivate: [UserGuard],
                     children: [
                         {
+                            path: 'finance',
+                            data: { permission: 'finance.read', roles: ['ADMIN', 'STAFF_ADMIN', 'OWNER'] },
+                            canActivate: [UserGuard],
+                            loadComponent: () => import('./demo/components/finance/finance.component').then(m => m.FinanceComponent),
+                        },
+                        {
                             path: 'platform/organizations',
                             data: { roles: ['SUPERUSER'] },
                             canActivate: [UserGuard],

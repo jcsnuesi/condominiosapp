@@ -18,6 +18,7 @@ let verifyGuest = require("../service/jwt");
 const { default: mongoose, mongo } = require("mongoose");
 const { getTimeZoneDayBounds } = require("../service/timeZoneDayBounds");
 const { canAccessDashboardIdentifier } = require("../service/dashboardScope");
+const { canAccessCondominium } = require("../service/authorization");
 
 const RESERVATION_DELETE_ROLES = new Set([
   "ADMIN",
@@ -172,12 +173,27 @@ var reservesController = {
         .select("_id")
         .exec();
 
-      let reservations = await Reserves.find({
+      const filter = {
         $or: [
+          { memberId: id },
           { memberId: { $in: OwnerFound.map((o) => o._id) } },
           { condoId: id },
         ],
-      })
+      };
+      if (req.auth) {
+        filter.organizationId = req.auth.organizationId;
+        if (req.auth.scope.mode === "SELECTED") {
+          filter.condoId = { $in: req.auth.scope.condominiumIds };
+        }
+        if (["OWNER", "FAMILY"].includes(req.auth.role)) {
+          if (String(id) !== String(req.user.sub) && !canAccessCondominium(req.auth, id)) {
+            return res.status(403).send({ status: "forbidden", message: "You are not authorized to access these bookings" });
+          }
+          delete filter.$or;
+          filter.memberId = req.user.sub;
+        }
+      }
+      let reservations = await Reserves.find(filter)
         .populate({
           model: "Condominium",
           path: "condoId",

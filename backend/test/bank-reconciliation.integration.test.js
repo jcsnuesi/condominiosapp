@@ -20,12 +20,15 @@ test("bank reconciliation uses atomic evidence and isolates owners", { skip: !pr
   const organizationId = oid(), condominiumId = oid(), ownerId = oid(), adminId = oid();
   const account = await BankAccount.create({ organizationId, condominiumId, bank: "Banco sintético sin plantilla", accountLabel: "Pruebas", currency: "DOP", createdBy: adminId });
   const request = (params = {}, body = {}, overrides = {}) => ({ user: { role: "ADMIN", sub: adminId }, auth: { organizationId, isOwnerAdmin: true, scope: { mode: "ALL" }, permissions: ["finance.read", "finance.create", "finance.update"] }, query: {}, params, body, ...overrides });
-  async function invoke(method, req) {
+  async function invoke(method, req, target = controller) {
     const res = { statusCode: 200, headersSent: false, status(code) { this.statusCode = code; return this; }, send(body) { this.body = body; this.headersSent = true; return this; } };
-    await controller[method](req, res);
+    await target[method](req, res);
     return res;
   }
   let serial = 0;
+  const ownerUpload = (inv, bytes = crypto.randomUUID(), accountId = account._id, uploader = ownerId) => request({},
+    { invoiceId: inv._id, bankAccountId: accountId },
+    { user: { role: "OWNER", sub: uploader }, file: { originalname: "voucher.png", buffer: Buffer.concat([Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]), Buffer.from(bytes)]) } });
   async function invoice() {
     const doc = { _id: oid(), organizationId, condominiumId, ownerId, createdBy: adminId, invoice_number: `test-${++serial}`, unitNumber: `U${serial}`, amount: 5000, paidAmount: 0, currency: "DOP", issueDate: new Date(), paymentStatus: "pending", status: "active" };
     await Invoice.collection.insertOne(doc);
@@ -86,6 +89,36 @@ test("bank reconciliation uses atomic evidence and isolates owners", { skip: !pr
     assert.equal((await invoke("commitStatement", request({ id: statement._id }, { rows, reviewed: true }))).statusCode, 409);
     assert.equal(await BankMovement.countDocuments({ statementId: statement._id }), 0);
   });
+  await t.test("reupload reopens the same statement and partial imports can be completed exactly once", async () => {
+    const upload = request({}, { bankAccountId: account._id }, { file: { originalname: "statement.csv", buffer: Buffer.from("date,amount,reference\n2026-10-01,250,partial-import") } });
+    const first = await invoke("uploadStatement", upload);
+    assert.equal(first.statusCode, 200);
+    const statementId = first.body.data._id;
+    const rows = [1, 2, 3].map(sourceRow => ({ sourceRow, date: "2026-10-01", amount: "250.00", currency: "DOP", reference: `partial-import-${sourceRow}`, direction: "credit" }));
+    await BankStatement.updateOne({ _id: statementId }, { $set: { status: "ready", rows } });
+    const partial = await invoke("commitStatement", request({ id: statementId }, { reviewed: true, rows: [rows[0]] }));
+    assert.equal(partial.statusCode, 200);
+    const movement = await BankMovement.findOne({ statementId });
+    const allocatedReceiptId = oid();
+    await BankMovement.updateOne({ _id: movement._id }, { $set: { allocatedReceiptId } });
+    const reopen = await invoke("uploadStatement", upload);
+    assert.equal(reopen.statusCode, 200);
+    assert.equal(String(reopen.body.data._id), String(statementId));
+    assert.equal(reopen.body.data.rows.length, 3);
+    assert.equal(reopen.body.data.reviewedRows.length, 1);
+    assert.equal(reopen.body.data.fileData, undefined);
+    const changed = await invoke("commitStatement", request({ id: statementId }, { reviewed: true, rows: [{ ...rows[0], amount: "251.00" }] }));
+    assert.equal(changed.statusCode, 409);
+    assert.equal(changed.body.code, "IMPORTED_ROW_LOCKED");
+    const responses = await Promise.all([1, 2].map(() => invoke("commitStatement", request({ id: statementId }, { reviewed: true, rows }))));
+    for (const response of responses) assert.equal(response.statusCode, 200, JSON.stringify(response.body));
+    assert.equal(await BankMovement.countDocuments({ statementId }), 3);
+    assert.equal((await BankStatement.findById(statementId)).reviewedRows.length, 3);
+    assert.equal(String((await BankMovement.findById(movement._id)).allocatedReceiptId), String(allocatedReceiptId));
+    assert.equal(await PaymentTransaction.countDocuments({ "metadata.statementId": statementId }), 0);
+    const foreign = request({}, upload.body, { file: upload.file }); foreign.auth.organizationId = oid();
+    assert.equal((await invoke("uploadStatement", foreign)).statusCode, 404);
+  });
   await t.test("durable OCR processing stores fields but discards attempted payment approval", async () => {
     const inv = await invoice();
     const receipt = await TransferReceipt.create({ organizationId, condominiumId, bankAccountId: account._id, invoiceId: inv._id, ownerId, uploadedBy: ownerId, fileData: Buffer.from("synthetic receipt"), sha256: crypto.randomUUID(), mimeType: "image/png" });
@@ -115,5 +148,103 @@ test("bank reconciliation uses atomic evidence and isolates owners", { skip: !pr
     upload.body.invoiceId = reserved._id;
     assert.equal((await invoke("uploadReceipt", upload)).statusCode, 409);
     assert.equal(await TransferReceipt.countDocuments({ invoiceId: reserved._id }), 0);
+  });
+  await t.test("existing receipts and simultaneous owner uploads never exceed three", async () => {
+    const inv = await invoice();
+    await evidence(inv, "1000.00"); // Preexisting receipt has no upload revision.
+    const responses = await Promise.all(Array.from({ length: 5 }, () => invoke("uploadReceipt", ownerUpload(inv))));
+    assert.deepEqual(responses.map(r => r.statusCode).sort(), [200, 200, 409, 409, 409]);
+    for (const response of responses.filter(r => r.statusCode === 409)) assert.equal(response.body.code, "RECEIPT_LIMIT_REACHED");
+    assert.equal(await TransferReceipt.countDocuments({ invoiceId: inv._id }), 3);
+    const saved = await Invoice.findById(inv._id);
+    assert.equal(saved.receiptUploadRevision, 2);
+    assert.equal(saved.paymentStatus, "pending");
+    assert.equal(saved.paidAmount, 0);
+    assert.equal(await PaymentTransaction.countDocuments({ invoiceId: inv._id }), 0);
+  });
+  await t.test("owners can delete pending vouchers and replace them without changing payment", async () => {
+    const inv = await invoice();
+    const uploads = await Promise.all(["wrong", "second", "third"].map(bytes => invoke("uploadReceipt", ownerUpload(inv, bytes))));
+    for (const response of uploads) assert.equal(response.statusCode, 200);
+    const receipt = uploads[0].body.data;
+    const ownerRequest = sub => request({ id: receipt._id }, {}, { user: { role: "OWNER", sub } });
+    assert.equal((await invoke("deleteReceipt", ownerRequest(oid()))).statusCode, 404);
+    const foreign = ownerRequest(ownerId); foreign.auth.organizationId = oid();
+    assert.equal((await invoke("deleteReceipt", foreign)).statusCode, 404);
+    const outside = ownerRequest(ownerId); outside.auth.scope = { mode: "SELECTED", condominiumIds: [] };
+    assert.equal((await invoke("deleteReceipt", outside)).statusCode, 404);
+    const unprivileged = request({ id: receipt._id }); unprivileged.auth.isOwnerAdmin = false;
+    assert.equal((await invoke("deleteReceipt", unprivileged)).statusCode, 403);
+    assert.equal(await TransferReceipt.countDocuments({ invoiceId: inv._id }), 3);
+    const deleted = await invoke("deleteReceipt", ownerRequest(ownerId));
+    assert.equal(deleted.statusCode, 200);
+    assert.equal(deleted.body.data.deletedId, String(receipt._id));
+    assert.equal(await TransferReceipt.findById(receipt._id).select("+fileData"), null);
+    assert.equal((await invoke("receiptFile", ownerRequest(ownerId))).statusCode, 404);
+    assert.equal((await invoke("deleteReceipt", ownerRequest(ownerId))).statusCode, 404);
+    assert.equal((await invoke("uploadReceipt", ownerUpload(inv, "wrong"))).statusCode, 200);
+    assert.equal(await TransferReceipt.countDocuments({ invoiceId: inv._id }), 3);
+    const saved = await Invoice.findById(inv._id);
+    assert.equal(saved.paymentStatus, "pending"); assert.equal(saved.paidAmount, 0);
+    assert.equal(await PaymentTransaction.countDocuments({ invoiceId: inv._id }), 0);
+  });
+  await t.test("confirmed vouchers survive deletion and a confirmation racing deletion stays consistent", async () => {
+    const inv = await invoice();
+    const { receipt, movement } = await evidence(inv, "5000.00");
+    const results = await Promise.all([
+      invoke("deleteReceipt", request({ id: receipt._id }, {}, { user: { role: "OWNER", sub: ownerId } })),
+      invoke("confirm", request({ id: receipt._id }, { movementId: movement._id })),
+    ]);
+    const saved = await TransferReceipt.findById(receipt._id);
+    if (saved) {
+      assert.equal(results[0].statusCode, 409);
+      assert.equal(results[1].statusCode, 200);
+      assert.equal(saved.reconciliationStatus, "confirmed");
+      assert.equal((await invoke("deleteReceipt", request({ id: receipt._id }))).statusCode, 409);
+      assert.equal(await PaymentTransaction.countDocuments({ invoiceId: inv._id }), 1);
+      assert.equal((await Invoice.findById(inv._id)).paidAmount, 5000);
+    } else {
+      assert.equal(results[0].statusCode, 200);
+      assert.equal(results[1].statusCode, 404);
+      assert.equal(await PaymentTransaction.countDocuments({ invoiceId: inv._id }), 0);
+      assert.equal((await Invoice.findById(inv._id)).paidAmount, 0);
+      assert.equal((await BankMovement.findById(movement._id)).allocatedReceiptId, null);
+    }
+  });
+  await t.test("duplicate and invalid evidence, absent bank accounts and foreign invoices fail without consuming slots", async () => {
+    const inv = await invoice();
+    const req = ownerUpload(inv, "same-evidence");
+    assert.equal((await invoke("uploadReceipt", req)).statusCode, 200);
+    const duplicate = await invoke("uploadReceipt", req);
+    assert.equal(duplicate.statusCode, 409);
+    assert.equal(duplicate.body.code, "DUPLICATE_EVIDENCE");
+    const invalid = ownerUpload(inv); invalid.file.buffer = Buffer.from("not an image");
+    assert.equal((await invoke("uploadReceipt", invalid)).statusCode, 400);
+    const tooLarge = ownerUpload(inv); tooLarge.file.buffer = Buffer.alloc(8 * 1024 * 1024 + 1);
+    assert.equal((await invoke("uploadReceipt", tooLarge)).statusCode, 400);
+    assert.equal((await invoke("uploadReceipt", ownerUpload(inv, "no-bank", oid()))).statusCode, 404);
+    assert.equal((await invoke("uploadReceipt", ownerUpload(inv, "other-owner", account._id, oid()))).statusCode, 404);
+    assert.equal(await TransferReceipt.countDocuments({ invoiceId: inv._id }), 1);
+    assert.equal((await Invoice.findById(inv._id)).receiptUploadRevision, 1);
+    const receipt = await TransferReceipt.findOne({ invoiceId: inv._id });
+    const fileRequest = request({ id: receipt._id }, {}, { user: { role: "OWNER", sub: ownerId } });
+    const res = { headersSent: false, set(headers) { this.headers = headers; }, send(body) { this.body = body; this.headersSent = true; } };
+    await controller.receiptFile(fileRequest, res);
+    assert.deepEqual(Buffer.from(res.body), req.file.buffer);
+    assert.equal(res.headers["Content-Type"], "image/png");
+    assert.equal((await invoke("receiptFile", request({ id: receipt._id }, {}, { user: { role: "OWNER", sub: oid() } }))).statusCode, 404);
+    const history = require("../controllers/invoice");
+    const historyRequest = request({ id: String(ownerId) }, {}, { user: { role: "OWNER", sub: ownerId } });
+    const reloaded = await invoke("getInvoiceByIdentifier", historyRequest, history);
+    assert.equal(reloaded.statusCode, 200);
+    const returnedInvoice = reloaded.body.invoices.find(row => String(row._id) === String(inv._id));
+    assert.equal(returnedInvoice.attachments.length, 1);
+    assert.equal(String(returnedInvoice.attachments[0]._id), String(receipt._id));
+    assert.equal(returnedInvoice.attachments[0].originalName, "voucher.png");
+    assert.equal(returnedInvoice.attachments[0].fileData, undefined);
+    const otherOwner = oid();
+    const invisible = await invoke("getInvoiceByIdentifier", request({ id: String(ownerId) }, {}, { user: { role: "OWNER", sub: otherOwner } }), history);
+    assert.equal(invisible.statusCode, 200);
+    assert.deepEqual(invisible.body.invoices, []);
   });
 });

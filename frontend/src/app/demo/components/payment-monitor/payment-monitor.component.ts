@@ -31,6 +31,19 @@ interface MonitorResponse<T> {
     data: T;
 }
 
+interface PaidMonitorInvoice {
+    invoiceId: string;
+    invoicePaymentStatus: string;
+    invoiceAmount: number;
+    ownerName?: string;
+    ownerPhone?: string;
+    ownerEmail?: string;
+    condominiumAlias?: string;
+    unitNumber?: string;
+    issueDate?: string;
+    dueDate?: string;
+}
+
 @Component({
     selector: 'app-payment-monitor',
     standalone: true,
@@ -140,6 +153,7 @@ export class PaymentMonitorComponent implements OnInit, OnDestroy {
 
     reconciliationFilterOptions = [
         { label: 'All', value: '' },
+        { label: 'Not started', value: 'not_started' },
         { label: 'pending', value: 'pending' },
         { label: 'matched', value: 'matched' },
         { label: 'mismatched', value: 'mismatched' },
@@ -326,7 +340,7 @@ export class PaymentMonitorComponent implements OnInit, OnDestroy {
         }
 
         this.loading = true;
-        this.transactionRequest = this.invoiceService.getPaymentTransactions(this.filters).subscribe({
+        this.transactionRequest = this.invoiceService.getPaymentMonitorData('monitor/invoices', this.filters).subscribe({
             next: (response) => {
                 if (!this.isSuccessResponse(response)) {
                     this.loading = false;
@@ -399,7 +413,7 @@ export class PaymentMonitorComponent implements OnInit, OnDestroy {
             limit: 500,
         };
 
-        this.invoiceService.getPaymentTransactions(exportFilters).subscribe({
+        this.invoiceService.getPaymentMonitorData('monitor/invoices', exportFilters).subscribe({
             next: (response) => {
                 if (!this.isSuccessResponse(response)) {
                     return;
@@ -422,6 +436,7 @@ export class PaymentMonitorComponent implements OnInit, OnDestroy {
                 const header = [
                     'invoiceId',
                     'ownerId',
+                    'ownerName',
                     'unitNumber',
                     'issueDate',
                     'dueDate',
@@ -447,6 +462,7 @@ export class PaymentMonitorComponent implements OnInit, OnDestroy {
                         [
                             row.invoiceId,
                             row.ownerId,
+                            row.ownerName,
                             row.unitNumber,
                             row.issueDate,
                             row.dueDate,
@@ -605,9 +621,28 @@ export class PaymentMonitorComponent implements OnInit, OnDestroy {
             });
     }
 
+    canDownloadInvoice(row: PaidMonitorInvoice): boolean {
+        return !!row.invoiceId && row.invoicePaymentStatus === 'completed';
+    }
+
+    downloadInvoice(row: PaidMonitorInvoice): void {
+        if (!this.canDownloadInvoice(row)) return;
+        this.invoiceService.genPDF({
+            alias: row.condominiumAlias || '-',
+            fullname: row.ownerName || 'Owner unavailable',
+            phone: row.ownerPhone || '-',
+            email: row.ownerEmail || '-',
+            unit: row.unitNumber || '-',
+            invoice_issue: row.issueDate,
+            invoice_due: row.dueDate,
+            invoice_status: row.invoicePaymentStatus,
+            invoice_amount: row.invoiceAmount,
+        });
+    }
+
     canReconcile(row: any): boolean {
         const status = String(row?.reconciliationStatus || '').toLowerCase();
-        return !this.isOwner && (status === 'manual_review' || status === 'mismatched');
+        return !this.isOwner && row?.rowType === 'transaction' && (status === 'manual_review' || status === 'mismatched');
     }
 
     openReconciliationDialog(row: any, status = 'matched'): void {
@@ -662,13 +697,13 @@ export class PaymentMonitorComponent implements OnInit, OnDestroy {
 
     getSeverity(
         status: string
-    ): 'success' | 'info' | 'warning' | 'danger' | 'secondary' | 'contrast' {
+    ): 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' {
         const normalized = String(status || '').toLowerCase();
         if (normalized === 'succeeded' || normalized === 'matched') {
             return 'success';
         }
         if (normalized === 'processing' || normalized === 'pending') {
-            return 'warning';
+            return 'warn';
         }
         if (normalized === 'failed' || normalized === 'cancelled') {
             return 'danger';

@@ -81,6 +81,7 @@
                 <th>Condominium</th>
                 <th>Invoices</th>
                 <th>Total</th>
+                <th>Attachment</th>
                 <th style="width: 5rem; text-align: center">
                     <i class="pi pi-cog"></i>
                 </th>
@@ -102,13 +103,17 @@
                 </td>
                 <td>{{ group.invoiceCount }}</td>
                 <td>{{ group.totalAmount | currency : "USD" }}</td>
+                <td><p-button icon="pi pi-paperclip" [text]="true"
+                    [label]="attachmentCount(group) ? '' + attachmentCount(group) : ''"
+                    [ariaLabel]="'Attachments for ' + group.alias + ': ' + attachmentCount(group)"
+                    (onClick)="openAttachments(group)" /></td>
                 <td style="width: 5rem">
                     <p-button
                         icon="pi pi-ellipsis-v"
                         severity="secondary"
                         [text]="true"
                         (click)="openRowMenu(rowMenu, $event, group)"
-                        aria-label="More actions"
+                        ariaLabel="More actions"
                     />
                 </td>
                 <!-- <td>
@@ -222,9 +227,10 @@
     }
 </div>
 
+<p role="alert" *ngIf="downloadError && !attachmentVisible && !voucherVisible">{{ downloadError }}</p>
 <!-- MODAL INVOICE HISTORY -->
 
-<p-dialog
+<p-dialog closeAriaLabel="Close"
     header="{{ selectedCondoGroup?.alias | titlecase }}"
     [(visible)]="dialogVisible"
     [modal]="true"
@@ -282,6 +288,7 @@
                     <th>Status</th>
                     <th>Payment Status</th>
                     <th>Amount</th>
+                    <th>Attachment</th>
                 </tr>
             </ng-template>
             <ng-template pTemplate="body" let-invoice>
@@ -306,6 +313,12 @@
                         />
                     </td>
                     <td>{{ invoice?.invoice_amount | currency : "USD" }}</td>
+                    <td>
+                        @for (receipt of invoice.attachments.slice(0, 3); track receipt._id) {
+                            <p-button icon="pi pi-paperclip" [text]="true" [label]="receipt.originalName || 'Voucher'"
+                                [ariaLabel]="'Download ' + (receipt.originalName || 'voucher')" (onClick)="downloadVoucher(receipt)" />
+                        } @empty { <span>No voucher</span> }
+                    </td>
                 </tr>
             </ng-template>
             <ng-template pTemplate="summary">
@@ -316,4 +329,85 @@
             </ng-template>
         </p-table>
     </div>
+</p-dialog>
+
+<p-dialog closeAriaLabel="Close" header="Upload Voucher" [(visible)]="voucherVisible" [modal]="true"
+    [style]="{ width: '36rem', maxWidth: '95vw' }" [draggable]="false" [resizable]="false"
+    [closable]="!voucherUploading && !voucherDeleting" [closeOnEscape]="!voucherUploading && !voucherDeleting">
+    <div class="voucher-form">
+        <label for="voucher-invoice">Invoice</label>
+        <p-select inputId="voucher-invoice" [options]="voucherOptions" optionLabel="label" optionValue="value"
+            [(ngModel)]="voucherInvoice" placeholder="Choose date, unit and amount"
+            [disabled]="voucherUploading || voucherDeleting" (onChange)="loadVoucherInvoice()" appendTo="body" />
+        @if (voucherLoading) { <p role="status">Loading bank accounts and vouchers...</p> }
+        @if (voucherInvoice && !voucherLoading) {
+            <label for="voucher-account">Receiving bank account</label>
+            @if (bankAccounts.length) {
+                <select id="voucher-account" [(ngModel)]="bankAccountId" [disabled]="voucherUploading || voucherDeleting">
+                    <option value="">Select a bank account</option>
+                    @for (account of bankAccounts; track account._id) {
+                        <option [value]="account._id">{{ account.bank }} &middot; {{ account.accountLabel }} &middot; {{ account.currency }}</option>
+                    }
+                </select>
+            } @else { <p>No receiving bank account is configured for this invoice. Contact administration.</p> }
+            <p><strong>{{ voucherInvoice.attachments.length }}/3</strong> vouchers</p>
+            @for (receipt of voucherInvoice.attachments; track receipt._id) {
+                <div class="voucher-attachment">
+                <p-button icon="pi pi-paperclip" [text]="true" [label]="receipt.originalName || 'Voucher'"
+                    [ariaLabel]="'Download ' + (receipt.originalName || 'voucher')" (onClick)="downloadVoucher(receipt)" />
+                @if (receipt.reconciliationStatus === 'pending') {
+                    <p-button icon="pi pi-trash" label="Delete" severity="danger" [text]="true"
+                        [ariaLabel]="'Delete ' + (receipt.originalName || 'voucher')"
+                        [disabled]="voucherUploading || voucherDeleting" (onClick)="requestVoucherDeletion(voucherInvoice, receipt)" />
+                } @else if (receipt.reconciliationStatus === 'confirmed') { <small>Reconciled</small> }
+                </div>
+            }
+            <label for="voucher-file">Choose voucher (PDF, PNG or JPEG, up to 8 MiB)</label>
+            <input #voucherFile id="voucher-file" type="file" accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg"
+                [disabled]="voucherUploading || voucherDeleting || !bankAccountId || voucherInvoice.attachments.length >= 3"
+                (change)="uploadVoucher(voucherFile)" />
+            <small>Uploading a voucher does not confirm payment. Administration must reconcile it.</small>
+        }
+        @if (voucherMessage) { <p role="status">{{ voucherMessage }}</p> }
+        @if (voucherError) { <p role="alert">{{ voucherError }}</p> }
+        @if (downloadError) { <p role="alert">{{ downloadError }}</p> }
+    </div>
+</p-dialog>
+
+<p-dialog closeAriaLabel="Close" header="Attachments" [(visible)]="attachmentVisible" [modal]="true"
+    [style]="{ width: '36rem', maxWidth: '95vw' }" [draggable]="false" [resizable]="false"
+    [closable]="!voucherDeleting" [closeOnEscape]="!voucherDeleting">
+    @for (invoice of attachmentGroup?.invoices ?? []; track invoice._id) {
+        <section class="voucher-invoice">
+            <strong>{{ invoice.invoice_issue | date : 'shortDate' }} &middot; Unit {{ invoice.unit }} &middot; {{ invoice.invoice_amount | currency : invoice.currency }}</strong>
+            <small>Invoice {{ invoice._id }}</small>
+            @for (receipt of invoice.attachments; track receipt._id) {
+                <div class="voucher-attachment">
+                <p-button icon="pi pi-paperclip" [text]="true" [label]="receipt.originalName || 'Voucher'"
+                    [ariaLabel]="'Download ' + (receipt.originalName || 'voucher')" (onClick)="downloadVoucher(receipt)" />
+                @if (receipt.reconciliationStatus === 'pending') {
+                    <p-button icon="pi pi-trash" label="Delete" severity="danger" [text]="true"
+                        [ariaLabel]="'Delete ' + (receipt.originalName || 'voucher')"
+                        [disabled]="voucherDeleting" (onClick)="requestVoucherDeletion(invoice, receipt)" />
+                } @else if (receipt.reconciliationStatus === 'confirmed') { <small>Reconciled</small> }
+                </div>
+            } @empty { <p>No voucher</p> }
+            <p-button icon="pi pi-upload" label="Upload correct voucher" ariaLabel="Upload correct voucher" [outlined]="true"
+                [disabled]="voucherDeleting || invoice.attachments.length >= 3" (onClick)="uploadCorrectVoucher(invoice)" />
+        </section>
+    }
+    @if (downloadError) { <p role="alert">{{ downloadError }}</p> }
+    @if (voucherMessage) { <p role="status">{{ voucherMessage }}</p> }
+</p-dialog>
+
+<p-dialog closeAriaLabel="Close" header="Delete voucher" [(visible)]="deleteVisible" [modal]="true"
+    [style]="{ width: '28rem', maxWidth: '95vw' }" [draggable]="false" [resizable]="false"
+    [closable]="!voucherDeleting" [closeOnEscape]="!voucherDeleting">
+    <p>Delete <strong>{{ pendingDeletion?.receipt?.originalName || 'this voucher' }}</strong>? You can upload the correct file afterwards.</p>
+    @if (deleteError) { <p role="alert">{{ deleteError }}</p> }
+    <ng-template #footer>
+        <p-button label="Cancel" [text]="true" [disabled]="voucherDeleting" (onClick)="deleteVisible = false" />
+        <p-button label="Delete voucher" ariaLabel="Delete voucher" icon="pi pi-trash" severity="danger" [loading]="voucherDeleting"
+            [disabled]="voucherDeleting" (onClick)="deleteVoucher()" />
+    </ng-template>
 </p-dialog>

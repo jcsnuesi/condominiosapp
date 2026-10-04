@@ -33,8 +33,16 @@ var InvoiceSchema = Schema(
     currency: { type: String, default: "DOP", match: /^[A-Z]{3}$/ },
     // Undefined on legacy invoices; paymentStatus remains their source of truth.
     paidAmount: { type: Number, min: 0 },
+    adjustmentAmount: { type: Number, min: 0 },
+    creditAppliedAmount: { type: Number, min: 0 },
+    chargeType: { type: String, enum: ["monthly", "extraordinary", "individual", "fine", "late_fee", "legacy"] },
+    period: { type: String, match: /^\d{4}-(0[1-9]|1[0-2])$/ },
+    sourceKey: { type: String, maxlength: 250 },
+    sourceInvoiceId: { type: Schema.Types.ObjectId, ref: "Invoice" },
+    unitId: { type: Schema.Types.ObjectId },
     balancePending: { type: Number, min: 0 },
     paymentWorkflow: { type: String, enum: ["bank_transfer", "gateway"] },
+    receiptUploadRevision: { type: Number, default: 0 },
     status: {
       type: String,
       default: "active",
@@ -67,7 +75,7 @@ InvoiceSchema.pre("save", async function () {
     const counter = await Counter.findOneAndUpdate(
       { _id: "invoice_number" },
       { $inc: { sequence_value: 1 } },
-      { new: true, upsert: true }
+      { new: true, upsert: true, session: invoice.$session() }
     );
 
     invoice.invoice_number = counter.sequence_value;
@@ -75,21 +83,13 @@ InvoiceSchema.pre("save", async function () {
 
 });
 
-// Update the compound index to include unitNumber
+// Only explicit source keys participate; legacy data is reviewed by the migration.
 InvoiceSchema.index(
-  {
-    condominiumId: 1,
-    ownerId: 1,
-    unitNumber: 1,
-    issueDate: 1,
-    paymentStatus: 1,
-  },
-  {
-    unique: true,
-    name: "unique_monthly_unit_invoice",
-  }
+  { organizationId: 1, condominiumId: 1, sourceKey: 1 },
+  { unique: true, name: "invoice_source_unique", partialFilterExpression: { sourceKey: { $type: "string" } } }
 );
 InvoiceSchema.index({ organizationId: 1, condominiumId: 1, paymentStatus: 1 });
+InvoiceSchema.index({ organizationId: 1, condominiumId: 1, unitNumber: 1, issueDate: 1 });
 InvoiceSchema.index(
   { organizationId: 1, condominiumId: 1, issueDate: -1 },
   { name: "invoice_history_condominium_month_lookup" }

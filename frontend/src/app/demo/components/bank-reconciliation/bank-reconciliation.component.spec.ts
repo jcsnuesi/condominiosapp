@@ -41,24 +41,50 @@ describe('Bank transfer review boundaries', () => {
     await component.commitStatement();
     expect(api.post).not.toHaveBeenCalled();
   });
-  it('shows only confirmed movements after a partial statement import', () => {
+  it('shows the complete statement after a partial import and distinguishes pending rows', () => {
     const fixture = TestBed.createComponent(BankReconciliationComponent);
     fixture.componentInstance.statement.set({
       _id: 'statement', status: 'committed',
-      rows: [{ _id: '', description: 'Movimiento extraído pendiente' }, { _id: '' }],
-      reviewedRows: [{ _id: '', date: '2026-09-30', amount: '1.69', currency: 'DOP', reference: '000123', direction: 'credit', description: 'Intereses confirmados' }],
+      rows: [{ _id: '', sourceRow: 1, description: 'Movimiento extraído pendiente' }, { _id: '', sourceRow: 2 }],
+      reviewedRows: [{ _id: '', sourceRow: 2, date: '2026-09-30', amount: '1.69', currency: 'DOP', reference: '000123', direction: 'credit', description: 'Intereses confirmados' }],
     });
     fixture.detectChanges();
     const host = fixture.nativeElement as HTMLElement;
     const text = host.textContent || '';
-    expect(text).toContain('Movimientos bancarios importados');
+    expect(text).toContain('Estado de cuenta completo');
     expect(text).toContain('Intereses confirmados');
     expect(text).toContain('Abono');
     expect(text).toContain('Se extrajeron 2 movimientos');
-    expect(text).not.toContain('Movimiento extraído pendiente');
+    expect(text).toContain('Movimiento extraído pendiente');
+    expect(text).toContain('Pendiente de revisión');
     expect(text).not.toContain('Importar movimientos revisados');
-    expect(host.querySelectorAll('table tbody tr').length).toBe(1);
+    expect(host.querySelectorAll('table tbody tr').length).toBe(2);
     expect(host.querySelector('table input')).toBeNull();
+  });
+  it('reviews only pending rows without changing the original extraction or imported corrections', async () => {
+    const component = TestBed.createComponent(BankReconciliationComponent).componentInstance;
+    const pending = { _id: '', sourceRow: 2, date: '2026-09-30', amount: '20', currency: 'DOP', direction: 'credit' };
+    const imported = { ...pending, sourceRow: 1, amount: '10', reference: 'corrected' };
+    component.statement.set({ _id: 'statement', status: 'committed', rows: [{ ...imported, reference: 'OCR' }, pending], reviewedRows: [imported] });
+    component.reviewPendingRows();
+    expect(component.reviewRows).toEqual([pending]);
+    component.reviewRows[0].amount = '25';
+    expect(component.statement()?.rows[1].amount).toBe('20');
+    expect(component.statementRows[0].reference).toBe('corrected');
+    component.reviewed = true;
+    await component.commitStatement();
+    expect(api.post).toHaveBeenCalledWith('statements/statement/commit', { rows: [{ ...pending, amount: '25' }], reviewed: true });
+    expect(component.reviewingPending).toBeFalse();
+  });
+  it('allows selecting the same file again and clears stale account selection files', () => {
+    const component = TestBed.createComponent(BankReconciliationComponent).componentInstance;
+    const file = new File(['date,amount'], 'statement.csv');
+    const target = { files: [file], value: 'statement.csv' };
+    component.chooseFile({ target } as unknown as Event, true);
+    expect(target.value).toBe('');
+    expect(component.statementFile).toBe(file);
+    component.accountChanged();
+    expect(component.statementFile).toBeNull();
   });
   it('identifies unresolved directions before posting a reviewed statement', async () => {
     const component = TestBed.createComponent(BankReconciliationComponent).componentInstance;

@@ -75,6 +75,16 @@ export class AppMenuComponent implements OnInit {
 
     ngOnInit() {
         const identityId = this.cookieValue?._id;
+        const isOwner = this.checkRole(['OWNER']);
+        const isOrganizationOwner =
+            isOwner &&
+            Boolean(
+                this.accessContext.access()?.organization ||
+                    this.cookieValue?.organizationId
+            );
+        const canSeePaymentMonitor = isOwner
+            ? !isOrganizationOwner
+            : this.hasPermission('finance.read');
 
         this.model = [
             {
@@ -102,7 +112,7 @@ export class AppMenuComponent implements OnInit {
                 visible: this.hasPermission('dashboard.read'),
             },
             {
-                label: 'User management',
+                label: 'Access management',
                 items: [
                     {
                         label: 'Users',
@@ -212,11 +222,24 @@ export class AppMenuComponent implements OnInit {
                 label: 'Finance',
                 items: [
                     {
+                        label: 'Administración financiera',
+                        icon: 'pi pi-chart-bar',
+                        routerLink: ['/finance'],
+                        visible: this.hasPermission('finance.read'),
+                    },
+                    {
                         label: 'Payment Monitor',
                         icon: 'pi pi-wallet',
                         routerLink: ['/payment-monitor'],
-                        visible: this.hasPermission('finance.read'),
+                        visible: canSeePaymentMonitor,
                     },
+                ],
+                visible:
+                    canSeePaymentMonitor || this.hasPermission('finance.read'),
+            },
+            {
+                label: 'Communications',
+                items: [
                     {
                         label: 'Communication History',
                         icon: 'pi pi-comments',
@@ -224,10 +247,7 @@ export class AppMenuComponent implements OnInit {
                         visible: this.hasPermission('communications.read'),
                     },
                 ],
-                visible: this.hasAnyPermission(
-                    'finance.read',
-                    'communications.read'
-                ),
+                visible: this.hasPermission('communications.read'),
             },
         ];
     }

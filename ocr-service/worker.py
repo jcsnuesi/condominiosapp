@@ -96,7 +96,7 @@ def extract(path: Path, media: str, statement: bool) -> dict[str, Any]:
     result: dict[str, Any] = {
         "text": text,
         "lines": lines,
-        "fields": receipt_fields(text),
+        "fields": receipt_fields(text, lines),
         "requiresReview": True,
         "engine": "PaddleOCR+pdfplumber" if used_ocr and media == "application/pdf" else "PaddleOCR" if used_ocr else "pdfplumber",
         "version": "3.2.0" if used_ocr else "0.11.9",

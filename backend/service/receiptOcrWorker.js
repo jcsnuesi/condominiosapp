@@ -32,7 +32,7 @@ async function processOne(Model, statusKey, endpoint, fetchImpl = fetch) {
   const job = await Model.findOneAndUpdate({ attempts: { $lt: 3 }, $or: [{ [statusKey]: "queued", $or: [{ nextAttemptAt: null }, { nextAttemptAt: { $lte: now } }] }, { [statusKey]: "processing", leaseUntil: { $lt: now } }] }, { $set: { [statusKey]: "processing", leaseUntil: new Date(Date.now() + LEASE_MS), leaseToken }, $inc: { attempts: 1 } }, { returnDocument: "after", sort: { createdAt: 1 } }).select("+fileData");
   if (!job) return false;
   try {
-    const url = new URL(endpoint, process.env.OCR_SERVICE_URL || "http://ocr:8000");
+    const url = new URL(endpoint, process.env.OCR_SERVICE_URL || "http://ocr-service:2020");
     const token = process.env.OCR_SERVICE_TOKEN;
     if (!token) throw new Error("OCR_SERVICE_NOT_CONFIGURED");
     const response = await fetchImpl(url, { method: "POST", headers: { "Content-Type": job.mimeType, "X-OCR-Token": token }, body: job.fileData, signal: AbortSignal.timeout(180000) });
@@ -41,7 +41,11 @@ async function processOne(Model, statusKey, endpoint, fetchImpl = fetch) {
     await Model.updateOne({ _id: job._id, leaseToken, [statusKey]: "processing" }, { $set: { [statusKey]: "ready", ocr: result.ocr, warnings: result.warnings, ...(endpoint === "/extract" ? { fields: result.fields } : { rows: result.rows, headers: result.headers, rawRows: result.rawRows }) }, $unset: { leaseToken: 1, leaseUntil: 1, error: 1 } });
   } catch (error) {
     // Do not persist service response bodies, URLs, credentials, or stack traces.
-    const reason = /^OCR_[A-Z0-9_]+$/.test(error.message) ? error.message : "OCR_PROCESSING_FAILED";
+    const connectionCode = error.cause?.code;
+    const reason = /^OCR_[A-Z0-9_]+$/.test(error.message) ? error.message
+      : ["ENOTFOUND", "EAI_AGAIN", "ECONNREFUSED", "ENETUNREACH", "EHOSTUNREACH"].includes(connectionCode) ? "OCR_SERVICE_UNREACHABLE"
+      : ["TimeoutError", "AbortError"].includes(error.name) ? "OCR_SERVICE_TIMEOUT"
+      : "OCR_PROCESSING_FAILED";
     await Model.updateOne({ _id: job._id, leaseToken }, { $set: { [statusKey]: job.attempts >= 3 ? "failed" : "queued", error: reason, nextAttemptAt: new Date(Date.now() + job.attempts * 30000) }, $unset: { leaseToken: 1, leaseUntil: 1 } });
   }
   return true;

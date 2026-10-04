@@ -139,7 +139,7 @@ export class InvoiceService {
         return this.getPaymentMonitorData('transactions', filters);
     }
 
-    getPaymentMonitorData<T>(resource: 'transactions' | 'monitor/options', filters: object = {}): Observable<T> {
+    getPaymentMonitorData<T>(resource: 'transactions' | 'monitor/options' | 'monitor/invoices', filters: object = {}): Observable<T> {
         let token = this.getToken();
         let headers = new HttpHeaders().set('Authorization', token);
         let params = new HttpParams();

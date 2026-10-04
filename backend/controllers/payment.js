@@ -599,7 +599,7 @@ const paymentController = {
       if (!canAccessPaymentResource(req, invoice)) return apiResponse.failure(res, 403, { message: "Factura fuera del alcance autorizado" }, "FORBIDDEN");
       // Legacy card flows do not allocate split payments. Keep mixed-method
       // invoices in the evidence-backed reconciliation flow to avoid overwrite.
-      if (invoice.paidAmount > 0 || invoice.paymentStatus === "completed") return apiResponse.failure(res, 409, { message: "La factura ya tiene pagos aplicados; revise el saldo en conciliación" }, "INVOICE_HAS_PAYMENTS");
+      if ((invoice.paidAmount > 0 || invoice.adjustmentAmount > 0 || invoice.creditAppliedAmount > 0) || invoice.paymentStatus === "completed") return apiResponse.failure(res, 409, { message: "La factura ya tiene pagos aplicados; revise el saldo en conciliación" }, "INVOICE_HAS_PAYMENTS");
       const amount = Number(payload.amount || invoice.amount);
       if (centsAmount(amount) !== centsAmount(invoice.amount) || String(payload.currency || invoice.currency || "DOP").toUpperCase() !== (invoice.currency || "DOP")) return apiResponse.failure(res, 400, { message: "El cobro por pasarela debe cubrir el saldo completo en la moneda de la factura" }, "VALIDATION_ERROR");
       if (!Number.isFinite(amount) || amount <= 0) {
@@ -611,7 +611,7 @@ const paymentController = {
         );
       }
 
-      const workflow = await Invoice.updateOne({ _id: invoice._id, organizationId: req.auth.organizationId, paymentWorkflow: { $ne: "bank_transfer" }, paidAmount: { $not: { $gt: 0 } }, paymentStatus: { $ne: "completed" } }, { $set: { paymentWorkflow: "gateway" } });
+      const workflow = await Invoice.updateOne({ _id: invoice._id, organizationId: req.auth.organizationId, paymentWorkflow: { $ne: "bank_transfer" }, paidAmount: { $not: { $gt: 0 } }, adjustmentAmount: { $not: { $gt: 0 } }, creditAppliedAmount: { $not: { $gt: 0 } }, paymentStatus: { $ne: "completed" } }, { $set: { paymentWorkflow: "gateway" } });
       if (workflow.matchedCount !== 1) return apiResponse.failure(res, 409, { message: "La factura está reservada para conciliación bancaria o ya recibió pagos" }, "PAYMENT_WORKFLOW_CONFLICT");
       const gatewayResult = await paymentGateway.createCharge({
         provider,
@@ -724,7 +724,7 @@ const paymentController = {
       if (!canAccessPaymentResource(req, transaction)) return apiResponse.failure(res, 403, { message: "Cobro fuera del alcance autorizado" }, "FORBIDDEN");
       if (isBankTransfer(transaction)) return apiResponse.failure(res, 409, { message: "Las transferencias se confirman exclusivamente con un comprobante y un movimiento del estado bancario" }, "BANK_EVIDENCE_REQUIRED");
       const protectedInvoice = await Invoice.findById(transaction.invoiceId);
-      if (protectedInvoice?.paymentWorkflow === "bank_transfer" || protectedInvoice?.paidAmount > 0) return apiResponse.failure(res, 409, { message: "La factura tiene conciliación bancaria; no puede modificarse mediante la pasarela" }, "PAYMENT_WORKFLOW_CONFLICT");
+      if (protectedInvoice?.paymentWorkflow === "bank_transfer" || (protectedInvoice?.paidAmount > 0 || protectedInvoice?.adjustmentAmount > 0 || protectedInvoice?.creditAppliedAmount > 0)) return apiResponse.failure(res, 409, { message: "La factura tiene conciliación bancaria; no puede modificarse mediante la pasarela" }, "PAYMENT_WORKFLOW_CONFLICT");
 
       if (!canManuallyReconcile(transaction)) {
         return apiResponse.failure(
@@ -864,7 +864,7 @@ const paymentController = {
 
         const resolution = resolveImportedReconciliation(row, transaction);
         const protectedInvoice = await Invoice.findById(transaction.invoiceId);
-        if (isBankTransfer(transaction) || protectedInvoice?.paymentWorkflow === "bank_transfer" || protectedInvoice?.paidAmount > 0) {
+        if (isBankTransfer(transaction) || protectedInvoice?.paymentWorkflow === "bank_transfer" || (protectedInvoice?.paidAmount > 0 || protectedInvoice?.adjustmentAmount > 0 || protectedInvoice?.creditAppliedAmount > 0)) {
           summary.manual_review += 1;
           results.push({ index, status: "manual_review", transactionId: transaction._id, reason: "bank_evidence_required" });
           continue;
@@ -1226,7 +1226,7 @@ const paymentController = {
       }
 
       const protectedInvoice = await Invoice.findById(transaction.invoiceId);
-      if (isBankTransfer(transaction) || protectedInvoice?.paymentWorkflow === "bank_transfer" || protectedInvoice?.paidAmount > 0) return apiResponse.failure(res, 409, { message: "La factura requiere conciliación bancaria y no puede ser confirmada por webhook" }, "BANK_EVIDENCE_REQUIRED");
+      if (isBankTransfer(transaction) || protectedInvoice?.paymentWorkflow === "bank_transfer" || (protectedInvoice?.paidAmount > 0 || protectedInvoice?.adjustmentAmount > 0 || protectedInvoice?.creditAppliedAmount > 0)) return apiResponse.failure(res, 409, { message: "La factura requiere conciliación bancaria y no puede ser confirmada por webhook" }, "BANK_EVIDENCE_REQUIRED");
       transaction.status = mapGatewayStatusToTransactionStatus(event.status);
       transaction.providerReference =
         event.providerReference || transaction.providerReference;

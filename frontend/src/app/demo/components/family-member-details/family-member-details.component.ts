@@ -116,6 +116,9 @@ export class FamilyMemberDetailsComponent implements OnInit {
                 });
             }
 
+            if (!this.seePropertyBool && !this.ownerIdInput) {
+                this.ownerIdInput = this.userId || this.identity?._id;
+            }
             if (this.ownerIdInput) {
                 this.getFamilyMemberDetails();
             }

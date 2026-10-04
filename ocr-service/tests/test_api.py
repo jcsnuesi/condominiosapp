@@ -6,6 +6,26 @@ from fastapi.testclient import TestClient
 from app import app
 
 
+def test_extraction_logs_lifecycle_without_sensitive_data(caplog):
+    with patch.dict(os.environ, {"OCR_SERVICE_TOKEN": "a" * 32}), TestClient(app) as client:
+        with caplog.at_level("INFO", logger="uvicorn.error"):
+            assert client.get("/health").status_code == 200
+            assert not caplog.records
+            response = client.post("/statement", content=b"Fecha,Credito,Referencia\n01/10/2026,100.00,private-reference",
+                                   headers={"x-ocr-token": "a" * 32, "content-type": "text/csv"})
+            assert response.status_code == 200
+            assert "OCR request started" in caplog.text
+            assert "OCR extraction completed" in caplog.text
+            assert "status=200" in caplog.text
+            assert "duration_ms=" in caplog.text
+            assert "private-reference" not in caplog.text
+            assert "100.00" not in caplog.text
+            assert "a" * 32 not in caplog.text
+            caplog.clear()
+            assert client.post("/extract").status_code == 401
+            assert "status=401" in caplog.text
+
+
 def test_subprocess_failure_and_timeout():
     with patch.dict(os.environ, {"OCR_SERVICE_TOKEN": "a" * 32}), TestClient(
         app

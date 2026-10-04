@@ -7,6 +7,8 @@
     "test": "node --test test/**/*.test.js",
     "start": "node index.js",
     "dev": "nodemon index.js",
+    "finance:migrate:dry-run": "node scripts/migrateFinance.js",
+    "finance:migrate:apply": "node scripts/migrateFinance.js --apply",
     "iot:migrate:dry-run": "node scripts/migrateIotRelationships.js",
     "iot:migrate:apply": "node scripts/migrateIotRelationships.js --apply"
   },

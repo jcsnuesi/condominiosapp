@@ -165,6 +165,7 @@
 :host ::ng-deep .monitor-panel .p-paginator { flex-wrap: wrap; padding: 1rem 0 0; }
 :host ::ng-deep .monitor-panel .p-tag { border-radius: 999px; padding: .3rem .6rem; font-size: .75rem; font-weight: 750; }
 :host ::ng-deep .monitor-panel .p-tag-success { background: #e9f8f2; color: #08785d; }
+:host ::ng-deep .monitor-panel .p-tag-warn { background: #fff3cd; color: #855500; }
 :host ::ng-deep .monitor-panel .p-tag-danger { background: #fff0ed; color: #c44732; }
 :host ::ng-deep .monitor-dialog { border: 1px solid var(--monitor-line); border-radius: 18px; background: #fff; color: var(--monitor-ink); }
 :host ::ng-deep .monitor-dialog .p-dialog-title { color: var(--monitor-ink); font-size: 1.4rem; }
