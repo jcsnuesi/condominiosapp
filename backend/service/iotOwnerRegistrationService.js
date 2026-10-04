@@ -150,6 +150,24 @@ class IoTOwnerRegistrationService {
     return { accepted: true };
   }
 
+  async resend(email) {
+    if (typeof email !== "string" || !/^\S+@\S+\.\S+$/.test(email.trim()) || email.length > 254) {
+      throw registrationError("IOT_OWNER_EMAIL_INVALID", "Indica un correo válido.");
+    }
+    const owner = await this.models.Owner.findOne({
+      email: email.trim().toLowerCase(), status: "pending_verification", emailVerified: false,
+      organizationId: null,
+    }).select("_id email").lean();
+    if (!owner) return { accepted: true };
+    const token = randomBytes(32).toString("hex");
+    // Replace the token atomically; older links must stop working.
+    await this.VerificationModel.findOneAndUpdate({ ownerId: owner._id }, { $set: {
+      tokenHash: hashVerificationToken(token), expiresAt: new Date(this.now().getTime() + 24 * 60 * 60 * 1000), usedAt: null,
+    } }, { upsert: true });
+    await this.emailService.sendPersonalOwnerVerification({ email: owner.email, token });
+    return { accepted: true };
+  }
+
   async verify(token) {
     if (typeof token !== "string" || !/^[a-f0-9]{64}$/i.test(token)) {
       throw registrationError(

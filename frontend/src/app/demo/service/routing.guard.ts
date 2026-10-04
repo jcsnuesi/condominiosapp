@@ -23,10 +23,6 @@ export class UserGuard implements CanActivate {
         const payload = this.decodeToken(token);
 
         if (identity && identity._id && payload && !this.isExpired(payload) && this.hasRequiredRole(route, identity, payload) && this.hasRequiredPermission(route)) {
-            if (this.isSuperuser(payload, identity) && !state.url.startsWith('/platform/organizations')) {
-                this._router.navigate(['/platform/organizations']);
-                return false;
-            }
             return true; 
         }
 
@@ -85,9 +81,6 @@ export class UserGuard implements CanActivate {
         return requiredRoles.includes(currentRole);
     }
 
-    private isSuperuser(payload: any, identity: any): boolean {
-        return String(payload?.role || identity?.role || '').toUpperCase() === 'SUPERUSER';
-    }
 
     private getRequiredRoles(route: ActivatedRouteSnapshot): string[] {
         const configuredRoles = route.data?.['roles'] || route.data?.['role'];

@@ -19,6 +19,10 @@ function verifyToken(token) {
     algorithms: [algorithm],
   });
 
+  if (["SUPERUSER", "SUPERADMIN"].includes(String(payload.role || "").toUpperCase())) {
+    throw new Error("Retired account role");
+  }
+
   if (payload.exp <= getUnixTime(new Date())) {
     throw new Error("Token expired");
   }

@@ -5,7 +5,6 @@ import { ActivatedRoute, Router, Params } from '@angular/router';
 import { UserService } from '../../service/user.service';
 import { global } from '../../service/global.service';
 import { MessageService } from 'primeng/api';
-import { SuperUser } from '../../service/superuser.service';
 import { CondominioService } from '../../service/condominios.service';
 import { FormatFunctions } from '../../../pipes/formating_text';
 
@@ -16,7 +15,6 @@ import { FormatFunctions } from '../../../pipes/formating_text';
     providers: [
         UserService,
         MessageService,
-        SuperUser,
         CondominioService,
         FormatFunctions,
     ],
@@ -59,7 +57,6 @@ export class CustomersComponent implements OnInit, DoCheck {
         private _router: Router,
         public _userService: UserService,
         private _condominioService: CondominioService,
-        private _superUser: SuperUser,
         private _formating: FormatFunctions
     ) {
         this.url = global.url;
@@ -139,15 +136,6 @@ export class CustomersComponent implements OnInit, DoCheck {
 
     showDialog(event: any) {
         switch (this.loginInfo.role) {
-            case 'SUPERUSER':
-                this.setValues(event);
-                this.tabMenu();
-                window.location.href + '/customers/details';
-
-                this.activeItem = this.items[0];
-                this.visible = true;
-
-                break;
 
             case 'ADMIN':
                 this._router.navigate(['home/', event._id]);
@@ -162,21 +150,6 @@ export class CustomersComponent implements OnInit, DoCheck {
 
     getAdmins() {
         switch (this.loginInfo.role) {
-            case 'SUPERUSER':
-                this._superUser.getAdmins(this.token).subscribe(
-                    (admins) => {
-                        if (admins.status == 'success') {
-                            this.header_changer = 'Email';
-                            this.loading = false;
-                            this.customers = admins.message;
-                        }
-                    },
-                    (err) => {
-                        console.log(err);
-                    }
-                );
-
-                break;
 
             case 'ADMIN':
                 this._condominioService

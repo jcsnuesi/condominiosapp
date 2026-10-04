@@ -1,4 +1,5 @@
 import { NgModule } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
@@ -12,6 +13,7 @@ import { IoTOwnerRegisterRoutingModule } from './iot-owner-register-routing.modu
     declarations: [IoTOwnerRegisterComponent],
     imports: [
         CommonModule,
+        RouterLink,
         FormsModule,
         ButtonModule,
         InputTextModule,

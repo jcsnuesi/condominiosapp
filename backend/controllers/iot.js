@@ -5,7 +5,6 @@ const Owner = require("../models/owners");
 const Condominium = require("../models/condominio");
 const IoTAuditEvent = require("../models/iotAuditEvent");
 const { IoTService } = require("../service/iotService");
-const { IoTSubscriptionService } = require("../service/iotSubscriptionService");
 
 function errorResponse(res, error) {
   const statusCode = error.statusCode || 500;
@@ -76,7 +75,6 @@ function dashboardScope(req) {
 
 function createIoTController({
   service = new IoTService(),
-  subscriptions = new IoTSubscriptionService(),
   now = () => new Date(),
 } = {}) {
   return {
@@ -385,24 +383,7 @@ function createIoTController({
         await session.endSession();
       }
     },
-    provisionSubscription: async (req, res) => {
-      try {
-        if (req.auth.role !== "SUPERUSER") {
-          return res.status(403).send({
-            status: "forbidden",
-            code: "IOT_SUBSCRIPTION_ADMIN_REQUIRED",
-            message: "Only platform operators can provision IoT subscriptions",
-          });
-        }
-        const subscription = await subscriptions.provision(
-          req.auth.account._id,
-          req.body || {}
-        );
-        return res.status(201).send({ status: "success", subscription });
-      } catch (error) {
-        return errorResponse(res, error);
-      }
-    },
+
   };
 }
 

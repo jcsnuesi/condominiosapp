@@ -19,14 +19,6 @@ export class UserService {
         this.url = global.url;
     }
 
-    create(user: FormData, token: string): Observable<any> {
-        let header = new HttpHeaders().set('Authorization', token);
-
-        return this._http.post(this.url + 'createAccount', user, {
-            headers: header,
-        });
-    }
-
     isAdmin(): boolean {
         if (!this.getIdentity()?.role) {
             return false;

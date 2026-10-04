@@ -5,13 +5,15 @@ const controller = require("../controllers/iot");
 const ownerRegistration = require("../controllers/iotOwnerRegistration");
 const { authenticated } = require("../middleware/auth");
 const { requirePermission } = require("../middleware/organizationAuth");
+const registrationRateLimit = require("../middleware/registrationRateLimit");
 
 const router = express.Router();
 const condoRead = requirePermission("iot.read");
 const condoCreate = requirePermission("iot.create");
 
-router.post("/iot/owners/register", ownerRegistration.register);
-router.get("/iot/owners/verify/:token", ownerRegistration.verify);
+router.post("/iot/owners/register", registrationRateLimit, ownerRegistration.register);
+router.post("/iot/owners/resend-verification", registrationRateLimit, ownerRegistration.resend);
+router.get("/iot/owners/verify/:token", registrationRateLimit, ownerRegistration.verify);
 
 router.get(
   "/iot/my/contexts",
@@ -96,10 +98,5 @@ router.post(
   controller.controlDevice
 );
 
-router.post(
-  "/iot/admin/subscriptions",
-  authenticated,
-  controller.provisionSubscription
-);
 
 module.exports = router;

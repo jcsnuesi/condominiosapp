@@ -8,23 +8,15 @@ let path = require("path");
 let fs = require("fs");
 let jwtoken = require("../service/jwt");
 let checkExtensions = require("../service/extensions");
-let VerifyData = require("../service/verifyParamData");
-let userCreaterModel = require("../models/userCreater");
-let errorHandler = require("../error/errorHandler");
 let Admin = require("../models/admin");
 let Staff = require("../models/staff");
 let Owner = require("../models/owners");
 let Condominio = require("../models/condominio");
 const Staff_Admin = require("../models/staff_admin");
-const Superuser = require("../models/super_user");
-let Occupant = require("../models/occupant");
 let PasswordResetToken = require("../models/passwordResetToken");
 let deactivatedOwner = require("../service/persistencia");
 let backup = require("../models/accountsDeleted");
-const { throws } = require("assert");
-const uuid = require("uuid");
 const mailer = require("nodemailer");
-var jwebtoken = require("../service/jwt");
 var Family = require("../models/family");
 const apiResponse = require("../service/apiResponse");
 const {
@@ -65,181 +57,8 @@ async function sendResetPasswordEmail(email, resetLink) {
 }
 
 var controller = {
-  verify: function (req, res) {
-    var params = req;
-
-    if (req?.params?.id) {
-      Admin.findOneAndUpdate(
-        { _id: params.emailTokensVelidation.id },
-        { verified: true },
-        { new: true },
-        (err, emailVeried) => {
-          if (err) {
-            return res.status(500).send({
-              status: "error",
-              message: "Server error!",
-            });
-          }
-
-          return res.status(200).send({
-            status: "success",
-            message: "verified",
-          });
-        }
-      );
-    }
-
-  },
-
-  createUser: async function (req, res) {
-    var params = req.body;
-
-    const verifying = new VerifyData();
-
-    try {
-      var val_password = !validator.isEmpty(params.password);
-      var val_phone = verifying.phonesTransformation(params.phone);
-      var val_terms = !validator.isEmpty(toString(params.terms));
-      var val_email = validator.isEmail(params.email_company);
-    } catch (error) {
-      return res.status(400).send({
-        status: "bad request",
-        message: "All fields required",
-      });
-    }
-
-    //verificar la extension de archivo enviado sea tipo imagen
-    var imgFormatAccepted = checkExtensions.confirmExtension(req);
-
-    if (imgFormatAccepted == false) {
-      return res.status(400).send({
-        status: "bad request",
-        message: "Files allows '.jpg', '.jpeg', '.gif', '.png'",
-      });
-    }
-
-    if (val_email && val_password && val_phone && val_terms) {
-      Admin.findOne(
-        {
-          $or: [
-            { company: params.company },
-            { email_company: params.email },
-            { phone: params.phone },
-          ],
-        },
-        (err, userDuplicated) => {
-          var errorHandlerArr = errorHandler.errorRegisteringUser(
-            err,
-            userDuplicated
-          );
-
-          if (errorHandlerArr[0]) {
-            return res.status(errorHandlerArr[1]).send({
-              status: "error",
-              message: errorHandlerArr[2],
-            });
-          }
-
-          //Instanciamos el usuario segun el tipo de usuario
-          let user = new Admin();
-
-          for (const key in params) {
-            if (
-              key.includes("phone") &&
-              typeof params["phone"].split(",") == "object"
-            ) {
-              user["phone"] = params["phone"].split(",").map((number) => {
-                return number.trim();
-              });
-            } else if (key.includes("terms")) {
-              user[key] = params[key];
-            } else {
-              user[key] =
-                key != "password" ? params[key].toLowerCase() : params[key];
-            }
-          }
-
-          var contactPerson = {
-            name_contact: params["name_contact"].toLowerCase(),
-            lastname_contact: params["lastname_contact"].toLowerCase(),
-            gender_contact: params["gender_contact"].toLowerCase(),
-            email_contact: params["email_contact"].toLowerCase(),
-            phone_contact:
-              typeof params["phone_contact"].split(",") == "object"
-                ? params["phone_contact"].split(",").map((number) => {
-                    return number.trim();
-                  })
-                : params["phone_contact"].trim(),
-            role_contact: params["role_contact"].toLowerCase(),
-          };
-
-          user.contact_person.push(contactPerson);
-
-          if (Object.keys(req.files).length != 0) {
-            for (const fileKey in req.files) {
-              user[fileKey] = req.files[fileKey].path.split("\\")[2];
-            }
-          } else {
-            user.avatar = "noimage.jpeg";
-          }
-
-          if (user.terms == false)
-            return res.status(403).send({
-              status: "forbidden",
-              message: "Terms must be accept to complete the contract",
-            });
-
-          bcrypt.hash(params.password, saltRounds, (err, hash) => {
-            user.password = hash;
-
-            if (err) {
-              return res.status(500).send({
-                status: "error",
-                message: "Encrypting error, please try again",
-              });
-            }
-
-            user.save((err, newUserCreated) => {
-              let verifyNewUserException = errorHandler.newUser(
-                err,
-                newUserCreated
-              );
-
-              if (verifyNewUserException[1] == 200) {
-                verifyNewUserException[3].password = undefined;
-              }
-
-              var newUuid = uuid.v4();
-
-              var paylaod = {
-                uid: newUuid,
-                id: newUserCreated._id,
-              };
-
-              const emailToken = jwebtoken.emailVerification(paylaod);
-
-              controller.verify(emailToken);
-
-              if (verifyNewUserException[0]) {
-                return res.status(verifyNewUserException[1]).send({
-                  status: verifyNewUserException[2],
-                  message: verifyNewUserException[3],
-                });
-              }
-            });
-          });
-        }
-      );
-    } else {
-      return res.status(500).send({
-        status: "error",
-        message: "Fill out all fields",
-      });
-    }
-  },
-
   login: async function (req, res) {
-    let params = req.body;
+    const params = { ...req.body, email: typeof req.body.email === "string" ? req.body.email.trim().toLowerCase() : "" };
 
     const rememberMe = Boolean(params.rememberMe);
 
@@ -257,7 +76,6 @@ var controller = {
 
     if (val_email && val_password) {
       const userFound = await Promise.all([
-        Superuser.findOne({ email: params.email }).select("+password").lean(),
         Admin.findOne({ email: params.email }).select("+password").lean(),
         Staff_Admin.findOne({ email: params.email }).select("+password").lean(),
         Staff.findOne({ email: params.email }).select("+password").lean(),
@@ -516,124 +334,6 @@ var controller = {
     }
   },
 
-  reactiveAccount: function (req, res) {
-    Admin.findOneAndUpdate(
-      { _id: req.body.id },
-      { status: "active" },
-      { new: true },
-      (err, actived) => {
-        if (err) {
-          return res.status(500).send({
-            status: "error",
-            message: "Fill out all fields",
-          });
-        }
-        if (!actived) {
-          return res.status(404).send({
-            status: "error",
-            message: "User not found",
-          });
-        }
-
-        return res.status(200).send({
-          status: "success",
-          message: "User reactived",
-        });
-      }
-    );
-  },
-
-  update: function (req, res) {
-    var params = req.body;
-
-    Admin.findOne({ _id: params._id }, (err, accountFound) => {
-      var errorHandlerArr = errorHandler.loginExceptions(err, accountFound);
-
-      if (errorHandlerArr[0]) {
-        return res.status(errorHandlerArr[1]).send({
-          status: "error",
-          message: errorHandlerArr[2],
-        });
-      }
-
-      /**
-       * -Campos permitidos para modificar:
-       *  Avatar
-       *  Telefonos
-       *  Direccion
-       * - Persona de contacto (todos sus campos)
-       *
-       * -Acceso a la plataforma
-       *      Email
-       *      Password
-       *
-       */
-
-      for (const key in params) {
-        accountFound[key] = params[key];
-      }
-
-      if (Boolean(req.files) != undefined) {
-        accountFound["avatar"] = req.files.avatar.path.split("\\")[2];
-      }
-
-      var contactPerson = {
-        name_contact: params["name_contact"].toLowerCase(),
-        lastname_contact: params["lastname_contact"].toLowerCase(),
-        gender_contact: params["gender_contact"].toLowerCase(),
-        email_contact: params["email_contact"].toLowerCase(),
-        phone_contact:
-          typeof params["phone_contact"].split(",") == "object"
-            ? params["phone_contact"].split(",").map((number) => {
-                return number.trim();
-              })
-            : params["phone_contact"].trim(),
-        role_contact: params["role_contact"].toLowerCase(),
-      };
-
-      accountFound.contact_person[0] = contactPerson;
-
-      Admin.findOneAndUpdate(
-        { _id: params._id },
-        accountFound,
-        { new: true },
-        (err, updated) => {
-          if (err) {
-            return res.status(500).send({
-              status: "error",
-              message: "Server error, please try again",
-            });
-          }
-
-          return res.status(200).send({
-            status: "success",
-            message: updated,
-          });
-        }
-      );
-    });
-  },
-
-  suspendedAccount: async function (req, res) {
-    Admin.findOneAndUpdate(
-      { _id: req.body.id },
-      { status: "suspended" },
-      { new: true },
-      (err, updated) => {
-        if (err) {
-          return res.status(500).send({
-            status: "error",
-            message: "Server, please try again",
-          });
-        }
-
-        return res.status(200).send({
-          status: "success",
-          message: updated.status,
-        });
-      }
-    );
-  },
   deleteOwner: async function (req, res) {
     var params = req.body;
 
@@ -717,56 +417,6 @@ var controller = {
         });
       }
     );
-  },
-  getAdmins: async function (req, res) {
-    try {
-      const admins = await Admin.find();
-      if (Object.keys(admins).length == 0) {
-        return res.status(404).send({
-          status: "success",
-          message: "no users found",
-        });
-      }
-
-      const adm = admins.map((keys) => {
-        keys.password = null;
-
-        return keys;
-      });
-
-      return res.status(200).send({
-        status: "success",
-        message: adm,
-      });
-    } catch (err) {
-      return res.status(500).send({
-        status: "success",
-        message: "server error, try again",
-      });
-    }
-  },
-  getAdminById: function (req, res) {
-    let params = req.params.id;
-
-    Admin.findOne({ _id: params }, (err, customer) => {
-      if (err) {
-        return res.status(500).send({
-          status: "error",
-          message: err,
-        });
-      }
-      if (!customer) {
-        return res.status(404).send({
-          status: "error",
-          message: "User not found",
-        });
-      }
-      customer.password = undefined;
-      return res.status(200).send({
-        status: "success",
-        message: customer,
-      });
-    });
   },
   getAvatar: function (req, res) {
     var fileName = req.params.fileName;

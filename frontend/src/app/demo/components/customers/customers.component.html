@@ -38,9 +38,6 @@
         <th style="min-width:15rem">
           <div class="flex align-items-center">
             {{header_changer}}
-            @if (loginInfo.role == 'SUPERUSER') {
-              <p-columnFilter  type="text" field="email_company" display="menu"></p-columnFilter>
-            }
           </div>
         </th>
         <th style="min-width:15rem">
@@ -86,15 +83,6 @@
           </div>
         </th>
 
-        @if (loginInfo.role == 'SUPERUSER') {
-          <th style="width: 3rem">
-            <div class="flex align-items-center">
-              Verified
-              <p-columnFilter type="boolean" field="verified" display="menu"></p-columnFilter>
-            </div>
-          </th>
-        }
-
 
         <th style="width: 3rem">
           <div class="flex align-items-center">
@@ -133,12 +121,6 @@
         <td>
           <p-tag [value]="customer.status == 'active' ? 'Active' : 'Suspended'" [severity]="customer.status == 'active' ? 'success' : 'danger' " ></p-tag>
         </td>
-        @if (loginInfo.role == 'SUPERUSER') {
-          <td class="text-center">
-            <i class="pi"
-            [ngClass]="{ 'text-green-500 pi-check-circle': customer.verified, 'text-red-500 pi-times-circle': !customer.verified }"></i>
-          </td>
-        }
         <td >
           <button pButton type="button" icon="pi pi-eye"
           class="p-button-rounded p-button-text" (click)="showDialog(customer)" ></button>

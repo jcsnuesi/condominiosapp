@@ -49,7 +49,6 @@ function canManageOwnerCondominiumUnit(req, ownerId, condominiumId) {
       canAccessCondominium(req.auth, condominiumId)
     );
   }
-  if (role === "SUPERUSER") return true;
   if (!["ADMIN", "STAFF_ADMIN", "STAFF"].includes(role)) return false;
   if (
     !req.auth?.organizationId ||

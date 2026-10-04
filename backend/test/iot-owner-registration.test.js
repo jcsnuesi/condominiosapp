@@ -135,6 +135,24 @@ test("verification token hashes are one-way and deterministic", () => {
   assert.notEqual(hashVerificationToken("token-value"), "token-value");
 });
 
+test("resending personal verification stays outside organizations and replaces the prior token", async () => {
+  let sent;
+  let replacement;
+  const service = new IoTOwnerRegistrationService({
+    models: { Owner: { findOne: filter => {
+      assert.equal(filter.organizationId, null);
+      assert.equal(filter.email, "maria@example.test");
+      assert.equal(filter.status, "pending_verification");
+      return { select: () => ({ lean: async () => ({ _id: "pending-owner", email: filter.email }) }) };
+    } } },
+    VerificationModel: { findOneAndUpdate: async (filter, update) => { assert.equal(filter.ownerId, "pending-owner"); replacement = update.$set; } },
+    emailService: { sendPersonalOwnerVerification: async message => { sent = message; } },
+  });
+  await service.resend(" MARIA@example.test ");
+  assert.equal(replacement.tokenHash, hashVerificationToken(sent.token));
+  assert.equal(replacement.usedAt, null);
+});
+
 test("verification activates only the pending owner and marks the one-time token used", async () => {
   const token = "a".repeat(64);
   let ownerUpdate;

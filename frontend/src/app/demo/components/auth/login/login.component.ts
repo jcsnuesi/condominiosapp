@@ -227,10 +227,10 @@ export class LoginComponent {
 
                     this._accessContext.set(access);
 
-                    const target =
-                        String(identity.role || '').toUpperCase() ===
-                        'SUPERUSER'
-                            ? ['/platform/organizations']
+                    const target = access?.onboardingRequired
+                        ? ['/onboarding']
+                        : identity.role === 'OWNER' && !identity.organizationId
+                            ? ['/smart-home']
                             : ['/start', identity._id];
                     this._route.navigate(target);
                 } else {
@@ -252,7 +252,7 @@ export class LoginComponent {
     }
 
     goToOwnerRegistration(): void {
-        this._route.navigate(['/auth/iot-register']);
+        this._route.navigate(['/auth/register']);
     }
 
     show() {

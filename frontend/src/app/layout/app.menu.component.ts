@@ -88,16 +88,9 @@ export class AppMenuComponent implements OnInit {
 
         this.model = [
             {
-                label: 'Platform',
-                items: [
-                    {
-                        label: 'Organizations',
-                        icon: 'pi pi-building',
-                        routerLink: ['/platform/organizations'],
-                        visible: this.checkRole(['SUPERUSER']),
-                    },
-                ],
-                visible: this.checkRole(['SUPERUSER']),
+                label: 'Configuración',
+                items: [{ label: 'Primeros pasos', icon: 'pi pi-list', routerLink: ['/onboarding'] }],
+                visible: this.accessContext.isOwnerAdmin(),
             },
             {
                 label: 'Home',

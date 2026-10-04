@@ -6,6 +6,12 @@ const bodyparser = require("body-parser");
 const morgan = require("morgan");
 const packageInfo = require("./package.json");
 const app = express();
+// Set this only when the deployment has the specified number of trusted reverse proxies.
+if (process.env.TRUST_PROXY_HOPS) {
+  const hops = Number(process.env.TRUST_PROXY_HOPS);
+  if (!Number.isInteger(hops) || hops < 1 || hops > 5) throw new Error("TRUST_PROXY_HOPS must be between 1 and 5");
+  app.set("trust proxy", hops);
+}
 const responseContract = require("./middleware/responseContract");
 // Phase 2 (medium): rate-limit middleware placeholder — install 'express-rate-limit' for inquiry/landing/invoice routes if needed
 // In your main app.js or server file
@@ -83,7 +89,6 @@ const personnel_routes = require("./routes/personnel");
 const condominio_routes = require("./routes/condominio");
 const staff_routes = require("./routes/staff");
 const owner = require("./routes/owner");
-const super_user = require("./routes/super_user");
 const family_routes = require("./routes/family");
 const inquiry_routes = require("./routes/inquiry");
 const notification_routes = require("./routes/notification");
@@ -152,7 +157,6 @@ app.use("/api", staff_routes);
 app.use("/api", personnel_routes);
 app.use("/api", condominio_routes);
 app.use("/api", owner);
-app.use("/api", super_user);
 app.use("/api", family_routes);
 app.use("/api", inquiry_routes);
 app.use("/api", str_routes);

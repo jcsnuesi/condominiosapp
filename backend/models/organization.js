@@ -24,7 +24,10 @@ const OrganizationSchema = new Schema(
       enum: ["provisioning", "active", "suspended"],
       default: "provisioning",
     },
-    provisionedBy: { type: Schema.Types.ObjectId, ref: "Superuser", required: true },
+    // Legacy creator IDs remain historical data; new registrations refer to their ADMIN.
+    provisionedBy: { type: Schema.Types.ObjectId },
+    registrationSource: { type: String, enum: ["LEGACY", "SELF_SERVICE", "BOOTSTRAP"], default: "LEGACY" },
+    onboardingCompletedAt: { type: Date, default: null },
     provisionedAt: { type: Date, default: null },
   },
   { timestamps: true }

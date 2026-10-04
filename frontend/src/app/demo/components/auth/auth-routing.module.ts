@@ -5,6 +5,14 @@ import { RouterModule } from '@angular/router';
     imports: [
         RouterModule.forChild([
             {
+                path: 'register',
+                loadComponent: () => import('./signup/signup.component').then(m => m.SignupComponent),
+            },
+            {
+                path: 'verify/:type/:token',
+                loadComponent: () => import('./signup/verify-account.component').then(m => m.VerifyAccountComponent),
+            },
+            {
                 path: 'error',
                 loadChildren: () =>
                     import('./error/error.module').then((m) => m.ErrorModule),

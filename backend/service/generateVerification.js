@@ -5,7 +5,7 @@ require("dotenv").config();
 
 function smtpSettings(env = process.env) {
   const user = String(env.SMTP_USER || "").trim();
-  const rawPass = String(env.SMTP_PASS || "").trim();
+  const rawPass = String(env.SMTP_PASS || env.EMAIL_PASSWORD || "").trim();
   const service = String(env.SMTP_SERVICE || "gmail").trim();
   const pass =
     service.toLowerCase() === "gmail" ? rawPass.replace(/\s+/g, "") : rawPass;
@@ -55,11 +55,18 @@ exports.verifySmtpConnection = async function () {
   await createTransport().verify();
 };
 
+exports.sendAdminVerification = async function ({ email, token }) {
+  const frontendBase = String(process.env.FRONTEND_BASE_URL || "http://localhost:9090").replace(/\/$/, "");
+  return sendEmail({
+    to: email,
+    subject: "Verifica tu cuenta de administración",
+    text: `Para crear tu cuenta ADMIN y tu organización, abre este enlace dentro de las próximas 24 horas:\n\n${frontendBase}/#/auth/verify/admin/${encodeURIComponent(token)}\n`,
+  });
+};
+
 exports.sendPersonalOwnerVerification = async function ({ email, token }) {
-  const { apiBaseUrl } = smtpSettings();
-  const verificationLink = `${apiBaseUrl}/iot/owners/verify/${encodeURIComponent(
-    token
-  )}`;
+  const frontendBase = String(process.env.FRONTEND_BASE_URL || "http://localhost:9090").replace(/\/$/, "");
+  const verificationLink = `${frontendBase}/#/auth/verify/owner/${encodeURIComponent(token)}`;
   return sendEmail({
     to: email,
     subject: "Verifica tu cuenta de Smart Home",

@@ -206,6 +206,10 @@ export class IoTService {
         );
     }
 
+    resendPersonalOwnerVerification(email: string): Observable<IoTApiResponse<unknown>> {
+        return this.http.post<IoTApiResponse<unknown>>(`${this.apiUrl}iot/owners/resend-verification`, { email });
+    }
+
     private contextDevicesUrl(context: IoTContext): string {
         if (context.scopeType === 'PERSONAL_RESIDENCE' && context.residenceId) {
             return `${this.apiUrl}iot/my/residences/${encodeURIComponent(

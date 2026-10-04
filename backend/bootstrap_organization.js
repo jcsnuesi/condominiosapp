@@ -10,7 +10,6 @@ dotenv.config({ path: path.resolve(__dirname, ".env") });
 
 const Organization = require("./models/organization");
 const Admin = require("./models/admin");
-const Superuser = require("./models/super_user");
 const AccessPolicy = require("./models/accessPolicy");
 const AuthorizationAudit = require("./models/authorizationAudit");
 const { STANDARD_POLICIES } = require("./service/permissionCatalog");
@@ -19,9 +18,7 @@ const mongoUri = process.env.MONGODB_URI || "mongodb://admin:adminpassword123@12
 const organizationName = process.env.BOOTSTRAP_ORGANIZATION_NAME || "Condominios App";
 const organizationEmail = (process.env.BOOTSTRAP_ORGANIZATION_EMAIL || "admin@condominios.local").toLowerCase();
 const adminEmail = (process.env.BOOTSTRAP_ADMIN_EMAIL || organizationEmail).toLowerCase();
-const superuserEmail = (process.env.BOOTSTRAP_SUPERUSER_EMAIL || "superuser@condominios.local").toLowerCase();
 const adminPassword = process.env.BOOTSTRAP_ADMIN_PASSWORD || crypto.randomBytes(18).toString("base64url");
-const superuserPassword = process.env.BOOTSTRAP_SUPERUSER_PASSWORD || crypto.randomBytes(18).toString("base64url");
 
 function slugify(value) {
   return value.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
@@ -34,26 +31,13 @@ async function bootstrap() {
     if (exists) throw new Error("La organización inicial ya existe; el bootstrap no sobrescribe datos.");
 
     await mongoose.connection.transaction(async (session) => {
-      let superuser = await Superuser.findOne({ email: superuserEmail }).session(session);
-      if (!superuser) {
-        [superuser] = await Superuser.create([{
-          name: "System",
-          lastname: "Administrator",
-          gender: "n/a",
-          email: superuserEmail,
-          password: await bcrypt.hash(superuserPassword, 10),
-          phone: "0000000000",
-          role: "SUPERUSER",
-        }], { session, ordered: true });
-      }
-
       const [organization] = await Organization.create([{
         name: organizationName,
         slug: slugify(organizationName),
         email: organizationEmail,
         phone: [],
         address: { city: "Santo Domingo", state: "Distrito Nacional", country: "República Dominicana" },
-        provisionedBy: superuser._id,
+        registrationSource: "BOOTSTRAP",
         status: "provisioning",
       }], { session, ordered: true });
 
@@ -91,13 +75,14 @@ async function bootstrap() {
       })), { session, ordered: true });
 
       organization.ownerAdminId = admin._id;
+      organization.provisionedBy = admin._id;
       organization.status = "active";
       organization.provisionedAt = new Date();
       await organization.save({ session });
       await AuthorizationAudit.create([{
         organizationId: organization._id,
-        actorId: superuser._id,
-        actorRole: "SUPERUSER",
+        actorId: admin._id,
+        actorRole: "ADMIN",
         action: "organization.bootstrap",
         targetType: "Organization",
         targetId: organization._id,
@@ -110,7 +95,6 @@ async function bootstrap() {
     console.log(JSON.stringify({
       organization: organizationName,
       admin: { email: adminEmail, password: adminPassword },
-      superuser: { email: superuserEmail, password: superuserPassword },
     }));
   } finally {
     await mongoose.disconnect();

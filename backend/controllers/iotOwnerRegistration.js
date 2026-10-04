@@ -19,6 +19,12 @@ function createIoTOwnerRegistrationController(
   service = new IoTOwnerRegistrationService()
 ) {
   return {
+    resend: async (req, res) => {
+      try {
+        await service.resend(req.body?.email);
+        return res.status(202).send({ status: "success", message: "Si hay una cuenta pendiente, recibirás un nuevo enlace de verificación." });
+      } catch (error) { return sendError(res, error); }
+    },
     register: async (req, res) => {
       try {
         await service.register(req.body || {});

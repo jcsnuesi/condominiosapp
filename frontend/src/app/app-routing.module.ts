@@ -18,7 +18,6 @@ import { DocsComponent } from './demo/components/docs/docs.component';
 import { StrIntegrationComponent } from './demo/components/str-integration/str-integration.component';
 import { PaymentMonitorComponent } from './demo/components/payment-monitor/payment-monitor.component';
 import { CommunicationLogComponent } from './demo/components/communication-log/communication-log.component';
-import { OrganizationProvisioningComponent } from './demo/components/organization-provisioning/organization-provisioning.component';
 
 @NgModule({
     imports: [
@@ -36,10 +35,10 @@ import { OrganizationProvisioningComponent } from './demo/components/organizatio
                             loadComponent: () => import('./demo/components/finance/finance.component').then(m => m.FinanceComponent),
                         },
                         {
-                            path: 'platform/organizations',
-                            data: { roles: ['SUPERUSER'] },
+                            path: 'onboarding',
+                            data: { roles: ['ADMIN'] },
                             canActivate: [UserGuard],
-                            component: OrganizationProvisioningComponent,
+                            loadComponent: () => import('./demo/components/organization-onboarding/organization-onboarding.component').then(m => m.OrganizationOnboardingComponent),
                         },
                         {
                             path: 'home/:homeid',

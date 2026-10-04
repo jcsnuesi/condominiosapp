@@ -7,7 +7,6 @@ const StaffAdmin = require("../models/staff_admin");
 const Staff = require("../models/staff");
 const Owner = require("../models/owners");
 const Family = require("../models/family");
-const Superuser = require("../models/super_user");
 const { PERMISSIONS } = require("./permissionCatalog");
 const {
   activeFamilyCondominiumIds,
@@ -15,7 +14,6 @@ const {
 } = require("./residentPropertyAccess");
 
 const ACCOUNT_MODELS = Object.freeze({
-  SUPERUSER: Superuser,
   ADMIN: Admin,
   STAFF_ADMIN: StaffAdmin,
   STAFF: Staff,
@@ -102,6 +100,7 @@ function publicAccessContext(context) {
         }
       : null,
     isOwnerAdmin: Boolean(context.isOwnerAdmin),
+    onboardingRequired: Boolean(context.isOwnerAdmin && context.organization?.registrationSource === "SELF_SERVICE" && !context.organization?.onboardingCompletedAt),
     permissions: context.permissions,
     scope: context.scope,
   };
@@ -156,18 +155,6 @@ async function resolveAccessContext(userPayload) {
   const account = await AccountModel.findById(userPayload.sub).lean();
   if (!account || String(account.status || "active").toLowerCase() !== "active")
     return null;
-
-  if (role === "SUPERUSER") {
-    return {
-      account,
-      role,
-      organization: null,
-      organizationId: null,
-      isOwnerAdmin: false,
-      permissions: [],
-      scope: { mode: "ALL", condominiumIds: [] },
-    };
-  }
 
   const organizationId =
     account.organizationId ||

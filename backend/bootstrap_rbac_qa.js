@@ -16,7 +16,6 @@ dotenv.config({ path: path.resolve(__dirname, ".env") });
 
 const Organization = require("./models/organization");
 const Admin = require("./models/admin");
-const Superuser = require("./models/super_user");
 const StaffAdmin = require("./models/staff_admin");
 const Staff = require("./models/staff");
 const Condominium = require("./models/condominio");
@@ -66,28 +65,6 @@ async function main() {
         `QA organization ${prefix} already exists; choose another QA_RUN_ID.`
       );
     await mongoose.connection.transaction(async (session) => {
-      let superuser = await Superuser.findOne({
-        email: "qa-bootstrap@condominios.local",
-      }).session(session);
-      if (!superuser) {
-        [superuser] = await Superuser.create(
-          [
-            {
-              name: "QA",
-              lastname: "Bootstrap",
-              gender: "n/a",
-              email: "qa-bootstrap@condominios.local",
-              password: await bcrypt.hash(
-                crypto.randomBytes(24).toString("base64url"),
-                10
-              ),
-              phone: "0000000000",
-              role: "SUPERUSER",
-            },
-          ],
-          { session }
-        );
-      }
       const [organization] = await Organization.create(
         [
           {
@@ -100,7 +77,7 @@ async function main() {
               state: "Distrito Nacional",
               country: "República Dominicana",
             },
-            provisionedBy: superuser._id,
+            registrationSource: "BOOTSTRAP",
             status: "provisioning",
           },
         ],
@@ -248,6 +225,7 @@ async function main() {
         { session, ordered: true }
       );
       organization.ownerAdminId = admin._id;
+      organization.provisionedBy = admin._id;
       organization.status = "active";
       organization.provisionedAt = new Date();
       await organization.save({ session });
@@ -255,8 +233,8 @@ async function main() {
         [
           {
             organizationId: organization._id,
-            actorId: superuser._id,
-            actorRole: "SUPERUSER",
+            actorId: admin._id,
+            actorRole: "ADMIN",
             action: "qa.rbac.bootstrap",
             targetType: "Organization",
             targetId: organization._id,

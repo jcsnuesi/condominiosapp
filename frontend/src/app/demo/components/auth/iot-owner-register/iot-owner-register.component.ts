@@ -3,10 +3,6 @@ import { Router } from '@angular/router';
 import { finalize } from 'rxjs/operators';
 import { IoTService } from 'src/app/demo/service/iot.service';
 
-function payloadOf<T>(response: { data?: T } & Record<string, unknown>): T {
-    return (response.data ?? response) as T;
-}
-
 @Component({
     selector: 'app-iot-owner-register',
     templateUrl: './iot-owner-register.component.html',
@@ -97,6 +93,7 @@ export class IoTOwnerRegisterComponent {
     readonly submitting = signal(false);
     readonly submitted = signal(false);
     readonly errorMessage = signal('');
+    readonly notice = signal('');
     readonly form = signal({
         name: '',
         lastname: '',
@@ -118,16 +115,30 @@ export class IoTOwnerRegisterComponent {
             .registerPersonalOwner(this.form())
             .pipe(finalize(() => this.submitting.set(false)))
             .subscribe({
-                next: () => this.submitted.set(true),
-                error: (error: { error?: { message?: string } }) =>
+                next: () => {
+                    this.form.update(current => ({ ...current, password: '' }));
+                    this.submitted.set(true);
+                },
+                error: (error: { error?: { message?: string; error?: { message?: string } } }) =>
                     this.errorMessage.set(
-                        error.error?.message ||
-                            'Registration is unavailable. Try again later.'
+                        error.error?.error?.message || error.error?.message ||
+                            'El registro no está disponible. Intenta nuevamente.'
                     ),
             });
     }
 
     goToLogin(): void {
         this.router.navigate(['/auth/login']);
+    }
+
+    resend(): void {
+        if (this.submitting()) return;
+        this.submitting.set(true); this.errorMessage.set(''); this.notice.set('');
+        this.iot.resendPersonalOwnerVerification(this.form().email)
+            .pipe(finalize(() => this.submitting.set(false)))
+            .subscribe({
+                next: () => this.notice.set('Si tu cuenta sigue pendiente, recibirás un nuevo enlace. Revisa también el correo no deseado.'),
+                error: () => this.errorMessage.set('No pudimos reenviar el enlace. Intenta nuevamente.'),
+            });
     }
 }

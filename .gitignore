@@ -18,3 +18,4 @@ docker-compose.yml
 /ocr-service/.ruff_cache/
 /specs
 /ocr-service/.test-deps/
+backend/test

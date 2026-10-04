@@ -19,24 +19,13 @@ var md_upload = multipart({ uploadDir: "./uploads/users" });
 
 // GET
 
-router.get(
-  "/admins",
-  [md_auth.authenticated, userAuth.authorization],
-  UserController.getAdmins
-);
 
 router.get("/main-avatar/:fileName/:imgName", UserController.getAvatar);
-router.get("/verify/:id", md_auth.emailToken, UserController.verify);
 
 // Buscar usuario por propietario
 // router.get('/ownerUsers', md_auth.authenticated, UserController.getUsersByOwner)
 
 // POST
-router.post(
-  "/createAccount",
-  [md_auth.authenticated, md_upload, userAuth.authorization],
-  UserController.createUser
-);
 router.post(
   "/login",
   [...loginValidation, validateRequest],
@@ -55,26 +44,11 @@ router.post(
 
 // PUT
 
-router.put(
-  "/update-account",
-  [md_auth.authenticated, md_upload, verifyPassword.passwordVerified],
-  UserController.update
-);
 router.put("/update-password", [
   md_auth.authenticated,
   verifyPassword.passwordVerified,
 ]);
 
-router.put(
-  "/inactive-account",
-  [md_auth.authenticated, userAuth.authorization],
-  UserController.suspendedAccount
-);
-router.put(
-  "/reactiveAccount",
-  [md_auth.authenticated, userAuth.authorization],
-  UserController.reactiveAccount
-);
 router.put(
   "/inactive-owner",
   md_auth.authenticated,
