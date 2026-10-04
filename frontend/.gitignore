@@ -5,3 +5,6 @@ docker-compose.yml
 .angular
 /dist/saas-landing-production/
 /dist/condominiosapp-landing.zip
+/e2e
+.tmp
+/test-results

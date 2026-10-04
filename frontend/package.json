@@ -5,8 +5,8 @@
     "scripts": {
         "ng": "ng",
         "start": "ng serve",
-        "build": "ng build --configuration production,release-review",
-        "build:dev": "ng build --configuration development --output-path dist/development",
+        "build": "ng build --configuration development",
+        "postbuild": "docker compose -f C:\\Users\\Jcsnu\\Documents\\condominiosapp-ai-hardening-clean\\builder.yml up -d --build --force-recreate frontend",
         "test": "ng test",
         "lint": "ng lint",
         "e2e": "ng e2e"
