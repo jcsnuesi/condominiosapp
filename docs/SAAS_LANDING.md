@@ -2,6 +2,8 @@
 
 La ruta exacta `/` carga de forma diferida `SaasLandingComponent`, fuera del layout protegido. `/landing` redirige a la misma página. Los enlaces por sección funcionan con el router de Angular y su navegación por hash.
 
+La sección «Cómo comenzar» muestra un recorrido conectado: ADMIN y OWNER personal convergen en la verificación del correo y se separan hacia la organización o la vivienda. La explicación y el acceso al registro acompañan el diagrama, sin tarjetas de pasos. Las conexiones son decorativas; una lista ordenada conserva la secuencia para lectores de pantalla. Las capturas de esta sección se guardan como `journey-*.png`.
+
 Todos los accesos de creación llevan a `/auth/register`, que conserva la elección ADMIN / OWNER personal. Los residentes de organizaciones siguen recibiendo sus credenciales de su administración. El login incluye «Conocer CondominiosApp» para regresar a la presentación.
 
 «Ir a mi cuenta» utiliza una sesión local vigente y su contexto de acceso: ADMIN con onboarding pendiente → `/onboarding`; OWNER sin organización → `/smart-home`; demás usuarios → `/start/:id`. Este cálculo solo decide el enlace; los guards y la API siguen validando los accesos.
@@ -30,7 +32,7 @@ La prueba sirve el paquete compilado en un puerto local temporal y cierra el ser
 
 Los datos de sesión son sintéticos y las respuestas de API de registro y verificación se simulan para comprobar los formularios completos; estas pruebas no crean usuarios reales, no envían correos ni verifican una entrega real de credenciales. Los flujos de API de registro y verificación se conservan sin cambios.
 
-Validación realizada el 4 de octubre de 2026: compilación optimizada completada (hash `23e51081ad5d9c18`), dos pruebas aprobadas, sin errores de ejecución en Chromium y sin desbordamiento horizontal en las cinco anchuras. Se revisaron capturas de escritorio, tablet y móvil. Las combinaciones principales de texto/fondo tienen relaciones de contraste de 11,65:1 (texto), 5,24:1 (secundario), 6,08:1 (verde sobre pastel) y 18,88:1 (botón principal).
+Validación realizada el 4 de octubre de 2026: compilación optimizada completada (revisión del recorrido identificada por `runtime.e4298b9dd82a5458.js`), dos pruebas aprobadas, sin errores de ejecución en Chromium y sin desbordamiento horizontal en las cinco anchuras. Se revisaron capturas de escritorio, tablet y móvil. Las combinaciones principales de texto/fondo tienen relaciones de contraste de 11,65:1 (texto), 5,24:1 (secundario), 6,08:1 (verde sobre pastel) y 18,88:1 (botón principal).
 
 El ZIP `frontend/dist/condominiosapp-landing.zip` incluye `index.html`, recursos y `release-manifest.json` con hashes SHA-256. Los archivos servidos de `nginx/html` no se modificaron. La versión publicada y la entrega real de correos todavía deben comprobarse después de publicar.
 

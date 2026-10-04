@@ -123,6 +123,11 @@ class IoTService {
   registerPersonalOwner(input) {
     return this.http.post(`${this.apiUrl}iot/owners/register`, input);
   }
+  resendPersonalOwnerVerification(email) {
+    return this.http.post(`${this.apiUrl}iot/owners/resend-verification`, {
+      email
+    });
+  }
   contextDevicesUrl(context) {
     if (context.scopeType === 'PERSONAL_RESIDENCE' && context.residenceId) {
       return `${this.apiUrl}iot/my/residences/${encodeURIComponent(context.residenceId)}/devices`;

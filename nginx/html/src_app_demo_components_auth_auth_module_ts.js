@@ -31,6 +31,12 @@ class AuthRoutingModule {
   static {
     this.ɵinj = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵdefineInjector"]({
       imports: [_angular_router__WEBPACK_IMPORTED_MODULE_0__.RouterModule.forChild([{
+        path: 'register',
+        loadComponent: () => __webpack_require__.e(/*! import() */ "src_app_demo_components_auth_signup_signup_component_ts").then(__webpack_require__.bind(__webpack_require__, /*! ./signup/signup.component */ 44588)).then(m => m.SignupComponent)
+      }, {
+        path: 'verify/:type/:token',
+        loadComponent: () => __webpack_require__.e(/*! import() */ "src_app_demo_components_auth_signup_verify-account_component_ts").then(__webpack_require__.bind(__webpack_require__, /*! ./signup/verify-account.component */ 11503)).then(m => m.VerifyAccountComponent)
+      }, {
         path: 'error',
         loadChildren: () => __webpack_require__.e(/*! import() */ "src_app_demo_components_auth_error_error_module_ts").then(__webpack_require__.bind(__webpack_require__, /*! ./error/error.module */ 84673)).then(m => m.ErrorModule)
       }, {

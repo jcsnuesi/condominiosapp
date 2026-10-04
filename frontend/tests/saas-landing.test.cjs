@@ -115,6 +115,7 @@ test("published build: public routes, responsive interactions and registration c
       await expect(page.getByRole("link", { name: "Saltar al contenido" })).toBeFocused();
       await page.keyboard.press("Enter");
       await expect(page.locator("main")).toBeFocused();
+      await page.locator("#como-comenzar").screenshot({ path: path.join(artifacts, `journey-${width}.png`), style: '.site-header, .skip-link { visibility: hidden !important; }' });
     }
     await page.goto(base + "/#/landing");
     await page.getByRole("heading", { level: 1, name: /Tu condominio/ }).waitFor();

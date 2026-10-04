@@ -97,10 +97,37 @@
       <aside class="resident-note"><svg aria-hidden="true"><use href="#saas-building"/></svg><div><h3>¿Tu condominio ya utiliza CondominiosApp?</h3><p>Tu administración crea tu acceso, te asigna el condominio y la unidad, y te envía las credenciales por correo.</p></div><a routerLink="/auth/login">Iniciar sesión <span aria-hidden="true">→</span></a></aside>
     </section>
 
-    <section id="como-comenzar" class="getting-started section-padding" aria-labelledby="steps-title"><div class="container">
-      <div class="section-intro"><p class="eyebrow">DEL REGISTRO A TU PRIMER PASO</p><h2 id="steps-title">Comenzar tiene un camino claro.</h2></div>
-      <ol class="steps-grid"><li><span class="step-number" aria-hidden="true">01</span><h3>Elige tu cuenta</h3><p>Cuéntanos qué necesitas gestionar. El asistente te orienta hacia ADMIN u OWNER personal.</p></li><li><span class="step-number" aria-hidden="true">02</span><h3>Verifica tu correo</h3><p>Completa tus datos y abre el enlace que recibirás para activar tu cuenta.</p></li><li><span class="step-number" aria-hidden="true">03</span><h3>Configura tu espacio</h3><p>Registra tu organización y sus condominios, o comienza con tu vivienda personal.</p></li></ol>
-      <a class="text-link" routerLink="/auth/register">Crear cuenta y comenzar <span aria-hidden="true">↗</span></a>
+    <section id="como-comenzar" class="getting-started section-padding" aria-labelledby="steps-title"><div class="container journey-layout">
+      <div class="journey-intro section-intro">
+        <p class="eyebrow">ASÍ EMPIEZA TU CUENTA</p>
+        <h2 id="steps-title">Un punto de partida.<br>Tu propio camino.</h2>
+        <p>Empieza por lo que necesitas gestionar. El registro te acompaña hasta entrar a tu organización o a tu vivienda.</p>
+        <a class="text-link" routerLink="/auth/register">Crear cuenta y comenzar <span aria-hidden="true">↗</span></a>
+        <p class="journey-resident">¿Ya formas parte de un condominio?<br>Tu administración te envía el acceso. <a routerLink="/auth/login">Inicia sesión</a>.</p>
+      </div>
+      <ol class="account-journey" aria-label="Recorrido desde el registro hasta tu espacio">
+        <li class="journey-choice">
+          <h3>¿Qué quieres gestionar?</h3>
+          <div class="journey-branches">
+            <div class="journey-branch"><svg aria-hidden="true"><use href="#saas-building"/></svg><span class="journey-role">ADMIN</span><h4>Condominios</h4><p>Tu organización, sus unidades <br>y sus propietarios.</p></div>
+            <div class="journey-branch"><svg aria-hidden="true"><use href="#saas-home"/></svg><span class="journey-role">OWNER PERSONAL</span><h4>Mi vivienda</h4><p>Tu hogar y sus dispositivos <br>Smart Home.</p></div>
+          </div>
+          <svg class="journey-connector" viewBox="0 0 600 64" preserveAspectRatio="none" aria-hidden="true"><path d="M150 0v14q0 12 12 12h126q12 0 12 12v26M450 0v14q0 12-12 12H312q-12 0-12 12"/><path class="journey-arrow" d="m295 57 5 6 5-6"/></svg>
+        </li>
+        <li class="journey-verification">
+          <span class="mail-stamp" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M4 8h24v17H4zM4 8l12 10L28 8"/></svg></span>
+          <h3>Verifica tu correo</h3>
+          <p>Completa el registro y abre el enlace que recibirás.<br>Ese es el paso que activa tu cuenta.</p>
+          <svg class="journey-connector" viewBox="0 0 600 64" preserveAspectRatio="none" aria-hidden="true"><path d="M300 0v14q0 12-12 12H162q-12 0-12 12v26M300 14q0 12 12 12h126q12 0 12 12v26"/><path class="journey-arrow" d="m145 57 5 6 5-6m290 0 5 6 5-6"/></svg>
+        </li>
+        <li class="journey-arrival">
+          <h3 class="sr-only">Inicia sesión y configura tu espacio</h3>
+          <div class="journey-branches">
+            <div class="journey-branch"><span class="journey-role">EN TU ORGANIZACIÓN</span><h4>Tu primer condominio</h4><p>Inicia sesión y sigue la guía para añadir condominios, unidades y propietarios.</p><span class="journey-end">Tu administración empieza aquí</span></div>
+            <div class="journey-branch"><span class="journey-role">EN TU VIVIENDA</span><h4>Tu espacio personal</h4><p>Inicia sesión y configura tu vivienda y los dispositivos compatibles que quieras conectar.</p><span class="journey-end">Tu hogar empieza aquí</span></div>
+          </div>
+        </li>
+      </ol>
     </div></section>
 
     <section id="preguntas" class="faq-section container section-padding" aria-labelledby="faq-title"><div class="faq-intro"><p class="eyebrow">ANTES DE COMENZAR</p><h2 id="faq-title">Algunas preguntas,<br>respuestas claras.</h2><p>Lo que necesitas saber para dar el primer paso.</p></div><div class="faq-list">@for (item of questions; track item.question) { <details><summary>{{ item.question }}<span class="faq-toggle" aria-hidden="true"></span></summary><p>{{ item.answer }}</p></details> }</div></section>

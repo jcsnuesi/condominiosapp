@@ -29,10 +29,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _demo_components_str_integration_str_integration_component__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./demo/components/str-integration/str-integration.component */ 44667);
 /* harmony import */ var _demo_components_payment_monitor_payment_monitor_component__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./demo/components/payment-monitor/payment-monitor.component */ 23311);
 /* harmony import */ var _demo_components_communication_log_communication_log_component__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./demo/components/communication-log/communication-log.component */ 14003);
-/* harmony import */ var _demo_components_organization_provisioning_organization_provisioning_component__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./demo/components/organization-provisioning/organization-provisioning.component */ 91507);
-/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! @angular/core */ 58440);
-/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! @angular/core */ 94975);
-
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! @angular/core */ 58440);
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! @angular/core */ 94975);
 
 
 
@@ -60,13 +58,17 @@ class AppRoutingModule {
     };
   }
   static {
-    this.ɵmod = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_19__["ɵɵdefineNgModule"]({
+    this.ɵmod = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_18__["ɵɵdefineNgModule"]({
       type: AppRoutingModule
     });
   }
   static {
-    this.ɵinj = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_20__["ɵɵdefineInjector"]({
+    this.ɵinj = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_19__["ɵɵdefineInjector"]({
       imports: [_angular_router__WEBPACK_IMPORTED_MODULE_0__.RouterModule.forRoot([{
+        path: '',
+        pathMatch: 'full',
+        loadComponent: () => __webpack_require__.e(/*! import() */ "src_app_demo_components_saas-landing_saas-landing_component_ts").then(__webpack_require__.bind(__webpack_require__, /*! ./demo/components/saas-landing/saas-landing.component */ 28197)).then(m => m.SaasLandingComponent)
+      }, {
         path: '',
         component: _layout_app_layout_component__WEBPACK_IMPORTED_MODULE_2__.AppLayoutComponent,
         canActivate: [_demo_service_routing_guard__WEBPACK_IMPORTED_MODULE_3__.UserGuard],
@@ -79,12 +81,12 @@ class AppRoutingModule {
           canActivate: [_demo_service_routing_guard__WEBPACK_IMPORTED_MODULE_3__.UserGuard],
           loadComponent: () => __webpack_require__.e(/*! import() */ "src_app_demo_components_finance_finance_component_ts").then(__webpack_require__.bind(__webpack_require__, /*! ./demo/components/finance/finance.component */ 97947)).then(m => m.FinanceComponent)
         }, {
-          path: 'platform/organizations',
+          path: 'onboarding',
           data: {
-            roles: ['SUPERUSER']
+            roles: ['ADMIN']
           },
           canActivate: [_demo_service_routing_guard__WEBPACK_IMPORTED_MODULE_3__.UserGuard],
-          component: _demo_components_organization_provisioning_organization_provisioning_component__WEBPACK_IMPORTED_MODULE_18__.OrganizationProvisioningComponent
+          loadComponent: () => __webpack_require__.e(/*! import() */ "src_app_demo_components_organization-onboarding_organization-onboarding_component_ts").then(__webpack_require__.bind(__webpack_require__, /*! ./demo/components/organization-onboarding/organization-onboarding.component */ 13771)).then(m => m.OrganizationOnboardingComponent)
         }, {
           path: 'home/:homeid',
           canActivate: [_demo_service_routing_guard__WEBPACK_IMPORTED_MODULE_3__.UserGuard],
@@ -194,7 +196,8 @@ class AppRoutingModule {
         loadChildren: () => __webpack_require__.e(/*! import() */ "src_app_demo_components_auth_auth_module_ts").then(__webpack_require__.bind(__webpack_require__, /*! ./demo/components/auth/auth.module */ 46084)).then(m => m.AuthModule)
       }, {
         path: 'landing',
-        loadChildren: () => __webpack_require__.e(/*! import() */ "src_app_demo_components_landing_landing_module_ts").then(__webpack_require__.bind(__webpack_require__, /*! ./demo/components/landing/landing.module */ 94426)).then(m => m.LandingModule)
+        pathMatch: 'full',
+        redirectTo: ''
       }, {
         path: 'notfound',
         component: _demo_components_notfound_notfound_component__WEBPACK_IMPORTED_MODULE_1__.NotfoundComponent
@@ -210,7 +213,7 @@ class AppRoutingModule {
   }
 }
 (function () {
-  (typeof ngJitMode === "undefined" || ngJitMode) && _angular_core__WEBPACK_IMPORTED_MODULE_19__["ɵɵsetNgModuleScope"](AppRoutingModule, {
+  (typeof ngJitMode === "undefined" || ngJitMode) && _angular_core__WEBPACK_IMPORTED_MODULE_18__["ɵɵsetNgModuleScope"](AppRoutingModule, {
     imports: [_angular_router__WEBPACK_IMPORTED_MODULE_0__.RouterModule],
     exports: [_angular_router__WEBPACK_IMPORTED_MODULE_0__.RouterModule]
   });
@@ -19187,242 +19190,6 @@ class NotfoundComponent {
 
 /***/ },
 
-/***/ 91507
-/*!**************************************************************************************************!*\
-  !*** ./src/app/demo/components/organization-provisioning/organization-provisioning.component.ts ***!
-  \**************************************************************************************************/
-(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   OrganizationProvisioningComponent: () => (/* binding */ OrganizationProvisioningComponent)
-/* harmony export */ });
-/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/common */ 20145);
-/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/core */ 94975);
-/* harmony import */ var _angular_forms__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @angular/forms */ 41716);
-/* harmony import */ var primeng_api__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! primeng/api */ 57561);
-/* harmony import */ var _imports_primeng__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../imports_primeng */ 86309);
-/* harmony import */ var _service_organization_provisioning_service__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../service/organization-provisioning.service */ 39534);
-/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @angular/core */ 58440);
-/* harmony import */ var primeng_button__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! primeng/button */ 851);
-/* harmony import */ var primeng_inputtext__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! primeng/inputtext */ 54132);
-/* harmony import */ var primeng_message__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! primeng/message */ 80508);
-/* harmony import */ var primeng_password__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! primeng/password */ 41188);
-/* harmony import */ var primeng_toast__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! primeng/toast */ 20708);
-/* harmony import */ var primeng_card__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! primeng/card */ 58677);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-function OrganizationProvisioningComponent_Conditional_9_Template(rf, ctx) {
-  if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](0, "p-message", 3);
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtext"](1);
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]();
-  }
-  if (rf & 2) {
-    const ctx_r0 = _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵnextContext"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtextInterpolate1"]("", ctx_r0.createdOrganizationName, " fue creada correctamente.");
-  }
-}
-class OrganizationProvisioningComponent {
-  constructor() {
-    this.provisioning = (0,_angular_core__WEBPACK_IMPORTED_MODULE_1__.inject)(_service_organization_provisioning_service__WEBPACK_IMPORTED_MODULE_5__.OrganizationProvisioningService);
-    this.messages = (0,_angular_core__WEBPACK_IMPORTED_MODULE_1__.inject)(primeng_api__WEBPACK_IMPORTED_MODULE_3__.MessageService);
-    this.submitting = false;
-    this.createdOrganizationName = '';
-    this.form = {
-      organization: {
-        name: '',
-        email: '',
-        rnc: '',
-        address: {
-          city: '',
-          state: '',
-          country: ''
-        }
-      },
-      admin: {
-        email: '',
-        password: ''
-      }
-    };
-  }
-  provision() {
-    if (this.submitting || !this.form.organization.name || !this.form.organization.email || !this.form.admin.email || !this.form.admin.password) {
-      this.messages.add({
-        severity: 'warn',
-        summary: 'Datos requeridos',
-        detail: 'Completa la organización y el ADMIN propietario.'
-      });
-      return;
-    }
-    this.submitting = true;
-    this.provisioning.provision(this.form).subscribe({
-      next: response => {
-        this.createdOrganizationName = response.message.organization.name;
-        this.submitting = false;
-        this.messages.add({
-          severity: 'success',
-          summary: 'Organización creada',
-          detail: 'El ADMIN propietario ya puede iniciar sesión.'
-        });
-      },
-      error: error => {
-        this.submitting = false;
-        this.messages.add({
-          severity: 'error',
-          summary: 'No se pudo crear',
-          detail: error.error?.message ?? 'Verifica los datos e inténtalo de nuevo.'
-        });
-      }
-    });
-  }
-  static {
-    this.ɵfac = function OrganizationProvisioningComponent_Factory(__ngFactoryType__) {
-      return new (__ngFactoryType__ || OrganizationProvisioningComponent)();
-    };
-  }
-  static {
-    this.ɵcmp = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵdefineComponent"]({
-      type: OrganizationProvisioningComponent,
-      selectors: [["app-organization-provisioning"]],
-      features: [_angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵProvidersFeature"]([primeng_api__WEBPACK_IMPORTED_MODULE_3__.MessageService])],
-      decls: 42,
-      vars: 12,
-      consts: [["aria-labelledby", "provisioning-title", 1, "provisioning-shell"], [1, "eyebrow"], ["id", "provisioning-title"], ["severity", "success"], [1, "form-grid"], ["pInputText", "", "name", "organizationName", 3, "ngModelChange", "ngModel"], ["pInputText", "", "type", "email", "name", "organizationEmail", 3, "ngModelChange", "ngModel"], ["pInputText", "", "name", "organizationRnc", 3, "ngModelChange", "ngModel"], ["pInputText", "", "name", "organizationCity", 3, "ngModelChange", "ngModel"], ["pInputText", "", "name", "organizationState", 3, "ngModelChange", "ngModel"], ["pInputText", "", "name", "organizationCountry", 3, "ngModelChange", "ngModel"], ["pInputText", "", "type", "email", "name", "adminEmail", 3, "ngModelChange", "ngModel"], ["name", "adminPassword", 3, "ngModelChange", "ngModel", "feedback", "toggleMask"], [1, "actions"], ["label", "Crear organizaci\u00F3n", "icon", "pi pi-building", 3, "onClick", "loading"]],
-      template: function OrganizationProvisioningComponent_Template(rf, ctx) {
-        if (rf & 1) {
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelement"](0, "p-toast");
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](1, "section", 0)(2, "header")(3, "span", 1);
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtext"](4, "Administraci\u00F3n de plataforma");
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]();
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](5, "h1", 2);
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtext"](6, "Crear organizaci\u00F3n");
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]();
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](7, "p");
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtext"](8, "El SUPERUSER aprovisiona organizaciones y designa un ADMIN propietario. Los recursos operativos se administran despu\u00E9s dentro de cada organizaci\u00F3n.");
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]()();
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵconditionalCreate"](9, OrganizationProvisioningComponent_Conditional_9_Template, 2, 1, "p-message", 3);
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](10, "p-card")(11, "div", 4)(12, "h2");
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtext"](13, "Organizaci\u00F3n");
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]();
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](14, "label");
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtext"](15, "Nombre");
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](16, "input", 5);
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtwoWayListener"]("ngModelChange", function OrganizationProvisioningComponent_Template_input_ngModelChange_16_listener($event) {
-            _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtwoWayBindingSet"](ctx.form.organization.name, $event) || (ctx.form.organization.name = $event);
-            return $event;
-          });
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]()();
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](17, "label");
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtext"](18, "Correo de contacto");
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](19, "input", 6);
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtwoWayListener"]("ngModelChange", function OrganizationProvisioningComponent_Template_input_ngModelChange_19_listener($event) {
-            _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtwoWayBindingSet"](ctx.form.organization.email, $event) || (ctx.form.organization.email = $event);
-            return $event;
-          });
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]()();
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](20, "label");
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtext"](21, "RNC ");
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](22, "input", 7);
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtwoWayListener"]("ngModelChange", function OrganizationProvisioningComponent_Template_input_ngModelChange_22_listener($event) {
-            _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtwoWayBindingSet"](ctx.form.organization.rnc, $event) || (ctx.form.organization.rnc = $event);
-            return $event;
-          });
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]()();
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](23, "label");
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtext"](24, "Ciudad");
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](25, "input", 8);
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtwoWayListener"]("ngModelChange", function OrganizationProvisioningComponent_Template_input_ngModelChange_25_listener($event) {
-            _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtwoWayBindingSet"](ctx.form.organization.address.city, $event) || (ctx.form.organization.address.city = $event);
-            return $event;
-          });
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]()();
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](26, "label");
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtext"](27, "Provincia / estado");
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](28, "input", 9);
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtwoWayListener"]("ngModelChange", function OrganizationProvisioningComponent_Template_input_ngModelChange_28_listener($event) {
-            _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtwoWayBindingSet"](ctx.form.organization.address.state, $event) || (ctx.form.organization.address.state = $event);
-            return $event;
-          });
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]()();
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](29, "label");
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtext"](30, "Pa\u00EDs");
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](31, "input", 10);
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtwoWayListener"]("ngModelChange", function OrganizationProvisioningComponent_Template_input_ngModelChange_31_listener($event) {
-            _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtwoWayBindingSet"](ctx.form.organization.address.country, $event) || (ctx.form.organization.address.country = $event);
-            return $event;
-          });
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]()();
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](32, "h2");
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtext"](33, "ADMIN propietario");
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]();
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](34, "label");
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtext"](35, "Correo");
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](36, "input", 11);
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtwoWayListener"]("ngModelChange", function OrganizationProvisioningComponent_Template_input_ngModelChange_36_listener($event) {
-            _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtwoWayBindingSet"](ctx.form.admin.email, $event) || (ctx.form.admin.email = $event);
-            return $event;
-          });
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]()();
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](37, "label");
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtext"](38, "Contrase\u00F1a inicial");
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](39, "p-password", 12);
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtwoWayListener"]("ngModelChange", function OrganizationProvisioningComponent_Template_p_password_ngModelChange_39_listener($event) {
-            _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtwoWayBindingSet"](ctx.form.admin.password, $event) || (ctx.form.admin.password = $event);
-            return $event;
-          });
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]()()();
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementStart"](40, "div", 13)(41, "p-button", 14);
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵlistener"]("onClick", function OrganizationProvisioningComponent_Template_p_button_onClick_41_listener() {
-            return ctx.provision();
-          });
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵelementEnd"]()()()();
-        }
-        if (rf & 2) {
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"](9);
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵconditional"](ctx.createdOrganizationName ? 9 : -1);
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"](7);
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtwoWayProperty"]("ngModel", ctx.form.organization.name);
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"](3);
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtwoWayProperty"]("ngModel", ctx.form.organization.email);
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"](3);
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtwoWayProperty"]("ngModel", ctx.form.organization.rnc);
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"](3);
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtwoWayProperty"]("ngModel", ctx.form.organization.address.city);
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"](3);
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtwoWayProperty"]("ngModel", ctx.form.organization.address.state);
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"](3);
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtwoWayProperty"]("ngModel", ctx.form.organization.address.country);
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"](5);
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtwoWayProperty"]("ngModel", ctx.form.admin.email);
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"](3);
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵtwoWayProperty"]("ngModel", ctx.form.admin.password);
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵproperty"]("feedback", true)("toggleMask", true);
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵadvance"](2);
-          _angular_core__WEBPACK_IMPORTED_MODULE_6__["ɵɵproperty"]("loading", ctx.submitting);
-        }
-      },
-      dependencies: [_angular_common__WEBPACK_IMPORTED_MODULE_0__.CommonModule, _angular_forms__WEBPACK_IMPORTED_MODULE_2__.FormsModule, _angular_forms__WEBPACK_IMPORTED_MODULE_2__.DefaultValueAccessor, _angular_forms__WEBPACK_IMPORTED_MODULE_2__.NgControlStatus, _angular_forms__WEBPACK_IMPORTED_MODULE_2__.NgModel, _imports_primeng__WEBPACK_IMPORTED_MODULE_4__.ImportsModule, primeng_button__WEBPACK_IMPORTED_MODULE_7__.Button, primeng_inputtext__WEBPACK_IMPORTED_MODULE_8__.InputText, primeng_message__WEBPACK_IMPORTED_MODULE_9__.Message, primeng_password__WEBPACK_IMPORTED_MODULE_10__.Password, primeng_toast__WEBPACK_IMPORTED_MODULE_11__.Toast, primeng_card__WEBPACK_IMPORTED_MODULE_12__.Card],
-      styles: [".provisioning-shell[_ngcontent-%COMP%] { max-width: 64rem; margin: 2rem auto; display: grid; gap: 1.5rem; }\n.provisioning-shell[_ngcontent-%COMP%]   header[_ngcontent-%COMP%] { max-width: 48rem; }\n.eyebrow[_ngcontent-%COMP%] { color: var(--primary-color); font-size: .8rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }\nh1[_ngcontent-%COMP%], h2[_ngcontent-%COMP%] { margin: .25rem 0 .75rem; }\nheader[_ngcontent-%COMP%]   p[_ngcontent-%COMP%] { color: var(--text-color-secondary); line-height: 1.55; }\n.form-grid[_ngcontent-%COMP%] { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }\n.form-grid[_ngcontent-%COMP%]   h2[_ngcontent-%COMP%] { grid-column: 1 / -1; margin-top: .5rem; }\n.form-grid[_ngcontent-%COMP%]   label[_ngcontent-%COMP%] { display: grid; gap: .4rem; font-weight: 600; }\n.form-grid[_ngcontent-%COMP%]   input[_ngcontent-%COMP%], .form-grid[_ngcontent-%COMP%]   p-password[_ngcontent-%COMP%] { width: 100%; }\n.actions[_ngcontent-%COMP%] { display: flex; justify-content: flex-end; margin-top: 1.5rem; }\n@media (max-width: 640px) { .provisioning-shell[_ngcontent-%COMP%] { margin: 1rem; } .form-grid[_ngcontent-%COMP%] { grid-template-columns: 1fr; } }\n\n/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIndlYnBhY2s6Ly8uL3NyYy9hcHAvZGVtby9jb21wb25lbnRzL29yZ2FuaXphdGlvbi1wcm92aXNpb25pbmcvb3JnYW5pemF0aW9uLXByb3Zpc2lvbmluZy5jb21wb25lbnQuY3NzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBLHNCQUFzQixnQkFBZ0IsRUFBRSxpQkFBaUIsRUFBRSxhQUFhLEVBQUUsV0FBVyxFQUFFO0FBQ3ZGLDZCQUE2QixnQkFBZ0IsRUFBRTtBQUMvQyxXQUFXLDJCQUEyQixFQUFFLGdCQUFnQixFQUFFLGdCQUFnQixFQUFFLHFCQUFxQixFQUFFLHlCQUF5QixFQUFFO0FBQzlILFNBQVMsdUJBQXVCLEVBQUU7QUFDbEMsV0FBVyxrQ0FBa0MsRUFBRSxpQkFBaUIsRUFBRTtBQUNsRSxhQUFhLGFBQWEsRUFBRSxnREFBZ0QsRUFBRSxTQUFTLEVBQUU7QUFDekYsZ0JBQWdCLG1CQUFtQixFQUFFLGlCQUFpQixFQUFFO0FBQ3hELG1CQUFtQixhQUFhLEVBQUUsVUFBVSxFQUFFLGdCQUFnQixFQUFFO0FBQ2hFLDBDQUEwQyxXQUFXLEVBQUU7QUFDdkQsV0FBVyxhQUFhLEVBQUUseUJBQXlCLEVBQUUsa0JBQWtCLEVBQUU7QUFDekUsNEJBQTRCLHNCQUFzQixZQUFZLEVBQUUsRUFBRSxhQUFhLDBCQUEwQixFQUFFLEVBQUUiLCJzb3VyY2VzQ29udGVudCI6WyIucHJvdmlzaW9uaW5nLXNoZWxsIHsgbWF4LXdpZHRoOiA2NHJlbTsgbWFyZ2luOiAycmVtIGF1dG87IGRpc3BsYXk6IGdyaWQ7IGdhcDogMS41cmVtOyB9XG4ucHJvdmlzaW9uaW5nLXNoZWxsIGhlYWRlciB7IG1heC13aWR0aDogNDhyZW07IH1cbi5leWVicm93IHsgY29sb3I6IHZhcigtLXByaW1hcnktY29sb3IpOyBmb250LXNpemU6IC44cmVtOyBmb250LXdlaWdodDogNzAwOyBsZXR0ZXItc3BhY2luZzogLjA4ZW07IHRleHQtdHJhbnNmb3JtOiB1cHBlcmNhc2U7IH1cbmgxLCBoMiB7IG1hcmdpbjogLjI1cmVtIDAgLjc1cmVtOyB9XG5oZWFkZXIgcCB7IGNvbG9yOiB2YXIoLS10ZXh0LWNvbG9yLXNlY29uZGFyeSk7IGxpbmUtaGVpZ2h0OiAxLjU1OyB9XG4uZm9ybS1ncmlkIHsgZGlzcGxheTogZ3JpZDsgZ3JpZC10ZW1wbGF0ZS1jb2x1bW5zOiByZXBlYXQoMiwgbWlubWF4KDAsIDFmcikpOyBnYXA6IDFyZW07IH1cbi5mb3JtLWdyaWQgaDIgeyBncmlkLWNvbHVtbjogMSAvIC0xOyBtYXJnaW4tdG9wOiAuNXJlbTsgfVxuLmZvcm0tZ3JpZCBsYWJlbCB7IGRpc3BsYXk6IGdyaWQ7IGdhcDogLjRyZW07IGZvbnQtd2VpZ2h0OiA2MDA7IH1cbi5mb3JtLWdyaWQgaW5wdXQsIC5mb3JtLWdyaWQgcC1wYXNzd29yZCB7IHdpZHRoOiAxMDAlOyB9XG4uYWN0aW9ucyB7IGRpc3BsYXk6IGZsZXg7IGp1c3RpZnktY29udGVudDogZmxleC1lbmQ7IG1hcmdpbi10b3A6IDEuNXJlbTsgfVxuQG1lZGlhIChtYXgtd2lkdGg6IDY0MHB4KSB7IC5wcm92aXNpb25pbmctc2hlbGwgeyBtYXJnaW46IDFyZW07IH0gLmZvcm0tZ3JpZCB7IGdyaWQtdGVtcGxhdGUtY29sdW1uczogMWZyOyB9IH1cbiJdLCJzb3VyY2VSb290IjoiIn0= */"]
-    });
-  }
-}
-
-/***/ },
-
 /***/ 21619
 /*!******************************************************************************!*\
   !*** ./src/app/demo/components/owner-inquiries/owner-inquiries.component.ts ***!
@@ -32003,45 +31770,6 @@ class NoPicturesService {
 
 /***/ },
 
-/***/ 39534
-/*!*******************************************************************!*\
-  !*** ./src/app/demo/service/organization-provisioning.service.ts ***!
-  \*******************************************************************/
-(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   OrganizationProvisioningService: () => (/* binding */ OrganizationProvisioningService)
-/* harmony export */ });
-/* harmony import */ var _global_service__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./global.service */ 53796);
-/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/core */ 94975);
-/* harmony import */ var _angular_common_http__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @angular/common/http */ 74733);
-
-
-
-class OrganizationProvisioningService {
-  constructor(http) {
-    this.http = http;
-  }
-  provision(payload) {
-    return this.http.post(`${_global_service__WEBPACK_IMPORTED_MODULE_0__.global.url}organizations`, payload);
-  }
-  static {
-    this.ɵfac = function OrganizationProvisioningService_Factory(__ngFactoryType__) {
-      return new (__ngFactoryType__ || OrganizationProvisioningService)(_angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵinject"](_angular_common_http__WEBPACK_IMPORTED_MODULE_2__.HttpClient));
-    };
-  }
-  static {
-    this.ɵprov = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵdefineInjectable"]({
-      token: OrganizationProvisioningService,
-      factory: OrganizationProvisioningService.ɵfac,
-      providedIn: 'root'
-    });
-  }
-}
-
-/***/ },
-
 /***/ 12132
 /*!*******************************************************!*\
   !*** ./src/app/demo/service/owner-service.service.ts ***!
@@ -32623,10 +32351,6 @@ class UserGuard {
     const token = this._userService.getToken();
     const payload = this.decodeToken(token);
     if (identity && identity._id && payload && !this.isExpired(payload) && this.hasRequiredRole(route, identity, payload) && this.hasRequiredPermission(route)) {
-      if (this.isSuperuser(payload, identity) && !state.url.startsWith('/platform/organizations')) {
-        this._router.navigate(['/platform/organizations']);
-        return false;
-      }
       return true;
     }
     this.clearAuthState();
@@ -32670,9 +32394,6 @@ class UserGuard {
     }
     const currentRole = (payload.role || identity.role || '').toString().toUpperCase();
     return requiredRoles.includes(currentRole);
-  }
-  isSuperuser(payload, identity) {
-    return String(payload?.role || identity?.role || '').toUpperCase() === 'SUPERUSER';
   }
   getRequiredRoles(route) {
     const configuredRoles = route.data?.['roles'] || route.data?.['role'];
@@ -32978,12 +32699,6 @@ class UserService {
     this.disparador = new _angular_core__WEBPACK_IMPORTED_MODULE_0__.EventEmitter();
     this.customEvent = new _angular_core__WEBPACK_IMPORTED_MODULE_0__.EventEmitter();
     this.url = _global_service__WEBPACK_IMPORTED_MODULE_2__.global.url;
-  }
-  create(user, token) {
-    let header = new _angular_common_http__WEBPACK_IMPORTED_MODULE_1__.HttpHeaders().set('Authorization', token);
-    return this._http.post(this.url + 'createAccount', user, {
-      headers: header
-    });
   }
   isAdmin() {
     if (!this.getIdentity()?.role) {
@@ -33692,14 +33407,13 @@ class AppMenuComponent {
     const isOrganizationOwner = isOwner && Boolean(this.accessContext.access()?.organization || this.cookieValue?.organizationId);
     const canSeePaymentMonitor = isOwner ? !isOrganizationOwner : this.hasPermission('finance.read');
     this.model = [{
-      label: 'Platform',
+      label: 'Configuración',
       items: [{
-        label: 'Organizations',
-        icon: 'pi pi-building',
-        routerLink: ['/platform/organizations'],
-        visible: this.checkRole(['SUPERUSER'])
+        label: 'Primeros pasos',
+        icon: 'pi pi-list',
+        routerLink: ['/onboarding']
       }],
-      visible: this.checkRole(['SUPERUSER'])
+      visible: this.accessContext.isOwnerAdmin()
     }, {
       label: 'Home',
       items: [{
@@ -33760,7 +33474,7 @@ class AppMenuComponent {
       }],
       visible: this.hasAnyPermission('condominiums.read', 'condominiums.create')
     }, {
-      label: 'Partners',
+      label: 'Customer 360',
       items: [{
         label: 'Partners',
         icon: 'pi pi-briefcase',
