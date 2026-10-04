@@ -26,6 +26,54 @@ test("bank reconciliation uses atomic evidence and isolates owners", { skip: !pr
     return res;
   }
   let serial = 0;
+  await t.test("1000 pending receipts remain accessible across pages and confirmed evidence has a separate history", async () => {
+    const condo = oid(), inv = oid(), anotherOwner = oid();
+    await Invoice.collection.insertOne({ _id: inv, organizationId, condominiumId: condo, ownerId, unitNumber: "A.1" });
+    const received = new Date("2026-10-01T15:00:00Z");
+    const docs = Array.from({ length: 1000 }, (_, index) => ({
+      _id: oid(), organizationId, condominiumId: condo, ownerId, invoiceId: inv,
+      bankAccountId: account._id, uploadedBy: adminId, sha256: `pagination-${index}`,
+      fileData: Buffer.from("synthetic"), ocr: { text: "large OCR payload" }, fieldHistory: [{ note: "internal history" }],
+      reconciliationStatus: "pending", ocrStatus: "ready", createdAt: received,
+    }));
+    await TransferReceipt.collection.insertMany([...docs,
+      { ...docs[0], _id: oid(), sha256: "pagination-confirmed", reconciliationStatus: "confirmed" },
+      { ...docs[0], _id: oid(), sha256: "pagination-other-owner", ownerId: anotherOwner },
+      { ...docs[0], _id: oid(), sha256: "pagination-other-org", organizationId: oid() },
+    ]);
+    const ownerRequest = query => request({}, {}, { user: { role: "OWNER", sub: ownerId }, query: { condominiumId: String(condo), reconciliationStatus: "pending", ...query } });
+    const first = await invoke("receipts", ownerRequest({}));
+    assert.equal(first.statusCode, 200);
+    assert.equal(first.body.data.total, 1000);
+    assert.equal(first.body.data.docs.length, 20);
+    assert.equal(first.body.data.pages, 50);
+    assert.equal(first.body.data.docs[0].ocr, undefined);
+    assert.equal(first.body.data.docs[0].fieldHistory, undefined);
+    assert.equal(first.body.data.docs[0].fileData, undefined);
+    const seen = new Set();
+    for (let page = 1; page <= 20; page++) {
+      const result = await invoke("receipts", ownerRequest({ page: String(page), limit: "50" }));
+      assert.equal(result.statusCode, 200);
+      assert.equal(result.body.data.total, 1000);
+      for (const receipt of result.body.data.docs) seen.add(String(receipt._id));
+    }
+    assert.equal(seen.size, 1000);
+    const history = await invoke("receipts", ownerRequest({ reconciliationStatus: "confirmed" }));
+    assert.equal(history.body.data.total, 1);
+    const filtered = await invoke("receipts", ownerRequest({ unitNumber: "A.1", from: "2026-10-01", to: "2026-10-01", ocrStatus: "ready", invoiceId: String(inv) }));
+    assert.equal(filtered.body.data.total, 1000);
+    const noMatch = await invoke("receipts", ownerRequest({ unitNumber: "Ax1" }));
+    assert.equal(noMatch.body.data.total, 0);
+    await TransferReceipt.updateOne({ _id: docs[0]._id }, { $set: { reconciliationStatus: "confirmed" } });
+    const last = await invoke("receipts", ownerRequest({ page: "999", limit: "50" }));
+    assert.equal(last.body.data.total, 999);
+    assert.equal(last.body.data.page, 20);
+    assert.equal(last.body.data.docs.length, 49);
+    assert.equal((await invoke("receipts", ownerRequest({ reconciliationStatus: "confirmed" }))).body.data.total, 2);
+    for (const query of [{ page: "-1" }, { limit: "1000" }, { ocrStatus: "invalid" }, { reconciliationStatus: "invalid" }, { from: "2026-02-30" }, { from: "2026-10-02", to: "2026-10-01" }]) {
+      assert.equal((await invoke("receipts", ownerRequest(query))).statusCode, 400);
+    }
+  });
   const ownerUpload = (inv, bytes = crypto.randomUUID(), accountId = account._id, uploader = ownerId) => request({},
     { invoiceId: inv._id, bankAccountId: accountId },
     { user: { role: "OWNER", sub: uploader }, file: { originalname: "voucher.png", buffer: Buffer.concat([Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]), Buffer.from(bytes)]) } });

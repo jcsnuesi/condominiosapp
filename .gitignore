@@ -17,4 +17,5 @@ Dockerfile
 /ocr-service/.pytest_cache/
 /ocr-service/.mypy_cache/
 /ocr-service/.ruff_cache/
+/specs
 /ocr-service/.test-deps/

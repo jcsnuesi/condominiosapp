@@ -12,6 +12,7 @@ import { SelectModule } from 'primeng/select';
 import { TabsModule } from 'primeng/tabs';
 import { TagModule } from 'primeng/tag';
 import { CardModule } from 'primeng/card';
+import { AccordionModule } from 'primeng/accordion';
 
 import { UserService } from '../../service/user.service';
 import { StrService } from '../../service/str.service';
@@ -51,10 +52,12 @@ interface BuildingUnits {
         TabsModule,
         TagModule,
         CardModule,
+        AccordionModule,
     ],
     providers: [MessageService],
 })
 export class StrIntegrationComponent implements OnInit {
+    channelFormAccordionValue: string | undefined = undefined;
     viewMode: 'table' | 'cards' = 'cards';
     token = '';
     identity: any;
@@ -454,6 +457,7 @@ export class StrIntegrationComponent implements OnInit {
     }
 
     editChannel(channel: any): void {
+        this.channelFormAccordionValue = 'channel-form';
         this.channelForm = {
             id: channel._id,
             channelType: channel.channelType,

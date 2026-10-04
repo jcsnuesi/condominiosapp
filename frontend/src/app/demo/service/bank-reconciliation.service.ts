@@ -11,6 +11,7 @@ export interface Receipt { _id: string; invoiceId: string; bankAccountId: string
 export interface Statement { _id: string; bankAccountId?: string; status: string; rows: BankMovement[]; reviewedRows?: BankMovement[]; error?: string; headers?: string[]; rawRows?: string[][]; ocr?: { text?: string }; warnings?: string[]; }
 export interface Candidate { movement: BankMovement; reasons?: string[]; eligible?: boolean; referenceMatches?: boolean; dayDifference?: number; }
 export interface Confirmation { outstandingBalance?: number; creditBalance?: number; }
+export interface ReceiptPage { docs: Receipt[]; total: number; page: number; limit: number; pages: number; }
 
 @Injectable({ providedIn: 'root' })
 export class BankReconciliationService {

@@ -222,7 +222,7 @@ export class AppMenuComponent implements OnInit {
                 label: 'Finance',
                 items: [
                     {
-                        label: 'Administración financiera',
+                        label: 'Financial Management',
                         icon: 'pi pi-chart-bar',
                         routerLink: ['/finance'],
                         visible: this.hasPermission('finance.read'),

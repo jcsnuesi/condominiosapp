@@ -16,6 +16,8 @@ receiptSchema.index({ organizationId: 1, sha256: 1 }, { unique: true });
 receiptSchema.index({ organizationId: 1, invoiceId: 1, createdAt: 1 });
 receiptSchema.index({ organizationId: 1, condominiumId: 1, ownerId: 1, createdAt: -1 });
 receiptSchema.index({ ocrStatus: 1, nextAttemptAt: 1, leaseUntil: 1 });
+receiptSchema.index({ organizationId: 1, reconciliationStatus: 1, createdAt: -1, _id: -1 });
+receiptSchema.index({ organizationId: 1, condominiumId: 1, reconciliationStatus: 1, createdAt: -1, _id: -1 });
 const statementSchema = schema({ ...source, status: { type: String, enum: ["queued", "processing", "ready", "failed", "committed"], default: "queued" }, rows: [Schema.Types.Mixed], committedAt: Date, committedBy: Schema.Types.ObjectId, reviewedRows: [Schema.Types.Mixed] });
 statementSchema.add({ headers: [String], rawRows: [[String]] });
 statementSchema.index({ organizationId: 1, bankAccountId: 1, sha256: 1 }, { unique: true });

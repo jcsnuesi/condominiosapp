@@ -79,6 +79,28 @@
     </details>
   }
   <h3>Comprobantes recibidos</h3>
+  <nav class="receipt-navigation" aria-label="Vistas de comprobantes">
+    <button type="button" [disabled]="busy()" [attr.aria-pressed]="receiptStatus === 'pending'" (click)="changeReceiptStatus('pending')">Pendientes</button>
+    <button type="button" [disabled]="busy()" [attr.aria-pressed]="receiptStatus === 'confirmed'" (click)="changeReceiptStatus('confirmed')">Historial de conciliados</button>
+  </nav>
+  <p>{{ receiptStatus === 'pending' ? 'Comprobantes que requieren conciliación bancaria.' : 'Comprobantes conciliados; sus originales y datos de aplicación se conservan para consulta.' }}</p>
+  <form class="fields receipt-filters" (ngSubmit)="applyReceiptFilters()">
+    <label>Recibidos desde<input type="date" name="receiptFrom" [(ngModel)]="receiptFilters.from" [disabled]="busy()" /></label>
+    <label>Recibidos hasta<input type="date" name="receiptTo" [(ngModel)]="receiptFilters.to" [disabled]="busy()" /></label>
+    @if (!invoiceId) {
+      <label>Unidad<input name="receiptUnit" [(ngModel)]="receiptFilters.unitNumber" maxlength="100" [disabled]="busy()" /></label>
+      <label>ID completo de factura<input name="receiptInvoice" [(ngModel)]="receiptFilters.invoiceId" pattern="[a-fA-F0-9]{24}" maxlength="24" [disabled]="busy()" /></label>
+    }
+    <label>Estado de extracción<select name="receiptOcr" [(ngModel)]="receiptFilters.ocrStatus" [disabled]="busy()"><option value="">Todos</option><option value="queued">En cola</option><option value="processing">Procesando</option><option value="ready">Listo</option><option value="failed">Fallido</option></select></label>
+    <button type="submit" [disabled]="busy()">Aplicar filtros</button>
+    <button type="button" [disabled]="busy()" (click)="clearReceiptFilters()">Limpiar filtros</button>
+  </form>
+  <div class="receipt-navigation" aria-label="Paginación de comprobantes">
+    <p role="status">{{ receiptTotal() }} comprobantes · Página {{ receiptPage }} de {{ receiptPages() }}</p>
+    <label>Por página<select [ngModel]="receiptLimit" (ngModelChange)="receiptLimit = +$event; applyReceiptFilters()" [disabled]="busy()"><option [ngValue]="20">20</option><option [ngValue]="50">50</option></select></label>
+    <button type="button" [disabled]="busy() || receiptPage <= 1" (click)="paginateReceipts(-1)">Anterior</button>
+    <button type="button" [disabled]="busy() || receiptPage >= receiptPages()" (click)="paginateReceipts(1)">Siguiente</button>
+  </div>
   @if (!receipts().length) { <p>No hay comprobantes para esta selección.</p> }
   <div class="receipt-list">@for (receipt of receipts(); track receipt._id) {
     <button type="button" [disabled]="busy()" (click)="inspect(receipt)">Factura {{ receipt.invoiceId.toString().slice(-6) }} · {{ fields(receipt).amount ?? 'Monto pendiente' }} {{ fields(receipt).currency }} · {{ receipt.reconciliationStatus === 'confirmed' ? 'Conciliado con banco' : 'Pendiente de conciliación' }} · OCR: {{ receipt.ocrStatus }}</button>

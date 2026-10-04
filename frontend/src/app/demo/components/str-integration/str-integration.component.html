@@ -36,8 +36,12 @@
         </p-tablist>
         <p-tabpanels>
       <p-tabpanel value="channels">
-        <div class="card-block">
-          <div class="section-heading"><span class="section-kicker">Channels</span><h2>{{ channelForm.id ? 'Edit channel' : 'Connect a channel' }}</h2></div>
+        <p-accordion class="card-block channel-form-accordion" [(value)]="channelFormAccordionValue">
+          <p-accordion-panel value="channel-form">
+            <p-accordion-header>
+              <span class="section-heading"><span class="section-kicker">Channels</span><span class="channel-form-title">{{ channelForm.id ? 'Edit channel' : 'Connect a channel' }}</span></span>
+            </p-accordion-header>
+            <p-accordion-content>
           <div class="form-grid">
             <div class="field">
               <label for="channelType">Channel type</label>
@@ -139,7 +143,9 @@
                       (onClick)="resetForm()"
                     ></p-button>
                   </div>
-                </div>
+            </p-accordion-content>
+          </p-accordion-panel>
+        </p-accordion>
 
                 <section class="str-panel" aria-label="Channels">
         <ng-container *ngTemplateOutlet="listToolbar; context: { $implicit: channelTable, placeholder: 'Search channels...' }" />

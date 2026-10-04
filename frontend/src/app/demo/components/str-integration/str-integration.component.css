@@ -12,6 +12,12 @@
 .condo-select label, .field label { color: var(--str-ink); font-weight: 650; }
 .section-heading { margin-bottom: 1.15rem; }
 .section-heading h2 { margin: .25rem 0 0; color: var(--str-ink); font-size: 1.15rem; }
+.channel-form-accordion { display: block; padding: 0; }
+.channel-form-accordion .section-heading { display: grid; gap: .25rem; margin: 0; text-align: left; }
+.channel-form-title { color: var(--str-ink); font-size: 1.15rem; }
+:host ::ng-deep .channel-form-accordion .p-accordionpanel { border: 0; }
+:host ::ng-deep .channel-form-accordion .p-accordionheader { padding: 1.25rem; border-radius: 16px; background: #fff; color: var(--str-ink); }
+:host ::ng-deep .channel-form-accordion .p-accordioncontent-content { padding: 0 1.25rem 1.25rem; background: #fff; }
 .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
 .field { display: flex; flex-direction: column; gap: .5rem; min-width: 0; margin: 0; }
 .field.full { grid-column: 1 / -1; }
@@ -63,6 +69,9 @@
     .str-page { padding-top: 0; }
     .str-hero { padding: 1.15rem; }
     .str-panel, .card-block, .str-record-card { padding: 1rem; }
+    .channel-form-accordion { padding: 0; }
+    :host ::ng-deep .channel-form-accordion .p-accordionheader { padding: 1rem; }
+    :host ::ng-deep .channel-form-accordion .p-accordioncontent-content { padding: 0 1rem 1rem; }
     .form-grid, .list-toolbar { grid-template-columns: minmax(0, 1fr); }
     .condo-select { flex-basis: 100%; max-width: none; }
     .toolbar > p-button, .actions > p-button { flex: 1 1 100%; }

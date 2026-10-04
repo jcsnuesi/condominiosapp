@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { firstValueFrom, interval } from 'rxjs';
-import { BankAccount, BankFields, BankMovement, BankReconciliationService, Candidate, Confirmation, Receipt, Statement } from '../../service/bank-reconciliation.service';
+import { BankAccount, BankFields, BankMovement, BankReconciliationService, Candidate, Confirmation, Receipt, ReceiptPage, Statement } from '../../service/bank-reconciliation.service';
 import { UserService } from '../../service/user.service';
 import { AccessContextService } from '../../service/access-context.service';
 
@@ -30,6 +30,13 @@ export class BankReconciliationComponent implements OnChanges {
   readonly message = signal('');
   readonly accounts = signal<BankAccount[]>([]);
   readonly receipts = signal<Receipt[]>([]);
+  readonly receiptTotal = signal(0);
+  readonly receiptPages = signal(1);
+  receiptStatus: 'pending' | 'confirmed' = 'pending';
+  receiptPage = 1;
+  receiptLimit = 20;
+  receiptFilters = { from: '', to: '', unitNumber: '', invoiceId: '', ocrStatus: '' };
+  private appliedReceiptFilters = { ...this.receiptFilters };
   readonly candidates = signal<Candidate[]>([]);
   readonly excludedCandidates = signal<Candidate[]>([]);
   readonly selected = signal<Receipt | null>(null);
@@ -76,7 +83,7 @@ export class BankReconciliationComponent implements OnChanges {
   private refreshPending = false;
   constructor() {
     interval(5000).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      if (!this.busy() && (this.receipts().some(receipt => this.isProcessing(receipt.ocrStatus)) || this.isProcessing(this.statement()?.status))) this.refresh();
+      if (!this.busy() && (this.receipts().some(receipt => this.isProcessing(receipt.ocrStatus)) || this.isProcessing(this.selected()?.ocrStatus) || this.isProcessing(this.statement()?.status))) this.refresh();
     });
   }
   private isProcessing(status?: string) { return status === 'queued' || status === 'processing'; }
@@ -135,6 +142,7 @@ export class BankReconciliationComponent implements OnChanges {
   }
   selectCondominium(value: string) { this.condominiumIdChange.emit(value || ''); }
   ngOnChanges() {
+    this.receiptPage = 1; this.receiptTotal.set(0); this.receiptPages.set(1);
     this.statementFile = null; this.reviewingPending = false;
     this.excludedCandidates.set([]);
     this.movementId = ''; this.note = '';
@@ -150,12 +158,53 @@ export class BankReconciliationComponent implements OnChanges {
     } finally { this.busy.set(false); if (this.refreshPending) { this.refreshPending = false; this.refresh(); } }
   }
   private value<T>(source: import('rxjs').Observable<T>) { return firstValueFrom(source.pipe(takeUntilDestroyed(this.destroyRef))); }
+  async loadReceipts(): Promise<void> {
+    const query: Record<string, string> = {
+      ...this.appliedReceiptFilters,
+      reconciliationStatus: this.receiptStatus,
+      page: String(this.receiptPage), limit: String(this.receiptLimit),
+    };
+    if (this.condominiumId) query['condominiumId'] = this.condominiumId;
+    if (this.invoiceId) query['invoiceId'] = this.invoiceId;
+    const response = await this.value(this.api.get<ReceiptPage>('receipts', query));
+    this.receipts.set(response.docs);
+    this.receiptTotal.set(response.total ?? response.docs.length);
+    this.receiptPages.set(response.pages ?? 1);
+    this.receiptPage = response.page ?? 1;
+  }
+  async changeReceiptStatus(status: 'pending' | 'confirmed'): Promise<void> {
+    if (this.busy()) return;
+    this.receiptStatus = status;
+    this.receiptPage = 1;
+    this.selected.set(null); this.candidates.set([]); this.excludedCandidates.set([]); this.confirmation.set(null);
+    return this.run(() => this.loadReceipts());
+  }
+  async applyReceiptFilters(): Promise<void> {
+    if (this.busy()) return;
+    if (this.receiptFilters.from && this.receiptFilters.to && this.receiptFilters.from > this.receiptFilters.to) {
+      this.error.set('Desde debe ser anterior o igual a Hasta.'); return;
+    }
+    this.appliedReceiptFilters = { ...this.receiptFilters };
+    this.receiptPage = 1;
+    this.selected.set(null); this.candidates.set([]); this.excludedCandidates.set([]); this.confirmation.set(null);
+    return this.run(() => this.loadReceipts());
+  }
+  async clearReceiptFilters(): Promise<void> {
+    if (this.busy()) return;
+    this.receiptFilters = { from: '', to: '', unitNumber: '', invoiceId: '', ocrStatus: '' };
+    return this.applyReceiptFilters();
+  }
+  async paginateReceipts(delta: number): Promise<void> {
+    if (this.busy() || this.receiptPage + delta < 1 || this.receiptPage + delta > this.receiptPages()) return;
+    this.receiptPage += delta;
+    this.selected.set(null); this.candidates.set([]); this.excludedCandidates.set([]);
+    return this.run(() => this.loadReceipts());
+  }
   async load() {
     const query = this.condominiumId ? { condominiumId: this.condominiumId } : {};
     const accounts = await this.value(this.api.get<{ docs: BankAccount[] }>('bank-accounts', query));
     this.accounts.set(accounts.docs);
-    const filter = this.invoiceId ? { invoiceId: this.invoiceId } : query;
-    this.receipts.set((await this.value(this.api.get<{ docs: Receipt[] }>('receipts', filter))).docs);
+    await this.loadReceipts();
     if (this.accountId && this.canAdmin) this.statements.set((await this.value(this.api.get<{ docs: Statement[] }>('statements', { bankAccountId: this.accountId }))).docs);
     if (this.ownerMode && this.ownerId) {
       const response = await this.value(this.api.get<{ totals?: Array<{ condominiumId: string; currency: string; amount: number }> }>('owner-credits', { ...query, ownerId: this.ownerId }));
@@ -293,8 +342,8 @@ export class BankReconciliationComponent implements OnChanges {
     return this.run(async () => {
       const receipt = this.selected(); if (!receipt || !this.movementId || !this.canAdmin) return;
       this.confirmation.set(await this.value(this.api.post<Confirmation>(`receipts/${receipt._id}/confirm`, { movementId: this.movementId, note: this.note })));
-      this.selected.set(await this.value(this.api.get<Receipt>(`receipts/${receipt._id}`)));
-      this.candidates.set([]); this.message.set('Pago conciliado contra el movimiento bancario.'); await this.load();
+      this.selected.set(null); this.candidates.set([]); this.excludedCandidates.set([]);
+      this.message.set('Pago conciliado contra el movimiento bancario. El comprobante está disponible en el historial de conciliados.'); await this.load();
     });
   }
   fields(receipt: Receipt): BankFields { return receipt.fields || receipt.extractedFields || {}; }

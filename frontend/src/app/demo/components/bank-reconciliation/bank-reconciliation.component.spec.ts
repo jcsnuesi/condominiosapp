@@ -9,11 +9,49 @@ describe('Bank transfer review boundaries', () => {
   const api = { get: jasmine.createSpy('get').and.returnValue(of({ docs: [] })), post: jasmine.createSpy('post').and.returnValue(of({})) };
   beforeEach(async () => {
     api.post.calls.reset();
+    api.get.calls.reset();
+    api.get.and.returnValue(of({ docs: [] }));
     await TestBed.configureTestingModule({ imports: [BankReconciliationComponent], providers: [
       { provide: BankReconciliationService, useValue: api },
       { provide: UserService, useValue: { isAdmin: () => true } },
       { provide: AccessContextService, useValue: { hasPermission: () => true } },
     ] }).compileComponents();
+  });
+  it('starts with pending receipts and requests server pages with filters', async () => {
+    const fixture = TestBed.createComponent(BankReconciliationComponent);
+    const component = fixture.componentInstance;
+    component.condominiumId = 'condo';
+    api.get.and.returnValue(of({ docs: [], total: 1000, page: 1, limit: 20, pages: 50 }));
+    await component.loadReceipts();
+    expect(api.get).toHaveBeenCalledWith('receipts', jasmine.objectContaining({ reconciliationStatus: 'pending', page: '1', limit: '20', condominiumId: 'condo' }));
+    fixture.detectChanges();
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('1000 comprobantes');
+    api.get.and.returnValue(of({ docs: [], total: 1000, page: 2, limit: 20, pages: 50 }));
+    await component.paginateReceipts(1);
+    expect(api.get).toHaveBeenCalledWith('receipts', jasmine.objectContaining({ page: '2' }));
+    component.receiptFilters = { from: '2026-10-01', to: '2026-10-04', unitNumber: 'A1', invoiceId: '', ocrStatus: 'failed' };
+    component.receiptLimit = 50;
+    await component.applyReceiptFilters();
+    expect(api.get).toHaveBeenCalledWith('receipts', jasmine.objectContaining({ page: '1', limit: '50', from: '2026-10-01', to: '2026-10-04', unitNumber: 'A1', ocrStatus: 'failed' }));
+  });
+  it('switches to confirmed history and clears the selected receipt', async () => {
+    const component = TestBed.createComponent(BankReconciliationComponent).componentInstance;
+    component.selected.set({ _id: 'receipt', invoiceId: 'invoice', bankAccountId: 'account' });
+    await component.changeReceiptStatus('confirmed');
+    expect(component.selected()).toBeNull();
+    expect(api.get).toHaveBeenCalledWith('receipts', jasmine.objectContaining({ reconciliationStatus: 'confirmed', page: '1' }));
+  });
+  it('removes the selected receipt after confirmation and reloads the pending page', async () => {
+    const component = TestBed.createComponent(BankReconciliationComponent).componentInstance;
+    component.selected.set({ _id: 'receipt', invoiceId: 'invoice', bankAccountId: 'account', ocrStatus: 'ready', reconciliationStatus: 'pending', fields: { amount: '100', currency: 'DOP', date: '2026-10-01' } });
+    component.correction = { amount: '100', currency: 'DOP', date: '2026-10-01' };
+    component.candidates.set([{ movement: { _id: 'movement' }, referenceMatches: true }]);
+    component.movementId = 'movement';
+    await component.confirm();
+    expect(api.post).toHaveBeenCalledWith('receipts/receipt/confirm', { movementId: 'movement', note: '' });
+    expect(component.selected()).toBeNull();
+    expect(component.message()).toContain('historial de conciliados');
+    expect(api.get).toHaveBeenCalledWith('receipts', jasmine.objectContaining({ reconciliationStatus: 'pending' }));
   });
   it('keeps owner OCR results pending and hides bank confirmation/import', async () => {
     const fixture = TestBed.createComponent(BankReconciliationComponent);

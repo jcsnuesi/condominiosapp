@@ -94,7 +94,47 @@ const controller = {
     const query = filter(req);
     if (req.user.role === "OWNER") query.ownerId = req.user.sub;
     if (req.query.invoiceId) query.invoiceId = id(req.query.invoiceId);
-    return { docs: (await TransferReceipt.find(query).sort({ createdAt: -1 }).limit(200).lean()).map(publicDoc) };
+    if (req.query.reconciliationStatus) {
+      const status = req.query.reconciliationStatus;
+      if (!["pending", "confirmed"].includes(status)) throw problem("Estado de conciliación inválido");
+      query.reconciliationStatus = status;
+    }
+    if (req.query.ocrStatus) {
+      if (!["queued", "processing", "ready", "failed"].includes(req.query.ocrStatus)) throw problem("Estado OCR inválido");
+      query.ocrStatus = req.query.ocrStatus;
+    }
+    const positiveInteger = (value, fallback) => {
+      if (value == null) return fallback;
+      if (typeof value !== "string" || !/^[1-9]\d*$/.test(value) || !Number.isSafeInteger(Number(value))) throw problem("Paginación inválida");
+      return Number(value);
+    };
+    const limit = positiveInteger(req.query.limit, 20);
+    if (![20, 50].includes(limit)) throw problem("Seleccione 20 o 50 comprobantes por página");
+    const requestedPage = positiveInteger(req.query.page, 1);
+    const dates = {};
+    for (const key of ["from", "to"]) {
+      if (!req.query[key]) continue;
+      const value = req.query[key];
+      if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value) || !Number.isFinite(Date.parse(value)) || new Date(value).toISOString().slice(0, 10) !== value) throw problem("Fecha inválida");
+      dates[key] = value;
+    }
+    if (dates.from && dates.to && dates.from > dates.to) throw problem("Desde debe ser anterior o igual a Hasta");
+    if (dates.from || dates.to) query.createdAt = {
+      ...(dates.from ? { $gte: new Date(dates.from + "T00:00:00-04:00") } : {}),
+      ...(dates.to ? { $lt: new Date(Date.parse(dates.to + "T00:00:00-04:00") + 86400000) } : {}),
+    };
+    if (req.query.unitNumber) {
+      const unit = bounded(req.query.unitNumber, 100).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const invoiceQuery = { ...filter(req), unitNumber: { $regex: `^${unit}$`, $options: "i" } };
+      if (req.user.role === "OWNER") invoiceQuery.ownerId = req.user.sub;
+      if (query.invoiceId) invoiceQuery._id = query.invoiceId;
+      query.invoiceId = { $in: await Invoice.distinct("_id", invoiceQuery) };
+    }
+    const total = await TransferReceipt.countDocuments(query);
+    const pages = Math.max(1, Math.ceil(total / limit));
+    const page = Math.min(requestedPage, pages);
+    const docs = await TransferReceipt.find(query).select("-ocr -fieldHistory -fileData -leaseToken -leaseUntil").sort({ createdAt: -1, _id: -1 }).skip((page - 1) * limit).limit(limit).lean();
+    return { docs: docs.map(publicDoc), total, page, limit, pages };
   }),
   receipt: endpoint(async (req) => publicDoc(await scoped(TransferReceipt, req, req.params.id))),
   receiptFile: endpoint((req, res) => download(TransferReceipt, req, res)),
