@@ -5,3 +5,5 @@ docker-compose.yml
 Dockerfile
 .angular
 .env
+backend/.env
+**/.env
