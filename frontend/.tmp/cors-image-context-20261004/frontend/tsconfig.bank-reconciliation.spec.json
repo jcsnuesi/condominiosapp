@@ -1,0 +1,6 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": { "outDir": "./out-tsc/bank-spec", "types": ["jasmine", "@angular/localize"] },
+  "files": ["src/bank-reconciliation.test.ts"],
+  "include": ["src/**/*.d.ts"]
+}

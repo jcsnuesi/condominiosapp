@@ -1,0 +1,182 @@
+<p-dialog
+    [visible]="visible"
+    (visibleChange)="onVisibleChange($event)"
+    [modal]="true"
+    [draggable]="false"
+    [resizable]="false"
+    [dismissableMask]="true"
+    [style]="{ width: '48rem', 'max-width': 'calc(100vw - 1.5rem)' }"
+    [breakpoints]="{ '760px': 'calc(100vw - 1rem)' }"
+    styleClass="authenticated-profile-dialog"
+    header="Mi perfil"
+    appendTo="body"
+>
+    @if (isLoading()) {
+    <div class="profile-loading" role="status" aria-live="polite">
+        <i class="pi pi-spin pi-spinner" aria-hidden="true"></i>
+        <span>Cargando tu información…</span>
+    </div>
+    } @else {
+    <div class="profile-shell">
+        <header class="profile-identity">
+            <div class="profile-avatar">
+                @if (avatarPreview()) {
+                <img [src]="avatarPreview()" alt="Avatar del usuario" />
+                } @else {
+                <i class="pi pi-user" aria-hidden="true"></i>
+                }
+            </div>
+            <div class="profile-identity-copy">
+                <span class="profile-eyebrow">Cuenta personal</span>
+                <strong>
+                    {{ profileForm.controls.name.value }}
+                    {{ profileForm.controls.lastname.value }}
+                </strong>
+                <span>{{ profileForm.controls.email.value }}</span>
+            </div>
+            <label class="profile-avatar-action" for="profile-avatar-input">
+                Cambiar foto
+                <input
+                    id="profile-avatar-input"
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    (change)="selectAvatar($event)"
+                />
+            </label>
+        </header>
+
+        <div class="profile-meta" aria-label="Información de la cuenta">
+            <div>
+                <span>Rol</span>
+                <strong>{{ accountRole() | titlecase }}</strong>
+            </div>
+            <div>
+                <span>Organización</span>
+                <strong>{{ organizationName() }}</strong>
+            </div>
+            <div>
+                <span>Estado</span>
+                <strong>{{ accountStatus() | titlecase }}</strong>
+            </div>
+            <div>
+                <span>Miembro desde</span>
+                <strong>{{ memberSince() }}</strong>
+            </div>
+        </div>
+
+        <form class="profile-section" [formGroup]="profileForm" (ngSubmit)="saveProfile()">
+            <div class="profile-section-heading">
+                <div>
+                    <span class="profile-section-kicker">Información personal</span>
+                    <h3>Datos básicos</h3>
+                </div>
+                <p>Mantén actualizados tus datos de contacto.</p>
+            </div>
+
+            <div class="profile-form-grid">
+                <label class="profile-field">
+                    <span>Nombres</span>
+                    <input pInputText formControlName="name" autocomplete="given-name" />
+                    @if (profileForm.controls.name.touched && profileForm.controls.name.invalid) {
+                    <small>Ingresa tus nombres.</small>
+                    }
+                </label>
+                <label class="profile-field">
+                    <span>Apellidos</span>
+                    <input pInputText formControlName="lastname" autocomplete="family-name" />
+                    @if (profileForm.controls.lastname.touched && profileForm.controls.lastname.invalid) {
+                    <small>Ingresa tus apellidos.</small>
+                    }
+                </label>
+                <label class="profile-field">
+                    <span>Teléfono</span>
+                    <input pInputText formControlName="phone" autocomplete="tel" inputmode="tel" />
+                    @if (profileForm.controls.phone.touched && profileForm.controls.phone.invalid) {
+                    <small>Ingresa un teléfono válido.</small>
+                    }
+                </label>
+                <label class="profile-field">
+                    <span>Correo</span>
+                    <input pInputText formControlName="email" autocomplete="email" inputmode="email" />
+                    @if (profileForm.controls.email.touched && profileForm.controls.email.invalid) {
+                    <small>Ingresa un correo válido.</small>
+                    }
+                </label>
+            </div>
+
+            <div class="profile-section-actions">
+                <button
+                    pButton
+                    type="submit"
+                    label="Guardar datos"
+                    icon="pi pi-check"
+                    [loading]="isSavingProfile()"
+                    [disabled]="profileForm.invalid"
+                ></button>
+            </div>
+        </form>
+
+        <form class="profile-section" [formGroup]="passwordForm" (ngSubmit)="changePassword()">
+            <div class="profile-section-heading">
+                <div>
+                    <span class="profile-section-kicker">Seguridad</span>
+                    <h3>Cambiar contraseña</h3>
+                </div>
+                <p>Usa al menos 8 caracteres y no repitas tu contraseña actual.</p>
+            </div>
+
+            <div class="profile-form-grid profile-password-grid">
+                <label class="profile-field profile-field-wide">
+                    <span>Contraseña actual</span>
+                    <input
+                        pInputText
+                        type="password"
+                        formControlName="currentPassword"
+                        autocomplete="current-password"
+                    />
+                    @if (passwordForm.controls.currentPassword.touched && passwordForm.controls.currentPassword.invalid) {
+                    <small>Ingresa tu contraseña actual.</small>
+                    }
+                </label>
+                <label class="profile-field">
+                    <span>Nueva contraseña</span>
+                    <input
+                        pInputText
+                        type="password"
+                        formControlName="newPassword"
+                        autocomplete="new-password"
+                    />
+                    @if (passwordForm.controls.newPassword.touched && passwordForm.controls.newPassword.invalid) {
+                    <small>Debe contener al menos 8 caracteres.</small>
+                    }
+                </label>
+                <label class="profile-field">
+                    <span>Confirmar contraseña</span>
+                    <input
+                        pInputText
+                        type="password"
+                        formControlName="confirmPassword"
+                        autocomplete="new-password"
+                    />
+                    @if (passwordForm.controls.confirmPassword.touched && passwordForm.controls.confirmPassword.invalid) {
+                    <small>Confirma la nueva contraseña.</small>
+                    } @else if (passwordForm.touched && passwordForm.hasError('passwordsMismatch')) {
+                    <small>Las contraseñas no coinciden.</small>
+                    }
+                </label>
+            </div>
+
+            <div class="profile-section-actions">
+                <button
+                    pButton
+                    type="submit"
+                    label="Actualizar contraseña"
+                    icon="pi pi-lock"
+                    [loading]="isSavingPassword()"
+                    [disabled]="passwordForm.invalid"
+                ></button>
+            </div>
+        </form>
+    </div>
+    }
+</p-dialog>

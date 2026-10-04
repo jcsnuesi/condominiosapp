@@ -1,0 +1,184 @@
+<p-toast></p-toast>
+
+<div class="card">
+  <div class="payments-history-header">
+    <span
+      class="font-semibold text-lg text-surface-900 dark:text-surface-0"
+      >
+      Payments History
+    </span>
+    <div class="payments-history-provider">
+      <label for="ownerPaymentProvider" class="text-sm text-surface-600">Provider</label>
+      <p-select
+        inputId="ownerPaymentProvider"
+        [options]="providerOptions"
+        optionLabel="label"
+        optionValue="value"
+        [(ngModel)]="selectedProvider"
+        placeholder="Select provider"
+      ></p-select>
+    </div>
+  </div>
+
+  @if (visible_spinner) {
+    <div class="flex justify-content-center p-4">
+      <p-progressSpinner></p-progressSpinner>
+    </div>
+  }
+
+  <p-table
+    #dt
+    [value]="bodyTableInfo"
+    [rows]="10"
+    [paginator]="true"
+    [globalFilterFields]="['alias', 'status', 'paymentStatus', 'txStatus']"
+    responsiveLayout="scroll"
+    styleClass="app-data-table owner-payments-table"
+    [tableStyle]="{ 'min-width': '70rem' }"
+    [rowHover]="true"
+    dataKey="id"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+    [showCurrentPageReport]="true"
+    >
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="alias">
+          Property <p-sortIcon field="alias" />
+        </th>
+        <th>Unit</th>
+        <th>Amount</th>
+        <th>Balance pendiente</th>
+        <th>Issue date</th>
+        <th>Invoice status</th>
+        <th>Payment status</th>
+        <th>Tx status</th>
+        <th>Provider</th>
+        <th>Actions</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-row>
+      <tr>
+        <td>{{ row.alias }}</td>
+        <td>{{ row.unit }}</td>
+        <td>{{ row.amounts | currency : (row.propertyDetails?.currency || 'DOP') }}</td>
+        <td>{{ pendingBalance(row) | currency : (row.propertyDetails?.currency || 'DOP') }}
+          @if (row.propertyDetails?.paymentWorkflow === 'bank_transfer' && pendingBalance(row) > 0) { <small class="block">Continúe con transferencias y adjunte el siguiente comprobante.</small> }
+        </td>
+        <td>{{ row.invoice_issue_date }}</td>
+        <td>
+          <p-tag
+            [value]="row.status"
+            [severity]="_stringFormating.getSeverity(row.status)"
+          ></p-tag>
+        </td>
+        <td>
+          <p-tag
+            [value]="row.paymentStatus"
+                        [severity]="
+                            _stringFormating.getSeverity(row.paymentStatus)
+                        "
+          ></p-tag>
+        </td>
+        <td>
+          <p-tag
+            [value]="row.txStatus"
+            [severity]="_stringFormating.getSeverity(row.txStatus)"
+          ></p-tag>
+        </td>
+        <td>{{ row.txProvider }}</td>
+        <td>
+          <div class="payments-history-actions">
+            <p-button icon="pi pi-upload" ariaLabel="Comprobante de transferencia" [rounded]="true" [outlined]="true" (onClick)="receiptInvoice = row; receiptDialogVisible = true" />
+            <p-button
+              icon="pi pi-credit-card"
+              [rounded]="true"
+              [outlined]="true"
+              severity="success"
+              [disabled]="!canPay(row)"
+              (onClick)="payInvoice(row)"
+            ></p-button>
+            <p-button
+              icon="pi pi-whatsapp"
+              [rounded]="true"
+              [outlined]="true"
+              severity="help"
+              (onClick)="openWhatsappDialog(row)"
+            ></p-button>
+            <p-button
+              icon="pi pi-file-pdf"
+              [rounded]="true"
+              [outlined]="true"
+              severity="danger"
+              (onClick)="editItem(row)"
+            ></p-button>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <p-dialog
+    header="WhatsApp payment message"
+    [(visible)]="whatsappDialogVisible"
+    [modal]="true"
+    [style]="{ width: '34rem' }"
+    [breakpoints]="{ '960px': '90vw' }"
+    >
+    <div class="flex flex-column gap-3">
+      <div class="flex flex-column gap-2">
+        <label for="whatsappType">Message type</label>
+        <p-select
+          inputId="whatsappType"
+          [options]="whatsappOptions"
+          optionLabel="label"
+          optionValue="value"
+          [(ngModel)]="whatsappForm.type"
+        ></p-select>
+      </div>
+
+      <div class="flex flex-column gap-2">
+        <label for="paymentLink">Payment link</label>
+        <input
+          id="paymentLink"
+          pInputText
+          [(ngModel)]="whatsappForm.paymentLink"
+          placeholder="Optional"
+          />
+      </div>
+
+      <div class="flex flex-column gap-2">
+        <label for="whatsappNote">Note</label>
+        <input
+          id="whatsappNote"
+          pInputText
+          maxlength="500"
+          [(ngModel)]="whatsappForm.note"
+          placeholder="Optional"
+          />
+      </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+      <p-button
+        label="Cancel"
+        icon="pi pi-times"
+        severity="secondary"
+        [outlined]="true"
+        (onClick)="whatsappDialogVisible = false"
+      ></p-button>
+      <p-button
+        label="Send"
+        icon="pi pi-send"
+        [loading]="whatsappLoading"
+        (onClick)="sendWhatsappReminder()"
+      ></p-button>
+    </ng-template>
+  </p-dialog>
+</div>
+
+<p-dialog header="Comprobante de transferencia" [(visible)]="receiptDialogVisible" [modal]="true" [style]="{ width: '60rem' }" [breakpoints]="{ '960px': '95vw' }">
+  @if (receiptDialogVisible && receiptInvoice) {
+    <app-bank-reconciliation [invoiceId]="receiptInvoice.invoiceId" [ownerId]="ownerIdInput" [condominiumId]="receiptInvoice.propertyDetails?.condominiumId?._id || ''" [ownerMode]="true" />
+  }
+</p-dialog>

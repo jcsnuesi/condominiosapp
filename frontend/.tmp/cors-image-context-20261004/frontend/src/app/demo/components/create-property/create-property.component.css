@@ -1,0 +1,608 @@
+/* ============================================
+   CREATE PROPERTY â€” COMPONENT STYLES
+   ============================================ */
+
+/* Page wrapper */
+.create-property-page {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+}
+
+@media (max-width: 640px) {
+    .create-property-page {
+        padding: 1.5rem 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .create-property-page {
+        padding: 1rem 0.75rem;
+    }
+}
+
+/* ---- Header ---- */
+.cp-page-header {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+}
+
+@media (max-width: 640px) {
+    .cp-page-header {
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .cp-page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+}
+
+.cp-kicker {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--property-primary);
+    margin-bottom: 0.15rem;
+}
+
+.cp-title {
+    margin: 0 0 0.2rem;
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.cp-subtitle {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--property-muted);
+}
+
+@media (max-width: 640px) {
+    .cp-title {
+        font-size: 1.3rem;
+    }
+
+    .cp-subtitle {
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .cp-kicker {
+        font-size: 0.65rem;
+    }
+
+    .cp-title {
+        font-size: 1.1rem;
+    }
+
+    .cp-subtitle {
+        font-size: 0.75rem;
+    }
+}
+
+/* ---- Stepper container ---- */
+.cp-stepper {
+    width: 100%;
+}
+
+/* ---- Step body (form area) ---- */
+.cp-step-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    padding: 1.5rem 0 0.5rem;
+}
+
+@media (max-width: 640px) {
+    .cp-step-body {
+        gap: 1rem;
+        padding: 1rem 0 0.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .cp-step-body {
+        gap: 0.75rem;
+        padding: 0.75rem 0 0.25rem;
+    }
+}
+
+/* ---- Field ---- */
+.cp-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.cp-field label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--property-ink);
+    letter-spacing: 0.01em;
+}
+
+@media (max-width: 640px) {
+    .cp-field label {
+        font-size: 0.78rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .cp-field label {
+        font-size: 0.75rem;
+    }
+}
+
+.cp-section-label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--property-ink);
+}
+
+@media (max-width: 640px) {
+    .cp-section-label {
+        font-size: 0.78rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .cp-section-label {
+        font-size: 0.75rem;
+    }
+}
+
+.cp-required {
+    color: #ef4444;
+}
+
+.cp-error-msg {
+    color: #ef4444;
+    font-size: 0.75rem;
+}
+
+@media (max-width: 480px) {
+    .cp-error-msg {
+        font-size: 0.7rem;
+    }
+}
+
+/* Two-column grid */
+.cp-field-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+@media (max-width: 640px) {
+    .cp-field-grid {
+        gap: 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .cp-field-grid {
+        grid-template-columns: 1fr;
+        gap: 0.6rem;
+    }
+}
+
+/* Make all inputs, selects, multiselects full-width */
+.cp-step-body input[pInputText],
+.cp-step-body p-select,
+.cp-step-body p-multiSelect,
+.cp-step-body p-inputNumber {
+    width: 100%;
+}
+
+:host ::ng-deep .cp-stepper .p-inputnumber,
+:host ::ng-deep .cp-stepper .p-select,
+:host ::ng-deep .cp-stepper .p-multiselect {
+    width: 100%;
+}
+
+/* ---- Avatar / photo upload ---- */
+.cp-avatar-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+@media (max-width: 480px) {
+    .cp-avatar-section {
+        gap: 0.4rem;
+    }
+}
+
+.cp-avatar-wrap {
+    position: relative;
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    cursor: pointer;
+    overflow: hidden;
+    border: 2px solid var(--property-line);
+    transition: border-color 0.2s;
+}
+
+@media (max-width: 640px) {
+    .cp-avatar-wrap {
+        width: 88px;
+        height: 88px;
+    }
+}
+
+@media (max-width: 480px) {
+    .cp-avatar-wrap {
+        width: 80px;
+        height: 80px;
+        border-width: 1.5px;
+    }
+}
+
+.cp-avatar-wrap:hover {
+    border-color: var(--property-primary);
+}
+
+.cp-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.cp-avatar-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 1.3rem;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+@media (max-width: 480px) {
+    .cp-avatar-overlay {
+        font-size: 1.1rem;
+    }
+}
+
+.cp-avatar-wrap:hover .cp-avatar-overlay {
+    opacity: 1;
+}
+
+.cp-avatar-hint {
+    font-size: 0.72rem;
+    color: var(--property-muted);
+    margin: 0;
+}
+
+@media (max-width: 480px) {
+    .cp-avatar-hint {
+        font-size: 0.68rem;
+    }
+}
+
+/* ---- Radio group â€” segmented control ---- */
+.cp-radio-group {
+    display: inline-flex;
+    background: #fff;
+    border-radius: 9px;
+    padding: 3px;
+    gap: 2px;
+    width: fit-content;
+}
+
+@media (max-width: 640px) {
+    .cp-radio-group {
+        border-radius: 8px;
+        padding: 2px;
+        gap: 1px;
+    }
+}
+
+@media (max-width: 480px) {
+    .cp-radio-group {
+        width: 100%;
+        flex-direction: column;
+        display: flex;
+    }
+}
+
+.cp-radio-option {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.45rem 1rem;
+    border-radius: 7px;
+    cursor: pointer;
+    font-size: 0.83rem;
+    font-weight: 500;
+    color: var(--property-muted);
+    transition: color 0.18s;
+    user-select: none;
+    white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+    .cp-radio-option {
+        padding: 0.4rem 0.85rem;
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .cp-radio-option {
+        white-space: normal;
+        padding: 0.5rem 0.75rem;
+        border-radius: 6px;
+        font-size: 0.78rem;
+        width: 100%;
+    }
+}
+
+.cp-radio-option.active {
+    background: #e8f2f5;
+    color: var(--property-ink);
+    box-shadow: none;
+}
+
+.cp-radio-option small {
+    color: inherit;
+    opacity: 0.6;
+    font-weight: 400;
+    display: inline;
+    font-size: 0.72rem;
+}
+
+/* Hide native radio circle â€” the segmented container is the visual indicator */
+:host ::ng-deep .cp-radio-group .p-radiobutton {
+    display: none !important;
+}
+
+/* ---- Unit preview ---- */
+.cp-preview-box {
+    background: #f5f8fb;
+    border: 1px solid var(--property-line);
+    border-radius: 10px;
+    padding: 0.85rem 1rem;
+}
+
+@media (max-width: 640px) {
+    .cp-preview-box {
+        border-radius: 8px;
+        padding: 0.75rem 0.85rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .cp-preview-box {
+        border-radius: 8px;
+        padding: 0.7rem 0.75rem;
+    }
+}
+
+.cp-preview-label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--property-muted);
+    display: block;
+    margin-bottom: 0.6rem;
+}
+
+@media (max-width: 480px) {
+    .cp-preview-label {
+        font-size: 0.74rem;
+        margin-bottom: 0.5rem;
+    }
+}
+
+.cp-preview-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+}
+
+@media (max-width: 640px) {
+    .cp-preview-chips {
+        gap: 0.3rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .cp-preview-chips {
+        gap: 0.25rem;
+    }
+}
+
+.cp-unit-chip {
+    font-size: 0.75rem;
+}
+
+@media (max-width: 480px) {
+    .cp-unit-chip {
+        font-size: 0.7rem;
+    }
+}
+
+/* ---- Info message ---- */
+.cp-info-msg {
+    display: block;
+}
+
+/* ---- Step footer (navigation bar) ---- */
+.cp-step-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 0 0.25rem;
+    border-top: 1px solid var(--property-line);
+    margin-top: 1rem;
+}
+
+@media (max-width: 640px) {
+    .cp-step-footer {
+        padding: 1rem 0 0;
+        margin-top: 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .cp-step-footer {
+        flex-direction: column;
+        gap: 0.75rem;
+        padding: 0.75rem 0 0;
+    }
+}
+
+/* ---- Validation states ---- */
+.input-error {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.15);
+}
+
+:host ::ng-deep .input-error-dropdown .p-select {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.15);
+}
+
+/* ---- Responsive buttons in footer ---- */
+@media (max-width: 480px) {
+    .cp-step-footer p-button {
+        width: 100%;
+    }
+
+    :host ::ng-deep .cp-step-footer .p-button {
+        width: 100%;
+    }
+
+    :host ::ng-deep .cp-step-footer .p-button .p-button-label {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+/* Match the palette, type hierarchy, and surfaces of SeePropertyComponent. */
+:host {
+    display: block;
+    min-width: 0;
+    --property-ink: #183153;
+    --property-muted: #66758d;
+    --property-line: #dce5ee;
+    --property-primary: #176b87;
+    --p-primary-color: var(--property-primary);
+    --p-primary-hover-color: #125b73;
+    --p-primary-active-color: #105d76;
+    --p-primary-contrast-color: #fff;
+    --p-text-color: var(--property-ink);
+    --p-text-muted-color: var(--property-muted);
+    --p-form-field-border-color: var(--property-line);
+    --p-form-field-hover-border-color: var(--property-primary);
+    --p-form-field-focus-border-color: var(--property-primary);
+    --p-form-field-color: var(--property-ink);
+    --p-form-field-placeholder-color: var(--property-muted);
+    --p-tabs-tab-active-color: var(--property-primary);
+    --p-tabs-tab-active-border-color: var(--property-primary);
+    --p-tabs-active-bar-background: var(--property-primary);
+    --p-tabs-tab-color: var(--property-muted);
+    --p-stepper-step-number-active-background: #e8f2f5;
+    --p-stepper-step-number-active-color: #105d76;
+    --p-stepper-step-number-active-border-color: var(--property-primary);
+    --p-stepper-step-title-active-color: var(--property-ink);
+    --p-stepper-step-title-color: var(--property-muted);
+    --p-stepper-separator-background: var(--property-line);
+}
+.create-property-page {
+    max-width: none;
+    margin: 0 0 2rem;
+    padding: 1.6rem;
+    color: var(--property-ink);
+    font-family: inherit;
+    border: 1px solid var(--property-line);
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: none;
+}
+.create-property-page .cp-page-header { align-items: center; gap: 1.25rem; margin-bottom: 1.5rem; }
+.cp-kicker { color: var(--property-primary); font-size: .72rem; font-weight: 800; letter-spacing: .1em; }
+.create-property-page .cp-title { margin: .3rem 0 .4rem; color: var(--property-ink); font-size: clamp(1.65rem, 3vw, 2.35rem); line-height: 1.1; letter-spacing: -.035em; }
+.create-property-page .cp-subtitle { margin: 0; color: var(--property-muted); font-size: 1rem; }
+.cp-field label, .cp-section-label { color: var(--property-ink); font-size: .82rem; font-weight: 650; }
+.cp-field-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.cp-field, .cp-field-grid > * { min-width: 0; }
+:host ::ng-deep .create-property-page .p-tablist-tab-list { background: #fff; border-color: var(--property-line); }
+:host ::ng-deep .create-property-page .p-tab { min-height: 44px; font-size: .9rem; font-weight: 700; }
+:host ::ng-deep .create-property-page .p-tabpanels { padding: 1.25rem 0 0; color: var(--property-ink); background: #fff; }
+:host ::ng-deep .cp-stepper .p-steppanels,
+:host ::ng-deep .cp-stepper .p-steppanel { padding: 0; color: var(--property-ink); background: #fff; }
+:host ::ng-deep .cp-stepper .p-step-title { font-size: .85rem; font-weight: 700; }
+:host ::ng-deep .cp-stepper .p-inputtext,
+:host ::ng-deep .cp-stepper .p-select,
+:host ::ng-deep .cp-stepper .p-multiselect { min-width: 0; min-height: 44px; border-color: var(--property-line); border-radius: 10px; color: var(--property-ink); font-size: .9rem; }
+:host ::ng-deep .cp-stepper .p-inputgroupaddon { color: var(--property-muted); background: #f5f8fb; border-color: var(--property-line); }
+/* Joined controls only round the outer corners, keeping the icon aligned. */
+:host ::ng-deep .cp-stepper .p-inputgroup {
+    width: 100%;
+    align-items: stretch;
+}
+:host ::ng-deep .cp-stepper .p-inputgroup > .p-inputgroupaddon:first-child {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 44px;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0;
+    border-radius: 10px 0 0 10px;
+    border-right-width: 0;
+}
+:host ::ng-deep .cp-stepper .p-inputgroup > .p-inputtext:last-child {
+    flex: 1 1 0;
+    width: 1%;
+    border-radius: 0 10px 10px 0;
+}
+:host ::ng-deep .cp-stepper .p-inputgroupaddon .pi {
+    font-size: 1rem;
+    line-height: 1;
+}
+.cp-avatar-wrap { padding: .2rem; border: 1px solid #cddae6; background: #e8f2f5; }
+.cp-avatar-img { border-radius: 50%; }
+.cp-avatar-hint { color: var(--property-muted); font-size: .76rem; }
+.cp-radio-group { padding: .25rem; gap: .2rem; max-width: 100%; border: 1px solid var(--property-line); border-radius: 12px; }
+.cp-radio-option { min-height: 44px; padding: .6rem .85rem; border-radius: 8px; font-weight: 700; }
+.cp-radio-option.active { color: #105d76; background: #e8f2f5; box-shadow: none; }
+.cp-radio-option:hover { background: #f1f5f8; }
+:host ::ng-deep .cp-unit-chip .p-tag { color: #105d76; background: #e8f2f5; font-size: .75rem; font-weight: 650; }
+:host ::ng-deep .cp-info-msg .p-message { color: #105d76; background: #e8f2f5; border: 1px solid var(--property-line); border-radius: 10px; box-shadow: none; }
+.cp-step-footer { gap: .75rem; }
+:host ::ng-deep .cp-step-footer .p-button { min-height: 44px; border-radius: 10px; color: #fff; background: var(--property-primary); border-color: var(--property-primary); font-weight: 700; box-shadow: none; }
+:host ::ng-deep .cp-step-footer .p-button:not(:disabled):hover { background: #125b73; border-color: #125b73; }
+:host ::ng-deep .cp-step-footer .p-button-outlined { color: var(--property-primary); background: #fff; border-color: var(--property-line); }
+:host ::ng-deep .cp-step-footer .p-button-outlined:not(:disabled):hover { color: #105d76; background: #e8f2f5; }
+@media (max-width: 680px) {
+    .create-property-page { padding: 1rem; }
+    .create-property-page .cp-page-header { flex-direction: column; align-items: stretch; }
+    :host ::ng-deep .cp-stepper .p-step { min-width: 0; }
+    :host ::ng-deep .cp-stepper .p-step-header { flex-direction: column; gap: .4rem; padding: .5rem .25rem; }
+    :host ::ng-deep .cp-stepper .p-step-title { font-size: .8rem; text-align: center; }
+}
+@media (max-width: 480px) {
+    .cp-field-grid { grid-template-columns: minmax(0, 1fr); }
+    :host ::ng-deep .create-property-page .p-tab { padding: .75rem; font-size: .82rem; }
+}

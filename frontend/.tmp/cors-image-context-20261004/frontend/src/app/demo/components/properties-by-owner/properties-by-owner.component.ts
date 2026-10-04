@@ -1,0 +1,400 @@
+import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule, NgForm } from '@angular/forms';
+import { ImportsModule } from '../../imports_primeng';
+import { HasPermissionsDirective } from 'src/app/has-permissions.directive';
+import { MessageService, ConfirmationService } from 'primeng/api';
+import { Router, ActivatedRoute } from '@angular/router';
+import { DialogModule, Dialog } from 'primeng/dialog';
+import { CondominioService } from '../../service/condominios.service';
+import { UserService } from '../../service/user.service';
+import { OwnerServiceService } from '../../service/owner-service.service';
+import { InvoiceService } from '../../service/invoice.service';
+import { Button } from 'primeng/button';
+import { global } from '../../service/global.service';
+import { KeysValuesPipe } from 'src/app/pipes/perservedOrder';
+import { FormatFunctions } from 'src/app/pipes/formating_text';
+import { OwnerRegistrationComponent } from '../owner-registration/owner-registration.component';
+
+interface OwnerDataInter {
+    id: string;
+    name?: string;
+    lastname?: string;
+    email?: string;
+    phone?: string;
+    gender?: { label: string } | string;
+    id_number?: string;
+}
+
+@Component({
+    selector: 'app-properties-by-owner',
+    imports: [
+        ImportsModule,
+        CommonModule,
+        FormsModule,
+        OwnerRegistrationComponent,
+    ],
+    providers: [
+        ConfirmationService,
+        CondominioService,
+        UserService,
+        OwnerServiceService,
+        FormatFunctions,
+    ],
+    templateUrl: './properties-by-owner.component.html',
+    styleUrl: './properties-by-owner.component.css',
+})
+export class PropertiesByOwnerComponent implements OnInit {
+    public title: string = 'Properties by Owner';
+    public propertiesOwner: any[] = [];
+    public unitEditActive: { valid: boolean; index: number }[] = [
+        {
+            valid: false,
+            index: -1,
+        },
+    ];
+    public unitsOptions: Array<{ label: string }> = [{ label: '' }];
+    public unitSelected: { label: string }[];
+    public parkingOptions: Array<{ label: number }>;
+    public parkingSelected: { label: number }[];
+    private token: string;
+    public showAvailableProperties: boolean = false;
+    public sendOwnerDataToPropertyRegistration: OwnerDataInter;
+    public url: string;
+    public editBtnStyle: {
+        severity: string;
+        icon: string;
+        class: string;
+    }[];
+    @Input() ownerData: any;
+    @Input('propertyData') propertyData: [] = [];
+    @Output() refreshOwnerProperties: EventEmitter<boolean> =
+        new EventEmitter();
+
+    constructor(
+        private _messageService: MessageService,
+        private _confirmationService: ConfirmationService,
+        private _condominioService: CondominioService,
+        private _userService: UserService,
+        private _ownerService: OwnerServiceService
+    ) {
+        this.token = this._userService.getToken();
+        this.url = global.url;
+
+        this.unitsOptions = [{ label: '' }];
+        this.unitSelected = [{ label: '' }];
+        this.parkingOptions = [
+            { label: 0 },
+            { label: 1 },
+            { label: 2 },
+            { label: 3 },
+            { label: 4 },
+            { label: 5 },
+        ];
+
+        this.parkingSelected = [{ label: 0 }];
+    }
+
+    ngOnInit(): void {
+        this.getActiveProperties();
+    }
+
+    getSeverity(status: string) {
+        return status == 'active' ? 'primary' : 'danger';
+    }
+
+    // Metodo para traer las propiedades activas de un propietario  addProperty
+    public availableUnitsList: any[] = [];
+    getActiveProperties(): void {
+        this._condominioService.getCondoWithInvoice(this.ownerData).subscribe({
+            next: (response) => {
+                const condominiums = Array.isArray(response?.condominium)
+                    ? response.condominium
+                    : [];
+
+                this.propertiesOwner = condominiums.map((condo) => {
+                    const address = condo?.addressId;
+                    const addressParts = [
+                        address?.street_1,
+                        address?.street_2,
+                        address?.sector_name,
+                        address?.city,
+                        address?.province,
+                        address?.zipcode,
+                    ].filter(Boolean);
+
+                    return {
+                        ownerId: condo.id,
+                        owner_data: condo.owner_data,
+                        id: address?._id ?? '',
+                        alias: address?.alias ?? '-',
+                        units: condo.condominium_unit,
+                        address: addressParts.join(', ') || '-',
+                        parkingsQty: condo.parkingsQty,
+                        pending_balance: condo.pending_balance,
+                        status: condo.status_property,
+                        showUnits: true,
+                        unitSelected: { label: condo.condominium_unit },
+                        parkingSelected: { label: condo.parkingsQty },
+                        unitsOptions: (Array.isArray(address?.availableUnits)
+                            ? address.availableUnits
+                            : []
+                        ).map((unit: any) => {
+                            return { label: unit };
+                        }),
+                    };
+                });
+
+                this.editBtnStyle = new Array(this.propertiesOwner.length).fill(
+                    {
+                        severity: 'warning',
+                        icon: 'pi pi-pencil',
+                        class: 'p-button-rounded hover:bg-yellow-600 hover:border-yellow-600 hover:text-white',
+                    }
+                );
+            },
+            error: (err) => {
+                console.log('ERROR', err);
+                this._messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Error fetching properties',
+                });
+            },
+        });
+    }
+
+    public invoiceFullData = [];
+    addNewProperty() {
+        if (!this.propertiesOwner.length) {
+            return;
+        }
+
+        this.showAvailableProperties = this.showAvailableProperties
+            ? false
+            : true;
+
+        this.sendOwnerDataToPropertyRegistration =
+            this.propertiesOwner[0].owner_data;
+        this.sendOwnerDataToPropertyRegistration.gender = {
+            label: this.propertiesOwner[0].owner_data.gender,
+        };
+    }
+
+    activarEditarUnit(index: any, data: any): void {
+        data.showUnits = data.showUnits ? false : true;
+
+        let btnConfig = this.editBtnStyle[index];
+
+        if (btnConfig.severity == 'success') {
+            this.updateProperty(
+                data,
+                data.unitSelected.label,
+                data.parkingSelected.label,
+                data.units
+            );
+        }
+
+        this.editBtnStyle[index] = {
+            severity: btnConfig.severity === 'warning' ? 'success' : 'warning',
+            icon:
+                btnConfig.icon === 'pi pi-pencil'
+                    ? 'pi pi-check'
+                    : 'pi pi-pencil',
+            class:
+                btnConfig.class ===
+                'p-button-rounded hover:bg-yellow-600 hover:border-yellow-600 hover:text-white'
+                    ? 'p-button-rounded hover:bg-green-600 hover:border-green-600 hover:text-white'
+                    : 'p-button-rounded hover:bg-yellow-600 hover:border-yellow-600 hover:text-white',
+        };
+    }
+
+    updateProperty(
+        data: any,
+        unitSelected: string,
+        parkingSelected: number,
+        currentUnit: string
+    ) {
+        // return;
+        this._confirmationService.confirm({
+            header: 'Confirm',
+            message: 'Do you want to save the changes?',
+            icon: 'pi pi-exclamation-triangle',
+            acceptButtonStyleClass:
+                'p-button-success hover:bg-green-600 hover:border-green-600 hover:text-white',
+            rejectButtonStyleClass:
+                'p-button-danger hover:bg-red-600 hover:border-red-600 hover:text-white',
+
+            accept: () => {
+                this._ownerService
+                    .updateUnitToOwner({
+                        ownerId: data.ownerId,
+                        propertyId: data.id,
+                        newUnit: unitSelected,
+                        parkingsQty: parkingSelected,
+                        unit: currentUnit,
+                    })
+                    .subscribe({
+                        next: (response) => {
+                            if (response.status === 'success') {
+                                this._messageService.add({
+                                    severity: 'success',
+                                    summary: 'Success',
+                                    detail: 'Property updated successfully',
+                                });
+
+                                this.getActiveProperties();
+                            } else {
+                                this._messageService.add({
+                                    severity: 'error',
+                                    summary: 'Error',
+                                    detail: 'Error updating property',
+                                });
+                            }
+                        },
+                        error: (err) => {
+                            console.log('ERROR', err);
+                            this._messageService.add({
+                                severity: 'error',
+                                summary: 'Error',
+                                detail: 'Error updating property',
+                            });
+                        },
+                    });
+            },
+            reject: () => {
+                this._messageService.add({
+                    severity: 'error',
+                    summary: 'error',
+                    detail: 'Changes not saved',
+                });
+            },
+        });
+    }
+
+    public loading: boolean = false;
+    addProperty(data: any, unitSelected: any, parkingSelected: any): void {
+        let { _id, ownerId } = data;
+
+        if (unitSelected.label === '' || parkingSelected.label === '') {
+            this._messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Please select a unit and parking space',
+            });
+            return;
+        }
+
+        this._confirmationService.confirm({
+            header: 'Confirm',
+            message: 'Do you want to add this property?',
+            icon: 'pi pi-exclamation-triangle',
+            acceptButtonStyleClass:
+                'p-button-success hover:bg-green-600 hover:border-green-600 hover:text-white',
+            rejectButtonStyleClass:
+                'p-button-danger hover:bg-red-600 hover:border-red-600 hover:text-white',
+
+            accept: () => {
+                this.loading = true;
+                this._ownerService
+                    .addUnitToOwner({
+                        addressId: _id,
+                        ownerId: ownerId,
+                        unit: unitSelected.label,
+                        parkingsQty: parkingSelected.label,
+                    })
+                    .subscribe({
+                        next: (response) => {
+                            if (response.status === 'success') {
+                                this._messageService.add({
+                                    severity: 'success',
+                                    summary: 'Success',
+                                    detail: 'Property added successfully',
+                                });
+                                this.getActiveProperties();
+                                this.showAvailableProperties = false;
+                                this.loading = false;
+                            } else {
+                                this._messageService.add({
+                                    severity: 'error',
+                                    summary: 'Error',
+                                    detail: 'Error adding property',
+                                });
+                                this.loading = false;
+                            }
+                        },
+                        error: (err) => {
+                            console.log('ERROR', err);
+                            this._messageService.add({
+                                severity: 'error',
+                                summary: 'Error',
+                                detail: 'Error adding property',
+                            });
+                            this.loading = false;
+                        },
+                    });
+            },
+            reject: () => {
+                this._messageService.add({
+                    severity: 'error',
+                    summary: 'error',
+                    detail: 'Changes not saved',
+                });
+            },
+        });
+    }
+
+    deleteUnit(addressId: string, unit: string): void {
+        this._confirmationService.confirm({
+            header: 'Confirm',
+            message: 'Do you want to delete this property?',
+            icon: 'pi pi-exclamation-triangle',
+            acceptButtonStyleClass:
+                'p-button-success hover:bg-green-600 hover:border-green-600 hover:text-white',
+            rejectButtonStyleClass:
+                'p-button-danger hover:bg-red-600 hover:border-red-600 hover:text-white',
+            accept: () => {
+                this._ownerService
+                    .deleteUnitToOwner({
+                        propertyId: addressId,
+                        ownerId: this.ownerData,
+                        unit: unit,
+                    })
+                    .subscribe({
+                        next: (response) => {
+                            if (response.status === 'success') {
+                                this._messageService.add({
+                                    severity: 'success',
+                                    summary: 'Success',
+                                    detail: 'Property deleted successfully',
+                                });
+                                this.getActiveProperties();
+                                this.refreshOwnerProperties.emit(true);
+                            } else {
+                                this._messageService.add({
+                                    severity: 'error',
+                                    summary: 'Error',
+                                    detail: 'Error deleting property',
+                                });
+                            }
+                        },
+                        error: (err) => {
+                            console.log('ERROR', err);
+                            this._messageService.add({
+                                severity: 'error',
+                                summary: 'Error',
+                                detail: 'Error deleting property',
+                            });
+                        },
+                    });
+            },
+            reject: () => {
+                this._messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Unit not deleted',
+                });
+            },
+        });
+    }
+}

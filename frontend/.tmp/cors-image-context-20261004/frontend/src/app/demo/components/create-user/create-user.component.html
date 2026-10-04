@@ -1,0 +1,388 @@
+<p-confirmDialog [style]="{ width: '28rem', maxWidth: 'calc(100vw - 2rem)' }" />
+<p-toast />
+<main class="create-user-page">
+    <header class="user-hero">
+        <div class="user-identity">
+            <span class="user-mark" aria-hidden="true"><i class="pi pi-users"></i></span>
+            <div class="user-hero-copy">
+                <span class="section-kicker">Administration</span>
+                <h1>User Management</h1>
+                <p>Manage your team's accounts, roles and access.</p>
+            </div>
+        </div>
+        <div class="user-hero-actions">
+            <button type="button" class="primary-action" (click)="createNewUser()">
+                <i class="pi pi-plus" aria-hidden="true"></i>
+                Create user
+            </button>
+            <button
+                type="button"
+                class="secondary-action"
+                (click)="deleteSelectedUsers()"
+                [disabled]="!selectedStaffs || !selectedStaffs.length"
+            >
+                <i class="pi pi-user-minus" aria-hidden="true"></i>
+                Inactivate
+            </button>
+        </div>
+    </header>
+
+    <section class="user-panel" aria-labelledby="user-directory-heading">
+    <p-table
+        #dt
+        [value]="managedUsers"
+        [rows]="10"
+        [paginator]="true"
+        [globalFilterFields]="['fullname', 'email', 'status', 'position', 'role']"
+        responsiveLayout="scroll"
+        styleClass="app-data-table create-user-table"
+        [tableStyle]="{ 'min-width': '68rem' }"
+        [(selection)]="selectedStaffs"
+        [rowHover]="true"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+        [showCurrentPageReport]="true"
+    >
+        <ng-template pTemplate="caption">
+            <div class="create-user-caption">
+                <div>
+                    <span class="section-kicker">Accounts</span>
+                    <h2 id="user-directory-heading">User directory</h2>
+                </div>
+                <p-iconField iconPosition="left" class="create-user-search">
+                    <p-inputIcon styleClass="pi pi-search"></p-inputIcon>
+                    <input
+                        pInputText
+                        type="text"
+                        aria-label="Search users"
+                        (input)="
+                            dt.filterGlobal($event.target.value, 'contains')
+                        "
+                        placeholder="Search..."
+                    />
+                </p-iconField>
+            </div>
+        </ng-template>
+        <ng-template pTemplate="header">
+            <tr>
+                <th style="width: 4rem">
+                    <p-tableHeaderCheckbox />
+                </th>
+
+                <th pSortableColumn="name" style="min-width: 15rem">
+                    Fullname <p-sortIcon field="name" />
+                </th>
+
+                <th>Email</th>
+                <th pSortableColumn="role">
+                    Role <p-sortIcon field="role" />
+                </th>
+                <th style="min-width: 10rem">Phone</th>
+                <th pSortableColumn="position">
+                    Position <p-sortIcon field="position" />
+                </th>
+                <th pSortableColumn="userStatus" style="min-width: 10rem">
+                    Status <p-sortIcon field="userStatus" />
+                </th>
+                <th style="min-width: 10rem">Create at</th>
+                <th style="min-width: 10rem">Action</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-userx>
+            <tr>
+                <td>
+                    <p-tableCheckbox [value]="userx" />
+                </td>
+
+                <td>
+                    <div class="create-user-person">
+                        <img
+                            class="avata-tbl"
+                            [alt]="userx.fullname"
+                            src="{{
+                                url + 'main-avatar/users/' + userx.avatar
+                            }}"
+                            width="40"
+                            height="40"
+                        />
+                        <div class="create-user-name">
+                            {{ userx.fullname | titlecase }}
+                        </div>
+                    </div>
+                </td>
+
+                <td>
+                    {{ userx.email }}
+                </td>
+                <td>
+                    {{ userx.role === 'STAFF_ADMIN' ? 'Staff Admin' : 'Staff' }}
+                </td>
+                <td>
+                    {{ userx.phone }}
+                </td>
+                <td>
+                    {{ upperCase(userx.position) }}
+                </td>
+                <td>
+                    <p-tag
+                        styleClass="user-status"
+                        [value]="userx.status"
+                        [severity]="getSeverity(userx.status)"
+                    />
+                </td>
+                <td>
+                    {{ getDate(userx.createdAt) }}
+                </td>
+                <td class="create-user-actions">
+                    <p-button
+                        icon="pi pi-ellipsis-v"
+                        [rounded]="true"
+                        [text]="true"
+                        severity="secondary"
+                        (onClick)="openUserMenu(rowMenu, $event, userx)"
+                        [ariaLabel]="'Actions for ' + userx.fullname"
+                        pTooltip="User actions"
+                    />
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="9">
+                    <div class="user-empty-state">
+                        <i class="pi pi-users" aria-hidden="true"></i>
+                        <strong>No users found</strong>
+                        <span>Create a user or adjust your search.</span>
+                    </div>
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="summary">
+            <div class="flex align-items-center justify-content-between">
+                Total users:
+                {{ totalRecords }}.
+            </div>
+        </ng-template>
+    </p-table>
+    </section>
+
+    <p-menu
+        #rowMenu
+        [popup]="true"
+        [model]="rowMenuItems"
+        appendTo="body"
+        styleClass="create-user-row-menu"
+    />
+
+    <app-access-management *ngIf="isOwnerAdmin()" />
+
+    <!-- USER DIALOG -->
+    <p-dialog
+        [(visible)]="userDialog"
+        [style]="{ width: '44rem', maxWidth: 'calc(100vw - 2rem)' }"
+        [breakpoints]="{ '960px': '90vw', '640px': '96vw' }"
+        [header]="dialogHeader"
+        [modal]="true"
+        styleClass="p-fluid create-user-dialog"
+    >
+        <ng-template pTemplate="content">
+            <form #staffAdminForm="ngForm" class="user-form-grid">
+                <div class="field user-field-role">
+                    <label for="role">Role</label>
+                    <p-select
+                        inputId="role"
+                        [options]="roleOptions"
+                        name="role"
+                        [(ngModel)]="selectedRole"
+                        optionLabel="label"
+                        [disabled]="btnLabel === 'Update'"
+                        required
+                    />
+                </div>
+
+                @if (selectedRole.code === 'STAFF') {
+                <div class="field user-field-condominium">
+                    <label for="condominium">Condominium</label>
+                    <p-select
+                        inputId="condominium"
+                        [options]="condominiumOptions"
+                        name="condominium"
+                        [(ngModel)]="selectedCondominium"
+                        optionLabel="label"
+                        placeholder="Select a condominium"
+                        [filter]="true"
+                        required
+                    />
+                </div>
+                }
+
+                <div class="field user-field-name">
+                    <label for="name">Name</label>
+                    <input
+                        type="text"
+                        pInputText
+                        id="name"
+                        #name="ngModel"
+                        name="name"
+                        [(ngModel)]="userModel.name"
+                        required
+                    />
+                    @if (name.touched && !name.dirty) {
+                    <small class="p-error"> Name is required. </small>
+                    }
+                </div>
+                <div class="field user-field-lastname">
+                    <label for="lastname">Lastname</label>
+                    <input
+                        type="text"
+                        pInputText
+                        id="lastname"
+                        #lastname="ngModel"
+                        name="lastname"
+                        [(ngModel)]="userModel.lastname"
+                        required
+                    />
+                    @if (lastname.touched && !lastname.dirty) {
+                    <small class="p-error"> Lastname is required. </small>
+                    }
+                </div>
+                <div class="field user-field-gender">
+                    <label for="genderLabel">Gender</label>
+                    <p-select
+                        inputId="genderLabel"
+                        [options]="genderModel"
+                        #genderx="ngModel"
+                        name="genderx"
+                        [(ngModel)]="userModel.gender"
+                        optionLabel="label"
+                        required
+                    />
+                </div>
+
+                <div class="field user-field-phone">
+                    <label for="phoneLabel">Phone</label>
+                    <input
+                        type="text"
+                        pInputText
+                        id="phoneLabel"
+                        #phone="ngModel"
+                        name="phone"
+                        [(ngModel)]="userModel.phone"
+                        maxlength="11"
+                        required
+                    />
+                    @if (phone.touched && !phone.dirty) {
+                    <small class="p-error"> Phone is required. </small>
+                    }
+                </div>
+
+                <div class="field user-field-position">
+                    <label for="positionLabel">Position</label>
+                    <p-select
+                        inputId="positionLabel"
+                        [options]="positionOptions"
+                        #position="ngModel"
+                        name="position"
+                        [(ngModel)]="userModel.position"
+                        optionLabel="label"
+                        required
+                    />
+                    @if (position.touched && !position.dirty) {
+                    <small class="p-error"> Position is required. </small>
+                    }
+                </div>
+
+                <div class="field user-field-email">
+                    <label for="emaillabel">Email</label>
+                    <input
+                        type="text"
+                        pInputText
+                        id="emaillabel"
+                        #email="ngModel"
+                        name="email"
+                        [(ngModel)]="userModel.email"
+                        pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                        required
+                    />
+                    @if (email.touched && !email.dirty) {
+                    <small class="p-error"> Email is required. </small>
+                    }
+                </div>
+
+                <div class="field user-field-permissions">
+                    <label>Acceso</label>
+                    <small
+                        >Después de crear el usuario, asigna sus políticas y
+                        condominios en la sección “Políticas y alcance”.</small
+                    >
+                </div>
+
+                <div class="field user-field-status" style="display: none">
+                    <label for="accountStatus">Account Status</label>
+                    <p-select
+                        [options]="accountStatusOptions"
+                        #accountStatus="ngModel"
+                        name="accountStatus"
+                        [(ngModel)]="userModel.status"
+                    />
+                    @if (accountStatus.touched && !accountStatus.dirty) {
+                    <small class="p-error"> Account Status is required. </small>
+                    }
+                </div>
+
+                @if (passwordActive) {
+                <div class="field user-field-password">
+                    <label for="passwordlabel">New Password</label>
+                    <input
+                        type="password"
+                        pInputText
+                        id="passwordlabel"
+                        #password="ngModel"
+                        (keyup)="verifyPasswordInput($event)"
+                        name="password"
+                        [(ngModel)]="userModel.password"
+                        required
+                    />
+                </div>
+                } @if (passwordActive) {
+                <div class="field user-field-repeat-password">
+                    <label for="repeatPasswordLabel">Repeat Password</label>
+                    <input
+                        type="password"
+                        pInputText
+                        id="repeatPasswordLabel"
+                        #repeatPassword="ngModel"
+                        (keyup)="verifyPasswordInput($event)"
+                        name="repeatPassword"
+                        [(ngModel)]="userModel.repeatPassword"
+                        required
+                    />
+                    <small
+                        [ngClass]="{
+                            'font-color-success': !passval,
+                            'font-color-fail': passval
+                        }"
+                        >{{ passMessage }}</small
+                    >
+                </div>
+                }
+            </form>
+        </ng-template>
+        <ng-template pTemplate="footer">
+            <p-button
+                severity="secondary"
+                styleClass="user-dialog-cancel"
+                [outlined]="true"
+                label="Cancel"
+                icon="pi pi-times"
+                (onClick)="hideDialog()"
+            />
+            <p-button
+                styleClass="user-dialog-save"
+                [label]="btnLabel"
+                #btnSave
+                icon="pi pi-check"
+                (onClick)="createUpdateUser(btnSave)"
+            />
+        </ng-template>
+    </p-dialog>
+</main>

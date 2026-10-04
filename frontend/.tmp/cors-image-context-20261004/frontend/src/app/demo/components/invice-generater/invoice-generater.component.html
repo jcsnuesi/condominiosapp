@@ -1,0 +1,123 @@
+<p-confirmDialog />
+<p-dialog
+  header="Generate Invoice"
+  [modal]="true"
+  [(visible)]="invoiceData.invoiceGenerator"
+  [draggable]="true"
+  [resizable]="false"
+  [style]="{ width: '30%' }"
+  [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
+  (onHide)="onHide()"
+  >
+  <form #invoiceForm="ngForm" class="size-full">
+    <h3>Create a new invoice.</h3>
+
+    <div class="mb-3">
+      <label for="username" class="font-semibold d-block mb-2"
+        >Choose to whom the invoice belongs to</label
+        >
+        <div class="mt-2"></div>
+        <p-select
+          (onClick)="onClickInvoiceOwnerMultiSelect()"
+          #invoiceOwnerMultiSelect="ngModel"
+          name="invoiceOwnerMultiSelect"
+          [options]="ownerSelected"
+          [(ngModel)]="invoiceInfo.ownerId"
+          optionLabel="label"
+          placeholder="Select Description..."
+          [disabled]="invoiceSetup"
+          />
+      </div>
+
+      <div class="mb-3">
+        <label for="username" class="font-semibold d-block mb-2"
+          >Payment description</label
+          >
+          <div class="mt-2"></div>
+          <p-select
+            #paymentDescriptionMultiSelect="ngModel"
+            name="paymentDescriptionMultiSelect"
+            [options]="paymentDescriptionSelected"
+            [(ngModel)]="invoiceInfo.paymentDescription"
+            optionLabel="label"
+            placeholder="Select Description..."
+            [disabled]="invoiceSetup"
+            />
+        </div>
+
+        <div class="mb-3">
+          <label for="amountLabel" class="font-semibold w-6rem d-block mb-2"
+            >Amount $</label
+            >
+            <div class="mt-2"></div>
+            <input
+              pInputText
+              type="text"
+              #amount="ngModel"
+              name="amount"
+              [(ngModel)]="invoiceInfo.amount"
+              id="amountLabel"
+              [disabled]="invoiceSetup"
+              />
+          </div>
+
+          <div class="mb-4">
+            <label
+              for="issueDatelabel"
+              class="font-semibold d-block w-6rem mb-2"
+              >Issue date</label
+              >
+              <div class="mt-2"></div>
+              <input
+                pInputText
+                type="date"
+                #issueDate="ngModel"
+                name="issueDate"
+                [(ngModel)]="invoiceInfo.issueDate"
+                id="issueDatelabel"
+                [disabled]="invoiceSetup"
+                required
+                />
+            </div>
+            <div class="mb-4">
+              <label
+                for="descriptions-label"
+                class="font-semibold d-block w-6rem mb-2"
+                >Additional notes (optional)</label
+                >
+                <div class="mt-2"></div>
+                <textarea
+                  rows="5"
+                  cols="30"
+                  pTextarea
+                  #description="ngModel"
+                  name="description"
+                  [(ngModel)]="invoiceInfo.description"
+                  id="descriptions-label"
+                  >
+                </textarea>
+              </div>
+              <hr />
+              @if (!invoiceSetup) {
+                <div class="mb-3 btn-invoices">
+                  <p-button label="Cancel" severity="danger" (click)="onHide()" />
+                  <p-button
+                    label="Save"
+                    icon="pi pi-check"
+                    (click)="saveInvoice()"
+                    [disabled]="invoiceForm.invalid"
+                    />
+                </div>
+              }
+
+              @if (invoiceSetup) {
+                <div>
+                  <p-button
+                    label="Generate now"
+                    severity="success"
+                    (click)="generateNow()"
+                    />
+                </div>
+              }
+            </form>
+          </p-dialog>

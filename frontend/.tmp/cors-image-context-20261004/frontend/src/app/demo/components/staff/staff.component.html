@@ -1,0 +1,749 @@
+<p-confirmDialog [style]="{ width: '28rem', maxWidth: 'calc(100vw - 2rem)' }" />
+<main class="staff-page">
+    <header class="staff-hero">
+        <div class="staff-identity">
+            <div class="staff-hero-copy">
+                <span class="staff-eyebrow">Administration</span>
+                <h1>Staff</h1>
+                <p class="staff-subtitle">
+                    Manage staff accounts, assignments, and access status.
+                </p>
+            </div>
+        </div>
+        <div class="staff-count" aria-label="Total staff records">
+            <span>{{ propertyDetailsVar?.length || 0 }}</span>
+            <small>records</small>
+        </div>
+    </header>
+    <div class="staff-table-desktop">
+        <p-table
+            #dt
+            styleClass="staff-table app-data-table"
+            [value]="propertyDetailsVar"
+            [(selection)]="staffSelected"
+            dataKey="_id"
+            responsiveLayout="scroll"
+            [tableStyle]="{ 'min-width': '70rem' }"
+            [rowHover]="true"
+            [rows]="10"
+            [showCurrentPageReport]="true"
+            [rowsPerPageOptions]="[10, 25, 50]"
+            [paginator]="true"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+            [filterDelay]="0"
+            [globalFilterFields]="globalFilters"
+            [sortField]="'createdAt'"
+            [sortOrder]="-1"
+        >
+            <ng-template pTemplate="caption">
+                <div class="staff-table-caption">
+                    <div class="staff-actions">
+                        <div class="btn-clear">
+                            <p-button
+                                [outlined]="true"
+                                icon="pi pi-filter-slash"
+                                label="Clear"
+                                (onClick)="clear(dt)"
+                            />
+                        </div>
+                    </div>
+                    <p-iconField iconPosition="left" class="staff-search">
+                        <p-inputIcon styleClass="pi pi-search" />
+                        <input
+                            pInputText
+                            type="text"
+                            [(ngModel)]="searchValue"
+                            (input)="
+                                dt.filterGlobal($event.target.value, 'contains')
+                            "
+                            placeholder="Search staff, phone, role..."
+                            aria-label="Search staff"
+                        />
+                    </p-iconField>
+                </div>
+            </ng-template>
+            <ng-template pTemplate="header">
+                <tr>
+                    <th style="width: 4rem">
+                        <p-tableHeaderCheckbox />
+                    </th>
+
+                    <th pSortableColumn="fullname" style="min-width: 14rem">
+                        <div
+                            class="flex justify-content-between align-items-center"
+                        >
+                            Fullname
+                            <p-sortIcon field="fullname" />
+                            <p-columnFilter
+                                type="text"
+                                field="fullname"
+                                display="menu"
+                                class="ml-auto"
+                            />
+                        </div>
+                    </th>
+                    <th
+                        *appHasPermissions="['admin']"
+                        pSortableColumn="phone"
+                        style="min-width: 8rem"
+                    >
+                        <div
+                            class="flex justify-content-between align-items-center"
+                        >
+                            Phone
+                            <p-sortIcon field="phone" />
+                            <p-columnFilter
+                                type="text"
+                                field="phone"
+                                display="menu"
+                                class="ml-auto"
+                            />
+                        </div>
+                    </th>
+                    <th pSortableColumn="gender" style="min-width: 4rem">
+                        <div
+                            class="flex justify-content-between align-items-center"
+                        >
+                            Gender
+                            <p-sortIcon field="gender" />
+                            <p-columnFilter
+                                type="text"
+                                field="gender"
+                                display="menu"
+                                class="ml-auto"
+                            />
+                        </div>
+                    </th>
+                    <th pSortableColumn="condo_alias" style="min-width: 10rem">
+                        <div
+                            class="flex justify-content-between align-items-center"
+                        >
+                            Condominium name
+                            <p-sortIcon field="condo_alias" />
+                            <p-columnFilter
+                                type="text"
+                                field="condo_alias"
+                                display="menu"
+                                class="ml-auto"
+                            />
+                        </div>
+                    </th>
+                    <th pSortableColumn="position" style="min-width: 10rem">
+                        <div
+                            class="flex justify-content-between align-items-center"
+                        >
+                            Role
+                            <p-sortIcon field="position" />
+                            <p-columnFilter
+                                type="text"
+                                field="position"
+                                display="menu"
+                                class="ml-auto"
+                            />
+                        </div>
+                    </th>
+
+                    <th pSortableColumn="createdAt" style="min-width: 10rem">
+                        <div
+                            class="flex justify-content-between align-items-center"
+                        >
+                            Start date
+                            <p-sortIcon field="createdAt" />
+                            <p-columnFilter
+                                type="date"
+                                field="createdAt"
+                                display="menu"
+                                class="ml-auto"
+                            />
+                        </div>
+                    </th>
+
+                    <th pSortableColumn="status" style="min-width: 10rem">
+                        <div
+                            class="flex justify-content-between align-items-center"
+                        >
+                            Status
+                            <p-sortIcon field="status" />
+                            <p-columnFilter
+                                field="status"
+                                matchMode="equals"
+                                display="menu"
+                                class="ml-auto"
+                            >
+                                <ng-template
+                                    pTemplate="filter"
+                                    let-value
+                                    let-filter="filterCallback"
+                                >
+                                    <p-select
+                                        [ngModel]="value"
+                                        [options]="statuses"
+                                        (onChange)="filter($event.value)"
+                                        placeholder="Any"
+                                    >
+                                        <ng-template
+                                            let-option
+                                            pTemplate="item"
+                                        >
+                                            <p-tag
+                                                [value]="option.label"
+                                                [severity]="
+                                                    getSeverity(option.label)
+                                                "
+                                            />
+                                        </ng-template>
+                                    </p-select>
+                                </ng-template>
+                            </p-columnFilter>
+                        </div>
+                    </th>
+
+                    <th style="width: 5rem"></th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-staff>
+                <tr
+                    class="p-selectable-row"
+                    [ngClass]="{
+                        'inactive-row': staff.status === 'inactive'
+                    }"
+                >
+                    <td>
+                        <p-tableCheckbox [value]="staff" />
+                    </td>
+                    <td>
+                        <div class="staff-person">
+                            <img
+                                class="avata-tbl"
+                                [alt]="staff?.fullname"
+                                src="{{ url + 'avatar-staff/' + staff.avatar }}"
+                                width="45px"
+                                height="45px"
+                                style="vertical-align: middle"
+                            />
+                            <div class="staff-person-meta">
+                                {{ staff.fullname | titlecase }}
+                            </div>
+                        </div>
+                    </td>
+
+                    <td *appHasPermissions="['admin']">
+                        {{ staff?.phone }}
+                    </td>
+                    <td>
+                        {{ genderFormat(staff.gender) }}
+                    </td>
+                    <td>
+                        {{ staff.condo_alias | titlecase }}
+                    </td>
+                    <td>
+                        {{ staff.position | titlecase }}
+                    </td>
+
+                    <td>
+                        {{ staff.createdAt | date : "MM/dd/yyyy" }}
+                    </td>
+
+                    <td>
+                        <p-tag
+                            [value]="staff.status"
+                            [severity]="getSeverity(staff.status)"
+                        />
+                    </td>
+
+                    <td style="text-align: center">
+                        <p-button
+                            #btnInactiveStaff
+                            severity="secondary"
+                            (click)="showDialog(staff)"
+                            icon="pi pi-cog"
+                            [ariaLabel]="'Edit ' + staff.fullname"
+                            *appHasPermissions="['admin', 'staff_admin']"
+                        />
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="9">
+                        <div class="staff-empty">No staff found.</div>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+
+    <section class="staff-mobile-list" aria-label="Staff records">
+        <div class="staff-mobile-toolbar">
+            <p-iconField iconPosition="left" class="staff-search">
+                <p-inputIcon styleClass="pi pi-search" />
+                <input
+                    pInputText
+                    type="text"
+                    [(ngModel)]="searchValue"
+                    (input)="dt.filterGlobal($event.target.value, 'contains')"
+                    placeholder="Search staff, phone, role..."
+                    aria-label="Search staff"
+                />
+            </p-iconField>
+        </div>
+
+        @if ( (dt.filteredValue || propertyDetailsVar)?.length) {
+        <p-accordion class="staff-mobile-accordion" [multiple]="true">
+            @for ( staff of dt.filteredValue || propertyDetailsVar ; track
+            staff) {
+            <p-accordion-panel
+                [value]="staff._id"
+                [ngClass]="{
+                    'inactive-mobile-record': staff.status === 'inactive'
+                }"
+            >
+                <p-accordion-header>
+                    <div class="staff-mobile-header">
+                        <img
+                            class="staff-mobile-avatar"
+                            [alt]="staff?.fullname"
+                            loading="lazy"
+                            src="{{ url + 'avatar-staff/' + staff.avatar }}"
+                        />
+                        <div class="staff-mobile-title">
+                            <strong>{{ staff.fullname | titlecase }}</strong>
+                            <span>{{ staff.position | titlecase }}</span>
+                        </div>
+                        <p-tag
+                            [value]="staff.status"
+                            [severity]="getSeverity(staff.status)"
+                        />
+                    </div>
+                </p-accordion-header>
+                <p-accordion-content>
+                    <div class="staff-mobile-details">
+                        <div
+                            class="staff-mobile-field"
+                            *appHasPermissions="['admin']"
+                        >
+                            <span>Phone</span>
+                            <strong>{{ staff?.phone }}</strong>
+                        </div>
+                        <div class="staff-mobile-field">
+                            <span>Gender</span>
+                            <strong>{{ genderFormat(staff.gender) }}</strong>
+                        </div>
+                        <div class="staff-mobile-field">
+                            <span>Condominium</span>
+                            <strong>{{ staff.condo_alias | titlecase }}</strong>
+                        </div>
+                        <div class="staff-mobile-field">
+                            <span>Role</span>
+                            <strong>{{ staff.position | titlecase }}</strong>
+                        </div>
+                        <div class="staff-mobile-field">
+                            <span>Start date</span>
+                            <strong>{{
+                                staff.createdAt | date : "MM/dd/yyyy"
+                            }}</strong>
+                        </div>
+                        <div class="staff-mobile-field">
+                            <span>Status</span>
+                            <strong>{{ staff.status }}</strong>
+                        </div>
+                    </div>
+                    <div
+                        class="staff-mobile-actions"
+                        *appHasPermissions="['admin', 'staff_admin']"
+                    >
+                        <p-button
+                            severity="secondary"
+                            icon="pi pi-cog"
+                            label="Edit"
+                            styleClass="staff-mobile-edit-button"
+                            (click)="showDialog(staff)"
+                        />
+                    </div>
+                </p-accordion-content>
+            </p-accordion-panel>
+            }
+        </p-accordion>
+        } @else {
+        <div class="staff-empty">No staff found.</div>
+        }
+    </section>
+</main>
+
+<p-toast />
+
+<!-- ******************DIALOG COMPONENT******************
+                  -->
+
+@if (visibleStaff) {
+<p-dialog
+    header="Staff Information"
+    [modal]="true"
+    [(visible)]="visibleStaff"
+    styleClass="staff-dialog"
+    [style]="{ width: '50rem', maxWidth: 'calc(100vw - 2rem)' }"
+    [breakpoints]="{ '1199px': '78vw', '575px': '95vw' }"
+>
+    @if (submitStatus) {
+    <div class="createBoox-size">
+        <p-progressSpinner ariaLabel="loading" />
+    </div>
+    }
+    <form #staffUpdateForm="ngForm" (ngSubmit)="update(staffUpdateForm)">
+        <div class="avatar">
+            <div class="avatar-div">
+                <img
+                    class="avatar-img"
+                    #avatar
+                    name="avatar"
+                    src="{{ previwImageEdit }}"
+                    alt="avatar"
+                    width="250px"
+                    height="230px"
+                />
+                <p-fileUpload
+                    styleClass="cp-file-upload"
+                    class="avatar-btn"
+                    mode="basic"
+                    chooseLabel="Choose"
+                    chooseIcon="pi pi-upload"
+                    name="demo[]"
+                    url="https://www.primefaces.org/cdn/api/upload.php"
+                    accept="image/*"
+                    maxFileSize="1000000"
+                    (onSelect)="onUpload($event)"
+                />
+            </div>
+        </div>
+        <p-panel header="Basic Info">
+            <div class="staffInfo">
+                <div class="all-info">
+                    <p-inputGroup>
+                        <p-inputGroupAddon>
+                            <i class="pi pi-user"></i>
+                        </p-inputGroupAddon>
+                        <input
+                            pInputText
+                            [ngClass]="{
+                                'input-success': name.valid,
+                                'input-error ': name.touched && !name.dirty
+                            }"
+                            #name="ngModel"
+                            [(ngModel)]="dataToUpdate.name"
+                            name="name"
+                            type="text"
+                            maxlength="30"
+                            required
+                            placeholder="Name"
+                        />
+                    </p-inputGroup>
+                    @if (name.touched && !name.valid) {
+                    <small class="p-error">Required.</small>
+                    }
+                </div>
+                <div class="all-info">
+                    <p-inputGroup>
+                        <p-inputGroupAddon>
+                            <i class="pi pi-user"></i>
+                        </p-inputGroupAddon>
+                        <input
+                            pInputText
+                            [ngClass]="{
+                                'input-success': lastname.valid,
+                                'input-error ':
+                                    lastname.touched && !lastname.dirty
+                            }"
+                            #lastname="ngModel"
+                            [(ngModel)]="dataToUpdate.lastname"
+                            name="lastname"
+                            type="text"
+                            maxlength="30"
+                            required
+                            placeholder="Last name"
+                        />
+                    </p-inputGroup>
+                    @if (lastname.touched && !lastname.valid) {
+                    <small class="p-error">Required.</small>
+                    }
+                </div>
+            </div>
+            <div class="staffInfo">
+                <div class="all-info">
+                    <p-inputGroup>
+                        <p-inputGroupAddon>
+                            <i class="pi pi-users"></i>
+                        </p-inputGroupAddon>
+                        <div class="dropdown-class" #editGenderRef>
+                            <p-select
+                                #editgender="ngModel"
+                                name="gender"
+                                [options]="genderOptions"
+                                [(ngModel)]="dataToUpdate.gender"
+                                optionLabel="label"
+                                placeholder="Select a gender"
+                                required
+                            />
+                        </div>
+                    </p-inputGroup>
+                    @if (editgender.touched && !editgender.valid) {
+                    <small class="p-error">Required.</small>
+                    }
+                </div>
+                <div class="all-info">
+                    <p-inputGroup>
+                        <p-inputGroupAddon>
+                            <i class="pi pi-calendar-minus"></i>
+                        </p-inputGroupAddon>
+                        <p-datepicker
+                            styleClass="staff-date-control"
+                            [ngClass]="{
+                                'ng-valid input-success': dob.valid,
+                                'ng-invalid ng-dirty': dob.touched && !dob.valid
+                            }"
+                            #dob="ngModel"
+                            name="dob"
+                            [(ngModel)]="dataToUpdate.dob"
+                            [showButtonBar]="true"
+                        />
+                    </p-inputGroup>
+                    @if (dob.touched && !dob.valid) {
+                    <small class="p-error">Required.</small>
+                    }
+                </div>
+            </div>
+            <div class="staffInfo">
+                <div class="all-info">
+                    <p-inputGroup>
+                        <p-inputGroupAddon>
+                            <i class="pi pi-mobile"></i>
+                        </p-inputGroupAddon>
+                        <input
+                            pInputText
+                            [ngClass]="{
+                                'input-success': phoneEdit.valid,
+                                'input-error':
+                                    phoneEdit.touched && !phoneEdit.dirty
+                            }"
+                            #phoneEdit="ngModel"
+                            [(ngModel)]="dataToUpdate.phone"
+                            name="phoneEdit"
+                            type="text"
+                            maxlength="11"
+                            minlength="10"
+                            required
+                        />
+                    </p-inputGroup>
+                    @if (phoneEdit.touched && !phoneEdit.valid) {
+                    <small class="p-error">Required.</small>
+                    }
+                </div>
+            </div>
+        </p-panel>
+        <div class="mt-5"></div>
+        <p-panel header="Work info">
+            <div class="staffInfo">
+                <div class="all-info">
+                    <p-inputGroup>
+                        <p-inputGroupAddon>
+                            <i class="pi pi-building"></i>
+                        </p-inputGroupAddon>
+                        <div class="dropdown-class" #editbuildingRef>
+                            <p-select
+                                #building="ngModel"
+                                name="building"
+                                [options]="condominioList"
+                                [(ngModel)]="dataToUpdate.condo_id"
+                                [virtualScroll]="true"
+                                [virtualScrollItemSize]="40"
+                                optionLabel="label"
+                                placeholder="Select a condominium"
+                                required
+                            />
+                        </div>
+                    </p-inputGroup>
+                    @if (building.touched && !building.valid) {
+                    <small class="p-error">Required.</small>
+                    }
+                </div>
+                <div class="all-info">
+                    <p-inputGroup>
+                        <p-inputGroupAddon>
+                            <i class="pi pi-briefcase"></i>
+                        </p-inputGroupAddon>
+                        <div class="dropdown-class" #editpositionRef>
+                            <p-select
+                                #position="ngModel"
+                                name="position"
+                                [options]="positionOptions"
+                                [(ngModel)]="dataToUpdate.position"
+                                optionLabel="label"
+                                placeholder="Select a position"
+                                required
+                            />
+                        </div>
+                    </p-inputGroup>
+                    @if (position.touched && !position.valid) {
+                    <small class="p-error">Required.</small>
+                    }
+                </div>
+            </div>
+            <div class="staffInfo">
+                <div class="all-info">
+                    <p-inputGroup>
+                        <p-inputGroupAddon>
+                            <i class="pi pi-at"></i>
+                        </p-inputGroupAddon>
+                        <input
+                            pInputText
+                            [ngClass]="{
+                                'input-success': email.valid,
+                                'input-error ': email.touched && !email.dirty
+                            }"
+                            #email="ngModel"
+                            [(ngModel)]="dataToUpdate.email"
+                            name="email"
+                            type="email"
+                            maxlength="80"
+                            email
+                            required
+                            placeholder="Email address"
+                        />
+                    </p-inputGroup>
+                    @if (email.touched && !email.valid) {
+                    <small class="p-error">Enter a valid email.</small>
+                    }
+                </div>
+                <div class="all-info">
+                    <p-inputGroup>
+                        <p-inputGroupAddon>
+                            <i class="pi pi-user-edit"></i>
+                        </p-inputGroupAddon>
+                        <div class="dropdown-class" #editStatusRef>
+                            <p-select
+                                #statusStaffC="ngModel"
+                                name="statusStaffC"
+                                [(ngModel)]="dataToUpdate.status"
+                                [options]="statusStaff"
+                                placeholder="Choose account's status"
+                            >
+                                <ng-template let-option pTemplate="item">
+                                    <p-tag
+                                        [value]="option.label"
+                                        [severity]="getSeverity(option.code)"
+                                    >
+                                    </p-tag>
+                                </ng-template>
+                            </p-select>
+                        </div>
+                    </p-inputGroup>
+                    @if (building.touched && !building.valid) {
+                    <small class="p-error">Required.</small>
+                    }
+                </div>
+            </div>
+            @if (!canManagePasswordWithoutVerification) {
+            <div class="staffInfo">
+                <div class="all-info">
+                    <p-inputGroup>
+                        <p-inputGroupAddon>
+                            <i class="pi pi-lock"></i>
+                        </p-inputGroupAddon>
+                        <input
+                            pInputText
+                            [ngClass]="{
+                                'input-success':
+                                    currentPassword.valid && passwordMatch,
+                                'input-error ':
+                                    currentPassword.touched &&
+                                    !currentPassword.dirty
+                            }"
+                            #currentPassword="ngModel"
+                            name="currentPassword"
+                            type="password"
+                            maxlength="12"
+                            minlength="8"
+                            [(ngModel)]="dataToUpdate.currentPassword"
+                            placeholder="Current password"
+                            (keyup)="verifyPasswordAPI($event)"
+                        />
+                    </p-inputGroup>
+                    @if ( currentPassword.touched && !currentPassword.valid ) {
+                    <small class="p-error">Required.</small>
+                    } @if (statusApi) {
+                    <small
+                        [ngClass]="{
+                            'font-color-success':
+                                currentPasswordMsg == 'Password Match',
+                            'font-color-fail':
+                                currentPasswordMsg == 'Wrong password'
+                        }"
+                        >{{ currentPasswordMsg }}</small
+                    >
+                    }
+                </div>
+            </div>
+            } @if (canEditPassword) {
+            <div class="staffInfo">
+                <div class="all-info">
+                    <p-inputGroup>
+                        <p-inputGroupAddon>
+                            <i class="pi pi-key"></i>
+                        </p-inputGroupAddon>
+                        <p-password
+                            #password="ngModel"
+                            [(ngModel)]="dataToUpdate.password"
+                            name="password"
+                            minlength="10"
+                            maxlength="30"
+                            weakLabel="Too simple"
+                            mediumLabel="Average complexity"
+                            strongLabel="Complex password"
+                            placeholder="New password"
+                        />
+                    </p-inputGroup>
+                </div>
+                <div class="all-info">
+                    <p-inputGroup>
+                        <p-inputGroupAddon>
+                            <i class="pi pi-key"></i>
+                        </p-inputGroupAddon>
+                        <p-password
+                            #password_verify="ngModel"
+                            [(ngModel)]="dataToUpdate.password_verify"
+                            name="password_verify"
+                            minlength="10"
+                            maxlength="30"
+                            placeholder="Repeat password"
+                            (keyup)="verifyPasswordInput($event)"
+                        />
+                    </p-inputGroup>
+                    @if (dataToUpdate.password_verify) {
+                    <small
+                        [ngClass]="{
+                            'font-color-success':
+                                passMessage == 'Password Match',
+                            'font-color-fail':
+                                passMessage == 'Password does not match'
+                        }"
+                        >{{ passMessage }}</small
+                    >
+                    }
+                </div>
+            </div>
+            }
+            <!-- <div class="staffInfo">
+              
+            </div> -->
+        </p-panel>
+        <div class="btn-staff">
+            <button
+                pButton
+                type="submit"
+                label="Update"
+                [disabled]="!staffUpdateForm.valid"
+                icon="pi pi-check"
+            ></button>
+        </div>
+    </form>
+</p-dialog>
+}

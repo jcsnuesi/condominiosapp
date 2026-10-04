@@ -1,0 +1,46 @@
+import { NgModule } from '@angular/core';
+import { HashLocationStrategy, LocationStrategy } from '@angular/common';
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
+import { AppComponent } from './app.component';
+import { AppRoutingModule } from './app-routing.module';
+import { AppLayoutModule } from './layout/app.layout.module';
+import { NotfoundComponent } from './demo/components/notfound/notfound.component';
+import { ProductService } from './demo/service/product.service';
+import { CountryService } from './demo/service/country.service';
+import { CustomerService } from './demo/service/customer.service';
+import { EventService } from './demo/service/event.service';
+import { IconService } from './demo/service/icon.service';
+import { NodeService } from './demo/service/node.service';
+import { PhotoService } from './demo/service/photo.service';
+import { UserGuard } from './demo/service/routing.guard';
+import { UserService } from './demo/service/user.service';
+import { HasRoleDirective } from './has-role.directive';
+import { AuthInterceptor } from './demo/service/auth.interceptor';
+import { providePrimeNG } from 'primeng/config';
+import Aura from '@primeuix/themes/aura';
+
+@NgModule({
+    declarations: [AppComponent, NotfoundComponent],
+    imports: [AppRoutingModule, AppLayoutModule, HasRoleDirective],
+    providers: [
+        { provide: LocationStrategy, useClass: HashLocationStrategy },
+        CountryService,
+        CustomerService,
+        EventService,
+        IconService,
+        NodeService,
+        PhotoService,
+        ProductService,
+        UserGuard,
+        UserService,
+        { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
+        providePrimeNG({
+            theme: {
+                preset: Aura,
+            },
+            ripple: true,
+        }),
+    ],
+    bootstrap: [AppComponent],
+})
+export class AppModule {}

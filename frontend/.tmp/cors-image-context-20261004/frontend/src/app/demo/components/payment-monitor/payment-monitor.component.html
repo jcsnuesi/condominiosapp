@@ -1,0 +1,417 @@
+<p-toast></p-toast>
+<main class="payment-monitor">
+    <header class="monitor-hero">
+        <span class="section-kicker">Finance</span>
+        <h1>Payment Transactions Monitor</h1>
+        <p>Facturas por propiedad y seguimiento de transacciones y conciliación.</p>
+    </header>
+    <app-bank-reconciliation [condominiumId]="filters.condominiumId" [condominiums]="propertyOptions" [ownerMode]="isOwner" (condominiumIdChange)="onBankCondominiumChange($event)" />
+    <section class="monitor-panel" aria-labelledby="payment-filters-heading">
+        <div class="panel-heading"><span class="section-kicker">Transactions</span><h2 id="payment-filters-heading">Payment filters</h2></div>
+        <div class="filters-grid">
+          <div class="field">
+            <label for="condominiumId">{{ isOwner ? 'Property' : 'Condominium' }}</label>
+            <p-select inputId="condominiumId" [options]="propertyOptions"
+              [ariaLabel]="isOwner ? 'Property' : 'Condominium'"
+              optionLabel="label" optionValue="value" [filter]="true"
+              [loading]="optionsLoading" [disabled]="optionsLoading"
+              placeholder="Select a property" [(ngModel)]="filters.condominiumId"
+              (onChange)="onPropertyChange(); applyFilters()"></p-select>
+            </div>
+
+            <div class="field">
+              <label for="unitNumber">Unit</label>
+              <p-select inputId="unitNumber" [options]="unitOptions"
+                ariaLabel="Unit"
+                optionLabel="label" optionValue="value" [filter]="true"
+                [disabled]="!filters.condominiumId" [(ngModel)]="filters.unitNumber"
+                (onChange)="applyFilters()"></p-select>
+            </div>
+
+
+
+              <div class="field">
+                <label for="provider">Provider</label>
+                <p-select
+                  inputId="provider"
+                  ariaLabel="Provider"
+                  [options]="providerOptions"
+                  optionLabel="label"
+                  optionValue="value"
+                  [(ngModel)]="filters.provider"
+                  (onChange)="onProviderChange()"
+                ></p-select>
+                <button type="button" class="provider-link" (click)="openProviderDialog()">Administrar proveedores</button>
+              </div>
+
+              @if (filters.provider === 'TRANSFERENCIA') {
+                <div class="field">
+                  <label for="bankName">Banco</label>
+                  <p-select inputId="bankName" [options]="bankOptions" optionLabel="label"
+                    ariaLabel="Banco"
+                    optionValue="value" [filter]="true" [(ngModel)]="filters.bankName"
+                    (onChange)="applyFilters()"></p-select>
+                </div>
+              }
+
+              <div class="field">
+                <label for="status">Status</label>
+                <p-select
+                  inputId="status"
+                  ariaLabel="Status"
+                  [options]="statusOptions"
+                  optionLabel="label"
+                  optionValue="value"
+                  [(ngModel)]="filters.status"
+                  (onChange)="applyFilters()"
+                ></p-select>
+              </div>
+
+              <div class="field">
+                <label for="reconciliationStatus">Reconciliation</label>
+                <p-select
+                  inputId="reconciliationStatus"
+                  ariaLabel="Reconciliation"
+                  [options]="reconciliationFilterOptions"
+                  optionLabel="label"
+                  optionValue="value"
+                  [(ngModel)]="filters.reconciliationStatus"
+                  (onChange)="applyFilters()"
+                ></p-select>
+              </div>
+
+              <div class="field">
+                <label for="attemptedFrom">From</label>
+                <input
+                  id="attemptedFrom"
+                  pInputText
+                  type="date"
+                  [(ngModel)]="filters.attemptedFrom"
+                  [max]="filters.attemptedTo || null"
+                  (ngModelChange)="applyFilters()"
+                  />
+                </div>
+
+                <div class="field">
+                  <label for="attemptedTo">To</label>
+                  <input
+                    id="attemptedTo"
+                    pInputText
+                    type="date"
+                    [(ngModel)]="filters.attemptedTo"
+                    [min]="filters.attemptedFrom || null"
+                    (ngModelChange)="applyFilters()"
+                    />
+                  </div>
+                </div>
+
+                <p class="text-sm text-color-secondary">Las fechas filtran el intento de pago; si la factura aún no tiene intentos, se usa su fecha de emisión.</p>
+                <div class="toolbar">
+                  <p-button
+                    styleClass="monitor-primary-action"
+                    label="Apply filters"
+                    icon="pi pi-filter"
+                    (onClick)="applyFilters()"
+                  ></p-button>
+                  <p-button
+                    label="Export CSV"
+                    icon="pi pi-download"
+                    severity="secondary"
+                    [outlined]="true"
+                    (onClick)="exportCsv()"
+                  ></p-button>
+                  @if (!isOwner) { <p-button
+                    label="Import reconciliation"
+                    icon="pi pi-upload"
+                    severity="secondary"
+                    [outlined]="true"
+                    (onClick)="openImportDialog()"
+                  ></p-button> }
+
+                </div>
+              </section>
+    <section class="monitor-panel" aria-label="Payment transactions">
+        <div class="monitor-list-toolbar">
+            <button type="button" class="clear-action" (click)="clearFilters()"><i class="pi pi-filter-slash" aria-hidden="true"></i>Clear filters</button>
+            <form class="monitor-search" (ngSubmit)="applyFilters()">
+                <i class="pi pi-search" aria-hidden="true"></i>
+                <input pInputText type="search" name="invoiceSearch" id="invoiceId" [(ngModel)]="filters.invoiceId"
+                    placeholder="Search by Invoice ID..." aria-label="Search by Invoice ID" />
+                <button type="submit" aria-label="Search transactions"><i class="pi pi-arrow-right" aria-hidden="true"></i></button>
+            </form>
+            <div class="view-switch" role="group" aria-label="Transaction display">
+                <button type="button" [class.active]="viewMode === 'table'" [attr.aria-pressed]="viewMode === 'table'" (click)="viewMode = 'table'"><i class="pi pi-list" aria-hidden="true"></i>Table</button>
+                <button type="button" [class.active]="viewMode === 'cards'" [attr.aria-pressed]="viewMode === 'cards'" (click)="viewMode = 'cards'"><i class="pi pi-th-large" aria-hidden="true"></i>Cards</button>
+            </div>
+        </div>
+
+              <p-table
+                [class.monitor-table-hidden]="viewMode === 'cards'"
+                [value]="docs"
+                [loading]="loading"
+                [paginator]="true"
+                [lazy]="true"
+                [lazyLoadOnInit]="false"
+                [first]="first"
+                [rows]="filters.limit"
+                [totalRecords]="total"
+                [rowsPerPageOptions]="rowsPerPageOptions"
+                [showCurrentPageReport]="true"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                (onLazyLoad)="onLazyLoad($event)"
+                responsiveLayout="scroll"
+                styleClass="app-data-table monitor-table"
+                [tableStyle]="{ 'min-width': '90rem' }"
+                >
+              <ng-template pTemplate="header">
+                <tr>
+                  <th>Invoice</th>
+                  <th>Owner</th>
+                  <th>Unit</th>
+                  <th>IssueDate</th>
+                  <th>Due</th>
+                  <th>Provider</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                  <th>Reconciliation</th>
+                  <th>Provider Tx ID</th>
+                  <th>Attempted at</th>
+                  <th>Actions</th>
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="body" let-row>
+                <tr>
+                  <td>{{ row.invoiceId }}</td>
+                  <td>{{ row.ownerName || 'Owner unavailable' }}</td>
+                  <td>{{ row.unitNumber || '-' }}</td>
+                  <td>{{ (row.issueDate | date : 'dd/MM/yyyy') || '-' }}</td>
+                  <td>{{ (row.dueDate | date : 'dd/MM/yyyy') || '-' }}</td>
+                  <td>{{ row.provider || '-' }} @if (row.bankName) { <small>{{ row.bankName }}</small> }</td>
+                  <td>{{ row.amount | currency : (row.currency || 'DOP') }}</td>
+                  <td>
+                    <p-tag
+                      [value]="row.status"
+                      [severity]="getSeverity(row.status)"
+                    ></p-tag>
+                  </td>
+                  <td>
+                    <p-tag
+                      [value]="row.reconciliationStatus === 'not_started' ? 'Not started' : row.reconciliationStatus"
+                      [severity]="getSeverity(row.reconciliationStatus)"
+                    ></p-tag>
+                  </td>
+                  <td>{{ row.providerTransactionId || "-" }}</td>
+                  <td>{{ (row.attemptedAt | date : "dd/MM/yyyy HH:mm") || '-' }}</td>
+                  <td>
+                    @if (canDownloadInvoice(row)) {
+                      <p-button icon="pi pi-file-pdf" size="small" severity="danger" [text]="true"
+                        [ariaLabel]="'Download paid invoice PDF ' + row.invoiceId"
+                        title="Download paid invoice PDF" (onClick)="downloadInvoice(row)" />
+                    }
+                    @if (canReconcile(row)) {
+                      <p-button
+                        label="Resolve"
+                        icon="pi pi-check-circle"
+                        size="small"
+                        [outlined]="true"
+                        (onClick)="openReconciliationDialog(row)"
+                      ></p-button>
+                    }
+                    @if (!canReconcile(row) && !canDownloadInvoice(row)) {
+                      <span>-</span>
+                    }
+                  </td>
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="emptymessage">
+                <tr>
+                  <td colspan="12">No invoices or transactions found with current filters.</td>
+                </tr>
+              </ng-template>
+            </p-table>
+        @if (viewMode === 'cards') {
+            @if (loading) { <div class="monitor-empty" role="status">Loading invoices and transactions...</div> } @else {
+                <div class="transaction-grid">
+                    @for (row of docs; track $index) {
+                        <article class="transaction-card">
+                            <div class="transaction-heading"><span class="section-kicker">Invoice</span><h3>{{ row.invoiceId }}</h3></div>
+                            <strong class="transaction-amount">{{ row.amount | currency:(row.currency || 'DOP') }}</strong>
+                            <div class="transaction-status"><span>Status</span><p-tag [value]="row.status" [severity]="getSeverity(row.status)" /></div>
+                            <div class="transaction-status"><span>Reconciliation</span><p-tag [value]="row.reconciliationStatus === 'not_started' ? 'Not started' : row.reconciliationStatus" [severity]="getSeverity(row.reconciliationStatus)" /></div>
+                            <dl class="transaction-details">
+                                <div><dt>Owner</dt><dd>{{ row.ownerName || 'Owner unavailable' }}</dd></div>
+                                <div><dt>Unit</dt><dd>{{ row.unitNumber || '-' }}</dd></div>
+                                <div><dt>Issue date</dt><dd>{{ (row.issueDate | date:'dd/MM/yyyy') || '-' }}</dd></div>
+                                <div><dt>Due</dt><dd>{{ (row.dueDate | date:'dd/MM/yyyy') || '-' }}</dd></div>
+                                <div><dt>Provider</dt><dd>{{ row.provider || '-' }} @if (row.bankName) { <small>{{ row.bankName }}</small> }</dd></div>
+                                <div><dt>Provider Tx ID</dt><dd>{{ row.providerTransactionId || '-' }}</dd></div>
+                                <div><dt>Attempted at</dt><dd>{{ (row.attemptedAt | date:'dd/MM/yyyy HH:mm') || '-' }}</dd></div>
+                            </dl>
+                            @if (canDownloadInvoice(row)) {
+                                <p-button label="Download PDF" icon="pi pi-file-pdf" severity="danger" [text]="true"
+                                    [ariaLabel]="'Download paid invoice PDF ' + row.invoiceId" (onClick)="downloadInvoice(row)" />
+                            }
+                            @if (canReconcile(row)) {
+                                <p-button label="Resolve" icon="pi pi-check-circle" [outlined]="true"
+                                    styleClass="monitor-resolve-action" (onClick)="openReconciliationDialog(row)" />
+                            }
+                        </article>
+                    } @empty { <div class="monitor-empty">No invoices or transactions found with current filters.</div> }
+                </div>
+            }
+            <p-paginator [first]="first" [rows]="filters.limit" [totalRecords]="total"
+                [rowsPerPageOptions]="rowsPerPageOptions" [showCurrentPageReport]="true"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                (onPageChange)="onLazyLoad($event)" />
+        }
+    </section>
+
+
+            <p-dialog styleClass="monitor-dialog" header="Administrar proveedores" [(visible)]="providerDialogVisible"
+              [modal]="true" [style]="{ width: '32rem', maxWidth: 'calc(100vw - 2rem)' }" [breakpoints]="{ '640px': '94vw' }"
+              [closable]="!providerSaving" [closeOnEscape]="!providerSaving">
+              <div class="provider-manager">
+                @if (canCreateProvider) {
+                  <form class="provider-form" (ngSubmit)="createProvider()">
+                    <div class="field">
+                      <label for="newProviderName">Nombre del proveedor</label>
+                      <input id="newProviderName" name="newProviderName" pInputText maxlength="80"
+                        required [(ngModel)]="newProviderName" [disabled]="providerSaving || providersLoading" />
+                    </div>
+                    <p-button type="submit" label="Crear" icon="pi pi-plus" [loading]="providerSaving"
+                      [disabled]="!newProviderName.trim() || providerSaving || providersLoading"></p-button>
+                  </form>
+                }
+                @if (providerError) { <p role="alert">{{ providerError }}</p> }
+                @if (providersLoading) { <p role="status">Cargando proveedores...</p> }
+                @if (!providersLoading && providerError) {
+                  <p-button label="Recargar proveedores" [text]="true" [disabled]="providerSaving" (onClick)="loadProviders()"></p-button>
+                }
+                <ul class="provider-list">
+                  @for (provider of providers; track provider.code) {
+                    <li>
+                      <span>{{ provider.name }}</span>
+                      @if (provider.builtIn) {
+                        <small>Predeterminado</small>
+                      } @else if (canDeleteProvider) {
+                        <p-button label="Eliminar" icon="pi pi-trash" severity="danger" [text]="true"
+                          [ariaLabel]="'Eliminar ' + provider.name" [disabled]="providerSaving || providersLoading"
+                          (onClick)="deleteProvider(provider)"></p-button>
+                      }
+                    </li>
+                  }
+                </ul>
+              </div>
+              <ng-template pTemplate="footer">
+                <p-button label="Cerrar" severity="secondary" [disabled]="providerSaving" (onClick)="providerDialogVisible = false"></p-button>
+              </ng-template>
+            </p-dialog>
+
+            <p-dialog styleClass="monitor-dialog"
+              header="Resolve reconciliation"
+              [(visible)]="reconciliationDialogVisible"
+              [modal]="true"
+              [style]="{ width: '34rem', maxWidth: 'calc(100vw - 2rem)' }"
+              [breakpoints]="{ '960px': '90vw' }"
+              >
+              <div class="reconciliation-dialog">
+                <div class="field">
+                  <label for="reconciliationResult">Result</label>
+                  <p-select
+                    inputId="reconciliationResult"
+                    [options]="reconciliationOptions"
+                    optionLabel="label"
+                    optionValue="value"
+                    [(ngModel)]="reconciliationForm.reconciliationStatus"
+                  ></p-select>
+                </div>
+
+                <div class="field">
+                  <label for="reconciliationNote">Note</label>
+                  <textarea
+                    id="reconciliationNote"
+                    pTextarea
+                    rows="4"
+                    maxlength="500"
+                    [(ngModel)]="reconciliationForm.note"
+                  ></textarea>
+                </div>
+              </div>
+
+              <ng-template pTemplate="footer">
+                <p-button
+                  label="Cancel"
+                  icon="pi pi-times"
+                  severity="secondary"
+                  [outlined]="true"
+                  (onClick)="reconciliationDialogVisible = false"
+                ></p-button>
+                <p-button
+                  label="Save"
+                  icon="pi pi-save"
+                  [loading]="loading"
+                  (onClick)="submitReconciliation()"
+                ></p-button>
+              </ng-template>
+            </p-dialog>
+
+            <p-dialog styleClass="monitor-dialog"
+              header="Import reconciliation"
+              [(visible)]="importDialogVisible"
+              [modal]="true"
+              [style]="{ width: '48rem', maxWidth: 'calc(100vw - 2rem)' }"
+              [breakpoints]="{ '960px': '94vw' }"
+              >
+              <div class="import-dialog">
+                <div class="field">
+                  <label for="importProvider">Provider</label>
+                  <p-select
+                    inputId="importProvider"
+                    [options]="paymentProviderOptions"
+                    optionLabel="label"
+                    optionValue="value"
+                    [(ngModel)]="importForm.provider"
+                  ></p-select>
+                </div>
+
+                <div class="field">
+                  <label for="importCsv">Settlement CSV</label>
+                  <textarea
+                    id="importCsv"
+                    pTextarea
+                    rows="9"
+                    [(ngModel)]="importForm.csvText"
+                  ></textarea>
+                </div>
+
+                @if (importResult?.summary) {
+                  <div class="import-summary">
+                    <span>Total: {{ importResult.summary.total || 0 }}</span>
+                    <span>Matched: {{ importResult.summary.matched || 0 }}</span>
+                    <span>Mismatched: {{ importResult.summary.mismatched || 0 }}</span>
+                    <span>Review: {{ importResult.summary.manual_review || 0 }}</span>
+                    <span>Not found: {{ importResult.summary.not_found || 0 }}</span>
+                    <span>Invalid: {{ importResult.summary.invalid || 0 }}</span>
+                  </div>
+                }
+              </div>
+
+              <ng-template pTemplate="footer">
+                <p-button
+                  label="Cancel"
+                  icon="pi pi-times"
+                  severity="secondary"
+                  [outlined]="true"
+                  (onClick)="importDialogVisible = false"
+                ></p-button>
+                <p-button
+                  label="Import"
+                  icon="pi pi-upload"
+                  [loading]="importLoading"
+                  (onClick)="submitImport()"
+                ></p-button>
+              </ng-template>
+            </p-dialog>
+          </main>

@@ -1,0 +1,630 @@
+
+.radio-container{
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+.guest-info {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    /* Espacio entre los inputs */
+        margin-bottom: 30px;
+}
+.guest-info .form-group {
+    flex: 1 1 calc(50% - 1rem);
+    /* Cada input ocupa el 50% del ancho menos el espacio del gap */
+    box-sizing: border-box;
+    /* Asegura que el padding y el border se incluyan en el ancho total */
+  
+}
+::ng-deep .p-fieldset {
+    background:  #f6fdff;
+}
+.block{
+    padding: 15px;
+}
+
+@media screen and (max-width: 768px) {
+    .guest-info .form-group {
+        flex: 1 1 100%;
+        /* En pantallas pequeñas, cada input ocupa el 100% del ancho */
+    }
+}
+.headFormat{
+    background-color: rgba(240, 255, 255, 0.786);
+}
+.areas-positions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+ 
+/* ::ng-deep .center-btn {
+    width: 30% !important;
+
+} */
+
+.merged-container{
+    display: flex;
+    
+  
+}
+.form-grouped{
+width: 100%;
+}
+
+.filters {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 3rem;
+
+
+}
+@media screen and (max-width: 400px) {
+    .areas-positions {
+            display: block;
+          
+            
+        }
+         ::ng-deep .center-btn {
+            width: 100% !important;
+
+        }
+
+    
+}
+
+
+
+::ng-deep .p-fieldset .p-fieldset-content {
+    padding: 0;
+  
+}
+
+label{
+    display: block;
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+::ng-deep .p-fieldset .p-fieldset-legend {
+    padding: 1.25rem;
+    border: 1px solid #dee2e600;
+    color: #343a40ad;
+    background: #f7f8f900;
+    font-weight: 700;
+    border-radius: 4px;
+}
+.btn-submit{
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 15px;
+    /* margin-bottom: 15px; */
+}
+.booking-responsive{
+        margin-bottom: 15px;
+}
+
+::ng-deep .p-inputtext {
+    width: 100%;
+}
+::ng-deep .p-datepicker {
+    width: 100%;
+}
+:host ::ng-deep .booking-responsive .p-select,
+:host ::ng-deep .booking-settings-form .p-select {
+    width: 100%;
+}
+::ng-deep .p-inputnumber {
+    width: 100%;
+}
+
+@media screen and (max-width: 500px) {
+    .booking-responsive {
+            display: block; 
+            padding: 15px;
+            width: 100%;
+        
+           
+        }
+}
+
+
+.booking-data-container {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
+    margin-top: 15px;
+}
+
+.booking-settings-form .form-group,
+.booking-settings-form .form-grouped,
+.booking-settings-form .form-group-guest,
+.booking-settings-form .merged-container {
+    min-width: 0;
+}
+
+.booking-settings-form > .form-group textarea {
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.booking-settings-form p-datepicker,
+.booking-settings-form p-inputnumber {
+    display: block;
+    width: 100%;
+}
+
+.booking-settings-form p-select {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-width: 0;
+}
+
+:host ::ng-deep .booking-settings-form .p-select,
+:host ::ng-deep .booking-settings-form .p-datepicker,
+:host ::ng-deep .booking-settings-form .p-datepicker-input,
+:host ::ng-deep .booking-settings-form .p-inputnumber,
+:host ::ng-deep .booking-settings-form .p-inputnumber-input {
+    width: 100%;
+}
+
+:host ::ng-deep .booking-settings-form .p-select-label {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+:host ::ng-deep .booking-settings-form .p-select-dropdown {
+    flex: 0 0 auto;
+    margin-left: auto;
+}
+.btn-add-1{
+    margin-bottom: 15px;
+}
+.btn-add{
+    margin-top: 20px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.container-component {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    padding: 10px 0;
+}
+
+.form-group-guest {
+    min-width: 0;
+}
+
+.booking-guest-email-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+.booking-guest-email-row input {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.btn-size-guest {
+    flex: 0 0 auto;
+    margin-left: 6px;
+}
+
+@media screen and (max-width: 768px) {
+    .container-component {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .booking-guest-email-row {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .btn-size-guest {
+        margin-left: 0;
+    }
+
+    :host ::ng-deep .booking-guest-email-row .p-button {
+        justify-content: center;
+        width: 100%;
+    }
+}
+
+/* UI polish: booking area */
+.booking-hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    background:
+        radial-gradient(circle at top right, color-mix(in srgb, var(--primary-color) 14%, transparent), transparent 30rem),
+        var(--surface-card);
+}
+
+.booking-hero h2 {
+    margin: 0.35rem 0;
+    color: var(--text-color);
+    font-size: clamp(1.45rem, 3vw, 2rem);
+}
+
+.booking-hero p {
+    margin: 0;
+    color: var(--text-color-secondary);
+    max-width: 54rem;
+}
+
+.booking-responsive {
+    margin-bottom: 1rem;
+}
+
+.booking-responsive .radio-container {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    padding: 0.75rem;
+    border-radius: 1rem;
+    background: var(--surface-ground);
+}
+
+.booking-responsive .field-radiobutton {
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--surface-border);
+    border-radius: 999px;
+    background: var(--surface-card);
+}
+
+.booking-responsive .guest-info {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.booking-responsive .guest-info .form-group {
+    min-width: 0;
+}
+
+.booking-history-card .p-tag {
+    text-transform: capitalize;
+}
+
+.booking-history-card td .pi-check-circle,
+.booking-history-card td .pi-times-circle {
+    font-size: 1.25rem;
+}
+
+.booking-history-card .booking-field-label {
+    display: none;
+}
+
+.selection-heading {
+    color: var(--text-color-secondary);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+:host ::ng-deep .booking-history-card .p-checkbox-disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+}
+
+:host ::ng-deep .booking-history-table .app-table-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    justify-content: space-between;
+}
+
+.booking-search-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-left: auto;
+}
+
+.booking-search-actions .app-table-search {
+    width: min(22rem, 40vw);
+}
+
+:host ::ng-deep .booking-history-table .p-paginator {
+    align-items: center;
+    gap: 0.5rem;
+}
+
+:host
+    ::ng-deep
+    .booking-history-table
+    .p-paginator
+    .p-paginator-rpp-dropdown,
+:host ::ng-deep .booking-history-table .p-paginator .p-select {
+    flex: 0 0 auto;
+    width: auto;
+    min-width: 4.75rem;
+}
+
+@media screen and (max-width: 768px) {
+    .booking-responsive .guest-info {
+        grid-template-columns: 1fr;
+    }
+
+    .booking-responsive .radio-container {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .booking-responsive .field-radiobutton {
+        border-radius: 0.85rem;
+    }
+
+    :host ::ng-deep .booking-history-card {
+        padding: 1rem;
+    }
+
+    :host ::ng-deep .booking-history-table .app-table-toolbar {
+        align-items: stretch;
+        flex-wrap: wrap;
+    }
+
+    .booking-search-actions {
+        flex: 1 1 100%;
+        margin-left: 0;
+    }
+
+    .booking-search-actions .app-table-search {
+        flex: 1 1 auto;
+        width: auto;
+        min-width: 0;
+    }
+
+    :host ::ng-deep .booking-history-table .p-datatable-table {
+        display: block;
+        min-width: 0 !important;
+        width: 100% !important;
+    }
+
+    :host ::ng-deep .booking-history-table .p-datatable-thead {
+        display: none !important;
+    }
+
+    :host ::ng-deep .booking-history-table .p-datatable-tbody {
+        display: block;
+        width: 100%;
+    }
+
+    :host ::ng-deep .booking-history-table .p-datatable-tbody > tr {
+        display: block;
+        margin-bottom: 1rem;
+        border: 1px solid var(--surface-border);
+        border-radius: 8px;
+        background: var(--surface-card);
+        box-shadow: none;
+        overflow: hidden;
+    }
+
+    :host ::ng-deep .booking-history-table .p-datatable-tbody > tr > td {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        width: 100% !important;
+        padding: 0.85rem 1rem;
+        border: 0;
+        border-bottom: 1px solid var(--surface-border);
+        text-align: right !important;
+        word-break: break-word;
+    }
+
+    :host ::ng-deep .booking-history-table .booking-selection-cell--hidden {
+        display: none;
+    }
+
+    :host
+        ::ng-deep
+        .booking-history-table
+        .p-datatable-tbody
+        > tr
+        > td:last-child {
+        border-bottom: 0;
+    }
+
+    .booking-history-card .booking-field-label {
+        display: inline-flex;
+        flex: 0 0 7.5rem;
+        color: var(--text-color-secondary);
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        text-align: left;
+        text-transform: uppercase;
+    }
+
+    :host ::ng-deep .booking-history-table .p-datatable-tbody > tr > td:nth-child(2) {
+        align-items: flex-start;
+        background: color-mix(in srgb, var(--primary-color) 8%, var(--surface-card));
+        color: var(--text-color);
+        font-weight: 700;
+    }
+
+    :host ::ng-deep .booking-history-table .p-datatable-tbody > tr > td:last-child {
+        justify-content: flex-end;
+        background: var(--surface-ground);
+    }
+}
+
+/* Booking history controls remain usable at narrow viewport widths. */
+:host { display: block; min-width: 0; }
+.booking-history-card { color: #183153; border: 1px solid #dce5ee; border-radius: 16px; }
+.booking-history-card .app-page-kicker { color: #176b87; }
+:host ::ng-deep .booking-history-table .booking-toolbar { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: .65rem; align-items: center; }
+.booking-toolbar .booking-search { display: block; width: 100%; min-width: 0; }
+:host ::ng-deep .booking-search .p-iconfield { width: 100%; }
+:host ::ng-deep .booking-search input { width: 100%; min-width: 0; min-height: 44px; border-radius: 10px; font-size: .875rem; }
+:host ::ng-deep .booking-toolbar-button { min-height: 44px; padding: .65rem .9rem; border-radius: 10px; font-size: .85rem; font-weight: 650; box-shadow: none; white-space: nowrap; }
+:host ::ng-deep .booking-clear-button { background: #fff; border-color: #dce5ee; color: #176b87; }
+:host ::ng-deep .booking-clear-button:not(:disabled):hover { background: #edf4f7; border-color: #b5cbd6; }
+:host ::ng-deep .booking-delete-button { background: #fff; border-color: #efccc6; color: #b33f30; }
+:host ::ng-deep .booking-delete-button:not(:disabled):hover { background: #fff0ed; border-color: #dca89e; }
+:host ::ng-deep .booking-row-action { min-width: 44px; min-height: 44px; border-radius: 10px; background: #edf4f7; border-color: #dce5ee; color: #176b87; }
+@media (max-width: 768px) {
+    .booking-history-card.card { padding: .85rem; }
+    :host ::ng-deep .booking-history-table .p-datatable-header { padding: .75rem 0; background: transparent; }
+    :host ::ng-deep .booking-history-table .booking-toolbar { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; }
+    .booking-search { grid-column: 1 / -1; }
+    .booking-toolbar > p-button { min-width: 0; }
+    :host ::ng-deep .booking-toolbar-button { width: 100%; padding: .65rem .5rem; }
+    :host ::ng-deep .booking-history-table .p-datatable-tbody > tr { margin: .75rem 0; border-color: #dce5ee; border-radius: 14px; }
+    :host ::ng-deep .booking-history-table .p-datatable-tbody > tr > td { min-width: 0; gap: .65rem; padding: .65rem .75rem; border-color: #edf1f5; font-size: .85rem; }
+    .booking-history-card .booking-field-label { flex-basis: 6rem; font-size: .7rem; text-transform: none; letter-spacing: 0; color: #66758d; }
+    :host ::ng-deep .booking-history-table .p-datatable-tbody > tr > .booking-selection-cell { background: #f6f9fb; }
+    :host ::ng-deep .booking-history-table .p-datatable-tbody > tr > .booking-selection-cell--hidden { display: none; }
+    :host ::ng-deep .booking-history-table .p-datatable-tbody > tr > .booking-empty-cell { display: block; background: #fff; text-align: center !important; }
+    .booking-empty-cell .app-empty-state { padding: 1.5rem .75rem; min-width: 0; }
+    :host ::ng-deep .booking-history-table .p-paginator { display: flex; flex-wrap: wrap; justify-content: center; padding: .65rem 0; gap: .2rem; }
+    :host ::ng-deep .booking-history-table .p-paginator-current { flex: 1 1 100%; margin: 0 0 .35rem; min-height: 1.5rem; font-size: .8rem; text-align: center; }
+    :host ::ng-deep .booking-history-table .p-paginator button { min-width: 2rem; width: 2rem; height: 44px; }
+    :host ::ng-deep .booking-history-table .p-paginator .p-select { min-width: 3.75rem; margin-left: .3rem; height: 44px; }
+    :host ::ng-deep .booking-history-table .p-paginator .p-select-label { padding: .65rem .5rem; }
+}
+.booking-view-switch { display: flex; gap: .5rem; margin: 1rem 0; }
+.booking-view-switch button { display: inline-flex; align-items: center; gap: .5rem; padding: .65rem 1rem; border: 1px solid var(--surface-border, #d1d5db); border-radius: .5rem; background: var(--surface-card, white); color: var(--text-color, #334155); cursor: pointer; font: inherit; }
+.booking-view-switch button[aria-pressed="true"] { background: var(--primary-color, #2563eb); color: var(--primary-color-text, white); }
+.booking-view-switch button:focus-visible { outline: 2px solid var(--primary-color, #2563eb); outline-offset: 3px; }
+.booking-calendar { min-width: 0; padding: .5rem 0; }
+.booking-calendar-help { color: var(--text-color-secondary, #64748b); }
+:host ::ng-deep .booking-calendar .fc-event { cursor: pointer; }
+:host ::ng-deep .booking-calendar .fc-event-title,
+:host ::ng-deep .booking-calendar .fc-daygrid-event { white-space: normal; }
+@media (max-width: 767px) {
+    :host ::ng-deep .booking-calendar .fc-header-toolbar { flex-direction: column; gap: .75rem; }
+    :host ::ng-deep .booking-calendar .fc-toolbar-title { font-size: 1.25rem; }
+    :host ::ng-deep .booking-calendar .fc-daygrid-event { font-size: .7rem; }
+}
+
+/* Visual reference: See Property. Keep typography, surfaces and controls aligned. */
+:host {
+    --booking-ink: #183153;
+    --booking-muted: #66758d;
+    --booking-line: #dce5ee;
+    --booking-primary: #176b87;
+    color: var(--booking-ink);
+    font-family: var(--font-family);
+}
+.booking-history-card.card {
+    padding: 1.6rem;
+    border-radius: 18px;
+    border-color: var(--booking-line);
+    background: #fff;
+    box-shadow: none;
+}
+.booking-history-card .app-page-header { align-items: center; gap: 1.25rem; margin-bottom: 1.5rem; }
+.booking-history-card .app-page-kicker { color: var(--booking-primary); font-size: .72rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+.booking-history-card .app-page-header h2 { margin: .3rem 0 .4rem; color: var(--booking-ink); font-size: clamp(1.65rem, 3vw, 2.35rem); line-height: 1.1; letter-spacing: -.035em; }
+.booking-history-card .app-page-header p { color: var(--booking-muted); margin: 0; }
+.booking-view-switch { display: inline-flex; gap: .2rem; padding: .25rem; margin: 0 0 1rem; border: 1px solid var(--booking-line); border-radius: 12px; }
+.booking-view-switch button { justify-content: center; min-height: 44px; padding: .6rem .85rem; border: 0; border-radius: 8px; font: inherit; font-weight: 700; color: var(--booking-muted); background: transparent; }
+.booking-view-switch button[aria-pressed="true"] { color: #105d76; background: #e8f2f5; }
+.booking-view-switch button:hover { background: #f1f5f8; }
+.booking-view-switch button:focus-visible { outline-color: var(--booking-primary); }
+.booking-calendar-help { margin: 0 0 1.25rem; color: var(--booking-muted); font-size: .85rem; line-height: 1.5; }
+:host ::ng-deep .booking-history-table .p-datatable-header { background: #fff; border: 0; padding: 0 0 1rem; }
+:host ::ng-deep .booking-history-table .p-datatable-thead > tr > th { background: #f5f8fb; color: var(--booking-muted); border-color: var(--booking-line); font-size: .8rem; }
+:host ::ng-deep .booking-history-table .p-datatable-tbody > tr > td { color: var(--booking-ink); border-color: var(--booking-line); }
+:host ::ng-deep .booking-search input { border-color: var(--booking-line); color: var(--booking-ink); font-family: inherit; }
+:host ::ng-deep .booking-history-table .p-paginator-page-selected { background: #e8f2f5; color: #105d76; }
+:host ::ng-deep .booking-history-table .p-tag { border-radius: 999px; padding: .3rem .6rem; font-size: .75rem; font-weight: 750; }
+:host ::ng-deep .booking-calendar .fc {
+    --fc-border-color: #dce5ee;
+    --fc-page-bg-color: #fff;
+    --fc-neutral-bg-color: #f5f8fb;
+    --fc-today-bg-color: #f0f7f9;
+    --fc-button-bg-color: #fff;
+    --fc-button-border-color: #dce5ee;
+    --fc-button-text-color: #176b87;
+    --fc-button-hover-bg-color: #f1f5f8;
+    --fc-button-hover-border-color: #dce5ee;
+    --fc-button-active-bg-color: #e8f2f5;
+    --fc-button-active-border-color: #dce5ee;
+    font-family: inherit;
+    color: var(--booking-ink);
+}
+:host ::ng-deep .booking-calendar .fc .fc-button { min-height: 44px; padding: .6rem .85rem; border-radius: 10px; font-family: inherit; font-size: .85rem; font-weight: 650; box-shadow: none; }
+:host ::ng-deep .booking-calendar .fc .fc-button-group { gap: .25rem; }
+:host ::ng-deep .booking-calendar .fc .fc-button-group > .fc-button { margin-left: 0; border-radius: 10px; }
+:host ::ng-deep .booking-calendar .fc .fc-button:focus-visible { outline: 2px solid var(--booking-primary); outline-offset: 2px; }
+:host ::ng-deep .booking-calendar .fc-toolbar-title { color: var(--booking-ink); font-size: 1.35rem; font-weight: 700; letter-spacing: -.025em; }
+:host ::ng-deep .booking-calendar .fc-col-header-cell { background: #f5f8fb; color: var(--booking-muted); font-size: .8rem; font-weight: 650; }
+:host ::ng-deep .booking-calendar .fc-col-header-cell-cushion { padding: .75rem .2rem; }
+:host ::ng-deep .booking-calendar .fc-daygrid-day-number { color: var(--booking-ink); padding: .5rem; font-size: .85rem; }
+:host ::ng-deep .booking-calendar .fc-event { padding: .3rem .4rem; border-radius: 6px; font-size: .76rem; line-height: 1.4; }
+:host ::ng-deep .booking-calendar .fc-event-title { font-weight: 650; }
+:host ::ng-deep .booking-calendar .fc-scrollgrid { border-radius: 12px; overflow: hidden; }
+:host ::ng-deep .booking-responsive .p-panel,
+:host ::ng-deep .booking-responsive .p-fieldset { background: #fff; border-color: var(--booking-line); border-radius: 18px; box-shadow: none; }
+:host ::ng-deep .booking-responsive .p-panel-header,
+:host ::ng-deep .booking-responsive .p-fieldset-legend { background: #fff; color: var(--booking-ink); }
+.booking-responsive .radio-container { background: #f5f8fb; border-radius: 12px; }
+.booking-responsive .field-radiobutton { border-radius: 10px; border-color: var(--booking-line); }
+.booking-responsive label, .booking-settings-form label { color: var(--booking-muted); font-size: .85rem; font-weight: 650; }
+:host ::ng-deep .booking-responsive .p-button,
+:host ::ng-deep .booking-settings-dialog .p-button { min-height: 44px; border-radius: 10px; font-family: inherit; box-shadow: none; }
+:host ::ng-deep .booking-responsive .btn-submit .p-button,
+:host ::ng-deep .booking-settings-dialog .btn-add .p-button { background: var(--booking-primary); border-color: var(--booking-primary); color: #fff; font-weight: 700; }
+:host ::ng-deep .booking-settings-dialog { border: 1px solid var(--booking-line); border-radius: 18px; color: var(--booking-ink); }
+@media (max-width: 768px) {
+    .booking-history-card.card { padding: 1rem; }
+    .booking-view-switch { display: flex; }
+    .booking-view-switch button { flex: 1; }
+    :host ::ng-deep .booking-calendar .fc-toolbar-title { font-size: 1.2rem; }
+    :host ::ng-deep .booking-calendar .fc-event { padding: .15rem; font-size: .68rem; overflow-wrap: anywhere; }
+}
+
+/* Override the legacy theme's FullCalendar selectors, not only FC variables. */
+:host ::ng-deep .booking-calendar .fc.fc-theme-standard .fc-toolbar .fc-button.fc-button-primary {
+    background: #fff;
+    border-color: var(--booking-line);
+    color: var(--booking-primary);
+    box-shadow: none;
+}
+:host ::ng-deep .booking-calendar .fc.fc-theme-standard .fc-toolbar .fc-button.fc-button-primary:enabled:hover {
+    background: #f1f5f8;
+    border-color: var(--booking-line);
+    color: #105d76;
+}
+:host ::ng-deep .booking-calendar .fc.fc-theme-standard .fc-toolbar .fc-button.fc-button-primary.fc-button-active,
+:host ::ng-deep .booking-calendar .fc.fc-theme-standard .fc-toolbar .fc-button.fc-button-primary:enabled:active,
+:host ::ng-deep .booking-calendar .fc.fc-theme-standard .fc-toolbar .fc-button.fc-button-primary.fc-button-active:hover {
+    background: #e8f2f5;
+    border-color: var(--booking-line);
+    color: #105d76;
+}
+:host ::ng-deep .booking-calendar .fc.fc-theme-standard .fc-toolbar .fc-button.fc-button-primary:focus {
+    box-shadow: none;
+}
+:host ::ng-deep .booking-calendar .fc.fc-theme-standard .fc-toolbar .fc-button.fc-button-primary:disabled {
+    background: #f5f8fb;
+    border-color: var(--booking-line);
+    color: var(--booking-muted);
+    opacity: .65;
+}
+:host ::ng-deep .booking-history-table .p-tag-success { background: #e9f8f2; color: #08785d; }
+:host ::ng-deep .booking-history-table .p-tag-danger { background: #fff0ed; color: #c44732; }
+:host ::ng-deep .booking-history-table .p-tag-info { background: #e8f2f5; color: #105d76; }
+:host ::ng-deep .booking-history-table .p-tag-warn,
+:host ::ng-deep .booking-history-table .p-tag-warning { background: #fbf3db; color: #956400; }

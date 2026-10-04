@@ -1,0 +1,256 @@
+<p-toast />
+
+<main class="owner-profile-page">
+    <button type="button" class="back-link" (click)="goBack()">
+        <i class="pi pi-arrow-left" aria-hidden="true"></i>
+        Back to owners
+    </button>
+
+    @if (loading) {
+        <section class="profile-shell" aria-label="Loading owner profile">
+            <div class="profile-hero loading-hero">
+                <p-skeleton shape="circle" size="5.5rem" />
+                <div class="loading-copy">
+                    <p-skeleton width="15rem" height="1.7rem" />
+                    <p-skeleton width="11rem" />
+                </div>
+            </div>
+            <div class="metric-grid">
+                @for (item of [1, 2, 3, 4]; track item) {
+                    <p-skeleton height="7.5rem" borderRadius="14px" />
+                }
+            </div>
+        </section>
+    } @else if (loadError) {
+        <section class="empty-state error-state">
+            <span class="empty-icon"><i class="pi pi-user-minus"></i></span>
+            <h1>We couldn't open this profile</h1>
+            <p>{{ loadError }}</p>
+            <button type="button" class="primary-action" (click)="loadOwner()">
+                <i class="pi pi-refresh"></i>
+                Try again
+            </button>
+        </section>
+    } @else if (owner) {
+        <section class="profile-shell">
+            <header class="profile-hero">
+                <div class="identity-group">
+                    <div class="owner-avatar">
+                        @if (avatarUrl && !avatarFailed) {
+                            <img
+                                [src]="avatarUrl"
+                                [alt]="fullName + ' profile photo'"
+                                (error)="avatarFailed = true"
+                            />
+                        } @else {
+                            <span>{{ initials }}</span>
+                        }
+                    </div>
+
+                    <div class="identity-copy">
+                        <div class="eyebrow-row">
+                            <span class="eyebrow">Owner profile</span>
+                            <span
+                                class="status-pill"
+                                [class.status-pill--inactive]="owner.status !== 'active'"
+                            >
+                                <span class="status-dot"></span>
+                                {{ statusLabel(owner.status) }}
+                            </span>
+                        </div>
+                        <h1>{{ fullName | titlecase }}</h1>
+                        <p>
+                            {{ owner.email }}
+                            @if (owner.createdAt) {
+                                <span aria-hidden="true">·</span>
+                                Member since {{ owner.createdAt | date: 'MMM yyyy' }}
+                            }
+                        </p>
+                    </div>
+                </div>
+
+                <div class="hero-actions">
+                    <button type="button" class="secondary-action" (click)="setSection('inquiries')">
+                        <i class="pi pi-comments"></i>
+                        Inquiries
+                    </button>
+                    <a class="secondary-action" [href]="'mailto:' + owner.email">
+                        <i class="pi pi-envelope"></i>
+                        Send email
+                    </a>
+                    <button type="button" class="primary-action" (click)="openSettings()">
+                        <i class="pi pi-pencil"></i>
+                        Edit profile
+                    </button>
+                </div>
+            </header>
+
+            <section class="metric-grid" aria-label="Owner summary">
+                <button type="button" class="metric-card" (click)="setSection('billing')">
+                    <span class="metric-icon metric-icon--coral"><i class="pi pi-wallet"></i></span>
+                    <span class="metric-copy">
+                        <small>Pending balance</small>
+                        <strong>{{ pendingBalance | currency: 'DOP':'symbol':'1.0-0' }}</strong>
+                        <span>{{ pendingInvoiceCount }} open invoice{{ pendingInvoiceCount === 1 ? '' : 's' }}</span>
+                    </span>
+                </button>
+                <button type="button" class="metric-card" (click)="setSection('units')">
+                    <span class="metric-icon metric-icon--blue"><i class="pi pi-building"></i></span>
+                    <span class="metric-copy">
+                        <small>Assigned units</small>
+                        <strong>{{ properties.length }}</strong>
+                        <span>Across {{ properties.length }} record{{ properties.length === 1 ? '' : 's' }}</span>
+                    </span>
+                </button>
+                <button type="button" class="metric-card" (click)="setSection('family')">
+                    <span class="metric-icon metric-icon--violet"><i class="pi pi-users"></i></span>
+                    <span class="metric-copy">
+                        <small>Family members</small>
+                        <strong>{{ familyCount }}</strong>
+                        <span>Linked accounts</span>
+                    </span>
+                </button>
+                <button type="button" class="metric-card" (click)="setSection('bookings')">
+                    <span class="metric-icon metric-icon--mint"><i class="pi pi-calendar"></i></span>
+                    <span class="metric-copy">
+                        <small>Bookings</small>
+                        <strong>{{ bookings.length }}</strong>
+                        <span>Reservation history</span>
+                    </span>
+                </button>
+            </section>
+
+            <nav class="resource-nav" aria-label="Owner resources">
+                @for (section of sections; track section.id) {
+                    <button
+                        type="button"
+                        [class.active]="activeSection === section.id"
+                        [attr.aria-current]="activeSection === section.id ? 'page' : null"
+                        (click)="setSection(section.id)"
+                    >
+                        <i [class]="section.icon" aria-hidden="true"></i>
+                        {{ section.label }}
+                    </button>
+                }
+            </nav>
+
+            <section class="content-panel">
+                @if (activeSection === 'overview') {
+                    <div class="overview-grid">
+                        <article class="panel contact-panel">
+                            <div class="panel-heading">
+                                <div>
+                                    <span class="section-kicker">Identity</span>
+                                    <h2>Contact information</h2>
+                                </div>
+                                <button type="button" class="icon-action" aria-label="Edit contact information" (click)="openSettings()">
+                                    <i class="pi pi-pencil"></i>
+                                </button>
+                            </div>
+                            <dl class="details-list">
+                                <div><dt>Email</dt><dd><a [href]="'mailto:' + owner.email">{{ owner.email }}</a></dd></div>
+                                <div><dt>Phone</dt><dd><a [href]="'tel:' + owner.phone">{{ owner.phone || 'Not provided' }}</a></dd></div>
+                                <div><dt>Secondary phone</dt><dd>{{ owner.phone2 || 'Not provided' }}</dd></div>
+                                <div><dt>Personal ID</dt><dd>{{ owner.id_number || 'Not provided' }}</dd></div>
+                                <div><dt>Date of birth</dt><dd>{{ owner.dob ? (owner.dob | date: 'MMM d, y') : 'Not provided' }}</dd></div>
+                                <div>
+                                    <dt>Email verification</dt>
+                                    <dd>
+                                        <span class="verification" [class.verified]="owner.emailVerified">
+                                            <i [class]="owner.emailVerified ? 'pi pi-verified' : 'pi pi-info-circle'"></i>
+                                            {{ owner.emailVerified ? 'Verified' : 'Pending' }}
+                                        </span>
+                                    </dd>
+                                </div>
+                            </dl>
+                        </article>
+
+                        <article class="panel property-ledger">
+                            <div class="panel-heading">
+                                <div><span class="section-kicker">Property ledger</span><h2>Homes & units</h2></div>
+                                <button type="button" class="text-action" (click)="setSection('units')">Manage units <i class="pi pi-arrow-right"></i></button>
+                            </div>
+                            @if (properties.length) {
+                                <div class="property-list">
+                                    @for (property of properties; track property.addressId?._id + '-' + property.condominium_unit) {
+                                        <div class="property-row">
+                                            <span class="building-mark"><i class="pi pi-building"></i></span>
+                                            <div class="property-main"><strong>{{ property.addressId?.alias || 'Condominium' }}</strong><span>{{ propertyAddress(property) }}</span></div>
+                                            <div class="unit-badge"><small>Unit</small><strong>{{ property.condominium_unit || '—' }}</strong></div>
+                                            <span class="property-status" [class.inactive]="property.status_property === 'inactive'">{{ statusLabel(property.status_property) }}</span>
+                                        </div>
+                                    }
+                                </div>
+                            } @else {
+                                <div class="inline-empty"><i class="pi pi-home"></i><div><strong>No units assigned</strong><span>Add a unit to begin managing this owner.</span></div></div>
+                            }
+                        </article>
+
+                        <article class="panel activity-panel">
+                            <div class="panel-heading">
+                                <div><span class="section-kicker">Activity</span><h2>Recent payments</h2></div>
+                                <button type="button" class="text-action" (click)="setSection('billing')">View billing</button>
+                            </div>
+                            @if (paidInvoices.length) {
+                                <div class="activity-list">
+                                    @for (invoice of paidInvoices.slice(0, 4); track invoice._id) {
+                                        <div class="activity-row">
+                                            <span class="activity-icon"><i class="pi pi-check"></i></span>
+                                            <div><strong>{{ invoice.condominiumId?.alias || 'Payment received' }}</strong><span>{{ invoice.invoice_paid_date || invoice.updatedAt | date: 'MMM d, y' }}</span></div>
+                                            <strong class="activity-amount">{{ invoice.amount | currency: 'DOP':'symbol':'1.0-0' }}</strong>
+                                        </div>
+                                    }
+                                </div>
+                            } @else {
+                                <div class="inline-empty compact"><i class="pi pi-receipt"></i><div><strong>No payments yet</strong><span>Completed payments will appear here.</span></div></div>
+                            }
+                        </article>
+                    </div>
+                } @else if (activeSection === 'units') {
+                    <div class="section-heading"><div><span class="section-kicker">Resources</span><h2>Assigned units</h2><p>Add, update or unlink the units associated with this owner.</p></div></div>
+                    <app-properties-by-owner [ownerData]="ownerId" (refreshOwnerProperties)="loadOwner()" />
+                } @else if (activeSection === 'billing') {
+                    <div class="section-heading"><div><span class="section-kicker">Finance</span><h2>Billing & payment history</h2><p>Review invoices, payment attempts and owner balances.</p></div></div>
+                    <app-payments-history [ownerIdInput]="ownerId" />
+                } @else if (activeSection === 'family') {
+                    <div class="section-heading"><div><span class="section-kicker">Access</span><h2>Family accounts</h2><p>Review the people linked to this owner and their access status.</p></div></div>
+                    <app-family-member-details [ownerIdInput]="ownerId" />
+                } @else if (activeSection === 'bookings') {
+                    <div class="section-heading"><div><span class="section-kicker">Amenities</span><h2>Booking history</h2><p>Reservations made by this owner for common areas.</p></div></div>
+                    @if (bookings.length) {
+                        <div class="booking-list">
+                            @for (booking of bookings; track booking._id) {
+                                <article class="booking-row">
+                                    <span class="booking-date"><i class="pi pi-calendar"></i></span>
+                                    <div><strong>{{ bookingLabel(booking) }}</strong><span>{{ bookingDate(booking) | date: 'MMM d, y, h:mm a' }}</span></div>
+                                    <span class="property-status">{{ booking.status || 'Scheduled' | titlecase }}</span>
+                                </article>
+                            }
+                        </div>
+                    } @else {
+                        <div class="empty-resource"><i class="pi pi-calendar-times"></i><h3>No bookings found</h3><p>This owner has not made any common-area reservations.</p></div>
+                    }
+                } @else {
+                    <app-owner-inquiries
+                        [ownerId]="ownerId"
+                        [ownerName]="fullName"
+                        [properties]="properties"
+                    />
+                }
+            </section>
+        </section>
+    }
+</main>
+
+<p-dialog
+    header="Edit owner profile"
+    [(visible)]="settingsVisible"
+    [modal]="true"
+    [maximizable]="true"
+    [style]="{ width: 'min(94vw, 44rem)' }"
+    [contentStyle]="{ overflow: 'auto' }"
+>
+    @if (owner) {
+        <app-owner-profile-settings [ownerObj]="owner" (ownerUpdated)="refreshOwner()" />
+    }
+</p-dialog>

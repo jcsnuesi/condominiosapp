@@ -1,0 +1,233 @@
+<p-toast></p-toast>
+
+<div class="communication-log">
+    <p-card>
+        <ng-template pTemplate="title">Communication History</ng-template>
+        <ng-template pTemplate="subtitle">
+            WhatsApp reminders, confirmations and operational delivery results
+        </ng-template>
+
+        <div class="filters-grid">
+            <div class="field">
+                <label for="channel">Channel</label>
+                <p-select
+                    inputId="channel"
+                    [options]="channelOptions"
+                    optionLabel="label"
+                    optionValue="value"
+                    [(ngModel)]="filters.channel"
+                ></p-select>
+            </div>
+
+            <div class="field">
+                <label for="type">Type</label>
+                <p-select
+                    inputId="type"
+                    [options]="typeOptions"
+                    optionLabel="label"
+                    optionValue="value"
+                    [(ngModel)]="filters.type"
+                ></p-select>
+            </div>
+
+            <div class="field">
+                <label for="status">Status</label>
+                <p-select
+                    inputId="status"
+                    [options]="statusOptions"
+                    optionLabel="label"
+                    optionValue="value"
+                    [(ngModel)]="filters.status"
+                ></p-select>
+            </div>
+
+            <div class="field">
+                <label for="invoiceId">Invoice ID</label>
+                <input
+                    id="invoiceId"
+                    pInputText
+                    [(ngModel)]="filters.invoiceId"
+                    placeholder="Optional"
+                />
+            </div>
+
+            <div class="field">
+                <label for="ownerId">Owner ID</label>
+                <input
+                    id="ownerId"
+                    pInputText
+                    [(ngModel)]="filters.ownerId"
+                    placeholder="Optional"
+                />
+            </div>
+
+            <div class="field">
+                <label for="condominiumId">Condominium ID</label>
+                <input
+                    id="condominiumId"
+                    pInputText
+                    [(ngModel)]="filters.condominiumId"
+                    placeholder="Optional"
+                />
+            </div>
+
+            <div class="field">
+                <label for="sentFrom">Sent from</label>
+                <input
+                    id="sentFrom"
+                    pInputText
+                    type="date"
+                    [(ngModel)]="filters.sentFrom"
+                />
+            </div>
+
+            <div class="field">
+                <label for="sentTo">Sent to</label>
+                <input
+                    id="sentTo"
+                    pInputText
+                    type="date"
+                    [(ngModel)]="filters.sentTo"
+                />
+            </div>
+        </div>
+
+        <div class="job-grid">
+            <div class="field">
+                <label for="graceDays">Grace days</label>
+                <p-inputNumber
+                    inputId="graceDays"
+                    [(ngModel)]="jobForm.graceDays"
+                    [min]="0"
+                    [max]="30"
+                ></p-inputNumber>
+            </div>
+
+            <div class="field">
+                <label for="minDaysBetween">Min days between</label>
+                <p-inputNumber
+                    inputId="minDaysBetween"
+                    [(ngModel)]="jobForm.minDaysBetween"
+                    [min]="1"
+                    [max]="60"
+                ></p-inputNumber>
+            </div>
+
+            <div class="field">
+                <label for="batchSize">Batch size</label>
+                <p-inputNumber
+                    inputId="batchSize"
+                    [(ngModel)]="jobForm.batchSize"
+                    [min]="1"
+                    [max]="500"
+                ></p-inputNumber>
+            </div>
+        </div>
+
+        <div class="toolbar">
+            <p-button
+                label="Apply filters"
+                icon="pi pi-filter"
+                (onClick)="loadLogs(true)"
+            ></p-button>
+            <p-button
+                label="Run dry-run"
+                icon="pi pi-play"
+                severity="help"
+                [outlined]="true"
+                [loading]="jobLoading"
+                (onClick)="runReminderDryRun()"
+            ></p-button>
+            <p-button
+                label="Clear"
+                icon="pi pi-times"
+                severity="secondary"
+                [outlined]="true"
+                (onClick)="clearFilters()"
+            ></p-button>
+        </div>
+    </p-card>
+
+    <p-table
+        [value]="docs"
+        [loading]="loading"
+        [paginator]="true"
+        [lazy]="true"
+        [first]="first"
+        [rows]="filters.limit"
+        [totalRecords]="total"
+        [rowsPerPageOptions]="rowsPerPageOptions"
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+        (onLazyLoad)="onLazyLoad($event)"
+        responsiveLayout="scroll"
+        styleClass="app-data-table"
+        [tableStyle]="{ 'min-width': '76rem' }"
+    >
+        <ng-template pTemplate="header">
+            <tr>
+                <th>Sent at</th>
+                <th>Channel</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Invoice</th>
+                <th>Owner</th>
+                <th>Phone</th>
+                <th>Reason</th>
+                <th>Provider Message</th>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-row>
+            <tr>
+                <td>{{ row.sentAt | date : "dd/MM/yyyy HH:mm" }}</td>
+                <td>{{ row.channel }}</td>
+                <td>{{ row.type }}</td>
+                <td>
+                    <p-tag
+                        [value]="row.status"
+                        [severity]="getSeverity(row.status)"
+                    ></p-tag>
+                </td>
+                <td>{{ row.invoiceId || "-" }}</td>
+                <td>{{ row.ownerId || "-" }}</td>
+                <td>{{ row.recipientPhone || "-" }}</td>
+                <td>{{ row.reason || "-" }}</td>
+                <td>{{ row.providerMessageId || "-" }}</td>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="9">No communication logs found.</td>
+            </tr>
+        </ng-template>
+    </p-table>
+
+    <p-dialog
+        header="Reminder dry-run result"
+        [(visible)]="jobDialogVisible"
+        [modal]="true"
+        [style]="{ width: '34rem' }"
+        [breakpoints]="{ '960px': '90vw' }"
+    >
+        <div class="summary-grid">
+            <span>Total: {{ jobResult?.summary?.total || 0 }}</span>
+            <span>Sent: {{ jobResult?.summary?.sent || 0 }}</span>
+            <span>Skipped: {{ jobResult?.summary?.skipped || 0 }}</span>
+            <span>Failed: {{ jobResult?.summary?.failed || 0 }}</span>
+            <span>Grace: {{ jobResult?.config?.graceDays || 0 }}</span>
+            <span>Frequency: {{ jobResult?.config?.minDaysBetween || 0 }}</span>
+        </div>
+
+        <ng-template pTemplate="footer">
+            <p-button
+                label="Close"
+                icon="pi pi-check"
+                (onClick)="jobDialogVisible = false"
+            ></p-button>
+        </ng-template>
+    </p-dialog>
+</div>
+<!-- Phase 2 (medium): rich text editor placeholder — integrate ngx-editor / p-editor in communication form -->
+<!-- Phase 3 (medium): notification pipeline batch — extend communication-log to support automated notification triggers -->

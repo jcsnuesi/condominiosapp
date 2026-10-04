@@ -16,7 +16,7 @@ Desde `frontend`, ejecutar:
 npx.cmd ng build --configuration production,release-review --output-path dist/saas-landing-production
 ```
 
-El resultado usa configuración de producción, recursos con hash y API relativa `/api/`. El directorio completo `frontend/dist/saas-landing-production` es el paquete publicable. No ejecutar `npm run build` para revisar esta página: la configuración de desarrollo del proyecto escribe en `nginx/html` y el postbuild inicia Docker.
+El resultado usa configuración de producción, recursos con hash y API relativa `/api/`. El directorio completo `frontend/dist/saas-landing-production` es el paquete publicable. `npm run build` también compila producción, con salida en `dist/sakai-ng`; ya no inicia Docker automáticamente. `npm run build:dev` escribe en `dist/development`. Si se invoca directamente la configuración `development`, especificar siempre un directorio de salida: su `outputPath` histórico apunta a `nginx/html`.
 
 La compilación estándar de producción mantiene sus límites originales. Actualmente falla porque booking-area, create-property, inquiry, owner-profile, see-property y staff exceden el límite de 10 kB por hoja de estilos; la nueva página también lo excede. El paquete inicial de la aplicación completa mide aproximadamente 7,96 MB y excede el límite original de 5 MB. `release-review` permite hasta 22 kB por hoja y 9 MB iniciales, manteniendo las advertencias originales de 6 kB y 3 MB. Es una excepción explícita para generar el artefacto de revisión, no una corrección de esos presupuestos.
 

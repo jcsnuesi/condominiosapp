@@ -1,0 +1,127 @@
+<div class="login-shell surface-ground">
+    <!-- Responsive: mobile adjustments for screens <480px will be handled by CSS media queries -->
+    <div class="login-card-wrap">
+        <img
+            src="assets/layout/images/{{
+                layoutService.config.colorScheme === 'light'
+                    ? 'logo-dark'
+                    : 'logo-white'
+            }}.svg"
+            alt="CondApp logo"
+            class="login-logo"
+        />
+
+        <div class="login-gradient-frame">
+            <div class="login-card surface-card">
+                <div class="text-center mb-5">
+                    <p-avatar
+                        image="assets/noimage.jpeg"
+                        styleClass="login-avatar"
+                        size="xlarge"
+                        shape="circle"
+                    ></p-avatar>
+
+                    <span class="app-page-kicker justify-content-center mt-4">{{
+                        t("auth.appName")
+                    }}</span>
+                    <h1>{{ t("auth.login.title") }}</h1>
+                    <p>{{ t("auth.login.subtitle") }}</p>
+                </div>
+
+                <form
+                    #loginForm="ngForm"
+                    (ngSubmit)="loginAdministrators(loginForm)"
+                >
+                    <label
+                        for="email"
+                        class="block text-900 font-medium mb-2"
+                        >{{ t("auth.login.email") }}</label
+                    >
+                    <input
+                        id="email"
+                        name="email"
+                        [(ngModel)]="administrator.email"
+                        type="email"
+                        placeholder="{{ t('auth.login.emailPlaceholder') }}"
+                        aria-label="Email address for login"
+                        pInputText
+                        class="login-input w-full mb-2"
+                        #email="ngModel"
+                        required
+                        email
+                    />
+                    @if (email.invalid && email.touched) {
+                    <small class="p-error block mb-4">
+                        {{ t("auth.login.invalidEmail") }}
+                    </small>
+                    }
+
+                    <label
+                        for="password"
+                        class="block text-900 font-medium mb-2"
+                        >{{ t("auth.login.password") }}</label
+                    >
+                    <p-password
+                        inputId="password"
+                        name="password"
+                        [(ngModel)]="administrator.password"
+                        placeholder="{{ t('auth.login.passwordPlaceholder') }}"
+                        [toggleMask]="true"
+                        [feedback]="false"
+                        styleClass="login-password w-full mb-2"
+                        inputStyleClass="w-full p-3"
+                        #password="ngModel"
+                        required
+                    ></p-password>
+                    @if (password.invalid && password.touched) {
+                    <small class="p-error block mb-4">
+                        {{ t("auth.login.requiredPassword") }}
+                    </small>
+                    }
+
+                    <div class="login-options">
+                        <div class="flex align-items-center">
+                            <p-checkbox
+                                id="rememberme1"
+                                name="rememberMe"
+                                [(ngModel)]="rememberMe"
+                                [binary]="true"
+                                styleClass="mr-2"
+                            ></p-checkbox>
+                            <label for="rememberme1">{{
+                                t("auth.login.rememberMe")
+                            }}</label>
+                        </div>
+                        <a class="forgot-link" (click)="goToForgotPassword()">{{
+                            t("auth.login.forgotPassword")
+                        }}</a>
+                    </div>
+
+                    <button
+                        pButton
+                        pRipple
+                        type="submit"
+                        aria-label="Login submit button"
+                        label="{{ t('auth.login.submit') }}"
+                        class="w-full p-3 text-xl"
+                        [loading]="loginInProgress"
+                        [disabled]="loginForm.invalid || loginInProgress"
+                    ></button>
+                </form>
+
+                <div class="register-option">
+                    <span>¿No tienes cuenta?</span>
+                    <a class="forgot-link" (click)="goToOwnerRegistration()"
+                        >Crear cuenta</a
+                    >
+                </div>
+                <div class="register-option">
+                    <a class="forgot-link" routerLink="/">Conocer CondominiosApp</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<p-toast></p-toast>
+<!-- Phase 4 (major): auth MFA / brute-force / session-timeout — design notes preserved; actual auth-pattern changes deferred until pairing unlock + security approval -->

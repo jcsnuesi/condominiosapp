@@ -1,0 +1,87 @@
+:host {
+    --profile-ink: #183153;
+    --profile-muted: #66758d;
+    --profile-line: #dce5ee;
+    --profile-paper: #ffffff;
+    --profile-primary: #176b87;
+    display: block;
+    min-width: 0;
+    max-width: 100%;
+}
+
+* { box-sizing: border-box; }
+.partners-page { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.15rem; max-width: 1480px; margin: 0 auto; padding: .5rem 0 2.5rem; color: var(--profile-ink); }
+.partners-hero { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 1.5rem; min-width: 0; padding: 1.6rem; border: 1px solid var(--profile-line); border-radius: 18px; background: var(--profile-paper); }
+.partners-hero-copy { min-width: 0; overflow-wrap: anywhere; }
+.section-kicker { color: var(--profile-primary); font-size: .72rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+.partners-hero h1 { margin: .3rem 0 .35rem; color: var(--profile-ink); font-size: clamp(1.65rem, 3vw, 2.35rem); line-height: 1.1; letter-spacing: -.035em; }
+.partners-hero p { margin: 0; color: var(--profile-muted); }
+.partner-create-action { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; min-height: 2.75rem; padding: .7rem 1rem; border: 1px solid var(--profile-primary); border-radius: 10px; background: var(--profile-primary); color: #fff; font: inherit; font-weight: 700; }
+.partner-create-action:enabled:hover { background: #125b73; border-color: #125b73; }
+.partner-create-action:focus-visible { outline: 2px solid var(--profile-primary); outline-offset: 3px; }
+.partners-panel { min-width: 0; padding: 1.25rem; border: 1px solid var(--profile-line); border-radius: 16px; background: var(--profile-paper); }
+.partners-table-toolbar { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: .85rem; margin-bottom: 1.25rem; }
+.partner-clear-action { display: inline-flex; align-items: center; justify-content: center; gap: .7rem; min-height: 3.4rem; padding: .75rem .9rem; border: 1px solid var(--profile-muted); border-radius: 10px; background: var(--profile-paper); color: var(--profile-muted); font: inherit; font-weight: 600; cursor: pointer; }
+.partner-clear-action:enabled:hover { border-color: #b7c8d7; background: #f8fafc; color: var(--profile-ink); }
+.partners-search { display: block; width: 100%; min-width: 0; }
+.partners-search input { width: 100%; min-height: 3.4rem; border-color: var(--profile-line); border-radius: 10px; }
+.partners-view-switch { display: flex; gap: .25rem; padding: .3rem; border: 1px solid var(--profile-line); border-radius: 13px; }
+.partners-view-switch button { display: inline-flex; align-items: center; justify-content: center; gap: .55rem; min-height: 3rem; padding: .7rem 1rem; border: 0; border-radius: 9px; background: transparent; color: var(--profile-muted); font: inherit; font-weight: 700; cursor: pointer; }
+.partners-view-switch button.active { background: #e8f2f5; color: #105d76; }
+.partners-view-switch button:hover { background: #f1f5f8; }
+.partners-view-switch button:focus-visible, .partner-clear-action:focus-visible, .partner-profile-action:focus-visible { outline: 2px solid var(--profile-primary); outline-offset: 2px; }
+.partners-table-hidden { display: none; }
+.partner-card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr)); gap: 1rem; }
+.partner-card { display: flex; flex-direction: column; min-width: 0; padding: 1.25rem; border: 1px solid var(--profile-line); border-radius: 16px; background: var(--profile-paper); }
+.partner-card h2 { margin: 0; min-width: 0; color: var(--profile-ink); font-size: 1.15rem; overflow-wrap: anywhere; }
+.partner-card-details { margin: 1rem 0; }
+.partner-card-details > div { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: .75rem; padding: .65rem 0; border-bottom: 1px solid #edf1f5; }
+.partner-card-details dt { color: var(--profile-muted); }
+.partner-card-details dd { margin: 0; font-weight: 650; overflow-wrap: anywhere; }
+.partner-profile-action { display: inline-flex; justify-content: center; align-items: center; gap: .5rem; width: 100%; min-height: 2.75rem; margin-top: auto; padding: .7rem 1rem; border: 1px solid var(--profile-line); border-radius: 10px; background: #edf4f7; color: var(--profile-primary); font: inherit; font-weight: 700; cursor: pointer; }
+:host ::ng-deep .partners-panel > p-paginator .p-paginator { padding: 1rem 0 0; flex-wrap: wrap; }
+.partner-person { display: flex; align-items: center; gap: .75rem; min-width: 0; }
+.partner-avatar { flex: 0 0 40px; border: 2px solid #fff; outline: 1px solid #cddae6; border-radius: 50%; background: #e8f2f5; object-fit: cover; }
+.partner-name { min-width: 0; color: var(--profile-ink); font-weight: 650; overflow-wrap: anywhere; }
+.partners-empty { padding: 2rem 1rem; color: var(--profile-muted); text-align: center; }
+
+:host ::ng-deep .partners-table .p-datatable-header { padding: 0 0 1.15rem; border: 0; background: transparent; }
+:host ::ng-deep .partners-table .p-datatable-table-container { max-width: 100%; overflow-x: auto; overscroll-behavior-x: contain; }
+:host ::ng-deep .partners-table .p-datatable-thead > tr > th { background: #f8fafc; color: var(--profile-muted); border-color: var(--profile-line); }
+:host ::ng-deep .partners-table .p-datatable-tbody > tr > td { vertical-align: middle; border-color: #edf1f5; }
+:host ::ng-deep .partners-table .partner-edit-action { min-height: 2.75rem; border: 1px solid var(--profile-line); border-radius: 10px; background: #edf4f7; color: var(--profile-primary); }
+:host ::ng-deep .partners-table .partner-edit-action:hover { background: #e8f2f5; border-color: #b7c8d7; }
+:host ::ng-deep .partners-table .p-paginator { background: transparent; padding: 1rem 0 0; }
+:host ::ng-deep .partners-table .p-progressbar { height: .5rem; background-color: #d8dadc; }
+:host ::ng-deep .partners-table .p-progressbar-value { background-color: #607d8b; }
+:host ::ng-deep .partners-table .progress-bar-orange2 .p-progressbar-value { background-color: rgb(220, 170, 21); }
+:host ::ng-deep .partners-table .progress-bar-orange .p-progressbar-value { background-color: rgb(219, 178, 45); }
+:host ::ng-deep .partners-table .progress-bar-red .p-progressbar-value { background-color: rgb(217, 51, 51); }
+:host ::ng-deep .partners-table .progress-bar-default .p-progressbar-value { background-color: #607d8b; }
+
+:host ::ng-deep .partner-registration-dialog { border: 1px solid var(--profile-line); border-radius: 18px; background: var(--profile-paper); color: var(--profile-ink); }
+:host ::ng-deep .partner-registration-dialog .p-dialog-title { color: var(--profile-ink); font-size: 1.4rem; }
+:host ::ng-deep .partner-registration-tabs { display: block; min-width: 0; }
+:host ::ng-deep .partner-registration-tabs > .p-tablist { margin-bottom: 1rem; padding: .35rem; border: 1px solid var(--profile-line); border-radius: 13px; background: var(--profile-paper); }
+:host ::ng-deep .partner-registration-tabs .p-tablist-tab-list { flex-wrap: wrap; gap: .25rem; border: 0; background: transparent; }
+:host ::ng-deep .partner-registration-tabs .p-tab { padding: .72rem 1rem; border: 0; border-radius: 9px; color: var(--profile-muted); font: inherit; font-weight: 700; }
+:host ::ng-deep .partner-registration-tabs .p-tab-active { background: #e8f2f5; color: #105d76; }
+:host ::ng-deep .partner-registration-tabs .p-tablist-active-bar { display: none; }
+:host ::ng-deep .partner-registration-tabs .p-tabpanels { padding: 0; }
+
+@media (max-width: 680px) {
+    .partners-page { padding-top: 0; }
+    .partners-hero { grid-template-columns: minmax(0, 1fr); padding: 1.15rem; }
+    .partner-create-action { width: 100%; }
+    .partners-panel { padding: 1rem; }
+    .partners-table-toolbar { grid-template-columns: minmax(0, 1fr); align-items: stretch; }
+    .partners-view-switch button { flex: 1; }
+    .partner-card { padding: 1rem; }
+    .partners-search { width: 100%; }
+    :host ::ng-deep .partners-table .p-paginator { flex-wrap: wrap; gap: .25rem; }
+    :host ::ng-deep .partners-table .p-paginator-current { flex-basis: 100%; text-align: center; white-space: normal; }
+    :host ::ng-deep .partners-table .p-paginator-pages { display: flex; flex-wrap: wrap; justify-content: center; }
+    :host ::ng-deep .partner-registration-tabs .p-tab { flex: 1 1 100%; justify-content: center; white-space: normal; }
+    :host ::ng-deep .partners-panel > p-paginator .p-paginator-current { flex-basis: 100%; text-align: center; white-space: normal; }
+    :host ::ng-deep .partners-panel > p-paginator .p-paginator-pages { display: flex; flex-wrap: wrap; justify-content: center; }
+}

@@ -123,6 +123,7 @@ test("published build: public routes, responsive interactions and registration c
     await page.locator(".hero-actions").getByRole("link", { name: "Crear cuenta" }).click();
     const requests = [];
     await page.route("**/api/**", async route => {
+      assert.equal(new URL(route.request().url()).origin, base, "API requests must use the frontend origin, never the visitor's loopback address");
       requests.push(new URL(route.request().url()).pathname);
       await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ success: true, data: {} }) });
     });

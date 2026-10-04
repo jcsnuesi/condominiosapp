@@ -1,0 +1,167 @@
+<p-confirmDialog />
+<div class="card">
+  <div class="properties-header flex items-center justify-between mb-4">
+    <span
+      class="font-semibold text-lg text-surface-900 dark:text-surface-0"
+      >
+      Properties Overview
+    </span>
+    <div class="properties-header-actions flex items-center gap-2">
+      <button
+        pbutton=""
+        pripple=""
+        label="Add Property"
+        icon="pi pi-plus-circle"
+        class="p-ripple p-button p-component"
+        (click)="addNewProperty()"
+        >
+        <span
+          class="p-button-icon p-button-icon-left pi pi-plus-circle"
+          aria-hidden="true"
+        ></span>
+        <span
+          class="p-ink"
+          aria-hidden="true"
+          role="presentation"
+        ></span>
+        <span class="p-button-label">Add unit</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="contenido-properties">
+    @if (showAvailableProperties) {
+      <div class="propertiesAvailable mb-4">
+        <app-owner-registration
+          [ownerData]="sendOwnerDataToPropertyRegistration"
+          (ownerCreated)="showAvailableProperties = $event"
+        ></app-owner-registration>
+      </div>
+    }
+
+    <div class="tbl-properties">
+      <p-table
+        [value]="propertiesOwner"
+        [paginator]="true"
+        [rows]="5"
+        styleClass="owner-properties-table"
+        responsiveLayout="scroll"
+        [tableStyle]="{ 'min-width': '50rem' }"
+        [rowsPerPageOptions]="[5, 10, 20]"
+        >
+        <ng-template pTemplate="header">
+          <tr>
+            <th style="width: 5%">#</th>
+            <th pSortableColumn="alias" style="width: 20%">
+              Property name <p-sortIcon field="alias" />
+            </th>
+            <th pSortableColumn="unit" style="width: 10%">
+              Unit <p-sortIcon field="unit" />
+            </th>
+            <th pSortableColumn="address" style="width: 30%">
+              Address <p-sortIcon field="address" />
+            </th>
+            <th pSortableColumn="parkingsQty">
+              Parking <p-sortIcon field="parkingsQty" />
+            </th>
+            <th
+              pSortableColumn="pending_balance"
+              style="width: 0.5%"
+              >
+              Pending Balance
+              <p-sortIcon field="pending_balance" />
+            </th>
+            <th pSortableColumn="status" style="width: 10%">
+              Status <p-sortIcon field="status" />
+            </th>
+            <th colspan="2" style="text-align: center">Actions</th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-data let-i="rowIndex">
+          <tr>
+            <td>{{ i + 1 }}</td>
+            <td>{{ data.alias }}</td>
+            @if (data.showUnits) {
+              <td>
+                {{ data.units }}
+              </td>
+            }
+            @if (!data.showUnits) {
+              <td style="width: 0.5%">
+                <p-select
+                                [ngClass]="{
+                                    'ng-valid input-success':
+                                        pro_availables.valid,
+                                    'ng-invalid ng-dirty':
+                                        pro_availables.touched &&
+                                        !pro_availables.dirty
+                                }"
+                  #pro_availables="ngModel"
+                  name="pro_availables"
+                  [options]="data.unitsOptions"
+                  [(ngModel)]="data.unitSelected"
+                  optionLabel="label"
+                  appendTo="body"
+                  />
+              </td>
+            }
+            <td>{{ data.address | titlecase }}</td>
+            @if (data.showUnits) {
+              <td style="width: 0.5%">
+                {{ data.parkingsQty }}
+              </td>
+            }
+            @if (!data.showUnits) {
+              <td style="width: 0.5%">
+                <p-select
+                                [ngClass]="{
+                                    'ng-valid input-success': parking.valid,
+                                    'ng-invalid ng-dirty':
+                                        parking.touched && !parking.dirty
+                                }"
+                  #parking="ngModel"
+                  name="parking"
+                  [options]="parkingOptions"
+                  [(ngModel)]="data.parkingSelected"
+                  optionLabel="label"
+                  appendTo="body"
+                  />
+              </td>
+            }
+            <td>{{ data.pending_balance }}</td>
+            <td>
+              <p-tag
+                [value]="data.status"
+                [severity]="getSeverity(data.status)"
+                />
+            </td>
+            <td>
+              <button
+                #btnEdit
+                pButton
+                type="button"
+                [severity]="editBtnStyle[i].severity"
+                [outlined]="true"
+                [icon]="editBtnStyle[i].icon"
+                [class]="editBtnStyle[i].class"
+                (click)="activarEditarUnit(i, data)"
+              ></button>
+            </td>
+            <td>
+              <button
+                pButton
+                type="button"
+                severity="secondary"
+                [outlined]="true"
+                icon="pi pi-trash"
+                class="p-button-rounded hover:bg-red-600 hover:border-red-600 hover:text-white"
+                (click)="deleteUnit(data.id, data.units)"
+              ></button>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+</div>

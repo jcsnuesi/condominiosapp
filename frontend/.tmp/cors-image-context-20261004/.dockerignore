@@ -1,0 +1,14 @@
+# The root context is used only by the frontend image.
+*
+!frontend
+!nginx
+frontend/*
+!frontend/package.json
+!frontend/pnpm-lock.yaml
+!frontend/pnpm-workspace.yaml
+!frontend/angular.json
+!frontend/tsconfig*.json
+!frontend/src
+nginx/*
+!nginx/Dockerfile
+!nginx/default.conf

@@ -1,0 +1,15 @@
+<ul class="layout-menu">
+    @for (item of model; track $index) { @if(item.visible){
+
+    <ng-container>
+        <li
+            app-menuitem
+            [item]="item"
+            [index]="i"
+            [root]="true"
+            [visible]="item.visible"
+        ></li>
+    </ng-container>
+    <li></li>
+    } }
+</ul>

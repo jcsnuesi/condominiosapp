@@ -1,0 +1,120 @@
+<div class="inquiry-workspace">
+    <div class="inquiry-toolbar">
+        <div>
+            <span class="section-kicker">Service desk</span>
+            <h2>Owner inquiries</h2>
+            <p>Create and track requests linked to this owner's unit.</p>
+        </div>
+        <button
+            type="button"
+            class="create-inquiry-button"
+            [disabled]="!condominiumOptions.length"
+            (click)="openCreateDialog()"
+        >
+            <i class="pi pi-plus"></i>
+            Create inquiry
+        </button>
+    </div>
+
+    @if (!condominiumOptions.length) {
+        <div class="inquiry-message" role="status">
+            <i class="pi pi-info-circle"></i>
+            Assign an active unit before creating an inquiry for this owner.
+        </div>
+    }
+
+    @if (loadError) {
+        <div class="inquiry-message inquiry-message--error" role="alert">
+            <span>{{ loadError }}</span>
+            <button type="button" (click)="loadInquiries()">Try again</button>
+        </div>
+    }
+
+    @if (loading) {
+        <div class="inquiry-loading" aria-label="Loading inquiries">
+            @for (item of [1, 2, 3]; track item) {
+                <p-skeleton height="4.5rem" borderRadius="12px" />
+            }
+        </div>
+    } @else if (inquiries.length) {
+        <p-table [value]="inquiries" responsiveLayout="scroll" [paginator]="inquiries.length > 8" [rows]="8">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>Inquiry</th>
+                    <th>Property</th>
+                    <th>Category</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                    <th>Created</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-inquiry>
+                <tr>
+                    <td><div class="inquiry-title"><strong>{{ inquiry.title }}</strong><span>{{ inquiry.responses?.length || 0 }} response{{ inquiry.responses?.length === 1 ? '' : 's' }}</span></div></td>
+                    <td><div class="property-reference"><strong>{{ inquiry.condominiumId?.alias || 'Condominium' }}</strong><span>Unit {{ inquiry.apartmentUnit }}</span></div></td>
+                    <td>{{ inquiry.category | titlecase }}</td>
+                    <td><p-tag [value]="inquiry.priority | titlecase" [severity]="prioritySeverity(inquiry.priority)" /></td>
+                    <td><p-tag [value]="inquiry.status | titlecase" [severity]="statusSeverity(inquiry.status)" /></td>
+                    <td>{{ inquiry.createdAt | date: 'MMM d, y' }}</td>
+                </tr>
+            </ng-template>
+        </p-table>
+    } @else if (!loadError) {
+        <div class="inquiry-empty">
+            <span><i class="pi pi-comments"></i></span>
+            <h3>No inquiries yet</h3>
+            <p>Create the first request for this owner and keep its follow-up in one place.</p>
+            <button type="button" [disabled]="!condominiumOptions.length" (click)="openCreateDialog()">Create first inquiry</button>
+        </div>
+    }
+</div>
+
+<p-dialog
+    header="Create inquiry"
+    [(visible)]="createDialogVisible"
+    [modal]="true"
+    [style]="{ width: 'min(94vw, 42rem)' }"
+    [draggable]="false"
+>
+    <form #inquiryForm="ngForm" class="inquiry-form" (ngSubmit)="submit(inquiryForm)">
+        <p class="dialog-context">
+            This request will be registered under <strong>{{ ownerName | titlecase }}</strong>.
+        </p>
+
+        <div class="field-grid">
+            <div class="form-field field-wide">
+                <label for="owner-inquiry-title">Title <span>*</span></label>
+                <input id="owner-inquiry-title" pInputText name="title" [(ngModel)]="formValue.title" required maxlength="200" placeholder="Briefly describe the request" />
+            </div>
+            <div class="form-field">
+                <label for="owner-inquiry-condo">Condominium <span>*</span></label>
+                <p-select id="owner-inquiry-condo" name="condominiumId" [options]="condominiumOptions" optionLabel="label" optionValue="value" [(ngModel)]="formValue.condominiumId" (onChange)="condominiumChanged()" placeholder="Select property" required appendTo="body" />
+            </div>
+            <div class="form-field">
+                <label for="owner-inquiry-unit">Unit <span>*</span></label>
+                <p-select id="owner-inquiry-unit" name="apartmentUnit" [options]="unitOptions" optionLabel="label" optionValue="value" [(ngModel)]="formValue.apartmentUnit" placeholder="Select unit" required appendTo="body" [disabled]="!formValue.condominiumId" />
+            </div>
+            <div class="form-field">
+                <label for="owner-inquiry-category">Category <span>*</span></label>
+                <p-select id="owner-inquiry-category" name="category" [options]="categoryOptions" optionLabel="label" optionValue="value" [(ngModel)]="formValue.category" placeholder="Select category" required appendTo="body" />
+            </div>
+            <div class="form-field">
+                <label for="owner-inquiry-priority">Priority <span>*</span></label>
+                <p-select id="owner-inquiry-priority" name="priority" [options]="priorityOptions" optionLabel="label" optionValue="value" [(ngModel)]="formValue.priority" required appendTo="body" />
+            </div>
+            <div class="form-field field-wide">
+                <label for="owner-inquiry-content">Description <span>*</span></label>
+                <textarea id="owner-inquiry-content" pTextarea name="content" [(ngModel)]="formValue.content" required maxlength="5000" rows="6" placeholder="Add the details the administration needs to resolve this request"></textarea>
+                <small>{{ formValue.content.length }} / 5000</small>
+            </div>
+        </div>
+
+        <div class="dialog-actions">
+            <button type="button" class="cancel-button" (click)="createDialogVisible = false">Cancel</button>
+            <button type="submit" class="submit-button" [disabled]="inquiryForm.invalid || submitting">
+                @if (submitting) { <i class="pi pi-spin pi-spinner"></i> } @else { <i class="pi pi-send"></i> }
+                {{ submitting ? 'Creating…' : 'Create inquiry' }}
+            </button>
+        </div>
+    </form>
+</p-dialog>

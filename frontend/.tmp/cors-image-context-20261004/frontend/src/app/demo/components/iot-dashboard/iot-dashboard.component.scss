@@ -1,0 +1,530 @@
+:host {
+    --iot-paper: #f5f8f5;
+    --iot-surface: #ffffff;
+    --iot-ink: #18372f;
+    --iot-muted: #6f817b;
+    --iot-line: #dce7e1;
+    --iot-green: #147454;
+    --iot-green-pale: #e4f2eb;
+    --iot-orange: #b95838;
+    --iot-orange-pale: #fbede6;
+    display: block;
+    min-height: 100%;
+    color: var(--iot-ink);
+}
+
+.smart-home {
+    min-height: 100%;
+    padding: 2rem clamp(1rem, 3vw, 2.5rem) 3rem;
+    background: var(--iot-paper);
+    animation: reveal-in 360ms ease-out both;
+}
+
+.smart-home__header,
+.section-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1.5rem;
+}
+
+.smart-home__header {
+    margin: 0 auto 2rem;
+    max-width: 90rem;
+}
+
+.smart-home__eyebrow {
+    margin: 0 0 0.45rem;
+    color: var(--iot-green);
+    font-size: 0.7rem;
+    font-weight: 800;
+}
+
+.smart-home h1,
+.smart-home h2,
+.smart-home h3,
+.device-detail h2 {
+    margin: 0;
+    color: var(--iot-ink);
+}
+
+.smart-home h1 {
+    font-size: 2rem;
+    line-height: 1.15;
+}
+
+.smart-home__subtitle {
+    margin: 0.5rem 0 0;
+    color: var(--iot-muted);
+    font-size: 0.95rem;
+}
+
+.smart-home__context {
+    display: grid;
+    grid-template-columns: minmax(12rem, 18rem) auto;
+    align-items: end;
+    gap: 0.6rem 0.75rem;
+    min-width: min(100%, 25rem);
+}
+
+.smart-home__context label {
+    grid-column: 1 / -1;
+    color: var(--iot-muted);
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.smart-home__context p-select {
+    min-width: 0;
+}
+
+.smart-home__residence {
+    grid-column: 1 / -1;
+    justify-self: start;
+    padding-inline: 0;
+}
+
+.smart-home__metrics,
+.smart-home__devices,
+.smart-home__activity {
+    max-width: 90rem;
+    margin-inline: auto;
+}
+
+.smart-home__metrics {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    border-block: 1px solid var(--iot-line);
+    margin-bottom: 2.25rem;
+}
+
+.metric {
+    min-height: 8rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 1rem 1.4rem;
+    border-right: 1px solid var(--iot-line);
+}
+
+.metric:first-child {
+    padding-left: 0.35rem;
+}
+
+.metric:last-child {
+    border-right: 0;
+}
+
+.metric > span {
+    color: var(--iot-muted);
+    font-size: 0.68rem;
+    font-weight: 800;
+}
+
+.metric strong {
+    margin-top: 0.35rem;
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.metric strong small {
+    color: var(--iot-muted);
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.metric em {
+    margin-top: 0.45rem;
+    color: var(--iot-muted);
+    font-size: 0.76rem;
+    font-style: normal;
+}
+
+.metric--primary strong {
+    color: var(--iot-green);
+}
+
+.metric--alert strong {
+    color: var(--iot-orange);
+}
+
+.smart-home__notice {
+    max-width: 90rem;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    margin: 0 auto 2rem;
+    padding: 0.85rem 1rem;
+    border-left: 3px solid #cf8a3f;
+    background: #fff8e9;
+    color: #67451d;
+    font-size: 0.88rem;
+}
+
+.smart-home__alerts {
+    max-width: 90rem;
+    margin: 0 auto 2rem;
+    padding: 1rem;
+    border: 1px solid #e7c7b9;
+    border-radius: 8px;
+    background: #fff9f5;
+}
+
+.alert-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    min-height: 3.5rem;
+    border-top: 1px solid #f0ddd4;
+}
+
+.alert-row span {
+    display: grid;
+    gap: 0.2rem;
+}
+.alert-row strong {
+    color: #8d482f;
+    font-size: 0.9rem;
+    text-transform: capitalize;
+}
+.alert-row small {
+    color: var(--iot-muted);
+}
+.alert-row--critical strong {
+    color: #a52d24;
+}
+
+.smart-home__devices {
+    margin-bottom: 2.5rem;
+}
+
+.section-heading {
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.section-heading h2 {
+    font-size: 1.3rem;
+}
+
+.section-heading__count {
+    color: var(--iot-muted);
+    font-size: 0.8rem;
+}
+
+.device-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.85rem;
+}
+
+.device-tile {
+    min-width: 0;
+    min-height: 16.5rem;
+    display: flex;
+    flex-direction: column;
+    padding: 1.15rem;
+    border: 1px solid var(--iot-line);
+    border-radius: 8px;
+    background: var(--iot-surface);
+    transition: border-color 160ms ease, transform 160ms ease;
+}
+
+.device-tile:hover {
+    border-color: #9fc9b5;
+    transform: translateY(-2px);
+}
+
+.device-tile--alert {
+    border-color: #e8b4a1;
+}
+
+.device-tile__top,
+.device-tile__actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.device-tile__icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    display: grid;
+    place-items: center;
+    border-radius: 8px;
+    background: var(--iot-green-pale);
+    color: var(--iot-green);
+    font-size: 1.05rem;
+}
+
+.device-tile__icon--alert {
+    background: var(--iot-orange-pale);
+    color: var(--iot-orange);
+}
+
+.device-tile__identity {
+    margin-top: 1rem;
+}
+
+.device-tile__location,
+.device-tile__type {
+    margin: 0;
+    color: var(--iot-muted);
+    font-size: 0.74rem;
+}
+
+.device-tile__identity h3 {
+    margin: 0.2rem 0;
+    overflow-wrap: anywhere;
+    font-size: 1.05rem;
+}
+
+.device-tile__type {
+    text-transform: capitalize;
+}
+
+.device-tile__state {
+    min-height: 3.7rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-top: 0.65rem;
+    border-top: 1px solid var(--iot-line);
+}
+
+.device-tile__state strong {
+    overflow-wrap: anywhere;
+    font-size: 1.15rem;
+}
+
+.device-tile__state strong small {
+    color: var(--iot-muted);
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.device-tile__state span {
+    margin-top: 0.15rem;
+    color: var(--iot-muted);
+    font-size: 0.72rem;
+}
+
+.device-tile__actions {
+    justify-content: flex-end;
+    margin-top: auto;
+}
+
+.smart-home__activity {
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--iot-line);
+}
+
+.activity-list {
+    max-width: 54rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.activity-list li {
+    min-height: 2.75rem;
+    display: grid;
+    grid-template-columns: 0.5rem minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.8rem;
+    border-bottom: 1px solid var(--iot-line);
+    color: var(--iot-ink);
+    font-size: 0.84rem;
+}
+
+.activity-list time {
+    color: var(--iot-muted);
+    font-size: 0.74rem;
+}
+
+.activity-list__marker {
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 50%;
+    background: var(--iot-green);
+}
+
+.activity-list__marker--error {
+    background: var(--iot-orange);
+}
+
+.activity-empty {
+    color: var(--iot-muted);
+    font-size: 0.85rem;
+}
+
+.smart-home__empty {
+    max-width: 36rem;
+    display: grid;
+    justify-items: center;
+    gap: 0.8rem;
+    margin: 6vh auto;
+    padding: 2.5rem 1.5rem;
+    text-align: center;
+}
+
+.smart-home__empty--compact {
+    margin: 1rem auto;
+    padding: 2rem;
+    border: 1px dashed #b8cdc2;
+    border-radius: 8px;
+}
+
+.smart-home__empty-icon {
+    color: var(--iot-green);
+    font-size: 2rem;
+}
+
+.smart-home__empty h2,
+.smart-home__empty h3 {
+    font-size: 1.25rem;
+}
+
+.smart-home__empty p {
+    max-width: 28rem;
+    margin: 0;
+    color: var(--iot-muted);
+    line-height: 1.5;
+}
+
+.smart-home__loading {
+    min-height: 16rem;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: 1rem;
+    color: var(--iot-muted);
+}
+
+.device-form {
+    display: grid;
+    gap: 0.6rem;
+}
+
+.device-form label {
+    margin-top: 0.55rem;
+    color: var(--iot-ink);
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.device-form p-select,
+.device-form input {
+    width: 100%;
+}
+
+.device-form__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 1.25rem;
+}
+
+.device-detail h2 {
+    margin-top: 0.25rem;
+    font-size: 1.4rem;
+}
+
+.device-detail > p:not(.smart-home__eyebrow) {
+    color: var(--iot-muted);
+}
+
+.device-detail dl {
+    display: grid;
+    grid-template-columns: minmax(7rem, 0.7fr) minmax(0, 1.3fr);
+    gap: 0.6rem;
+    padding-block: 1rem;
+    border-block: 1px solid var(--iot-line);
+    font-size: 0.84rem;
+}
+
+.device-detail dt {
+    color: var(--iot-muted);
+}
+
+.device-detail dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
+.device-detail pre {
+    max-width: 100%;
+    margin: 0;
+    overflow: auto;
+    color: var(--iot-green);
+    font-size: 0.78rem;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+@keyframes reveal-in {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 1050px) {
+    .device-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 720px) {
+    .smart-home {
+        padding: 1.25rem 1rem 2rem;
+    }
+    .smart-home__header {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+    .smart-home__context {
+        grid-template-columns: minmax(0, 1fr) auto;
+        min-width: 0;
+    }
+    .smart-home__metrics {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .metric {
+        min-height: 6.5rem;
+        padding: 0.85rem;
+        border-bottom: 1px solid var(--iot-line);
+    }
+    .metric:nth-child(2) {
+        border-right: 0;
+    }
+    .metric:nth-child(3) {
+        border-bottom: 0;
+    }
+    .metric:last-child {
+        border-bottom: 0;
+    }
+    .device-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .device-tile {
+        min-height: 15.5rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .smart-home {
+        animation: none;
+    }
+    .device-tile {
+        transition: none;
+    }
+}

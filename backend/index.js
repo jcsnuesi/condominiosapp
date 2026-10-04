@@ -2,10 +2,16 @@
 
 const dotenv = require("dotenv");
 dotenv.config();
+const mongoUri = process.env.MONGODB_URI?.trim();
+if (!mongoUri || !/^mongodb(?:\+srv)?:\/\//.test(mongoUri)) {
+  console.error(
+    "MONGODB_URI debe estar definida en el entorno del backend y comenzar con mongodb:// o mongodb+srv://. Configurala como variable de runtime en Coolify."
+  );
+  process.exit(1);
+}
 const mongoose = require("mongoose");
 var app = require("./app");
 var port = 3993;
-var conection = process.env.MONGODB_URI;
 const { createServer } = require("node:http");
 const { Server } = require("socket.io");
 const {
@@ -35,7 +41,7 @@ initializeNotificationRealtime(io);
 mongoose.set("strictQuery", true);
 const connectBD = async () => {
   try {
-    await mongoose.connect(conection, {
+    await mongoose.connect(mongoUri, {
       serverSelectionTimeoutMS: 5000,
     });
 
@@ -52,11 +58,13 @@ const connectBD = async () => {
 
     console.log("MongoDB connected!");
   } catch (error) {
-    console.log(error);
+    console.error(`No se pudo iniciar el backend (${error.name || "Error"}). Comprueba MongoDB, MONGODB_URI y las migraciones de inicio.`);
+    throw error;
   }
 };
 
-httpServer.listen(port, () => {
-  connectBD();
-  console.log("Servidor corriendo.");
-});
+connectBD().then(() => {
+  httpServer.listen(port, () => {
+    console.log("Servidor corriendo.");
+  });
+}).catch(() => process.exit(1));

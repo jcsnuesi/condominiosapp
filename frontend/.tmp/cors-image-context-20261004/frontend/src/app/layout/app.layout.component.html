@@ -1,0 +1,28 @@
+<p-toast></p-toast>
+<div class="layout-wrapper" [ngClass]="containerClass">
+    <app-topbar></app-topbar>
+
+    <aside
+        id="app-sidebar-navigation"
+        class="layout-sidebar"
+        aria-label="Navegación principal"
+    >
+        <app-drawer></app-drawer>
+    </aside>
+    <div class="layout-main-container">
+        <div class="layout-main">
+            <router-outlet #currentComponent></router-outlet>
+        </div>
+        <app-footer></app-footer>
+    </div>
+    <app-config></app-config>
+    @if (layoutService.state.profileSidebarVisible) {
+        <button
+            type="button"
+            class="mobile-profile-backdrop"
+            aria-label="Cerrar cuenta"
+            (click)="hideProfileMenu()"
+        ></button>
+    }
+    <div class="layout-mask" (click)="hideMenu()"></div>
+</div>

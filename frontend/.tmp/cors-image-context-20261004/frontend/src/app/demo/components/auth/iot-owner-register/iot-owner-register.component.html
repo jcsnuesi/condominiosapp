@@ -1,0 +1,120 @@
+<main class="register-page">
+    <section class="register-panel" aria-labelledby="register-title">
+        @if (submitted()) {
+        <p class="register-eyebrow">SMART HOME</p>
+        <h1 id="register-title">Revisa tu correo</h1>
+        <div class="register-success" role="status">
+            <p>
+                Si el correo puede registrarse, recibirás un enlace de verificación.
+                Ábrelo para activar tu cuenta y luego inicia sesión. El enlace vence en 24 horas.
+            </p>
+            @if (errorMessage()) { <p role="alert">{{ errorMessage() }}</p> }
+            @if (notice()) { <p role="status">{{ notice() }}</p> }
+            <button type="button" [disabled]="submitting()" (click)="resend()">Reenviar enlace</button>
+            <button
+                pButton
+                type="button"
+                label="Ir a iniciar sesión"
+                icon="pi pi-arrow-left"
+                (click)="goToLogin()"
+            ></button>
+        </div>
+        } @else {
+        <a routerLink="/auth/register">← Elegir otro tipo de cuenta</a>
+        <p class="register-eyebrow">OWNER PERSONAL · REGISTRO</p>
+        <h1 id="register-title">Crea tu cuenta personal</h1>
+        <p>
+            Gestiona tu vivienda personal y sus dispositivos Smart Home. Tu cuenta no pertenece a una organización.
+        </p>
+        @if (errorMessage()) {
+        <p-message severity="error" [text]="errorMessage()"></p-message> }
+        <form
+            class="register-form"
+            #registerForm="ngForm"
+            (ngSubmit)="submit()"
+        >
+            <label class="half" for="owner-name">Nombre</label>
+            <input
+                pInputText
+                class="half"
+                id="owner-name"
+                name="name"
+                required
+                maxlength="100"
+                [ngModel]="form().name"
+                (ngModelChange)="update('name', $event)"
+            />
+            <label class="half" for="owner-lastname">Apellido</label>
+            <input
+                pInputText
+                class="half"
+                id="owner-lastname"
+                name="lastname"
+                required
+                maxlength="100"
+                [ngModel]="form().lastname"
+                (ngModelChange)="update('lastname', $event)"
+            />
+            <label for="owner-email">Correo electrónico</label>
+            <input
+                pInputText
+                id="owner-email"
+                name="email"
+                type="email"
+                required
+                email
+                [ngModel]="form().email"
+                (ngModelChange)="update('email', $event)"
+                autocomplete="email"
+            />
+            <label for="owner-phone">Teléfono</label>
+            <input
+                pInputText
+                id="owner-phone"
+                name="phone"
+                type="tel"
+                required
+                pattern="^\+?[0-9]{8,16}$"
+                [ngModel]="form().phone"
+                (ngModelChange)="update('phone', $event)"
+                autocomplete="tel"
+            />
+            <label for="owner-password">Contraseña (12 a 128 caracteres)</label>
+            <p-password
+                inputId="owner-password"
+                name="password"
+                [toggleMask]="true"
+                [feedback]="false"
+                required
+                minlength="12"
+                maxlength="128"
+                autocomplete="new-password"
+                [ngModel]="form().password"
+                (ngModelChange)="update('password', $event)"
+            ></p-password>
+            <label for="residence-label">Nombre de tu vivienda</label>
+            <input
+                pInputText
+                id="residence-label"
+                name="residenceLabel"
+                required
+                maxlength="100"
+                placeholder="Casa principal, apartamento de playa…"
+                [ngModel]="form().residenceLabel"
+                (ngModelChange)="update('residenceLabel', $event)"
+            />
+            <button
+                pButton
+                type="submit"
+                icon="pi pi-arrow-right"
+                iconPos="right"
+                label="Crear cuenta personal"
+                [loading]="submitting()"
+                [disabled]="registerForm.invalid || submitting()"
+            ></button>
+        </form>
+        <p>Si tu condominio ya utiliza la plataforma, tu administración crea tu cuenta y te envía las credenciales por correo.</p>
+        <a routerLink="/auth/login">¿Ya tienes cuenta? Inicia sesión</a>
+        }
+    </section>
+</main>

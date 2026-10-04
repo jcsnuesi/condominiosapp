@@ -1,0 +1,391 @@
+<p-toast />
+<!-- Phase 1 responsive note: dashboard cards use Bootstrap grid (col/sm/xl) — mobile OK, add media-query fine-tuning if needed -->
+<p-confirmDialog></p-confirmDialog>
+<p-message
+    *ngFor="let message of propertyInactive"
+    [severity]="message.severity"
+    [text]="message.detail || message.summary"
+    [closable]="false"
+/>
+<section class="dashboard-hero card mb-4">
+    <div>
+        <span class="eyebrow">Condominium overview</span>
+        <h1>Dashboard</h1>
+        <p>
+            Monitor balances, units, bookings, staff, inquiries, and documents
+            from one place.
+        </p>
+    </div>
+    <p-button
+        icon="pi pi-refresh"
+        label="Refresh"
+        ariaLabel="Refresh dashboard data"
+        [outlined]="true"
+        severity="secondary"
+        (onClick)="refreshDashboard()"
+    ></p-button>
+</section>
+
+@if (hasDashboardCardErrors) {
+<div class="dashboard-data-alert" role="alert">
+    <i class="pi pi-exclamation-triangle" aria-hidden="true"></i>
+    <span>Some dashboard data could not be loaded. Select Refresh to try again.</span>
+</div>
+}
+
+<!-- Phase 2: time-range filter placeholder — would bind p-calendar to stats query (deferred: requires backend query param) -->
+<div class="grid dashboard-stat-grid">
+    <div class="col-12 sm:col-6 xl:col-4 2xl:col-2">
+        <button
+            type="button"
+            class="stat-card stat-card-success"
+            [class.stat-card-loading]="dashboardCardLoading.balance"
+            [disabled]="dashboardCardLoading.balance"
+            [attr.aria-busy]="dashboardCardLoading.balance"
+            (click)="showComponent('invoice')"
+        >
+            @if (dashboardCardLoading.balance) {
+            <span class="stat-card-loader" role="status" aria-live="polite">
+                <p-progressSpinner styleClass="dashboard-card-spinner" aria-hidden="true" />
+                <span class="sr-only">Loading balance</span>
+            </span>
+            } @if (!dashboardCardLoading.balance && dashboardCardErrors.balance) {
+            <span class="stat-card-error" role="alert">
+                <i class="pi pi-exclamation-circle" aria-hidden="true"></i>
+                {{ dashboardCardErrors.balance }}
+            </span>
+            } @if (!dashboardCardLoading.balance && !dashboardCardErrors.balance) {
+            <span class="stat-icon"><i class="pi pi-money-bill"></i></span>
+            <span class="stat-label">Balance</span>
+            <strong>{{ invoiceCards.totalBalance | currency : "USD" }}</strong>
+            <small
+                ><b>{{ invoiceCards.counts }}</b> pending</small
+            >
+            }
+        </button>
+    </div>
+
+    <div class="col-12 sm:col-6 xl:col-4 2xl:col-2">
+        <div
+            class="stat-card stat-card-info stat-card-static"
+            [class.stat-card-loading]="dashboardCardLoading.units"
+            [attr.aria-busy]="dashboardCardLoading.units"
+        >
+            @if (dashboardCardLoading.units) {
+            <span class="stat-card-loader" role="status" aria-live="polite">
+                <p-progressSpinner styleClass="dashboard-card-spinner" aria-hidden="true" />
+                <span class="sr-only">Loading total units</span>
+            </span>
+            } @if (!dashboardCardLoading.units && dashboardCardErrors.units) {
+            <span class="stat-card-error" role="alert">
+                <i class="pi pi-exclamation-circle" aria-hidden="true"></i>
+                {{ dashboardCardErrors.units }}
+            </span>
+            } @if (!dashboardCardLoading.units && !dashboardCardErrors.units) {
+            <span class="stat-icon"><i class="pi pi-home"></i></span>
+            <span class="stat-label">Total units</span>
+            <strong>{{ totalUnits }}</strong>
+            <small>registered units</small>
+            }
+        </div>
+    </div>
+
+    <div class="col-12 sm:col-6 xl:col-4 2xl:col-2">
+        <button
+            type="button"
+            class="stat-card stat-card-warning"
+            [class.stat-card-loading]="dashboardCardLoading.bookings"
+            [disabled]="dashboardCardLoading.bookings"
+            [attr.aria-busy]="dashboardCardLoading.bookings"
+            (click)="showComponent('booking')"
+        >
+            @if (dashboardCardLoading.bookings) {
+            <span class="stat-card-loader" role="status" aria-live="polite">
+                <p-progressSpinner styleClass="dashboard-card-spinner" aria-hidden="true" />
+                <span class="sr-only">Loading bookings</span>
+            </span>
+            } @if (!dashboardCardLoading.bookings && dashboardCardErrors.bookings) {
+            <span class="stat-card-error" role="alert">
+                <i class="pi pi-exclamation-circle" aria-hidden="true"></i>
+                {{ dashboardCardErrors.bookings }}
+            </span>
+            } @if (!dashboardCardLoading.bookings && !dashboardCardErrors.bookings) {
+            <span class="stat-icon"><i class="pi pi-calendar-minus"></i></span>
+            <span class="stat-label">Bookings</span>
+            <strong>{{ totalBooked }}</strong>
+            <small
+                ><b>{{ bookingExpiring }}</b> {{ bookingExpiryLabel }}</small
+            >
+            }
+        </button>
+    </div>
+
+    <div class="col-12 sm:col-6 xl:col-4 2xl:col-2">
+        <button
+            type="button"
+            class="stat-card stat-card-cyan"
+            [class.stat-card-loading]="dashboardCardLoading.staff"
+            [disabled]="dashboardCardLoading.staff"
+            [attr.aria-busy]="dashboardCardLoading.staff"
+            (click)="showComponent('staff')"
+        >
+            @if (dashboardCardLoading.staff) {
+            <span class="stat-card-loader" role="status" aria-live="polite">
+                <p-progressSpinner styleClass="dashboard-card-spinner" aria-hidden="true" />
+                <span class="sr-only">Loading staff</span>
+            </span>
+            } @if (!dashboardCardLoading.staff && dashboardCardErrors.staff) {
+            <span class="stat-card-error" role="alert">
+                <i class="pi pi-exclamation-circle" aria-hidden="true"></i>
+                {{ dashboardCardErrors.staff }}
+            </span>
+            } @if (!dashboardCardLoading.staff && !dashboardCardErrors.staff) {
+            <span class="stat-icon"><i class="pi pi-users"></i></span>
+            <span class="stat-label">Staff</span>
+            <strong>{{ totalStaff }}</strong>
+            <small>active collaborators</small>
+            }
+        </button>
+    </div>
+
+    <div class="col-12 sm:col-6 xl:col-4 2xl:col-2">
+        <button
+            type="button"
+            class="stat-card stat-card-purple"
+            [class.stat-card-loading]="dashboardCardLoading.inquiries"
+            [disabled]="dashboardCardLoading.inquiries"
+            [attr.aria-busy]="dashboardCardLoading.inquiries"
+            (click)="showComponent('inquiry')"
+        >
+            @if (dashboardCardLoading.inquiries) {
+            <span class="stat-card-loader" role="status" aria-live="polite">
+                <p-progressSpinner styleClass="dashboard-card-spinner" aria-hidden="true" />
+                <span class="sr-only">Loading inquiries</span>
+            </span>
+            } @if (!dashboardCardLoading.inquiries && dashboardCardErrors.inquiries) {
+            <span class="stat-card-error" role="alert">
+                <i class="pi pi-exclamation-circle" aria-hidden="true"></i>
+                {{ dashboardCardErrors.inquiries }}
+            </span>
+            } @if (!dashboardCardLoading.inquiries && !dashboardCardErrors.inquiries) {
+            <span class="stat-icon"><i class="pi pi-comment"></i></span>
+            <span class="stat-label">Inquiries</span>
+            <strong>{{ totalInquiries }}</strong>
+            <small
+                ><b>{{ totalRespondedInquiries }}</b>
+                {{ totalRespondedInquiries === 1 ? "response" : "responses" }}</small
+            >
+            }
+        </button>
+    </div>
+
+    <div class="col-12 sm:col-6 xl:col-4 2xl:col-2">
+        <button
+            type="button"
+            class="stat-card stat-card-docs"
+            [class.stat-card-loading]="dashboardCardLoading.documents"
+            [disabled]="dashboardCardLoading.documents"
+            [attr.aria-busy]="dashboardCardLoading.documents"
+            (click)="showComponent('documents')"
+        >
+            @if (dashboardCardLoading.documents) {
+            <span class="stat-card-loader" role="status" aria-live="polite">
+                <p-progressSpinner styleClass="dashboard-card-spinner" aria-hidden="true" />
+                <span class="sr-only">Loading documents</span>
+            </span>
+            } @if (!dashboardCardLoading.documents && dashboardCardErrors.documents) {
+            <span class="stat-card-error" role="alert">
+                <i class="pi pi-exclamation-circle" aria-hidden="true"></i>
+                {{ dashboardCardErrors.documents }}
+            </span>
+            } @if (!dashboardCardLoading.documents && !dashboardCardErrors.documents) {
+            <span class="stat-icon"><i class="pi pi-folder"></i></span>
+            <span class="stat-label">Documents</span>
+            <strong>{{ totalDocuments }}</strong>
+            <small>stored files</small>
+            }
+        </button>
+    </div>
+</div>
+<p-breadcrumb class="max-w-full mb-4" [model]="itemsx" />
+@if (!componentsToShow.main) {
+<section
+    class="dashboard-active-context dashboard-section-status"
+    aria-live="polite"
+    aria-atomic="true"
+>
+    <span>Current section</span>
+    <strong>{{ activeSectionLabel }}</strong>
+</section>
+}
+@if (componentsToShow.main) {
+<div class="grid mt-2">
+    <div class="col-12 xl:col-6">
+        <div class="card">
+            <h2>Notifications</h2>
+            <hr />
+            @if (
+                !dashboardCardLoading.inquiries &&
+                !dashboardCardErrors.inquiries &&
+                !areThereInquiries
+            ) {
+            <p>No inquiries found.</p>
+            }
+            <div class="notifications">
+                <div
+                    class="notification-item"
+                    *ngFor="let inquiry of inquiries"
+                >
+                    <div class="notification-icon">
+                        <i
+                            class="pi pi-comment"
+                            [ngClass]="{
+                                'text-red-500':
+                                    inquiry.status === 'high' ||
+                                    inquiry.status === 'urgent',
+                                'text-yellow-500': inquiry.status === 'medium',
+                                'text-green-500': inquiry.status === 'low'
+                            }"
+                        ></i>
+                        {{ inquiry.title }}
+                    </div>
+                    <div class="notification-content">
+                        <div class="body-notification">
+                            <span class="notification-text">
+                                {{ inquiry.fullname }} has sent an inquiry.
+                            </span>
+                            <span
+                                class="notification-status"
+                                [ngClass]="{
+                                    'status-high': inquiry.status === 'high',
+                                    'status-medium':
+                                        inquiry.status === 'medium',
+                                    'status-low': inquiry.status === 'low'
+                                }"
+                                >{{ inquiry.status | titlecase }}</span
+                            >
+                        </div>
+                        <p-button
+                            icon="pi pi-eye"
+                            [ariaLabel]="
+                                'View inquiry ' +
+                                inquiry.title +
+                                ' from ' +
+                                inquiry.fullname
+                            "
+                            [attr.title]="'View inquiry: ' + inquiry.title"
+                            [rounded]="true"
+                            [text]="true"
+                            (click)="showInquiryDialog(inquiry)"
+                        ></p-button>
+                    </div>
+                    <hr />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 xl:col-6">
+        <div class="card">
+            <h2>Monthly Payments Stats</h2>
+            <p id="monthly-payments-description" class="chart-description">
+                Monthly comparison of paid and unpaid invoice counts.
+            </p>
+            <p-chart
+                type="bar"
+                *appHasPermissions="['admin', 'staff_admin', 'staff']"
+                [data]="data"
+                [options]="options"
+                aria-hidden="true"
+            ></p-chart>
+            <p-chart
+                type="bar"
+                *appHasPermissions="['owner']"
+                [data]="dataOwner"
+                [options]="options"
+                aria-hidden="true"
+            ></p-chart>
+            @if (dataOwner?.labels?.length && dataOwner?.datasets?.length >= 2) {
+            <details class="chart-data-summary dashboard-chart-summary">
+                <summary>View payments as a table</summary>
+                <div class="chart-table-scroll">
+                    <table aria-describedby="monthly-payments-description">
+                        <caption class="sr-only">
+                            Monthly paid and unpaid invoice counts
+                        </caption>
+                        <thead>
+                            <tr>
+                                <th scope="col">Month</th>
+                                <th scope="col">{{ dataOwner.datasets[0].label }}</th>
+                                <th scope="col">{{ dataOwner.datasets[1].label }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (label of dataOwner.labels; track label; let index = $index) {
+                            <tr>
+                                <th scope="row">{{ label }}</th>
+                                <td>{{ dataOwner.datasets[0].data[index] }}</td>
+                                <td>{{ dataOwner.datasets[1].data[index] }}</td>
+                            </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+            }
+        </div>
+    </div>
+</div>
+}
+
+<!-- Owner permissions -->
+<p-dialog
+    [(visible)]="visibleCreateOwnerUnit"
+    [modal]="true"
+    [maximizable]="true"
+>
+    <ng-template pTemplate="header">
+        <span class="font-semibold text-xl w-100">
+            <h2>Authorized users</h2>
+        </span>
+        <hr />
+    </ng-template>
+
+    @if (visibleCreateOwnerUnit) {
+    <app-family-area></app-family-area>
+    }
+</p-dialog>
+
+<!-- Bookings generater -->
+@if (componentsToShow.booking) {
+<app-booking-area [condoId]="units_ownerId"></app-booking-area>
+}
+<!-- Invoice history -->
+@if (componentsToShow.invoice) {
+<app-invoice-history [ownerId]="condoId"></app-invoice-history>
+}
+
+<!-- Staff  -->
+@if (componentsToShow.staff) {
+<app-staff [condoId]="condoId" (staffCard)="totalStaff = $event"></app-staff>
+}
+
+<!-- Notification -->
+
+@if (componentsToShow.inquiry) {
+<app-inquiry
+    [condoId]="condoId"
+    [isHome]="false"
+    [dataDialog]="inquiryDialogData"
+    (clearSelectedInquiryDialog)="clearInquiryDialogSelection()"
+></app-inquiry>
+}
+
+<!-- Documents -->
+@if (componentsToShow.documents) {
+<app-docs
+    [isDashboard]="true"
+    [dataDocs]="documentsData"
+    [userId]="getId()"
+></app-docs>
+}
+<!-- Phase 2: time-range filter placeholder — add p-calendar [startDate]/[endDate] bound to dashboard stats query -->

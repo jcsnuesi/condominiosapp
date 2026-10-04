@@ -1,0 +1,63 @@
+<main class="signup-page">
+  <section class="signup-panel" aria-labelledby="signup-title">
+    <a class="brand" routerLink="/auth/login">Condominios App</a>
+    @if (step() === 'choice') {
+      <p class="eyebrow">CREAR CUENTA</p>
+      <h1 id="signup-title">¿Qué necesitas gestionar?</h1>
+      <p class="intro">Te ayudamos a elegir la cuenta adecuada para comenzar.</p>
+      <div class="choices">
+        <button class="choice" type="button" (click)="step.set('account')">
+          <span class="tag">ADMIN</span><h2>Administrar condominios</h2>
+          <p>Crea tu organización, registra condominios y unidades, y gestiona propietarios, cobros y comunicaciones.</p>
+          <span class="choice-action">Crear cuenta de administración →</span>
+        </button>
+        <a class="choice" routerLink="/auth/iot-register">
+          <span class="tag personal">OWNER PERSONAL</span><h2>Gestionar mi vivienda</h2>
+          <p>Registra tu vivienda personal y gestiona sus dispositivos Smart Home desde tu propia cuenta.</p>
+          <span class="choice-action">Crear cuenta personal →</span>
+        </a>
+      </div>
+      <aside><h2>¿Tu condominio ya utiliza la plataforma?</h2>
+        <p>Tu administración crea tu acceso, te asigna el condominio y la unidad, y te envía las credenciales por correo.</p>
+        <a routerLink="/auth/login">Iniciar sesión</a> · <a routerLink="/auth/forgot-password">Recuperar contraseña</a>
+      </aside>
+    } @else if (step() === 'sent') {
+      <p class="eyebrow">ADMIN · VERIFICACIÓN</p>
+      <h1 id="signup-title">Revisa tu correo</h1>
+      <p role="status">Si el correo puede registrarse, recibirás un enlace para activar tu cuenta y tu organización. El enlace vence en 24 horas.</p>
+      <p>Si ya tienes cuenta, inicia sesión o recupera tu contraseña.</p>
+      @if (error()) { <p class="error" role="alert">{{ error() }}</p> }
+      @if (notice()) { <p role="status">{{ notice() }}</p> }
+      <button class="secondary" type="button" [disabled]="busy()" (click)="resend()">Reenviar enlace</button>
+      <a class="primary" routerLink="/auth/login">Ir a iniciar sesión</a>
+      <a class="secondary" routerLink="/auth/forgot-password">Recuperar contraseña</a>
+    } @else {
+      <p class="eyebrow">ADMIN · PASO {{ step() === 'account' ? '1' : '2' }} DE 2</p>
+      <h1 id="signup-title">{{ step() === 'account' ? 'Crea tu acceso' : 'Tu organización' }}</h1>
+      <p class="intro">{{ step() === 'account' ? 'Esta cuenta te permite administrar condominios dentro de tu propia organización.' : 'Puede ser una empresa administradora o la administración de tu condominio.' }}</p>
+      @if (error()) { <p class="error" role="alert">{{ error() }}</p> }
+      @if (step() === 'account') {
+        <form #accountForm="ngForm" (ngSubmit)="next(accountForm)" class="signup-form">
+          <label for="name">Nombre<input id="name" name="name" required maxlength="100" autocomplete="given-name" [(ngModel)]="form.name"></label>
+          <label for="lastname">Apellido<input id="lastname" name="lastname" required maxlength="100" autocomplete="family-name" [(ngModel)]="form.lastname"></label>
+          <label class="wide" for="email">Correo electrónico<input id="email" type="email" name="email" email required maxlength="254" autocomplete="email" [(ngModel)]="form.email"></label>
+          <label class="wide" for="phone">Teléfono<input id="phone" type="tel" name="phone" required pattern="^\+?[0-9]{8,16}$" autocomplete="tel" [(ngModel)]="form.phone"><small>Entre 8 y 16 dígitos; puedes incluir el prefijo +.</small></label>
+          <label class="wide" for="password">Contraseña<input id="password" type="password" name="password" required minlength="12" maxlength="128" autocomplete="new-password" [(ngModel)]="form.password"><small>Entre 12 y 128 caracteres.</small></label>
+          <div class="actions wide"><button type="button" class="secondary" (click)="step.set('choice')">Volver</button><button class="primary" type="submit" [disabled]="accountForm.invalid">Continuar →</button></div>
+        </form>
+      } @else {
+        <form #organizationForm="ngForm" (ngSubmit)="submit(organizationForm)" class="signup-form">
+          <label class="wide" for="company">Nombre de la organización<input id="company" name="company" required maxlength="160" autocomplete="organization" [(ngModel)]="form.company"></label>
+          <label class="wide" for="street">Dirección<input id="street" name="street" required maxlength="200" autocomplete="street-address" [(ngModel)]="form.street_1"></label>
+          <label for="city">Ciudad<input id="city" name="city" required maxlength="100" autocomplete="address-level2" [(ngModel)]="form.city"></label>
+          <label for="state">Provincia<input id="state" name="state" required maxlength="100" autocomplete="address-level1" [(ngModel)]="form.state"></label>
+          <label class="wide" for="country">País<input id="country" name="country" required maxlength="100" autocomplete="country-name" [(ngModel)]="form.country"></label>
+          <label class="terms wide" for="terms"><input id="terms" type="checkbox" name="terms" required [(ngModel)]="form.terms">Acepto los términos y condiciones de la plataforma.</label>
+          <p class="wide">Al verificar tu correo, crearemos tu organización y serás su administrador principal.</p>
+          <div class="actions wide"><button type="button" class="secondary" [disabled]="busy()" (click)="step.set('account')">Volver</button><button class="primary" type="submit" [disabled]="organizationForm.invalid || !form.terms || busy()">{{ busy() ? 'Enviando…' : 'Crear cuenta ADMIN' }}</button></div>
+        </form>
+      }
+    }
+    <footer>¿Ya tienes cuenta? <a routerLink="/auth/login">Inicia sesión</a></footer>
+  </section>
+</main>

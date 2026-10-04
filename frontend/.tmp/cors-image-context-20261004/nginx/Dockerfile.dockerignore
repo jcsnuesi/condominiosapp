@@ -1,0 +1,14 @@
+# Only source files needed for the frontend image enter this build context.
+*
+!frontend
+!nginx
+frontend/*
+!frontend/package.json
+!frontend/pnpm-lock.yaml
+!frontend/pnpm-workspace.yaml
+!frontend/angular.json
+!frontend/tsconfig*.json
+!frontend/src
+nginx/*
+!nginx/Dockerfile
+!nginx/default.conf

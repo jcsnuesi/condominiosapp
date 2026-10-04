@@ -1,0 +1,217 @@
+import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ImportsModule } from '../../imports_primeng';
+import { MessageService } from 'primeng/api';
+import { ConfirmationService } from 'primeng/api';
+import { UserService } from '../../service/user.service';
+import { OwnerServiceService } from '../../service/owner-service.service';
+import { CondominioService } from '../../service/condominios.service';
+import { global } from '../../service/global.service';
+import { ProgressBar } from 'primeng/progressbar';
+import { Table } from 'primeng/table';
+import { Router } from '@angular/router';
+import { OwnerRegistrationComponent } from '../owner-registration/owner-registration.component';
+import { NoPicturesService } from '../../service/nopictures.service';
+import { PoolFileLoaderComponent } from '../pool-file-loader/pool-file-loader.component';
+import { HasPermissionsDirective } from 'src/app/has-permissions.directive';
+
+@Component({
+    selector: 'app-all-partners',
+    imports: [
+        ImportsModule,
+        CommonModule,
+        OwnerRegistrationComponent,
+        PoolFileLoaderComponent,
+        HasPermissionsDirective,
+    ],
+    providers: [
+        MessageService,
+        ConfirmationService,
+        UserService,
+        CondominioService,
+        NoPicturesService,
+    ],
+    templateUrl: './all-partners.component.html',
+    styleUrls: ['./all-partners.component.css'],
+})
+export class AllPartnersComponent implements OnInit {
+    public token: string;
+    public visible: boolean = false;
+    public registrationTab: string | number = 'single';
+    public identity: any;
+    public datatable: any[];
+    public selectedCustomers: any[] = [];
+    public loading: boolean = true;
+    public viewMode: 'table' | 'cards' = 'cards';
+    public searchValue = '';
+    public url: string;
+    @ViewChild('prossBar') prossBar: ProgressBar;
+    public noPictures: any;
+    public fileInputData: {
+        service_key: string;
+        keys_to_add: string[];
+        extras: any;
+    };
+
+    constructor(
+        private _messageService: MessageService,
+        private _confirmationService: ConfirmationService,
+        private _userService: UserService,
+        private _ownerService: OwnerServiceService,
+        private _condominioService: CondominioService,
+        private _router: Router,
+        private _noPicturesService: NoPicturesService,
+        private _changeDetectorRef: ChangeDetectorRef
+    ) {
+        this.token = this._userService.getToken();
+        this.identity = this._userService.getIdentity();
+        this.url = global.url;
+        this.datatable = [];
+
+        this.fileInputData = {
+            service_key: 'ownersByFile',
+            keys_to_add: ['createdBy'],
+            extras: {
+                createdBy: this.identity._id,
+                required_cols: [
+                    'name',
+                    'lastname',
+                    'gender',
+                    'phone',
+                    'dob',
+                    'email',
+                    'condominium_unit',
+                    'parkingsQty',
+                    'id_number',
+                    'isRenting',
+                    'addressId',
+                ],
+            },
+        };
+    }
+
+    ngOnInit(): void {
+        this.getAllPartners();
+    }
+
+    clear(dt: Table): void {
+        this.searchValue = '';
+        dt.clear();
+    }
+
+    searchPartners(value: string, table: Table): void {
+        this.searchValue = value;
+        table.filterGlobal(value, 'contains');
+    }
+
+    getId() {
+        const role = (this.identity?.role || '').toLowerCase();
+        if (role === 'admin') {
+            return this.identity?._id;
+        } else if (role === 'staff' || role === 'staff_admin') {
+            return this.identity?.createdBy || this.identity?._id;
+        }
+        return this.identity?._id;
+    }
+
+    getAllPartners() {
+        this._ownerService.getAllOwners(this.getId()).subscribe({
+            next: (response) => {
+                const owners =
+                    response?.data?.message ?? response?.message ?? [];
+                if (
+                    (response?.success === true ||
+                        response?.status === 'success') &&
+                    Array.isArray(owners)
+                ) {
+                    this.datatable = owners.map((item: any) => {
+                        return {
+                            id: item.ownerId,
+                            avatar: item.avatar,
+                            fullname:
+                                item.owner.name + ' ' + item.owner.lastname,
+                            email: item.owner.email,
+                            phone: item.owner.phone,
+                            createdAt: item.owner.createdAt,
+                            invoiceCount: item.totalInvoices,
+                            totalAmount: item.totalAmount,
+                        };
+                    });
+                    this.loading = false;
+                    this._changeDetectorRef.detectChanges();
+                    // console.log(this.datatable);
+                } else {
+                    this.loading = false;
+                    this._messageService.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: 'No se han encontrado socios',
+                    });
+                }
+            },
+            error: (error) => {
+                console.log(error);
+                this.loading = false;
+                this._messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Error loading partners',
+                });
+            },
+        });
+    }
+
+    // Método para calcular el porcentaje
+    calculateProgress(value: number): number {
+        const max = 5;
+
+        if (value == 0) return 0;
+
+        return (value / max) * 100;
+    }
+    getProgressBarColor(invoiceCount: number): string {
+        switch (invoiceCount) {
+            case 0:
+                return 'progress-bar-default';
+            case 1:
+                return 'progress-bar-default';
+            case 2:
+                return 'progress-bar-orange';
+            case 3:
+                return 'progress-bar-orange2';
+            case 4:
+                return 'progress-bar-red';
+
+            default:
+                return 'progress-bar-red';
+        }
+    }
+
+    showOwner(id: string) {
+        this._router.navigate(['/partners', id]);
+    }
+
+    openRegistrationDialog(): void {
+        this.registrationTab = 'single';
+        this.visible = true;
+    }
+
+    closeDialogRegistration() {
+        // INIT INFO
+        this.visible = false;
+        this.ngOnInit();
+        // console.log('closeDialogRegistration');
+    }
+
+    ownerRegistrationCreated(created: boolean): void {
+        if (!created) return;
+        this.visible = false;
+        this._messageService.add({
+            severity: 'success',
+            summary: 'Owner created',
+            detail: 'The owner was created successfully.',
+            life: 4000,
+        });
+        this.getAllPartners();
+    }
+}

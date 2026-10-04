@@ -1,0 +1,551 @@
+<p-confirmDialog />
+<p-toast />
+<form #unitFormUno="ngForm">
+    <!-- @if (apiUnitResponse) {
+  <p-message
+  [showTransitionOptions]="'500ms'"
+  [hideTransitionOptions]="'500ms'"
+  [enableService]="apiUnitResponse"
+  [(value)]="messageApiResponse"
+  />
+  }
+@if (apiUnitResponse) {
+  <button
+  pButton
+  label="¿Create another user?"
+  (click)="resetStepper()"
+  ></button>
+} -->
+
+    <div class="flex justify-content-center mt-4">
+        <p-stepper [(value)]="indexStepper" [linear]="true" #stepperComponent>
+            <p-step-list>
+                <p-step [value]="1">Basic Info</p-step>
+                <p-step [value]="2">Property details</p-step>
+                <p-step [value]="3">Review</p-step>
+            </p-step-list>
+            <p-step-panels>
+                <p-step-panel [value]="1">
+                    <ng-template
+                        #content
+                        let-activateCallback="activateCallback"
+                    >
+                        <!-- Existing client -->
+                        <p-accordion
+                            *appHasPermissions="['admin', 'owners.read']"
+                            class="mb-4"
+                        >
+                            <p-accordion-panel value="existing-user">
+                                <p-accordion-header
+                                    >¿Existing user?</p-accordion-header
+                                >
+                                <p-accordion-content>
+                                    <div
+                                        class="form-group flex align-items-center gap-2"
+                                    >
+                                        <label class="sr-only" for="owner-search"
+                                            >User ID or email</label
+                                        >
+                                        <input
+                                            id="owner-search"
+                                            pInputText
+                                            type="text"
+                                            placeholder="Enter user ID or email"
+                                            [(ngModel)]="searchUserValue"
+                                            name="searchUserValue"
+                                        />
+                                        <button
+                                            pButton
+                                            type="button"
+                                            label="Buscar"
+                                            icon="pi pi-search"
+                                            (click)="searchExistingUser()"
+                                        ></button>
+                                    </div>
+                                </p-accordion-content>
+                            </p-accordion-panel>
+                        </p-accordion>
+                        <!-- [END] - Existing client -->
+                        <div
+                            class="padding-set border-2 border-dashed surface-border border-round surface-ground justify-content-center font-medium"
+                        >
+                            <div class="cp-avatar-section">
+                                <div
+                                    class="cp-avatar-wrap"
+                                    role="button"
+                                    tabindex="0"
+                                    aria-label="Choose owner photo"
+                                    (click)="triggerFileUpload()"
+                                    (keydown.enter)="triggerFileUpload()"
+                                    (keydown.space)="
+                                        triggerFileUpload();
+                                        $event.preventDefault()
+                                    "
+                                >
+                                    <img
+                                        #imageAvatar
+                                        [src]="image"
+                                        alt="Owner profile photo"
+                                        class="cp-avatar-img"
+                                    />
+                                    <div class="cp-avatar-overlay">
+                                        <i class="pi pi-camera"></i>
+                                    </div>
+                                </div>
+                                <p class="cp-avatar-hint">
+                                    Click to change photo
+                                </p>
+                                <p-fileUpload
+                                    #fileInput
+                                    styleClass="cp-file-upload"
+                                    name="demo[]"
+                                    url="https://www.primefaces.org/cdn/api/upload.php"
+                                    [maxFileSize]="1000000"
+                                    accept="image/*"
+                                    (onSelect)="onSelect($event)"
+                                    [customUpload]="true"
+                                    [auto]="true"
+                                    mode="basic"
+                                    [style]="{ display: 'none' }"
+                                ></p-fileUpload>
+                            </div>
+                            <div class="form-group mt-3">
+                                <label class="sr-only" for="owner-name"
+                                    >First name</label
+                                >
+                                <p-inputGroup>
+                                    <p-inputGroupAddon>
+                                        <i class="pi pi-user"></i>
+                                    </p-inputGroupAddon>
+                                    <input
+                                        pInputText
+                                        [ngClass]="{
+                                            'input-success': ownerName.valid,
+                                            'input-error ':
+                                                ownerName.touched &&
+                                                !ownerName.dirty
+                                        }"
+                                        #ownerName="ngModel"
+                                        id="owner-name"
+                                        [(ngModel)]="ownerObj.name"
+                                        name="ownerName"
+                                        type="text"
+                                        maxlength="30"
+                                        required
+                                        placeholder="Name: Jose Rodolfo"
+                                    />
+                                </p-inputGroup>
+                                @if (ownerName.touched && !ownerName.valid) {
+                                <small class="p-error">Required.</small>
+                                }
+                            </div>
+                            <div class="form-group mt-3">
+                                <label class="sr-only" for="owner-lastname"
+                                    >Last name</label
+                                >
+                                <p-inputGroup>
+                                    <p-inputGroupAddon>
+                                        <i class="pi pi-user"></i>
+                                    </p-inputGroupAddon>
+                                    <input
+                                        pInputText
+                                        [ngClass]="{
+                                            'input-success': lastname.valid,
+                                            'input-error ':
+                                                lastname.touched &&
+                                                !lastname.dirty
+                                        }"
+                                        #lastname="ngModel"
+                                        id="owner-lastname"
+                                        [(ngModel)]="ownerObj.lastname"
+                                        name="lastname"
+                                        type="text"
+                                        maxlength="30"
+                                        required
+                                        placeholder="Name: Rodney Mock"
+                                    />
+                                </p-inputGroup>
+                                @if (lastname.touched && !lastname.valid) {
+                                <small class="p-error">Required.</small>
+                                }
+                            </div>
+                            <div class="form-group mt-3">
+                                <label class="sr-only" for="owner-gender"
+                                    >Gender</label
+                                >
+                                <p-inputGroup>
+                                    <p-inputGroupAddon>
+                                        <i class="pi pi-android"></i>
+                                    </p-inputGroupAddon>
+                                    <p-select
+                                        [ngClass]="{
+                                            'ng-valid input-success':
+                                                gender.valid,
+                                            'ng-invalid ng-dirty':
+                                                gender.touched && !gender.dirty
+                                        }"
+                                        #gender="ngModel"
+                                        inputId="owner-gender"
+                                        name="gender"
+                                        [options]="genderOption"
+                                        [(ngModel)]="ownerObj.gender"
+                                        optionLabel="label"
+                                        optionValue="code"
+                                        placeholder="Select gender..."
+                                        required
+                                    />
+                                </p-inputGroup>
+                            </div>
+                            <div class="form-group mt-3">
+                                <label class="sr-only" for="owner-phone"
+                                    >Phone</label
+                                >
+                                <p-inputGroup>
+                                    <p-inputGroupAddon>
+                                        <i class="pi pi-mobile"></i>
+                                    </p-inputGroupAddon>
+                                    <input
+                                        pInputText
+                                        [ngClass]="{
+                                            'input-success': phone.valid,
+                                            'input-error ':
+                                                phone.touched && !phone.dirty
+                                        }"
+                                        #phone="ngModel"
+                                        id="owner-phone"
+                                        [(ngModel)]="ownerObj.phone"
+                                        name="phone"
+                                        type="text"
+                                        maxlength="11"
+                                        required
+                                        placeholder="8496587417"
+                                        pattern="^[0-9]+"
+                                    />
+                                </p-inputGroup>
+                                @if (phone.touched && !phone.valid) {
+                                <small class="p-error">Required.</small>
+                                }
+                            </div>
+                            <div class="form-group mt-3 marginclass">
+                                <label class="sr-only" for="owner-email"
+                                    >Email</label
+                                >
+                                <p-inputGroup>
+                                    <p-inputGroupAddon>
+                                        <i class="pi pi-envelope"></i>
+                                    </p-inputGroupAddon>
+                                    <input
+                                        pInputText
+                                        #email="ngModel"
+                                        id="owner-email"
+                                        name="email"
+                                        [(ngModel)]="ownerObj.email"
+                                        (ngModelChange)="onEmailChange($event)"
+                                        [ngClass]="{
+                                            'input-success': email.valid,
+                                            'input-error ':
+                                                email.touched && !email.dirty
+                                        }"
+                                        type="text"
+                                        maxlength="50"
+                                        pattern="[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}"
+                                        placeholder="correo@email.com"
+                                        required
+                                    />
+                                </p-inputGroup>
+                                @if (email.touched && !email.valid) {
+                                <small class="p-error">Required.</small>
+                                }
+                            </div>
+                            <hr />
+                            <div class="w-100">
+                                <p-button
+                                    type="button"
+                                    [style]="{
+                                        width: '100%'
+                                    }"
+                                    label="Next"
+                                    icon="pi pi-arrow-right"
+                                    iconPos="right"
+                                    (onClick)="activateCallback(2)"
+                                    [disabled]="
+                                        !email.valid ||
+                                        !ownerName.valid ||
+                                        !phone.valid ||
+                                        !lastname.valid ||
+                                        !gender.valid
+                                    "
+                                />
+                            </div>
+                        </div>
+                    </ng-template>
+                </p-step-panel>
+                <p-step-panel [value]="2">
+                    <ng-template
+                        #content
+                        let-activateCallback="activateCallback"
+                    >
+                        <div
+                            class="padding-set border-2 border-dashed surface-border border-round surface-ground justify-content-center font-medium"
+                        >
+                            <p-button
+                                type="button"
+                                severity="secondary"
+                                icon="pi pi-arrow-circle-left"
+                                (onClick)="activateCallback(1)"
+                                [rounded]="true"
+                                [text]="true"
+                                size="large"
+                            />
+                            @if (!homeId && allowCondominiumSelection) {
+                            <div class="form-group mb-3">
+                                <label class="sr-only" for="owner-condominium"
+                                    >Condominium</label
+                                >
+                                <p-inputGroup>
+                                    <p-inputGroupAddon>
+                                        <i class="pi pi-building"></i>
+                                    </p-inputGroupAddon>
+                                    <p-select
+                                        [ngClass]="{
+                                            'input-success':
+                                                propertiesAvailable.valid,
+                                            'input-error ':
+                                                propertiesAvailable.touched &&
+                                                !propertiesAvailable.dirty
+                                        }"
+                                        #propertiesAvailable="ngModel"
+                                        inputId="owner-condominium"
+                                        name="propertiesAvailable"
+                                        [(ngModel)]="ownerObj.addressId"
+                                        [options]="propertiesOptions"
+                                        optionLabel="label"
+                                        optionValue="code"
+                                        placeholder="Choose properties..."
+                                        (onChange)="onPropertiesChange($event)"
+                                        [loading]="isLoadingCondominiums"
+                                        [disabled]="isLoadingCondominiums"
+                                        required
+                                    />
+                                </p-inputGroup>
+                                @if ( propertiesAvailable.touched &&
+                                !propertiesAvailable.valid ) {
+                                <small
+                                    id="propertiesAvailable-label"
+                                    class="p-error"
+                                    >Required.</small
+                                >
+                                }
+                            </div>
+                            }
+                            @if (isSelectedCondominiumInactive) {
+                            <div
+                                class="owner-registration__status-notice"
+                                role="alert"
+                            >
+                                <i
+                                    class="pi pi-pause-circle"
+                                    aria-hidden="true"
+                                ></i>
+                                <span>
+                                    This property is suspended. Activate it
+                                    before adding an owner.
+                                </span>
+                            </div>
+                            }
+                            <div class="form-group mb-3">
+                                <label class="sr-only" for="owner-unit"
+                                    >Available unit</label
+                                >
+                                <p-inputGroup>
+                                    <p-inputGroupAddon>
+                                        <i class="pi pi-home"></i>
+                                    </p-inputGroupAddon>
+                                    <p-select
+                                        [ngClass]="{
+                                            'input-success':
+                                                apartmentsUnit.valid,
+                                            'input-error ':
+                                                apartmentsUnit.touched &&
+                                                !apartmentsUnit.dirty
+                                        }"
+                                        #apartmentsUnit="ngModel"
+                                        inputId="owner-unit"
+                                        name="apartmentsUnit"
+                                        [(ngModel)]="ownerObj.apartmentsUnit"
+                                        [options]="unitOptions"
+                                        optionLabel="label"
+                                        optionValue="code"
+                                        placeholder="Choose available unit..."
+                                        (onChange)="onUnitChange()"
+                                        [loading]="isLoadingUnits"
+                                        [disabled]="
+                                            isLoadingUnits ||
+                                            !ownerObj.addressId
+                                        "
+                                        required
+                                    />
+                                </p-inputGroup>
+                                @if ( apartmentsUnit.touched &&
+                                !apartmentsUnit.valid ) {
+                                <small id="apartmentsUnit-label" class="p-error"
+                                    >Required.</small
+                                >
+                                }
+                            </div>
+                            <div class="form-group mb-3">
+                                <label class="sr-only" for="owner-is-renting"
+                                    >Rental status</label
+                                >
+                                <p-inputGroup>
+                                    <p-inputGroupAddon>
+                                        <i class="pi pi-hourglass"></i>
+                                    </p-inputGroupAddon>
+                                    <p-select
+                                        [ngClass]="{
+                                            'ng-valid input-success':
+                                                isRent.valid,
+                                            'ng-invalid ng-dirty':
+                                                isRent.touched && !isRent.dirty
+                                        }"
+                                        name="isRent"
+                                        inputId="owner-is-renting"
+                                        #isRent="ngModel"
+                                        [(ngModel)]="ownerObj.isRenting"
+                                        [options]="isRentOptions"
+                                        optionLabel="label"
+                                        optionValue="code"
+                                        placeholder="Is rent?"
+                                        required
+                                    />
+                                </p-inputGroup>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label class="sr-only" for="integeronly"
+                                    >Parking spaces</label
+                                >
+                                <p-inputGroup>
+                                    <p-inputGroupAddon>
+                                        <i class="pi pi-car"></i>
+                                    </p-inputGroupAddon>
+                                    <p-inputNumber
+                                        [ngClass]="{
+                                            'ng-valid input-success':
+                                                parking.valid,
+                                            'ng-invalid ng-dirty':
+                                                parking.touched &&
+                                                !parking.dirty
+                                        }"
+                                        name="parking"
+                                        #parking="ngModel"
+                                        [(ngModel)]="ownerObj.parkingsQty"
+                                        placeholder="Parking units..."
+                                        inputId="integeronly"
+                                        required
+                                    />
+                                </p-inputGroup>
+                            </div>
+                            <hr />
+                            <div class="w-100">
+                                <p-button
+                                    type="button"
+                                    [style]="{
+                                        width: '100%'
+                                    }"
+                                    label="Next"
+                                    icon="pi pi-arrow-right"
+                                    iconPos="right"
+                                    (onClick)="activateCallback(3)"
+                                    [disabled]="
+                                        enable_next(
+                                            apartmentsUnit,
+                                            isRent,
+                                            parking
+                                        )
+                                    "
+                                />
+                            </div>
+                        </div>
+                    </ng-template>
+                </p-step-panel>
+                <p-step-panel [value]="3">
+                    <ng-template
+                        #content
+                        let-activateCallback="activateCallback"
+                    >
+                        <p-button
+                            type="button"
+                            severity="secondary"
+                            icon="pi pi-arrow-circle-left"
+                            (onClick)="activateCallback(2)"
+                            [rounded]="true"
+                            [text]="true"
+                            size="large"
+                        />
+                        <p-card header="Info confirmation:">
+                            <p class="m-0">
+                                <b>Name:</b> {{ ownerObj.name }}
+                                <br />
+                                <b>Lastname:</b> {{ ownerObj.lastname }}
+                                <br />
+                                <b>Gender:</b> {{ ownerObj.gender }}
+                                <br />
+                                <b>Email:</b> {{ ownerObj.email }}
+                                <br />
+                                <b>Phone:</b> {{ ownerObj.phone }}
+                                <br />
+                                <b>Phone 2:</b> {{ ownerObj.phone2 }}
+                                <br />
+                                <b>Unit:</b>
+                                {{ ownerObj.apartmentsUnit }}
+                                <br />
+                                <b>Parking units:</b>
+                                {{ ownerObj.parkingsQty }}
+                                <br />
+                                <b>Is rent?:</b>
+                                {{ ownerObj.isRenting }}
+                                <br />
+                            </p>
+                            <h4>Address detail:</h4>
+                            <p class="m-0">
+                                <b>Street:</b> {{ addreesDetails?.street_1 }}
+                                <br />
+                                <b>Street 2:</b> {{ addreesDetails?.street_2 }}
+                                <br />
+                                <b>Neigborhood name:</b>
+                                {{ addreesDetails?.sector_name }}
+                                <br />
+                                <b>City:</b> {{ addreesDetails?.city }}
+                                <br />
+                                <b>Province:</b> {{ addreesDetails?.province }}
+                                <br />
+                                <b>Country:</b> {{ addreesDetails?.country }}
+                                <br />
+                            </p>
+                        </p-card>
+                        <hr />
+                        <div class="w-100">
+                            <p-button
+                                type="button"
+                                [style]="{
+                                    width: '100%'
+                                }"
+                                label="Create"
+                                (onClick)="confirmNewOwner()"
+                                [disabled]="
+                                    isSubmittingOwner ||
+                                    isSelectedCondominiumInactive
+                                "
+                                [loading]="isSubmittingOwner"
+                                [raised]="true"
+                                severity="success"
+                            />
+                        </div>
+                    </ng-template>
+                </p-step-panel>
+            </p-step-panels>
+        </p-stepper>
+    </div>
+    <!-- @if (!apiUnitResponse) {
+            } -->
+</form>

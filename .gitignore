@@ -19,3 +19,5 @@ docker-compose.yml
 /specs
 /ocr-service/.test-deps/
 backend/test
+docs/COOLIFY_TROUBLESHOOTING.md
+backend/tests/
