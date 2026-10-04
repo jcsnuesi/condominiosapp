@@ -2,7 +2,6 @@
 .devcontainer/
 .vscode/
 docker-compose.yml
-Dockerfile
 .angular
 /uploads
 /tests/artifacts/rbac-functional-*/
