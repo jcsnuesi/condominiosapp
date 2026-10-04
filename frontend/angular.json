@@ -63,6 +63,20 @@
                             ],
                             "outputHashing": "all"
                         },
+                        "release-review": {
+                            "budgets": [
+                                {
+                                    "type": "initial",
+                                    "maximumWarning": "3mb",
+                                    "maximumError": "9mb"
+                                },
+                                {
+                                    "type": "anyComponentStyle",
+                                    "maximumWarning": "6kb",
+                                    "maximumError": "22kb"
+                                }
+                            ]
+                        },
                         "development": {
                             "buildOptimizer": false,
                             "optimization": false,

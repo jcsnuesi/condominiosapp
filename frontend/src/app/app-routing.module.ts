@@ -25,6 +25,11 @@ import { CommunicationLogComponent } from './demo/components/communication-log/c
             [
                 {
                     path: '',
+                    pathMatch: 'full',
+                    loadComponent: () => import('./demo/components/saas-landing/saas-landing.component').then(m => m.SaasLandingComponent),
+                },
+                {
+                    path: '',
                     component: AppLayoutComponent,
                     canActivate: [UserGuard],
                     children: [
@@ -152,10 +157,8 @@ import { CommunicationLogComponent } from './demo/components/communication-log/c
                 },
                 {
                     path: 'landing',
-                    loadChildren: () =>
-                        import('./demo/components/landing/landing.module').then(
-                            (m) => m.LandingModule
-                        ),
+                    pathMatch: 'full',
+                    redirectTo: '',
                 },
                 { path: 'notfound', component: NotfoundComponent },
                 { path: '**', redirectTo: '/notfound' },

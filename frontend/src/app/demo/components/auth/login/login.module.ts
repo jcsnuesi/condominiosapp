@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { LoginRoutingModule } from './login-routing.module';
 import { LoginComponent } from './login.component';
 import { ButtonModule } from 'primeng/button';
@@ -16,6 +17,7 @@ import { ToastModule } from 'primeng/toast';
 @NgModule({
     imports: [
         CommonModule,
+        RouterLink,
         LoginRoutingModule,
         ButtonModule,
         CheckboxModule,

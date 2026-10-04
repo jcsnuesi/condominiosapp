@@ -89,7 +89,13 @@ export class AppMenuComponent implements OnInit {
         this.model = [
             {
                 label: 'Configuración',
-                items: [{ label: 'Primeros pasos', icon: 'pi pi-list', routerLink: ['/onboarding'] }],
+                items: [
+                    {
+                        label: 'Primeros pasos',
+                        icon: 'pi pi-list',
+                        routerLink: ['/onboarding'],
+                    },
+                ],
                 visible: this.accessContext.isOwnerAdmin(),
             },
             {
@@ -175,7 +181,7 @@ export class AppMenuComponent implements OnInit {
                 ),
             },
             {
-                label: 'Partners',
+                label: 'Customer 360',
                 items: [
                     {
                         label: 'Partners',

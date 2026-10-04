@@ -3,3 +3,5 @@
 .vscode/
 docker-compose.yml
 .angular
+/dist/saas-landing-production/
+/dist/condominiosapp-landing.zip
