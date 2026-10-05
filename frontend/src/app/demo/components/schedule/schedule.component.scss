@@ -1,16 +1,73 @@
-:host { display: block; color: var(--text-color); }
-.schedule-page { background: var(--surface-card); border: 1px solid var(--surface-border); border-radius: 12px; padding: 1.5rem; }
-.page-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
-h1 { margin: 0 0 .4rem; font-size: 1.8rem; } h2 { font-size: 1.3rem; } p { line-height: 1.5; } .page-header p, .hint, small { color: var(--text-color-secondary); }
-.tabs, .view-toggle { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 1.2rem; }
-.tabs { border-bottom: 1px solid var(--surface-border); padding-bottom: .75rem; }
-button { font: inherit; color: var(--text-color); background: var(--surface-ground); border: 1px solid var(--surface-border); padding: .5rem .8rem; border-radius: 6px; cursor: pointer; }
-button:hover { background: var(--surface-hover); } button:disabled { opacity: .5; cursor: default; } button.selected { color: var(--primary-color); border-color: var(--primary-color); }
-button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 3px; }
-.filters { display: flex; flex-wrap: wrap; align-items: end; gap: .8rem; margin-bottom: 1rem; }
-label { display: flex; flex-direction: column; gap: .4rem; font-weight: 500; } input, select, textarea { font: inherit; color: var(--text-color); background: var(--surface-ground); border: 1px solid var(--surface-border); border-radius: 6px; padding: .65rem; min-width: 0; width: 100%; }
-.filters label { flex: 1 1 145px; max-width: 300px; } .table-scroll { overflow-x: auto; } table { width: 100%; border-collapse: collapse; min-width: 600px; } th { text-align: left; color: var(--text-color-secondary); font-weight: 500; } td, th { border-bottom: 1px solid var(--surface-border); padding: .9rem .65rem; vertical-align: top; } td strong, small { display: block; } small { margin-top: .3rem; font-size: .85rem; font-weight: 400; }
-.actions { min-width: 170px; } .actions button { margin: 0 .35rem .35rem 0; font-size: .9rem; } .badge { display: inline-block; background: var(--surface-ground); border-radius: 4px; padding: .3rem .5rem; white-space: nowrap; } .overdue, .error { color: #b54738; } .error { padding: .7rem; border: 1px solid currentColor; border-radius: 6px; overflow-wrap: anywhere; } .message { color: var(--primary-color); }
-.empty { padding: 2rem; text-align: center; color: var(--text-color-secondary); } .empty i { font-size: 2rem; } .pagination { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-top: 1rem; } .editor { display: flex; flex-direction: column; gap: 1rem; } .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; } .checkbox { flex-direction: row; align-items: center; } .checkbox input { width: auto; } .preserve { white-space: pre-wrap; } .calendar { --fc-border-color: var(--surface-border); --fc-page-bg-color: var(--surface-card); --fc-neutral-bg-color: var(--surface-ground); --fc-today-bg-color: var(--surface-hover); }
+﻿// Same semantic palette and type hierarchy as SeePropertyComponent.
+:host {
+  display: block; min-width: 0; color: var(--app-dark-text, #183153);
+  --schedule-ink: var(--app-dark-text, #183153);
+  --schedule-muted: var(--app-dark-muted, #66758d);
+  --schedule-line: var(--app-dark-border, #dce5ee);
+  --schedule-primary: var(--app-dark-accent, #176b87);
+  --schedule-surface: var(--app-dark-surface, #fff);
+}
+.schedule-page { background: var(--schedule-surface); border: 1px solid var(--schedule-line); border-radius: 18px; padding: 1.6rem; box-shadow: none; }
+.page-header { display: flex; align-items: center; justify-content: space-between; gap: 1.25rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.page-kicker { color: var(--schedule-primary); font-size: .72rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+h1 { margin: .3rem 0 .4rem; color: var(--schedule-ink); font-size: clamp(1.65rem, 3vw, 2.35rem); line-height: 1.1; letter-spacing: -.035em; }
+h2 { color: var(--schedule-ink); font-size: 1.3rem; }
+p { line-height: 1.5; }
+.page-header p { margin: 0; }
+.page-header p, .hint, small { color: var(--schedule-muted); }
+:host ::ng-deep .schedule-primary-action { min-height: 44px; border-radius: 10px; background: var(--schedule-primary); border-color: var(--schedule-primary); color: var(--app-dark-on-accent, #fff); font-weight: 700; box-shadow: none; }
+:host ::ng-deep .schedule-primary-action:not(:disabled):hover { background: var(--app-dark-accent-hover, #125b73); border-color: var(--app-dark-accent-hover, #125b73); }
+.tabs, .view-toggle { display: flex; gap: .2rem; flex-wrap: wrap; padding: .25rem; margin-bottom: 1.2rem; border: 1px solid var(--schedule-line); border-radius: 12px; width: fit-content; max-width: 100%; }
+button { font: inherit; font-weight: 650; color: var(--schedule-primary); background: var(--schedule-surface); border: 1px solid var(--schedule-line); min-height: 44px; padding: .6rem .85rem; border-radius: 10px; cursor: pointer; }
+button:hover { background: var(--app-dark-info-bg, #f1f5f8); }
+button:disabled { opacity: .5; cursor: default; }
+.tabs button, .view-toggle button { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; border: 0; border-radius: 8px; font-weight: 700; color: var(--schedule-muted); background: transparent; }
+.tabs button.selected, .view-toggle button.selected { color: var(--app-dark-accent, #105d76); background: var(--app-dark-info-bg, #e8f2f5); }
+.tabs button:hover, .view-toggle button:hover { background: var(--app-dark-info-bg, #f1f5f8); }
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--schedule-primary); outline-offset: 2px; }
+.filters { display: flex; flex-wrap: wrap; align-items: end; gap: .75rem; margin-bottom: 1.2rem; }
+label { display: flex; flex-direction: column; gap: .4rem; color: var(--schedule-ink); font-size: .84rem; font-weight: 650; }
+input, select, textarea { font: inherit; font-weight: 400; color: var(--schedule-ink); background: var(--schedule-surface); border: 1px solid var(--schedule-line); border-radius: 10px; padding: .65rem; min-height: 44px; min-width: 0; width: 100%; }
+input::placeholder, textarea::placeholder { color: var(--schedule-muted); opacity: 1; }
+input:disabled, select:disabled { background: var(--app-dark-surface-muted, #f5f8fb); color: var(--schedule-muted); }
+.filters label { flex: 1 1 145px; max-width: 300px; color: var(--schedule-muted); font-size: .76rem; font-weight: 500; }
+.table-scroll { overflow-x: auto; border: 1px solid var(--schedule-line); border-radius: 16px; }
+table { width: 100%; border-collapse: collapse; min-width: 600px; font-size: .9rem; }
+th { text-align: left; color: var(--schedule-muted); background: var(--app-dark-info-bg, #f5f8fb); font-size: .8rem; font-weight: 650; }
+td, th { border-bottom: 1px solid var(--schedule-line); padding: .9rem 1rem; vertical-align: middle; }
+tbody tr:last-child td { border-bottom: 0; }
+td strong, small { display: block; }
+td strong { font-weight: 650; }
+small { margin-top: .3rem; font-size: .76rem; font-weight: 400; line-height: 1.45; }
+.actions { min-width: 170px; }
+.actions button { margin: 0 .35rem .35rem 0; font-size: .8rem; }
+.badge { display: inline-block; color: var(--schedule-muted); background: var(--app-dark-info-bg, #e8f2f5); border-radius: 999px; padding: .3rem .6rem; font-size: .75rem; font-weight: 750; white-space: nowrap; }
+.badge.active { color: var(--app-dark-success-text, #08785d); background: var(--app-dark-success-bg, #e9f8f2); }
+.badge.overdue { color: var(--app-dark-danger-text, #c44732); background: var(--app-dark-danger-bg, #fff0ed); }
+.error { color: var(--app-dark-danger-text, #b42318); background: var(--app-dark-danger-bg, #fff5f4); padding: .7rem; border: 1px solid currentColor; border-radius: 10px; overflow-wrap: anywhere; }
+.message { color: var(--schedule-primary); }
+.empty { padding: 2rem; text-align: center; color: var(--schedule-muted); }
+.empty i { font-size: 2rem; color: var(--schedule-primary); }
+.pagination { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 1rem; padding-top: 1rem; color: var(--schedule-muted); font-size: .85rem; }
+.pagination button { border: 0; background: transparent; }
+.pagination button:not(:disabled):hover { background: var(--app-dark-info-bg, #e8f2f5); }
+.editor { display: flex; flex-direction: column; gap: 1rem; color: var(--schedule-ink); }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.checkbox { flex-direction: row; align-items: center; }
+.checkbox input { width: auto; min-height: auto; accent-color: var(--schedule-primary); }
+.preserve { white-space: pre-wrap; }
+.calendar { --fc-border-color: var(--schedule-line); --fc-page-bg-color: var(--schedule-surface); --fc-neutral-bg-color: var(--app-dark-info-bg, #f5f8fb); --fc-today-bg-color: var(--app-dark-info-bg, #e8f2f5); --fc-button-bg-color: var(--schedule-primary); --fc-button-border-color: var(--schedule-primary); --fc-button-text-color: var(--app-dark-on-accent, #fff); --fc-button-hover-bg-color: var(--app-dark-accent-hover, #125b73); --fc-button-hover-border-color: var(--app-dark-accent-hover, #125b73); --fc-button-active-bg-color: var(--app-dark-accent-hover, #125b73); --fc-button-active-border-color: var(--app-dark-accent-hover, #125b73); --fc-event-bg-color: var(--schedule-primary); --fc-event-border-color: var(--schedule-primary); --fc-event-text-color: var(--app-dark-on-accent, #fff); }
+:host ::ng-deep .calendar .fc-toolbar-title { color: var(--schedule-ink); font-size: 1.3rem; }
+:host ::ng-deep .calendar .fc-button { border-radius: 10px; min-height: 44px; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
-@media (max-width: 600px) { .schedule-page { padding: 1rem; } .form-grid { grid-template-columns: 1fr; } .filters label { max-width: none; } .pagination { flex-wrap: wrap; } :host ::ng-deep .fc-header-toolbar { flex-direction: column; gap: .6rem; } }
+@media (max-width: 680px) {
+  .schedule-page { padding: 1rem; }
+  .page-header { flex-direction: column; align-items: stretch; }
+  :host ::ng-deep .page-header .schedule-primary-action { width: 100%; }
+  .form-grid { grid-template-columns: 1fr; }
+  .filters label { max-width: none; }
+  .tabs, .view-toggle { width: 100%; }
+  .tabs button, .view-toggle button { flex: 1; }
+  .pagination { gap: .5rem; }
+  :host ::ng-deep .calendar .fc-header-toolbar { flex-direction: column; gap: .6rem; }
+}

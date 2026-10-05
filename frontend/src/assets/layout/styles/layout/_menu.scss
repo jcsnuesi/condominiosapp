@@ -2,6 +2,11 @@
 @use "./mixins" as *;
 
 .layout-sidebar {
+    --menu-ink: var(--app-dark-text, #183153);
+    --menu-muted: var(--app-dark-muted, #66758d);
+    --menu-accent: var(--app-dark-accent, #176b87);
+    --menu-active: var(--app-dark-info-bg, #e8f2f5);
+    --menu-line: var(--app-dark-border, #dce5ee);
     position: fixed;
     width: var(--layout-sidebar-width, 18rem);
     height: 100vh;
@@ -24,11 +29,12 @@
         transform $transitionDuration,
         width $transitionDuration,
         padding $transitionDuration;
-    background-color: var(--surface-card);
-    border-right: 1px solid var(--surface-border);
+    background-color: var(--app-dark-surface, #fff);
+    border-right: 1px solid var(--menu-line);
     border-radius: 0;
     padding: calc(var(--layout-topbar-height, 5rem) + 1rem) 1rem 1rem;
     box-shadow: none;
+    scroll-padding-block: calc(var(--layout-topbar-height, 5rem) + 1rem) 1rem;
 }
 
 .layout-sidebar::-webkit-scrollbar {
@@ -64,12 +70,21 @@
     list-style-type: none;
 
     .layout-root-menuitem {
+        & + .layout-root-menuitem {
+            margin-top: .85rem;
+            padding-top: .85rem;
+            border-top: 1px solid var(--menu-line);
+        }
+
         > .layout-menuitem-root-text {
-            font-size: 0.857rem;
+            font-size: .68rem;
             text-transform: uppercase;
             font-weight: 700;
-            color: var(--surface-900);
-            margin: 0.75rem 0;
+            letter-spacing: .085em;
+            line-height: 1.5;
+            color: var(--menu-muted);
+            margin: 0 0 .4rem;
+            padding: 0 .85rem;
         }
 
         > a {
@@ -104,16 +119,36 @@
             display: flex;
             align-items: center;
             position: relative;
-            outline: 0 none;
-            color: var(--text-color);
+            min-height: 44px;
+            min-width: 0;
+            color: var(--menu-ink);
             cursor: pointer;
-            padding: 0.75rem 1rem;
-            border-radius: $borderRadius;
+            padding: .5rem .75rem;
+            margin-block: .15rem;
+            border-radius: 10px;
+            font-size: .9rem;
+            font-weight: 500;
+            line-height: 1.4;
+            gap: .65rem;
+            touch-action: manipulation;
             transition: background-color $transitionDuration,
-                box-shadow $transitionDuration;
+                color $transitionDuration;
+
+            .layout-menuitem-text {
+                min-width: 0;
+                overflow-wrap: anywhere;
+            }
 
             .layout-menuitem-icon {
-                margin-right: 0.5rem;
+                display: grid;
+                place-items: center;
+                width: 1.75rem;
+                height: 1.75rem;
+                flex: 0 0 1.75rem;
+                margin-right: 0;
+                border-radius: 7px;
+                font-size: 1rem;
+                color: var(--menu-muted);
             }
 
             .layout-submenu-toggler {
@@ -124,20 +159,37 @@
 
             &.active-route {
                 font-weight: 700;
-                color: var(--primary-color);
-                background-color: color-mix(
-                    in srgb,
-                    var(--primary-color) 8%,
-                    transparent
-                );
+                color: var(--menu-accent);
+                background-color: var(--menu-active);
+
+                &::before {
+                    content: '';
+                    position: absolute;
+                    inset-inline-start: 0;
+                    top: 25%;
+                    bottom: 25%;
+                    width: 3px;
+                    border-radius: 999px;
+                    background: var(--menu-accent);
+                }
+
+                .layout-menuitem-icon { color: var(--menu-accent); }
             }
 
             &:hover {
-                background-color: var(--surface-hover);
+                color: var(--menu-accent);
+                background-color: var(--menu-active);
+                .layout-menuitem-icon { color: var(--menu-accent); }
             }
 
-            &:focus {
-                @include focused-inset();
+            &:focus-visible {
+                outline: 2px solid var(--menu-accent);
+                outline-offset: -2px;
+            }
+
+            &[aria-disabled='true'] {
+                opacity: .5;
+                cursor: not-allowed;
             }
         }
 

@@ -37,6 +37,11 @@ import { LayoutService } from './service/app.layout.service';
                 "
                 [attr.href]="item.url"
                 (click)="itemClick($event)"
+                (keydown.enter)="!item.url && itemClick($event)"
+                (keydown.space)="!item.url && itemClick($event)"
+                [attr.role]="!item.url ? 'button' : null"
+                [attr.aria-expanded]="item.items ? active : null"
+                [attr.aria-disabled]="item.disabled || null"
                 [ngClass]="item.class"
                 [attr.target]="item.target"
                 [attr.aria-label]="item.label"
@@ -61,6 +66,8 @@ import { LayoutService } from './service/app.layout.service';
                 [ngClass]="item.class"
                 [routerLink]="item.routerLink"
                 routerLinkActive="active-route"
+                ariaCurrentWhenActive="page"
+                [attr.aria-disabled]="item.disabled || null"
                 [routerLinkActiveOptions]="
                     item.routerLinkActiveOptions || {
                         paths: 'exact',
@@ -91,6 +98,7 @@ import { LayoutService } from './service/app.layout.service';
                 <i
                     class="pi pi-fw pi-angle-down layout-submenu-toggler"
                     *ngIf="item.items"
+                    aria-hidden="true"
                 ></i>
             </a>
 
@@ -214,6 +222,9 @@ export class AppMenuitemComponent implements OnInit, OnDestroy {
     }
 
     itemClick(event: Event) {
+        if (event instanceof KeyboardEvent && event.key === ' ') {
+            event.preventDefault();
+        }
         // avoid processing disabled items
         if (this.item.disabled) {
             event.preventDefault();
