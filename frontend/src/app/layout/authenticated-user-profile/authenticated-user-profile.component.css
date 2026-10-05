@@ -1,26 +1,26 @@
 :host ::ng-deep .authenticated-profile-dialog {
-    border: 1px solid #e7e8e5;
+    border: 1px solid var(--app-dark-border, #e7e8e5);
     border-radius: 10px;
     box-shadow: 0 12px 34px rgba(31, 41, 55, 0.045);
 }
 
 :host ::ng-deep .authenticated-profile-dialog .p-dialog-header {
     padding: 1.25rem 1.5rem;
-    border-bottom: 1px solid #eaeaea;
-    background: #fbfbfa;
-    color: #2f3b4d;
+    border-bottom: 1px solid var(--app-dark-border, #eaeaea);
+    background: var(--app-dark-surface, #fbfbfa);
+    color: var(--app-dark-text, #2f3b4d);
 }
 
 :host ::ng-deep .authenticated-profile-dialog .p-dialog-content {
     padding: 0;
-    background: #fbfbfa;
+    background: var(--app-dark-surface, #fbfbfa);
 }
 
 .profile-shell {
     display: grid;
     gap: 1rem;
     padding: 1.5rem;
-    color: #2f3b4d;
+    color: var(--app-dark-text, #2f3b4d);
 }
 
 .profile-loading {
@@ -29,11 +29,11 @@
     place-content: center;
     justify-items: center;
     gap: 0.75rem;
-    color: #718097;
+    color: var(--app-dark-muted, #718097);
 }
 
 .profile-loading i {
-    color: #14b87a;
+    color: var(--app-dark-success-text, #14b87a);
     font-size: 1.5rem;
 }
 
@@ -51,10 +51,10 @@
     display: grid;
     place-items: center;
     overflow: hidden;
-    border: 1px solid #dce3df;
+    border: 1px solid var(--app-dark-border, #dce3df);
     border-radius: 10px;
-    background: #edf3ec;
-    color: #346538;
+    background: var(--app-dark-success-bg, #edf3ec);
+    color: var(--app-dark-text, #346538);
 }
 
 .profile-avatar img {
@@ -76,7 +76,7 @@
 .profile-eyebrow,
 .profile-section-kicker,
 .profile-meta span {
-    color: #8a95a5;
+    color: var(--app-dark-muted, #8a95a5);
     font-size: 0.7rem;
     font-weight: 750;
     letter-spacing: 0.07em;
@@ -85,7 +85,7 @@
 
 .profile-identity-copy strong {
     overflow: hidden;
-    color: #2f3b4d;
+    color: var(--app-dark-text, #2f3b4d);
     font-size: 1.1rem;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -93,7 +93,7 @@
 
 .profile-identity-copy > span:last-child {
     overflow: hidden;
-    color: #718097;
+    color: var(--app-dark-muted, #718097);
     font-size: 0.82rem;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -105,22 +105,22 @@
     align-items: center;
     min-height: 2.35rem;
     padding: 0 0.85rem;
-    border: 1px solid #dce3ea;
+    border: 1px solid var(--app-dark-border, #dce3ea);
     border-radius: 6px;
-    background: #ffffff;
-    color: #344258;
+    background: var(--app-dark-surface, #ffffff);
+    color: var(--app-dark-text, #344258);
     font-size: 0.8rem;
     font-weight: 700;
     cursor: pointer;
 }
 
 .profile-avatar-action:hover {
-    background: #f7f9f8;
-    border-color: #cbd6de;
+    background: var(--app-dark-surface, #f7f9f8);
+    border-color: var(--app-dark-border, #cbd6de);
 }
 
 .profile-avatar-action:focus-within {
-    outline: 2px solid rgba(20, 184, 122, 0.3);
+    outline: 2px solid var(--app-dark-border, rgba(20, 184, 122, 0.3));
     outline-offset: 2px;
 }
 
@@ -136,9 +136,9 @@
 .profile-meta {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    border: 1px solid #eaeaea;
+    border: 1px solid var(--app-dark-border, #eaeaea);
     border-radius: 8px;
-    background: #f7f6f3;
+    background: var(--app-dark-warning-bg, #f7f6f3);
 }
 
 .profile-meta > div {
@@ -149,12 +149,12 @@
 }
 
 .profile-meta > div + div {
-    border-left: 1px solid #e3e3df;
+    border-left: 1px solid var(--app-dark-border, #e3e3df);
 }
 
 .profile-meta strong {
     overflow: hidden;
-    color: #3f4c5f;
+    color: var(--app-dark-text, #3f4c5f);
     font-size: 0.78rem;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -164,9 +164,9 @@
     display: grid;
     gap: 1.1rem;
     padding: 1.25rem;
-    border: 1px solid #eaeaea;
+    border: 1px solid var(--app-dark-border, #eaeaea);
     border-radius: 8px;
-    background: #ffffff;
+    background: var(--app-dark-surface, #ffffff);
 }
 
 .profile-section-heading {
@@ -178,7 +178,7 @@
 
 .profile-section-heading h3 {
     margin: 0.15rem 0 0;
-    color: #2f3b4d;
+    color: var(--app-dark-text, #2f3b4d);
     font-size: 1rem;
     letter-spacing: -0.01em;
 }
@@ -186,7 +186,7 @@
 .profile-section-heading p {
     max-width: 18rem;
     margin: 0;
-    color: #7b8797;
+    color: var(--app-dark-muted, #7b8797);
     font-size: 0.78rem;
     line-height: 1.5;
     text-align: right;
@@ -202,7 +202,7 @@
     min-width: 0;
     display: grid;
     gap: 0.4rem;
-    color: #435065;
+    color: var(--app-dark-text, #435065);
     font-size: 0.78rem;
     font-weight: 700;
 }
@@ -210,19 +210,19 @@
 .profile-field input {
     width: 100%;
     min-height: 2.65rem;
-    border-color: #dce3ea;
+    border-color: var(--app-dark-border, #dce3ea);
     border-radius: 6px;
-    background: #ffffff;
-    color: #2f3b4d;
+    background: var(--app-dark-surface, #ffffff);
+    color: var(--app-dark-text, #2f3b4d);
 }
 
 .profile-field input:focus {
-    border-color: #76cba8;
+    border-color: var(--app-dark-border, #76cba8);
     box-shadow: 0 0 0 2px rgba(20, 184, 122, 0.1);
 }
 
 .profile-field small {
-    color: #9f2f2d;
+    color: var(--app-dark-danger-text, #9f2f2d);
     font-size: 0.7rem;
     font-weight: 550;
 }
@@ -237,14 +237,15 @@
 }
 
 :host ::ng-deep .profile-section-actions .p-button {
-    border-color: #253348;
+    color: #fff;
+    border-color: var(--app-dark-border, #253348);
     border-radius: 6px;
     background: #253348;
     box-shadow: none;
 }
 
 :host ::ng-deep .profile-section-actions .p-button:hover {
-    border-color: #344258;
+    border-color: var(--app-dark-border, #344258);
     background: #344258;
 }
 
@@ -268,7 +269,7 @@
     }
 
     .profile-meta > div + div {
-        border-top: 1px solid #e3e3df;
+        border-top: 1px solid var(--app-dark-border, #e3e3df);
         border-left: 0;
     }
 

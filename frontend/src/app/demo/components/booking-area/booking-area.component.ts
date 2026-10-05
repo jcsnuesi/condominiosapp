@@ -168,12 +168,18 @@ export class BookingAreaComponent implements OnInit {
             if (!start || !Number.isFinite(start.getTime())) return [];
             const end = booking.checkOutAt ? new Date(booking.checkOutAt) : null;
             const colors: Record<string, string> = {
-                reserved: '#e8f2f5', guest: '#e9f8f2', cancelled: '#fff0ed',
-                completed: '#f1f5f8', expired: '#fbf3db',
+                reserved: 'var(--app-dark-info-bg, #e8f2f5)',
+                guest: 'var(--app-dark-success-bg, #e9f8f2)',
+                cancelled: 'var(--app-dark-danger-bg, #fff0ed)',
+                completed: 'var(--app-dark-surface-muted, #f1f5f8)',
+                expired: 'var(--app-dark-warning-bg, #fbf3db)',
             };
             const textColors: Record<string, string> = {
-                reserved: '#105d76', guest: '#08785d', cancelled: '#c44732',
-                completed: '#66758d', expired: '#956400',
+                reserved: 'var(--app-dark-info-text, #105d76)',
+                guest: 'var(--app-dark-success-text, #08785d)',
+                cancelled: 'var(--app-dark-danger-text, #c44732)',
+                completed: 'var(--app-dark-muted, #66758d)',
+                expired: 'var(--app-dark-warning-text, #956400)',
             };
             return [{
                 id: booking.id,
@@ -182,9 +188,9 @@ export class BookingAreaComponent implements OnInit {
                 start,
                 end: end && end.getTime() > start.getTime() ? end : undefined,
                 allDay: false,
-                backgroundColor: colors[(booking.status ?? '').toLowerCase()] ?? '#f1f5f8',
-                borderColor: '#dce5ee',
-                textColor: textColors[(booking.status ?? '').toLowerCase()] ?? '#183153',
+                backgroundColor: colors[(booking.status ?? '').toLowerCase()] ?? 'var(--app-dark-surface-muted, #f1f5f8)',
+                borderColor: 'var(--app-dark-border, #dce5ee)',
+                textColor: textColors[(booking.status ?? '').toLowerCase()] ?? 'var(--app-dark-text, #183153)',
                 display: 'block',
             }];
         });

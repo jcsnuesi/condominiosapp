@@ -9,7 +9,7 @@
 
 .img-border-radius {
     border-radius: 50%;
-    border: #dbdbdb solid 1px;
+    border: var(--app-dark-border, #dbdbdb) solid 1px;
     width: 150px;
     height: 130px;
 }

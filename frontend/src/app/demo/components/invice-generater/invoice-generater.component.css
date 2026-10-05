@@ -4,7 +4,7 @@
 }
 
 .dropdown-divider {
-    border-top: 1px solid #e9ecef;
+    border-top: 1px solid var(--app-dark-border, #e9ecef);
     margin: 0.5rem 0;
 }
 

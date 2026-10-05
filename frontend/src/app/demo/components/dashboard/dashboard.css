@@ -1,19 +1,19 @@
 ::ng-deep .add-unit .p-button:hover {
-    background-color: rgb(235, 235, 112);
-    border-color: rgb(210, 202, 202);
+    background-color: var(--app-dark-warning-bg, rgb(235, 235, 112));
+    border-color: var(--app-dark-border, rgb(210, 202, 202));
 }
 
 ::ng-deep .add-unit .p-button {
-    background-color: rgb(135, 192, 239);
-    border-color: rgb(135, 192, 239);
+    background-color: var(--app-dark-info-bg, rgb(135, 192, 239));
+    border-color: var(--app-dark-border, rgb(135, 192, 239));
 }
 
 .input-success {
-    border-color: green;
+    border-color: var(--app-dark-border, green);
 }
 
 .input-error {
-    border-color: red;
+    border-color: var(--app-dark-border, red);
 }
 
 .p-card .p-card-title {
@@ -25,12 +25,12 @@
 }
 .change-icon:hover {
     cursor: pointer;
-    border: rgb(249, 181, 57) 1px solid;
+    border: var(--app-dark-border, rgb(249, 181, 57)) 1px solid;
 }
 
 .icon-plus-changer:hover {
     cursor: pointer;
-    border: rgb(198, 200, 203) 1px solid;
+    border: var(--app-dark-border, rgb(198, 200, 203)) 1px solid;
 }
 
 .notification-content {
@@ -107,10 +107,10 @@
     gap: 0.65rem;
     margin-bottom: 1rem;
     padding: 0.8rem 1rem;
-    border: 1px solid #fed7aa;
+    border: 1px solid var(--app-dark-border, #fed7aa);
     border-radius: 0.75rem;
-    background: #fff7ed;
-    color: #9a3412;
+    background: var(--app-dark-warning-bg, #fff7ed);
+    color: var(--app-dark-danger-text, #9a3412);
 }
 
 .sr-only {
@@ -186,8 +186,8 @@ button.stat-card:focus-visible {
     border-radius: inherit;
     background: linear-gradient(
             180deg,
-            rgba(255, 255, 255, 0.7),
-            rgba(255, 255, 255, 0.88)
+            var(--app-dark-surface, rgba(255, 255, 255, 0.7)),
+            var(--app-dark-surface, rgba(255, 255, 255, 0.88))
         ),
         var(--surface-card);
     z-index: 1;
@@ -197,7 +197,7 @@ button.stat-card:focus-visible {
     display: flex;
     align-items: flex-start;
     gap: 0.5rem;
-    color: #b91c1c;
+    color: var(--app-dark-danger-text, #b91c1c);
     font-size: 0.875rem;
     font-weight: 600;
     line-height: 1.4;
@@ -247,28 +247,28 @@ button.stat-card:focus-visible {
 }
 
 .stat-card-success .stat-icon {
-    background: #dcfce7;
-    color: #16a34a;
+    background: var(--app-dark-success-bg, #dcfce7);
+    color: var(--app-dark-success-text, #16a34a);
 }
 .stat-card-info .stat-icon {
-    background: #dbeafe;
-    color: #2563eb;
+    background: var(--app-dark-info-bg, #dbeafe);
+    color: var(--app-dark-accent, #2563eb);
 }
 .stat-card-warning .stat-icon {
-    background: #ffedd5;
-    color: #f97316;
+    background: var(--app-dark-warning-bg, #ffedd5);
+    color: var(--app-dark-warning-text, #f97316);
 }
 .stat-card-cyan .stat-icon {
-    background: #cffafe;
-    color: #0891b2;
+    background: var(--app-dark-info-bg, #cffafe);
+    color: var(--app-dark-accent, #0891b2);
 }
 .stat-card-purple .stat-icon {
-    background: #f3e8ff;
-    color: #9333ea;
+    background: var(--app-dark-purple-bg, #f3e8ff);
+    color: var(--app-dark-purple-text, #9333ea);
 }
 .stat-card-docs .stat-icon {
-    background: #fef3c7;
-    color: #d97706;
+    background: var(--app-dark-warning-bg, #fef3c7);
+    color: var(--app-dark-warning-text, #d97706);
 }
 
 .notification-item {

@@ -83,7 +83,7 @@
 
 .propertiesAvailable {
     margin-top: 15px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--app-dark-border, #ccc);
     padding: 1rem;
     border-radius: 0.375rem;
     display: flex;

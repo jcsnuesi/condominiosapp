@@ -18,14 +18,14 @@
     overflow: hidden;
     cursor: pointer;
     background: transparent;
-    border: 2px solid var(--p-surface-border, #e2e8f0);
+    border: 2px solid var(--p-surface-border, var(--app-dark-border, #e2e8f0));
     border-radius: 50%;
     transition: border-color 0.2s;
 }
 
 .cp-avatar-wrap:hover,
 .cp-avatar-wrap:focus-visible {
-    border-color: var(--p-primary-color, #6366f1);
+    border-color: var(--p-primary-color, var(--app-dark-border, #6366f1));
     outline: none;
 }
 
@@ -56,7 +56,7 @@
 
 .cp-avatar-hint {
     margin: 0;
-    color: var(--p-text-muted-color, #64748b);
+    color: var(--p-text-muted-color, var(--app-dark-muted, #64748b));
     font-size: 0.72rem;
 }
 

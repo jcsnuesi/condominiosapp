@@ -163,11 +163,11 @@
 }
 
 .cp-required {
-    color: #ef4444;
+    color: var(--app-dark-danger-text, #ef4444);
 }
 
 .cp-error-msg {
-    color: #ef4444;
+    color: var(--app-dark-danger-text, #ef4444);
     font-size: 0.75rem;
 }
 
@@ -301,7 +301,7 @@
 /* ---- Radio group â€” segmented control ---- */
 .cp-radio-group {
     display: inline-flex;
-    background: #fff;
+    background: var(--app-dark-surface, #fff);
     border-radius: 9px;
     padding: 3px;
     gap: 2px;
@@ -357,7 +357,7 @@
 }
 
 .cp-radio-option.active {
-    background: #e8f2f5;
+    background: var(--app-dark-info-bg, #e8f2f5);
     color: var(--property-ink);
     box-shadow: none;
 }
@@ -377,7 +377,7 @@
 
 /* ---- Unit preview ---- */
 .cp-preview-box {
-    background: #f5f8fb;
+    background: var(--app-dark-info-bg, #f5f8fb);
     border: 1px solid var(--property-line);
     border-radius: 10px;
     padding: 0.85rem 1rem;
@@ -472,12 +472,12 @@
 
 /* ---- Validation states ---- */
 .input-error {
-    border-color: #ef4444 !important;
+    border-color: var(--app-dark-border, #ef4444) !important;
     box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.15);
 }
 
 :host ::ng-deep .input-error-dropdown .p-select {
-    border-color: #ef4444 !important;
+    border-color: var(--app-dark-border, #ef4444) !important;
     box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.15);
 }
 
@@ -502,14 +502,14 @@
 :host {
     display: block;
     min-width: 0;
-    --property-ink: #183153;
-    --property-muted: #66758d;
-    --property-line: #dce5ee;
-    --property-primary: #176b87;
+    --property-ink: var(--app-dark-text, #183153);
+    --property-muted: var(--app-dark-muted, #66758d);
+    --property-line: var(--app-dark-border, #dce5ee);
+    --property-primary: var(--app-dark-accent, #176b87);
     --p-primary-color: var(--property-primary);
-    --p-primary-hover-color: #125b73;
-    --p-primary-active-color: #105d76;
-    --p-primary-contrast-color: #fff;
+    --p-primary-hover-color: var(--app-dark-accent-hover, #125b73);
+    --p-primary-active-color: var(--app-dark-accent, #105d76);
+    --p-primary-contrast-color: var(--app-dark-on-accent, #fff);
     --p-text-color: var(--property-ink);
     --p-text-muted-color: var(--property-muted);
     --p-form-field-border-color: var(--property-line);
@@ -521,8 +521,8 @@
     --p-tabs-tab-active-border-color: var(--property-primary);
     --p-tabs-active-bar-background: var(--property-primary);
     --p-tabs-tab-color: var(--property-muted);
-    --p-stepper-step-number-active-background: #e8f2f5;
-    --p-stepper-step-number-active-color: #105d76;
+    --p-stepper-step-number-active-background: var(--app-dark-info-bg, #e8f2f5);
+    --p-stepper-step-number-active-color: var(--app-dark-accent, #105d76);
     --p-stepper-step-number-active-border-color: var(--property-primary);
     --p-stepper-step-title-active-color: var(--property-ink);
     --p-stepper-step-title-color: var(--property-muted);
@@ -536,7 +536,7 @@
     font-family: inherit;
     border: 1px solid var(--property-line);
     border-radius: 18px;
-    background: #fff;
+    background: var(--app-dark-surface, #fff);
     box-shadow: none;
 }
 .create-property-page .cp-page-header { align-items: center; gap: 1.25rem; margin-bottom: 1.5rem; }
@@ -546,16 +546,16 @@
 .cp-field label, .cp-section-label { color: var(--property-ink); font-size: .82rem; font-weight: 650; }
 .cp-field-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .cp-field, .cp-field-grid > * { min-width: 0; }
-:host ::ng-deep .create-property-page .p-tablist-tab-list { background: #fff; border-color: var(--property-line); }
+:host ::ng-deep .create-property-page .p-tablist-tab-list { background: var(--app-dark-surface, #fff); border-color: var(--property-line); }
 :host ::ng-deep .create-property-page .p-tab { min-height: 44px; font-size: .9rem; font-weight: 700; }
-:host ::ng-deep .create-property-page .p-tabpanels { padding: 1.25rem 0 0; color: var(--property-ink); background: #fff; }
+:host ::ng-deep .create-property-page .p-tabpanels { padding: 1.25rem 0 0; color: var(--property-ink); background: var(--app-dark-surface, #fff); }
 :host ::ng-deep .cp-stepper .p-steppanels,
-:host ::ng-deep .cp-stepper .p-steppanel { padding: 0; color: var(--property-ink); background: #fff; }
+:host ::ng-deep .cp-stepper .p-steppanel { padding: 0; color: var(--property-ink); background: var(--app-dark-surface, #fff); }
 :host ::ng-deep .cp-stepper .p-step-title { font-size: .85rem; font-weight: 700; }
 :host ::ng-deep .cp-stepper .p-inputtext,
 :host ::ng-deep .cp-stepper .p-select,
 :host ::ng-deep .cp-stepper .p-multiselect { min-width: 0; min-height: 44px; border-color: var(--property-line); border-radius: 10px; color: var(--property-ink); font-size: .9rem; }
-:host ::ng-deep .cp-stepper .p-inputgroupaddon { color: var(--property-muted); background: #f5f8fb; border-color: var(--property-line); }
+:host ::ng-deep .cp-stepper .p-inputgroupaddon { color: var(--property-muted); background: var(--app-dark-info-bg, #f5f8fb); border-color: var(--property-line); }
 /* Joined controls only round the outer corners, keeping the icon aligned. */
 :host ::ng-deep .cp-stepper .p-inputgroup {
     width: 100%;
@@ -581,20 +581,20 @@
     font-size: 1rem;
     line-height: 1;
 }
-.cp-avatar-wrap { padding: .2rem; border: 1px solid #cddae6; background: #e8f2f5; }
+.cp-avatar-wrap { padding: .2rem; border: 1px solid var(--app-dark-border, #cddae6); background: var(--app-dark-info-bg, #e8f2f5); }
 .cp-avatar-img { border-radius: 50%; }
 .cp-avatar-hint { color: var(--property-muted); font-size: .76rem; }
 .cp-radio-group { padding: .25rem; gap: .2rem; max-width: 100%; border: 1px solid var(--property-line); border-radius: 12px; }
 .cp-radio-option { min-height: 44px; padding: .6rem .85rem; border-radius: 8px; font-weight: 700; }
-.cp-radio-option.active { color: #105d76; background: #e8f2f5; box-shadow: none; }
-.cp-radio-option:hover { background: #f1f5f8; }
-:host ::ng-deep .cp-unit-chip .p-tag { color: #105d76; background: #e8f2f5; font-size: .75rem; font-weight: 650; }
-:host ::ng-deep .cp-info-msg .p-message { color: #105d76; background: #e8f2f5; border: 1px solid var(--property-line); border-radius: 10px; box-shadow: none; }
+.cp-radio-option.active { color: var(--app-dark-accent, #105d76); background: var(--app-dark-info-bg, #e8f2f5); box-shadow: none; }
+.cp-radio-option:hover { background: var(--app-dark-info-bg, #f1f5f8); }
+:host ::ng-deep .cp-unit-chip .p-tag { color: var(--app-dark-accent, #105d76); background: var(--app-dark-info-bg, #e8f2f5); font-size: .75rem; font-weight: 650; }
+:host ::ng-deep .cp-info-msg .p-message { color: var(--app-dark-accent, #105d76); background: var(--app-dark-info-bg, #e8f2f5); border: 1px solid var(--property-line); border-radius: 10px; box-shadow: none; }
 .cp-step-footer { gap: .75rem; }
-:host ::ng-deep .cp-step-footer .p-button { min-height: 44px; border-radius: 10px; color: #fff; background: var(--property-primary); border-color: var(--property-primary); font-weight: 700; box-shadow: none; }
-:host ::ng-deep .cp-step-footer .p-button:not(:disabled):hover { background: #125b73; border-color: #125b73; }
-:host ::ng-deep .cp-step-footer .p-button-outlined { color: var(--property-primary); background: #fff; border-color: var(--property-line); }
-:host ::ng-deep .cp-step-footer .p-button-outlined:not(:disabled):hover { color: #105d76; background: #e8f2f5; }
+:host ::ng-deep .cp-step-footer .p-button { min-height: 44px; border-radius: 10px; color: var(--app-dark-on-accent, #fff); background: var(--property-primary); border-color: var(--property-primary); font-weight: 700; box-shadow: none; }
+:host ::ng-deep .cp-step-footer .p-button:not(:disabled):hover { background: var(--app-dark-accent-hover, #125b73); border-color: var(--app-dark-border, #125b73); }
+:host ::ng-deep .cp-step-footer .p-button-outlined { color: var(--property-primary); background: var(--app-dark-surface, #fff); border-color: var(--property-line); }
+:host ::ng-deep .cp-step-footer .p-button-outlined:not(:disabled):hover { color: var(--app-dark-accent, #105d76); background: var(--app-dark-info-bg, #e8f2f5); }
 @media (max-width: 680px) {
     .create-property-page { padding: 1rem; }
     .create-property-page .cp-page-header { flex-direction: column; align-items: stretch; }

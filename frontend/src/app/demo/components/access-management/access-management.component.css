@@ -8,7 +8,7 @@
 .policy-card.archived { opacity: .58; }
 .policy-card h3 { margin: .75rem 0 .25rem; }
 .policy-actions { position: absolute; top: .5rem; right: .5rem; display: flex; align-items: center; gap: .35rem; }
-:host ::ng-deep .access-policy-delete-button.p-button { border-color: var(--p-red-500, #ef4444); color: var(--p-red-500, #ef4444); }
+:host ::ng-deep .access-policy-delete-button.p-button { border-color: var(--p-red-500, var(--app-dark-border, #ef4444)); color: var(--p-red-500, var(--app-dark-danger-text, #ef4444)); }
 :host ::ng-deep .access-policy-delete-button.p-button .p-button-icon { display: inline-block; font-size: 1rem; }
 .dialog-fields { display: grid; gap: 1rem; }
 .dialog-fields label { display: grid; gap: .4rem; font-weight: 600; }

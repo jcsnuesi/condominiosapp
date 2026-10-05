@@ -1,9 +1,9 @@
 :host {
-    --profile-ink: #183153;
-    --profile-muted: #66758d;
-    --profile-line: #dce5ee;
-    --profile-paper: #ffffff;
-    --profile-primary: #176b87;
+    --profile-ink: var(--app-dark-text, #183153);
+    --profile-muted: var(--app-dark-muted, #66758d);
+    --profile-line: var(--app-dark-border, #dce5ee);
+    --profile-paper: var(--app-dark-surface, #ffffff);
+    --profile-primary: var(--app-dark-accent, #176b87);
     display: block;
     min-width: 0;
     max-width: 100%;
@@ -13,17 +13,17 @@
 .create-user-page { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.15rem; max-width: 1480px; margin: 0 auto; padding: .5rem 0 2.5rem; color: var(--profile-ink); }
 .user-hero { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 1.5rem; min-width: 0; padding: 1.6rem; border: 1px solid var(--profile-line); border-radius: 18px; background: var(--profile-paper); }
 .user-identity { display: flex; align-items: center; gap: 1.15rem; min-width: 0; }
-.user-mark { display: grid; place-items: center; width: 5.5rem; height: 5.5rem; flex: 0 0 5.5rem; border: 3px solid #fff; outline: 1px solid #cddae6; border-radius: 50%; background: #e8f2f5; color: var(--profile-primary); font-size: 1.6rem; }
+.user-mark { display: grid; place-items: center; width: 5.5rem; height: 5.5rem; flex: 0 0 5.5rem; border: 3px solid var(--app-dark-border, #fff); outline: 1px solid var(--app-dark-border, #cddae6); border-radius: 50%; background: var(--app-dark-info-bg, #e8f2f5); color: var(--profile-primary); font-size: 1.6rem; }
 .user-hero-copy { min-width: 0; overflow-wrap: anywhere; }
 .user-hero h1 { margin: .3rem 0 .35rem; color: var(--profile-ink); font-size: clamp(1.65rem, 3vw, 2.35rem); line-height: 1.1; letter-spacing: -.035em; }
 .user-hero p { margin: 0; color: var(--profile-muted); }
 .section-kicker { color: var(--profile-primary); font-size: .72rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
 .user-hero-actions { display: flex; flex-wrap: wrap; gap: .7rem; min-width: 0; }
 .primary-action, .secondary-action { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; min-height: 2.75rem; padding: .7rem 1rem; border-radius: 10px; font: inherit; font-weight: 700; cursor: pointer; }
-.primary-action { border: 1px solid var(--profile-primary); background: var(--profile-primary); color: #fff; }
-.primary-action:hover { background: #125b73; }
-.secondary-action { border: 1px solid var(--profile-line); background: #fff; color: var(--profile-ink); }
-.secondary-action:hover:not(:disabled) { border-color: #b7c8d7; background: #f8fafc; }
+.primary-action { border: 1px solid var(--profile-primary); background: var(--profile-primary); color: var(--app-dark-on-accent, #fff); }
+.primary-action:hover { background: var(--app-dark-accent-hover, #125b73); }
+.secondary-action { border: 1px solid var(--profile-line); background: var(--app-dark-surface, #fff); color: var(--profile-ink); }
+.secondary-action:hover:not(:disabled) { border-color: var(--app-dark-border, #b7c8d7); background: var(--app-dark-info-bg, #f8fafc); }
 .secondary-action:disabled { opacity: .5; cursor: not-allowed; }
 .primary-action:focus-visible, .secondary-action:focus-visible { outline: 2px solid var(--profile-primary); outline-offset: 3px; }
 .user-panel { min-width: 0; padding: 1.25rem; border: 1px solid var(--profile-line); border-radius: 16px; background: var(--profile-paper); }
@@ -32,7 +32,7 @@
 .create-user-search { display: block; width: min(100%, 18rem); min-width: 0; }
 .create-user-search input { width: 100%; border-color: var(--profile-line); border-radius: 10px; }
 .create-user-person { display: flex; align-items: center; min-width: 0; gap: .75rem; }
-.avata-tbl { flex: 0 0 40px; border: 2px solid #fff; outline: 1px solid #cddae6; border-radius: 50%; object-fit: cover; background: #e8f2f5; }
+.avata-tbl { flex: 0 0 40px; border: 2px solid var(--app-dark-border, #fff); outline: 1px solid var(--app-dark-border, #cddae6); border-radius: 50%; object-fit: cover; background: var(--app-dark-info-bg, #e8f2f5); }
 .create-user-name { min-width: 0; color: var(--profile-ink); font-weight: 650; overflow-wrap: anywhere; }
 .create-user-actions { text-align: center; white-space: nowrap; }
 .user-empty-state { display: grid; justify-items: center; gap: .5rem; padding: 2rem; color: var(--profile-muted); }
@@ -40,28 +40,28 @@
 .user-empty-state strong { color: var(--profile-ink); }
 :host ::ng-deep .create-user-table .p-datatable-table-container { max-width: 100%; overflow-x: auto; overscroll-behavior-x: contain; }
 :host ::ng-deep .create-user-table .p-datatable-header { padding: 0 0 1.15rem; border: 0; background: transparent; }
-:host ::ng-deep .create-user-table .p-datatable-thead > tr > th { background: #f8fafc; color: var(--profile-muted); border-color: var(--profile-line); }
-:host ::ng-deep .create-user-table .p-datatable-tbody > tr > td { vertical-align: middle; border-color: #edf1f5; }
+:host ::ng-deep .create-user-table .p-datatable-thead > tr > th { background: var(--app-dark-info-bg, #f8fafc); color: var(--profile-muted); border-color: var(--profile-line); }
+:host ::ng-deep .create-user-table .p-datatable-tbody > tr > td { vertical-align: middle; border-color: var(--app-dark-border, #edf1f5); }
 :host ::ng-deep .create-user-table .p-datatable-footer { background: transparent; color: var(--profile-muted); border: 0; padding: 1rem 0 0; font-size: .82rem; }
 :host ::ng-deep .create-user-table .user-status { padding: .3rem .6rem; border-radius: 999px; font-size: .75rem; font-weight: 750; }
-:host ::ng-deep .create-user-table .p-tag-success { background: #e9f8f2; color: #08785d; }
-:host ::ng-deep .create-user-table .p-tag-danger { background: #fff0ed; color: #c44732; }
+:host ::ng-deep .create-user-table .p-tag-success { background: var(--app-dark-success-bg, #e9f8f2); color: var(--app-dark-success-text, #08785d); }
+:host ::ng-deep .create-user-table .p-tag-danger { background: var(--app-dark-danger-bg, #fff0ed); color: var(--app-dark-danger-text, #c44732); }
 
 .user-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; width: 100%; }
 .user-form-grid .field { min-width: 0; margin: 0; }
 .user-form-grid input, .user-form-grid p-select { width: 100%; min-width: 0; }
 .user-form-grid label { display: block; margin-bottom: .5rem; color: var(--profile-ink); font-weight: 650; }
 .user-field-role, .user-field-condominium, .user-field-email, .user-field-permissions { grid-column: 1 / -1; }
-.user-field-permissions { padding: 1rem; border: 1px solid var(--profile-line); border-radius: 12px; background: #f8fafc; color: var(--profile-muted); }
-.font-color-fail { color: #c44732; }
-.font-color-success { color: #08785d; }
+.user-field-permissions { padding: 1rem; border: 1px solid var(--profile-line); border-radius: 12px; background: var(--app-dark-info-bg, #f8fafc); color: var(--profile-muted); }
+.font-color-fail { color: var(--app-dark-danger-text, #c44732); }
+.font-color-success { color: var(--app-dark-success-text, #08785d); }
 :host ::ng-deep .create-user-dialog { border: 1px solid var(--profile-line); border-radius: 18px; background: var(--profile-paper); color: var(--profile-ink); }
 :host ::ng-deep .create-user-dialog .p-dialog-title { color: var(--profile-ink); font-size: 1.4rem; }
 :host ::ng-deep .create-user-dialog .p-inputtext,
 :host ::ng-deep .create-user-dialog .p-select { width: 100%; min-width: 0; border-radius: 10px; }
 :host ::ng-deep .create-user-dialog .p-button { min-height: 2.75rem; border-radius: 10px; font-weight: 700; }
-:host ::ng-deep .create-user-dialog .user-dialog-save { border-color: var(--profile-primary); background: var(--profile-primary); color: #fff; }
-:host ::ng-deep .create-user-dialog .user-dialog-save:hover { background: #125b73; border-color: #125b73; }
+:host ::ng-deep .create-user-dialog .user-dialog-save { border-color: var(--profile-primary); background: var(--profile-primary); color: var(--app-dark-on-accent, #fff); }
+:host ::ng-deep .create-user-dialog .user-dialog-save:hover { background: var(--app-dark-accent-hover, #125b73); border-color: var(--app-dark-border, #125b73); }
 :host ::ng-deep .create-user-dialog .user-dialog-cancel { border-color: var(--profile-line); color: var(--profile-ink); }
 
 app-access-management { display: block; min-width: 0; }

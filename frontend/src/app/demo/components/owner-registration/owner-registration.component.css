@@ -13,13 +13,13 @@
     border-radius: 50%;
     cursor: pointer;
     overflow: hidden;
-    border: 2px solid var(--p-surface-border, #e2e8f0);
+    border: 2px solid var(--p-surface-border, var(--app-dark-border, #e2e8f0));
     transition: border-color 0.2s;
 }
 
 .cp-avatar-wrap:hover,
 .cp-avatar-wrap:focus-visible {
-    border-color: var(--p-primary-color, #6366f1);
+    border-color: var(--p-primary-color, var(--app-dark-border, #6366f1));
     outline: none;
 }
 
@@ -50,7 +50,7 @@
 
 .cp-avatar-hint {
     font-size: 0.72rem;
-    color: var(--p-text-muted-color, #94a3b8);
+    color: var(--p-text-muted-color, var(--app-dark-muted, #94a3b8));
     margin: 0;
 }
 
@@ -96,10 +96,10 @@
 }
 .owner-registration__status-notice {
     align-items: flex-start;
-    background: #fff7ed;
-    border: 1px solid #fed7aa;
+    background: var(--app-dark-warning-bg, #fff7ed);
+    border: 1px solid var(--app-dark-border, #fed7aa);
     border-radius: 0.75rem;
-    color: #9a3412;
+    color: var(--app-dark-danger-text, #9a3412);
     display: flex;
     gap: 0.625rem;
     line-height: 1.45;

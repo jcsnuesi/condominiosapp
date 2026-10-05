@@ -28,7 +28,7 @@
     padding: 0;
     border: 0;
     background: transparent;
-    color: var(--primary-color, #2563eb);
+    color: var(--primary-color, var(--app-dark-accent, #2563eb));
     font: inherit;
     text-decoration: underline;
     cursor: pointer;
@@ -111,14 +111,14 @@
 }
 
 
-:host { --monitor-ink: #183153; --monitor-muted: #66758d; --monitor-line: #dce5ee; --monitor-primary: #176b87; display: block; min-width: 0; max-width: 100%; }
+:host { --monitor-ink: var(--app-dark-text, #183153); --monitor-muted: var(--app-dark-muted, #66758d); --monitor-line: var(--app-dark-border, #dce5ee); --monitor-primary: var(--app-dark-accent, #176b87); display: block; min-width: 0; max-width: 100%; }
 * { box-sizing: border-box; }
 .payment-monitor { max-width: 1480px; margin: 0 auto; padding: .5rem 0 2.5rem; color: var(--monitor-ink); }
-.monitor-hero { min-width: 0; padding: 1.6rem; border: 1px solid var(--monitor-line); border-radius: 18px; background: #fff; }
+.monitor-hero { min-width: 0; padding: 1.6rem; border: 1px solid var(--monitor-line); border-radius: 18px; background: var(--app-dark-surface, #fff); }
 .section-kicker { color: var(--monitor-primary); font-size: .72rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
 .monitor-hero h1 { margin: .3rem 0 .35rem; color: var(--monitor-ink); font-size: clamp(1.65rem, 3vw, 2.35rem); line-height: 1.1; letter-spacing: -.035em; overflow-wrap: anywhere; }
 .monitor-hero p { margin: 0; color: var(--monitor-muted); }
-.monitor-panel { min-width: 0; padding: 1.25rem; border: 1px solid var(--monitor-line); border-radius: 16px; background: #fff; }
+.monitor-panel { min-width: 0; padding: 1.25rem; border: 1px solid var(--monitor-line); border-radius: 16px; background: var(--app-dark-surface, #fff); }
 .panel-heading { margin-bottom: 1.15rem; }
 .panel-heading h2 { margin: .25rem 0 0; color: var(--monitor-ink); font-size: 1.15rem; }
 .field { min-width: 0; margin: 0; }
@@ -127,15 +127,15 @@
 .toolbar { margin-top: 1rem; gap: .7rem; }
 .provider-link { color: var(--monitor-primary); }
 .monitor-list-toolbar { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: .85rem; align-items: center; margin-bottom: 1.25rem; }
-.clear-action { display: inline-flex; align-items: center; justify-content: center; gap: .7rem; min-height: 3.4rem; padding: .75rem .9rem; border: 1px solid var(--monitor-muted); border-radius: 10px; background: #fff; color: var(--monitor-muted); font: inherit; font-weight: 600; cursor: pointer; }
+.clear-action { display: inline-flex; align-items: center; justify-content: center; gap: .7rem; min-height: 3.4rem; padding: .75rem .9rem; border: 1px solid var(--monitor-muted); border-radius: 10px; background: var(--app-dark-surface, #fff); color: var(--monitor-muted); font: inherit; font-weight: 600; cursor: pointer; }
 .monitor-search { position: relative; min-width: 0; }
 .monitor-search > i { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--monitor-muted); pointer-events: none; }
 .monitor-search input { width: 100%; min-height: 3.4rem; padding-left: 2.75rem; padding-right: 3rem; }
-.monitor-search button { position: absolute; right: .3rem; top: .3rem; bottom: .3rem; width: 2.5rem; border: 0; border-radius: 8px; background: #e8f2f5; color: var(--monitor-primary); cursor: pointer; }
+.monitor-search button { position: absolute; right: .3rem; top: .3rem; bottom: .3rem; width: 2.5rem; border: 0; border-radius: 8px; background: var(--app-dark-info-bg, #e8f2f5); color: var(--monitor-primary); cursor: pointer; }
 .view-switch { display: flex; gap: .25rem; padding: .3rem; border: 1px solid var(--monitor-line); border-radius: 13px; }
 .view-switch button { display: inline-flex; align-items: center; justify-content: center; gap: .55rem; min-height: 3rem; padding: .7rem 1rem; border: 0; border-radius: 9px; background: transparent; color: var(--monitor-muted); font: inherit; font-weight: 700; cursor: pointer; }
-.view-switch button.active { background: #e8f2f5; color: #105d76; }
-.view-switch button:hover, .clear-action:hover { background: #f8fafc; }
+.view-switch button.active { background: var(--app-dark-info-bg, #e8f2f5); color: var(--app-dark-accent, #105d76); }
+.view-switch button:hover, .clear-action:hover { background: var(--app-dark-info-bg, #f8fafc); }
 .clear-action:focus-visible, .view-switch button:focus-visible, .monitor-search button:focus-visible { outline: 2px solid var(--monitor-primary); outline-offset: 2px; }
 .monitor-table-hidden { display: none; }
 .transaction-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 23rem), 1fr)); gap: 1rem; }
@@ -144,7 +144,7 @@
 .transaction-amount { margin-bottom: 1rem; font-size: 1.35rem; overflow-wrap: anywhere; }
 .transaction-status { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .5rem; margin-bottom: .5rem; color: var(--monitor-muted); }
 .transaction-details { margin: .5rem 0 1rem; }
-.transaction-details > div { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: .75rem; padding: .65rem 0; border-bottom: 1px solid #edf1f5; }
+.transaction-details > div { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: .75rem; padding: .65rem 0; border-bottom: 1px solid var(--app-dark-border, #edf1f5); }
 .transaction-details dt { color: var(--monitor-muted); }
 .transaction-details dd { margin: 0; font-weight: 650; overflow-wrap: anywhere; }
 .transaction-details small { display: block; color: var(--monitor-muted); }
@@ -155,22 +155,22 @@
 :host ::ng-deep .payment-monitor .p-inputtext, :host ::ng-deep .payment-monitor .p-select, :host ::ng-deep .payment-monitor .p-textarea { border-radius: 10px; min-width: 0; border-color: var(--monitor-line); }
 :host ::ng-deep .field .p-select { width: 100%; }
 :host ::ng-deep .payment-monitor .p-button { min-height: 2.75rem; border-radius: 10px; font-weight: 700; }
-:host ::ng-deep .monitor-primary-action { background: var(--monitor-primary); border-color: var(--monitor-primary); color: #fff; }
-:host ::ng-deep .monitor-primary-action:hover { background: #125b73; border-color: #125b73; }
-:host ::ng-deep .toolbar .p-button-secondary { border-color: var(--monitor-line); color: var(--monitor-ink); background: #fff; }
-:host ::ng-deep .monitor-resolve-action { width: 100%; background: #edf4f7; color: var(--monitor-primary); border-color: var(--monitor-line); }
+:host ::ng-deep .monitor-primary-action { background: var(--monitor-primary); border-color: var(--monitor-primary); color: var(--app-dark-on-accent, #fff); }
+:host ::ng-deep .monitor-primary-action:hover { background: var(--app-dark-accent-hover, #125b73); border-color: var(--app-dark-border, #125b73); }
+:host ::ng-deep .toolbar .p-button-secondary { border-color: var(--monitor-line); color: var(--monitor-ink); background: var(--app-dark-surface, #fff); }
+:host ::ng-deep .monitor-resolve-action { width: 100%; background: var(--app-dark-info-bg, #edf4f7); color: var(--monitor-primary); border-color: var(--monitor-line); }
 :host ::ng-deep .monitor-table .p-datatable-table-container { max-width: 100%; overflow-x: auto; overscroll-behavior-x: contain; }
-:host ::ng-deep .monitor-table .p-datatable-thead > tr > th { background: #f8fafc; color: var(--monitor-muted); border-color: var(--monitor-line); }
-:host ::ng-deep .monitor-table .p-datatable-tbody > tr > td { vertical-align: middle; border-color: #edf1f5; }
+:host ::ng-deep .monitor-table .p-datatable-thead > tr > th { background: var(--app-dark-info-bg, #f8fafc); color: var(--monitor-muted); border-color: var(--monitor-line); }
+:host ::ng-deep .monitor-table .p-datatable-tbody > tr > td { vertical-align: middle; border-color: var(--app-dark-border, #edf1f5); }
 :host ::ng-deep .monitor-panel .p-paginator { flex-wrap: wrap; padding: 1rem 0 0; }
 :host ::ng-deep .monitor-panel .p-tag { border-radius: 999px; padding: .3rem .6rem; font-size: .75rem; font-weight: 750; }
-:host ::ng-deep .monitor-panel .p-tag-success { background: #e9f8f2; color: #08785d; }
-:host ::ng-deep .monitor-panel .p-tag-warn { background: #fff3cd; color: #855500; }
-:host ::ng-deep .monitor-panel .p-tag-danger { background: #fff0ed; color: #c44732; }
-:host ::ng-deep .monitor-dialog { border: 1px solid var(--monitor-line); border-radius: 18px; background: #fff; color: var(--monitor-ink); }
+:host ::ng-deep .monitor-panel .p-tag-success { background: var(--app-dark-success-bg, #e9f8f2); color: var(--app-dark-success-text, #08785d); }
+:host ::ng-deep .monitor-panel .p-tag-warn { background: var(--app-dark-warning-bg, #fff3cd); color: var(--app-dark-warning-text, #855500); }
+:host ::ng-deep .monitor-panel .p-tag-danger { background: var(--app-dark-danger-bg, #fff0ed); color: var(--app-dark-danger-text, #c44732); }
+:host ::ng-deep .monitor-dialog { border: 1px solid var(--monitor-line); border-radius: 18px; background: var(--app-dark-surface, #fff); color: var(--monitor-ink); }
 :host ::ng-deep .monitor-dialog .p-dialog-title { color: var(--monitor-ink); font-size: 1.4rem; }
 :host ::ng-deep .monitor-dialog .p-dialog-footer { flex-wrap: wrap; }
-.import-summary span { border-color: var(--monitor-line); border-radius: 10px; background: #f8fafc; }
+.import-summary span { border-color: var(--monitor-line); border-radius: 10px; background: var(--app-dark-info-bg, #f8fafc); }
 @media (max-width: 900px) { .monitor-list-toolbar { grid-template-columns: auto minmax(0, 1fr); } .view-switch { grid-column: 1 / -1; justify-self: end; } }
 @media (max-width: 680px) {
     .payment-monitor { padding-top: 0; }

@@ -44,6 +44,21 @@
         <i class="pi pi-ellipsis-v"></i>
     </button>
 
+    <button
+        type="button"
+        class="p-link layout-topbar-button layout-theme-button"
+        [attr.aria-label]="layoutService.config.colorScheme === 'dark' ? 'Activar modo claro' : 'Activar modo oscuro'"
+        [attr.title]="layoutService.config.colorScheme === 'dark' ? 'Activar modo claro' : 'Activar modo oscuro'"
+        [attr.aria-pressed]="layoutService.config.colorScheme === 'dark'"
+        [disabled]="layoutService.themeChanging"
+        (click)="layoutService.toggleDarkMode()"
+    >
+        <i class="pi" [ngClass]="layoutService.config.colorScheme === 'dark' ? 'pi-sun' : 'pi-moon'" aria-hidden="true"></i>
+    </button>
+    @if (layoutService.themeError) {
+        <span role="status">{{ layoutService.themeError }}</span>
+    }
+
     <div
         #topbarmenu
         class="layout-topbar-menu"

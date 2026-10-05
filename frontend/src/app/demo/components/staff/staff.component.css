@@ -1,16 +1,16 @@
 :host {
-    --staff-bg: #ffffff;
-    --staff-surface: #ffffff;
-    --staff-surface-soft: #f8fafc;
-    --staff-border: #dce5ee;
-    --staff-text: #183153;
-    --staff-muted: #66758d;
-    --staff-green-bg: #e9f8f2;
-    --staff-green-text: #08785d;
-    --staff-red-bg: #fff0ed;
-    --staff-red-text: #c44732;
-    --staff-blue-bg: #e8f2f5;
-    --staff-blue-text: #176b87;
+    --staff-bg: var(--app-dark-surface, #ffffff);
+    --staff-surface: var(--app-dark-surface, #ffffff);
+    --staff-surface-soft: var(--app-dark-info-bg, #f8fafc);
+    --staff-border: var(--app-dark-border, #dce5ee);
+    --staff-text: var(--app-dark-text, #183153);
+    --staff-muted: var(--app-dark-muted, #66758d);
+    --staff-green-bg: var(--app-dark-success-bg, #e9f8f2);
+    --staff-green-text: var(--app-dark-success-text, #08785d);
+    --staff-red-bg: var(--app-dark-danger-bg, #fff0ed);
+    --staff-red-text: var(--app-dark-danger-text, #c44732);
+    --staff-blue-bg: var(--app-dark-info-bg, #e8f2f5);
+    --staff-blue-text: var(--app-dark-accent, #176b87);
 
     display: block;
     min-width: 0;
@@ -982,7 +982,7 @@
 .staff-page { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.15rem; max-width: 1480px; margin: 0 auto; padding: .5rem 0 2.5rem; }
 .staff-hero { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 1.5rem; min-width: 0; padding: 1.6rem; border: 1px solid var(--staff-border); border-radius: 18px; background: var(--staff-surface); }
 .staff-identity { display: flex; align-items: center; min-width: 0; gap: 1.15rem; }
-.staff-mark { display: grid; place-items: center; box-sizing: border-box; width: 5.5rem; height: 5.5rem; flex: 0 0 5.5rem; border: 3px solid #fff; outline: 1px solid #cddae6; border-radius: 50%; background: var(--staff-blue-bg); color: var(--staff-blue-text); font-size: 1.6rem; }
+.staff-mark { display: grid; place-items: center; box-sizing: border-box; width: 5.5rem; height: 5.5rem; flex: 0 0 5.5rem; border: 3px solid var(--app-dark-border, #fff); outline: 1px solid var(--app-dark-border, #cddae6); border-radius: 50%; background: var(--staff-blue-bg); color: var(--staff-blue-text); font-size: 1.6rem; }
 .staff-hero-copy { min-width: 0; overflow-wrap: anywhere; }
 .staff-hero h1 { margin: .3rem 0 .35rem; color: var(--staff-text); font-size: clamp(1.65rem, 3vw, 2.35rem); line-height: 1.1; letter-spacing: -.035em; }
 .staff-eyebrow { color: var(--staff-blue-text); font-size: .72rem; font-weight: 800; letter-spacing: .1em; }
@@ -992,19 +992,19 @@
 .staff-table-caption { flex-wrap: wrap; }
 .staff-search { flex: 0 1 22rem; min-width: 0; }
 .staff-person-meta { font-weight: 650; }
-.avata-tbl, .staff-mobile-avatar { flex-shrink: 0; background: var(--staff-blue-bg); border: 2px solid #fff; outline: 1px solid #cddae6; }
+.avata-tbl, .staff-mobile-avatar { flex-shrink: 0; background: var(--staff-blue-bg); border: 2px solid var(--app-dark-border, #fff); outline: 1px solid var(--app-dark-border, #cddae6); }
 .staff-mobile-list, .staff-table-desktop { min-width: 0; }
 :host ::ng-deep .staff-tabs { display: block; min-width: 0; }
 :host ::ng-deep .staff-tabs .p-tablist { display: block; margin: 0 0 1.15rem; padding: .35rem; border: 1px solid var(--staff-border); border-radius: 13px; background: var(--staff-surface); }
 :host ::ng-deep .staff-tabs .p-tablist-tab-list { gap: .25rem; border: 0; }
 :host ::ng-deep .staff-tabs .p-tab { padding: .72rem 1rem; border-radius: 9px; font: inherit; font-weight: 700; }
-:host ::ng-deep .staff-tabs .p-tab[aria-selected="true"] { background: var(--staff-blue-bg) !important; color: #105d76; border-bottom: 0 !important; margin-bottom: 0; }
+:host ::ng-deep .staff-tabs .p-tab[aria-selected="true"] { background: var(--staff-blue-bg) !important; color: var(--app-dark-accent, #105d76); border-bottom: 0 !important; margin-bottom: 0; }
 :host ::ng-deep .staff-tabs .p-tablist-active-bar { display: none; }
 :host ::ng-deep .staff-table { border-radius: 16px; }
 :host ::ng-deep .staff-table .p-datatable-header { padding: 1.25rem; }
 :host ::ng-deep .staff-table .p-datatable-table-container { max-width: 100%; overflow-x: auto; overscroll-behavior-x: contain; }
 :host ::ng-deep .staff-table .p-datatable-thead > tr > th { text-transform: none; letter-spacing: normal; font-size: inherit; }
-:host ::ng-deep .staff-table .p-datatable-tbody > tr > td { border-color: #edf1f5; }
+:host ::ng-deep .staff-table .p-datatable-tbody > tr > td { border-color: var(--app-dark-border, #edf1f5); }
 :host ::ng-deep .staff-mobile-accordion .p-accordionpanel { border-radius: 14px; box-shadow: none; }
 :host ::ng-deep .staff-tabs .p-tag { border-radius: 999px; padding: .3rem .6rem; font-size: .75rem; font-weight: 750; }
 :host ::ng-deep .staff-tabs .p-tag-success { background: var(--staff-green-bg); color: var(--staff-green-text); }
@@ -1015,8 +1015,8 @@
 :host ::ng-deep .p-panel, :host ::ng-deep .staff-form-card.p-card { border-radius: 16px; }
 :host ::ng-deep .p-panel-title { color: var(--staff-blue-text); font-size: .72rem; font-weight: 800; letter-spacing: .1em; }
 :host ::ng-deep .p-button { min-height: 2.75rem; border-radius: 10px; font-weight: 700; }
-:host ::ng-deep .btn-staff .p-button { background: var(--staff-blue-text); border-color: var(--staff-blue-text); color: #fff; }
-:host ::ng-deep .btn-staff .p-button:enabled:hover { background: #125b73; border-color: #125b73; }
+:host ::ng-deep .btn-staff .p-button { background: var(--staff-blue-text); border-color: var(--staff-blue-text); color: var(--app-dark-on-accent, #fff); }
+:host ::ng-deep .btn-staff .p-button:enabled:hover { background: var(--app-dark-accent-hover, #125b73); border-color: var(--app-dark-border, #125b73); }
 :host ::ng-deep .staff-tabs .p-button-secondary, :host ::ng-deep .btn-clear .p-button { background: var(--staff-surface); border-color: var(--staff-border); color: var(--staff-blue-text); }
 
 @media (max-width: 900px) {

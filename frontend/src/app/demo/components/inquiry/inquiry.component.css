@@ -3,7 +3,7 @@
 }
 
 .notification-header {
-    /* background: linear-gradient(135deg, #667eea 0%, #4b74a2 100%); */
+    /* background: linear-gradient(135deg, var(--app-dark-info-bg, #667eea) 0%, #4b74a2 100%); */
     color: white;
     padding: 2rem;
     border-radius: 12px;
@@ -17,7 +17,7 @@
 
 .inquiry-section,
 .notice-section {
-    background: #fafafa;
+    background: var(--app-dark-surface, #fafafa);
     padding: 1.5rem;
     border-radius: 8px;
 }
@@ -68,7 +68,7 @@
 }
 
 .conversation-timeline {
-    background: #f8f9fa;
+    background: var(--app-dark-surface, #f8f9fa);
     padding: 1rem;
     border-radius: 8px;
 }
@@ -131,9 +131,9 @@
 }
 
 .closed-notice {
-    border: 1px solid #dee2e6;
+    border: 1px solid var(--app-dark-border, #dee2e6);
     animation: slideDown 0.5s ease;
-    background: linear-gradient(135deg, #fee 0%, #fdd 100%);
+    background: linear-gradient(135deg, var(--app-dark-danger-bg, #fee) 0%, var(--app-dark-danger-bg, #fdd) 100%);
 }
 
 .notices-list {
@@ -163,7 +163,7 @@
     justify-content: center;
     width: 50px;
     height: 50px;
-    background: white;
+    background: var(--app-dark-surface, white);
     border-radius: 8px;
     border: 1px solid var(--surface-border);
 }
@@ -398,7 +398,7 @@
 /* ==================== CREATE NOTICE DIALOG ==================== */
 .preview-section {
     animation: fadeIn 0.3s ease;
-    border: 1px solid #d1e7ff;
+    border: 1px solid var(--app-dark-border, #d1e7ff);
 }
 
 .preview-card {
@@ -459,7 +459,7 @@ small.text-500 {
 
 ::ng-deep .p-calendar-w-btn .p-datepicker-trigger {
     background: var(--primary-color);
-    color: white;
+    color: var(--app-dark-on-accent, white);
     border-color: var(--primary-color);
 }
 
@@ -471,12 +471,12 @@ small.text-500 {
 /* Admin button styling */
 .p-button-success {
     background: #10b981;
-    border-color: #10b981;
+    border-color: var(--app-dark-border, #10b981);
 }
 
 .p-button-success:hover {
     background: #059669;
-    border-color: #059669;
+    border-color: var(--app-dark-border, #059669);
 }
 
 .p-button-success.p-button-raised {
@@ -585,7 +585,7 @@ small.text-500 {
 }
 
 /* Compact communications workspace, matching the owner profile palette. */
-:host { display: block; min-width: 0; --inquiry-ink: #183153; --inquiry-muted: #66758d; --inquiry-line: #dce5ee; --inquiry-accent: #176b87; }
+:host { display: block; min-width: 0; --inquiry-ink: var(--app-dark-text, #183153); --inquiry-muted: var(--app-dark-muted, #66758d); --inquiry-line: var(--app-dark-border, #dce5ee); --inquiry-accent: var(--app-dark-accent, #176b87); }
 .notification-container { color: var(--inquiry-ink); }
 .notification-container .app-history-header h1 { color: var(--inquiry-ink); }
 .notification-container .app-history-header__eyebrow { color: var(--inquiry-accent); }
@@ -596,34 +596,34 @@ small.text-500 {
 :host ::ng-deep .stats-card .p-card-body { padding: 1rem; gap: 0; }
 :host ::ng-deep .stats-card .p-card-content { padding: 0; }
 :host ::ng-deep .inquiry-action { min-height: 44px; border-radius: 10px; padding: .65rem .9rem; font-weight: 650; box-shadow: none; }
-:host ::ng-deep .inquiry-action--primary { background: var(--inquiry-accent); border-color: var(--inquiry-accent); color: #fff; }
-:host ::ng-deep .inquiry-action--primary:not(:disabled):hover { background: #125b73; border-color: #125b73; }
-:host ::ng-deep .inquiry-action--secondary { background: #fff; border-color: var(--inquiry-line); color: var(--inquiry-ink); }
+:host ::ng-deep .inquiry-action--primary { background: var(--inquiry-accent); border-color: var(--inquiry-accent); color: var(--app-dark-on-accent, #fff); }
+:host ::ng-deep .inquiry-action--primary:not(:disabled):hover { background: var(--app-dark-accent-hover, #125b73); border-color: var(--app-dark-border, #125b73); }
+:host ::ng-deep .inquiry-action--secondary { background: var(--app-dark-surface, #fff); border-color: var(--inquiry-line); color: var(--inquiry-ink); }
 :host ::ng-deep .inquiry-action--quiet { background: transparent; border-color: transparent; color: var(--inquiry-accent); }
 :host ::ng-deep .inquiry-action--secondary:not(:disabled):hover,
-:host ::ng-deep .inquiry-action--quiet:not(:disabled):hover { background: #edf4f7; border-color: #c4d7e1; }
-:host ::ng-deep .inquiry-action:disabled { opacity: .6; color: #66758d; }
-:host ::ng-deep .section-toolbar .p-button { min-height: 44px; border-radius: 10px; background: #fff; border-color: var(--inquiry-line); color: var(--inquiry-accent); box-shadow: none; }
+:host ::ng-deep .inquiry-action--quiet:not(:disabled):hover { background: var(--app-dark-info-bg, #edf4f7); border-color: var(--app-dark-border, #c4d7e1); }
+:host ::ng-deep .inquiry-action:disabled { opacity: .6; color: var(--app-dark-muted, #66758d); }
+:host ::ng-deep .section-toolbar .p-button { min-height: 44px; border-radius: 10px; background: var(--app-dark-surface, #fff); border-color: var(--inquiry-line); color: var(--inquiry-accent); box-shadow: none; }
 :host ::ng-deep .p-tag { border-radius: 999px; padding: .25rem .55rem; font-size: .72rem; font-weight: 650; }
-:host ::ng-deep .p-tag-danger { background: #fff0ed; color: #a83f2e; }
-:host ::ng-deep .p-tag-warn { background: #fff6df; color: #865d10; }
-:host ::ng-deep .p-tag-info { background: #eaf3fb; color: #286491; }
-:host ::ng-deep .p-tag-success { background: #e9f8f2; color: #08785d; }
-:host ::ng-deep .p-tag-secondary { background: #f0f2f6; color: #52637b; }
+:host ::ng-deep .p-tag-danger { background: var(--app-dark-danger-bg, #fff0ed); color: var(--app-dark-danger-text, #a83f2e); }
+:host ::ng-deep .p-tag-warn { background: var(--app-dark-warning-bg, #fff6df); color: var(--app-dark-warning-text, #865d10); }
+:host ::ng-deep .p-tag-info { background: var(--app-dark-info-bg, #eaf3fb); color: var(--app-dark-accent, #286491); }
+:host ::ng-deep .p-tag-success { background: var(--app-dark-success-bg, #e9f8f2); color: var(--app-dark-success-text, #08785d); }
+:host ::ng-deep .p-tag-secondary { background: var(--app-dark-info-bg, #f0f2f6); color: var(--app-dark-muted, #52637b); }
 .inquiry-mobile-list { display: none; }
-.inquiry-record-card, .notice-card { min-width: 0; padding: 1rem; border: 1px solid var(--inquiry-line); border-radius: 14px; background: #fff; color: var(--inquiry-ink); box-shadow: none; }
+.inquiry-record-card, .notice-card { min-width: 0; padding: 1rem; border: 1px solid var(--inquiry-line); border-radius: 14px; background: var(--app-dark-surface, #fff); color: var(--inquiry-ink); box-shadow: none; }
 .notice-card { cursor: pointer; transition: border-color .15s ease; }
-.notice-card:hover { border-color: #9fbcca; }
-.notice-card.unread { border-left: 3px solid var(--inquiry-accent); background: #f8fcfd; }
+.notice-card:hover { border-color: var(--app-dark-border, #9fbcca); }
+.notice-card.unread { border-left: 3px solid var(--inquiry-accent); background: var(--app-dark-info-bg, #f8fcfd); }
 .inquiry-record-heading, .notice-record-heading { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: .5rem; }
 .inquiry-record-heading h3, .notice-record-heading h3 { flex: 1 1 10rem; min-width: 0; margin: 0; color: var(--inquiry-ink); font-size: 1rem; font-weight: 700; line-height: 1.4; overflow-wrap: anywhere; }
 .inquiry-record-preview { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; overflow-wrap: anywhere; margin: .65rem 0; color: var(--inquiry-muted); font-size: .875rem; line-height: 1.5; }
 .inquiry-record-tags { display: flex; align-items: center; flex-wrap: wrap; gap: .4rem; }
-.inquiry-record-meta, .notice-record-footer { display: flex; justify-content: space-between; flex-wrap: wrap; gap: .65rem; margin-top: .85rem; padding-top: .75rem; border-top: 1px solid #edf1f5; color: var(--inquiry-muted); font-size: .75rem; }
+.inquiry-record-meta, .notice-record-footer { display: flex; justify-content: space-between; flex-wrap: wrap; gap: .65rem; margin-top: .85rem; padding-top: .75rem; border-top: 1px solid var(--app-dark-border, #edf1f5); color: var(--inquiry-muted); font-size: .75rem; }
 .inquiry-record-meta > span, .notice-record-footer > span, .notice-attachments { display: inline-flex; align-items: center; flex-wrap: wrap; gap: .35rem; }
 .notice-attachments { color: var(--inquiry-muted); font-size: .75rem; }
-.inquiry-record-open { display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 44px; margin-top: .75rem; padding: .65rem .8rem; border: 1px solid #d7e6ec; border-radius: 9px; background: #edf4f7; color: var(--inquiry-accent); font: inherit; font-size: .85rem; font-weight: 650; cursor: pointer; }
-.inquiry-record-open:hover { background: #e1eef3; }
+.inquiry-record-open { display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 44px; margin-top: .75rem; padding: .65rem .8rem; border: 1px solid var(--app-dark-border, #d7e6ec); border-radius: 9px; background: var(--app-dark-info-bg, #edf4f7); color: var(--inquiry-accent); font: inherit; font-size: .85rem; font-weight: 650; cursor: pointer; }
+.inquiry-record-open:hover { background: var(--app-dark-info-bg, #e1eef3); }
 .notice-open-label { color: var(--inquiry-accent); font-weight: 650; }
 .notice-unread-label { display: inline-flex; align-items: center; gap: .35rem; color: var(--inquiry-accent); font-size: .72rem; font-weight: 700; }
 .notice-unread-label > span { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
@@ -677,19 +677,19 @@ small.text-500 {
 .response-actions-primary { display: flex; gap: .65rem; margin-left: auto; order: 2; }
 .response-actions-close { order: 1; }
 :host ::ng-deep .response-action { min-height: 44px; padding: .65rem .9rem; border-radius: 10px; font-size: .85rem; font-weight: 650; box-shadow: none; }
-:host ::ng-deep .response-action--send { background: #176b87; border-color: #176b87; color: #fff; }
-:host ::ng-deep .response-action--send:not(:disabled):hover { background: #125b73; border-color: #125b73; }
-:host ::ng-deep .response-action--cancel { background: #fff; border-color: #dce5ee; color: #52637b; }
-:host ::ng-deep .response-action--cancel:not(:disabled):hover { background: #f1f5f8; border-color: #bacbd8; }
-:host ::ng-deep .response-action--close { background: transparent; border-color: #efccc6; color: #b33f30; }
-:host ::ng-deep .response-action--close:not(:disabled):hover { background: #fff0ed; border-color: #dca89e; }
-:host ::ng-deep .response-action:focus-visible { outline: 2px solid #176b87; outline-offset: 3px; }
+:host ::ng-deep .response-action--send { background: #176b87; border-color: var(--app-dark-border, #176b87); color: #fff; }
+:host ::ng-deep .response-action--send:not(:disabled):hover { background: var(--app-dark-accent-hover, #125b73); border-color: var(--app-dark-border, #125b73); }
+:host ::ng-deep .response-action--cancel { background: var(--app-dark-surface, #fff); border-color: var(--app-dark-border, #dce5ee); color: var(--app-dark-muted, #52637b); }
+:host ::ng-deep .response-action--cancel:not(:disabled):hover { background: var(--app-dark-info-bg, #f1f5f8); border-color: var(--app-dark-border, #bacbd8); }
+:host ::ng-deep .response-action--close { background: transparent; border-color: var(--app-dark-border, #efccc6); color: var(--app-dark-danger-text, #b33f30); }
+:host ::ng-deep .response-action--close:not(:disabled):hover { background: var(--app-dark-danger-bg, #fff0ed); border-color: var(--app-dark-border, #dca89e); }
+:host ::ng-deep .response-action:focus-visible { outline: 2px solid var(--app-dark-border, #176b87); outline-offset: 3px; }
 @media (max-width: 768px) {
     .add-response { padding: 1rem; }
     .response-actions { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; }
     .response-actions-primary { display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1.4fr); gap: .5rem; width: 100%; margin: 0; order: 0; }
     .response-actions-primary > p-button { min-width: 0; }
-    .response-actions-close { order: 1; padding-top: 1rem; border-top: 1px solid #e1e8ef; }
+    .response-actions-close { order: 1; padding-top: 1rem; border-top: 1px solid var(--app-dark-border, #e1e8ef); }
     :host ::ng-deep .response-actions .response-action { width: 100%; padding: .65rem .5rem; gap: .4rem; font-size: .8rem; }
     :host ::ng-deep .response-actions .p-button-label { flex: 0 1 auto; }
 }

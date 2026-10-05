@@ -836,8 +836,8 @@
                                 [ngStyle]="{
                                     'background-color':
                                         isAdministrativeResponse(response)
-                                            ? '#e3f2fd'
-                                            : '#f5f5f5',
+                                            ? 'var(--app-dark-info-bg, #e3f2fd)'
+                                            : 'var(--app-dark-surface-muted, #f5f5f5)',
                                     'border-left': isAdministrativeResponse(
                                         response
                                     )

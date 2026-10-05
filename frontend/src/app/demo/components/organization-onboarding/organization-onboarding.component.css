@@ -1,17 +1,17 @@
-﻿:host {
+:host {
     display: block;
     min-width: 0;
-    --onboarding-ink: #183153;
-    --onboarding-muted: #66758d;
-    --onboarding-line: #dce5ee;
-    --onboarding-primary: #176b87;
+    --onboarding-ink: var(--app-dark-text, #183153);
+    --onboarding-muted: var(--app-dark-muted, #66758d);
+    --onboarding-line: var(--app-dark-border, #dce5ee);
+    --onboarding-primary: var(--app-dark-accent, #176b87);
 }
 
 .onboarding {
     color: var(--onboarding-ink);
     border: 1px solid var(--onboarding-line);
     border-radius: 18px;
-    background: #fff;
+    background: var(--app-dark-surface, #fff);
     padding: 1.6rem;
     box-shadow: none;
 }
@@ -50,17 +50,17 @@ li {
     padding: 1.15rem;
     border: 1px solid var(--onboarding-line);
     border-radius: 16px;
-    background: #fff;
+    background: var(--app-dark-surface, #fff);
 }
 .number {
     display: grid;
     place-items: center;
     width: 3rem;
     height: 3rem;
-    border: 1px solid #cddae6;
+    border: 1px solid var(--app-dark-border, #cddae6);
     border-radius: 50%;
-    color: #105d76;
-    background: #e8f2f5;
+    color: var(--app-dark-accent, #105d76);
+    background: var(--app-dark-info-bg, #e8f2f5);
     font-size: .9rem;
     font-weight: 700;
 }
@@ -71,8 +71,8 @@ li {
     font-size: .75rem;
     font-weight: 750;
 }
-:host ::ng-deep .onboarding .p-tag-success { background: #e9f8f2; color: #08785d; }
-:host ::ng-deep .onboarding .p-tag-secondary { background: #f5f8fb; color: var(--onboarding-muted); }
+:host ::ng-deep .onboarding .p-tag-success { background: var(--app-dark-success-bg, #e9f8f2); color: var(--app-dark-success-text, #08785d); }
+:host ::ng-deep .onboarding .p-tag-secondary { background: var(--app-dark-info-bg, #f5f8fb); color: var(--onboarding-muted); }
 :host ::ng-deep .onboarding-primary-action,
 :host ::ng-deep .onboarding-secondary-action {
     min-height: 44px;
@@ -82,17 +82,17 @@ li {
 :host ::ng-deep .onboarding-primary-action {
     background: var(--onboarding-primary);
     border-color: var(--onboarding-primary);
-    color: #fff;
+    color: var(--app-dark-on-accent, #fff);
     font-weight: 700;
 }
-:host ::ng-deep .onboarding-primary-action:not(:disabled):hover { background: #125b73; border-color: #125b73; }
+:host ::ng-deep .onboarding-primary-action:not(:disabled):hover { background: var(--app-dark-accent-hover, #125b73); border-color: var(--app-dark-border, #125b73); }
 :host ::ng-deep .onboarding-secondary-action {
     color: var(--onboarding-primary);
     border-color: var(--onboarding-line);
-    background: #fff;
+    background: var(--app-dark-surface, #fff);
     font-weight: 650;
 }
-:host ::ng-deep .onboarding-secondary-action:not(:disabled):hover { background: #f1f5f8; }
+:host ::ng-deep .onboarding-secondary-action:not(:disabled):hover { background: var(--app-dark-info-bg, #f1f5f8); }
 :host ::ng-deep .onboarding .p-button:focus-visible { outline: 2px solid var(--onboarding-primary); outline-offset: 2px; }
 .actions {
     display: flex;
@@ -100,13 +100,13 @@ li {
     justify-content: space-between;
     gap: 1rem;
     padding-top: 1rem;
-    border-top: 1px solid #edf1f5;
+    border-top: 1px solid var(--app-dark-border, #edf1f5);
 }
 .hint { margin: 1rem 0 0; font-size: .8rem; }
 .error {
-    color: #b42318;
-    background: #fff8f7;
-    border: 1px solid #f0d1cc;
+    color: var(--app-dark-danger-text, #b42318);
+    background: var(--app-dark-danger-bg, #fff8f7);
+    border: 1px solid var(--app-dark-border, #f0d1cc);
     border-radius: 10px;
     padding: .9rem 1rem;
 }

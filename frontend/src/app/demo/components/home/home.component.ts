@@ -7,7 +7,11 @@ import {
     ViewChild,
     OnDestroy,
     ChangeDetectorRef,
+    effect,
+    inject,
 } from '@angular/core';
+import { LayoutService } from 'src/app/layout/service/app.layout.service';
+import { withChartTheme } from 'src/app/layout/service/chart-theme';
 import { CondominioService } from '../../service/condominios.service';
 import { OwnerModel } from '../../models/owner.model';
 import { ActivatedRoute } from '@angular/router';
@@ -120,6 +124,7 @@ type InvoiceRecord = {
     ],
 })
 export class HomeComponent implements OnInit {
+    private readonly layoutService = inject(LayoutService);
     public maximized: boolean;
     public customers: any[];
     public items!: any[];
@@ -197,6 +202,10 @@ export class HomeComponent implements OnInit {
         private _inquiryService: InquiryService,
         private _changeDetectorRef: ChangeDetectorRef
     ) {
+        effect(() => {
+            this.layoutService.config;
+            if (this.options) this.options = withChartTheme(this.options);
+        });
         this.items = [
             { label: 'Add New', icon: 'pi pi-fw pi-plus' },
             { label: 'Remove', icon: 'pi pi-fw pi-minus' },

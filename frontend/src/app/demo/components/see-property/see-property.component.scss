@@ -14,9 +14,9 @@
     box-sizing: border-box;
     padding: 0.2rem;
     overflow: hidden;
-    border: 1px solid #d9e5e6;
+    border: 1px solid var(--app-dark-border, #d9e5e6);
     border-radius: 50%;
-    background: #f2f7f7;
+    background: var(--app-dark-info-bg, #f2f7f7);
 }
 
 .property-alias-avatar img {
@@ -29,7 +29,7 @@
 
 .property-alias-name {
     overflow: hidden;
-    color: #26364a;
+    color: var(--app-dark-text, #26364a);
     font-size: 0.9rem;
     font-weight: 600;
     line-height: 1.25;
@@ -76,7 +76,7 @@
     .see-property-row-menu
     .see-property-permanent-delete-action
     .p-menu-item-label {
-    color: #b42318;
+    color: var(--app-dark-danger-text, #b42318);
     font-weight: 650;
 }
 
@@ -86,18 +86,18 @@
 }
 
 :host ::ng-deep .permanent-delete-dialog {
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--app-dark-border, #e5e7eb);
     border-radius: 0.85rem;
     box-shadow: 0 18px 45px rgba(32, 39, 48, 0.14);
 }
 
 :host ::ng-deep .permanent-delete-dialog .p-dialog-header {
     padding: 1.4rem 1.5rem 1rem;
-    border-bottom: 1px solid #edf0f2;
+    border-bottom: 1px solid var(--app-dark-border, #edf0f2);
 }
 
 :host ::ng-deep .permanent-delete-dialog .p-dialog-title {
-    color: #26364a;
+    color: var(--app-dark-text, #26364a);
     font-size: 1.1rem;
     font-weight: 750;
 }
@@ -108,7 +108,7 @@
 
 :host ::ng-deep .permanent-delete-dialog .p-dialog-footer {
     padding: 0.9rem 1.5rem 1.35rem;
-    border-top: 1px solid #edf0f2;
+    border-top: 1px solid var(--app-dark-border, #edf0f2);
 }
 
 .permanent-delete-content {
@@ -121,15 +121,15 @@
     grid-template-columns: 1.35rem minmax(0, 1fr);
     gap: 0.8rem;
     padding: 0.9rem 1rem;
-    border: 1px solid #f0d1cc;
+    border: 1px solid var(--app-dark-border, #f0d1cc);
     border-radius: 0.65rem;
-    background: #fff8f7;
-    color: #7a271a;
+    background: var(--app-dark-danger-bg, #fff8f7);
+    color: var(--app-dark-danger-text, #7a271a);
 }
 
 .permanent-delete-warning > i {
     margin-top: 0.1rem;
-    color: #d92d20;
+    color: var(--app-dark-danger-text, #d92d20);
     font-size: 1rem;
 }
 
@@ -143,7 +143,7 @@
 }
 
 .permanent-delete-warning span {
-    color: #8f3d31;
+    color: var(--app-dark-danger-text, #8f3d31);
     font-size: 0.82rem;
     line-height: 1.45;
 }
@@ -155,7 +155,7 @@
     align-items: center;
     justify-content: center;
     gap: 0.75rem;
-    color: #667085;
+    color: var(--app-dark-muted, #667085);
     font-size: 0.85rem;
 }
 
@@ -171,7 +171,7 @@
 
 .permanent-delete-impact h3 {
     margin: 0;
-    color: #344054;
+    color: var(--app-dark-text, #344054);
     font-size: 0.82rem;
     font-weight: 750;
     letter-spacing: 0.045em;
@@ -190,20 +190,20 @@
     flex-direction: column;
     gap: 0.35rem;
     padding: 0.85rem;
-    border: 1px solid #e3e8ed;
+    border: 1px solid var(--app-dark-border, #e3e8ed);
     border-radius: 0.65rem;
-    background: #fafbfb;
+    background: var(--app-dark-surface, #fafbfb);
 }
 
 .permanent-delete-stat span {
-    color: #667085;
+    color: var(--app-dark-muted, #667085);
     font-size: 0.73rem;
     line-height: 1.3;
 }
 
 .permanent-delete-stat strong {
     overflow: hidden;
-    color: #26364a;
+    color: var(--app-dark-text, #26364a);
     font-size: 1.2rem;
     line-height: 1.2;
     text-overflow: ellipsis;
@@ -211,7 +211,7 @@
 
 .permanent-delete-secondary-impact {
     margin: 0;
-    color: #667085;
+    color: var(--app-dark-muted, #667085);
     font-size: 0.8rem;
     line-height: 1.45;
 }
@@ -220,7 +220,7 @@
     display: grid;
     gap: 1rem;
     padding-top: 1rem;
-    border-top: 1px solid #edf0f2;
+    border-top: 1px solid var(--app-dark-border, #edf0f2);
 }
 
 .permanent-delete-check {
@@ -231,7 +231,7 @@
 }
 
 .permanent-delete-check label {
-    color: #344054;
+    color: var(--app-dark-text, #344054);
     font-size: 0.84rem;
     line-height: 1.4;
     cursor: pointer;
@@ -243,13 +243,13 @@
 }
 
 .permanent-delete-password > label {
-    color: #344054;
+    color: var(--app-dark-text, #344054);
     font-size: 0.84rem;
     font-weight: 650;
 }
 
 .permanent-delete-password small {
-    color: #7b8794;
+    color: var(--app-dark-muted, #7b8794);
     font-size: 0.74rem;
     line-height: 1.4;
 }
@@ -281,24 +281,24 @@
 }
 
 /* Same palette and type hierarchy as HomeComponent. */
-:host { display: block; min-width: 0; --property-ink: #183153; --property-muted: #66758d; --property-line: #dce5ee; --property-primary: #176b87; }
-.properties-page { color: var(--property-ink); border: 1px solid var(--property-line); border-radius: 18px; background: #fff; padding: 1.6rem; box-shadow: none; }
+:host { display: block; min-width: 0; --property-ink: var(--app-dark-text, #183153); --property-muted: var(--app-dark-muted, #66758d); --property-line: var(--app-dark-border, #dce5ee); --property-primary: var(--app-dark-accent, #176b87); }
+.properties-page { color: var(--property-ink); border: 1px solid var(--property-line); border-radius: 18px; background: var(--app-dark-surface, #fff); padding: 1.6rem; box-shadow: none; }
 .properties-page .app-page-header { align-items: center; gap: 1.25rem; margin-bottom: 1.5rem; }
 .properties-page .app-page-kicker, .property-card-kicker { color: var(--property-primary); font-size: .72rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
 .properties-page .app-page-header h2 { margin: .3rem 0 .4rem; color: var(--property-ink); font-size: clamp(1.65rem, 3vw, 2.35rem); line-height: 1.1; letter-spacing: -.035em; }
 .properties-page .app-page-header p { color: var(--property-muted); margin: 0; }
-:host ::ng-deep .property-create-action { min-height: 44px; border-radius: 10px; background: var(--property-primary); border-color: var(--property-primary); color: #fff; font-weight: 700; box-shadow: none; }
-:host ::ng-deep .property-create-action:hover { background: #125b73; border-color: #125b73; }
-:host ::ng-deep .property-results .p-datatable-header { background: #fff; border: 0; padding: 0 0 1rem; }
+:host ::ng-deep .property-create-action { min-height: 44px; border-radius: 10px; background: var(--property-primary); border-color: var(--property-primary); color: var(--app-dark-on-accent, #fff); font-weight: 700; box-shadow: none; }
+:host ::ng-deep .property-create-action:hover { background: var(--app-dark-accent-hover, #125b73); border-color: var(--app-dark-border, #125b73); }
+:host ::ng-deep .property-results .p-datatable-header { background: var(--app-dark-surface, #fff); border: 0; padding: 0 0 1rem; }
 :host ::ng-deep .property-results .property-toolbar { display: grid; grid-template-columns: auto minmax(12rem, 1fr) auto; align-items: center; gap: .75rem; }
 .property-toolbar .app-table-search { min-width: 0; width: 100%; }
 :host ::ng-deep .property-toolbar .p-iconfield { width: 100%; }
 :host ::ng-deep .property-toolbar input { width: 100%; min-width: 0; min-height: 44px; border: 1px solid var(--property-line); border-radius: 10px; color: var(--property-ink); }
-:host ::ng-deep .property-clear-action { min-height: 44px; border-radius: 10px; color: var(--property-primary); border-color: var(--property-line); background: #fff; font-weight: 650; white-space: nowrap; }
+:host ::ng-deep .property-clear-action { min-height: 44px; border-radius: 10px; color: var(--property-primary); border-color: var(--property-line); background: var(--app-dark-surface, #fff); font-weight: 650; white-space: nowrap; }
 .property-view-toggle { display: flex; gap: .2rem; padding: .25rem; border: 1px solid var(--property-line); border-radius: 12px; }
 .property-view-toggle button { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; min-height: 44px; padding: .6rem .85rem; border: 0; border-radius: 8px; font: inherit; font-weight: 700; color: var(--property-muted); background: transparent; cursor: pointer; }
-.property-view-toggle button.active { color: #105d76; background: #e8f2f5; }
-.property-view-toggle button:hover { background: #f1f5f8; }
+.property-view-toggle button.active { color: var(--app-dark-accent, #105d76); background: var(--app-dark-info-bg, #e8f2f5); }
+.property-view-toggle button:hover { background: var(--app-dark-info-bg, #f1f5f8); }
 .property-view-toggle button:focus-visible { outline: 2px solid var(--property-primary); outline-offset: 2px; }
 :host ::ng-deep .property-results--cards .p-datatable-table { display: block; min-width: 0 !important; width: 100%; }
 :host ::ng-deep .property-results--cards .p-datatable-thead { display: none; }
@@ -306,9 +306,9 @@
 :host ::ng-deep .property-results--cards .p-datatable-tbody > tr { display: block; min-width: 0; background: transparent; }
 :host ::ng-deep .property-results--cards .p-datatable-tbody > tr > td { display: block; height: 100%; padding: 0; border: 0; }
 :host ::ng-deep .property-results--cards .p-datatable-tbody > tr:not(.property-card-row) { grid-column: 1 / -1; }
-.property-card { height: 100%; display: flex; flex-direction: column; padding: 1.15rem; border: 1px solid var(--property-line); border-radius: 16px; color: var(--property-ink); background: #fff; }
+.property-card { height: 100%; display: flex; flex-direction: column; padding: 1.15rem; border: 1px solid var(--property-line); border-radius: 16px; color: var(--property-ink); background: var(--app-dark-surface, #fff); }
 .property-card-heading { display: flex; align-items: center; gap: .75rem; }
-.property-card-avatar { width: 3rem; height: 3rem; flex: 0 0 3rem; padding: .2rem; border: 1px solid #cddae6; border-radius: 50%; background: #e8f2f5; }
+.property-card-avatar { width: 3rem; height: 3rem; flex: 0 0 3rem; padding: .2rem; border: 1px solid var(--app-dark-border, #cddae6); border-radius: 50%; background: var(--app-dark-info-bg, #e8f2f5); }
 .property-card-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
 .property-card-identity { flex: 1; min-width: 0; }
 .property-card-kicker { font-size: .65rem; }
@@ -319,14 +319,14 @@
 .property-card-details { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem .75rem; margin: auto 0 1rem; }
 .property-card-details dt { color: var(--property-muted); font-size: .76rem; font-weight: 500; }
 .property-card-details dd { margin: .25rem 0 0; font-size: .9rem; font-weight: 650; overflow-wrap: anywhere; }
-.property-card-footer { display: flex; align-items: center; justify-content: space-between; gap: .5rem; padding-top: .85rem; border-top: 1px solid #edf1f5; }
+.property-card-footer { display: flex; align-items: center; justify-content: space-between; gap: .5rem; padding-top: .85rem; border-top: 1px solid var(--app-dark-border, #edf1f5); }
 .property-card-footer-hint { display: inline-flex; align-items: center; gap: .4rem; color: var(--property-muted); font-size: .76rem; }
 :host ::ng-deep .property-results .p-tag { border-radius: 999px; padding: .3rem .6rem; font-size: .75rem; font-weight: 750; }
-:host ::ng-deep .property-results .p-tag-success { background: #e9f8f2; color: #08785d; }
-:host ::ng-deep .property-results .p-tag-danger { background: #fff0ed; color: #c44732; }
-:host ::ng-deep .property-results .p-datatable-thead > tr > th { background: #f5f8fb; color: var(--property-muted); border-color: var(--property-line); font-size: .8rem; }
+:host ::ng-deep .property-results .p-tag-success { background: var(--app-dark-success-bg, #e9f8f2); color: var(--app-dark-success-text, #08785d); }
+:host ::ng-deep .property-results .p-tag-danger { background: var(--app-dark-danger-bg, #fff0ed); color: var(--app-dark-danger-text, #c44732); }
+:host ::ng-deep .property-results .p-datatable-thead > tr > th { background: var(--app-dark-info-bg, #f5f8fb); color: var(--property-muted); border-color: var(--property-line); font-size: .8rem; }
 :host ::ng-deep .property-results .p-paginator { padding: 1rem 0 0; background: transparent; gap: .2rem; flex-wrap: wrap; }
-:host ::ng-deep .property-results .p-paginator-page-selected { background: #e8f2f5; color: #105d76; }
+:host ::ng-deep .property-results .p-paginator-page-selected { background: var(--app-dark-info-bg, #e8f2f5); color: var(--app-dark-accent, #105d76); }
 @media (max-width: 1150px) { :host ::ng-deep .property-results--cards .p-datatable-tbody { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 680px) {
  .properties-page { padding: 1rem; }

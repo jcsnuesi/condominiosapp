@@ -2,6 +2,7 @@
 /* PrimeFlex grid gutter reference: 1rem */
 
 @use "assets/layout/styles/layout/layout";
+@use "assets/layout/styles/layout/app-theme";
 @use "assets/demo/styles/badges";
 @use "assets/demo/styles/code";
 
@@ -16,9 +17,9 @@
 
 /* Shared file-upload presentation, based on CreatePropertyComponent. */
 .cp-file-upload {
-    --cp-upload-border: var(--p-surface-border, #e2e8f0);
-    --cp-upload-primary: var(--p-primary-color, #6366f1);
-    --cp-upload-muted: var(--p-text-muted-color, #94a3b8);
+    --cp-upload-border: var(--p-surface-border, var(--app-dark-border, #e2e8f0));
+    --cp-upload-primary: var(--p-primary-color, var(--app-dark-accent, #6366f1));
+    --cp-upload-muted: var(--p-text-muted-color, var(--app-dark-muted, #94a3b8));
 }
 
 .cp-file-upload .p-fileupload-header,
@@ -30,7 +31,7 @@
 .cp-file-upload .p-fileupload-header {
     gap: 0.5rem;
     padding: 0.75rem;
-    background: var(--p-surface-ground, #f8fafc);
+    background: var(--p-surface-ground, var(--app-dark-info-bg, #f8fafc));
     border-radius: 9px 9px 0 0;
 }
 
@@ -294,7 +295,7 @@ p-tag.app-status-tag-host > .p-tag {
 .see-property-row-menu
     .see-property-permanent-delete-action
     .p-menu-item-label {
-    color: #b42318 !important;
+    color: var(--app-dark-danger-text, #b42318) !important;
 }
 
 .see-property-row-menu
@@ -306,7 +307,7 @@ p-tag.app-status-tag-host > .p-tag {
 .see-property-row-menu
     .see-property-permanent-delete-action
     .p-menu-item-content:hover {
-    background: #fff5f4;
+    background: var(--app-dark-danger-bg, #fff5f4);
 }
 
 /* Row action menus are appended to body, so destructive user actions live here. */
@@ -319,7 +320,7 @@ p-tag.app-status-tag-host > .p-tag {
 .create-user-row-menu
     .create-user-permanent-delete-action
     .p-menu-item-label {
-    color: #b42318 !important;
+    color: var(--app-dark-danger-text, #b42318) !important;
 }
 
 .create-user-row-menu
@@ -331,7 +332,7 @@ p-tag.app-status-tag-host > .p-tag {
 .create-user-row-menu
     .create-user-permanent-delete-action
     .p-menu-item-content:hover {
-    background: #fff5f4;
+    background: var(--app-dark-danger-bg, #fff5f4);
 }
 
 @media (max-width: 768px) {

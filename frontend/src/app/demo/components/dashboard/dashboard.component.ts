@@ -17,6 +17,7 @@ import { Product } from '../../api/product';
 import { ProductService } from '../../service/product.service';
 import { finalize, Subscription, timeout } from 'rxjs';
 import { LayoutService } from 'src/app/layout/service/app.layout.service';
+import { withChartTheme } from 'src/app/layout/service/chart-theme';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CondominioService } from '../../service/condominios.service';
 import { UserService } from '../../service/user.service';
@@ -204,6 +205,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     ) {
         this.subscription = this.layoutService.configUpdate$.subscribe(() => {
             this.initChart();
+            if (this.options) this.options = withChartTheme(this.options);
         });
 
         this.token = this._userService.getToken();

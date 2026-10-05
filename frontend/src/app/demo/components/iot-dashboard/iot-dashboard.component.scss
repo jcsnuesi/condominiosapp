@@ -1,13 +1,13 @@
 :host {
-    --iot-paper: #f5f8f5;
-    --iot-surface: #ffffff;
-    --iot-ink: #18372f;
-    --iot-muted: #6f817b;
-    --iot-line: #dce7e1;
-    --iot-green: #147454;
-    --iot-green-pale: #e4f2eb;
-    --iot-orange: #b95838;
-    --iot-orange-pale: #fbede6;
+    --iot-paper: var(--app-dark-surface, #f5f8f5);
+    --iot-surface: var(--app-dark-surface, #ffffff);
+    --iot-ink: var(--app-dark-text, #18372f);
+    --iot-muted: var(--app-dark-muted, #6f817b);
+    --iot-line: var(--app-dark-border, #dce7e1);
+    --iot-green: var(--app-dark-success-text, #147454);
+    --iot-green-pale: var(--app-dark-success-bg, #e4f2eb);
+    --iot-orange: var(--app-dark-danger-text, #b95838);
+    --iot-orange-pale: var(--app-dark-warning-bg, #fbede6);
     display: block;
     min-height: 100%;
     color: var(--iot-ink);
@@ -156,9 +156,9 @@
     gap: 0.7rem;
     margin: 0 auto 2rem;
     padding: 0.85rem 1rem;
-    border-left: 3px solid #cf8a3f;
-    background: #fff8e9;
-    color: #67451d;
+    border-left: 3px solid var(--app-dark-border, #cf8a3f);
+    background: var(--app-dark-warning-bg, #fff8e9);
+    color: var(--app-dark-warning-text, #67451d);
     font-size: 0.88rem;
 }
 
@@ -166,9 +166,9 @@
     max-width: 90rem;
     margin: 0 auto 2rem;
     padding: 1rem;
-    border: 1px solid #e7c7b9;
+    border: 1px solid var(--app-dark-border, #e7c7b9);
     border-radius: 8px;
-    background: #fff9f5;
+    background: var(--app-dark-warning-bg, #fff9f5);
 }
 
 .alert-row {
@@ -177,7 +177,7 @@
     justify-content: space-between;
     gap: 1rem;
     min-height: 3.5rem;
-    border-top: 1px solid #f0ddd4;
+    border-top: 1px solid var(--app-dark-border, #f0ddd4);
 }
 
 .alert-row span {
@@ -185,7 +185,7 @@
     gap: 0.2rem;
 }
 .alert-row strong {
-    color: #8d482f;
+    color: var(--app-dark-danger-text, #8d482f);
     font-size: 0.9rem;
     text-transform: capitalize;
 }
@@ -193,7 +193,7 @@
     color: var(--iot-muted);
 }
 .alert-row--critical strong {
-    color: #a52d24;
+    color: var(--app-dark-danger-text, #a52d24);
 }
 
 .smart-home__devices {
@@ -233,12 +233,12 @@
 }
 
 .device-tile:hover {
-    border-color: #9fc9b5;
+    border-color: var(--app-dark-border, #9fc9b5);
     transform: translateY(-2px);
 }
 
 .device-tile--alert {
-    border-color: #e8b4a1;
+    border-color: var(--app-dark-border, #e8b4a1);
 }
 
 .device-tile__top,
@@ -374,7 +374,7 @@
 .smart-home__empty--compact {
     margin: 1rem auto;
     padding: 2rem;
-    border: 1px dashed #b8cdc2;
+    border: 1px dashed var(--app-dark-border, #b8cdc2);
     border-radius: 8px;
 }
 
