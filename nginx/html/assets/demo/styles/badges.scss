@@ -11,71 +11,71 @@
 
 .product-badge {
     &.status-instock {
-        background: #C8E6C9;
-        color: #256029;
+        background: var(--app-dark-success-bg, #C8E6C9);
+        color: var(--app-dark-success-text, #256029);
     }
 
     &.status-outofstock {
-        background: #FFCDD2;
-        color: #C63737;
+        background: var(--app-dark-danger-bg, #FFCDD2);
+        color: var(--app-dark-danger-text, #C63737);
     }
 
     &.status-lowstock {
-        background: #FEEDAF;
-        color: #8A5340;
+        background: var(--app-dark-warning-bg, #FEEDAF);
+        color: var(--app-dark-danger-text, #8A5340);
     }
 }
 
 .customer-badge {
     &.status-qualified {
-        background: #C8E6C9;
-        color: #256029;
+        background: var(--app-dark-success-bg, #C8E6C9);
+        color: var(--app-dark-success-text, #256029);
     }
 
     &.status-unqualified {
-        background: #FFCDD2;
-        color: #C63737;
+        background: var(--app-dark-danger-bg, #FFCDD2);
+        color: var(--app-dark-danger-text, #C63737);
     }
 
     &.status-negotiation {
-        background: #FEEDAF;
-        color: #8A5340;
+        background: var(--app-dark-warning-bg, #FEEDAF);
+        color: var(--app-dark-danger-text, #8A5340);
     }
 
     &.status-new {
-        background: #B3E5FC;
-        color: #23547B;
+        background: var(--app-dark-info-bg, #B3E5FC);
+        color: var(--app-dark-accent, #23547B);
     }
 
     &.status-renewal {
-        background: #ECCFFF;
-        color: #694382;
+        background: var(--app-dark-purple-bg, #ECCFFF);
+        color: var(--app-dark-muted, #694382);
     }
 
     &.status-proposal {
-        background: #FFD8B2;
-        color: #805B36;
+        background: var(--app-dark-warning-bg, #FFD8B2);
+        color: var(--app-dark-warning-text, #805B36);
     }
 }
 
 .order-badge {
     &.order-delivered {
-        background: #C8E6C9;
-        color: #256029;
+        background: var(--app-dark-success-bg, #C8E6C9);
+        color: var(--app-dark-success-text, #256029);
     }
 
     &.order-cancelled {
-        background: #FFCDD2;
-        color: #C63737;
+        background: var(--app-dark-danger-bg, #FFCDD2);
+        color: var(--app-dark-danger-text, #C63737);
     }
 
     &.order-pending {
-        background: #FEEDAF;
-        color: #8A5340;
+        background: var(--app-dark-warning-bg, #FEEDAF);
+        color: var(--app-dark-danger-text, #8A5340);
     }
 
     &.order-returned {
-        background: #ECCFFF;
-        color: #694382;
+        background: var(--app-dark-purple-bg, #ECCFFF);
+        color: var(--app-dark-muted, #694382);
     }
 }

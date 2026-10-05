@@ -91,6 +91,13 @@
         margin-left: 1rem;
     }
 
+    .layout-theme-button {
+        margin-left: .5rem;
+        flex-shrink: 0;
+
+        &:disabled { opacity: .5; cursor: wait; }
+    }
+
     .avatar-button {
         width: 3.25rem;
         height: 3.25rem;

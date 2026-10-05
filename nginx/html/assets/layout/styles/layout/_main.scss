@@ -7,6 +7,12 @@
 html {
     height: 100%;
     font-size: $scale;
+    // Native controls use the same explicit scheme as the layout and PrimeNG.
+    color-scheme: light;
+}
+
+html.app-dark {
+    color-scheme: dark;
 }
 
 body {

@@ -22825,6 +22825,11 @@ span.flag{width:44px;height:30px;display:inline-block;}img.flag{width:30px}.flag
 html {
   height: 100%;
   font-size: 14px;
+  color-scheme: light;
+}
+
+html.app-dark {
+  color-scheme: dark;
 }
 
 body {
@@ -22929,6 +22934,14 @@ a {
 }
 .layout-topbar .layout-menu-button {
   margin-left: 1rem;
+}
+.layout-topbar .layout-theme-button {
+  margin-left: 0.5rem;
+  flex-shrink: 0;
+}
+.layout-topbar .layout-theme-button:disabled {
+  opacity: 0.5;
+  cursor: wait;
 }
 .layout-topbar .avatar-button {
   width: 3.25rem;
@@ -23630,6 +23643,83 @@ p:last-child {
   margin-bottom: 0;
 }
 
+/* Component fallbacks preserve the existing light palette. These semantic
+   overrides also reach dialogs and menus appended directly to body. */
+html.app-dark {
+  --app-dark-surface: #181f2a;
+  --app-dark-surface-muted: #222d3b;
+  --app-dark-text: #e8edf4;
+  --app-dark-muted: #adb9ca;
+  --app-dark-border: #3d4c60;
+  --app-dark-accent: #83d4ee;
+  --app-dark-accent-hover: #63b5d1;
+  --app-dark-on-accent: #0d2330;
+  --app-dark-success-bg: #123b30;
+  --app-dark-success-text: #80e5be;
+  --app-dark-danger-bg: #482522;
+  --app-dark-danger-text: #ffb4a6;
+  --app-dark-info-bg: #183747;
+  --app-dark-info-text: #8bd9f4;
+  --app-dark-warning-bg: #443619;
+  --app-dark-warning-text: #f9d47c;
+  --app-dark-purple-bg: #352a4c;
+  --app-dark-purple-text: #cdb5fa;
+  --surface-ground: #101720;
+  --surface-card: var(--app-dark-surface);
+  --surface-section: var(--app-dark-surface);
+  --surface-overlay: var(--app-dark-surface);
+  --surface-border: var(--app-dark-border);
+  --surface-hover: var(--app-dark-surface-muted);
+  --text-color: var(--app-dark-text);
+  --text-color-secondary: var(--app-dark-muted);
+  --primary-color: var(--app-dark-accent);
+  --primary-color-text: var(--app-dark-on-accent);
+  --p-form-field-disabled-background: var(--app-dark-surface-muted);
+  --p-form-field-disabled-color: var(--app-dark-muted);
+  --blue-50: var(--app-dark-info-bg);
+  --blue-100: var(--app-dark-info-bg);
+  --blue-200: var(--app-dark-info-bg);
+  --green-50: var(--app-dark-success-bg);
+  --green-100: var(--app-dark-success-bg);
+  --green-200: var(--app-dark-success-bg);
+  --red-50: var(--app-dark-danger-bg);
+  --red-100: var(--app-dark-danger-bg);
+  --red-200: var(--app-dark-danger-bg);
+  --yellow-50: var(--app-dark-warning-bg);
+  --yellow-100: var(--app-dark-warning-bg);
+  --yellow-200: var(--app-dark-warning-bg);
+  --orange-50: var(--app-dark-warning-bg);
+  --orange-100: var(--app-dark-warning-bg);
+  --orange-200: var(--app-dark-warning-bg);
+  --purple-50: var(--app-dark-purple-bg);
+  --purple-100: var(--app-dark-purple-bg);
+  --purple-200: var(--app-dark-purple-bg);
+  --teal-50: var(--app-dark-success-bg);
+  --teal-100: var(--app-dark-success-bg);
+  --teal-200: var(--app-dark-success-bg);
+  --gray-50: var(--app-dark-surface);
+  --gray-100: var(--app-dark-surface-muted);
+  --gray-200: var(--app-dark-border);
+}
+
+/* PrimeFlex's fixed white utility otherwise creates bright islands in dark pages. */
+html.app-dark .bg-white {
+  background-color: var(--surface-card) !important;
+}
+
+/* Match the contrast color when a primary fill uses PrimeFlex's white text utility. */
+html.app-dark .bg-primary.text-white {
+  color: var(--primary-color-text) !important;
+}
+
+html.app-dark .p-inputtext:disabled,
+html.app-dark .p-textarea:disabled {
+  color: var(--app-dark-muted);
+  background: var(--app-dark-surface-muted);
+  -webkit-text-fill-color: var(--app-dark-muted);
+  opacity: 1;
+}
+
 .customer-badge,
 .product-badge,
 .order-badge {
@@ -23642,58 +23732,58 @@ p:last-child {
 }
 
 .product-badge.status-instock {
-  background: #C8E6C9;
-  color: #256029;
+  background: var(--app-dark-success-bg, #C8E6C9);
+  color: var(--app-dark-success-text, #256029);
 }
 .product-badge.status-outofstock {
-  background: #FFCDD2;
-  color: #C63737;
+  background: var(--app-dark-danger-bg, #FFCDD2);
+  color: var(--app-dark-danger-text, #C63737);
 }
 .product-badge.status-lowstock {
-  background: #FEEDAF;
-  color: #8A5340;
+  background: var(--app-dark-warning-bg, #FEEDAF);
+  color: var(--app-dark-danger-text, #8A5340);
 }
 
 .customer-badge.status-qualified {
-  background: #C8E6C9;
-  color: #256029;
+  background: var(--app-dark-success-bg, #C8E6C9);
+  color: var(--app-dark-success-text, #256029);
 }
 .customer-badge.status-unqualified {
-  background: #FFCDD2;
-  color: #C63737;
+  background: var(--app-dark-danger-bg, #FFCDD2);
+  color: var(--app-dark-danger-text, #C63737);
 }
 .customer-badge.status-negotiation {
-  background: #FEEDAF;
-  color: #8A5340;
+  background: var(--app-dark-warning-bg, #FEEDAF);
+  color: var(--app-dark-danger-text, #8A5340);
 }
 .customer-badge.status-new {
-  background: #B3E5FC;
-  color: #23547B;
+  background: var(--app-dark-info-bg, #B3E5FC);
+  color: var(--app-dark-accent, #23547B);
 }
 .customer-badge.status-renewal {
-  background: #ECCFFF;
-  color: #694382;
+  background: var(--app-dark-purple-bg, #ECCFFF);
+  color: var(--app-dark-muted, #694382);
 }
 .customer-badge.status-proposal {
-  background: #FFD8B2;
-  color: #805B36;
+  background: var(--app-dark-warning-bg, #FFD8B2);
+  color: var(--app-dark-warning-text, #805B36);
 }
 
 .order-badge.order-delivered {
-  background: #C8E6C9;
-  color: #256029;
+  background: var(--app-dark-success-bg, #C8E6C9);
+  color: var(--app-dark-success-text, #256029);
 }
 .order-badge.order-cancelled {
-  background: #FFCDD2;
-  color: #C63737;
+  background: var(--app-dark-danger-bg, #FFCDD2);
+  color: var(--app-dark-danger-text, #C63737);
 }
 .order-badge.order-pending {
-  background: #FEEDAF;
-  color: #8A5340;
+  background: var(--app-dark-warning-bg, #FEEDAF);
+  color: var(--app-dark-danger-text, #8A5340);
 }
 .order-badge.order-returned {
-  background: #ECCFFF;
-  color: #694382;
+  background: var(--app-dark-purple-bg, #ECCFFF);
+  color: var(--app-dark-muted, #694382);
 }
 
 pre.app-code {
@@ -23718,9 +23808,9 @@ pre.app-code code {
 
 /* Shared file-upload presentation, based on CreatePropertyComponent. */
 .cp-file-upload {
-  --cp-upload-border: var(--p-surface-border, #e2e8f0);
-  --cp-upload-primary: var(--p-primary-color, #6366f1);
-  --cp-upload-muted: var(--p-text-muted-color, #94a3b8);
+  --cp-upload-border: var(--p-surface-border, var(--app-dark-border, #e2e8f0));
+  --cp-upload-primary: var(--p-primary-color, var(--app-dark-accent, #6366f1));
+  --cp-upload-muted: var(--p-text-muted-color, var(--app-dark-muted, #94a3b8));
 }
 
 .cp-file-upload .p-fileupload-header,
@@ -23732,7 +23822,7 @@ pre.app-code code {
 .cp-file-upload .p-fileupload-header {
   gap: 0.5rem;
   padding: 0.75rem;
-  background: var(--p-surface-ground, #f8fafc);
+  background: var(--p-surface-ground, var(--app-dark-info-bg, #f8fafc));
   border-radius: 9px 9px 0 0;
 }
 
@@ -23984,7 +24074,7 @@ p-tag.app-status-tag-host > .p-tag {
 .see-property-row-menu .see-property-permanent-delete-action .p-menu-item-link,
 .see-property-row-menu .see-property-permanent-delete-action .p-menu-item-icon,
 .see-property-row-menu .see-property-permanent-delete-action .p-menu-item-label {
-  color: #b42318 !important;
+  color: var(--app-dark-danger-text, #b42318) !important;
 }
 
 .see-property-row-menu .see-property-permanent-delete-action .p-menu-item-label {
@@ -23992,14 +24082,14 @@ p-tag.app-status-tag-host > .p-tag {
 }
 
 .see-property-row-menu .see-property-permanent-delete-action .p-menu-item-content:hover {
-  background: #fff5f4;
+  background: var(--app-dark-danger-bg, #fff5f4);
 }
 
 /* Row action menus are appended to body, so destructive user actions live here. */
 .create-user-row-menu .create-user-permanent-delete-action .p-menu-item-link,
 .create-user-row-menu .create-user-permanent-delete-action .p-menu-item-icon,
 .create-user-row-menu .create-user-permanent-delete-action .p-menu-item-label {
-  color: #b42318 !important;
+  color: var(--app-dark-danger-text, #b42318) !important;
 }
 
 .create-user-row-menu .create-user-permanent-delete-action .p-menu-item-label {
@@ -24007,7 +24097,7 @@ p-tag.app-status-tag-host > .p-tag {
 }
 
 .create-user-row-menu .create-user-permanent-delete-action .p-menu-item-content:hover {
-  background: #fff5f4;
+  background: var(--app-dark-danger-bg, #fff5f4);
 }
 
 @media (max-width: 768px) {
