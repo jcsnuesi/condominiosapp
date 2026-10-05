@@ -3,18 +3,6 @@
 </div> -->
 
 <p-confirmDialog />
-<section class="card mt-4" *appHasPermissions="['owner']">
-    <!-- Phase 1 responsive/accessibility: hero section preserved -->
-    <header class="app-history-header">
-        <span class="app-history-header__eyebrow">Bookings</span>
-        <h1>Booking History</h1>
-        <p class="app-history-header__description">
-            Review reservation status, verification, dates, and owner or staff
-            actions.
-        </p>
-    </header>
-</section>
-
 <div class="booking-responsive" *appHasPermissions="['owner']">
     <p-panel header="Create booking request">
         <p-fieldset id="bg-legend" legend="Choose action">
@@ -148,7 +136,9 @@
                             inputId="calendar-12h"
                             [(ngModel)]="bookingInfo.checkIn"
                             [showTime]="true"
-                            (ngModelChange)="validateDates(guestForm, $event, 'checkIn')"
+                            (ngModelChange)="
+                                validateDates(guestForm, $event, 'checkIn')
+                            "
                             [hourFormat]="12"
                             dateFormat="mm-dd-yy"
                             [minDate]="today"
@@ -183,7 +173,11 @@
                         (click)="submit(guestForm)"
                         label="Submit Guest"
                         icon="pi pi-check"
-                        [disabled]="guestForm.invalid || !!checkOutMgs || isSubmittingBooking"
+                        [disabled]="
+                            guestForm.invalid ||
+                            !!checkOutMgs ||
+                            isSubmittingBooking
+                        "
                     />
                 </div>
             </form>
@@ -245,7 +239,9 @@
                             inputId="calendar-12h"
                             [(ngModel)]="bookingInfo.checkIn"
                             [showTime]="true"
-                            (ngModelChange)="validateDates(bookingForm, $event, 'checkIn')"
+                            (ngModelChange)="
+                                validateDates(bookingForm, $event, 'checkIn')
+                            "
                             [hourFormat]="12"
                             dateFormat="mm-dd-yy"
                             required
@@ -265,7 +261,9 @@
                             inputId="calendar-12h"
                             [(ngModel)]="bookingInfo.checkOut"
                             [showTime]="true"
-                            (ngModelChange)="validateDates(bookingForm, $event, 'checkOut')"
+                            (ngModelChange)="
+                                validateDates(bookingForm, $event, 'checkOut')
+                            "
                             [hourFormat]="12"
                             dateFormat="mm-dd-yy"
                             required
@@ -327,16 +325,36 @@
     </div>
 
     <div class="booking-view-switch" role="group" aria-label="Booking view">
-        <button type="button" [attr.aria-pressed]="bookingView === 'table'"
-            (click)="bookingView = 'table'"><i class="pi pi-table" aria-hidden="true"></i> Table</button>
-        <button type="button" [attr.aria-pressed]="bookingView === 'calendar'"
-            (click)="bookingView = 'calendar'"><i class="pi pi-calendar" aria-hidden="true"></i> Calendar</button>
+        <button
+            type="button"
+            [attr.aria-pressed]="bookingView === 'table'"
+            (click)="bookingView = 'table'"
+        >
+            <i class="pi pi-table" aria-hidden="true"></i> Table
+        </button>
+        <button
+            type="button"
+            [attr.aria-pressed]="bookingView === 'calendar'"
+            (click)="bookingView = 'calendar'"
+        >
+            <i class="pi pi-calendar" aria-hidden="true"></i> Calendar
+        </button>
     </div>
     @if (bookingView === 'calendar') {
-    <section class="booking-calendar" aria-label="Booking calendar" [attr.aria-busy]="loading">
-        <p class="booking-calendar-help" role="status">{{ loading ? 'Loading bookings…' : 'Select a booking to view its details. Times are shown in your local time zone.' }}</p>
+    <section
+        class="booking-calendar"
+        aria-label="Booking calendar"
+        [attr.aria-busy]="loading"
+    >
+        <p class="booking-calendar-help" role="status">
+            {{
+                loading
+                    ? "Loading bookings…"
+                    : "Select a booking to view its details. Times are shown in your local time zone."
+            }}
+        </p>
         @if (!loading && bookingHistory.length === 0) {
-            <p>No bookings found.</p>
+        <p>No bookings found.</p>
         }
         <full-calendar [options]="calendarOptions" />
     </section>
@@ -374,23 +392,50 @@
         >
             <ng-template pTemplate="caption">
                 <div class="app-table-toolbar booking-toolbar">
-                    <p-iconField iconPosition="left" class="app-table-search booking-search">
+                    <p-iconField
+                        iconPosition="left"
+                        class="app-table-search booking-search"
+                    >
                         <p-inputIcon styleClass="pi pi-search"></p-inputIcon>
-                        <input pInputText type="search" [(ngModel)]="searchValue"
-                            (input)="dt.filterGlobal($event.target.value, 'contains')"
+                        <input
+                            pInputText
+                            type="search"
+                            [(ngModel)]="searchValue"
+                            (input)="
+                                dt.filterGlobal($event.target.value, 'contains')
+                            "
                             placeholder="Search bookings..."
-                            aria-label="Search bookings, units, areas or status" />
+                            aria-label="Search bookings, units, areas or status"
+                        />
                     </p-iconField>
-                    <p-button class="booking-clear" [outlined]="true" severity="secondary"
-                        icon="pi pi-filter-slash" label="Clear filters"
-                        styleClass="booking-toolbar-button booking-clear-button" (onClick)="clear(dt)" />
+                    <p-button
+                        class="booking-clear"
+                        [outlined]="true"
+                        severity="secondary"
+                        icon="pi pi-filter-slash"
+                        label="Clear filters"
+                        styleClass="booking-toolbar-button booking-clear-button"
+                        (onClick)="clear(dt)"
+                    />
                     @if (canDeleteBookings) {
-                    <p-button class="booking-delete" severity="danger" icon="pi pi-trash"
-                        [label]="selectedEligibleRows.length > 0 ? 'Delete (' + selectedEligibleRows.length + ')' : 'Delete'"
-                        [disabled]="selectedEligibleRows.length === 0 || isDeletingBookings"
-                        [loading]="isDeletingBookings" (onClick)="confirmDeleteSelectedBookings()"
+                    <p-button
+                        class="booking-delete"
+                        severity="danger"
+                        icon="pi pi-trash"
+                        [label]="
+                            selectedEligibleRows.length > 0
+                                ? 'Delete (' + selectedEligibleRows.length + ')'
+                                : 'Delete'
+                        "
+                        [disabled]="
+                            selectedEligibleRows.length === 0 ||
+                            isDeletingBookings
+                        "
+                        [loading]="isDeletingBookings"
+                        (onClick)="confirmDeleteSelectedBookings()"
                         styleClass="booking-toolbar-button booking-delete-button"
-                        ariaLabel="Delete selected eligible bookings" />
+                        ariaLabel="Delete selected eligible bookings"
+                    />
                     }
                 </div>
             </ng-template>
@@ -542,7 +587,12 @@
             </ng-template>
             <ng-template pTemplate="body" let-customer>
                 <tr class="p-selectable-row">
-                    <td class="booking-selection-cell" [class.booking-selection-cell--hidden]="!canDeleteBookings">
+                    <td
+                        class="booking-selection-cell"
+                        [class.booking-selection-cell--hidden]="
+                            !canDeleteBookings
+                        "
+                    >
                         @if (canDeleteBookings) {
                         <span class="booking-field-label">Select</span>
                         <p-tableCheckbox
