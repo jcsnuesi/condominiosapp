@@ -24,7 +24,7 @@ interface ProductPreview {
   imports: [RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './saas-landing.component.html',
-  styleUrls: ['./saas-landing.component.css', './saas-landing-sections.css', './saas-landing-responsive.css'],
+  styleUrls: ['./saas-landing.component.css', './saas-landing-sections.css', './saas-landing-responsive.css', './saas-landing-hero.css'],
 })
 export class SaasLandingComponent implements OnDestroy {
   private readonly user = inject(UserService);

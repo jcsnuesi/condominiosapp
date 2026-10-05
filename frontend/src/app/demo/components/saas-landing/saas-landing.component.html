@@ -10,6 +10,9 @@
       <symbol id="saas-documents" viewBox="0 0 32 32"><path d="M7 3h12l6 6v20H7zM19 3v7h6M12 16h8m-8 5h8"/></symbol>
       <symbol id="saas-rentals" viewBox="0 0 32 32"><path d="m3 15 13-11 13 11M7 12v16h18V12M13 28v-9h6v9"/></symbol>
       <symbol id="saas-home" viewBox="0 0 32 32"><path d="m3 16 13-12 13 12M7 13v15h18V13M12 14a6 6 0 0 1 8 0m-6 4a3 3 0 0 1 4 0"/><circle cx="16" cy="22" r="1"/></symbol>
+      <symbol id="saas-camera" viewBox="0 0 32 32"><rect x="4" y="8" width="24" height="18" rx="4"/><path d="m11 8 2-4h6l2 4"/><circle cx="16" cy="17" r="5"/></symbol>
+      <symbol id="saas-message" viewBox="0 0 32 32"><path d="M5 5h22v17H13l-8 6zM10 11h12m-12 5h8"/></symbol>
+      <symbol id="saas-device" viewBox="0 0 32 32"><rect x="10" y="4" width="12" height="24" rx="3"/><path d="M14 23h4M5 11a12 12 0 0 0 0 10m22-10a12 12 0 0 1 0 10"/></symbol>
     </defs>
   </svg>
 
@@ -38,18 +41,45 @@
   </header>
 
   <main id="main-content" tabindex="-1">
-    <section class="hero container" aria-labelledby="hero-title">
-      <div class="hero-copy">
-        <p class="hero-kicker"><svg aria-hidden="true"><use href="#saas-home"/></svg> Una comunidad que se siente como hogar</p>
-        <h1 id="hero-title">Más orden para tu comunidad. Más tranquilidad para tu hogar.</h1>
-        <p class="hero-description">Gestiona cuotas, reservas y comunicación de tu condominio, o reúne los dispositivos compatibles de tu vivienda, desde un mismo lugar.</p>
-        <div class="hero-actions"><a class="button" routerLink="/auth/register">Crear cuenta <span aria-hidden="true">↗</span></a><a class="text-link" routerLink="/" fragment="servicios">Explorar servicios <span aria-hidden="true">↓</span></a></div>
-        <p class="hero-caption">Para quienes cuidan una comunidad.<br>Para quienes cuidan su propio hogar.</p>
+    <section class="hero" aria-labelledby="hero-title">
+      <picture class="hero-photo">
+        <source media="(max-width: 700px)" srcset="assets/landing/residencial-azul-movil-480.webp 480w, assets/landing/residencial-azul-movil-780.webp 780w" sizes="100vw" type="image/webp">
+        <source srcset="assets/landing/residencial-azul-720.webp 720w, assets/landing/residencial-azul-1536.webp 1536w" sizes="100vw" type="image/webp">
+        <img src="assets/landing/residencial-azul-1536.webp" width="1536" height="1024" fetchpriority="high" alt="Edificios con balcones y jardines tropicales en una comunidad residencial">
+      </picture>
+      <div class="hero-inner container">
+        <div class="hero-copy">
+          <h1 id="hero-title"><span>Más orden para<br>tu comunidad.</span> <span class="hero-title-accent">Más tranquilidad<br>para tu hogar.</span></h1>
+          <p class="hero-description">Gestiona cuotas, reservas y comunicación de tu condominio, o reúne los dispositivos compatibles de tu vivienda, desde un mismo lugar.</p>
+          <div class="hero-actions">
+            <a class="button" routerLink="/auth/register">Crear cuenta <span aria-hidden="true">↗</span></a>
+            <a class="text-link" routerLink="/" fragment="servicios">Explorar servicios <span aria-hidden="true">→</span></a>
+          </div>
+        </div>
+        <div class="hero-visual">
+          <div class="phone-mockup" role="img" aria-label="Ejemplo de la aplicación móvil: cuota del mes, reservas, mensajes, cámaras y dispositivos">
+            <div class="phone-screen" aria-hidden="true">
+              <div class="phone-status"><span>9:41</span><span class="phone-notch"></span><span>▴ ▰ ▬</span></div>
+              <div class="phone-greeting"><span class="resident-avatar">CT</span><span>Buenos días,<strong>Carlos</strong></span><span class="phone-menu">☰</span></div>
+              <div class="phone-balance"><span>Cuota del mes</span><strong>RD$ 4,500</strong><div class="balance-chart"><i></i><i></i><i></i></div></div>
+              <div class="phone-tiles">
+                <div class="phone-tile"><svg><use href="#saas-bookings"/></svg><strong>Reservas</strong><span>Áreas comunes</span></div>
+                <div class="phone-tile"><svg><use href="#saas-message"/></svg><strong>Mensajes</strong><span class="tile-blue">3 nuevos</span></div>
+                <div class="phone-tile"><svg><use href="#saas-camera"/></svg><strong>Cámaras</strong><span class="tile-green">En línea</span></div>
+                <div class="phone-tile"><svg><use href="#saas-device"/></svg><strong>Dispositivos</strong><span class="tile-green">4 activos</span></div>
+              </div>
+              <div class="phone-bottom-nav"><span class="current"><svg><use href="#saas-rentals"/></svg>Inicio</span><span><svg><use href="#saas-bookings"/></svg>Reservas</span><span><svg><use href="#saas-finance"/></svg>Pagos</span><span><svg><use href="#saas-documents"/></svg>Más</span></div>
+              <span class="phone-home-bar"></span>
+            </div>
+          </div>
+          <span class="phone-example">Vista ilustrativa · Datos de ejemplo</span>
+        </div>
       </div>
-      <div class="hero-visual">
-        <picture class="hero-photo"><source srcset="assets/landing/residencial-720.webp 720w, assets/landing/residencial-1280.webp 1280w" sizes="(max-width: 960px) 92vw, 48vw" type="image/webp"><img src="assets/landing/residencial-1280.webp" width="1536" height="1024" fetchpriority="high" alt="Edificios contemporáneos con balcones, jardines tropicales y un camino entre áreas comunes"></picture>
-        <div class="photo-caption"><svg aria-hidden="true"><use href="#saas-home"/></svg><span>La vida en comunidad,<br><strong>con todo en su lugar.</strong></span></div>
-              <section class="product-preview" aria-labelledby="preview-heading">
+    </section>
+
+    <section class="demo-section container" aria-labelledby="demo-title">
+      <div class="section-intro"><h2 id="demo-title">Tu comunidad, a mano.</h2><p>Explora cómo se organizan las cuentas, las reservas y la información en un mismo lugar.</p></div>
+      <section class="product-preview" aria-labelledby="preview-heading">
         <div class="preview-top"><span class="preview-brand"><svg aria-hidden="true"><use href="#saas-building"/></svg>Residencial Jardines</span><span class="illustration-label">Datos de ejemplo</span></div>
         <div class="preview-tabs" role="tablist" aria-label="Explorar funciones del producto" (keydown)="moveTab($event)">
           @for (item of previews; track item.key) {
@@ -68,8 +98,6 @@
           </div>
         }
       </section>
-
-      </div>
     </section>
 
     <section class="benefits-section" aria-labelledby="benefits-title"><div class="container benefits-inner">
