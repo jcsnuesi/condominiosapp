@@ -40,7 +40,7 @@ export class OrganizationOnboardingComponent {
     this.http.get<{ data: { message: OnboardingStatus } }>(`${global.url}organization/onboarding`)
       .pipe(finalize(() => this.loading.set(false))).subscribe({
         next: response => this.status.set(response.data.message),
-        error: () => this.error.set('No pudimos cargar tu progreso. Intenta nuevamente.'),
+        error: () => this.error.set('We could not load your progress. Please try again.'),
       });
   }
 
@@ -51,7 +51,7 @@ export class OrganizationOnboardingComponent {
       .pipe(switchMap(() => this.access.refresh()), finalize(() => this.loading.set(false)))
       .subscribe({
         next: () => this.router.navigate(['/start', this.user.getIdentity()._id]),
-        error: (_error: HttpErrorResponse) => this.error.set('No pudimos guardar tu progreso. Intenta nuevamente.'),
+        error: (_error: HttpErrorResponse) => this.error.set('We could not save your progress. Please try again.'),
       });
   }
 }

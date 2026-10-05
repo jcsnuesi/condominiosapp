@@ -1,5 +1,5 @@
 <ul class="layout-menu">
-    @for (item of model; track $index) { @if(item.visible){
+    @for (item of model(); track $index) { @if(item.visible){
 
     <ng-container>
         <li

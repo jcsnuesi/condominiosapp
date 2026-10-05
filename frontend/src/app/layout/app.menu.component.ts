@@ -1,5 +1,4 @@
-import { OnInit } from '@angular/core';
-import { Component } from '@angular/core';
+import { Component, computed } from '@angular/core';
 import { LayoutService } from './service/app.layout.service';
 import { CookieService } from 'ngx-cookie-service';
 import { HasPermissionsDirective } from '../has-permissions.directive';
@@ -10,8 +9,8 @@ import { AccessContextService } from '../demo/service/access-context.service';
     templateUrl: './app.menu.component.html',
     standalone: false,
 })
-export class AppMenuComponent implements OnInit {
-    model: any[] = [];
+export class AppMenuComponent {
+    readonly model = computed(() => this.buildMenu());
     private cookieValue: any;
     constructor(
         public layoutService: LayoutService,
@@ -73,7 +72,7 @@ export class AppMenuComponent implements OnInit {
         return permissions.some((permission) => this.hasPermission(permission));
     }
 
-    ngOnInit() {
+    private buildMenu() {
         const identityId = this.cookieValue?._id;
         const isOwner = this.checkRole(['OWNER']);
         const isOrganizationOwner =
@@ -86,17 +85,19 @@ export class AppMenuComponent implements OnInit {
             ? !isOrganizationOwner
             : this.hasPermission('finance.read');
 
-        this.model = [
+        return [
             {
-                label: 'Configuración',
+                label: 'Setup',
                 items: [
                     {
-                        label: 'Primeros pasos',
+                        label: 'Getting started',
                         icon: 'pi pi-list',
                         routerLink: ['/onboarding'],
                     },
                 ],
-                visible: this.accessContext.isOwnerAdmin(),
+                visible:
+                    this.accessContext.isOwnerAdmin() &&
+                    this.accessContext.access()?.onboardingRequired === true,
             },
             {
                 label: 'Home',

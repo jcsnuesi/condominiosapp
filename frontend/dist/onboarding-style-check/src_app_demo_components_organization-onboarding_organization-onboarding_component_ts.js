@@ -57,7 +57,7 @@ function OrganizationOnboardingComponent_Conditional_10_Template(rf, ctx) {
     _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵelementStart"](0, "div", 5);
     _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵelement"](1, "p-progressSpinner", 7);
     _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵelementStart"](2, "span");
-    _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵtext"](3, "Cargando\u2026");
+    _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵtext"](3, "Loading\u2026");
     _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵelementEnd"]()();
   }
 }
@@ -68,10 +68,10 @@ function OrganizationOnboardingComponent_Conditional_11_Template(rf, ctx) {
     _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵtext"](3, "01");
     _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵelementEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵelementStart"](4, "div", 9)(5, "h2");
-    _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵtext"](6, "Crea tu primer condominio");
+    _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵtext"](6, "Create your first condominium");
     _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵelementEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵelementStart"](7, "p");
-    _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵtext"](8, "Registra su direcci\u00F3n y los datos de administraci\u00F3n.");
+    _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵtext"](8, "Register its address and management details.");
     _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵelementEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵelement"](9, "p-tag", 10);
     _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵelementEnd"]();
@@ -81,10 +81,10 @@ function OrganizationOnboardingComponent_Conditional_11_Template(rf, ctx) {
     _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵtext"](13, "02");
     _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵelementEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵelementStart"](14, "div", 9)(15, "h2");
-    _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵtext"](16, "Registra sus unidades");
+    _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵtext"](16, "Register its units");
     _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵelementEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵelementStart"](17, "p");
-    _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵtext"](18, " Configura los apartamentos o viviendas que pertenecen al condominio. ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵtext"](18, " Set up the apartments or homes that belong to the condominium. ");
     _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵelementEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵelement"](19, "p-tag", 10);
     _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵelementEnd"]();
@@ -94,10 +94,10 @@ function OrganizationOnboardingComponent_Conditional_11_Template(rf, ctx) {
     _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵtext"](23, "03");
     _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵelementEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵelementStart"](24, "div", 9)(25, "h2");
-    _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵtext"](26, "Crea el acceso de tus propietarios");
+    _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵtext"](26, "Create access for your owners");
     _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵelementEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵelementStart"](27, "p");
-    _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵtext"](28, " Asigna el condominio y la unidad a cada propietario. Recibir\u00E1 sus credenciales por correo. ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵtext"](28, " Assign a condominium and unit to each owner. They will receive their login credentials by email. ");
     _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵelementEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵelement"](29, "p-tag", 10);
     _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵelementEnd"]();
@@ -118,26 +118,26 @@ function OrganizationOnboardingComponent_Conditional_11_Template(rf, ctx) {
     });
     _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵelementEnd"]()();
     _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵelementStart"](34, "p", 17);
-    _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵtext"](35, " Puedes retomar esta gu\u00EDa desde \u201CPrimeros pasos\u201D en el men\u00FA. Tu progreso se guarda al crear cada registro. ");
+    _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵtext"](35, " You can return to this guide from \u201CGetting started\u201D in the menu until you finish setup. Your progress is saved as you create each record. ");
     _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵelementEnd"]();
   }
   if (rf & 2) {
     const setup_r3 = ctx;
     const ctx_r0 = _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵnextContext"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵadvance"](9);
-    _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵproperty"]("severity", setup_r3.condominiumCount ? "success" : "secondary")("value", setup_r3.condominiumCount ? setup_r3.condominiumCount + " registrados" : "Pendiente");
+    _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵproperty"]("severity", setup_r3.condominiumCount ? "success" : "secondary")("value", setup_r3.condominiumCount ? setup_r3.condominiumCount + " registered" : "Pending");
     _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵadvance"](10);
-    _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵproperty"]("severity", setup_r3.unitCount ? "success" : "secondary")("value", setup_r3.unitCount ? setup_r3.unitCount + " registradas" : "Pendiente");
+    _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵproperty"]("severity", setup_r3.unitCount ? "success" : "secondary")("value", setup_r3.unitCount ? setup_r3.unitCount + " registered" : "Pending");
     _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵadvance"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵproperty"]("outlined", true)("routerLink", setup_r3.firstCondominiumId ? _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵpureFunction1"](14, _c0, setup_r3.firstCondominiumId) : _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵpureFunction0"](16, _c1));
     _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵadvance"](9);
-    _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵproperty"]("severity", setup_r3.ownerCount ? "success" : "secondary")("value", setup_r3.ownerCount ? setup_r3.ownerCount + " registrados" : "Pendiente");
+    _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵproperty"]("severity", setup_r3.ownerCount ? "success" : "secondary")("value", setup_r3.ownerCount ? setup_r3.ownerCount + " registered" : "Pending");
     _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵadvance"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵproperty"]("outlined", true)("routerLink", setup_r3.firstCondominiumId ? _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵpureFunction1"](17, _c0, setup_r3.firstCondominiumId) : _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵpureFunction0"](19, _c1));
     _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵadvance"](2);
     _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵproperty"]("outlined", true)("disabled", ctx_r0.loading());
     _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵadvance"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵproperty"]("disabled", ctx_r0.loading())("label", setup_r3.condominiumCount && setup_r3.unitCount && setup_r3.ownerCount ? "Finalizar configuraci\u00F3n" : "Continuar y configurar despu\u00E9s");
+    _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵproperty"]("disabled", ctx_r0.loading())("label", setup_r3.condominiumCount && setup_r3.unitCount && setup_r3.ownerCount ? "Finish setup" : "Continue and set up later");
   }
 }
 function OrganizationOnboardingComponent_Conditional_12_Template(rf, ctx) {
@@ -174,7 +174,7 @@ class OrganizationOnboardingComponent {
     this.error.set('');
     this.http.get(`${_service_global_service__WEBPACK_IMPORTED_MODULE_9__.global.url}organization/onboarding`).pipe((0,rxjs__WEBPACK_IMPORTED_MODULE_4__.finalize)(() => this.loading.set(false))).subscribe({
       next: response => this.status.set(response.data.message),
-      error: () => this.error.set('No pudimos cargar tu progreso. Intenta nuevamente.')
+      error: () => this.error.set('We could not load your progress. Please try again.')
     });
   }
   finish() {
@@ -183,7 +183,7 @@ class OrganizationOnboardingComponent {
     this.error.set('');
     this.http.post(`${_service_global_service__WEBPACK_IMPORTED_MODULE_9__.global.url}organization/onboarding/complete`, {}).pipe((0,rxjs__WEBPACK_IMPORTED_MODULE_5__.switchMap)(() => this.access.refresh()), (0,rxjs__WEBPACK_IMPORTED_MODULE_4__.finalize)(() => this.loading.set(false))).subscribe({
       next: () => this.router.navigate(['/start', this.user.getIdentity()._id]),
-      error: _error => this.error.set('No pudimos guardar tu progreso. Intenta nuevamente.')
+      error: _error => this.error.set('We could not save your progress. Please try again.')
     });
   }
   static {
@@ -197,17 +197,17 @@ class OrganizationOnboardingComponent {
       selectors: [["app-organization-onboarding"]],
       decls: 13,
       vars: 5,
-      consts: [["aria-labelledby", "setup-title", 1, "card", "app-page-card", "onboarding"], [1, "app-page-header"], [1, "app-page-kicker"], ["id", "setup-title"], ["role", "alert", 1, "error"], ["role", "status", 1, "onboarding-loading"], ["label", "Reintentar", "icon", "pi pi-refresh", "styleClass", "onboarding-primary-action"], ["strokeWidth", "5", "ariaLabel", "Cargando progreso"], [1, "number"], [1, "step-content"], [3, "severity", "value"], ["routerLink", "/create-property", "label", "Crear condominio", "icon", "pi pi-plus", "styleClass", "onboarding-primary-action"], ["label", "Gestionar unidades", "icon", "pi pi-arrow-right", "iconPos", "right", "severity", "secondary", "styleClass", "onboarding-secondary-action", 3, "outlined", "routerLink"], ["label", "Gestionar propietarios", "icon", "pi pi-arrow-right", "iconPos", "right", "severity", "secondary", "styleClass", "onboarding-secondary-action", 3, "outlined", "routerLink"], [1, "actions"], ["label", "Actualizar progreso", "icon", "pi pi-refresh", "severity", "secondary", "styleClass", "onboarding-secondary-action", 3, "onClick", "outlined", "disabled"], ["styleClass", "onboarding-primary-action", "icon", "pi pi-check", 3, "onClick", "disabled", "label"], [1, "hint"], ["label", "Reintentar", "icon", "pi pi-refresh", "styleClass", "onboarding-primary-action", 3, "onClick"]],
+      consts: [["aria-labelledby", "setup-title", 1, "card", "app-page-card", "onboarding"], [1, "app-page-header"], [1, "app-page-kicker"], ["id", "setup-title"], ["role", "alert", 1, "error"], ["role", "status", 1, "onboarding-loading"], ["label", "Try again", "icon", "pi pi-refresh", "styleClass", "onboarding-primary-action"], ["strokeWidth", "5", "ariaLabel", "Loading progress"], [1, "number"], [1, "step-content"], [3, "severity", "value"], ["routerLink", "/create-property", "label", "Create condominium", "icon", "pi pi-plus", "styleClass", "onboarding-primary-action"], ["label", "Manage units", "icon", "pi pi-arrow-right", "iconPos", "right", "severity", "secondary", "styleClass", "onboarding-secondary-action", 3, "outlined", "routerLink"], ["label", "Manage owners", "icon", "pi pi-arrow-right", "iconPos", "right", "severity", "secondary", "styleClass", "onboarding-secondary-action", 3, "outlined", "routerLink"], [1, "actions"], ["label", "Refresh progress", "icon", "pi pi-refresh", "severity", "secondary", "styleClass", "onboarding-secondary-action", 3, "onClick", "outlined", "disabled"], ["styleClass", "onboarding-primary-action", "icon", "pi pi-check", 3, "onClick", "disabled", "label"], [1, "hint"], ["label", "Try again", "icon", "pi pi-refresh", "styleClass", "onboarding-primary-action", 3, "onClick"]],
       template: function OrganizationOnboardingComponent_Template(rf, ctx) {
         if (rf & 1) {
           _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵelementStart"](0, "section", 0)(1, "div", 1)(2, "div")(3, "span", 2);
-          _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵtext"](4, "PRIMEROS PASOS \u00B7 ADMIN");
+          _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵtext"](4, "GETTING STARTED \u00B7 ADMIN");
           _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵelementEnd"]();
           _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵelementStart"](5, "h1", 3);
           _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵtext"](6);
           _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵelementEnd"]();
           _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵelementStart"](7, "p");
-          _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵtext"](8, " Tu cuenta est\u00E1 lista. Sigue estos pasos para comenzar a administrar tus condominios. ");
+          _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵtext"](8, " Your account is ready. Follow these steps to start managing your condominiums. ");
           _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵelementEnd"]()()();
           _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵconditionalCreate"](9, OrganizationOnboardingComponent_Conditional_9_Template, 2, 1, "p", 4);
           _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵconditionalCreate"](10, OrganizationOnboardingComponent_Conditional_10_Template, 4, 0, "div", 5);
@@ -219,7 +219,7 @@ class OrganizationOnboardingComponent {
           let tmp_4_0;
           _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵattribute"]("aria-busy", ctx.loading());
           _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵadvance"](6);
-          _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵtextInterpolate1"](" Configura ", ((tmp_1_0 = ctx.status()) == null ? null : tmp_1_0.name) || "tu organizaci\u00F3n", " ");
+          _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵtextInterpolate1"](" Set up ", ((tmp_1_0 = ctx.status()) == null ? null : tmp_1_0.name) || "your organization", " ");
           _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵadvance"](3);
           _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵconditional"](ctx.error() ? 9 : -1);
           _angular_core__WEBPACK_IMPORTED_MODULE_12__["ɵɵadvance"]();

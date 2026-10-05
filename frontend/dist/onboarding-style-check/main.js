@@ -33319,11 +33319,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   AppMenuComponent: () => (/* binding */ AppMenuComponent)
 /* harmony export */ });
-/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ 58440);
-/* harmony import */ var _service_app_layout_service__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./service/app.layout.service */ 12681);
-/* harmony import */ var ngx_cookie_service__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ngx-cookie-service */ 39512);
-/* harmony import */ var _demo_service_access_context_service__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../demo/service/access-context.service */ 11371);
-/* harmony import */ var _app_menuitem_component__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./app.menuitem.component */ 8811);
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ 86808);
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/core */ 58440);
+/* harmony import */ var _service_app_layout_service__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./service/app.layout.service */ 12681);
+/* harmony import */ var ngx_cookie_service__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ngx-cookie-service */ 39512);
+/* harmony import */ var _demo_service_access_context_service__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../demo/service/access-context.service */ 11371);
+/* harmony import */ var _app_menuitem_component__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./app.menuitem.component */ 8811);
+
 
 
 
@@ -33331,25 +33333,25 @@ __webpack_require__.r(__webpack_exports__);
 
 function AppMenuComponent_For_2_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementContainerStart"](0);
-    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelement"](1, "li", 1);
-    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementContainerEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelement"](2, "li");
+    _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelementContainerStart"](0);
+    _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelement"](1, "li", 1);
+    _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelementContainerEnd"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelement"](2, "li");
   }
   if (rf & 2) {
-    const item_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵnextContext"]().$implicit;
-    const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵnextContext"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵadvance"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵproperty"]("item", item_r1)("index", ctx_r1.i)("root", true)("visible", item_r1.visible);
+    const item_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵnextContext"]().$implicit;
+    const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵnextContext"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵadvance"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵproperty"]("item", item_r1)("index", ctx_r1.i)("root", true)("visible", item_r1.visible);
   }
 }
 function AppMenuComponent_For_2_Template(rf, ctx) {
   if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵconditionalCreate"](0, AppMenuComponent_For_2_Conditional_0_Template, 3, 4);
+    _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵconditionalCreate"](0, AppMenuComponent_For_2_Conditional_0_Template, 3, 4);
   }
   if (rf & 2) {
     const item_r1 = ctx.$implicit;
-    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵconditional"](item_r1.visible ? 0 : -1);
+    _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵconditional"](item_r1.visible ? 0 : -1);
   }
 }
 class AppMenuComponent {
@@ -33357,7 +33359,9 @@ class AppMenuComponent {
     this.layoutService = layoutService;
     this.cookieService = cookieService;
     this.accessContext = accessContext;
-    this.model = [];
+    this.model = (0,_angular_core__WEBPACK_IMPORTED_MODULE_0__.computed)(() => this.buildMenu(), ...(ngDevMode ? [{
+      debugName: "model"
+    }] : /* istanbul ignore next */[]));
     this.cookieValue = this.getIdentityFromCookie();
   }
   getIdentityFromCookie() {
@@ -33401,19 +33405,19 @@ class AppMenuComponent {
   hasAnyPermission(...permissions) {
     return permissions.some(permission => this.hasPermission(permission));
   }
-  ngOnInit() {
+  buildMenu() {
     const identityId = this.cookieValue?._id;
     const isOwner = this.checkRole(['OWNER']);
     const isOrganizationOwner = isOwner && Boolean(this.accessContext.access()?.organization || this.cookieValue?.organizationId);
     const canSeePaymentMonitor = isOwner ? !isOrganizationOwner : this.hasPermission('finance.read');
-    this.model = [{
-      label: 'Configuración',
+    return [{
+      label: 'Setup',
       items: [{
-        label: 'Primeros pasos',
+        label: 'Getting started',
         icon: 'pi pi-list',
         routerLink: ['/onboarding']
       }],
-      visible: this.accessContext.isOwnerAdmin()
+      visible: this.accessContext.isOwnerAdmin() && this.accessContext.access()?.onboardingRequired === true
     }, {
       label: 'Home',
       items: [{
@@ -33527,11 +33531,11 @@ class AppMenuComponent {
   }
   static {
     this.ɵfac = function AppMenuComponent_Factory(__ngFactoryType__) {
-      return new (__ngFactoryType__ || AppMenuComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdirectiveInject"](_service_app_layout_service__WEBPACK_IMPORTED_MODULE_1__.LayoutService), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdirectiveInject"](ngx_cookie_service__WEBPACK_IMPORTED_MODULE_2__.CookieService), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdirectiveInject"](_demo_service_access_context_service__WEBPACK_IMPORTED_MODULE_3__.AccessContextService));
+      return new (__ngFactoryType__ || AppMenuComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵdirectiveInject"](_service_app_layout_service__WEBPACK_IMPORTED_MODULE_2__.LayoutService), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵdirectiveInject"](ngx_cookie_service__WEBPACK_IMPORTED_MODULE_3__.CookieService), _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵdirectiveInject"](_demo_service_access_context_service__WEBPACK_IMPORTED_MODULE_4__.AccessContextService));
     };
   }
   static {
-    this.ɵcmp = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineComponent"]({
+    this.ɵcmp = /*@__PURE__*/_angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵdefineComponent"]({
       type: AppMenuComponent,
       selectors: [["app-menu"]],
       standalone: false,
@@ -33540,16 +33544,16 @@ class AppMenuComponent {
       consts: [[1, "layout-menu"], ["app-menuitem", "", 3, "item", "index", "root", "visible"]],
       template: function AppMenuComponent_Template(rf, ctx) {
         if (rf & 1) {
-          _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](0, "ul", 0);
-          _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵrepeaterCreate"](1, AppMenuComponent_For_2_Template, 1, 1, null, null, _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵrepeaterTrackByIndex"]);
-          _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
+          _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelementStart"](0, "ul", 0);
+          _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵrepeaterCreate"](1, AppMenuComponent_For_2_Template, 1, 1, null, null, _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵrepeaterTrackByIndex"]);
+          _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelementEnd"]();
         }
         if (rf & 2) {
-          _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵadvance"]();
-          _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵrepeater"](ctx.model);
+          _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵadvance"]();
+          _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵrepeater"](ctx.model());
         }
       },
-      dependencies: [_app_menuitem_component__WEBPACK_IMPORTED_MODULE_4__.AppMenuitemComponent],
+      dependencies: [_app_menuitem_component__WEBPACK_IMPORTED_MODULE_5__.AppMenuitemComponent],
       encapsulation: 2
     });
   }
