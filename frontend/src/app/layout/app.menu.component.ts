@@ -85,12 +85,12 @@ export class AppMenuComponent {
             ? !isOrganizationOwner
             : this.hasPermission('finance.read');
 
-        return [
+        const sections = [
             {
                 label: 'Maintenance',
                 items: [
                     {
-                        label: 'Schedule and Tasks',
+                        label: 'Maintenance',
                         icon: 'pi pi-calendar-clock',
                         routerLink: ['/schedule'],
                     },
@@ -221,7 +221,7 @@ export class AppMenuComponent {
                 label: 'Short-term Rental',
                 items: [
                     {
-                        label: 'iCal Channels & Conflicts',
+                        label: 'iCal channels',
                         icon: 'pi pi-calendar',
                         routerLink: ['/str-integration'],
                         visible: this.hasPermission('str.read'),
@@ -261,5 +261,21 @@ export class AppMenuComponent {
                 visible: this.hasPermission('communications.read'),
             },
         ];
+
+        const navigationGroups = [
+            { label: 'Setup', sections: ['Setup'] },
+            { label: 'Overview', sections: ['Home', 'Properties', 'Access management'] },
+            { label: 'Operations', sections: ['Maintenance', 'Bookings', 'Smart Home'] },
+            { label: 'Management', sections: ['Customer 360', 'Docs', 'Short-term Rental', 'Finance', 'Communications'] },
+        ];
+
+        return navigationGroups.map(group => {
+            const items = group.sections.flatMap(label => {
+                const section = sections.find(section => section.label === label);
+                if (!section?.visible) return [];
+                return section.items.filter(item => item.visible !== false);
+            });
+            return { label: group.label, items, visible: items.length > 0 };
+        });
     }
 }
