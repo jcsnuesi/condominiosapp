@@ -95,7 +95,7 @@ services:
   schedule-worker:
     build:
       context: ./backend
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.schedule-worker
     command: ["node", "modules/schedule/worker.js"]
     env_file:
       - ./backend/.env

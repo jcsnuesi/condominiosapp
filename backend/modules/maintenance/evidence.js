@@ -1,7 +1,7 @@
 "use strict";
 const fs = require("node:fs/promises"); const path = require("node:path"); const crypto = require("node:crypto");
-const multer = require("multer"); const { Record } = require("../schedule/infrastructure/models"); const { fail } = require("../schedule/domain/rules");
-const directory = path.resolve(__dirname, "../../uploads/schedule-evidence");
+const multer = require("multer"); const { fail } = require("../schedule/domain/rules");
+const { directory, cleanup } = require("./evidence-cleanup");
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024, files: 5, fields: 15, fieldSize: 20000 } }).array("evidence", 5);
 function fileType(buffer) {
   if (buffer.subarray(0, 5).equals(Buffer.from("%PDF-"))) return ["application/pdf", ".pdf"];
@@ -26,13 +26,4 @@ async function store(files = []) {
   } catch (error) { await remove(result); throw error; }
 }
 async function remove(files) { await Promise.all(files.map(f => fs.unlink(path.join(directory, f.storedFilename)).catch(() => {}))); }
-async function cleanup(now = new Date()) {
-  const names = await fs.readdir(directory).catch(() => []);
-  for (const name of names) {
-    if (!/^[a-f0-9-]{36}\.(pdf|jpg|png|webp)$/.test(name)) continue;
-    const stat = await fs.stat(path.join(directory, name)).catch(() => null);
-    if (!stat || now - stat.mtime < 86400000) continue;
-    if (!await Record.exists({ "evidence.storedFilename": name })) await fs.unlink(path.join(directory, name)).catch(() => {});
-  }
-}
 module.exports = { upload, fileType, directory, store, remove, cleanup };

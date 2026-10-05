@@ -5,7 +5,7 @@ const mongoose = require("mongoose");
 const { Schedule } = require("./infrastructure/models");
 const { InternalSchedulerExecutor } = require("./application/executor");
 const notices = require("./application/notifications");
-const { cleanup } = require("../maintenance/evidence");
+const { cleanup } = require("../maintenance/evidence-cleanup");
 const interval = Number(process.env.SCHEDULE_WORKER_INTERVAL_MS || 1800000);
 const heartbeat =
   process.env.SCHEDULE_WORKER_HEARTBEAT || "/tmp/schedule-worker-heartbeat";
