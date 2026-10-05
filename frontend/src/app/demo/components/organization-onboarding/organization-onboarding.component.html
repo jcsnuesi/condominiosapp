@@ -1,16 +1,107 @@
-<section class="onboarding" aria-labelledby="setup-title">
-  <p class="eyebrow">PRIMEROS PASOS · ADMIN</p>
-  <h1 id="setup-title">Configura {{ status()?.name || 'tu organización' }}</h1>
-  <p>Tu cuenta está lista. Sigue estos pasos para comenzar a administrar tus condominios.</p>
-  @if (error()) { <p class="error" role="alert">{{ error() }}</p> }
-  @if (loading()) { <p role="status">Cargando…</p> }
-  @if (status(); as setup) {
+<section class="card app-page-card onboarding" aria-labelledby="setup-title" [attr.aria-busy]="loading()">
+    <div class="app-page-header">
+        <div>
+            <span class="app-page-kicker">PRIMEROS PASOS · ADMIN</span>
+            <h1 id="setup-title">
+                Configura {{ status()?.name || "tu organización" }}
+            </h1>
+            <p>
+                Tu cuenta está lista. Sigue estos pasos para comenzar a administrar tus
+                condominios.
+            </p>
+        </div>
+    </div>
+    @if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+    } @if (loading()) {
+    <div class="onboarding-loading" role="status">
+        <p-progressSpinner strokeWidth="5" ariaLabel="Cargando progreso" />
+        <span>Cargando…</span>
+    </div>
+    } @if (status(); as setup) {
     <ol>
-      <li><span class="number">01</span><div><h2>Crea tu primer condominio</h2><p>Registra su dirección y los datos de administración.</p><span class="status">{{ setup.condominiumCount ? setup.condominiumCount + ' registrados' : 'Pendiente' }}</span></div><a routerLink="/create-property">Crear condominio →</a></li>
-      <li><span class="number">02</span><div><h2>Registra sus unidades</h2><p>Configura los apartamentos o viviendas que pertenecen al condominio.</p><span class="status">{{ setup.unitCount ? setup.unitCount + ' registradas' : 'Pendiente' }}</span></div><a [routerLink]="setup.firstCondominiumId ? ['/home', setup.firstCondominiumId] : ['/see-property']">Gestionar unidades →</a></li>
-      <li><span class="number">03</span><div><h2>Crea el acceso de tus propietarios</h2><p>Asigna el condominio y la unidad a cada propietario. Recibirá sus credenciales por correo.</p><span class="status">{{ setup.ownerCount ? setup.ownerCount + ' registrados' : 'Pendiente' }}</span></div><a [routerLink]="setup.firstCondominiumId ? ['/home', setup.firstCondominiumId] : ['/see-property']">Gestionar propietarios →</a></li>
+        <li>
+            <span class="number">01</span>
+            <div class="step-content">
+                <h2>Crea tu primer condominio</h2>
+                <p>Registra su dirección y los datos de administración.</p>
+                <p-tag [severity]="setup.condominiumCount ? 'success' : 'secondary'" [value]="
+                    setup.condominiumCount
+                        ? setup.condominiumCount + ' registrados'
+                        : 'Pendiente'
+                " />
+            </div>
+            <p-button routerLink="/create-property" label="Crear condominio" icon="pi pi-plus" styleClass="onboarding-primary-action" />
+        </li>
+        <li>
+            <span class="number">02</span>
+            <div class="step-content">
+                <h2>Registra sus unidades</h2>
+                <p>
+                    Configura los apartamentos o viviendas que pertenecen al
+                    condominio.
+                </p>
+                <p-tag [severity]="setup.unitCount ? 'success' : 'secondary'" [value]="
+                    setup.unitCount
+                        ? setup.unitCount + ' registradas'
+                        : 'Pendiente'
+                " />
+            </div>
+            <p-button
+                label="Gestionar unidades" icon="pi pi-arrow-right" iconPos="right"
+                [outlined]="true" severity="secondary" styleClass="onboarding-secondary-action"
+                [routerLink]="
+                    setup.firstCondominiumId
+                        ? ['/home', setup.firstCondominiumId]
+                        : ['/see-property']
+                "
+            />
+        </li>
+        <li>
+            <span class="number">03</span>
+            <div class="step-content">
+                <h2>Crea el acceso de tus propietarios</h2>
+                <p>
+                    Asigna el condominio y la unidad a cada propietario.
+                    Recibirá sus credenciales por correo.
+                </p>
+                <p-tag [severity]="setup.ownerCount ? 'success' : 'secondary'" [value]="
+                    setup.ownerCount
+                        ? setup.ownerCount + ' registrados'
+                        : 'Pendiente'
+                " />
+            </div>
+            <p-button
+                label="Gestionar propietarios" icon="pi pi-arrow-right" iconPos="right"
+                [outlined]="true" severity="secondary" styleClass="onboarding-secondary-action"
+                [routerLink]="
+                    setup.firstCondominiumId
+                        ? ['/home', setup.firstCondominiumId]
+                        : ['/see-property']
+                "
+            />
+        </li>
     </ol>
-    <div class="actions"><button type="button" (click)="refresh()" [disabled]="loading()">Actualizar progreso</button><button class="primary" type="button" (click)="finish()" [disabled]="loading()">{{ setup.condominiumCount && setup.unitCount && setup.ownerCount ? 'Finalizar configuración' : 'Continuar y configurar después' }}</button></div>
-    <p class="hint">Puedes retomar esta guía desde “Primeros pasos” en el menú. Tu progreso se guarda al crear cada registro.</p>
-  } @else if (!loading()) { <button type="button" (click)="refresh()">Reintentar</button> }
+    <div class="actions">
+        <p-button label="Actualizar progreso" icon="pi pi-refresh"
+            [outlined]="true" severity="secondary" styleClass="onboarding-secondary-action"
+            (onClick)="refresh()" [disabled]="loading()" />
+        <p-button
+            styleClass="onboarding-primary-action"
+            icon="pi pi-check"
+            (onClick)="finish()"
+            [disabled]="loading()"
+            [label]="
+                setup.condominiumCount && setup.unitCount && setup.ownerCount
+                    ? 'Finalizar configuración'
+                    : 'Continuar y configurar después'
+            "
+        />
+    </div>
+    <p class="hint">
+        Puedes retomar esta guía desde “Primeros pasos” en el menú. Tu progreso
+        se guarda al crear cada registro.
+    </p>
+    } @else if (!loading()) {
+    <p-button label="Reintentar" icon="pi pi-refresh" styleClass="onboarding-primary-action" (onClick)="refresh()" /> }
 </section>

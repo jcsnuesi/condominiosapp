@@ -2,6 +2,9 @@ import { Component, inject, signal } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Router, RouterLink } from '@angular/router';
 import { finalize, switchMap } from 'rxjs';
+import { ButtonModule } from 'primeng/button';
+import { TagModule } from 'primeng/tag';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { global } from '../../service/global.service';
 import { UserService } from '../../service/user.service';
 import { AccessContextService } from '../../service/access-context.service';
@@ -16,7 +19,8 @@ interface OnboardingStatus {
 }
 
 @Component({
-  selector: 'app-organization-onboarding', standalone: true, imports: [RouterLink],
+  selector: 'app-organization-onboarding', standalone: true,
+  imports: [RouterLink, ButtonModule, TagModule, ProgressSpinnerModule],
   templateUrl: './organization-onboarding.component.html',
   styleUrl: './organization-onboarding.component.css',
 })

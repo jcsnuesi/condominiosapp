@@ -20,7 +20,8 @@
                         "allowedCommonJsDependencies": [
                             "pdfmake/build/pdfmake",
                             "pdfmake/build/vfs_fonts",
-                            "quill"
+                            "quill",
+                            "debug"
                         ],
                         "outputPath": "dist/sakai-ng",
                         "index": "src/index.html",
