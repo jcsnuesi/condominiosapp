@@ -6698,7 +6698,7 @@ const _c4 = a0 => ({
 });
 function CreatePropertyComponent_ng_template_33_Conditional_18_Template(rf, ctx) {
   if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](0, "small", 43);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](0, "small", 42);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtext"](1, " Property name is required. ");
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]();
   }
@@ -6706,10 +6706,10 @@ function CreatePropertyComponent_ng_template_33_Conditional_18_Template(rf, ctx)
 function CreatePropertyComponent_ng_template_33_Conditional_68_Template(rf, ctx) {
   if (rf & 1) {
     const _r5 = _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵgetCurrentView"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](0, "div", 58)(1, "div", 39)(2, "label");
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](0, "div", 57)(1, "div", 38)(2, "label");
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtext"](3, "From letter");
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](4, "input", 65, 7);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](4, "input", 64, 7);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtwoWayListener"]("ngModelChange", function CreatePropertyComponent_ng_template_33_Conditional_68_Template_input_ngModelChange_4_listener($event) {
       _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵrestoreView"](_r5);
       const ctx_r3 = _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵnextContext"](2);
@@ -6717,10 +6717,10 @@ function CreatePropertyComponent_ng_template_33_Conditional_68_Template(rf, ctx)
       return _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵresetView"]($event);
     });
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]()();
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](6, "div", 39)(7, "label");
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](6, "div", 38)(7, "label");
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtext"](8, "To letter");
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](9, "input", 66, 8);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](9, "input", 65, 8);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtwoWayListener"]("ngModelChange", function CreatePropertyComponent_ng_template_33_Conditional_68_Template_input_ngModelChange_9_listener($event) {
       _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵrestoreView"](_r5);
       const ctx_r3 = _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵnextContext"](2);
@@ -6739,7 +6739,7 @@ function CreatePropertyComponent_ng_template_33_Conditional_68_Template(rf, ctx)
 }
 function CreatePropertyComponent_ng_template_33_Conditional_82_For_6_Template(rf, ctx) {
   if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelement"](0, "p-tag", 70);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelement"](0, "p-tag", 69);
   }
   if (rf & 2) {
     const unit_r6 = ctx.$implicit;
@@ -6749,12 +6749,12 @@ function CreatePropertyComponent_ng_template_33_Conditional_82_For_6_Template(rf
 }
 function CreatePropertyComponent_ng_template_33_Conditional_82_Template(rf, ctx) {
   if (rf & 1) {
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](0, "div", 62)(1, "span", 67);
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelement"](2, "i", 68);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](0, "div", 61)(1, "span", 66);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelement"](2, "i", 67);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtext"](3, "Unit preview");
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](4, "div", 69);
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵrepeaterCreate"](5, CreatePropertyComponent_ng_template_33_Conditional_82_For_6_Template, 1, 1, "p-tag", 70, _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵrepeaterTrackByIdentity"]);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](4, "div", 68);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵrepeaterCreate"](5, CreatePropertyComponent_ng_template_33_Conditional_82_For_6_Template, 1, 1, "p-tag", 69, _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵrepeaterTrackByIdentity"]);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]()();
   }
   if (rf & 2) {
@@ -6766,32 +6766,32 @@ function CreatePropertyComponent_ng_template_33_Conditional_82_Template(rf, ctx)
 function CreatePropertyComponent_ng_template_33_Template(rf, ctx) {
   if (rf & 1) {
     const _r3 = _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵgetCurrentView"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](0, "div", 30)(1, "div", 31)(2, "div", 32);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](0, "div", 29)(1, "div", 30)(2, "div", 31);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵlistener"]("click", function CreatePropertyComponent_ng_template_33_Template_div_click_2_listener() {
       _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵrestoreView"](_r3);
       const ctx_r3 = _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵnextContext"]();
       return _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵresetView"](ctx_r3.triggerFileUpload());
     });
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelement"](3, "img", 33);
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](4, "div", 34);
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelement"](5, "i", 35);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelement"](3, "img", 32);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](4, "div", 33);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelement"](5, "i", 34);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]()();
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](6, "p", 36);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](6, "p", 35);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtext"](7, " Click to change photo ");
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](8, "p-fileUpload", 37, 2);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](8, "p-fileUpload", 36, 2);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵlistener"]("onSelect", function CreatePropertyComponent_ng_template_33_Template_p_fileUpload_onSelect_8_listener($event) {
       _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵrestoreView"](_r3);
       const ctx_r3 = _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵnextContext"]();
       return _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵresetView"](ctx_r3.onSelect($event));
     });
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]()();
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](10, "div", 38)(11, "div", 39)(12, "label", 40);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](10, "div", 37)(11, "div", 38)(12, "label", 39);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtext"](13, "Property name ");
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](14, "span", 41);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](14, "span", 40);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtext"](15, "*");
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]()();
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](16, "input", 42, 3);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](16, "input", 41, 3);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtwoWayListener"]("ngModelChange", function CreatePropertyComponent_ng_template_33_Template_input_ngModelChange_16_listener($event) {
       _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵrestoreView"](_r3);
       const ctx_r3 = _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵnextContext"]();
@@ -6799,14 +6799,14 @@ function CreatePropertyComponent_ng_template_33_Template(rf, ctx) {
       return _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵresetView"]($event);
     });
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵconditionalCreate"](18, CreatePropertyComponent_ng_template_33_Conditional_18_Template, 2, 0, "small", 43);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵconditionalCreate"](18, CreatePropertyComponent_ng_template_33_Conditional_18_Template, 2, 0, "small", 42);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](19, "div", 39)(20, "label", 44);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](19, "div", 38)(20, "label", 43);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtext"](21, "Property type ");
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](22, "span", 41);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](22, "span", 40);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtext"](23, "*");
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]()();
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](24, "p-select", 45, 4);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](24, "p-select", 44, 4);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtwoWayListener"]("ngModelChange", function CreatePropertyComponent_ng_template_33_Template_p_select_ngModelChange_24_listener($event) {
       _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵrestoreView"](_r3);
       const ctx_r3 = _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵnextContext"]();
@@ -6814,15 +6814,15 @@ function CreatePropertyComponent_ng_template_33_Template(rf, ctx) {
       return _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵresetView"]($event);
     });
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]()()();
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](26, "div", 38)(27, "div", 39)(28, "label", 46);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](26, "div", 37)(27, "div", 38)(28, "label", 45);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtext"](29, "Phone ");
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](30, "span", 41);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](30, "span", 40);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtext"](31, "*");
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]()();
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](32, "p-inputGroup")(33, "p-inputGroupAddon");
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelement"](34, "i", 47);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelement"](34, "i", 46);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](35, "input", 48, 5);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](35, "input", 47, 5);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtwoWayListener"]("ngModelChange", function CreatePropertyComponent_ng_template_33_Template_input_ngModelChange_35_listener($event) {
       _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵrestoreView"](_r3);
       const ctx_r3 = _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵnextContext"]();
@@ -6830,13 +6830,13 @@ function CreatePropertyComponent_ng_template_33_Template(rf, ctx) {
       return _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵresetView"]($event);
     });
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]()()();
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](37, "div", 39)(38, "label", 49);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](37, "div", 38)(38, "label", 48);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtext"](39, "Phone 2");
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](40, "p-inputGroup")(41, "p-inputGroupAddon");
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelement"](42, "i", 47);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelement"](42, "i", 46);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](43, "input", 50, 6);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](43, "input", 49, 6);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtwoWayListener"]("ngModelChange", function CreatePropertyComponent_ng_template_33_Template_input_ngModelChange_43_listener($event) {
       _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵrestoreView"](_r3);
       const ctx_r3 = _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵnextContext"]();
@@ -6844,11 +6844,11 @@ function CreatePropertyComponent_ng_template_33_Template(rf, ctx) {
       return _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵresetView"]($event);
     });
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]()()()();
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](45, "div", 39)(46, "label", 51);
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelement"](47, "i", 52);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](45, "div", 38)(46, "label", 50);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelement"](47, "i", 51);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtext"](48, " Unit numbering type ");
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](49, "div", 53)(50, "label", 54)(51, "p-radioButton", 55);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](49, "div", 52)(50, "label", 53)(51, "p-radioButton", 54);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtwoWayListener"]("ngModelChange", function CreatePropertyComponent_ng_template_33_Template_p_radioButton_ngModelChange_51_listener($event) {
       _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵrestoreView"](_r3);
       const ctx_r3 = _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵnextContext"]();
@@ -6861,7 +6861,7 @@ function CreatePropertyComponent_ng_template_33_Template(rf, ctx) {
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](54, "small");
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtext"](55, "1, 2, 3\u2026");
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]()()();
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](56, "label", 54)(57, "p-radioButton", 56);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](56, "label", 53)(57, "p-radioButton", 55);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtwoWayListener"]("ngModelChange", function CreatePropertyComponent_ng_template_33_Template_p_radioButton_ngModelChange_57_listener($event) {
       _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵrestoreView"](_r3);
       const ctx_r3 = _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵnextContext"]();
@@ -6874,7 +6874,7 @@ function CreatePropertyComponent_ng_template_33_Template(rf, ctx) {
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](60, "small");
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtext"](61, "001, 002\u2026");
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]()()();
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](62, "label", 54)(63, "p-radioButton", 57);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](62, "label", 53)(63, "p-radioButton", 56);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtwoWayListener"]("ngModelChange", function CreatePropertyComponent_ng_template_33_Template_p_radioButton_ngModelChange_63_listener($event) {
       _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵrestoreView"](_r3);
       const ctx_r3 = _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵnextContext"]();
@@ -6887,16 +6887,16 @@ function CreatePropertyComponent_ng_template_33_Template(rf, ctx) {
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](66, "small");
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtext"](67, "A, B, C\u2026");
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]()()()();
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵconditionalCreate"](68, CreatePropertyComponent_ng_template_33_Conditional_68_Template, 11, 2, "div", 58);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵconditionalCreate"](68, CreatePropertyComponent_ng_template_33_Conditional_68_Template, 11, 2, "div", 57);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](69, "div", 39)(70, "label", 51);
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelement"](71, "i", 59);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](69, "div", 38)(70, "label", 50);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelement"](71, "i", 58);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtext"](72, " Unit range ");
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](73, "div", 38)(74, "div", 39)(75, "label");
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](73, "div", 37)(74, "div", 38)(75, "label");
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtext"](76, "From");
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](77, "p-inputNumber", 60);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](77, "p-inputNumber", 59);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtwoWayListener"]("ngModelChange", function CreatePropertyComponent_ng_template_33_Template_p_inputNumber_ngModelChange_77_listener($event) {
       _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵrestoreView"](_r3);
       const ctx_r3 = _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵnextContext"]();
@@ -6904,10 +6904,10 @@ function CreatePropertyComponent_ng_template_33_Template(rf, ctx) {
       return _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵresetView"]($event);
     });
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]()();
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](78, "div", 39)(79, "label");
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](78, "div", 38)(79, "label");
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtext"](80, "To");
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](81, "p-inputNumber", 61);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](81, "p-inputNumber", 60);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtwoWayListener"]("ngModelChange", function CreatePropertyComponent_ng_template_33_Template_p_inputNumber_ngModelChange_81_listener($event) {
       _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵrestoreView"](_r3);
       const ctx_r3 = _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵnextContext"]();
@@ -6920,11 +6920,11 @@ function CreatePropertyComponent_ng_template_33_Template(rf, ctx) {
       return _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵresetView"](ctx_r3.previewUnits());
     });
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]()()()();
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵconditionalCreate"](82, CreatePropertyComponent_ng_template_33_Conditional_82_Template, 7, 0, "div", 62);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵconditionalCreate"](82, CreatePropertyComponent_ng_template_33_Conditional_82_Template, 7, 0, "div", 61);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](83, "div", 63);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](83, "div", 62);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelement"](84, "span");
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](85, "p-button", 64);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](85, "p-button", 63);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵlistener"]("click", function CreatePropertyComponent_ng_template_33_Template_p_button_click_85_listener() {
       const activateCallback_r8 = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵrestoreView"](_r3).activateCallback;
       return _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵresetView"](activateCallback_r8(2));
@@ -6982,12 +6982,12 @@ function CreatePropertyComponent_ng_template_33_Template(rf, ctx) {
 function CreatePropertyComponent_ng_template_36_Template(rf, ctx) {
   if (rf & 1) {
     const _r12 = _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵgetCurrentView"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](0, "div", 30)(1, "div", 39)(2, "label", 71);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](0, "div", 29)(1, "div", 38)(2, "label", 70);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtext"](3, "Address ");
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](4, "span", 41);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](4, "span", 40);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtext"](5, "*");
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]()();
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](6, "input", 72, 9);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](6, "input", 71, 9);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtwoWayListener"]("ngModelChange", function CreatePropertyComponent_ng_template_36_Template_input_ngModelChange_6_listener($event) {
       _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵrestoreView"](_r12);
       const ctx_r3 = _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵnextContext"]();
@@ -6995,10 +6995,10 @@ function CreatePropertyComponent_ng_template_36_Template(rf, ctx) {
       return _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵresetView"]($event);
     });
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]()();
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](8, "div", 39)(9, "label", 73);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](8, "div", 38)(9, "label", 72);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtext"](10, "Address line 2");
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](11, "input", 74, 10);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](11, "input", 73, 10);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtwoWayListener"]("ngModelChange", function CreatePropertyComponent_ng_template_36_Template_input_ngModelChange_11_listener($event) {
       _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵrestoreView"](_r12);
       const ctx_r3 = _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵnextContext"]();
@@ -7006,12 +7006,12 @@ function CreatePropertyComponent_ng_template_36_Template(rf, ctx) {
       return _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵresetView"]($event);
     });
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]()();
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](13, "div", 38)(14, "div", 39)(15, "label", 75);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](13, "div", 37)(14, "div", 38)(15, "label", 74);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtext"](16, "Sector ");
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](17, "span", 41);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](17, "span", 40);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtext"](18, "*");
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]()();
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](19, "input", 76, 11);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](19, "input", 75, 11);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtwoWayListener"]("ngModelChange", function CreatePropertyComponent_ng_template_36_Template_input_ngModelChange_19_listener($event) {
       _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵrestoreView"](_r12);
       const ctx_r3 = _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵnextContext"]();
@@ -7019,12 +7019,12 @@ function CreatePropertyComponent_ng_template_36_Template(rf, ctx) {
       return _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵresetView"]($event);
     });
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]()();
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](21, "div", 39)(22, "label", 77);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](21, "div", 38)(22, "label", 76);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtext"](23, "City ");
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](24, "span", 41);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](24, "span", 40);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtext"](25, "*");
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]()();
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](26, "input", 78, 12);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](26, "input", 77, 12);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtwoWayListener"]("ngModelChange", function CreatePropertyComponent_ng_template_36_Template_input_ngModelChange_26_listener($event) {
       _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵrestoreView"](_r12);
       const ctx_r3 = _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵnextContext"]();
@@ -7032,10 +7032,10 @@ function CreatePropertyComponent_ng_template_36_Template(rf, ctx) {
       return _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵresetView"]($event);
     });
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]()()();
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](28, "div", 38)(29, "div", 39)(30, "label", 79);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](28, "div", 37)(29, "div", 38)(30, "label", 78);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtext"](31, "Province");
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](32, "input", 80, 13);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](32, "input", 79, 13);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtwoWayListener"]("ngModelChange", function CreatePropertyComponent_ng_template_36_Template_input_ngModelChange_32_listener($event) {
       _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵrestoreView"](_r12);
       const ctx_r3 = _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵnextContext"]();
@@ -7043,10 +7043,10 @@ function CreatePropertyComponent_ng_template_36_Template(rf, ctx) {
       return _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵresetView"]($event);
     });
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]()();
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](34, "div", 39)(35, "label", 81);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](34, "div", 38)(35, "label", 80);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtext"](36, "Country");
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](37, "input", 82, 14);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](37, "input", 81, 14);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtwoWayListener"]("ngModelChange", function CreatePropertyComponent_ng_template_36_Template_input_ngModelChange_37_listener($event) {
       _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵrestoreView"](_r12);
       const ctx_r3 = _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵnextContext"]();
@@ -7054,13 +7054,13 @@ function CreatePropertyComponent_ng_template_36_Template(rf, ctx) {
       return _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵresetView"]($event);
     });
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]()()()();
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](39, "div", 63)(40, "p-button", 83);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](39, "div", 62)(40, "p-button", 82);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵlistener"]("onClick", function CreatePropertyComponent_ng_template_36_Template_p_button_onClick_40_listener() {
       const activateCallback_r13 = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵrestoreView"](_r12).activateCallback;
       return _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵresetView"](activateCallback_r13(1));
     });
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](41, "p-button", 84);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](41, "p-button", 83);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵlistener"]("onClick", function CreatePropertyComponent_ng_template_36_Template_p_button_onClick_41_listener() {
       const activateCallback_r13 = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵrestoreView"](_r12).activateCallback;
       return _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵresetView"](activateCallback_r13(3));
@@ -7098,11 +7098,11 @@ function CreatePropertyComponent_ng_template_36_Template(rf, ctx) {
 function CreatePropertyComponent_ng_template_38_Template(rf, ctx) {
   if (rf & 1) {
     const _r18 = _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵgetCurrentView"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](0, "div", 30)(1, "div", 39)(2, "label", 85);
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelement"](3, "i", 86);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](0, "div", 29)(1, "div", 38)(2, "label", 84);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelement"](3, "i", 85);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtext"](4, " Social areas ");
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](5, "p-multiSelect", 87, 15);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](5, "p-multiSelect", 86, 15);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtwoWayListener"]("ngModelChange", function CreatePropertyComponent_ng_template_38_Template_p_multiSelect_ngModelChange_5_listener($event) {
       _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵrestoreView"](_r18);
       const ctx_r3 = _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵnextContext"]();
@@ -7110,15 +7110,15 @@ function CreatePropertyComponent_ng_template_38_Template(rf, ctx) {
       return _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵresetView"]($event);
     });
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]()();
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](7, "div", 39)(8, "label", 88);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](7, "div", 38)(8, "label", 87);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtext"](9, " Monthly payment per unit ");
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](10, "span", 41);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](10, "span", 40);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtext"](11, "*");
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]()();
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](12, "p-inputGroup")(13, "p-inputGroupAddon");
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtext"](14, "$");
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](15, "input", 89, 16);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](15, "input", 88, 16);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtwoWayListener"]("ngModelChange", function CreatePropertyComponent_ng_template_38_Template_input_ngModelChange_15_listener($event) {
       _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵrestoreView"](_r18);
       const ctx_r3 = _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵnextContext"]();
@@ -7126,15 +7126,15 @@ function CreatePropertyComponent_ng_template_38_Template(rf, ctx) {
       return _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵresetView"]($event);
     });
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]()()();
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelement"](17, "p-message", 90);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelement"](17, "p-message", 89);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](18, "div", 63)(19, "p-button", 83);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](18, "div", 62)(19, "p-button", 82);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵlistener"]("onClick", function CreatePropertyComponent_ng_template_38_Template_p_button_onClick_19_listener() {
       const activateCallback_r19 = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵrestoreView"](_r18).activateCallback;
       return _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵresetView"](activateCallback_r19(2));
     });
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelement"](20, "p-button", 91);
+    _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelement"](20, "p-button", 90);
     _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]();
   }
   if (rf & 2) {
@@ -7439,7 +7439,7 @@ class CreatePropertyComponent {
       features: [_angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵProvidersFeature"]([_service_condominios_service__WEBPACK_IMPORTED_MODULE_4__.CondominioService, _service_user_service__WEBPACK_IMPORTED_MODULE_5__.UserService, primeng_api__WEBPACK_IMPORTED_MODULE_7__.ConfirmationService, primeng_api__WEBPACK_IMPORTED_MODULE_7__.MessageService])],
       decls: 41,
       vars: 13,
-      consts: [["condominiumForm", "ngForm"], ["stepperP", ""], ["fileInput", ""], ["alias", "ngModel"], ["typeOfProperty", "ngModel"], ["phone", "ngModel"], ["phone2", "ngModel"], ["fromLetters", "ngModel"], ["letterTo", "ngModel"], ["street_1", "ngModel"], ["street_2", "ngModel"], ["sector_name", "ngModel"], ["city", "ngModel"], ["province", "ngModel"], ["country", "ngModel"], ["socialAreas", "ngModel"], ["mPayment", "ngModel"], [1, "card", "app-page-card", "create-property-page"], [1, "app-page-header", "cp-page-header"], [1, "cp-kicker"], [1, "cp-title"], [1, "cp-subtitle"], [3, "valueChange", "value"], [3, "value"], [1, "pi", "pi-building", "mr-2"], [1, "pi", "pi-upload", "mr-2"], [3, "ngSubmit"], [1, "cp-stepper", 3, "valueChange", "value"], ["pTemplate", "content"], [3, "services"], [1, "cp-step-body"], [1, "cp-avatar-section"], [1, "cp-avatar-wrap", 3, "click"], ["alt", "Property image", 1, "cp-avatar-img", 3, "src"], [1, "cp-avatar-overlay"], [1, "pi", "pi-camera"], [1, "cp-avatar-hint"], ["styleClass", "cp-file-upload", "name", "demo[]", "url", "https://www.primefaces.org/cdn/api/upload.php", "accept", "image/*", "mode", "basic", 3, "onSelect", "maxFileSize", "customUpload", "auto"], [1, "cp-field-grid"], [1, "cp-field"], ["for", "aliaslabel"], [1, "cp-required"], ["pInputText", "", "id", "aliaslabel", "name", "alias", "type", "text", "maxlength", "50", "placeholder", "e.g. Residencial Las Palmas", "required", "", 3, "ngModelChange", "ngModel", "ngClass"], [1, "cp-error-msg"], ["for", "typeOfPropertylabel"], ["id", "typeOfPropertylabel", "optionLabel", "property", "placeholder", "Select type", "name", "typeOfProperty", "required", "", 3, "ngModelChange", "options", "ngModel", "ngClass"], ["for", "phone"], [1, "pi", "pi-phone"], ["pInputText", "", "id", "phone", "name", "phone", "type", "text", "maxlength", "11", "pattern", "^[0-9]+", "placeholder", "8095882222", "required", "", 3, "ngModelChange", "ngModel", "ngClass"], ["for", "phone2"], ["pInputText", "", "id", "phone2", "name", "phone2", "type", "text", "pattern", "^[0-9]+", "maxlength", "11", "placeholder", "8095882222", 3, "ngModelChange", "ngModel"], [1, "cp-section-label"], [1, "pi", "pi-list-check", "mr-1"], [1, "cp-radio-group"], [1, "cp-radio-option"], ["name", "numberingType", "value", "numeric", 3, "ngModelChange", "ngModel"], ["name", "numberingType", "value", "padded", 3, "ngModelChange", "ngModel"], ["name", "numberingType", "value", "letters", 3, "ngModelChange", "ngModel"], [1, "cp-field-grid", "mt-3"], [1, "pi", "pi-hashtag", "mr-1"], ["placeholder", "1", "name", "startUnit", 3, "ngModelChange", "ngModel"], ["placeholder", "10", "name", "endUnit", 3, "ngModelChange", "keyup", "ngModel"], [1, "cp-preview-box"], [1, "cp-step-footer"], ["label", "Next: Address", "icon", "pi pi-arrow-right", "iconPos", "right", 3, "click", "disabled"], ["pInputText", "", "placeholder", "A", "name", "letterFrom", "pattern", "[a-zA-Z]", "maxlength", "1", 2, "text-transform", "uppercase", 3, "ngModelChange", "ngModel"], ["pInputText", "", "placeholder", "Z", "name", "letterTo", "pattern", "[a-zA-Z]", "maxlength", "1", 2, "text-transform", "uppercase", 3, "ngModelChange", "ngModel"], [1, "cp-preview-label"], [1, "pi", "pi-eye", "mr-1"], [1, "cp-preview-chips"], ["severity", "secondary", 1, "cp-unit-chip", 3, "value"], ["for", "street_1label"], ["pInputText", "", "id", "street_1label", "name", "street_1", "maxlength", "100", "placeholder", "Main street, Av. 27 de Febrero...", "required", "", 3, "ngModelChange", "ngModel", "ngClass"], ["for", "street_2label"], ["pInputText", "", "id", "street_2label", "name", "street_2", "maxlength", "50", "placeholder", "Unit, Apt, Suite\u2026", 3, "ngModelChange", "ngModel"], ["for", "sector_namelabel"], ["pInputText", "", "id", "sector_namelabel", "name", "sector_name", "maxlength", "50", "placeholder", "Piantini, Naco\u2026", "required", "", 3, "ngModelChange", "ngModel", "ngClass"], ["for", "citylabel"], ["pInputText", "", "id", "citylabel", "name", "city", "maxlength", "50", "placeholder", "Santo Domingo", "required", "", 3, "ngModelChange", "ngModel", "ngClass"], ["for", "provincelabel"], ["pInputText", "", "id", "provincelabel", "name", "province", "maxlength", "50", "placeholder", "Distrito Nacional", 3, "ngModelChange", "ngModel", "ngClass"], ["for", "countrylabel"], ["pInputText", "", "id", "countrylabel", "name", "country", "maxlength", "50", "readonly", "", 3, "ngModelChange", "ngModel"], ["label", "Back", "icon", "pi pi-arrow-left", "severity", "secondary", 3, "onClick", "outlined"], ["label", "Next: Details", "icon", "pi pi-arrow-right", "iconPos", "right", 3, "onClick", "disabled"], ["for", "socialAreaslabel"], [1, "pi", "pi-star", "mr-1"], ["id", "socialAreaslabel", "optionLabel", "areasOptions", "name", "socialAreas", "placeholder", "Pool, Gym, Park\u2026", "display", "chip", 3, "ngModelChange", "options", "ngModel"], ["for", "mPayment"], ["pInputText", "", "id", "mPayment", "name", "mPayment", "maxlength", "6", "placeholder", "0.00", "required", "", 3, "ngModelChange", "ngModel", "ngClass"], ["severity", "info", 1, "cp-info-msg", 3, "text"], ["type", "submit", "label", "Create property", "icon", "pi pi-check", "iconPos", "right", 3, "disabled"]],
+      consts: [["condominiumForm", "ngForm"], ["stepperP", ""], ["fileInput", ""], ["alias", "ngModel"], ["typeOfProperty", "ngModel"], ["phone", "ngModel"], ["phone2", "ngModel"], ["fromLetters", "ngModel"], ["letterTo", "ngModel"], ["street_1", "ngModel"], ["street_2", "ngModel"], ["sector_name", "ngModel"], ["city", "ngModel"], ["province", "ngModel"], ["country", "ngModel"], ["socialAreas", "ngModel"], ["mPayment", "ngModel"], [1, "card", "app-page-card", "create-property-page"], [1, "app-page-header", "cp-page-header"], [1, "app-page-kicker"], [1, "cp-subtitle"], [3, "valueChange", "value"], [3, "value"], [1, "pi", "pi-building", "mr-2"], [1, "pi", "pi-upload", "mr-2"], [3, "ngSubmit"], [1, "cp-stepper", 3, "valueChange", "value"], ["pTemplate", "content"], [3, "services"], [1, "cp-step-body"], [1, "cp-avatar-section"], [1, "cp-avatar-wrap", 3, "click"], ["alt", "Property image", 1, "cp-avatar-img", 3, "src"], [1, "cp-avatar-overlay"], [1, "pi", "pi-camera"], [1, "cp-avatar-hint"], ["styleClass", "cp-file-upload", "name", "demo[]", "url", "https://www.primefaces.org/cdn/api/upload.php", "accept", "image/*", "mode", "basic", 3, "onSelect", "maxFileSize", "customUpload", "auto"], [1, "cp-field-grid"], [1, "cp-field"], ["for", "aliaslabel"], [1, "cp-required"], ["pInputText", "", "id", "aliaslabel", "name", "alias", "type", "text", "maxlength", "50", "placeholder", "e.g. Residencial Las Palmas", "required", "", 3, "ngModelChange", "ngModel", "ngClass"], [1, "cp-error-msg"], ["for", "typeOfPropertylabel"], ["id", "typeOfPropertylabel", "optionLabel", "property", "placeholder", "Select type", "name", "typeOfProperty", "required", "", 3, "ngModelChange", "options", "ngModel", "ngClass"], ["for", "phone"], [1, "pi", "pi-phone"], ["pInputText", "", "id", "phone", "name", "phone", "type", "text", "maxlength", "11", "pattern", "^[0-9]+", "placeholder", "8095882222", "required", "", 3, "ngModelChange", "ngModel", "ngClass"], ["for", "phone2"], ["pInputText", "", "id", "phone2", "name", "phone2", "type", "text", "pattern", "^[0-9]+", "maxlength", "11", "placeholder", "8095882222", 3, "ngModelChange", "ngModel"], [1, "cp-section-label"], [1, "pi", "pi-list-check", "mr-1"], [1, "cp-radio-group"], [1, "cp-radio-option"], ["name", "numberingType", "value", "numeric", 3, "ngModelChange", "ngModel"], ["name", "numberingType", "value", "padded", 3, "ngModelChange", "ngModel"], ["name", "numberingType", "value", "letters", 3, "ngModelChange", "ngModel"], [1, "cp-field-grid", "mt-3"], [1, "pi", "pi-hashtag", "mr-1"], ["placeholder", "1", "name", "startUnit", 3, "ngModelChange", "ngModel"], ["placeholder", "10", "name", "endUnit", 3, "ngModelChange", "keyup", "ngModel"], [1, "cp-preview-box"], [1, "cp-step-footer"], ["label", "Next: Address", "icon", "pi pi-arrow-right", "iconPos", "right", 3, "click", "disabled"], ["pInputText", "", "placeholder", "A", "name", "letterFrom", "pattern", "[a-zA-Z]", "maxlength", "1", 2, "text-transform", "uppercase", 3, "ngModelChange", "ngModel"], ["pInputText", "", "placeholder", "Z", "name", "letterTo", "pattern", "[a-zA-Z]", "maxlength", "1", 2, "text-transform", "uppercase", 3, "ngModelChange", "ngModel"], [1, "cp-preview-label"], [1, "pi", "pi-eye", "mr-1"], [1, "cp-preview-chips"], ["severity", "secondary", 1, "cp-unit-chip", 3, "value"], ["for", "street_1label"], ["pInputText", "", "id", "street_1label", "name", "street_1", "maxlength", "100", "placeholder", "Main street, Av. 27 de Febrero...", "required", "", 3, "ngModelChange", "ngModel", "ngClass"], ["for", "street_2label"], ["pInputText", "", "id", "street_2label", "name", "street_2", "maxlength", "50", "placeholder", "Unit, Apt, Suite\u2026", 3, "ngModelChange", "ngModel"], ["for", "sector_namelabel"], ["pInputText", "", "id", "sector_namelabel", "name", "sector_name", "maxlength", "50", "placeholder", "Piantini, Naco\u2026", "required", "", 3, "ngModelChange", "ngModel", "ngClass"], ["for", "citylabel"], ["pInputText", "", "id", "citylabel", "name", "city", "maxlength", "50", "placeholder", "Santo Domingo", "required", "", 3, "ngModelChange", "ngModel", "ngClass"], ["for", "provincelabel"], ["pInputText", "", "id", "provincelabel", "name", "province", "maxlength", "50", "placeholder", "Distrito Nacional", 3, "ngModelChange", "ngModel", "ngClass"], ["for", "countrylabel"], ["pInputText", "", "id", "countrylabel", "name", "country", "maxlength", "50", "readonly", "", 3, "ngModelChange", "ngModel"], ["label", "Back", "icon", "pi pi-arrow-left", "severity", "secondary", 3, "onClick", "outlined"], ["label", "Next: Details", "icon", "pi pi-arrow-right", "iconPos", "right", 3, "onClick", "disabled"], ["for", "socialAreaslabel"], [1, "pi", "pi-star", "mr-1"], ["id", "socialAreaslabel", "optionLabel", "areasOptions", "name", "socialAreas", "placeholder", "Pool, Gym, Park\u2026", "display", "chip", 3, "ngModelChange", "options", "ngModel"], ["for", "mPayment"], ["pInputText", "", "id", "mPayment", "name", "mPayment", "maxlength", "6", "placeholder", "0.00", "required", "", 3, "ngModelChange", "ngModel", "ngClass"], ["severity", "info", 1, "cp-info-msg", 3, "text"], ["type", "submit", "label", "Create property", "icon", "pi pi-check", "iconPos", "right", 3, "disabled"]],
       template: function CreatePropertyComponent_Template(rf, ctx) {
         if (rf & 1) {
           const _r1 = _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵgetCurrentView"]();
@@ -7447,58 +7447,58 @@ class CreatePropertyComponent {
           _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](2, "div", 17)(3, "div", 18)(4, "div")(5, "span", 19);
           _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtext"](6, "Properties");
           _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]();
-          _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](7, "h2", 20);
+          _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](7, "h2");
           _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtext"](8, "Create new property");
           _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]();
-          _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](9, "p", 21);
+          _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](9, "p", 20);
           _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtext"](10, " Set up property details, units, billing, and owner information step by step. ");
           _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]()()();
-          _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](11, "p-tabs", 22);
+          _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](11, "p-tabs", 21);
           _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtwoWayListener"]("valueChange", function CreatePropertyComponent_Template_p_tabs_valueChange_11_listener($event) {
             _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵrestoreView"](_r1);
             _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtwoWayBindingSet"](ctx.activeTab, $event) || (ctx.activeTab = $event);
             return _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵresetView"]($event);
           });
-          _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](12, "p-tablist")(13, "p-tab", 23);
-          _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelement"](14, "i", 24);
+          _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](12, "p-tablist")(13, "p-tab", 22);
+          _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelement"](14, "i", 23);
           _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtext"](15, "Create property ");
           _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]();
-          _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](16, "p-tab", 23);
-          _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelement"](17, "i", 25);
+          _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](16, "p-tab", 22);
+          _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelement"](17, "i", 24);
           _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtext"](18, "File Loader ");
           _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]()();
-          _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](19, "p-tabpanels")(20, "p-tabpanel", 23)(21, "form", 26, 0);
+          _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](19, "p-tabpanels")(20, "p-tabpanel", 22)(21, "form", 25, 0);
           _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵlistener"]("ngSubmit", function CreatePropertyComponent_Template_form_ngSubmit_21_listener() {
             _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵrestoreView"](_r1);
             const condominiumForm_r2 = _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵreference"](22);
             return _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵresetView"](ctx.submit(condominiumForm_r2));
           });
-          _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](23, "p-stepper", 27);
+          _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](23, "p-stepper", 26);
           _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtwoWayListener"]("valueChange", function CreatePropertyComponent_Template_p_stepper_valueChange_23_listener($event) {
             _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵrestoreView"](_r1);
             _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtwoWayBindingSet"](ctx.activeStep, $event) || (ctx.activeStep = $event);
             return _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵresetView"]($event);
           });
-          _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](24, "p-step-list")(25, "p-step", 23);
+          _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](24, "p-step-list")(25, "p-step", 22);
           _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtext"](26, "Basic Info");
           _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]();
-          _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](27, "p-step", 23);
+          _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](27, "p-step", 22);
           _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtext"](28, "Address");
           _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]();
-          _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](29, "p-step", 23);
+          _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](29, "p-step", 22);
           _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtext"](30, "Details");
           _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]()();
-          _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](31, "p-step-panels")(32, "p-step-panel", 23);
-          _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtemplate"](33, CreatePropertyComponent_ng_template_33_Template, 86, 36, "ng-template", 28, 1, _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtemplateRefExtractor"]);
+          _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](31, "p-step-panels")(32, "p-step-panel", 22);
+          _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtemplate"](33, CreatePropertyComponent_ng_template_33_Template, 86, 36, "ng-template", 27, 1, _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtemplateRefExtractor"]);
           _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]();
-          _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](35, "p-step-panel", 23);
-          _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtemplate"](36, CreatePropertyComponent_ng_template_36_Template, 42, 20, "ng-template", 28);
+          _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](35, "p-step-panel", 22);
+          _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtemplate"](36, CreatePropertyComponent_ng_template_36_Template, 42, 20, "ng-template", 27);
           _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]();
-          _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](37, "p-step-panel", 23);
-          _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtemplate"](38, CreatePropertyComponent_ng_template_38_Template, 21, 9, "ng-template", 28);
+          _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](37, "p-step-panel", 22);
+          _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵtemplate"](38, CreatePropertyComponent_ng_template_38_Template, 21, 9, "ng-template", 27);
           _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]()()()()();
-          _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](39, "p-tabpanel", 23);
-          _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelement"](40, "app-pool-file-loader", 29);
+          _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementStart"](39, "p-tabpanel", 22);
+          _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelement"](40, "app-pool-file-loader", 28);
           _angular_core__WEBPACK_IMPORTED_MODULE_10__["ɵɵelementEnd"]()()()();
         }
         if (rf & 2) {
