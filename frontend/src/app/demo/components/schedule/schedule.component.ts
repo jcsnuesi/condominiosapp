@@ -10,7 +10,6 @@ import { FullCalendarModule } from '@fullcalendar/angular';
 import { CalendarOptions } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
-import esLocale from '@fullcalendar/core/locales/es';
 import { AccessContextService } from '../../service/access-context.service';
 import { ScheduleService, ScheduleContext, Responsible, ScheduleRow, TaskRow, VendorRow, HistoryRow, EvidenceRow, PageResult } from './schedule.service';
 
@@ -40,7 +39,7 @@ export class ScheduleComponent implements OnInit, OnDestroy {
   completion = { performedAt: this.localDate(new Date()), providerId: '', cost: '0', currency: 'DOP', description: '', notes: '', nextRecommendedDate: '', documentIds: '' };
   rescheduleDate = ''; files: File[] = [];
   calendar: CalendarOptions = {
-    plugins: [dayGridPlugin, timeGridPlugin], initialView: 'dayGridMonth', locale: esLocale, height: 'auto',
+    plugins: [dayGridPlugin, timeGridPlugin], initialView: 'dayGridMonth', locale: 'en', height: 'auto',
     headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek' },
     datesSet: info => { this.calendarFrom = info.startStr; this.calendarTo = info.endStr; if (this.view === 'calendar') this.loadCalendar(); },
     eventClick: info => { const row = this.calendarTasks.find(t => t._id === info.event.id); if (row) this.openComplete(row); },
@@ -53,7 +52,7 @@ export class ScheduleComponent implements OnInit, OnDestroy {
     this.subscriptions.add(this.route.queryParams.subscribe(params => {
       if (params['taskId']) {
         this.tab = 'tasks';
-        this.subscriptions.add(this.api.get<TaskRow>(`tasks/${params['taskId']}`).subscribe({ next: t => { if (t.isOpen) this.openComplete(t); else { this.message = 'Esta tarea ya está cerrada. Consulta el historial.'; this.tab = 'history'; } this.load(); }, error: e => this.report(e) }));
+        this.subscriptions.add(this.api.get<TaskRow>(`tasks/${params['taskId']}`).subscribe({ next: t => { if (t.isOpen) this.openComplete(t); else { this.message = 'This task is already closed. Check the history.'; this.tab = 'history'; } this.load(); }, error: e => this.report(e) }));
       }
     }));
   }
@@ -128,7 +127,7 @@ export class ScheduleComponent implements OnInit, OnDestroy {
     this.responsibleRequest = this.api.get<Responsible[]>('schedules/responsibles', query).subscribe({ next: r => { this.responsibles = r; if (!this.editingId) this.draft.responsible = ''; this.changeDetector.markForCheck(); }, error: e => this.report(e) });
   }
   saveSchedule() {
-    if (!this.draft.name.trim() || this.draft.location === '') { this.error = 'Selecciona una ubicación y escribe el nombre.'; return; }
+    if (!this.draft.name.trim() || this.draft.location === '') { this.error = 'Select a location and enter a name.'; return; }
     const { location, responsible, startDate, ...fields } = this.draft;
     const [assignedRole, assignedUserId] = responsible.split(':');
     const body = { ...fields, ...(responsible ? { assignedRole, assignedUserId } : { assignedRole: null, assignedUserId: null }), ...(!this.editingId ? { ...this.contexts[Number(location)], startDate: new Date(startDate).toISOString() } : {}) };
@@ -136,7 +135,7 @@ export class ScheduleComponent implements OnInit, OnDestroy {
   }
   toggle(row: ScheduleRow) { this.save(this.api.post(`schedules/${row._id}/${row.isActive ? 'pause' : 'resume'}`, {})); }
   openComplete(task: TaskRow) {
-    if (!task.isOpen || !this.has('maintenance.update')) { this.message = 'Consulta el detalle y el historial de esta tarea en la lista.'; return; }
+    if (!task.isOpen || !this.has('maintenance.update')) { this.message = 'View this task and its history in the list.'; return; }
     this.task = task; this.editor = 'complete'; this.files = []; this.error = '';
     this.documentIds = []; this.documents = [];
     if (this.has('documents.read') && task.condominiumId) {
@@ -149,7 +148,7 @@ export class ScheduleComponent implements OnInit, OnDestroy {
   }
   selectFiles(event: Event) {
     const input = event.target as HTMLInputElement; const files = Array.from(input.files || []);
-    if (files.length > 5 || files.some(f => f.size > 10 * 1024 * 1024)) { this.error = 'Máximo cinco archivos de 10 MB cada uno.'; input.value = ''; this.files = []; } else this.files = files;
+    if (files.length > 5 || files.some(f => f.size > 10 * 1024 * 1024)) { this.error = 'Up to five files, 10 MB each.'; input.value = ''; this.files = []; } else this.files = files;
   }
   complete() {
     if (!this.task) return;
@@ -173,13 +172,13 @@ export class ScheduleComponent implements OnInit, OnDestroy {
   }
   save<T>(request: Observable<T>) {
     if (this.saving) return; this.saving = true; this.error = ''; this.message = '';
-    this.subscriptions.add(request.subscribe({ next: () => { this.saving = false; this.dialog = false; this.message = 'Cambios guardados.'; this.load(); this.changeDetector.markForCheck(); }, error: e => this.report(e) }));
+    this.subscriptions.add(request.subscribe({ next: () => { this.saving = false; this.dialog = false; this.message = 'Changes saved.'; this.load(); this.changeDetector.markForCheck(); }, error: e => this.report(e) }));
   }
-  report(error: HttpErrorResponse) { this.loading = false; this.saving = false; this.error = error.error?.error?.message || 'No se pudo completar la operación. Intenta de nuevo.'; this.changeDetector.markForCheck(); }
+  report(error: HttpErrorResponse) { this.loading = false; this.saving = false; this.error = error.error?.error?.message || 'Unable to complete the operation. Please try again.'; this.changeDetector.markForCheck(); }
   localDate(date: Date) { return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16); }
-  formatDate(value: string, timezone = 'America/Santo_Domingo') { return new Intl.DateTimeFormat('es-DO', { dateStyle: 'medium', timeStyle: 'short', timeZone: timezone }).format(new Date(value)); }
+  formatDate(value: string, timezone = 'America/Santo_Domingo') { return new Intl.DateTimeFormat('en-US', { dateStyle: 'medium', timeStyle: 'short', timeZone: timezone }).format(new Date(value)); }
   cost(row: HistoryRow) { return typeof row.cost === 'string' ? row.cost : row.cost?.$numberDecimal || '0'; }
-  locationLabel(row: { condominiumId?: string; unitId?: string; residenceId?: string }) { return this.contexts.find(c => ['condominiumId', 'unitId', 'residenceId'].every(k => String(c[k as keyof ScheduleContext] || '') === String(row[k as keyof typeof row] || '')))?.label || 'Ubicación'; }
-  statusLabel(status: string) { const labels: Record<string, string> = { SCHEDULED: 'Programada', PENDING: 'Pendiente', IN_PROGRESS: 'En ejecución', OVERDUE: 'Atrasada', COMPLETED: 'Completada', CANCELLED: 'Cancelada', SKIPPED: 'Omitida' }; return labels[status] || status; }
-  frequencyLabel(type: string) { const labels: Record<string, string> = { ONCE: 'Una vez', DAY: 'día(s)', WEEK: 'semana(s)', MONTH: 'mes(es)', YEAR: 'año(s)' }; return labels[type] || type; }
+  locationLabel(row: { condominiumId?: string; unitId?: string; residenceId?: string }) { return this.contexts.find(c => ['condominiumId', 'unitId', 'residenceId'].every(k => String(c[k as keyof ScheduleContext] || '') === String(row[k as keyof typeof row] || '')))?.label || 'Location'; }
+  statusLabel(status: string) { const labels: Record<string, string> = { SCHEDULED: 'Scheduled', PENDING: 'Pending', IN_PROGRESS: 'In progress', OVERDUE: 'Overdue', COMPLETED: 'Completed', CANCELLED: 'Cancelled', SKIPPED: 'Skipped' }; return labels[status] || status; }
+  frequencyLabel(type: string) { const labels: Record<string, string> = { ONCE: 'Once', DAY: 'day(s)', WEEK: 'week(s)', MONTH: 'month(s)', YEAR: 'year(s)' }; return labels[type] || type; }
 }

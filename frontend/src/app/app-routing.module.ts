@@ -26,7 +26,10 @@ import { CommunicationLogComponent } from './demo/components/communication-log/c
                 {
                     path: '',
                     pathMatch: 'full',
-                    loadComponent: () => import('./demo/components/saas-landing/saas-landing.component').then(m => m.SaasLandingComponent),
+                    loadComponent: () =>
+                        import(
+                            './demo/components/saas-landing/saas-landing.component'
+                        ).then((m) => m.SaasLandingComponent),
                 },
                 {
                     path: '',
@@ -37,19 +40,33 @@ import { CommunicationLogComponent } from './demo/components/communication-log/c
                             path: 'schedule',
                             data: { permission: 'schedules.read' },
                             canActivate: [UserGuard],
-                            loadComponent: () => import('./demo/components/schedule/schedule.component').then(m => m.ScheduleComponent),
+                            loadComponent: () =>
+                                import(
+                                    './demo/components/schedule/schedule.component'
+                                ).then((m) => m.ScheduleComponent),
                         },
                         {
                             path: 'finance',
-                            data: { permission: 'finance.read', roles: ['ADMIN', 'STAFF_ADMIN', 'OWNER'] },
+                            data: {
+                                permission: 'finance.read',
+                                roles: ['ADMIN', 'STAFF_ADMIN', 'OWNER'],
+                            },
                             canActivate: [UserGuard],
-                            loadComponent: () => import('./demo/components/finance/finance.component').then(m => m.FinanceComponent),
+                            loadComponent: () =>
+                                import(
+                                    './demo/components/finance/finance.component'
+                                ).then((m) => m.FinanceComponent),
                         },
                         {
                             path: 'onboarding',
                             data: { roles: ['ADMIN'] },
                             canActivate: [UserGuard],
-                            loadComponent: () => import('./demo/components/organization-onboarding/organization-onboarding.component').then(m => m.OrganizationOnboardingComponent),
+                            loadComponent: () =>
+                                import(
+                                    './demo/components/organization-onboarding/organization-onboarding.component'
+                                ).then(
+                                    (m) => m.OrganizationOnboardingComponent
+                                ),
                         },
                         {
                             path: 'home/:homeid',
@@ -150,8 +167,6 @@ import { CommunicationLogComponent } from './demo/components/communication-log/c
                             canActivate: [UserGuard],
                             component: CommunicationLogComponent,
                         },
-                        // ,
-                        // { path:'booking-area/:admin/:user', canActivate: [UserGuard], component: StaffComponent}
                     ],
                 },
                 {

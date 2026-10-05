@@ -5,7 +5,7 @@
     (profileUpdated)="handleProfileUpdated($event)"
 ></app-authenticated-user-profile>
 <div class="layout-topbar">
-    <a class="layout-topbar-logo" routerLink="/home">
+    <a class="layout-topbar-logo" routerLink="/start">
         <img
             src="assets/layout/images/{{
                 layoutService.config.colorScheme === 'light'
@@ -44,45 +44,37 @@
         <i class="pi pi-ellipsis-v"></i>
     </button>
 
-    <button
-        type="button"
-        class="p-link layout-topbar-button layout-theme-button"
-        [attr.aria-label]="
-            layoutService.config.colorScheme === 'dark'
-                ? 'Activar modo claro'
-                : 'Activar modo oscuro'
-        "
-        [attr.title]="
-            layoutService.config.colorScheme === 'dark'
-                ? 'Activar modo claro'
-                : 'Activar modo oscuro'
-        "
-        [attr.aria-pressed]="layoutService.config.colorScheme === 'dark'"
-        [disabled]="layoutService.themeChanging"
-        (click)="layoutService.toggleDarkMode()"
-    >
-        <i
-            class="pi"
-            [ngClass]="
+    <div class="layout-topbar-actions">
+        <button
+            type="button"
+            class="p-link layout-topbar-button layout-theme-button"
+            [attr.aria-label]="
                 layoutService.config.colorScheme === 'dark'
-                    ? 'pi-sun'
-                    : 'pi-moon'
+                    ? 'Activar modo claro'
+                    : 'Activar modo oscuro'
             "
-            aria-hidden="true"
-        ></i>
-    </button>
-    @if (layoutService.themeError) {
-    <span role="status">{{ layoutService.themeError }}</span>
-    }
-
-    <div
-        #topbarmenu
-        class="layout-topbar-menu"
-        [ngClass]="{
-            'layout-topbar-menu-mobile-active':
-                layoutService.state.profileSidebarVisible
-        }"
-    >
+            [attr.title]="
+                layoutService.config.colorScheme === 'dark'
+                    ? 'Activar modo claro'
+                    : 'Activar modo oscuro'
+            "
+            [attr.aria-pressed]="layoutService.config.colorScheme === 'dark'"
+            [disabled]="layoutService.themeChanging"
+            (click)="layoutService.toggleDarkMode()"
+        >
+            <i
+                class="pi"
+                [ngClass]="
+                    layoutService.config.colorScheme === 'dark'
+                        ? 'pi-sun'
+                        : 'pi-moon'
+                "
+                aria-hidden="true"
+            ></i>
+        </button>
+        @if (layoutService.themeError) {
+        <span role="status">{{ layoutService.themeError }}</span>
+        }
         <div class="topbar-notifications">
             <button
                 type="button"
@@ -153,6 +145,16 @@
             </section>
             }
         </div>
+    </div>
+
+    <div
+        #topbarmenu
+        class="layout-topbar-menu"
+        [ngClass]="{
+            'layout-topbar-menu-mobile-active':
+                layoutService.state.profileSidebarVisible
+        }"
+    >
         <div class="main-avatar">
             <div>
                 <div class="p-text-bold" style="text-align: right">

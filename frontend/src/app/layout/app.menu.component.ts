@@ -1,7 +1,6 @@
 import { Component, computed } from '@angular/core';
 import { LayoutService } from './service/app.layout.service';
 import { CookieService } from 'ngx-cookie-service';
-import { HasPermissionsDirective } from '../has-permissions.directive';
 import { AccessContextService } from '../demo/service/access-context.service';
 
 @Component({
@@ -264,16 +263,33 @@ export class AppMenuComponent {
 
         const navigationGroups = [
             { label: 'Setup', sections: ['Setup'] },
-            { label: 'Overview', sections: ['Home', 'Properties', 'Access management'] },
-            { label: 'Operations', sections: ['Maintenance', 'Bookings', 'Smart Home'] },
-            { label: 'Management', sections: ['Customer 360', 'Docs', 'Short-term Rental', 'Finance', 'Communications'] },
+            {
+                label: 'Overview',
+                sections: ['Home', 'Properties', 'Access management'],
+            },
+            {
+                label: 'Operations',
+                sections: ['Maintenance', 'Bookings', 'Smart Home'],
+            },
+            {
+                label: 'Management',
+                sections: [
+                    'Customer 360',
+                    'Docs',
+                    'Short-term Rental',
+                    'Finance',
+                    'Communications',
+                ],
+            },
         ];
 
-        return navigationGroups.map(group => {
-            const items = group.sections.flatMap(label => {
-                const section = sections.find(section => section.label === label);
+        return navigationGroups.map((group) => {
+            const items = group.sections.flatMap((label) => {
+                const section = sections.find(
+                    (section) => section.label === label
+                );
                 if (!section?.visible) return [];
-                return section.items.filter(item => item.visible !== false);
+                return section.items.filter((item) => item.visible !== false);
             });
             return { label: group.label, items, visible: items.length > 0 };
         });
