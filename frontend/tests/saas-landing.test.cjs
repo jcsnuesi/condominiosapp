@@ -93,16 +93,23 @@ test("published build: public routes, responsive interactions and registration c
       }
       for (const name of ["Reservas", "Documentos", "Smart Home", "Finanzas"]) {
         const tab = page.getByRole("tab", { name, exact: true });
+        await tab.scrollIntoViewIfNeeded();
+        const scrollBefore = await page.evaluate(() => window.scrollY);
+        assert.ok(scrollBefore > 0, 'Exercise tabs while scrolled below the hero');
         await tab.click();
         await expect(tab).toHaveAttribute("aria-selected", "true");
         await expect(page.getByRole("tabpanel")).toHaveCount(1);
+        await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+        assert.ok(Math.abs(await page.evaluate(() => window.scrollY) - scrollBefore) <= 1, `Tab click preserves scroll at ${width}px: ${name}`);
       }
       await page.getByRole("tab", { name: "Finanzas", exact: true }).focus();
+      const keyboardScrollBefore = await page.evaluate(() => window.scrollY);
       await page.keyboard.press("ArrowRight");
       await expect(page.getByRole("tab", { name: "Reservas", exact: true })).toHaveAttribute("aria-selected", "true");
       await page.keyboard.press("End");
       await expect(page.getByRole("tab", { name: "Smart Home", exact: true })).toHaveAttribute("aria-selected", "true");
       await expect(page).toHaveURL(/vista=home/);
+      assert.ok(Math.abs(await page.evaluate(() => window.scrollY) - keyboardScrollBefore) <= 1, `Keyboard tabs preserve scroll at ${width}px`);
       await page.reload();
       await expect(page.getByRole("tab", { name: "Smart Home", exact: true })).toHaveAttribute("aria-selected", "true");
       for (const summary of await page.locator("summary").all()) {

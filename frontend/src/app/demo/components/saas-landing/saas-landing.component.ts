@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnDestroy, computed, inject, signal } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
-import { DOCUMENT } from '@angular/common';
+import { DOCUMENT, Location } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AccessContextService } from '../../service/access-context.service';
@@ -33,6 +33,7 @@ export class SaasLandingComponent implements OnDestroy {
   private readonly meta = inject(Meta);
   private readonly document = inject(DOCUMENT);
   private readonly router = inject(Router);
+  private readonly location = inject(Location);
   private readonly route = inject(ActivatedRoute);
   private readonly previousTitle = this.title.getTitle();
   private readonly previousDescription = this.meta.getTag('name="description"')?.content;
@@ -111,7 +112,11 @@ export class SaasLandingComponent implements OnDestroy {
 
   selectPreview(key: PreviewKey): void {
     this.selectedPreview.set(key);
-    void this.router.navigate([], { relativeTo: this.route, queryParams: { vista: key === 'finance' ? null : key }, queryParamsHandling: 'merge', preserveFragment: true, replaceUrl: true });
+    // Tabs update local state, not routes: navigation would reset the page scroll.
+    const url = this.router.parseUrl(this.location.path(true));
+    if (key === 'finance') delete url.queryParams['vista'];
+    else url.queryParams['vista'] = key;
+    this.location.replaceState(this.router.serializeUrl(url), '', this.location.getState());
   }
 
   focusContent(): void { this.document.getElementById('main-content')?.focus(); }
@@ -125,7 +130,7 @@ export class SaasLandingComponent implements OnDestroy {
     event.preventDefault();
     this.selectPreview(this.previews[next].key);
     const tablist = (event.target as HTMLElement).closest('[role="tablist"]');
-    (tablist?.querySelectorAll<HTMLButtonElement>('[role="tab"]')[next])?.focus();
+    (tablist?.querySelectorAll<HTMLButtonElement>('[role="tab"]')[next])?.focus({ preventScroll: true });
   }
 
   ngOnDestroy(): void {

@@ -1,162 +1,828 @@
 <div class="saas-page" lang="es">
-  <link rel="preload" href="assets/landing/manrope-700.ttf" as="font" type="font/ttf" crossorigin>
-  <link rel="preload" href="assets/layout/styles/theme/tailwind-light/fonts/Inter-Regular.woff2" as="font" type="font/woff2" crossorigin>
-  <a class="skip-link" routerLink="/" fragment="main-content" (click)="focusContent()">Saltar al contenido</a>
-  <svg class="symbol-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-    <defs>
-      <symbol id="saas-building" viewBox="0 0 32 32"><path d="M5 28V7l12-3v24M17 12h10v16M2 28h28M9 10h3m-3 5h3m-3 5h3m9-4h2m-2 5h2M9 28v-4h4v4"/></symbol>
-      <symbol id="saas-finance" viewBox="0 0 32 32"><path d="M5 5h22v23H5zM10 11h12M10 16h4m4 0h4M10 21h4m4 0h4"/></symbol>
-      <symbol id="saas-bookings" viewBox="0 0 32 32"><path d="M5 7h22v21H5zM10 3v8m12-8v8M5 13h22m-17 5h4m4 0h4m-12 5h4"/></symbol>
-      <symbol id="saas-documents" viewBox="0 0 32 32"><path d="M7 3h12l6 6v20H7zM19 3v7h6M12 16h8m-8 5h8"/></symbol>
-      <symbol id="saas-rentals" viewBox="0 0 32 32"><path d="m3 15 13-11 13 11M7 12v16h18V12M13 28v-9h6v9"/></symbol>
-      <symbol id="saas-home" viewBox="0 0 32 32"><path d="m3 16 13-12 13 12M7 13v15h18V13M12 14a6 6 0 0 1 8 0m-6 4a3 3 0 0 1 4 0"/><circle cx="16" cy="22" r="1"/></symbol>
-      <symbol id="saas-camera" viewBox="0 0 32 32"><rect x="4" y="8" width="24" height="18" rx="4"/><path d="m11 8 2-4h6l2 4"/><circle cx="16" cy="17" r="5"/></symbol>
-      <symbol id="saas-message" viewBox="0 0 32 32"><path d="M5 5h22v17H13l-8 6zM10 11h12m-12 5h8"/></symbol>
-      <symbol id="saas-device" viewBox="0 0 32 32"><rect x="10" y="4" width="12" height="24" rx="3"/><path d="M14 23h4M5 11a12 12 0 0 0 0 10m22-10a12 12 0 0 1 0 10"/></symbol>
-    </defs>
-  </svg>
+    <link
+        rel="preload"
+        href="assets/landing/manrope-700.ttf"
+        as="font"
+        type="font/ttf"
+        crossorigin
+    />
+    <link
+        rel="preload"
+        href="assets/layout/styles/theme/tailwind-light/fonts/Inter-Regular.woff2"
+        as="font"
+        type="font/woff2"
+        crossorigin
+    />
+    <a
+        class="skip-link"
+        routerLink="/"
+        fragment="main-content"
+        (click)="focusContent()"
+        >Saltar al contenido</a
+    >
+    <svg
+        class="symbol-library"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+    >
+        <defs>
+            <symbol id="saas-building" viewBox="0 0 32 32">
+                <path
+                    d="M5 28V7l12-3v24M17 12h10v16M2 28h28M9 10h3m-3 5h3m-3 5h3m9-4h2m-2 5h2M9 28v-4h4v4"
+                />
+            </symbol>
+            <symbol id="saas-finance" viewBox="0 0 32 32">
+                <path d="M5 5h22v23H5zM10 11h12M10 16h4m4 0h4M10 21h4m4 0h4" />
+            </symbol>
+            <symbol id="saas-bookings" viewBox="0 0 32 32">
+                <path
+                    d="M5 7h22v21H5zM10 3v8m12-8v8M5 13h22m-17 5h4m4 0h4m-12 5h4"
+                />
+            </symbol>
+            <symbol id="saas-documents" viewBox="0 0 32 32">
+                <path d="M7 3h12l6 6v20H7zM19 3v7h6M12 16h8m-8 5h8" />
+            </symbol>
+            <symbol id="saas-rentals" viewBox="0 0 32 32">
+                <path d="m3 15 13-11 13 11M7 12v16h18V12M13 28v-9h6v9" />
+            </symbol>
+            <symbol id="saas-home" viewBox="0 0 32 32">
+                <path
+                    d="m3 16 13-12 13 12M7 13v15h18V13M12 14a6 6 0 0 1 8 0m-6 4a3 3 0 0 1 4 0"
+                />
+                <circle cx="16" cy="22" r="1" />
+            </symbol>
+            <symbol id="saas-camera" viewBox="0 0 32 32">
+                <rect x="4" y="8" width="24" height="18" rx="4" />
+                <path d="m11 8 2-4h6l2 4" />
+                <circle cx="16" cy="17" r="5" />
+            </symbol>
+            <symbol id="saas-message" viewBox="0 0 32 32">
+                <path d="M5 5h22v17H13l-8 6zM10 11h12m-12 5h8" />
+            </symbol>
+            <symbol id="saas-device" viewBox="0 0 32 32">
+                <rect x="10" y="4" width="12" height="24" rx="3" />
+                <path
+                    d="M14 23h4M5 11a12 12 0 0 0 0 10m22-10a12 12 0 0 1 0 10"
+                />
+            </symbol>
+        </defs>
+    </svg>
 
-  <header class="site-header" (keydown.escape)="closeMenu()">
-    <div class="header-inner">
-      <a class="brand" routerLink="/" aria-label="CondominiosApp, inicio" (click)="closeMenu()">
-        <svg class="brand-mark" aria-hidden="true"><use href="#saas-building"/></svg><span translate="no">Condominios<span class="brand-accent">App</span></span>
-      </a>
-      <button class="menu-toggle" type="button" aria-controls="public-navigation" [attr.aria-expanded]="menuOpen()" (click)="menuOpen.set(!menuOpen())">
-        {{ menuOpen() ? 'Cerrar menú' : 'Menú' }}
-        <span class="menu-lines" [class.is-open]="menuOpen()" aria-hidden="true"><span></span><span></span></span>
-      </button>
-      <nav id="public-navigation" aria-label="Navegación principal" [class.is-open]="menuOpen()">
-        <div class="section-links">
-          <a routerLink="/" fragment="servicios" (click)="closeMenu()">Servicios</a>
-          <a routerLink="/" fragment="como-comenzar" (click)="closeMenu()">Cómo funciona</a>
-          <a routerLink="/" fragment="preguntas" (click)="closeMenu()">Preguntas frecuentes</a>
+    <header class="site-header" (keydown.escape)="closeMenu()">
+        <div class="header-inner">
+            <a
+                class="brand"
+                routerLink="/"
+                aria-label="CondominiosApp, inicio"
+                (click)="closeMenu()"
+            >
+                <svg class="brand-mark" aria-hidden="true">
+                    <use href="#saas-building" /></svg
+                ><span translate="no"
+                    >Condominios<span class="brand-accent">App</span></span
+                >
+            </a>
+            <button
+                class="menu-toggle"
+                type="button"
+                aria-controls="public-navigation"
+                [attr.aria-expanded]="menuOpen()"
+                (click)="menuOpen.set(!menuOpen())"
+            >
+                {{ menuOpen() ? "Cerrar menú" : "Menú" }}
+                <span
+                    class="menu-lines"
+                    [class.is-open]="menuOpen()"
+                    aria-hidden="true"
+                    ><span></span><span></span
+                ></span>
+            </button>
+            <nav
+                id="public-navigation"
+                aria-label="Navegación principal"
+                [class.is-open]="menuOpen()"
+            >
+                <div class="section-links">
+                    <a routerLink="/" fragment="servicios" (click)="closeMenu()"
+                        >Servicios</a
+                    >
+                    <a
+                        routerLink="/"
+                        fragment="como-comenzar"
+                        (click)="closeMenu()"
+                        >Cómo funciona</a
+                    >
+                    <a routerLink="/" fragment="preguntas" (click)="closeMenu()"
+                        >Preguntas frecuentes</a
+                    >
+                </div>
+                <div class="header-actions">
+                    @if (accountLink(); as destination) {
+                    <a
+                        class="sign-in"
+                        [routerLink]="destination"
+                        (click)="closeMenu()"
+                        >Ir a mi cuenta</a
+                    >
+                    } @else {
+                    <a
+                        class="sign-in"
+                        routerLink="/auth/login"
+                        (click)="closeMenu()"
+                        >Iniciar sesión</a
+                    >
+                    }
+                    <a
+                        class="button button-small"
+                        routerLink="/auth/register"
+                        (click)="closeMenu()"
+                        >Crear cuenta <span aria-hidden="true">↗</span></a
+                    >
+                </div>
+            </nav>
         </div>
-        <div class="header-actions">
-          @if (accountLink(); as destination) { <a class="sign-in" [routerLink]="destination" (click)="closeMenu()">Ir a mi cuenta</a> }
-          @else { <a class="sign-in" routerLink="/auth/login" (click)="closeMenu()">Iniciar sesión</a> }
-          <a class="button button-small" routerLink="/auth/register" (click)="closeMenu()">Crear cuenta <span aria-hidden="true">↗</span></a>
-        </div>
-      </nav>
-    </div>
-  </header>
+    </header>
 
-  <main id="main-content" tabindex="-1">
-    <section class="hero" aria-labelledby="hero-title">
-      <picture class="hero-photo">
-        <source media="(max-width: 700px)" srcset="assets/landing/residencial-azul-movil-480.webp 480w, assets/landing/residencial-azul-movil-780.webp 780w" sizes="100vw" type="image/webp">
-        <source srcset="assets/landing/residencial-azul-720.webp 720w, assets/landing/residencial-azul-1536.webp 1536w" sizes="100vw" type="image/webp">
-        <img src="assets/landing/residencial-azul-1536.webp" width="1536" height="1024" fetchpriority="high" alt="Edificios con balcones y jardines tropicales en una comunidad residencial">
-      </picture>
-      <div class="hero-inner container">
-        <div class="hero-copy">
-          <h1 id="hero-title"><span>Más orden para<br>tu comunidad.</span> <span class="hero-title-accent">Más tranquilidad<br>para tu hogar.</span></h1>
-          <p class="hero-description">Gestiona cuotas, reservas y comunicación de tu condominio, o reúne los dispositivos compatibles de tu vivienda, desde un mismo lugar.</p>
-          <div class="hero-actions">
-            <a class="button" routerLink="/auth/register">Crear cuenta <span aria-hidden="true">↗</span></a>
-            <a class="text-link" routerLink="/" fragment="servicios">Explorar servicios <span aria-hidden="true">→</span></a>
-          </div>
-        </div>
-        <div class="hero-visual">
-          <div class="phone-mockup" role="img" aria-label="Ejemplo de la aplicación móvil: cuota del mes, reservas, mensajes, cámaras y dispositivos">
-            <div class="phone-screen" aria-hidden="true">
-              <div class="phone-status"><span>9:41</span><span class="phone-notch"></span><span>▴ ▰ ▬</span></div>
-              <div class="phone-greeting"><span class="resident-avatar">CT</span><span>Buenos días,<strong>Carlos</strong></span><span class="phone-menu">☰</span></div>
-              <div class="phone-balance"><span>Cuota del mes</span><strong>RD$ 4,500</strong><div class="balance-chart"><i></i><i></i><i></i></div></div>
-              <div class="phone-tiles">
-                <div class="phone-tile"><svg><use href="#saas-bookings"/></svg><strong>Reservas</strong><span>Áreas comunes</span></div>
-                <div class="phone-tile"><svg><use href="#saas-message"/></svg><strong>Mensajes</strong><span class="tile-blue">3 nuevos</span></div>
-                <div class="phone-tile"><svg><use href="#saas-camera"/></svg><strong>Cámaras</strong><span class="tile-green">En línea</span></div>
-                <div class="phone-tile"><svg><use href="#saas-device"/></svg><strong>Dispositivos</strong><span class="tile-green">4 activos</span></div>
-              </div>
-              <div class="phone-bottom-nav"><span class="current"><svg><use href="#saas-rentals"/></svg>Inicio</span><span><svg><use href="#saas-bookings"/></svg>Reservas</span><span><svg><use href="#saas-finance"/></svg>Pagos</span><span><svg><use href="#saas-documents"/></svg>Más</span></div>
-              <span class="phone-home-bar"></span>
+    <main id="main-content" tabindex="-1">
+        <section class="hero" aria-labelledby="hero-title">
+            <picture class="hero-photo">
+                <source
+                    media="(max-width: 700px)"
+                    srcset="
+                        assets/landing/residencial-azul-movil-480.webp 480w,
+                        assets/landing/residencial-azul-movil-780.webp 780w
+                    "
+                    sizes="100vw"
+                    type="image/webp"
+                />
+                <source
+                    srcset="
+                        assets/landing/residencial-azul-720.webp   720w,
+                        assets/landing/residencial-azul-1536.webp 1536w
+                    "
+                    sizes="100vw"
+                    type="image/webp"
+                />
+                <img
+                    src="assets/landing/residencial-azul-1536.webp"
+                    width="1536"
+                    height="1024"
+                    fetchpriority="high"
+                    alt="Edificios con balcones y jardines tropicales en una comunidad residencial"
+                />
+            </picture>
+            <div class="hero-inner container">
+                <div class="hero-copy">
+                    <h1 id="hero-title">
+                        <span>Más orden para<br />tu comunidad.</span>
+                        <span class="hero-title-accent"
+                            >Más tranquilidad<br />para tu hogar.</span
+                        >
+                    </h1>
+                    <p class="hero-description">
+                        Gestiona cuotas, reservas y comunicación de tu
+                        condominio, o reúne los dispositivos compatibles de tu
+                        vivienda, desde un mismo lugar.
+                    </p>
+                    <div class="hero-actions">
+                        <a class="button" routerLink="/auth/register"
+                            >Crear cuenta <span aria-hidden="true">↗</span></a
+                        >
+                        <a class="text-link" routerLink="/" fragment="servicios"
+                            >Explorar servicios
+                            <span aria-hidden="true">→</span></a
+                        >
+                    </div>
+                </div>
+                <div class="hero-visual">
+                    <div
+                        class="phone-mockup"
+                        role="img"
+                        aria-label="Ejemplo de la aplicación móvil: cuota del mes, reservas, mensajes, cámaras y dispositivos"
+                    >
+                        <div class="phone-screen" aria-hidden="true">
+                            <div class="phone-status">
+                                <span>9:41</span
+                                ><span class="phone-notch"></span
+                                ><span>▴ ▰ ▬</span>
+                            </div>
+                            <div class="phone-greeting">
+                                <span class="resident-avatar">CT</span
+                                ><span>Buenos días,<strong>Carlos</strong></span
+                                ><span class="phone-menu">☰</span>
+                            </div>
+                            <div class="phone-balance">
+                                <span>Cuota del mes</span
+                                ><strong>RD$ 4,500</strong>
+                                <div class="balance-chart">
+                                    <i></i><i></i><i></i>
+                                </div>
+                            </div>
+                            <div class="phone-tiles">
+                                <div class="phone-tile">
+                                    <svg><use href="#saas-bookings" /></svg
+                                    ><strong>Reservas</strong
+                                    ><span>Áreas comunes</span>
+                                </div>
+                                <div class="phone-tile">
+                                    <svg><use href="#saas-message" /></svg
+                                    ><strong>Mensajes</strong
+                                    ><span class="tile-blue">3 nuevos</span>
+                                </div>
+                                <div class="phone-tile">
+                                    <svg><use href="#saas-camera" /></svg
+                                    ><strong>Cámaras</strong
+                                    ><span class="tile-green">En línea</span>
+                                </div>
+                                <div class="phone-tile">
+                                    <svg><use href="#saas-device" /></svg
+                                    ><strong>Dispositivos</strong
+                                    ><span class="tile-green">4 activos</span>
+                                </div>
+                            </div>
+                            <div class="phone-bottom-nav">
+                                <span class="current"
+                                    ><svg><use href="#saas-rentals" /></svg
+                                    >Inicio</span
+                                ><span
+                                    ><svg><use href="#saas-bookings" /></svg
+                                    >Reservas</span
+                                ><span
+                                    ><svg><use href="#saas-finance" /></svg
+                                    >Pagos</span
+                                ><span
+                                    ><svg><use href="#saas-documents" /></svg
+                                    >Más</span
+                                >
+                            </div>
+                            <span class="phone-home-bar"></span>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
-          <span class="phone-example">Vista ilustrativa · Datos de ejemplo</span>
+        </section>
+
+        <section class="demo-section container" aria-labelledby="demo-title">
+            <div class="section-intro">
+                <h2 id="demo-title">Tu comunidad, a mano.</h2>
+                <p>
+                    Explora cómo se organizan las cuentas, las reservas y la
+                    información en un mismo lugar.
+                </p>
+            </div>
+            <section class="product-preview" aria-labelledby="preview-heading">
+                <div class="preview-top">
+                    <span class="preview-brand"
+                        ><svg aria-hidden="true">
+                            <use href="#saas-building" /></svg
+                        >Residencial Jardines</span
+                    ><span class="illustration-label">Datos de ejemplo</span>
+                </div>
+                <div
+                    class="preview-tabs"
+                    role="tablist"
+                    aria-label="Explorar funciones del producto"
+                    (keydown)="moveTab($event)"
+                >
+                    @for (item of previews; track item.key) {
+                    <button
+                        type="button"
+                        role="tab"
+                        [id]="'tab-' + item.key"
+                        [attr.aria-controls]="'panel-' + item.key"
+                        [attr.aria-selected]="selectedPreview() === item.key"
+                        [tabIndex]="selectedPreview() === item.key ? 0 : -1"
+                        (click)="selectPreview(item.key)"
+                    >
+                        {{ item.label }}
+                    </button>
+                    }
+                </div>
+                @for (item of previews; track item.key) {
+                <div
+                    class="preview-body"
+                    role="tabpanel"
+                    [id]="'panel-' + item.key"
+                    [attr.aria-labelledby]="'tab-' + item.key"
+                    [hidden]="selectedPreview() !== item.key"
+                    tabindex="0"
+                >
+                    <h2
+                        [attr.id]="
+                            selectedPreview() === item.key
+                                ? 'preview-heading'
+                                : null
+                        "
+                    >
+                        {{ item.title }}
+                    </h2>
+                    <p>{{ item.description }}</p>
+                    <table>
+                        <caption class="sr-only">
+                            {{
+                                item.label
+                            }}: datos de ejemplo
+                        </caption>
+                        <thead>
+                            <tr>
+                                @for (column of item.columns; track column) {
+                                <th scope="col">{{ column }}</th>
+                                }
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (row of item.rows; track row.name) {
+                            <tr>
+                                <th scope="row">{{ row.name }}</th>
+                                <td>{{ row.detail }}</td>
+                                <td>
+                                    <span class="row-status">{{
+                                        row.status
+                                    }}</span>
+                                </td>
+                            </tr>
+                            }
+                        </tbody>
+                    </table>
+                    <div class="preview-note">
+                        <span class="small-square" aria-hidden="true"></span
+                        >{{ item.note }}
+                    </div>
+                </div>
+                }
+            </section>
+        </section>
+
+        <section class="benefits-section" aria-labelledby="benefits-title">
+            <div class="container benefits-inner">
+                <h2 id="benefits-title">Lo cotidiano,<br />más sencillo.</h2>
+                <ul class="benefits-list">
+                    <li>
+                        <svg aria-hidden="true">
+                            <use href="#saas-finance" /></svg
+                        ><span
+                            >Consulta cuotas y pagos<br /><strong
+                                >de cada unidad</strong
+                            ></span
+                        >
+                    </li>
+                    <li>
+                        <svg aria-hidden="true">
+                            <use href="#saas-bookings" /></svg
+                        ><span
+                            >Coordina reservas<br /><strong
+                                >de áreas comunes</strong
+                            ></span
+                        >
+                    </li>
+                    <li>
+                        <svg aria-hidden="true">
+                            <use href="#saas-documents" /></svg
+                        ><span
+                            >Encuentra documentos<br /><strong
+                                >y avisos</strong
+                            ></span
+                        >
+                    </li>
+                    <li>
+                        <svg aria-hidden="true"><use href="#saas-home" /></svg
+                        ><span
+                            >Consulta dispositivos<br /><strong
+                                >compatibles</strong
+                            ></span
+                        >
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <section
+            id="servicios"
+            class="services-section section-padding"
+            aria-labelledby="services-title"
+        >
+            <div class="container">
+                <div class="section-intro service-heading">
+                    <h2 id="services-title">
+                        Todo lo que hace<br />funcionar tu comunidad.
+                    </h2>
+                    <p>
+                        Del cuidado de las cuentas a los espacios que
+                        compartimos. Herramientas para mantener cada cosa en su
+                        lugar.
+                    </p>
+                </div>
+                <div class="community-feature">
+                    <figure>
+                        <img
+                            src="assets/landing/comunidad-960.webp"
+                            srcset="
+                                assets/landing/comunidad-640.webp 640w,
+                                assets/landing/comunidad-960.webp 960w
+                            "
+                            sizes="(max-width: 700px) 92vw, 48vw"
+                            width="1536"
+                            height="1024"
+                            loading="lazy"
+                            alt="Tres vecinos conversan y coordinan una actividad en una terraza rodeada de vegetación"
+                        />
+                        <figcaption>Más espacio para compartir.</figcaption>
+                    </figure>
+                    <div class="feature-copy">
+                        <h3>
+                            Las cuentas claras.<br />La comunidad conectada.
+                        </h3>
+                        <p>
+                            Administra tus condominios, unidades y propietarios
+                            en tu organización. Consulta estados de cuenta y
+                            reúne documentos, avisos y solicitudes sin perder el
+                            hilo.
+                        </p>
+                        <ul class="feature-list">
+                            <li>
+                                <svg aria-hidden="true">
+                                    <use href="#saas-finance" />
+                                </svg>
+                                <div>
+                                    <h4>Finanzas que puedes consultar</h4>
+                                    <p>
+                                        Cuotas, cargos, pagos, conciliación y
+                                        reportes.
+                                    </p>
+                                </div>
+                            </li>
+                            <li>
+                                <svg aria-hidden="true">
+                                    <use href="#saas-documents" />
+                                </svg>
+                                <div>
+                                    <h4>Información para convivir mejor</h4>
+                                    <p>
+                                        Documentos, avisos y seguimiento a
+                                        consultas.
+                                    </p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="shared-services">
+                    <article>
+                        <svg class="service-icon" aria-hidden="true">
+                            <use href="#saas-building" />
+                        </svg>
+                        <h3>Personas y propiedades</h3>
+                        <p>
+                            Organiza condominios, unidades, propietarios y
+                            personal dentro de tu organización.
+                        </p>
+                    </article>
+                    <article>
+                        <svg class="service-icon" aria-hidden="true">
+                            <use href="#saas-bookings" />
+                        </svg>
+                        <h3>Espacios para compartir</h3>
+                        <p>
+                            Coordina reservas de áreas comunes y consulta las
+                            visitas asociadas a cada unidad.
+                        </p>
+                    </article>
+                    <article>
+                        <svg class="service-icon" aria-hidden="true">
+                            <use href="#saas-rentals" />
+                        </svg>
+                        <h3>Estancias bien coordinadas</h3>
+                        <p>
+                            Consulta alquileres temporales y sincroniza
+                            calendarios con las integraciones iCal disponibles.
+                        </p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="connected-section" aria-labelledby="connected-title">
+            <div class="container connected-layout">
+                <div class="connected-copy">
+                    <span class="feature-label"
+                        ><svg aria-hidden="true"><use href="#saas-home" /></svg>
+                        Smart Home</span
+                    >
+                    <h2 id="connected-title">
+                        Tu hogar también<br />tiene su espacio.
+                    </h2>
+                    <p>
+                        Reúne tus dispositivos compatibles, consulta su estado y
+                        revisa su actividad desde tu vivienda personal o el
+                        contexto de tu condominio.
+                    </p>
+                    <a class="text-link" routerLink="/" fragment="para-quien"
+                        >Conocer los tipos de cuenta
+                        <span aria-hidden="true">↗</span></a
+                    >
+                    <p class="availability-note">
+                        Requiere dispositivos compatibles y una suscripción IoT
+                        habilitada. Las funciones disponibles dependen de tu
+                        cuenta y configuración.
+                    </p>
+                </div>
+                <div class="connected-visual">
+                    <img
+                        src="assets/landing/hogar-960.webp"
+                        srcset="
+                            assets/landing/hogar-640.webp 640w,
+                            assets/landing/hogar-960.webp 960w
+                        "
+                        sizes="(max-width: 700px) 92vw, 48vw"
+                        width="1536"
+                        height="1024"
+                        loading="lazy"
+                        alt="Sala acogedora con plantas, lámpara encendida y un sensor junto a la entrada"
+                    />
+                    <div class="device-example">
+                        <svg aria-hidden="true"><use href="#saas-home" /></svg>
+                        <div>
+                            <strong>Luz de entrada</strong
+                            ><span>Encendida · Ejemplo ilustrativo</span>
+                        </div>
+                        <span class="device-dot" aria-hidden="true"></span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section
+            class="everyday-section container section-padding"
+            aria-labelledby="everyday-title"
+        >
+            <div class="section-intro">
+                <h2 id="everyday-title">Así se vive con CondominiosApp.</h2>
+                <p>
+                    Pequeñas situaciones del día a día. Un lugar para
+                    resolverlas.
+                </p>
+            </div>
+            <div class="everyday-grid">
+                <article class="everyday-scene">
+                    <div
+                        class="scene-art finance-art"
+                        aria-label="Ejemplo de consulta de una cuota"
+                    >
+                        <span class="scene-label">Ejemplo ilustrativo</span>
+                        <div class="mini-statement">
+                            <svg aria-hidden="true">
+                                <use href="#saas-finance" /></svg
+                            ><strong>Unidad A-101</strong
+                            ><span>Cuota de mantenimiento</span>
+                            <div>
+                                <span>Estado de cuenta</span><b>Disponible</b>
+                            </div>
+                        </div>
+                    </div>
+                    <h3>Revisa tu cuota, sin buscar de más.</h3>
+                    <p>
+                        Consulta los cargos y pagos de tu unidad y encuentra tu
+                        estado de cuenta cuando lo necesitas.
+                    </p>
+                </article>
+                <article class="everyday-scene">
+                    <div
+                        class="scene-art booking-art"
+                        aria-label="Ejemplo de reserva de un área común"
+                    >
+                        <span class="scene-label">Ejemplo ilustrativo</span>
+                        <div class="mini-calendar">
+                            <svg aria-hidden="true">
+                                <use href="#saas-bookings" /></svg
+                            ><strong>Un sábado para compartir</strong>
+                            <div class="calendar-days" aria-hidden="true">
+                                <span>L</span><span>M</span><span>M</span
+                                ><span>J</span><span>V</span><b>S</b
+                                ><span>D</span>
+                            </div>
+                            <span>Salón social · Unidad A-101</span
+                            ><b class="calendar-status">Reservado</b>
+                        </div>
+                    </div>
+                    <h3>Haz espacio para tus planes.</h3>
+                    <p>
+                        Coordina una reserva de un área común y consulta el
+                        calendario para organizar tu encuentro.
+                    </p>
+                </article>
+                <article class="everyday-scene">
+                    <div
+                        class="scene-art home-art"
+                        aria-label="Ejemplo de consulta de un dispositivo"
+                    >
+                        <span class="scene-label">Ejemplo ilustrativo</span>
+                        <div class="mini-device">
+                            <svg aria-hidden="true">
+                                <use href="#saas-home" /></svg
+                            ><strong>Sensor de puerta</strong
+                            ><span>Entrada de tu vivienda</span
+                            ><b
+                                ><span
+                                    class="device-dot"
+                                    aria-hidden="true"
+                                ></span>
+                                Cerrada</b
+                            >
+                        </div>
+                    </div>
+                    <h3>Consulta cómo está tu hogar.</h3>
+                    <p>
+                        Revisa el estado de un dispositivo compatible y su
+                        actividad, según las funciones habilitadas.
+                    </p>
+                </article>
+            </div>
+        </section>
+
+        <section
+            id="para-quien"
+            class="audience-section container section-padding"
+            aria-labelledby="audience-title"
+        >
+            <div class="section-intro">
+                <h2 id="audience-title">
+                    Cada hogar tiene su forma de organizarse.
+                </h2>
+                <p>
+                    Elige la cuenta que corresponde a lo que quieres gestionar.
+                </p>
+            </div>
+            <div class="audience-grid">
+                <article class="audience-card">
+                    <span class="account-label">ADMIN</span>
+                    <h3>Administro condominios</h3>
+                    <p>
+                        Crea tu organización y gestiona uno o varios
+                        condominios, sus unidades y propietarios. Puede ser una
+                        empresa administradora o la administración de tu propio
+                        condominio.
+                    </p>
+                    <ul>
+                        <li>Condominios y unidades en una organización.</li>
+                        <li>Propietarios con acceso a su información.</li>
+                        <li>
+                            Finanzas, reservas y comunicación centralizadas.
+                        </li>
+                    </ul>
+                    <a class="text-link" routerLink="/auth/register"
+                        >Crear cuenta
+                        <span class="sr-only">para administrar condominios</span
+                        ><span aria-hidden="true">↗</span></a
+                    >
+                </article>
+                <article class="audience-card personal-card">
+                    <span class="account-label personal-label"
+                        >OWNER PERSONAL</span
+                    >
+                    <h3>Gestiono mi vivienda</h3>
+                    <p>
+                        Registra tu vivienda personal y reúne sus dispositivos
+                        Smart Home en tu propia cuenta, sin depender de una
+                        administración de condominio.
+                    </p>
+                    <ul>
+                        <li>Tu vivienda bajo tu propia cuenta.</li>
+                        <li>Estado y control de dispositivos compatibles.</li>
+                        <li>Historial de actividad de tu hogar.</li>
+                    </ul>
+                    <a class="text-link" routerLink="/auth/register"
+                        >Crear cuenta
+                        <span class="sr-only">para mi vivienda personal</span
+                        ><span aria-hidden="true">↗</span></a
+                    >
+                </article>
+            </div>
+            <aside class="resident-note">
+                <svg aria-hidden="true"><use href="#saas-building" /></svg>
+                <div>
+                    <h3>¿Tu condominio ya utiliza CondominiosApp?</h3>
+                    <p>
+                        Tu administración crea tu acceso, te asigna el
+                        condominio y la unidad, y te envía las credenciales por
+                        correo.
+                    </p>
+                </div>
+                <a routerLink="/auth/login"
+                    >Iniciar sesión <span aria-hidden="true">→</span></a
+                >
+            </aside>
+        </section>
+
+        <section
+            id="como-comenzar"
+            class="getting-started section-padding"
+            aria-labelledby="steps-title"
+        >
+            <div class="container steps-layout">
+                <div class="section-intro">
+                    <h2 id="steps-title">
+                        Tu espacio empieza<br />con un primer paso.
+                    </h2>
+                    <p>
+                        El registro te guía desde la elección de tu cuenta hasta
+                        la configuración de tu organización o vivienda.
+                    </p>
+                    <a class="text-link" routerLink="/auth/register"
+                        >Crear cuenta y comenzar
+                        <span aria-hidden="true">↗</span></a
+                    >
+                </div>
+                <ol class="steps-list">
+                    <li>
+                        <h3>Elige qué quieres gestionar</h3>
+                        <p>
+                            Crea una cuenta ADMIN para tu organización o una
+                            cuenta OWNER PERSONAL para tu vivienda.
+                        </p>
+                    </li>
+                    <li>
+                        <h3>Verifica tu correo</h3>
+                        <p>
+                            Completa el registro y abre el enlace que recibirás
+                            por correo para activar tu cuenta.
+                        </p>
+                    </li>
+                    <li>
+                        <h3>Configura tu espacio</h3>
+                        <p>
+                            Inicia sesión. Si administras, añade condominios,
+                            unidades y propietarios; si gestionas tu vivienda,
+                            configura los dispositivos compatibles.
+                        </p>
+                    </li>
+                </ol>
+            </div>
+        </section>
+
+        <section
+            id="preguntas"
+            class="faq-section container section-padding"
+            aria-labelledby="faq-title"
+        >
+            <div class="faq-intro">
+                <h2 id="faq-title">Antes de dar el primer paso.</h2>
+                <p>Lo que necesitas saber para dar el primer paso.</p>
+            </div>
+            <div class="faq-list">
+                @for (item of questions; track item.question) {
+                <details>
+                    <summary>
+                        {{ item.question
+                        }}<span class="faq-toggle" aria-hidden="true"></span>
+                    </summary>
+                    <p>{{ item.answer }}</p>
+                </details>
+                }
+            </div>
+        </section>
+
+        <section
+            class="closing-section container"
+            aria-labelledby="closing-title"
+        >
+            <div class="closing-copy">
+                <svg aria-hidden="true"><use href="#saas-home" /></svg>
+                <h2 id="closing-title">
+                    Más tiempo para<br />sentirte en casa.
+                </h2>
+                <p>
+                    Empieza a organizar tu comunidad o tu vivienda desde un
+                    mismo lugar.
+                </p>
+                <a class="button" routerLink="/auth/register"
+                    >Crear cuenta <span aria-hidden="true">↗</span></a
+                >
+            </div>
+            <img
+                src="assets/landing/residencial-720.webp"
+                width="1536"
+                height="1024"
+                loading="lazy"
+                alt="Jardines y balcones de un residencial en la luz cálida de la tarde"
+            />
+        </section>
+    </main>
+
+    <footer class="site-footer container">
+        <div>
+            <a class="brand" routerLink="/"
+                >Condominios<span class="brand-accent">App</span></a
+            >
+            <p>Gestión de condominios y vivienda personal.</p>
         </div>
-      </div>
-    </section>
-
-    <section class="demo-section container" aria-labelledby="demo-title">
-      <div class="section-intro"><h2 id="demo-title">Tu comunidad, a mano.</h2><p>Explora cómo se organizan las cuentas, las reservas y la información en un mismo lugar.</p></div>
-      <section class="product-preview" aria-labelledby="preview-heading">
-        <div class="preview-top"><span class="preview-brand"><svg aria-hidden="true"><use href="#saas-building"/></svg>Residencial Jardines</span><span class="illustration-label">Datos de ejemplo</span></div>
-        <div class="preview-tabs" role="tablist" aria-label="Explorar funciones del producto" (keydown)="moveTab($event)">
-          @for (item of previews; track item.key) {
-            <button type="button" role="tab" [id]="'tab-' + item.key" [attr.aria-controls]="'panel-' + item.key" [attr.aria-selected]="selectedPreview() === item.key" [tabIndex]="selectedPreview() === item.key ? 0 : -1" (click)="selectPreview(item.key)">{{ item.label }}</button>
-          }
-        </div>
-        @for (item of previews; track item.key) {
-          <div class="preview-body" role="tabpanel" [id]="'panel-' + item.key" [attr.aria-labelledby]="'tab-' + item.key" [hidden]="selectedPreview() !== item.key" tabindex="0">
-            <h2 [attr.id]="selectedPreview() === item.key ? 'preview-heading' : null">{{ item.title }}</h2>
-            <p>{{ item.description }}</p>
-            <table><caption class="sr-only">{{ item.label }}: datos de ejemplo</caption>
-              <thead><tr>@for (column of item.columns; track column) { <th scope="col">{{ column }}</th> }</tr></thead>
-              <tbody>@for (row of item.rows; track row.name) { <tr><th scope="row">{{ row.name }}</th><td>{{ row.detail }}</td><td><span class="row-status">{{ row.status }}</span></td></tr> }</tbody>
-            </table>
-            <div class="preview-note"><span class="small-square" aria-hidden="true"></span>{{ item.note }}</div>
-          </div>
-        }
-      </section>
-    </section>
-
-    <section class="benefits-section" aria-labelledby="benefits-title"><div class="container benefits-inner">
-      <h2 id="benefits-title">Lo cotidiano,<br>más sencillo.</h2>
-      <ul class="benefits-list">
-        <li><svg aria-hidden="true"><use href="#saas-finance"/></svg><span>Consulta cuotas y pagos<br><strong>de cada unidad</strong></span></li>
-        <li><svg aria-hidden="true"><use href="#saas-bookings"/></svg><span>Coordina reservas<br><strong>de áreas comunes</strong></span></li>
-        <li><svg aria-hidden="true"><use href="#saas-documents"/></svg><span>Encuentra documentos<br><strong>y avisos</strong></span></li>
-        <li><svg aria-hidden="true"><use href="#saas-home"/></svg><span>Consulta dispositivos<br><strong>compatibles</strong></span></li>
-      </ul>
-    </div></section>
-
-    <section id="servicios" class="services-section section-padding" aria-labelledby="services-title"><div class="container">
-      <div class="section-intro service-heading"><h2 id="services-title">Todo lo que hace<br>funcionar tu comunidad.</h2><p>Del cuidado de las cuentas a los espacios que compartimos. Herramientas para mantener cada cosa en su lugar.</p></div>
-      <div class="community-feature">
-        <figure><img src="assets/landing/comunidad-960.webp" srcset="assets/landing/comunidad-640.webp 640w, assets/landing/comunidad-960.webp 960w" sizes="(max-width: 700px) 92vw, 48vw" width="1536" height="1024" loading="lazy" alt="Tres vecinos conversan y coordinan una actividad en una terraza rodeada de vegetación"><figcaption>Más espacio para compartir.</figcaption></figure>
-        <div class="feature-copy"><h3>Las cuentas claras.<br>La comunidad conectada.</h3><p>Administra tus condominios, unidades y propietarios en tu organización. Consulta estados de cuenta y reúne documentos, avisos y solicitudes sin perder el hilo.</p>
-          <ul class="feature-list"><li><svg aria-hidden="true"><use href="#saas-finance"/></svg><div><h4>Finanzas que puedes consultar</h4><p>Cuotas, cargos, pagos, conciliación y reportes.</p></div></li><li><svg aria-hidden="true"><use href="#saas-documents"/></svg><div><h4>Información para convivir mejor</h4><p>Documentos, avisos y seguimiento a consultas.</p></div></li></ul>
-        </div>
-      </div>
-      <div class="shared-services">
-        <article><svg class="service-icon" aria-hidden="true"><use href="#saas-building"/></svg><h3>Personas y propiedades</h3><p>Organiza condominios, unidades, propietarios y personal dentro de tu organización.</p></article>
-        <article><svg class="service-icon" aria-hidden="true"><use href="#saas-bookings"/></svg><h3>Espacios para compartir</h3><p>Coordina reservas de áreas comunes y consulta las visitas asociadas a cada unidad.</p></article>
-        <article><svg class="service-icon" aria-hidden="true"><use href="#saas-rentals"/></svg><h3>Estancias bien coordinadas</h3><p>Consulta alquileres temporales y sincroniza calendarios con las integraciones iCal disponibles.</p></article>
-      </div>
-    </div></section>
-
-    <section class="connected-section" aria-labelledby="connected-title"><div class="container connected-layout">
-      <div class="connected-copy"><span class="feature-label"><svg aria-hidden="true"><use href="#saas-home"/></svg> Smart Home</span><h2 id="connected-title">Tu hogar también<br>tiene su espacio.</h2><p>Reúne tus dispositivos compatibles, consulta su estado y revisa su actividad desde tu vivienda personal o el contexto de tu condominio.</p><a class="text-link" routerLink="/" fragment="para-quien">Conocer los tipos de cuenta <span aria-hidden="true">↗</span></a><p class="availability-note">Requiere dispositivos compatibles y una suscripción IoT habilitada. Las funciones disponibles dependen de tu cuenta y configuración.</p></div>
-      <div class="connected-visual"><img src="assets/landing/hogar-960.webp" srcset="assets/landing/hogar-640.webp 640w, assets/landing/hogar-960.webp 960w" sizes="(max-width: 700px) 92vw, 48vw" width="1536" height="1024" loading="lazy" alt="Sala acogedora con plantas, lámpara encendida y un sensor junto a la entrada"><div class="device-example"><svg aria-hidden="true"><use href="#saas-home"/></svg><div><strong>Luz de entrada</strong><span>Encendida · Ejemplo ilustrativo</span></div><span class="device-dot" aria-hidden="true"></span></div></div>
-    </div></section>
-
-    <section class="everyday-section container section-padding" aria-labelledby="everyday-title"><div class="section-intro"><h2 id="everyday-title">Así se vive con CondominiosApp.</h2><p>Pequeñas situaciones del día a día. Un lugar para resolverlas.</p></div>
-      <div class="everyday-grid">
-        <article class="everyday-scene"><div class="scene-art finance-art" aria-label="Ejemplo de consulta de una cuota"><span class="scene-label">Ejemplo ilustrativo</span><div class="mini-statement"><svg aria-hidden="true"><use href="#saas-finance"/></svg><strong>Unidad A-101</strong><span>Cuota de mantenimiento</span><div><span>Estado de cuenta</span><b>Disponible</b></div></div></div><h3>Revisa tu cuota, sin buscar de más.</h3><p>Consulta los cargos y pagos de tu unidad y encuentra tu estado de cuenta cuando lo necesitas.</p></article>
-        <article class="everyday-scene"><div class="scene-art booking-art" aria-label="Ejemplo de reserva de un área común"><span class="scene-label">Ejemplo ilustrativo</span><div class="mini-calendar"><svg aria-hidden="true"><use href="#saas-bookings"/></svg><strong>Un sábado para compartir</strong><div class="calendar-days" aria-hidden="true"><span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><b>S</b><span>D</span></div><span>Salón social · Unidad A-101</span><b class="calendar-status">Reservado</b></div></div><h3>Haz espacio para tus planes.</h3><p>Coordina una reserva de un área común y consulta el calendario para organizar tu encuentro.</p></article>
-        <article class="everyday-scene"><div class="scene-art home-art" aria-label="Ejemplo de consulta de un dispositivo"><span class="scene-label">Ejemplo ilustrativo</span><div class="mini-device"><svg aria-hidden="true"><use href="#saas-home"/></svg><strong>Sensor de puerta</strong><span>Entrada de tu vivienda</span><b><span class="device-dot" aria-hidden="true"></span> Cerrada</b></div></div><h3>Consulta cómo está tu hogar.</h3><p>Revisa el estado de un dispositivo compatible y su actividad, según las funciones habilitadas.</p></article>
-      </div>
-    </section>
-
-        <section id="para-quien" class="audience-section container section-padding" aria-labelledby="audience-title">
-      <div class="section-intro"><h2 id="audience-title">Cada hogar tiene su forma de organizarse.</h2><p>Elige la cuenta que corresponde a lo que quieres gestionar.</p></div>
-      <div class="audience-grid">
-        <article class="audience-card"><span class="account-label">ADMIN</span><h3>Administro condominios</h3><p>Crea tu organización y gestiona uno o varios condominios, sus unidades y propietarios. Puede ser una empresa administradora o la administración de tu propio condominio.</p><ul><li>Condominios y unidades en una organización.</li><li>Propietarios con acceso a su información.</li><li>Finanzas, reservas y comunicación centralizadas.</li></ul><a class="text-link" routerLink="/auth/register">Crear cuenta <span class="sr-only">para administrar condominios</span><span aria-hidden="true">↗</span></a></article>
-        <article class="audience-card personal-card"><span class="account-label personal-label">OWNER PERSONAL</span><h3>Gestiono mi vivienda</h3><p>Registra tu vivienda personal y reúne sus dispositivos Smart Home en tu propia cuenta, sin depender de una administración de condominio.</p><ul><li>Tu vivienda bajo tu propia cuenta.</li><li>Estado y control de dispositivos compatibles.</li><li>Historial de actividad de tu hogar.</li></ul><a class="text-link" routerLink="/auth/register">Crear cuenta <span class="sr-only">para mi vivienda personal</span><span aria-hidden="true">↗</span></a></article>
-      </div>
-      <aside class="resident-note"><svg aria-hidden="true"><use href="#saas-building"/></svg><div><h3>¿Tu condominio ya utiliza CondominiosApp?</h3><p>Tu administración crea tu acceso, te asigna el condominio y la unidad, y te envía las credenciales por correo.</p></div><a routerLink="/auth/login">Iniciar sesión <span aria-hidden="true">→</span></a></aside>
-    </section>
-
-
-
-    <section id="como-comenzar" class="getting-started section-padding" aria-labelledby="steps-title"><div class="container steps-layout"><div class="section-intro"><h2 id="steps-title">Tu espacio empieza<br>con un primer paso.</h2><p>El registro te guía desde la elección de tu cuenta hasta la configuración de tu organización o vivienda.</p><a class="text-link" routerLink="/auth/register">Crear cuenta y comenzar <span aria-hidden="true">↗</span></a></div><ol class="steps-list"><li><h3>Elige qué quieres gestionar</h3><p>Crea una cuenta ADMIN para tu organización o una cuenta OWNER PERSONAL para tu vivienda.</p></li><li><h3>Verifica tu correo</h3><p>Completa el registro y abre el enlace que recibirás por correo para activar tu cuenta.</p></li><li><h3>Configura tu espacio</h3><p>Inicia sesión. Si administras, añade condominios, unidades y propietarios; si gestionas tu vivienda, configura los dispositivos compatibles.</p></li></ol></div></section>
-
-        <section id="preguntas" class="faq-section container section-padding" aria-labelledby="faq-title"><div class="faq-intro"><h2 id="faq-title">Antes de dar el primer paso.</h2><p>Lo que necesitas saber para dar el primer paso.</p></div><div class="faq-list">@for (item of questions; track item.question) { <details><summary>{{ item.question }}<span class="faq-toggle" aria-hidden="true"></span></summary><p>{{ item.answer }}</p></details> }</div></section>
-
-
-
-    <section class="closing-section container" aria-labelledby="closing-title"><div class="closing-copy"><svg aria-hidden="true"><use href="#saas-home"/></svg><h2 id="closing-title">Más tiempo para<br>sentirte en casa.</h2><p>Empieza a organizar tu comunidad o tu vivienda desde un mismo lugar.</p><a class="button" routerLink="/auth/register">Crear cuenta <span aria-hidden="true">↗</span></a></div><img src="assets/landing/residencial-720.webp" width="1536" height="1024" loading="lazy" alt="Jardines y balcones de un residencial en la luz cálida de la tarde"></section>
-  </main>
-
-  <footer class="site-footer container"><div><a class="brand" routerLink="/">Condominios<span class="brand-accent">App</span></a><p>Gestión de condominios y vivienda personal.</p></div><nav aria-label="Navegación del pie de página"><a routerLink="/" fragment="servicios">Servicios</a><a routerLink="/" fragment="preguntas">Preguntas frecuentes</a><a routerLink="/auth/login">Iniciar sesión</a><a routerLink="/auth/register">Crear cuenta</a></nav><span class="footer-detail">Una comunidad que se siente como hogar.</span></footer>
+        <nav aria-label="Navegación del pie de página">
+            <a routerLink="/" fragment="servicios">Servicios</a
+            ><a routerLink="/" fragment="preguntas">Preguntas frecuentes</a
+            ><a routerLink="/auth/login">Iniciar sesión</a
+            ><a routerLink="/auth/register">Crear cuenta</a>
+        </nav>
+        <span class="footer-detail"
+            >Una comunidad que se siente como hogar.</span
+        >
+    </footer>
 </div>
