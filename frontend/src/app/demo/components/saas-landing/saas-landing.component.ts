@@ -1,7 +1,8 @@
 import { ChangeDetectionStrategy, Component, OnDestroy, computed, inject, signal } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 import { DOCUMENT } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AccessContextService } from '../../service/access-context.service';
 import { UserService } from '../../service/user.service';
 import { accountDestination } from './account-destination';
@@ -23,7 +24,7 @@ interface ProductPreview {
   imports: [RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './saas-landing.component.html',
-  styleUrl: './saas-landing.component.css',
+  styleUrls: ['./saas-landing.component.css', './saas-landing-sections.css', './saas-landing-responsive.css'],
 })
 export class SaasLandingComponent implements OnDestroy {
   private readonly user = inject(UserService);
@@ -31,6 +32,8 @@ export class SaasLandingComponent implements OnDestroy {
   private readonly title = inject(Title);
   private readonly meta = inject(Meta);
   private readonly document = inject(DOCUMENT);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly previousTitle = this.title.getTitle();
   private readonly previousDescription = this.meta.getTag('name="description"')?.content;
   private readonly session = this.readSession();
@@ -90,11 +93,26 @@ export class SaasLandingComponent implements OnDestroy {
   ];
 
   constructor() {
+    this.route.queryParamMap.pipe(takeUntilDestroyed()).subscribe(params => {
+      const key = params.get('vista');
+      this.selectedPreview.set(this.previews.find(item => item.key === key)?.key ?? 'finance');
+    });
     this.title.setTitle('Gestión de condominios y Smart Home | CondominiosApp');
     this.meta.updateTag({ name: 'description', content: 'Organiza condominios, propietarios, finanzas, reservas y documentos con CondominiosApp. Crea tu cuenta de administración o gestiona tu vivienda personal.' });
   }
 
-  closeMenu(): void { this.menuOpen.set(false); }
+  closeMenu(): void {
+    const navigation = this.document.getElementById('public-navigation');
+    if (this.menuOpen() && navigation?.contains(this.document.activeElement)) {
+      this.document.querySelector<HTMLButtonElement>('.menu-toggle')?.focus();
+    }
+    this.menuOpen.set(false);
+  }
+
+  selectPreview(key: PreviewKey): void {
+    this.selectedPreview.set(key);
+    void this.router.navigate([], { relativeTo: this.route, queryParams: { vista: key === 'finance' ? null : key }, queryParamsHandling: 'merge', preserveFragment: true, replaceUrl: true });
+  }
 
   focusContent(): void { this.document.getElementById('main-content')?.focus(); }
 
@@ -105,7 +123,7 @@ export class SaasLandingComponent implements OnDestroy {
       : event.key === 'Home' ? 0 : event.key === 'End' ? this.previews.length - 1 : null;
     if (next === null) return;
     event.preventDefault();
-    this.selectedPreview.set(this.previews[next].key);
+    this.selectPreview(this.previews[next].key);
     const tablist = (event.target as HTMLElement).closest('[role="tablist"]');
     (tablist?.querySelectorAll<HTMLButtonElement>('[role="tab"]')[next])?.focus();
   }

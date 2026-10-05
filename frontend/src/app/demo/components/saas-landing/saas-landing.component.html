@@ -1,4 +1,6 @@
 <div class="saas-page" lang="es">
+  <link rel="preload" href="assets/landing/manrope-700.ttf" as="font" type="font/ttf" crossorigin>
+  <link rel="preload" href="assets/layout/styles/theme/tailwind-light/fonts/Inter-Regular.woff2" as="font" type="font/woff2" crossorigin>
   <a class="skip-link" routerLink="/" fragment="main-content" (click)="focusContent()">Saltar al contenido</a>
   <svg class="symbol-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
     <defs>
@@ -14,7 +16,7 @@
   <header class="site-header" (keydown.escape)="closeMenu()">
     <div class="header-inner">
       <a class="brand" routerLink="/" aria-label="CondominiosApp, inicio" (click)="closeMenu()">
-        <svg class="brand-mark" aria-hidden="true"><use href="#saas-building"/></svg><span>Condominios<span class="brand-accent">App</span></span>
+        <svg class="brand-mark" aria-hidden="true"><use href="#saas-building"/></svg><span translate="no">Condominios<span class="brand-accent">App</span></span>
       </a>
       <button class="menu-toggle" type="button" aria-controls="public-navigation" [attr.aria-expanded]="menuOpen()" (click)="menuOpen.set(!menuOpen())">
         {{ menuOpen() ? 'Cerrar menú' : 'Menú' }}
@@ -38,28 +40,20 @@
   <main id="main-content" tabindex="-1">
     <section class="hero container" aria-labelledby="hero-title">
       <div class="hero-copy">
-        <p class="eyebrow"><span class="small-square" aria-hidden="true"></span> ADMINISTRACIÓN Y VIDA EN COMUNIDAD</p>
-        <h1 id="hero-title">Tu condominio,<br>organizado en<br><em>un solo lugar.</em></h1>
-        <p class="hero-description">De las cuotas a las reservas, de los documentos a tu vivienda. Un espacio para gestionar lo que hace funcionar tu comunidad.</p>
+        <p class="hero-kicker"><svg aria-hidden="true"><use href="#saas-home"/></svg> Una comunidad que se siente como hogar</p>
+        <h1 id="hero-title">Más orden para tu comunidad. Más tranquilidad para tu hogar.</h1>
+        <p class="hero-description">Gestiona cuotas, reservas y comunicación de tu condominio, o reúne los dispositivos compatibles de tu vivienda, desde un mismo lugar.</p>
         <div class="hero-actions"><a class="button" routerLink="/auth/register">Crear cuenta <span aria-hidden="true">↗</span></a><a class="text-link" routerLink="/" fragment="servicios">Explorar servicios <span aria-hidden="true">↓</span></a></div>
-        <div class="hero-caption"><span>Para administrar condominios.</span><span>Para gestionar tu vivienda.</span></div>
+        <p class="hero-caption">Para quienes cuidan una comunidad.<br>Para quienes cuidan su propio hogar.</p>
       </div>
-
-      <section class="product-preview" aria-labelledby="preview-heading">
-        <div class="preview-top"><span class="preview-brand"><svg aria-hidden="true"><use href="#saas-building"/></svg>Tu comunidad</span><span class="illustration-label">VISTA ILUSTRATIVA</span></div>
-        <div class="community-drawing" aria-hidden="true">
-          <svg viewBox="0 0 460 134" xmlns="http://www.w3.org/2000/svg">
-            <path class="drawing-ground" d="M12 117h435"/>
-            <path class="drawing-fill" d="M158 117V26l78-16v107Z"/>
-            <path d="M158 117V26l78-16v107M236 43h68v74M135 117V60h23M304 74h32v43M143 34l15-8"/>
-            <path d="M174 37h12v13h-12zM202 31h12v13h-12zM174 64h12v13h-12zM202 59h12v13h-12zM174 91h12v13h-12zM202 86h12v13h-12zM254 58h12v12h-12zM281 58h10v12h-10zM254 86h12v12h-12zM281 86h10v12h-10z"/>
-            <path d="M71 116V91m0 11c-32-5-21-37 0-39 21 2 32 34 0 39M383 116V95m0 8c-24-4-17-28 0-30 17 2 24 26 0 30M111 117h15m224 0h15"/>
-          </svg>
-          <span>Residencial Jardines · Ejemplo</span>
-        </div>
+      <div class="hero-visual">
+        <picture class="hero-photo"><source srcset="assets/landing/residencial-720.webp 720w, assets/landing/residencial-1280.webp 1280w" sizes="(max-width: 960px) 92vw, 48vw" type="image/webp"><img src="assets/landing/residencial-1280.webp" width="1536" height="1024" fetchpriority="high" alt="Edificios contemporáneos con balcones, jardines tropicales y un camino entre áreas comunes"></picture>
+        <div class="photo-caption"><svg aria-hidden="true"><use href="#saas-home"/></svg><span>La vida en comunidad,<br><strong>con todo en su lugar.</strong></span></div>
+              <section class="product-preview" aria-labelledby="preview-heading">
+        <div class="preview-top"><span class="preview-brand"><svg aria-hidden="true"><use href="#saas-building"/></svg>Residencial Jardines</span><span class="illustration-label">Datos de ejemplo</span></div>
         <div class="preview-tabs" role="tablist" aria-label="Explorar funciones del producto" (keydown)="moveTab($event)">
           @for (item of previews; track item.key) {
-            <button type="button" role="tab" [id]="'tab-' + item.key" [attr.aria-controls]="'panel-' + item.key" [attr.aria-selected]="selectedPreview() === item.key" [tabIndex]="selectedPreview() === item.key ? 0 : -1" (click)="selectedPreview.set(item.key)">{{ item.label }}</button>
+            <button type="button" role="tab" [id]="'tab-' + item.key" [attr.aria-controls]="'panel-' + item.key" [attr.aria-selected]="selectedPreview() === item.key" [tabIndex]="selectedPreview() === item.key ? 0 : -1" (click)="selectPreview(item.key)">{{ item.label }}</button>
           }
         </div>
         @for (item of previews; track item.key) {
@@ -74,66 +68,67 @@
           </div>
         }
       </section>
-    </section>
 
-    <section id="servicios" class="services-section section-padding" aria-labelledby="services-title">
-      <div class="container">
-        <div class="section-intro"><p class="eyebrow">LO QUE PUEDES GESTIONAR</p><h2 id="services-title">Menos tareas dispersas.<br>Más espacio para administrar.</h2><p>Reúne la operación de tu condominio en herramientas que trabajan dentro de tu organización.</p></div>
-        <div class="services-grid">
-          @for (service of services; track service.key) {
-            <article class="service-card"><svg class="service-icon" aria-hidden="true"><use [attr.href]="'#saas-' + (service.key === 'management' ? 'building' : service.key)"/></svg><p class="service-category">{{ service.subtitle }}</p><h3>{{ service.name }}</h3><p>{{ service.description }}</p><ul class="service-tags" aria-label="Funciones incluidas">@for (tag of service.tags; track tag) { <li>{{ tag }}</li> }</ul></article>
-          }
-        </div>
-        <p class="availability-note">La disponibilidad de los módulos depende de la configuración de tu cuenta. Smart Home requiere dispositivos compatibles y una suscripción habilitada.</p>
       </div>
     </section>
 
-    <section id="para-quien" class="audience-section container section-padding" aria-labelledby="audience-title">
-      <div class="section-intro"><p class="eyebrow">UN LUGAR PARA CADA NECESIDAD</p><h2 id="audience-title">Elige cómo quieres comenzar.</h2><p>Dos tipos de cuenta. Un registro que te guía hacia el que necesitas.</p></div>
+    <section class="benefits-section" aria-labelledby="benefits-title"><div class="container benefits-inner">
+      <h2 id="benefits-title">Lo cotidiano,<br>más sencillo.</h2>
+      <ul class="benefits-list">
+        <li><svg aria-hidden="true"><use href="#saas-finance"/></svg><span>Consulta cuotas y pagos<br><strong>de cada unidad</strong></span></li>
+        <li><svg aria-hidden="true"><use href="#saas-bookings"/></svg><span>Coordina reservas<br><strong>de áreas comunes</strong></span></li>
+        <li><svg aria-hidden="true"><use href="#saas-documents"/></svg><span>Encuentra documentos<br><strong>y avisos</strong></span></li>
+        <li><svg aria-hidden="true"><use href="#saas-home"/></svg><span>Consulta dispositivos<br><strong>compatibles</strong></span></li>
+      </ul>
+    </div></section>
+
+    <section id="servicios" class="services-section section-padding" aria-labelledby="services-title"><div class="container">
+      <div class="section-intro service-heading"><h2 id="services-title">Todo lo que hace<br>funcionar tu comunidad.</h2><p>Del cuidado de las cuentas a los espacios que compartimos. Herramientas para mantener cada cosa en su lugar.</p></div>
+      <div class="community-feature">
+        <figure><img src="assets/landing/comunidad-960.webp" srcset="assets/landing/comunidad-640.webp 640w, assets/landing/comunidad-960.webp 960w" sizes="(max-width: 700px) 92vw, 48vw" width="1536" height="1024" loading="lazy" alt="Tres vecinos conversan y coordinan una actividad en una terraza rodeada de vegetación"><figcaption>Más espacio para compartir.</figcaption></figure>
+        <div class="feature-copy"><h3>Las cuentas claras.<br>La comunidad conectada.</h3><p>Administra tus condominios, unidades y propietarios en tu organización. Consulta estados de cuenta y reúne documentos, avisos y solicitudes sin perder el hilo.</p>
+          <ul class="feature-list"><li><svg aria-hidden="true"><use href="#saas-finance"/></svg><div><h4>Finanzas que puedes consultar</h4><p>Cuotas, cargos, pagos, conciliación y reportes.</p></div></li><li><svg aria-hidden="true"><use href="#saas-documents"/></svg><div><h4>Información para convivir mejor</h4><p>Documentos, avisos y seguimiento a consultas.</p></div></li></ul>
+        </div>
+      </div>
+      <div class="shared-services">
+        <article><svg class="service-icon" aria-hidden="true"><use href="#saas-building"/></svg><h3>Personas y propiedades</h3><p>Organiza condominios, unidades, propietarios y personal dentro de tu organización.</p></article>
+        <article><svg class="service-icon" aria-hidden="true"><use href="#saas-bookings"/></svg><h3>Espacios para compartir</h3><p>Coordina reservas de áreas comunes y consulta las visitas asociadas a cada unidad.</p></article>
+        <article><svg class="service-icon" aria-hidden="true"><use href="#saas-rentals"/></svg><h3>Estancias bien coordinadas</h3><p>Consulta alquileres temporales y sincroniza calendarios con las integraciones iCal disponibles.</p></article>
+      </div>
+    </div></section>
+
+    <section class="connected-section" aria-labelledby="connected-title"><div class="container connected-layout">
+      <div class="connected-copy"><span class="feature-label"><svg aria-hidden="true"><use href="#saas-home"/></svg> Smart Home</span><h2 id="connected-title">Tu hogar también<br>tiene su espacio.</h2><p>Reúne tus dispositivos compatibles, consulta su estado y revisa su actividad desde tu vivienda personal o el contexto de tu condominio.</p><a class="text-link" routerLink="/" fragment="para-quien">Conocer los tipos de cuenta <span aria-hidden="true">↗</span></a><p class="availability-note">Requiere dispositivos compatibles y una suscripción IoT habilitada. Las funciones disponibles dependen de tu cuenta y configuración.</p></div>
+      <div class="connected-visual"><img src="assets/landing/hogar-960.webp" srcset="assets/landing/hogar-640.webp 640w, assets/landing/hogar-960.webp 960w" sizes="(max-width: 700px) 92vw, 48vw" width="1536" height="1024" loading="lazy" alt="Sala acogedora con plantas, lámpara encendida y un sensor junto a la entrada"><div class="device-example"><svg aria-hidden="true"><use href="#saas-home"/></svg><div><strong>Luz de entrada</strong><span>Encendida · Ejemplo ilustrativo</span></div><span class="device-dot" aria-hidden="true"></span></div></div>
+    </div></section>
+
+    <section class="everyday-section container section-padding" aria-labelledby="everyday-title"><div class="section-intro"><h2 id="everyday-title">Así se vive con CondominiosApp.</h2><p>Pequeñas situaciones del día a día. Un lugar para resolverlas.</p></div>
+      <div class="everyday-grid">
+        <article class="everyday-scene"><div class="scene-art finance-art" aria-label="Ejemplo de consulta de una cuota"><span class="scene-label">Ejemplo ilustrativo</span><div class="mini-statement"><svg aria-hidden="true"><use href="#saas-finance"/></svg><strong>Unidad A-101</strong><span>Cuota de mantenimiento</span><div><span>Estado de cuenta</span><b>Disponible</b></div></div></div><h3>Revisa tu cuota, sin buscar de más.</h3><p>Consulta los cargos y pagos de tu unidad y encuentra tu estado de cuenta cuando lo necesitas.</p></article>
+        <article class="everyday-scene"><div class="scene-art booking-art" aria-label="Ejemplo de reserva de un área común"><span class="scene-label">Ejemplo ilustrativo</span><div class="mini-calendar"><svg aria-hidden="true"><use href="#saas-bookings"/></svg><strong>Un sábado para compartir</strong><div class="calendar-days" aria-hidden="true"><span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><b>S</b><span>D</span></div><span>Salón social · Unidad A-101</span><b class="calendar-status">Reservado</b></div></div><h3>Haz espacio para tus planes.</h3><p>Coordina una reserva de un área común y consulta el calendario para organizar tu encuentro.</p></article>
+        <article class="everyday-scene"><div class="scene-art home-art" aria-label="Ejemplo de consulta de un dispositivo"><span class="scene-label">Ejemplo ilustrativo</span><div class="mini-device"><svg aria-hidden="true"><use href="#saas-home"/></svg><strong>Sensor de puerta</strong><span>Entrada de tu vivienda</span><b><span class="device-dot" aria-hidden="true"></span> Cerrada</b></div></div><h3>Consulta cómo está tu hogar.</h3><p>Revisa el estado de un dispositivo compatible y su actividad, según las funciones habilitadas.</p></article>
+      </div>
+    </section>
+
+        <section id="para-quien" class="audience-section container section-padding" aria-labelledby="audience-title">
+      <div class="section-intro"><h2 id="audience-title">Cada hogar tiene su forma de organizarse.</h2><p>Elige la cuenta que corresponde a lo que quieres gestionar.</p></div>
       <div class="audience-grid">
-        <article class="audience-card"><span class="account-label">ADMIN</span><h3>Para quienes administran<br>una comunidad.</h3><p>Crea tu organización y gestiona uno o varios condominios, sus unidades y propietarios. Puede ser una empresa administradora o la administración de tu propio condominio.</p><ul><li>Condominios y unidades en una organización.</li><li>Propietarios con acceso a su información.</li><li>Finanzas, reservas y comunicación centralizadas.</li></ul><a class="text-link" routerLink="/auth/register">Crear cuenta <span class="sr-only">para administrar condominios</span><span aria-hidden="true">↗</span></a></article>
-        <article class="audience-card personal-card"><span class="account-label personal-label">OWNER PERSONAL</span><h3>Para quienes gestionan<br>su propia vivienda.</h3><p>Registra tu vivienda personal y reúne sus dispositivos Smart Home en tu propia cuenta, sin depender de una administración de condominio.</p><ul><li>Tu vivienda bajo tu propia cuenta.</li><li>Estado y control de dispositivos compatibles.</li><li>Historial de actividad de tu hogar.</li></ul><a class="text-link" routerLink="/auth/register">Crear cuenta <span class="sr-only">para mi vivienda personal</span><span aria-hidden="true">↗</span></a></article>
+        <article class="audience-card"><span class="account-label">ADMIN</span><h3>Administro condominios</h3><p>Crea tu organización y gestiona uno o varios condominios, sus unidades y propietarios. Puede ser una empresa administradora o la administración de tu propio condominio.</p><ul><li>Condominios y unidades en una organización.</li><li>Propietarios con acceso a su información.</li><li>Finanzas, reservas y comunicación centralizadas.</li></ul><a class="text-link" routerLink="/auth/register">Crear cuenta <span class="sr-only">para administrar condominios</span><span aria-hidden="true">↗</span></a></article>
+        <article class="audience-card personal-card"><span class="account-label personal-label">OWNER PERSONAL</span><h3>Gestiono mi vivienda</h3><p>Registra tu vivienda personal y reúne sus dispositivos Smart Home en tu propia cuenta, sin depender de una administración de condominio.</p><ul><li>Tu vivienda bajo tu propia cuenta.</li><li>Estado y control de dispositivos compatibles.</li><li>Historial de actividad de tu hogar.</li></ul><a class="text-link" routerLink="/auth/register">Crear cuenta <span class="sr-only">para mi vivienda personal</span><span aria-hidden="true">↗</span></a></article>
       </div>
       <aside class="resident-note"><svg aria-hidden="true"><use href="#saas-building"/></svg><div><h3>¿Tu condominio ya utiliza CondominiosApp?</h3><p>Tu administración crea tu acceso, te asigna el condominio y la unidad, y te envía las credenciales por correo.</p></div><a routerLink="/auth/login">Iniciar sesión <span aria-hidden="true">→</span></a></aside>
     </section>
 
-    <section id="como-comenzar" class="getting-started section-padding" aria-labelledby="steps-title"><div class="container journey-layout">
-      <div class="journey-intro section-intro">
-        <p class="eyebrow">ASÍ EMPIEZA TU CUENTA</p>
-        <h2 id="steps-title">Un punto de partida.<br>Tu propio camino.</h2>
-        <p>Empieza por lo que necesitas gestionar. El registro te acompaña hasta entrar a tu organización o a tu vivienda.</p>
-        <a class="text-link" routerLink="/auth/register">Crear cuenta y comenzar <span aria-hidden="true">↗</span></a>
-        <p class="journey-resident">¿Ya formas parte de un condominio?<br>Tu administración te envía el acceso. <a routerLink="/auth/login">Inicia sesión</a>.</p>
-      </div>
-      <ol class="account-journey" aria-label="Recorrido desde el registro hasta tu espacio">
-        <li class="journey-choice">
-          <h3>¿Qué quieres gestionar?</h3>
-          <div class="journey-branches">
-            <div class="journey-branch"><svg aria-hidden="true"><use href="#saas-building"/></svg><span class="journey-role">ADMIN</span><h4>Condominios</h4><p>Tu organización, sus unidades <br>y sus propietarios.</p></div>
-            <div class="journey-branch"><svg aria-hidden="true"><use href="#saas-home"/></svg><span class="journey-role">OWNER PERSONAL</span><h4>Mi vivienda</h4><p>Tu hogar y sus dispositivos <br>Smart Home.</p></div>
-          </div>
-          <svg class="journey-connector" viewBox="0 0 600 64" preserveAspectRatio="none" aria-hidden="true"><path d="M150 0v14q0 12 12 12h126q12 0 12 12v26M450 0v14q0 12-12 12H312q-12 0-12 12"/><path class="journey-arrow" d="m295 57 5 6 5-6"/></svg>
-        </li>
-        <li class="journey-verification">
-          <span class="mail-stamp" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M4 8h24v17H4zM4 8l12 10L28 8"/></svg></span>
-          <h3>Verifica tu correo</h3>
-          <p>Completa el registro y abre el enlace que recibirás.<br>Ese es el paso que activa tu cuenta.</p>
-          <svg class="journey-connector" viewBox="0 0 600 64" preserveAspectRatio="none" aria-hidden="true"><path d="M300 0v14q0 12-12 12H162q-12 0-12 12v26M300 14q0 12 12 12h126q12 0 12 12v26"/><path class="journey-arrow" d="m145 57 5 6 5-6m290 0 5 6 5-6"/></svg>
-        </li>
-        <li class="journey-arrival">
-          <h3 class="sr-only">Inicia sesión y configura tu espacio</h3>
-          <div class="journey-branches">
-            <div class="journey-branch"><span class="journey-role">EN TU ORGANIZACIÓN</span><h4>Tu primer condominio</h4><p>Inicia sesión y sigue la guía para añadir condominios, unidades y propietarios.</p><span class="journey-end">Tu administración empieza aquí</span></div>
-            <div class="journey-branch"><span class="journey-role">EN TU VIVIENDA</span><h4>Tu espacio personal</h4><p>Inicia sesión y configura tu vivienda y los dispositivos compatibles que quieras conectar.</p><span class="journey-end">Tu hogar empieza aquí</span></div>
-          </div>
-        </li>
-      </ol>
-    </div></section>
 
-    <section id="preguntas" class="faq-section container section-padding" aria-labelledby="faq-title"><div class="faq-intro"><p class="eyebrow">ANTES DE COMENZAR</p><h2 id="faq-title">Algunas preguntas,<br>respuestas claras.</h2><p>Lo que necesitas saber para dar el primer paso.</p></div><div class="faq-list">@for (item of questions; track item.question) { <details><summary>{{ item.question }}<span class="faq-toggle" aria-hidden="true"></span></summary><p>{{ item.answer }}</p></details> }</div></section>
 
-    <section class="closing-section" aria-labelledby="closing-title"><div class="container closing-inner"><div><p class="eyebrow">TU PRÓXIMO PASO</p><h2 id="closing-title">Comienza con la cuenta<br>que necesitas.</h2><p>Tu organización o tu vivienda. El registro te ayuda a elegir.</p></div><a class="button" routerLink="/auth/register">Crear cuenta <span aria-hidden="true">↗</span></a></div></section>
+    <section id="como-comenzar" class="getting-started section-padding" aria-labelledby="steps-title"><div class="container steps-layout"><div class="section-intro"><h2 id="steps-title">Tu espacio empieza<br>con un primer paso.</h2><p>El registro te guía desde la elección de tu cuenta hasta la configuración de tu organización o vivienda.</p><a class="text-link" routerLink="/auth/register">Crear cuenta y comenzar <span aria-hidden="true">↗</span></a></div><ol class="steps-list"><li><h3>Elige qué quieres gestionar</h3><p>Crea una cuenta ADMIN para tu organización o una cuenta OWNER PERSONAL para tu vivienda.</p></li><li><h3>Verifica tu correo</h3><p>Completa el registro y abre el enlace que recibirás por correo para activar tu cuenta.</p></li><li><h3>Configura tu espacio</h3><p>Inicia sesión. Si administras, añade condominios, unidades y propietarios; si gestionas tu vivienda, configura los dispositivos compatibles.</p></li></ol></div></section>
+
+        <section id="preguntas" class="faq-section container section-padding" aria-labelledby="faq-title"><div class="faq-intro"><h2 id="faq-title">Antes de dar el primer paso.</h2><p>Lo que necesitas saber para dar el primer paso.</p></div><div class="faq-list">@for (item of questions; track item.question) { <details><summary>{{ item.question }}<span class="faq-toggle" aria-hidden="true"></span></summary><p>{{ item.answer }}</p></details> }</div></section>
+
+
+
+    <section class="closing-section container" aria-labelledby="closing-title"><div class="closing-copy"><svg aria-hidden="true"><use href="#saas-home"/></svg><h2 id="closing-title">Más tiempo para<br>sentirte en casa.</h2><p>Empieza a organizar tu comunidad o tu vivienda desde un mismo lugar.</p><a class="button" routerLink="/auth/register">Crear cuenta <span aria-hidden="true">↗</span></a></div><img src="assets/landing/residencial-720.webp" width="1536" height="1024" loading="lazy" alt="Jardines y balcones de un residencial en la luz cálida de la tarde"></section>
   </main>
 
-  <footer class="site-footer container"><div><a class="brand" routerLink="/">Condominios<span class="brand-accent">App</span></a><p>Gestión de condominios y vivienda personal.</p></div><nav aria-label="Navegación del pie de página"><a routerLink="/" fragment="servicios">Servicios</a><a routerLink="/" fragment="preguntas">Preguntas frecuentes</a><a routerLink="/auth/login">Iniciar sesión</a><a routerLink="/auth/register">Crear cuenta</a></nav><span class="footer-detail">La comunidad empieza con un espacio bien organizado.</span></footer>
+  <footer class="site-footer container"><div><a class="brand" routerLink="/">Condominios<span class="brand-accent">App</span></a><p>Gestión de condominios y vivienda personal.</p></div><nav aria-label="Navegación del pie de página"><a routerLink="/" fragment="servicios">Servicios</a><a routerLink="/" fragment="preguntas">Preguntas frecuentes</a><a routerLink="/auth/login">Iniciar sesión</a><a routerLink="/auth/register">Crear cuenta</a></nav><span class="footer-detail">Una comunidad que se siente como hogar.</span></footer>
 </div>
