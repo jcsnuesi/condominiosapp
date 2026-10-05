@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import { inject, Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 
 export interface AppConfig {
@@ -24,12 +25,14 @@ interface LayoutState {
 })
 export class LayoutService {
 
+    private readonly document = inject(DOCUMENT);
+
     config: AppConfig = {
         ripple: false,
         inputStyle: 'outlined',
         menuMode: 'static',
         colorScheme: 'light',
-        theme: 'lara-light-indigo',
+        theme: 'lara-light-blue',
         scale: 14,
     };
 
@@ -109,6 +112,10 @@ export class LayoutService {
     }
 
     onConfigUpdate() {
+        this.document.documentElement.classList.toggle(
+            'app-dark',
+            this.config.colorScheme === 'dark'
+        );
         this.configUpdate.next(this.config);
     }
 

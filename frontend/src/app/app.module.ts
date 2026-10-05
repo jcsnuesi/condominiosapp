@@ -37,6 +37,11 @@ import Aura from '@primeuix/themes/aura';
         providePrimeNG({
             theme: {
                 preset: Aura,
+                options: {
+                    // Follow the application's explicit theme, not the OS preference.
+                    // The selector belongs on html so body-mounted overlays inherit it.
+                    darkModeSelector: '.app-dark',
+                },
             },
             ripple: true,
         }),
