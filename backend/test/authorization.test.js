@@ -49,6 +49,9 @@ test("personal owner context is isolated and only exists for verified owners wit
   assert.equal(context.organizationId, null);
   assert.deepEqual(context.scope.residenceIds, ["residence-1"]);
   assert.deepEqual(context.permissions, [
+    "schedules.read", "schedules.create", "schedules.update",
+    "maintenance.read", "maintenance.update",
+    "vendors.read", "vendors.create", "vendors.update",
     "iot.read",
     "iot.create",
     "iot.update",

@@ -87,6 +87,11 @@ export class AppMenuComponent {
 
         return [
             {
+                label: 'Mantenimientos',
+                items: [{ label: 'Programación y tareas', icon: 'pi pi-calendar-clock', routerLink: ['/schedule'] }],
+                visible: this.hasPermission('schedules.read'),
+            },
+            {
                 label: 'Setup',
                 items: [
                     {

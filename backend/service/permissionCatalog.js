@@ -13,6 +13,9 @@ const MODULE_ACTIONS = Object.freeze({
   finance: ["read", "create", "update", "delete"],
   communications: ["read", "create", "update", "delete"],
   iot: ["read", "create", "update", "delete", "control", "history"],
+  schedules: ["read", "create", "update"],
+  maintenance: ["read", "update"],
+  vendors: ["read", "create", "update"],
 });
 
 const PERMISSIONS = Object.freeze(

@@ -6,6 +6,10 @@ const {
 } = require("../service/authorization");
 
 const ROUTE_MODULES = [
+  [/^\/(?:api\/)?maintenance\/vendors(?:\/|$)/i, "vendors"],
+  [/^\/(?:api\/)?schedules\/notices(?:\/|$)/i, "maintenance"],
+  [/^\/(?:api\/)?schedules(?:\/|$)/i, "schedules"],
+  [/^\/(?:api\/)?(?:tasks|maintenance)(?:\/|$)/i, "maintenance"],
   [/^\/(?:api\/)?payments(?:\/|$)/i, "finance"],
   [
     /staffs-admin|create-staff-admin|update-staff-admin|delete-staff-admin/i,
@@ -45,9 +49,14 @@ function enforceAdministrativePermission(req, res, next) {
   ) {
     return next();
   }
+  // The inbox can contain private task reminders without granting community
+  // communications access. Its handler independently filters both sources.
+  if (req.method === "GET" && /^\/(?:api\/)?notifications\/inbox$/.test(req.path) && hasPermission(req.auth, "maintenance.read")) return next();
   const moduleMatch = ROUTE_MODULES.find(([pattern]) => pattern.test(req.path));
   const isBankUpdate = req.method === "POST" && /^\/(?:api\/)?payments\/(?:receipts\/[^/]+\/(?:confirm|retry)|statements\/[^/]+\/(?:commit|retry))$/.test(req.path);
-  const action = isBankUpdate ? "update" : METHOD_ACTION[req.method];
+  const isScheduleUpdate = req.method === "POST" && /^\/(?:api\/)?(?:schedules\/[^/]+\/(?:pause|resume)|tasks\/[^/]+\/(?:complete|reschedule))\/?$/.test(req.path);
+  const isNoticeRead = req.method === "POST" && /^\/(?:api\/)?schedules\/notices\/[^/]+\/read\/?$/.test(req.path);
+  const action = isNoticeRead ? "read" : (isBankUpdate || isScheduleUpdate) ? "update" : METHOD_ACTION[req.method];
   if (!moduleMatch || !action) {
     return res.status(403).send({
       status: "forbidden",

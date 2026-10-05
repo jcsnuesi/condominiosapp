@@ -14,6 +14,8 @@ export interface InboxNotification {
     publishedAt: string;
     condominiumId: { _id: string; name?: string; alias?: string } | string;
     readBy: Array<{ userId: string }>;
+    source?: 'schedule';
+    taskId?: string;
 }
 
 interface InboxResponse {
@@ -30,6 +32,7 @@ export class NotificationInboxService {
     private readonly errorSubject = new BehaviorSubject<string | null>(null);
     private socket: Socket | null = null;
     private refreshSubscription: Subscription | null = null;
+    private refreshTimer: ReturnType<typeof setInterval> | null = null;
 
     readonly notifications$ = this.notificationsSubject.asObservable();
     readonly unreadCount$ = this.unreadCountSubject.asObservable();
@@ -45,6 +48,8 @@ export class NotificationInboxService {
         const token = this.cookies.get('token');
         if (!token || this.socket) return;
 
+        if (!this.refreshTimer) this.refreshTimer = setInterval(() => this.refresh(), 60000);
+
         this.socket = io(this.socketUrl(), {
             auth: { token },
         });
@@ -59,6 +64,7 @@ export class NotificationInboxService {
     }
 
     refresh(): void {
+        if (!this.cookies.get('token')) { this.disconnect(); return; }
         if (this.refreshSubscription) return;
 
         this.loadingSubject.next(true);
@@ -82,12 +88,21 @@ export class NotificationInboxService {
     }
 
     disconnect(): void {
+        if (this.refreshTimer) clearInterval(this.refreshTimer);
+        this.refreshTimer = null;
         this.refreshSubscription?.unsubscribe();
         this.refreshSubscription = null;
         this.socket?.disconnect();
         this.socket = null;
         this.notificationsSubject.next([]);
         this.unreadCountSubject.next(0);
+    }
+
+    markScheduleRead(id: string): void {
+        this.http.post(`${global.url}schedules/notices/${id}/read`, {}).subscribe({
+            next: () => this.refresh(),
+            error: () => this.errorSubject.next('No se pudo marcar el aviso como leído.'),
+        });
     }
 
     private socketUrl(): string {

@@ -4,13 +4,16 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "node --test test/**/*.test.js",
+    "test": "node --test test/**/*.test.js modules/schedule/tests/*.test.js",
+    "test:schedule": "node --test modules/schedule/tests/*.test.js",
     "start": "node index.js",
     "dev": "nodemon index.js",
     "finance:migrate:dry-run": "node scripts/migrateFinance.js",
     "finance:migrate:apply": "node scripts/migrateFinance.js --apply",
     "iot:migrate:dry-run": "node scripts/migrateIotRelationships.js",
-    "iot:migrate:apply": "node scripts/migrateIotRelationships.js --apply"
+    "iot:migrate:apply": "node scripts/migrateIotRelationships.js --apply",
+    "schedule:migrate:dry-run": "node scripts/migrateSchedule.js",
+    "schedule:migrate:apply": "node scripts/migrateSchedule.js --apply"
   },
   "author": "Hector Santos",
   "license": "MIT",

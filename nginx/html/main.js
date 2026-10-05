@@ -73,6 +73,13 @@ class AppRoutingModule {
         component: _layout_app_layout_component__WEBPACK_IMPORTED_MODULE_2__.AppLayoutComponent,
         canActivate: [_demo_service_routing_guard__WEBPACK_IMPORTED_MODULE_3__.UserGuard],
         children: [{
+          path: 'schedule',
+          data: {
+            permission: 'schedules.read'
+          },
+          canActivate: [_demo_service_routing_guard__WEBPACK_IMPORTED_MODULE_3__.UserGuard],
+          loadComponent: () => __webpack_require__.e(/*! import() */ "src_app_demo_components_schedule_schedule_component_ts").then(__webpack_require__.bind(__webpack_require__, /*! ./demo/components/schedule/schedule.component */ 48775)).then(m => m.ScheduleComponent)
+        }, {
           path: 'finance',
           data: {
             permission: 'finance.read',
@@ -33411,6 +33418,14 @@ class AppMenuComponent {
     const isOrganizationOwner = isOwner && Boolean(this.accessContext.access()?.organization || this.cookieValue?.organizationId);
     const canSeePaymentMonitor = isOwner ? !isOrganizationOwner : this.hasPermission('finance.read');
     return [{
+      label: 'Mantenimientos',
+      items: [{
+        label: 'Programación y tareas',
+        icon: 'pi pi-calendar-clock',
+        routerLink: ['/schedule']
+      }],
+      visible: this.hasPermission('schedules.read')
+    }, {
       label: 'Setup',
       items: [{
         label: 'Getting started',
@@ -34177,6 +34192,15 @@ class AppTopBarComponent {
   }
   openNotification(notification) {
     this.notificationMenuVisible = false;
+    if (notification.source === 'schedule') {
+      this.notificationInbox.markScheduleRead(notification._id);
+      this._router.navigate(['schedule'], {
+        queryParams: {
+          taskId: notification.taskId
+        }
+      });
+      return;
+    }
     const condominiumId = typeof notification.condominiumId === 'string' ? notification.condominiumId : notification.condominiumId._id;
     this._router.navigate(['communication-log'], {
       queryParams: {
@@ -36012,6 +36036,7 @@ class NotificationInboxService {
     this.errorSubject = new rxjs__WEBPACK_IMPORTED_MODULE_0__.BehaviorSubject(null);
     this.socket = null;
     this.refreshSubscription = null;
+    this.refreshTimer = null;
     this.notifications$ = this.notificationsSubject.asObservable();
     this.unreadCount$ = this.unreadCountSubject.asObservable();
     this.loading$ = this.loadingSubject.asObservable();
@@ -36020,6 +36045,7 @@ class NotificationInboxService {
   connect() {
     const token = this.cookies.get('token');
     if (!token || this.socket) return;
+    if (!this.refreshTimer) this.refreshTimer = setInterval(() => this.refresh(), 60000);
     this.socket = (0,socket_io_client__WEBPACK_IMPORTED_MODULE_1__.io)(this.socketUrl(), {
       auth: {
         token
@@ -36033,6 +36059,10 @@ class NotificationInboxService {
     });
   }
   refresh() {
+    if (!this.cookies.get('token')) {
+      this.disconnect();
+      return;
+    }
     if (this.refreshSubscription) return;
     this.loadingSubject.next(true);
     this.errorSubject.next(null);
@@ -36052,12 +36082,20 @@ class NotificationInboxService {
     });
   }
   disconnect() {
+    if (this.refreshTimer) clearInterval(this.refreshTimer);
+    this.refreshTimer = null;
     this.refreshSubscription?.unsubscribe();
     this.refreshSubscription = null;
     this.socket?.disconnect();
     this.socket = null;
     this.notificationsSubject.next([]);
     this.unreadCountSubject.next(0);
+  }
+  markScheduleRead(id) {
+    this.http.post(`${_demo_service_global_service__WEBPACK_IMPORTED_MODULE_2__.global.url}schedules/notices/${id}/read`, {}).subscribe({
+      next: () => this.refresh(),
+      error: () => this.errorSubject.next('No se pudo marcar el aviso como leído.')
+    });
   }
   socketUrl() {
     // Keep Socket.IO on the application origin so Nginx can proxy the

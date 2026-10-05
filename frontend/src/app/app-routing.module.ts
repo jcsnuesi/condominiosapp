@@ -34,6 +34,12 @@ import { CommunicationLogComponent } from './demo/components/communication-log/c
                     canActivate: [UserGuard],
                     children: [
                         {
+                            path: 'schedule',
+                            data: { permission: 'schedules.read' },
+                            canActivate: [UserGuard],
+                            loadComponent: () => import('./demo/components/schedule/schedule.component').then(m => m.ScheduleComponent),
+                        },
+                        {
                             path: 'finance',
                             data: { permission: 'finance.read', roles: ['ADMIN', 'STAFF_ADMIN', 'OWNER'] },
                             canActivate: [UserGuard],

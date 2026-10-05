@@ -1,0 +1,74 @@
+<section class="schedule-page">
+  <header class="page-header">
+    <div><h1>Mantenimientos</h1><p>Programa el trabajo, coordina su ejecución y conserva cada detalle.</p></div>
+    <p-button *ngIf="tab === 'schedules' && has('schedules.create')" label="Programar mantenimiento" ariaLabel="Programar mantenimiento" icon="pi pi-plus" (onClick)="openSchedule()" />
+    <p-button *ngIf="tab === 'vendors' && has('vendors.create')" label="Agregar proveedor" ariaLabel="Agregar proveedor" icon="pi pi-plus" (onClick)="openVendor()" />
+  </header>
+  <p *ngIf="message" role="status" class="message">{{ message }}</p>
+  <p *ngIf="error && !dialog" role="alert" class="error">{{ error }}</p>
+  <nav class="tabs" aria-label="Secciones de mantenimiento">
+    <button [class.selected]="tab === 'schedules'" [attr.aria-current]="tab === 'schedules' ? 'page' : null" (click)="selectTab('schedules')">Programación</button>
+    <button *ngIf="has('maintenance.read')" [class.selected]="tab === 'tasks'" [attr.aria-current]="tab === 'tasks' ? 'page' : null" (click)="selectTab('tasks')">Tareas</button>
+    <button *ngIf="has('maintenance.read')" [class.selected]="tab === 'history'" [attr.aria-current]="tab === 'history' ? 'page' : null" (click)="selectTab('history')">Historial</button>
+    <button *ngIf="has('vendors.read')" [class.selected]="tab === 'vendors'" [attr.aria-current]="tab === 'vendors' ? 'page' : null" (click)="selectTab('vendors')">Proveedores</button>
+  </nav>
+  <div class="filters" *ngIf="tab !== 'vendors'">
+    <label>Ubicación<select [(ngModel)]="selectedLocation" (change)="locationFilterChanged()"><option value="">Todas mis ubicaciones</option><option *ngFor="let c of contexts; let i = index" [value]="i">{{ c.label }}</option></select></label>
+    <label *ngIf="tab === 'tasks'">Estado<select [(ngModel)]="statusFilter" (change)="resetFilters()"><option value="">Todos</option><option *ngFor="let s of ['SCHEDULED','PENDING','IN_PROGRESS','OVERDUE','COMPLETED','CANCELLED','SKIPPED']" [value]="s">{{ statusLabel(s) }}</option></select></label>
+    <label>Desde<input type="date" [(ngModel)]="from" (change)="resetFilters()" /></label>
+    <label>Hasta<input type="date" [(ngModel)]="to" (change)="resetFilters()" /></label>
+    <label *ngIf="tab === 'history'">Proveedor<select [(ngModel)]="providerFilter" (change)="resetFilters()"><option value="">Todos</option><option *ngFor="let v of vendors" [value]="v._id">{{ v.name }}</option></select></label>
+    <label *ngIf="tab === 'tasks' || tab === 'schedules'">Responsable<select [(ngModel)]="responsibleFilter" [disabled]="selectedLocation === ''" (change)="resetFilters()"><option value="">{{ selectedLocation === '' ? 'Selecciona una ubicación' : 'Todos' }}</option><option *ngFor="let r of filterResponsibles" [value]="r.id">{{ r.name }}</option></select></label>
+  </div>
+  <div *ngIf="tab === 'tasks'" class="view-toggle"><button [class.selected]="view === 'list'" (click)="setView('list')">Lista</button><button [class.selected]="view === 'calendar'" (click)="setView('calendar')">Calendario</button></div>
+  <p *ngIf="loading" role="status">Cargando mantenimientos…</p>
+  <div *ngIf="tab === 'tasks' && view === 'calendar'" class="calendar"><full-calendar [options]="calendar" /></div>
+  <div *ngIf="view === 'list'" class="table-scroll" [attr.aria-busy]="loading">
+    <table *ngIf="tab === 'schedules'"><caption class="sr-only">Programación de mantenimientos</caption><thead><tr><th>Mantenimiento</th><th>Ubicación</th><th>Frecuencia</th><th>Próximo vencimiento</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>
+      <tr *ngFor="let s of schedules"><td><strong>{{ s.name }}</strong><small>{{ s.equipmentName }}</small><small class="error" *ngIf="s.notificationError">Revisa la ubicación o reasigna al responsable: {{ s.notificationError }}</small></td><td>{{ locationLabel(s) }}</td><td>{{ s.frequencyType === 'ONCE' ? 'Una vez' : 'Cada ' + s.frequencyValue + ' ' + frequencyLabel(s.frequencyType) }}</td><td>{{ s.nextRunAt ? formatDate(s.nextRunAt, s.timezone) : 'Finalizada' }}<small>{{ s.timezone }}</small></td><td><span class="badge">{{ s.isActive ? 'Activa' : 'Pausada / finalizada' }}</span></td><td class="actions"><button *ngIf="has('schedules.update')" (click)="openSchedule(s)">Editar</button><button *ngIf="has('schedules.update') && s.nextRunAt" [disabled]="saving" (click)="toggle(s)">{{ s.isActive ? 'Pausar' : 'Reanudar' }}</button></td></tr>
+    </tbody></table>
+    <table *ngIf="tab === 'tasks'"><caption class="sr-only">Tareas de mantenimiento</caption><thead><tr><th>Tarea</th><th>Ubicación</th><th>Vencimiento</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>
+      <tr *ngFor="let t of tasks"><td><strong>{{ t.name }}</strong></td><td>{{ locationLabel(t) }}</td><td>{{ formatDate(t.dueDate, t.timezone) }}</td><td><span class="badge" [class.overdue]="t.status === 'OVERDUE'">{{ statusLabel(t.status) }}</span></td><td class="actions" *ngIf="t.isOpen && has('maintenance.update')"><button *ngIf="t.status !== 'IN_PROGRESS'" [disabled]="saving" (click)="changeStatus(t,'IN_PROGRESS')">Iniciar</button><button (click)="openComplete(t)">Completar</button><button (click)="openReschedule(t)">Reprogramar</button><button [disabled]="saving" (click)="changeStatus(t,'SKIPPED')">Omitir</button><button [disabled]="saving" (click)="changeStatus(t,'CANCELLED')">Cancelar</button></td><td *ngIf="!t.isOpen || !has('maintenance.update')">—</td></tr>
+    </tbody></table>
+    <table *ngIf="tab === 'history'"><caption class="sr-only">Historial de mantenimiento</caption><thead><tr><th>Mantenimiento</th><th>Realizado</th><th>Proveedor</th><th>Costo</th><th>Acciones</th></tr></thead><tbody>
+      <tr *ngFor="let h of history"><td><strong>{{ h.name }}</strong></td><td>{{ formatDate(h.performedAt, h.timezone) }}</td><td>{{ h.providerSnapshot?.name || 'Sin proveedor' }}</td><td>{{ cost(h) }} {{ h.currency }}</td><td><button (click)="openHistory(h)">Ver registro</button></td></tr>
+    </tbody></table>
+    <table *ngIf="tab === 'vendors'"><caption class="sr-only">Catálogo de proveedores</caption><thead><tr><th>Proveedor</th><th>Contacto</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>
+      <tr *ngFor="let v of vendors"><td><strong>{{ v.name }}</strong></td><td>{{ v.contact }}</td><td>{{ v.isActive ? 'Activo' : 'Archivado' }}</td><td><button *ngIf="has('vendors.update')" (click)="openVendor(v)">Editar</button></td></tr>
+    </tbody></table>
+    <div *ngIf="!loading && total === 0" class="empty"><i class="pi pi-calendar" aria-hidden="true"></i><p>No hay registros para esta selección.</p><p *ngIf="tab === 'schedules'">Programa tu primer mantenimiento para comenzar.</p></div>
+  </div>
+  <footer *ngIf="view === 'list'" class="pagination"><button [disabled]="page <= 1 || loading" (click)="page = page - 1; load()">Anterior</button><span>Página {{ page }} · {{ total }} registros</span><button [disabled]="page * limit >= total || loading" (click)="page = page + 1; load()">Siguiente</button></footer>
+</section>
+
+<p-dialog [(visible)]="dialog" [modal]="true" [closable]="!saving" [closeOnEscape]="!saving" [style]="{width:'680px', maxWidth:'95vw'}" [header]="editor === 'schedule' ? 'Programar mantenimiento' : editor === 'complete' ? 'Completar mantenimiento' : editor === 'reschedule' ? 'Reprogramar tarea' : editor === 'vendor' ? 'Proveedor' : 'Registro de mantenimiento'">
+  <p *ngIf="error" class="error" role="alert">{{ error }}</p>
+  <form *ngIf="editor === 'schedule'" #scheduleForm="ngForm" (ngSubmit)="scheduleForm.valid && saveSchedule()" class="editor">
+    <label>Nombre<input name="name" [(ngModel)]="draft.name" required maxlength="200" /></label>
+    <label>Ubicación<select name="location" [(ngModel)]="draft.location" [disabled]="!!editingId" (change)="loadResponsibles()" required><option value="">Selecciona una ubicación</option><option *ngFor="let c of contexts; let i = index" [value]="i">{{ c.label }}</option></select></label>
+    <label>Equipo o instalación<input name="equipment" [(ngModel)]="draft.equipmentName" maxlength="200" placeholder="Cisterna, generador, ascensor…" /></label>
+    <div class="form-grid"><label>Frecuencia<select name="frequencyType" [(ngModel)]="draft.frequencyType"><option value="ONCE">Una vez</option><option value="DAY">Días</option><option value="WEEK">Semanas</option><option value="MONTH">Meses</option><option value="YEAR">Años</option></select></label><label>Repetir cada<input name="frequencyValue" type="number" [(ngModel)]="draft.frequencyValue" required min="1" max="10000" step="1" /></label></div>
+    <label *ngIf="!editingId">Primer vencimiento<input name="startDate" type="datetime-local" [(ngModel)]="draft.startDate" required /><small>La hora ingresada corresponde a la zona de tu navegador. La recurrencia utiliza la zona indicada abajo.</small></label>
+    <div class="form-grid"><label>Zona horaria<input name="timezone" [(ngModel)]="draft.timezone" required /></label><label>Avisar días antes<input name="remindBeforeDays" type="number" [(ngModel)]="draft.remindBeforeDays" min="0" max="365" step="1" required /></label></div>
+    <label>Responsable<select name="responsible" [(ngModel)]="draft.responsible"><option value="">Yo</option><option *ngFor="let r of responsibles" [value]="r.role + ':' + r.id">{{ r.name }} ({{ r.role }})</option></select></label>
+    <label>Descripción<textarea name="description" [(ngModel)]="draft.description" maxlength="5000" rows="3"></textarea></label>
+    <p class="hint">El siguiente mantenimiento se calcula desde la fecha en que se realiza. Al editar, la frecuencia aplica a la siguiente ejecución.</p>
+    <p-button type="submit" label="Guardar programación" [disabled]="saving || !scheduleForm.valid" [loading]="saving" />
+  </form>
+  <form *ngIf="editor === 'complete'" #completeForm="ngForm" (ngSubmit)="completeForm.valid && complete()" class="editor">
+    <p><strong>{{ task?.name }}</strong></p>
+    <label>Fecha realizada<input name="performedAt" type="datetime-local" [(ngModel)]="completion.performedAt" required /></label>
+    <label>Proveedor<select name="providerId" [(ngModel)]="completion.providerId"><option value="">Sin proveedor</option><ng-container *ngFor="let v of vendors"><option *ngIf="v.isActive" [value]="v._id">{{ v.name }}</option></ng-container></select></label>
+    <div class="form-grid"><label>Costo<input name="cost" [(ngModel)]="completion.cost" required pattern="[0-9]{1,12}(\.[0-9]{1,2})?" inputmode="decimal" /></label><label>Moneda<input name="currency" [(ngModel)]="completion.currency" required pattern="[A-Z]{3}" maxlength="3" /></label></div>
+    <label>Trabajo realizado<textarea name="description" [(ngModel)]="completion.description" maxlength="5000" rows="3"></textarea></label>
+    <label>Notas<textarea name="notes" [(ngModel)]="completion.notes" maxlength="5000" rows="2"></textarea></label>
+    <label>Próxima fecha manual (opcional)<input name="nextRecommendedDate" type="datetime-local" [(ngModel)]="completion.nextRecommendedDate" /></label>
+    <label>Evidencia<input type="file" multiple accept="application/pdf,image/jpeg,image/png,image/webp" (change)="selectFiles($event)" /><small>Hasta cinco archivos, 10 MB cada uno. {{ files.length }} seleccionado(s).</small></label>
+    <label *ngIf="documents.length">Documentos existentes (opcional)<select name="documentIds" multiple [(ngModel)]="documentIds"><option *ngFor="let d of documents" [value]="d._id">{{ d.title }}</option></select><small>Selecciona hasta cinco documentos.</small></label>
+    <p class="hint">Se guardará un registro permanente con fecha, costo y evidencia.</p>
+    <p-button type="submit" label="Completar y guardar historial" [disabled]="saving || !completeForm.valid" [loading]="saving" />
+  </form>
+  <form *ngIf="editor === 'reschedule'" #rescheduleForm="ngForm" (ngSubmit)="rescheduleForm.valid && reschedule()" class="editor"><p>{{ task?.name }}</p><label>Nuevo vencimiento<input name="dueDate" type="datetime-local" [(ngModel)]="rescheduleDate" required /></label><p-button type="submit" label="Reprogramar" [disabled]="saving || !rescheduleForm.valid" [loading]="saving" /></form>
+  <form *ngIf="editor === 'vendor'" #vendorForm="ngForm" (ngSubmit)="vendorForm.valid && saveVendor()" class="editor"><label>Nombre<input name="name" [(ngModel)]="vendorDraft.name" required maxlength="200" /></label><label>Contacto<input name="contact" [(ngModel)]="vendorDraft.contact" maxlength="300" /></label><label>Notas<textarea name="notes" [(ngModel)]="vendorDraft.notes" maxlength="2000" rows="3"></textarea></label><label class="checkbox"><input name="isActive" type="checkbox" [(ngModel)]="vendorDraft.isActive" />Proveedor activo</label><p-button type="submit" label="Guardar proveedor" [disabled]="saving || !vendorForm.valid" [loading]="saving" /></form>
+  <div *ngIf="editor === 'history' && selectedHistory" class="editor"><h2>{{ selectedHistory.name }}</h2><p>{{ formatDate(selectedHistory.performedAt, selectedHistory.timezone) }} · {{ cost(selectedHistory) }} {{ selectedHistory.currency }}</p><p>Proveedor: {{ selectedHistory.providerSnapshot?.name || 'Sin proveedor' }}</p><p class="preserve">{{ selectedHistory.description }}</p><p class="preserve">{{ selectedHistory.notes }}</p><p *ngIf="selectedHistory.nextRecommendedDate">Próxima fecha: {{ formatDate(selectedHistory.nextRecommendedDate, selectedHistory.timezone) }}</p><button *ngFor="let f of selectedHistory.evidence" (click)="download(selectedHistory, f)"><i class="pi pi-download" aria-hidden="true"></i> {{ f.filename }}</button></div>
+</p-dialog>

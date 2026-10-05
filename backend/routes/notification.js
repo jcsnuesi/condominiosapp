@@ -154,16 +154,22 @@ router.get("/notifications/inbox", md_auth.authenticated, async (req, res) => {
     const condominiumIds = await getAccessibleCondominiumIds(req.user);
     const query = await buildNotificationFilter(req.user, condominiumIds);
     const limit = Math.min(20, Math.max(1, Number.parseInt(req.query.limit, 10) || 10));
-    const notifications = await Notification.find(query)
+    const includeCommunity = !["STAFF", "STAFF_ADMIN"].includes(req.auth.role) || req.auth.permissions.includes("communications.read");
+    let notifications = includeCommunity ? await Notification.find(query)
       .select("title content type priority condominiumId publishedAt expiresAt readBy attachments")
       .populate("condominiumId", "name alias")
       .sort({ publishedAt: -1 })
       .limit(limit)
-      .lean();
-    const unreadCount = await Notification.countDocuments({
+      .lean() : [];
+    let unreadCount = includeCommunity ? await Notification.countDocuments({
       ...query,
       readBy: { $not: { $elemMatch: { userId: req.user.sub } } },
-    });
+    }) : 0;
+    if (process.env.SCHEDULE_MODULE_ENABLED !== "false") {
+      const scheduled = await require("../modules/schedule/application/notifications").inbox(req.auth, limit);
+      notifications = [...notifications, ...scheduled.notifications].sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt)).slice(0, limit);
+      unreadCount += scheduled.unreadCount;
+    }
 
     return apiResponse.success(
       res,

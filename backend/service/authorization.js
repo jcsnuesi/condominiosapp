@@ -29,6 +29,9 @@ const SUBJECT_MODELS = Object.freeze({
 
 const SELF_SERVICE_PERMISSIONS = Object.freeze({
   OWNER: [
+    "schedules.read", "schedules.create", "schedules.update",
+    "maintenance.read", "maintenance.update",
+    "vendors.read", "vendors.create", "vendors.update",
     "dashboard.read",
     "condominiums.read",
     "bookings.read",
@@ -136,6 +139,9 @@ function buildPersonalOwnerAccessContext(account) {
     organizationId: null,
     isOwnerAdmin: false,
     permissions: [
+      "schedules.read", "schedules.create", "schedules.update",
+      "maintenance.read", "maintenance.update",
+      "vendors.read", "vendors.create", "vendors.update",
       "iot.read",
       "iot.create",
       "iot.update",

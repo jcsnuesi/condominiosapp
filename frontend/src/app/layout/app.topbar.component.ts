@@ -162,6 +162,11 @@ export class AppTopBarComponent implements OnInit, OnDestroy {
 
     openNotification(notification: InboxNotification): void {
         this.notificationMenuVisible = false;
+        if (notification.source === 'schedule') {
+            this.notificationInbox.markScheduleRead(notification._id);
+            this._router.navigate(['schedule'], { queryParams: { taskId: notification.taskId } });
+            return;
+        }
         const condominiumId =
             typeof notification.condominiumId === 'string'
                 ? notification.condominiumId

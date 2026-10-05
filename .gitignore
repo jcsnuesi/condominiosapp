@@ -21,3 +21,4 @@ docker-compose.yml
 backend/test
 docs/COOLIFY_TROUBLESHOOTING.md
 backend/tests/
+/tmp/schedule-*
