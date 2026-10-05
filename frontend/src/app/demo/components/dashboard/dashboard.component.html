@@ -17,6 +17,7 @@
         </p>
     </div>
     <p-button
+        styleClass="dashboard-refresh-action"
         icon="pi pi-refresh"
         label="Refresh"
         ariaLabel="Refresh dashboard data"
@@ -207,7 +208,7 @@
         </button>
     </div>
 </div>
-<p-breadcrumb class="max-w-full mb-4" [model]="itemsx" />
+<p-breadcrumb class="max-w-full mb-4 dashboard-breadcrumb" [model]="itemsx" />
 @if (!componentsToShow.main) {
 <section
     class="dashboard-active-context dashboard-section-status"
@@ -221,7 +222,7 @@
 @if (componentsToShow.main) {
 <div class="grid mt-2">
     <div class="col-12 xl:col-6">
-        <div class="card">
+        <div class="card dashboard-panel">
             <h2>Notifications</h2>
             <hr />
             @if (
@@ -240,11 +241,11 @@
                         <i
                             class="pi pi-comment"
                             [ngClass]="{
-                                'text-red-500':
+                                'notification-priority-high':
                                     inquiry.status === 'high' ||
                                     inquiry.status === 'urgent',
-                                'text-yellow-500': inquiry.status === 'medium',
-                                'text-green-500': inquiry.status === 'low'
+                                'notification-priority-medium': inquiry.status === 'medium',
+                                'notification-priority-low': inquiry.status === 'low'
                             }"
                         ></i>
                         {{ inquiry.title }}
@@ -258,6 +259,7 @@
                                 class="notification-status"
                                 [ngClass]="{
                                     'status-high': inquiry.status === 'high',
+                                    'status-urgent': inquiry.status === 'urgent',
                                     'status-medium':
                                         inquiry.status === 'medium',
                                     'status-low': inquiry.status === 'low'
@@ -285,7 +287,7 @@
         </div>
     </div>
     <div class="col-12 xl:col-6">
-        <div class="card">
+        <div class="card dashboard-panel">
             <h2>Monthly Payments Stats</h2>
             <p id="monthly-payments-description" class="chart-description">
                 Monthly comparison of paid and unpaid invoice counts.

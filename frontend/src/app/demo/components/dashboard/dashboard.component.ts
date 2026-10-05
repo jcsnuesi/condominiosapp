@@ -409,15 +409,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 {
                     label: paid.charAt(0).toUpperCase() + paid.slice(1),
                     backgroundColor:
-                        documentStyle.getPropertyValue('--blue-500'),
-                    borderColor: documentStyle.getPropertyValue('--blue-500'),
+                        documentStyle.getPropertyValue('--app-dark-accent').trim() || '#176b87',
+                    borderColor: documentStyle.getPropertyValue('--app-dark-accent').trim() || '#176b87',
                     data: Object.values(data.paid),
                 },
                 {
                     label: unpaid.charAt(0).toUpperCase() + unpaid.slice(1),
                     backgroundColor:
-                        documentStyle.getPropertyValue('--pink-500'),
-                    borderColor: documentStyle.getPropertyValue('--pink-500'),
+                        documentStyle.getPropertyValue('--app-dark-danger-text').trim() || '#c44732',
+                    borderColor: documentStyle.getPropertyValue('--app-dark-danger-text').trim() || '#c44732',
                     data: Object.values(data.unpaid),
                 },
             ],
@@ -541,15 +541,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 {
                     label: paid.charAt(0).toUpperCase() + paid.slice(1),
                     backgroundColor:
-                        documentStyle.getPropertyValue('--blue-500'),
-                    borderColor: documentStyle.getPropertyValue('--blue-500'),
+                        documentStyle.getPropertyValue('--app-dark-accent').trim() || '#176b87',
+                    borderColor: documentStyle.getPropertyValue('--app-dark-accent').trim() || '#176b87',
                     data: Object.values(data.paid),
                 },
                 {
                     label: unpaid.charAt(0).toUpperCase() + unpaid.slice(1),
                     backgroundColor:
-                        documentStyle.getPropertyValue('--pink-500'),
-                    borderColor: documentStyle.getPropertyValue('--pink-500'),
+                        documentStyle.getPropertyValue('--app-dark-danger-text').trim() || '#c44732',
+                    borderColor: documentStyle.getPropertyValue('--app-dark-danger-text').trim() || '#c44732',
                     data: Object.values(data.unpaid),
                 },
             ],
@@ -758,25 +758,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
                                 {
                                     label: 'Paid',
                                     backgroundColor:
-                                        documentStyle.getPropertyValue(
-                                            '--blue-500'
-                                        ),
+                                        documentStyle.getPropertyValue('--app-dark-accent').trim() || '#176b87',
                                     borderColor:
-                                        documentStyle.getPropertyValue(
-                                            '--blue-500'
-                                        ),
+                                        documentStyle.getPropertyValue('--app-dark-accent').trim() || '#176b87',
                                     data: paidData,
                                 },
                                 {
                                     label: 'Unpaid',
                                     backgroundColor:
-                                        documentStyle.getPropertyValue(
-                                            '--pink-500'
-                                        ),
+                                        documentStyle.getPropertyValue('--app-dark-danger-text').trim() || '#c44732',
                                     borderColor:
-                                        documentStyle.getPropertyValue(
-                                            '--pink-500'
-                                        ),
+                                        documentStyle.getPropertyValue('--app-dark-danger-text').trim() || '#c44732',
                                     data: unpaidData,
                                 },
                             ],
