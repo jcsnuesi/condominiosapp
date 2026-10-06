@@ -10,9 +10,9 @@ services:
       - mongodb-iam-data:/data/db
     networks:
       - app-network
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=admin
-      - MONGO_INITDB_ROOT_PASSWORD=adminpassword123
+    # environment:
+    #   - MONGO_INITDB_ROOT_USERNAME=admin
+    #   - MONGO_INITDB_ROOT_PASSWORD=adminpassword123
     healthcheck:
       test:
         [
@@ -27,13 +27,13 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    env_file:
-      - ./backend/.env
-    environment:
-      OCR_SERVICE_URL: http://ocr-service:2020
-      OCR_SERVICE_TOKEN: ${OCR_SERVICE_TOKEN:?Set OCR_SERVICE_TOKEN in the root .env}
-      CALL_TOKEN_SECRET: ${CALL_TOKEN_SECRET:-}
-      CALL_INTERNAL_TOKEN: ${CALL_INTERNAL_TOKEN:-}
+    # env_file:
+    #   - ./backend/.env
+    # environment:
+    #   OCR_SERVICE_URL: http://ocr-service:2020
+    #   OCR_SERVICE_TOKEN: ${OCR_SERVICE_TOKEN:?Set OCR_SERVICE_TOKEN in the root .env}
+    #   CALL_TOKEN_SECRET: ${CALL_TOKEN_SECRET:-}
+    #   CALL_INTERNAL_TOKEN: ${CALL_INTERNAL_TOKEN:-}
     ports:
       - "3993:3993"
     networks:
@@ -62,8 +62,8 @@ services:
     build:
       context: ./ocr-service
       dockerfile: Dockerfile
-    environment:
-      - OCR_SERVICE_TOKEN=${OCR_SERVICE_TOKEN:?Set OCR_SERVICE_TOKEN in the root .env}
+    # environment:
+    #   - OCR_SERVICE_TOKEN=${OCR_SERVICE_TOKEN:?Set OCR_SERVICE_TOKEN in the root .env}
     networks:
       - app-network
     volumes:
@@ -98,12 +98,12 @@ services:
     profiles: [calls]
     build:
       context: ./call-service
-    environment:
-      CALL_BACKEND_URL: http://backend:3993
-      CALL_INTERNAL_TOKEN: ${CALL_INTERNAL_TOKEN:-}
-      TURN_AUTH_SECRET: ${TURN_AUTH_SECRET:-}
-      TURN_URLS: ${TURN_URLS:-}
-      FRONTEND_ORIGINS: ${CALL_FRONTEND_ORIGINS:-}
+    # environment:
+    #   CALL_BACKEND_URL: http://backend:3993
+    #   CALL_INTERNAL_TOKEN: ${CALL_INTERNAL_TOKEN:-}
+    #   TURN_AUTH_SECRET: ${TURN_AUTH_SECRET:-}
+    #   TURN_URLS: ${TURN_URLS:-}
+    #   FRONTEND_ORIGINS: ${CALL_FRONTEND_ORIGINS:-}
     networks: [app-network]
     depends_on:
       backend:
@@ -133,10 +133,10 @@ services:
     profiles: [calls]
     image: coturn/coturn:4.18.0-r0-alpine
     entrypoint: [/bin/sh, /etc/coturn/start.sh]
-    environment:
-      TURN_AUTH_SECRET: ${TURN_AUTH_SECRET:-}
-      TURN_REALM: ${TURN_REALM:-}
-      TURN_EXTERNAL_IP: ${TURN_EXTERNAL_IP:-}
+    # environment:
+    #   TURN_AUTH_SECRET: ${TURN_AUTH_SECRET:-}
+    #   TURN_REALM: ${TURN_REALM:-}
+    #   TURN_EXTERNAL_IP: ${TURN_EXTERNAL_IP:-}
     ports:
       - "3478:3478/tcp"
       - "3478:3478/udp"
