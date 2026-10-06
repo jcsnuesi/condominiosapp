@@ -28,3 +28,4 @@ backend/tests/
 /frontend/test/
 docs/*
 .gitattributes
+/schedule-worker
