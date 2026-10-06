@@ -11,8 +11,8 @@ COPY modules/schedule/application/access.js modules/schedule/application/executo
 COPY modules/schedule/domain/rules.js ./modules/schedule/domain/rules.js
 COPY modules/schedule/infrastructure/models.js ./modules/schedule/infrastructure/models.js
 COPY modules/maintenance/service.js modules/maintenance/evidence-cleanup.js ./modules/maintenance/
-COPY service/authorization.js service/permissionCatalog.js service/residentPropertyAccess.js ./service/
-COPY models/accessGrant.js models/admin.js models/condominio.js models/docs.js models/family.js models/historico_owner.js models/organization.js models/owners.js models/staff.js models/staff_admin.js ./models/
+# COPY service/authorization.js service/permissionCatalog.js service/residentPropertyAccess.js ./service/
+# COPY models/accessGrant.js models/admin.js models/condominio.js models/docs.js models/family.js models/historico_owner.js models/organization.js models/owners.js models/staff.js models/staff_admin.js ./models/
 
 USER node
 CMD ["node", "modules/schedule/worker.js"]

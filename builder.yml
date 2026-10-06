@@ -166,8 +166,8 @@ services:
 
   schedule-worker:
     build:
-      context: ./backend
-      dockerfile: Dockerfile.schedule-worker
+      context: ./schedule-worker
+      dockerfile: Dockerfile
     command: ["node", "modules/schedule/worker.js"]
     # env_file:
     #   - ./backend/.env
