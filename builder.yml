@@ -30,6 +30,7 @@ services:
     # env_file:
     #   - ./backend/.env
     environment:
+      MONGODB_URI: ${MONGODB_URI:?Set MONGODB_URI in Coolify runtime environment}
       OCR_SERVICE_URL: http://ocr-service:2020
       OCR_SERVICE_TOKEN: ${OCR_SERVICE_TOKEN:?Set OCR_SERVICE_TOKEN in the root .env}
       CALL_TOKEN_SECRET: ${CALL_TOKEN_SECRET:-}
@@ -172,6 +173,7 @@ services:
     # env_file:
     #   - ./backend/.env
     environment:
+      MONGODB_URI: ${MONGODB_URI:?Set MONGODB_URI in Coolify runtime environment}
       SCHEDULE_WORKER_INTERVAL_MS: ${SCHEDULE_WORKER_INTERVAL_MS:-1800000}
       SCHEDULE_MODULE_ENABLED: ${SCHEDULE_MODULE_ENABLED:-true}
     networks:
