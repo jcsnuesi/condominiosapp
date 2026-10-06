@@ -33,6 +33,10 @@ var CondominiumSchema = Schema(
     typeOfProperty: { type: String, required: true },
     phone: { type: String, required: true },
     phone2: { type: String },
+    residentSupport: {
+      enabled: { type: Boolean, default: false },
+      staffId: { type: mongoose.Schema.Types.ObjectId, ref: "Staff", default: null },
+    },
     street_1: { type: String, required: true },
     street_2: { type: String },
     sector_name: { type: String, required: true },

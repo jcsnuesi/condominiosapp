@@ -126,6 +126,7 @@
         <i class="pi pi-file-edit" aria-hidden="true"></i> Invoice generator
     </button>
 </nav>
+<div #componentContent class="home-component-anchor" aria-hidden="true"></div>
 @if (componentsToShow.main) {
 <div class="grid mt-2 home-overview">
     <div class="col-12 xl:col-6">
@@ -531,7 +532,7 @@
                         Primary phone
                         <span class="home-settings-required">*</span>
                     </label>
-                    <input
+                    <input appPhoneFormat
                         [ngClass]="{
                             'input-error':
                                 phone.invalid && (phone.dirty || phone.touched)
@@ -541,10 +542,10 @@
                         [(ngModel)]="condoInfo.phone"
                         name="phone"
                         id="phone"
-                        type="text"
-                        maxlength="11"
+                        type="tel"
+                        [appPhoneMaxDigits]="11"
                         pattern="^[0-9]+"
-                        placeholder="8095882222"
+                        placeholder="809-588-2222"
                         required
                     />
                     @if (phone.invalid && (phone.dirty || phone.touched)) {
@@ -555,19 +556,23 @@
                 </div>
                 <div class="home-settings-field">
                     <label for="phone2">Secondary phone</label>
-                    <input
+                    <input appPhoneFormat
                         pInputText
                         #phone2="ngModel"
                         [(ngModel)]="condoInfo.phone2"
                         name="phone2"
                         id="phone2"
-                        type="text"
+                        type="tel"
                         pattern="^[0-9]+"
-                        maxlength="11"
-                        placeholder="8095882222"
+                        [appPhoneMaxDigits]="11"
+                        placeholder="809-588-2222"
                     />
                 </div>
             </div>
+        </section>
+
+        <section class="home-settings-section" *appHasPermissions="['condominiums.update']">
+            <app-resident-support-settings [condominiumId]="condoId" />
         </section>
 
         <section class="home-settings-section">

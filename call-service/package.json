@@ -1,0 +1,7 @@
+{
+  "name": "condapp-call-service",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": { "start": "node index.js", "test": "node --test test/*.test.js" },
+  "dependencies": { "socket.io": "4.8.3" }
+}

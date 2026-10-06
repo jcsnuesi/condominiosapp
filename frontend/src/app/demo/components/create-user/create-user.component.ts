@@ -1,3 +1,4 @@
+import { PhoneFormatDirective } from 'src/app/phone-format.directive';
 import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -29,6 +30,7 @@ type ManagedUser = AdministrativeUser & {
 @Component({
     selector: 'app-create-user',
     imports: [
+        PhoneFormatDirective,
         ImportsModule,
         FormsModule,
         CommonModule,

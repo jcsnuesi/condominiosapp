@@ -48,8 +48,8 @@
               </div>
               <div class="field col-6 md:col-6">
                 <label htmlFor="phone">Telefono<span style="color: red;">*</span></label>
-                <input pInputText id="phone" type="text" required [(ngModel)]="sendDataToModal.phone[0]" #phone="ngModel"
-                  name="phone" minlength="10" maxlength="10"
+                <input appPhoneFormat pInputText id="phone" type="tel" required [(ngModel)]="sendDataToModal.phone[0]" #phone="ngModel"
+                  name="phone" minlength="10" [appPhoneMaxDigits]="10"
                   [ngClass]="{'ng-invalid ng-dirty':(phone.touched && !phone.valid), ' ':phone.valid}" />
                 @if (phone.touched && !phone.valid) {
                   <small id="username-help"
@@ -58,8 +58,8 @@
               </div>
               <div class="field col-6 md:col-6">
                 <label htmlFor="phone2">Telefono 2</label>
-                <input pInputText id="phone2" type="text" required [(ngModel)]="sendDataToModal.phone[1]" #phone2="ngModel"
-                  name="phone2" maxlength="10"
+                <input appPhoneFormat pInputText id="phone2" type="tel" required [(ngModel)]="sendDataToModal.phone[1]" #phone2="ngModel"
+                  name="phone2" [appPhoneMaxDigits]="10"
                   />
               </div>
               <br>
@@ -148,8 +148,8 @@
                     </div>
                     <div class="field col-12 md:col-6">
                       <label htmlFor="phone_contact">Telefono<span style="color: red;">*</span></label>
-                      <input pInputText id="phone_contact" type="text" required [(ngModel)]="sendDataToModal.contact_person[0].phone_contact[0]"
-                        name="phone_contact" #phone_contact="ngModel" maxlength="10" />
+                      <input appPhoneFormat pInputText id="phone_contact" type="tel" required [(ngModel)]="sendDataToModal.contact_person[0].phone_contact[0]"
+                        name="phone_contact" #phone_contact="ngModel" [appPhoneMaxDigits]="10" />
                       @if (phone_contact.touched && !phone_contact.valid) {
                         <small id="username-help"
                         class="p-error">Obligatorio.</small>
@@ -157,8 +157,8 @@
                     </div>
                     <div class="field col-12 md:col-6">
                       <label htmlFor="phone_contact2">Telefono 2</label>
-                      <input pInputText id="phone_contact2" type="text" [(ngModel)]="sendDataToModal.contact_person[0].phone_contact[1]"
-                        name="phone_contact2" #phone_contact2="ngModel" maxlength="10" />
+                      <input appPhoneFormat pInputText id="phone_contact2" type="tel" [(ngModel)]="sendDataToModal.contact_person[0].phone_contact[1]"
+                        name="phone_contact2" #phone_contact2="ngModel" [appPhoneMaxDigits]="10" />
                     </div>
                     <div class="field col-12 md:col-6">
                       <label htmlFor="email_contact">Email<span style="color: red;">*</span></label>

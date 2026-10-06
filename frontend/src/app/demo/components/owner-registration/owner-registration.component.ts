@@ -1,3 +1,4 @@
+import { PhoneFormatDirective } from 'src/app/phone-format.directive';
 import {
     Component,
     OnInit,
@@ -64,7 +65,7 @@ type MessageType = {
 
 @Component({
     selector: 'app-owner-registration',
-    imports: [ImportsModule, FormsModule, HasPermissionsDirective],
+    imports: [PhoneFormatDirective, ImportsModule, FormsModule, HasPermissionsDirective],
     providers: [
         CondominioService,
         UserService,

@@ -260,14 +260,14 @@
 
                 <div class="field user-field-phone">
                     <label for="phoneLabel">Phone</label>
-                    <input
-                        type="text"
+                    <input appPhoneFormat
+                        type="tel"
                         pInputText
                         id="phoneLabel"
                         #phone="ngModel"
                         name="phone"
                         [(ngModel)]="userModel.phone"
-                        maxlength="11"
+                        [appPhoneMaxDigits]="11"
                         required
                     />
                     @if (phone.touched && !phone.dirty) {

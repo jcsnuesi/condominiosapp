@@ -1,3 +1,4 @@
+import { PhoneFormatDirective } from 'src/app/phone-format.directive';
 import { Component, OnInit, Input, Output, EventEmitter, DoCheck } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Form, FormsModule, NgForm } from '@angular/forms';
@@ -29,6 +30,7 @@ import { ToastModule } from 'primeng/toast';
     templateUrl: './update-customer.component.html',
     styleUrls: ['./update-customer.component.scss'],
     imports: [
+        PhoneFormatDirective,
         CommonModule,
         ToastModule,
         MessageModule,

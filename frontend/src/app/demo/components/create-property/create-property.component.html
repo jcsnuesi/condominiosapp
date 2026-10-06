@@ -13,6 +13,7 @@
         </div>
     </div>
     <p-tabs [(value)]="activeTab">
+        <p class="cp-subtitle">¿Tiene garita o recepción? Después de crear el condominio, registra su STAFF y habilita las llamadas en la configuración de atención.</p>
         <p-tablist>
             <p-tab [value]="0">
                 <i class="pi pi-building mr-2"></i>Create property
@@ -153,7 +154,7 @@
                                                             class="pi pi-phone"
                                                         ></i
                                                     ></p-inputGroupAddon>
-                                                    <input
+                                                    <input appPhoneFormat
                                                         pInputText
                                                         id="phone"
                                                         #phone="ngModel"
@@ -161,10 +162,10 @@
                                                             condominioModel.phone
                                                         "
                                                         name="phone"
-                                                        type="text"
-                                                        maxlength="11"
+                                                        type="tel"
+                                                        [appPhoneMaxDigits]="11"
                                                         pattern="^[0-9]+"
-                                                        placeholder="8095882222"
+                                                        placeholder="809-588-2222"
                                                         required
                                                         [ngClass]="{
                                                             'input-error':
@@ -185,7 +186,7 @@
                                                             class="pi pi-phone"
                                                         ></i
                                                     ></p-inputGroupAddon>
-                                                    <input
+                                                    <input appPhoneFormat
                                                         pInputText
                                                         id="phone2"
                                                         #phone2="ngModel"
@@ -193,10 +194,10 @@
                                                             condominioModel.phone2
                                                         "
                                                         name="phone2"
-                                                        type="text"
+                                                        type="tel"
                                                         pattern="^[0-9]+"
-                                                        maxlength="11"
-                                                        placeholder="8095882222"
+                                                        [appPhoneMaxDigits]="11"
+                                                        placeholder="809-588-2222"
                                                     />
                                                 </p-inputGroup>
                                             </div>

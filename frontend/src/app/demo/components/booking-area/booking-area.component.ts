@@ -1,3 +1,4 @@
+import { PhoneFormatDirective } from 'src/app/phone-format.directive';
 import {
     Component,
     AfterViewInit,
@@ -93,6 +94,7 @@ interface BookingHistoryRow {
 @Component({
     selector: 'app-booking-area',
     imports: [
+        PhoneFormatDirective,
         FullCalendarModule,
         IconFieldModule,
         InputIconModule,

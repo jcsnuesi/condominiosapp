@@ -227,6 +227,10 @@
     border: 1px solid var(--home-line);
     background: var(--app-dark-surface, #fff);
 }
+.home-component-anchor {
+    scroll-margin-top: calc(var(--layout-topbar-height, 5rem) + 1rem);
+}
+
 .home-hero { display: flex; align-items: center; justify-content: space-between; gap: 1.25rem; padding: 1.6rem; border-radius: 18px; margin-bottom: 1.15rem; }
 .home-identity { display: flex; align-items: center; gap: 1.15rem; min-width: 0; }
 .home-avatar { width: 5.5rem; height: 5.5rem; flex: 0 0 5.5rem; object-fit: cover; border: 3px solid var(--app-dark-border, #fff); outline: 1px solid var(--app-dark-border, #cddae6); border-radius: 50%; background: var(--app-dark-info-bg, #e8f2f5); }

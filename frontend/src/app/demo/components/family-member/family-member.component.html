@@ -117,7 +117,7 @@
                   <i class="pi pi-mobile"></i>
                 </p-inputGroupAddon>
 
-                <input
+                <input appPhoneFormat
                   pInputText
                                 [ngClass]="{
                                     'input-success': phone.valid,
@@ -127,10 +127,10 @@
                   #phone="ngModel"
                   [(ngModel)]="familyMemberInfo.phone"
                   name="phone"
-                  type="text"
-                  maxlength="11"
+                  type="tel"
+                  [appPhoneMaxDigits]="11"
                   required
-                  placeholder="8496587417"
+                  placeholder="849-658-7417"
                   pattern="^[0-9]+"
                   />
               </p-inputGroup>

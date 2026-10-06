@@ -1,6 +1,7 @@
 import { AnyObject } from 'chart.js/types/basic';
 
 export class Condominio {
+    public residentSupport: { enabled: boolean; staffId: string | null } = { enabled: false, staffId: null };
     constructor(
         public avatar: string,
         public alias: string,

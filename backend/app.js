@@ -168,6 +168,7 @@ app.use("/api", access_routes);
 app.use("/api", organization_routes);
 app.use("/api", iot_routes);
 app.use("/api", require("./modules/schedule/api"));
+app.use("/api", require("./routes/calls"));
 
 module.exports = app;
 // Phase 4 (major): auth MFA / brute-force / session-timeout notes preserved in app-level design; not wired without pairing + security review.

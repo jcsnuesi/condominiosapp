@@ -6,6 +6,7 @@ const {
 } = require("../service/authorization");
 
 const ROUTE_MODULES = [
+  [/^\/(?:api\/)?calls\/settings(?:\/|$)/i, "condominiums"],
   [/^\/(?:api\/)?maintenance\/vendors(?:\/|$)/i, "vendors"],
   [/^\/(?:api\/)?schedules\/notices(?:\/|$)/i, "maintenance"],
   [/^\/(?:api\/)?schedules(?:\/|$)/i, "schedules"],
@@ -36,6 +37,7 @@ const METHOD_ACTION = Object.freeze({
   DELETE: "delete",
 });
 const SELF_SERVICE_PATHS = [
+  /^\/(?:api\/)?calls\/session$/,
   /^\/auth\/me(?:\/password)?$/,
   /^\/update-password$/,
   /^\/verify-password-staff$/,

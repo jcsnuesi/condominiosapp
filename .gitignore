@@ -24,3 +24,7 @@ backend/test/*
 docs/COOLIFY_TROUBLESHOOTING.md
 backend/tests/
 /tmp/schedule-*
+/frontend/dist/support-calls-review/
+/frontend/test/
+docs/*
+.gitattributes

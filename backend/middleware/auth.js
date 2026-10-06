@@ -50,6 +50,7 @@ function isPersonalOwnerRouteAllowed(req) {
     /^\/tasks(?:\/|$)/.test(routePath) ||
     /^\/maintenance(?:\/|$)/.test(routePath) ||
     routePath === "/notifications/inbox" ||
+    routePath === "/calls/session" ||
     routePath.startsWith("/iot/") ||
     routePath === "/auth/me" ||
     routePath === "/auth/me/password" ||

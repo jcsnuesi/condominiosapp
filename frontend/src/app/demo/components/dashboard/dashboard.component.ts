@@ -10,6 +10,9 @@ import {
     ViewChild,
     TemplateRef,
     ViewContainerRef,
+    afterNextRender,
+    inject,
+    Injector,
 } from '@angular/core';
 import { ConfirmationService, MenuItem } from 'primeng/api';
 import { PrimeNG } from 'primeng/config';
@@ -75,6 +78,9 @@ type DashboardCardErrors = Record<DashboardCardKey, string | null>;
     styleUrls: ['./dashboard.css'],
 })
 export class DashboardComponent implements OnInit, OnDestroy {
+    private readonly injector = inject(Injector);
+    @ViewChild('componentContent')
+    private componentContent?: ElementRef<HTMLElement>;
     files = [];
     public totalInquiries: number = 0;
     totalSize: number = 0;
@@ -661,7 +667,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             });
     }
 
-    showComponent(show: string) {
+    showComponent(show: keyof DashboardComponent['componentsToShow']): void {
         this.componentsToShow = {
             invoice: false,
             booking: false,
@@ -680,6 +686,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
             documents: 'Documents',
         };
         this.activeSectionLabel = sectionLabels[show] ?? 'Overview';
+        afterNextRender(() => {
+            const content = this.componentContent?.nativeElement;
+            const reducedMotion = content?.ownerDocument.defaultView
+                ?.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            content?.scrollIntoView({
+                behavior: reducedMotion ? 'instant' : 'smooth',
+                block: 'start',
+                inline: 'nearest',
+            });
+        }, { injector: this.injector });
     }
 
     getId() {

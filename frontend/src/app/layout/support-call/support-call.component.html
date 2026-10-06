@@ -1,0 +1,51 @@
+@if (calls.destinations().length) {
+  @if (calls.role === 'STAFF') {
+    <button type="button" class="support-entry staff-entry" aria-label="Atención: disponibilidad para llamadas" title="Atención: disponibilidad para llamadas" [attr.aria-pressed]="calls.available()" (click)="open.set(true)">
+      <i class="pi pi-headphones" aria-hidden="true"></i>
+      <span class="presence" [class.online]="calls.available()"></span>
+    </button>
+  } @else {
+    <button type="button" class="support-entry resident-entry" aria-label="Llamar a atención" title="Llamar a atención" (click)="open.set(true)">
+      <i class="pi pi-phone" aria-hidden="true"></i>
+    </button>
+  }
+}
+<p-dialog header="Atención del condominio" [visible]="open() || !!calls.call() || calls.preparing()" (visibleChange)="open.set($event)" [modal]="true" [closable]="!calls.call() && !calls.preparing()" [draggable]="false" [style]="{ width: '26rem', maxWidth: 'calc(100vw - 2rem)' }" appendTo="body">
+  @if (calls.call(); as call) {
+    <div class="call-detail" aria-live="polite">
+      <strong>{{ call.alias }}</strong>
+      @if (calls.role === 'STAFF') {
+        <p>{{ call.name }} · {{ call.residentRole }}</p>
+        <p>Unidad: {{ call.units.join(', ') || 'Sin unidad indicada' }}</p>
+      }
+      <p>{{ call.state === 'ringing' ? (calls.role === 'STAFF' ? 'Llamada entrante' : 'Llamando a atención…') : call.state === 'connecting' ? 'Conectando audio…' : 'En llamada · ' + calls.seconds() + ' s' }}</p>
+    </div>
+    <div class="call-actions">
+      @if (call.state === 'ringing' && calls.role === 'STAFF') {
+        <button type="button" class="primary" [disabled]="calls.preparing()" (click)="calls.accept()">Aceptar</button>
+      }
+      @if (call.state === 'active') {
+        <button type="button" [attr.aria-pressed]="calls.muted()" (click)="calls.toggleMute()">{{ calls.muted() ? 'Activar micrófono' : 'Silenciar' }}</button>
+      }
+      <button type="button" class="end" (click)="calls.end()">{{ call.state === 'ringing' ? (calls.role === 'STAFF' ? 'Rechazar' : 'Cancelar') : 'Colgar' }}</button>
+      @if (calls.audioBlocked()) { <button type="button" (click)="calls.playAudio()">Activar audio</button> }
+    </div>
+  } @else {
+    @if (calls.role === 'STAFF') {
+      <p>Recibe llamadas de residentes mientras mantengas esta app visible y conectada.</p>
+      <button type="button" class="primary" [disabled]="!calls.connected() || calls.preparing()" [attr.aria-pressed]="calls.available()" (click)="calls.setAvailable(!calls.available())">{{ calls.available() ? 'Dejar de recibir llamadas' : 'Disponible para llamadas' }}</button>
+    } @else {
+      <p>Selecciona el condominio para llamar a su atención.</p>
+      <div class="destinations">
+        @for (target of calls.destinations(); track target.condominiumId) {
+          <div class="destination">
+            <div><strong>{{ target.alias }}</strong><small>{{ target.status === 'available' ? 'Disponible' : target.status === 'busy' ? 'Ocupado' : 'Desconectado' }}</small></div>
+            <button type="button" class="primary" [disabled]="target.status !== 'available' || !calls.connected() || calls.preparing()" (click)="calls.start(target)">Llamar</button>
+          </div>
+        }
+      </div>
+    }
+  }
+  @if (calls.preparing()) { <p role="status">Preparando micrófono…</p> }
+  @if (calls.message()) { <p role="status" class="call-message">{{ calls.message() }}</p> }
+</p-dialog>

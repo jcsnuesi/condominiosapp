@@ -1,3 +1,4 @@
+import { PhoneFormatDirective } from 'src/app/phone-format.directive';
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -8,7 +9,7 @@ import { global } from '../../../service/global.service';
 @Component({
   selector: 'app-signup',
   standalone: true,
-  imports: [FormsModule, RouterLink],
+  imports: [PhoneFormatDirective, FormsModule, RouterLink],
   templateUrl: './signup.component.html',
   styleUrl: './signup.component.css',
 })

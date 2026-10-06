@@ -1,3 +1,4 @@
+import { PhoneFormatDirective } from 'src/app/phone-format.directive';
 import { Component, OnInit, ViewChild, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Condominio } from '../../models/condominios.model';
@@ -20,6 +21,7 @@ interface PropertyImageSelectEvent {
 @Component({
     selector: 'app-create-property',
     imports: [
+        PhoneFormatDirective,
         PoolFileLoaderComponent,
         CommonModule,
         RouterModule,

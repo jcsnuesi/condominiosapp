@@ -28,6 +28,7 @@ const {
 } = require("../service/residentPropertyAccess");
 
 const mongoose = require("mongoose");
+const { validateSupport, hasSupportKeys } = require("../service/residentSupport");
 
 async function permanentDeleteImpact(
   organizationId,
@@ -116,6 +117,12 @@ async function runPermanentDeleteTransaction(work) {
 var Condominium_Controller = {
   createCondominium: async function (req, res) {
     let condominiumParams = req.body;
+    if (hasSupportKeys(condominiumParams)) {
+      try {
+        const support = await validateSupport(condominiumParams.residentSupport, new mongoose.Types.ObjectId(), req.auth.organizationId);
+        if (support.enabled) throw new Error("Guarda el condominio y registra su STAFF antes de habilitar atención");
+      } catch (error) { return res.status(400).send({ message: error.message }); }
+    }
 
     // Required fields validation
     /*
@@ -378,6 +385,10 @@ var Condominium_Controller = {
     let params = req.body;
 
     try {
+      if (hasSupportKeys(params)) {
+        if (Object.keys(params).some((key) => key.startsWith("residentSupport.") || key.startsWith("residentSupport["))) return res.status(400).send({ message: "Envía la configuración de atención completa" });
+        params.residentSupport = await validateSupport(params.residentSupport, id, req.auth.organizationId);
+      }
       const condominiumUpdated = await Condominium.findOneAndUpdate(
         { _id: id, organizationId: req.auth.organizationId },
         {
@@ -388,7 +399,7 @@ var Condominium_Controller = {
             )
           ),
         },
-        { new: true }
+        { new: true, runValidators: true }
       );
 
       if (!condominiumUpdated) {
@@ -404,7 +415,7 @@ var Condominium_Controller = {
       });
     } catch (error) {
       // console.log("error", error);
-      return res.status(500).send({
+      return res.status(error.statusCode || 500).send({
         status: "error",
         message: "Error al actualizar el condominio",
         error: error,
@@ -1152,6 +1163,7 @@ var Condominium_Controller = {
       await Condominium.insertMany(
         params.map((condominium) => ({
           ...condominium,
+          residentSupport: { enabled: false, staffId: null },
           organizationId: req.auth.organizationId,
           createdBy: req.user.sub,
         }))

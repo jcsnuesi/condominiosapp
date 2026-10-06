@@ -90,7 +90,7 @@
                 </label>
                 <label class="profile-field">
                     <span>Teléfono</span>
-                    <input pInputText formControlName="phone" autocomplete="tel" inputmode="tel" />
+                    <input appPhoneFormat pInputText formControlName="phone" autocomplete="tel" inputmode="tel" />
                     @if (profileForm.controls.phone.touched && profileForm.controls.phone.invalid) {
                     <small>Ingresa un teléfono válido.</small>
                     }

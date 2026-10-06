@@ -1,3 +1,4 @@
+import { PhoneFormatDirective } from 'src/app/phone-format.directive';
 import {
     Component,
     EventEmitter,
@@ -63,6 +64,7 @@ type FamilyMember = {
 @Component({
     selector: 'app-family-member',
     imports: [
+        PhoneFormatDirective,
         DatePickerModule,
         RouterModule,
         PipesModuleModule,

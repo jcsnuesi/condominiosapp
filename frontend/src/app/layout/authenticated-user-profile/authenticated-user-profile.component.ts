@@ -1,3 +1,4 @@
+import { PhoneFormatDirective } from 'src/app/phone-format.directive';
 import { CommonModule } from '@angular/common';
 import {
     Component,
@@ -63,6 +64,7 @@ const passwordsMatch: ValidatorFn = (
     selector: 'app-authenticated-user-profile',
     standalone: true,
     imports: [
+        PhoneFormatDirective,
         ButtonModule,
         CommonModule,
         DialogModule,

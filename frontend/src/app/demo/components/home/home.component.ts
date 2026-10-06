@@ -1,3 +1,5 @@
+import { PhoneFormatDirective } from 'src/app/phone-format.directive';
+import { ResidentSupportSettingsComponent } from '../resident-support-settings/resident-support-settings.component';
 import {
     Component,
     EventEmitter,
@@ -9,6 +11,9 @@ import {
     ChangeDetectorRef,
     effect,
     inject,
+    afterNextRender,
+    ElementRef,
+    Injector,
 } from '@angular/core';
 import { LayoutService } from 'src/app/layout/service/app.layout.service';
 import { withChartTheme } from 'src/app/layout/service/chart-theme';
@@ -93,6 +98,8 @@ type InvoiceRecord = {
 @Component({
     selector: 'app-home',
     imports: [
+        ResidentSupportSettingsComponent,
+        PhoneFormatDirective,
         DocsComponent,
         InvoiceHistoryComponent,
         StaffComponent,
@@ -125,6 +132,9 @@ type InvoiceRecord = {
 })
 export class HomeComponent implements OnInit {
     private readonly layoutService = inject(LayoutService);
+    private readonly injector = inject(Injector);
+    @ViewChild('componentContent')
+    private componentContent?: ElementRef<HTMLElement>;
     public maximized: boolean;
     public customers: any[];
     public items!: any[];
@@ -681,8 +691,7 @@ export class HomeComponent implements OnInit {
     showInvoiceGenerator() {
         this.invoiceInfo.invoiceGenerator = true;
     }
-    showComponent(show) {
-        // console.log('showComponent: ', show);
+    showComponent(show: keyof HomeComponent['componentsToShow']): void {
         this.is_loading = true;
 
         for (const key in this.componentsToShow) {
@@ -693,13 +702,16 @@ export class HomeComponent implements OnInit {
             }
         }
 
-        // this.componentsToShow.booking = false;
-        // this.componentsToShow.staff = false;
-        // this.componentsToShow.invoiceHistory = false;
-        // this.componentsToShow.main = false;
-        // this.componentsToShow.inquiry = false;
-        // this.componentsToShow.documents = false;
-        // this.componentsToShow[show] = true;
+        afterNextRender(() => {
+            const content = this.componentContent?.nativeElement;
+            const reducedMotion = content?.ownerDocument.defaultView
+                ?.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            content?.scrollIntoView({
+                behavior: reducedMotion ? 'instant' : 'smooth',
+                block: 'start',
+                inline: 'nearest',
+            });
+        }, { injector: this.injector });
     }
 
     onSubmitUnit() {

@@ -11,6 +11,10 @@
     --dashboard-soft: var(--app-dark-info-bg, #e8f2f5);
 }
 
+.dashboard-component-anchor {
+    scroll-margin-top: calc(var(--layout-topbar-height, 5rem) + 1rem);
+}
+
 .dashboard-hero,
 .dashboard-panel {
     padding: 1.6rem;

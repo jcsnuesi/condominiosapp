@@ -517,7 +517,7 @@
                         <p-inputGroupAddon>
                             <i class="pi pi-mobile"></i>
                         </p-inputGroupAddon>
-                        <input
+                        <input appPhoneFormat
                             pInputText
                             [ngClass]="{
                                 'input-success': phoneEdit.valid,
@@ -527,8 +527,8 @@
                             #phoneEdit="ngModel"
                             [(ngModel)]="dataToUpdate.phone"
                             name="phoneEdit"
-                            type="text"
-                            maxlength="11"
+                            type="tel"
+                            [appPhoneMaxDigits]="11"
                             minlength="10"
                             required
                         />

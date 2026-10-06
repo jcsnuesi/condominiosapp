@@ -1,3 +1,4 @@
+import { PhoneFormatDirective } from 'src/app/phone-format.directive';
 import { NgModule } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -12,6 +13,7 @@ import { IoTOwnerRegisterRoutingModule } from './iot-owner-register-routing.modu
 @NgModule({
     declarations: [IoTOwnerRegisterComponent],
     imports: [
+        PhoneFormatDirective,
         CommonModule,
         RouterLink,
         FormsModule,

@@ -10,6 +10,7 @@ import {
     Output,
     EventEmitter,
     OnDestroy,
+    inject,
 } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { LayoutService } from './service/app.layout.service';
@@ -30,6 +31,7 @@ import {
     NotificationInboxService,
 } from '../services/notification-inbox.service';
 import { AuthenticatedProfile } from './authenticated-user-profile/authenticated-user-profile.component';
+import { SupportCallService } from '../services/support-call.service';
 
 type Condo = {
     _id: string;
@@ -60,6 +62,7 @@ type Condo = {
     standalone: false
 })
 export class AppTopBarComponent implements OnInit, OnDestroy {
+    private readonly supportCalls = inject(SupportCallService);
     @ViewChild('menubutton') menuButton!: ElementRef;
     @ViewChild('topbarmenubutton') topbarMenuButton!: ElementRef;
     @ViewChild('fileInput') fileInput!: FileUpload;
@@ -188,6 +191,7 @@ export class AppTopBarComponent implements OnInit, OnDestroy {
     }
 
     destroySession() {
+        this.supportCalls.stop();
         this.layoutService.hideProfileSidebar();
         this.notificationInbox.disconnect();
         this._cookieService.deleteAll();

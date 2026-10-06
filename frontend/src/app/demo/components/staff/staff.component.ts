@@ -1,3 +1,4 @@
+import { PhoneFormatDirective } from 'src/app/phone-format.directive';
 import {
     Component,
     OnInit,
@@ -53,6 +54,7 @@ type StaffInfo = {
 @Component({
     selector: 'app-staff',
     imports: [
+        PhoneFormatDirective,
         ImportsModule,
         PipesModuleModule,
         CommonModule,

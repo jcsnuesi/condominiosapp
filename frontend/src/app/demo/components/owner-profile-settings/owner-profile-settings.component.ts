@@ -1,3 +1,4 @@
+import { PhoneFormatDirective } from 'src/app/phone-format.directive';
 import {
     Component,
     EventEmitter,
@@ -25,6 +26,7 @@ import { FileUpload } from 'primeng/fileupload';
 @Component({
     selector: 'app-owner-profile-settings',
     imports: [
+        PhoneFormatDirective,
         ImportsModule,
         CommonModule,
         FormsModule,
