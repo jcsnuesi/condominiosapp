@@ -92,10 +92,17 @@
     }
 
     .layout-theme-button {
-        margin-left: .5rem;
         flex-shrink: 0;
 
         &:disabled { opacity: .5; cursor: wait; }
+    }
+
+    .layout-topbar-actions {
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+        margin-left: auto;
+        flex-shrink: 0;
     }
 
     .avatar-button {
@@ -169,7 +176,7 @@
     }
 
     .layout-topbar-menu {
-        margin: 0 0 0 auto;
+        margin: 0 0 0 1rem;
         padding: 0;
         list-style: none;
         display: flex;
@@ -224,7 +231,13 @@
         .layout-topbar-menu-button {
             display: inline-flex;
             margin-left: 0;
+            order: 4;
+        }
+
+        .layout-topbar-actions {
             order: 3;
+            margin-left: 0;
+            gap: .25rem;
         }
 
         .layout-topbar-menu {
@@ -267,6 +280,12 @@
                 }
             }
         }
+    }
+}
+
+@media (max-width: 380px) {
+    .layout-topbar .layout-topbar-logo span {
+        display: none;
     }
 }
 

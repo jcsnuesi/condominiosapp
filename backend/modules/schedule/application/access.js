@@ -1,14 +1,14 @@
 "use strict";
 const mongoose = require("mongoose");
 const { fail } = require("../domain/rules");
-const Owner = require("../../../../backend/models/owners");
-const Condominium = require("../../../../backend/models/condominio");
+const Owner = require("../../../models/owners");
+const Condominium = require("../../../models/condominio");
 const {
   ACCOUNT_MODELS,
   resolveAccessContext,
   hasPermission,
   canAccessCondominium,
-} = require("../../../../backend/service/authorization");
+} = require("../../../service/authorization");
 function validId(value) {
   if (!mongoose.isObjectIdOrHexString(value)) fail("Invalid identifier");
   return value;

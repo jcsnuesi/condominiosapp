@@ -29,3 +29,4 @@ backend/tests/
 docs/*
 .gitattributes
 /schedule-worker
+tmp/*

@@ -22936,12 +22936,18 @@ a {
   margin-left: 1rem;
 }
 .layout-topbar .layout-theme-button {
-  margin-left: 0.5rem;
   flex-shrink: 0;
 }
 .layout-topbar .layout-theme-button:disabled {
   opacity: 0.5;
   cursor: wait;
+}
+.layout-topbar .layout-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: auto;
+  flex-shrink: 0;
 }
 .layout-topbar .avatar-button {
   width: 3.25rem;
@@ -22998,7 +23004,7 @@ a {
   font-size: 1.25rem;
 }
 .layout-topbar .layout-topbar-menu {
-  margin: 0 0 0 auto;
+  margin: 0 0 0 1rem;
   padding: 0;
   list-style: none;
   display: flex;
@@ -23043,7 +23049,12 @@ a {
   .layout-topbar .layout-topbar-menu-button {
     display: inline-flex;
     margin-left: 0;
+    order: 4;
+  }
+  .layout-topbar .layout-topbar-actions {
     order: 3;
+    margin-left: 0;
+    gap: 0.25rem;
   }
   .layout-topbar .layout-topbar-menu {
     margin-left: 0;
@@ -23078,6 +23089,11 @@ a {
   .layout-topbar .layout-topbar-menu .layout-topbar-button span {
     font-weight: medium;
     display: block;
+  }
+}
+@media (max-width: 380px) {
+  .layout-topbar .layout-topbar-logo span {
+    display: none;
   }
 }
 ::ng-deep .mobile-profile-drawer {
@@ -23251,6 +23267,12 @@ a {
   }
 }
 .layout-sidebar {
+  --menu-ink: #f0f5f5;
+  --menu-muted: #a5bdc4;
+  --menu-accent: #b4e1d6;
+  --menu-active: #29474f;
+  --menu-hover: #203b43;
+  --menu-line: #2b454d;
   position: fixed;
   width: var(--layout-sidebar-width, 18rem);
   height: 100vh;
@@ -23260,17 +23282,20 @@ a {
   overscroll-behavior: contain;
   scrollbar-gutter: stable;
   scrollbar-width: thin;
-  scrollbar-color: color-mix(in srgb, var(--text-color) 14%, transparent) transparent;
+  scrollbar-color: color-mix(in srgb, var(--menu-muted) 35%, transparent) transparent;
   -webkit-user-select: none;
           user-select: none;
   top: 0;
   left: 0;
   transition: transform 0.2s, width 0.2s, padding 0.2s;
-  background-color: var(--surface-card);
-  border-right: 1px solid var(--surface-border);
+  background-color: #152e36;
+  color: var(--menu-ink);
+  font-family: "Helvetica Neue", "Segoe UI", sans-serif;
+  border-right: 1px solid var(--menu-line);
   border-radius: 0;
   padding: calc(var(--layout-topbar-height, 5rem) + 1rem) 1rem 1rem;
   box-shadow: none;
+  scroll-padding-block: calc(var(--layout-topbar-height, 5rem) + 1rem) 1rem;
 }
 
 .layout-sidebar::-webkit-scrollbar {
@@ -23282,14 +23307,14 @@ a {
 }
 
 .layout-sidebar::-webkit-scrollbar-thumb {
-  background-color: color-mix(in srgb, var(--text-color) 14%, transparent);
+  background-color: color-mix(in srgb, var(--menu-muted) 35%, transparent);
   border: 2px solid transparent;
   border-radius: 999px;
   background-clip: padding-box;
 }
 
 .layout-sidebar::-webkit-scrollbar-thumb:hover {
-  background-color: color-mix(in srgb, var(--text-color) 24%, transparent);
+  background-color: color-mix(in srgb, var(--menu-muted) 55%, transparent);
 }
 
 .layout-menu {
@@ -23297,12 +23322,18 @@ a {
   padding: 0;
   list-style-type: none;
 }
+.layout-menu .layout-root-menuitem + .layout-root-menuitem {
+  margin-top: 1.75rem;
+}
 .layout-menu .layout-root-menuitem > .layout-menuitem-root-text {
-  font-size: 0.857rem;
+  font-size: 0.78rem;
   text-transform: uppercase;
-  font-weight: 700;
-  color: var(--surface-900);
-  margin: 0.75rem 0;
+  font-weight: 600;
+  letter-spacing: 0.085em;
+  line-height: 1.5;
+  color: var(--menu-muted);
+  margin: 0 0 0.7rem;
+  padding: 0 0.95rem;
 }
 .layout-menu .layout-root-menuitem > a {
   display: none;
@@ -23326,15 +23357,34 @@ a {
   display: flex;
   align-items: center;
   position: relative;
-  outline: 0 none;
-  color: var(--text-color);
+  min-height: 46px;
+  min-width: 0;
+  color: var(--menu-ink);
   cursor: pointer;
-  padding: 0.75rem 1rem;
-  border-radius: 12px;
-  transition: background-color 0.2s, box-shadow 0.2s;
+  padding: 0.75rem 0.95rem;
+  margin-block: 0.3rem;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.4;
+  gap: 0.95rem;
+  touch-action: manipulation;
+  transition: background-color 0.2s, color 0.2s;
+}
+.layout-menu ul a .layout-menuitem-text {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 .layout-menu ul a .layout-menuitem-icon {
-  margin-right: 0.5rem;
+  display: grid;
+  place-items: center;
+  width: 1.2rem;
+  height: 1.2rem;
+  flex: 0 0 1.2rem;
+  margin-right: 0;
+  border-radius: 0;
+  font-size: 1rem;
+  color: var(--menu-muted);
 }
 .layout-menu ul a .layout-submenu-toggler {
   font-size: 75%;
@@ -23342,18 +23392,44 @@ a {
   transition: transform 0.2s;
 }
 .layout-menu ul a.active-route {
-  font-weight: 700;
-  color: var(--primary-color);
-  background-color: color-mix(in srgb, var(--primary-color) 8%, transparent);
+  font-weight: 600;
+  color: var(--menu-accent);
+  background-color: var(--menu-active);
+}
+.layout-menu ul a.active-route::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  border-radius: 4px 0 0 4px;
+  background: var(--menu-accent);
+}
+.layout-menu ul a.active-route .layout-menuitem-icon {
+  color: var(--menu-accent);
 }
 .layout-menu ul a:hover {
-  background-color: var(--surface-hover);
+  color: var(--menu-ink);
+  background-color: var(--menu-hover);
 }
-.layout-menu ul a:focus {
-  outline: 0 none;
-  outline-offset: 0;
-  transition: box-shadow 0.2s;
-  box-shadow: inset var(--focus-ring);
+.layout-menu ul a:hover .layout-menuitem-icon {
+  color: var(--menu-ink);
+}
+.layout-menu ul a.active-route:hover {
+  color: var(--menu-accent);
+  background-color: var(--menu-active);
+}
+.layout-menu ul a.active-route:hover .layout-menuitem-icon {
+  color: var(--menu-accent);
+}
+.layout-menu ul a:focus-visible {
+  outline: 2px solid var(--menu-accent);
+  outline-offset: -2px;
+}
+.layout-menu ul a[aria-disabled=true] {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 .layout-menu ul ul {
   overflow: hidden;
@@ -23498,7 +23574,7 @@ a {
   .layout-wrapper.layout-static.layout-static-inactive .layout-menu .layout-root-menuitem + .layout-root-menuitem {
     margin-top: 0.35rem;
     padding-top: 0.35rem;
-    border-top: 1px solid var(--surface-border);
+    border-top: 1px solid var(--menu-line);
   }
   .layout-wrapper.layout-static.layout-static-inactive .layout-menu ul a {
     justify-content: center;

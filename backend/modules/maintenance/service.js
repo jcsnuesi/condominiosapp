@@ -11,7 +11,7 @@ const {
 } = require("../schedule/infrastructure/models");
 const access = require("../schedule/application/access");
 const rules = require("../schedule/domain/rules");
-const Docs = require("../../../backend/models/docs");
+const Docs = require("../../models/docs");
 function catalogScope(auth) {
   const { condominiumId, ...filter } = access.scope(auth);
   return filter;
