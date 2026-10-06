@@ -1,0 +1,10 @@
+{
+  "name": "condominiosapp-schedule-worker",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "dotenv": "17.4.2",
+    "mongoose": "9.6.3",
+    "mongoose-paginate-v2": "1.9.4"
+  }
+}
