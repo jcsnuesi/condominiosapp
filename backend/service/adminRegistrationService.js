@@ -5,6 +5,7 @@ const { randomBytes } = require("node:crypto");
 const mongoose = require("mongoose");
 const { hashVerificationToken } = require("./iotOwnerRegistrationService");
 const { STANDARD_POLICIES } = require("./permissionCatalog");
+const notifyWelcome = require("./welcomeNotification");
 
 function registrationError(code, message, statusCode = 400) {
   return Object.assign(new Error(message), { code, statusCode });
@@ -100,6 +101,7 @@ class AdminRegistrationService {
     if (typeof token !== "string" || !/^[a-f0-9]{64}$/i.test(token)) {
       throw registrationError("ADMIN_VERIFICATION_INVALID", "El enlace no es válido o ha vencido.");
     }
+    let welcomeAccount;
     await this.mongo.connection.transaction(async session => {
       const pending = await this.Registration.findOne({
         tokenHash: hashVerificationToken(token), usedAt: null, expiresAt: { $gt: this.now() },
@@ -134,7 +136,9 @@ class AdminRegistrationService {
       }], { session, ordered: true });
       pending.usedAt = this.now();
       await pending.save({ session });
+      welcomeAccount = { email: pending.email, name: pending.name };
     });
+    await notifyWelcome(welcomeAccount, this.emailService);
     return { verified: true };
   }
 }

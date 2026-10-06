@@ -9,6 +9,7 @@ const Staff = require("../models/staff");
 const Family = require("../models/family");
 const IoTOwnerVerification = require("../models/iotOwnerVerification");
 const verificationEmail = require("./generateVerification");
+const notifyWelcome = require("./welcomeNotification");
 
 function registrationError(code, message, statusCode = 400) {
   const error = new Error(message);
@@ -179,6 +180,7 @@ class IoTOwnerRegistrationService {
     const tokenHash = hashVerificationToken(token);
     const session = await this.mongo.startSession();
     let verified = false;
+    let welcomeAccount;
     try {
       await session.withTransaction(async () => {
         const verification = await this.VerificationModel.findOne({
@@ -211,11 +213,14 @@ class IoTOwnerRegistrationService {
         }
         verification.usedAt = this.now();
         await verification.save({ session });
+        welcomeAccount = await this.models.Owner.findById(verification.ownerId)
+          .select("email name").session(session).lean();
         verified = true;
       });
     } finally {
       await session.endSession();
     }
+    await notifyWelcome(welcomeAccount, this.emailService);
     return { verified };
   }
 }

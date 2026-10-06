@@ -137,6 +137,7 @@ var StaffController = {
       try {
         await emailVerification.StaffRegistration({
           email: newStaff.email,
+          name: newStaff.name,
           password: tempPassword,
         });
       } catch (emailError) {
@@ -245,7 +246,7 @@ var StaffController = {
         { $push: { admins: staffSaved._id } }
       );
       const emailSent = await emailVerification
-        .StaffRegistration({ email: staffSaved.email, password: temporaryPassword })
+        .StaffRegistration({ email: staffSaved.email, name: staffSaved.name, password: temporaryPassword })
         .then(() => true)
         .catch((emailError) => {
           console.error(

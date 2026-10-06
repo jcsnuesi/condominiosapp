@@ -10,14 +10,14 @@ let bcrypt = require("bcrypt");
 let saltRounds = 10;
 const generatePassword = require("generate-password");
 // Generar una contraseña con opciones específicas
-const password = generatePassword.generate({
+const passwordOptions = {
   length: 8, // Longitud de la contraseña
   numbers: true, // Incluir números
   symbols: true, // Incluir símbolos
   uppercase: true, // Incluir letras mayúsculas
   lowercase: true, // Incluir letras minúsculas
   excludeSimilarCharacters: true, // Excluir caracteres similares
-});
+};
 const mongoose = require("mongoose");
 const emailVerification = require("../service/generateVerification");
 const wsConfirmationMessage = require("./whatsappController");
@@ -68,6 +68,7 @@ const familyController = {
       }
 
       try {
+        const password = generatePassword.generate(passwordOptions);
         const familyMember = new Family({
           organizationId: req.auth.organizationId,
           avatar: params.avatar ?? "noimage.jpeg",
@@ -75,7 +76,7 @@ const familyController = {
           lastname: params.lastname,
           gender: params.gender,
           email: params.email,
-          password: password,
+          password: await bcrypt.hash(password, saltRounds),
           phone: params.phone,
           createdBy: params.ownerId,
           propertyDetails: [
@@ -96,14 +97,25 @@ const familyController = {
         )
           .select("alias")
           .lean();
-        newMember.condominioName = condoinfo.alias;
+        newMember.condominioName = condoinfo?.alias || "";
         // Enviar correo de verificación
-        emailVerification.verifyRegistration(newMember);
+        const emailSent = await emailVerification.verifyRegistration({
+          email: newMember.email,
+          name: newMember.name,
+          passwordTemp: password,
+        }).then(() => true).catch((error) => {
+          console.error("Family registration email failed:", error?.code || "SMTP_ERROR");
+          return false;
+        });
         // Enviar mensaje de confirmación por whatsapp
-        wsConfirmationMessage.sendWhatsappMessage(newMember);
+        void Promise.resolve().then(() => wsConfirmationMessage.sendWhatsappMessage({
+          ...newMember.toObject(), passwordTemp: password, condominioName: newMember.condominioName,
+        })).catch((error) => console.error("Family registration WhatsApp failed:", error?.code || "WHATSAPP_ERROR"));
+        newMember.password = undefined;
         return res.status(200).send({
           status: "success",
           message: newMember,
+          emailSent,
         });
       } catch (error) {
         // Eliminar la imagen subida si no se crea el usuario o si ya existe

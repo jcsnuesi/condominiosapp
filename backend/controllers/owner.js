@@ -393,8 +393,9 @@ var ownerAndSubController = {
 
         user.passwordTemp = temporaryPassword;
         user.condominioName = condominioUpdated.alias;
-        void emailVerification.verifyRegistration(user).catch((error) => {
+        const emailSent = await emailVerification.verifyRegistration(user).then(() => true).catch((error) => {
           console.log("Owner registration email failed", error.message);
+          return false;
         });
         void Promise.resolve()
           .then(() => wsConfirmationMessage.sendWhatsappMessage(user))
@@ -405,6 +406,7 @@ var ownerAndSubController = {
         return res.status(201).send({
           status: "success",
           message: "User created successfully",
+          emailSent,
           user: {
             _id: user._id,
             name: user.name,

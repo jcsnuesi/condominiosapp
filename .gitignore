@@ -18,7 +18,9 @@ docker-compose.yml
 /ocr-service/.ruff_cache/
 /specs
 /ocr-service/.test-deps/
-backend/test
+backend/test/*
+!backend/test/admin-registration.test.js
+!backend/test/welcome-registration.test.js
 docs/COOLIFY_TROUBLESHOOTING.md
 backend/tests/
 /tmp/schedule-*

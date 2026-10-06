@@ -1,5 +1,6 @@
 "use strict";
 const { remainingInvoiceBalance } = require("../service/invoiceBalance");
+const notifyWelcome = require("../service/welcomeNotification");
 
 var validator = require("validator");
 var path = require("path");
@@ -225,10 +226,28 @@ var Condominium_Controller = {
         });
         await condominio.save();
 
+        let emailSent = false;
+        try {
+          const creator = await ACCOUNT_MODELS[req.user.role].findOne({
+            _id: req.user.sub,
+            organizationId: req.auth.organizationId,
+          }).select("email name").lean();
+          if (creator?.email) {
+            emailSent = await notifyWelcome({
+              email: creator.email,
+              name: creator.name,
+              condominiumName: condominio.alias,
+            });
+          }
+        } catch (error) {
+          console.error("Condominium welcome email failed:", error?.code || "EMAIL_ERROR");
+        }
+
         return res.status(200).send({
           status: "success",
           message: "Condominium created successfully",
           condominium: condominio,
+          emailSent,
         });
       } catch (error) {
         console.log("error", error);

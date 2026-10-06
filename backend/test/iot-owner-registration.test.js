@@ -157,6 +157,8 @@ test("verification activates only the pending owner and marks the one-time token
   const token = "a".repeat(64);
   let ownerUpdate;
   let savedVerification;
+  let welcome;
+  let committed = false;
   class Verification {
     static findOne(filter) {
       assert.equal(filter.tokenHash, hashVerificationToken(token));
@@ -174,6 +176,10 @@ test("verification activates only the pending owner and marks the one-time token
   const service = new IoTOwnerRegistrationService({
     models: {
       Owner: {
+        findById: id => {
+          assert.equal(id, "owner-pending");
+          return { select: () => ({ session: () => ({ lean: async () => ({ email: "maria@example.test", name: "Maria" }) }) }) };
+        },
         updateOne: async (filter, update) => {
           ownerUpdate = { filter, update };
           return { modifiedCount: 1 };
@@ -181,9 +187,10 @@ test("verification activates only the pending owner and marks the one-time token
       },
     },
     VerificationModel: Verification,
+    emailService: { sendWelcome: async message => { assert.equal(committed, true); welcome = message; } },
     mongo: {
       startSession: async () => ({
-        withTransaction: async (callback) => callback(),
+        withTransaction: async (callback) => { await callback(); committed = true; },
         endSession: async () => {},
       }),
     },
@@ -197,4 +204,5 @@ test("verification activates only the pending owner and marks the one-time token
     emailVerified: true,
   });
   assert.ok(savedVerification.usedAt);
+  assert.deepEqual(welcome, { email: "maria@example.test", name: "Maria" });
 });
