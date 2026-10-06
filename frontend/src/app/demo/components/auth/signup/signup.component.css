@@ -1,34 +1,73 @@
-:host { display: block; color: var(--app-dark-text, #2f3437); font-family: 'Helvetica Neue', system-ui, sans-serif; }
-.signup-page { min-height: 100vh; background: var(--app-dark-warning-bg, #f7f6f3); padding: 56px 24px; }
-.signup-panel { max-width: 840px; margin: auto; padding: 44px; background: var(--app-dark-surface, #fff); border: 1px solid var(--app-dark-border, #eaeaea); border-radius: 12px; }
-.brand { color: var(--app-dark-text, #2f3437); font-weight: 600; text-decoration: none; }
-.eyebrow { margin-top: 40px; font-size: 11px; letter-spacing: .12em; color: var(--app-dark-muted, #787774); }
-h1 { font-family: Georgia, serif; font-size: clamp(30px, 5vw, 42px); line-height: 1.15; letter-spacing: -.025em; margin: 16px 0; font-weight: 400; }
-h2 { font-size: 20px; font-weight: 500; }
+﻿:host {
+  display: block;
+  --signup-ink: var(--app-dark-text, #183153);
+  --signup-muted: var(--app-dark-muted, #66758d);
+  --signup-line: var(--app-dark-border, #dce5ee);
+  --signup-accent: var(--app-dark-accent, #176b87);
+  color: var(--signup-ink);
+  font-family: var(--font-family, 'Helvetica Neue', 'Segoe UI', sans-serif);
+}
+* { box-sizing: border-box; }
+.signup-page { min-height: 100vh; padding: 48px 24px; background: var(--surface-ground, #f5f8fb); }
+.signup-panel { max-width: 840px; margin: auto; padding: 40px; border: 1px solid var(--signup-line); border-radius: 22px; background: var(--app-dark-surface, #fff); }
+.brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 700; text-decoration: none; }
+.brand i { color: var(--signup-accent); font-size: 1.25rem; }
+h1 { margin: 32px 0 12px; color: var(--signup-ink); font-size: clamp(27px, 4vw, 36px); font-weight: 700; line-height: 1.2; letter-spacing: -.025em; }
+h2 { margin: 24px 0 12px; color: var(--signup-ink); font-size: 24px; font-weight: 650; line-height: 1.25; letter-spacing: -.02em; }
 p { line-height: 1.65; }
-.intro { color: var(--app-dark-muted, #787774); max-width: 580px; margin-bottom: 32px; }
-.choices { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-.choice { display: block; text-align: left; padding: 28px; border: 1px solid var(--app-dark-border, #eaeaea); border-radius: 8px; color: inherit; background: var(--app-dark-surface, #fff); font: inherit; text-decoration: none; cursor: pointer; }
-.choice:hover { background: var(--app-dark-surface, #fbfbfa); border-color: var(--app-dark-border, #787774); }
-.choice p { color: var(--app-dark-muted, #787774); min-height: 120px; }
-.tag { display: inline-block; padding: 5px 8px; font-size: 10px; letter-spacing: .08em; background: var(--app-dark-success-bg, #edf3ec); color: var(--app-dark-text, #346538); border-radius: 4px; }
-.personal { background: var(--app-dark-info-bg, #e1f3fe); color: var(--app-dark-accent, #1f6c9f); }
-.choice-action { font-size: 13px; font-weight: 600; }
-aside { border-top: 1px solid var(--app-dark-border, #eaeaea); margin-top: 32px; padding-top: 24px; }
-aside h2 { font-size: 16px; }
+.intro { max-width: 580px; margin: 0 0 28px; color: var(--signup-muted); }
+.eyebrow { margin: 32px 0 -20px; color: var(--signup-accent); font-size: 13px; font-weight: 650; }
+.account-switch { display: flex; max-width: 316px; margin: 0 auto 24px; padding: 4px; border-radius: 999px; background: var(--app-dark-surface-muted, #edf1f5); }
+.account-switch :is(a, button) { flex: 1; min-height: 36px; border: 0; border-radius: 999px; background: transparent; color: var(--signup-muted); font: inherit; font-size: 13px; font-weight: 600; text-align: center; text-decoration: none; display: grid; place-items: center; cursor: pointer; }
+.account-switch :is(a, button):hover { background: var(--app-dark-surface, #fff); color: var(--signup-ink); }
+.choices { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; }
+.choice { display: flex; flex-direction: column; min-width: 0; padding: 24px 20px; border: 1px solid var(--signup-line); border-radius: 20px; background: var(--app-dark-surface, #fff); }
+.business { border-color: var(--signup-accent); background: var(--app-dark-info-bg, #eef6fa); }
+.tag { font-size: 14px; font-weight: 700; }
+.choice p { flex: 1; margin: 0 0 24px; color: var(--signup-muted); font-size: 14px; }
+.features { display: grid; gap: 18px; margin: 28px 0 4px; padding: 0; list-style: none; }
+.features li { display: flex; align-items: flex-start; gap: 12px; font-size: 13px; line-height: 1.5; }
+.features i { margin-top: 3px; color: var(--signup-accent); }
+aside { margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--signup-line); }
+aside h2 { margin: 0; font-size: 16px; letter-spacing: normal; }
+aside p { color: var(--signup-muted); font-size: 14px; }
 a { color: inherit; text-underline-offset: 3px; }
-.signup-form { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-label { font-size: 14px; display: grid; gap: 8px; }
-input:not([type=checkbox]) { width: 100%; border: 1px solid var(--app-dark-border, #eaeaea); padding: 12px; border-radius: 4px; color: inherit; font: inherit; background: var(--app-dark-surface, #fff); }
-small { color: var(--app-dark-muted, #787774); }
+.help-links { display: flex; flex-wrap: wrap; gap: 20px; color: var(--signup-accent); font-size: 14px; }
+.signup-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+label, .password-field { display: grid; min-width: 0; gap: 8px; font-size: 14px; font-weight: 600; }
+input:not([type=checkbox]) { width: 100%; min-height: 46px; padding: 12px 14px; border: 1px solid var(--signup-line); border-radius: 10px; background: var(--app-dark-surface, #fff); color: inherit; font: inherit; font-weight: 400; }
+input[aria-invalid=true] { border-color: var(--app-dark-danger-text, #b42318); }
+small { color: var(--signup-muted); font-size: 12px; font-weight: 400; line-height: 1.5; }
 .wide { grid-column: 1 / -1; }
-.terms { display: flex; align-items: flex-start; gap: 10px; line-height: 1.5; }
-.terms input { margin-top: 4px; }
-.actions { display: flex; justify-content: space-between; gap: 12px; }
-.primary { display: inline-block; border: 1px solid var(--app-dark-border, #111); border-radius: 4px; padding: 12px 20px; background: #111; color: #fff; font: inherit; text-decoration: none; cursor: pointer; }
-.secondary { display: inline-block; border: none; padding: 12px; background: transparent; color: inherit; font: inherit; text-decoration: underline; cursor: pointer; }
+.password-input { position: relative; }
+.password-input input { padding-right: 52px; }
+.password-toggle { position: absolute; top: 1px; right: 2px; display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 9px; background: transparent; color: var(--signup-muted); cursor: pointer; }
+.password-toggle:hover { color: var(--signup-accent); background: var(--app-dark-info-bg, #eef6fa); }
+.terms { display: flex; align-items: flex-start; gap: 10px; line-height: 1.5; font-weight: 400; }
+.terms input { flex: 0 0 auto; width: 18px; height: 18px; margin: 2px 0 0; accent-color: var(--signup-accent); }
+.form-note { margin: 0; color: var(--signup-muted); font-size: 13px; }
+.actions { display: flex; justify-content: space-between; gap: 12px; margin-top: 8px; }
+.primary, .secondary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 11px 22px; border: 1px solid var(--signup-line); border-radius: 999px; font: inherit; font-size: 14px; font-weight: 650; line-height: 1.4; text-align: center; text-decoration: none; cursor: pointer; }
+.primary { border-color: var(--signup-accent); background: var(--signup-accent); color: var(--app-dark-on-accent, #fff); }
+.primary:hover { border-color: var(--app-dark-accent-hover, #125b73); background: var(--app-dark-accent-hover, #125b73); }
+.secondary { background: transparent; color: var(--signup-ink); }
+.secondary:hover { border-color: var(--signup-accent); background: var(--app-dark-info-bg, #eef6fa); }
+.choice-action { width: 100%; font-size: 13px; padding-inline: 10px; }
 button:disabled { opacity: .5; cursor: default; }
-.error { padding: 12px; background: var(--app-dark-danger-bg, #fdebec); color: var(--app-dark-danger-text, #9f2f2d); border-radius: 4px; }
-footer { margin-top: 32px; padding-top: 20px; border-top: 1px solid var(--app-dark-border, #eaeaea); font-size: 13px; color: var(--app-dark-muted, #787774); }
-:is(button,a,input):focus-visible { outline: 2px solid var(--app-dark-border, #346538); outline-offset: 4px; }
-@media(max-width: 640px) { .signup-page { padding: 20px 12px; } .signup-panel { padding: 24px; } .choices, .signup-form { grid-template-columns: 1fr; } .choice p { min-height: 0; } }
+.field-error { color: var(--app-dark-danger-text, #b42318); }
+.error, .notice { padding: 12px 16px; border-radius: 10px; }
+.error { background: var(--app-dark-danger-bg, #fff0ed); color: var(--app-dark-danger-text, #b42318); }
+.notice { background: var(--app-dark-info-bg, #eef6fa); }
+.sent-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 24px; }
+.text-link { padding: 12px; color: var(--signup-accent); }
+footer { margin-top: 32px; padding-top: 20px; border-top: 1px solid var(--signup-line); color: var(--signup-muted); font-size: 13px; }
+footer a { color: var(--signup-accent); font-weight: 600; }
+:is(button, a, input):focus-visible { outline: 2px solid var(--signup-accent); outline-offset: 3px; }
+@media (max-width: 640px) {
+  .signup-page { padding: 20px 12px; }
+  .signup-panel { padding: 24px 18px; }
+  .choices, .signup-form { grid-template-columns: 1fr; }
+  .actions { flex-wrap: wrap; }
+  .actions .primary { flex: 1; }
+  .sent-actions { flex-direction: column; align-items: stretch; }
+}

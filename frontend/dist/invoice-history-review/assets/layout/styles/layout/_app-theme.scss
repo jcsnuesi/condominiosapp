@@ -1,0 +1,78 @@
+/* Component fallbacks preserve the existing light palette. These semantic
+   overrides also reach dialogs and menus appended directly to body. */
+html.app-dark {
+    --app-dark-surface: #181f2a;
+    --app-dark-surface-muted: #222d3b;
+    --app-dark-text: #e8edf4;
+    --app-dark-muted: #adb9ca;
+    --app-dark-border: #3d4c60;
+    --app-dark-accent: #83d4ee;
+    --app-dark-accent-hover: #63b5d1;
+    --app-dark-on-accent: #0d2330;
+    --app-dark-success-bg: #123b30;
+    --app-dark-success-text: #80e5be;
+    --app-dark-danger-bg: #482522;
+    --app-dark-danger-text: #ffb4a6;
+    --app-dark-info-bg: #183747;
+    --app-dark-info-text: #8bd9f4;
+    --app-dark-warning-bg: #443619;
+    --app-dark-warning-text: #f9d47c;
+    --app-dark-purple-bg: #352a4c;
+    --app-dark-purple-text: #cdb5fa;
+
+    --surface-ground: #101720;
+    --surface-card: var(--app-dark-surface);
+    --surface-section: var(--app-dark-surface);
+    --surface-overlay: var(--app-dark-surface);
+    --surface-border: var(--app-dark-border);
+    --surface-hover: var(--app-dark-surface-muted);
+    --text-color: var(--app-dark-text);
+    --text-color-secondary: var(--app-dark-muted);
+    --primary-color: var(--app-dark-accent);
+    --primary-color-text: var(--app-dark-on-accent);
+    --p-form-field-disabled-background: var(--app-dark-surface-muted);
+    --p-form-field-disabled-color: var(--app-dark-muted);
+
+    --blue-50: var(--app-dark-info-bg);
+    --blue-100: var(--app-dark-info-bg);
+    --blue-200: var(--app-dark-info-bg);
+    --green-50: var(--app-dark-success-bg);
+    --green-100: var(--app-dark-success-bg);
+    --green-200: var(--app-dark-success-bg);
+    --red-50: var(--app-dark-danger-bg);
+    --red-100: var(--app-dark-danger-bg);
+    --red-200: var(--app-dark-danger-bg);
+    --yellow-50: var(--app-dark-warning-bg);
+    --yellow-100: var(--app-dark-warning-bg);
+    --yellow-200: var(--app-dark-warning-bg);
+    --orange-50: var(--app-dark-warning-bg);
+    --orange-100: var(--app-dark-warning-bg);
+    --orange-200: var(--app-dark-warning-bg);
+    --purple-50: var(--app-dark-purple-bg);
+    --purple-100: var(--app-dark-purple-bg);
+    --purple-200: var(--app-dark-purple-bg);
+    --teal-50: var(--app-dark-success-bg);
+    --teal-100: var(--app-dark-success-bg);
+    --teal-200: var(--app-dark-success-bg);
+    --gray-50: var(--app-dark-surface);
+    --gray-100: var(--app-dark-surface-muted);
+    --gray-200: var(--app-dark-border);
+}
+
+/* PrimeFlex's fixed white utility otherwise creates bright islands in dark pages. */
+html.app-dark .bg-white {
+    background-color: var(--surface-card) !important;
+}
+
+/* Match the contrast color when a primary fill uses PrimeFlex's white text utility. */
+html.app-dark .bg-primary.text-white {
+    color: var(--primary-color-text) !important;
+}
+
+html.app-dark .p-inputtext:disabled,
+html.app-dark .p-textarea:disabled {
+    color: var(--app-dark-muted);
+    background: var(--app-dark-surface-muted);
+    -webkit-text-fill-color: var(--app-dark-muted);
+    opacity: 1;
+}

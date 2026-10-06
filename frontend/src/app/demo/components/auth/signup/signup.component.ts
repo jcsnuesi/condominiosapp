@@ -18,11 +18,21 @@ export class SignupComponent {
   readonly busy = signal(false);
   readonly error = signal('');
   readonly notice = signal('');
+  readonly showPassword = signal(false);
+  readonly showConfirmPassword = signal(false);
+  confirmPassword = '';
   form = { name: '', lastname: '', email: '', phone: '', password: '', company: '',
-    street_1: '', city: '', state: '', country: 'República Dominicana', terms: false };
+    street_1: '', city: '', state: '', country: 'Dominican Republic', terms: false };
+
+  get passwordsMatch(): boolean {
+    return this.form.password.length > 0 && this.form.password === this.confirmPassword;
+  }
 
   next(form: NgForm): void {
-    if (form.invalid) { form.control.markAllAsTouched(); return; }
+    if (form.invalid || !this.passwordsMatch) { form.control.markAllAsTouched(); return; }
+    this.showPassword.set(false);
+    this.showConfirmPassword.set(false);
+    this.error.set('');
     this.step.set('organization');
   }
 
@@ -31,20 +41,24 @@ export class SignupComponent {
     this.busy.set(true); this.error.set(''); this.notice.set('');
     this.http.post(`${global.url}auth/admin/resend-verification`, { email: this.form.email })
       .pipe(finalize(() => this.busy.set(false))).subscribe({
-        next: () => this.notice.set('Si tu cuenta sigue pendiente, recibirás un nuevo enlace. Revisa también el correo no deseado.'),
-        error: () => this.error.set('No pudimos reenviar el enlace. Intenta nuevamente.'),
+        next: () => this.notice.set('If your account is still pending, you will receive a new link. Check your spam folder too.'),
+        error: () => this.error.set('We could not resend the link. Please try again.'),
       });
   }
 
   submit(form: NgForm): void {
-    if (form.invalid || !this.form.terms || this.busy()) return;
+    if (this.busy()) return;
+    if (form.invalid || !this.form.terms || !this.passwordsMatch) {
+      form.control.markAllAsTouched();
+      return;
+    }
     this.busy.set(true);
     this.error.set('');
     this.http.post(`${global.url}auth/admin/register`, this.form)
       .pipe(finalize(() => this.busy.set(false)))
       .subscribe({
-        next: () => { this.form.password = ''; this.step.set('sent'); },
-        error: (err: HttpErrorResponse) => this.error.set(err.error?.error?.message || err.error?.message || 'No pudimos crear tu cuenta. Intenta nuevamente.'),
+        next: () => { this.form.password = ''; this.confirmPassword = ''; this.step.set('sent'); },
+        error: (err: HttpErrorResponse) => this.error.set(err.error?.error?.message || err.error?.message || 'We could not create your account. Please try again.'),
       });
   }
 }

@@ -1,3 +1,40 @@
+/* Palette and typography shared with SeePropertyComponent. */
+:host {
+    display: block;
+    min-width: 0;
+    --invoice-ink: var(--app-dark-text, #183153);
+    --invoice-muted: var(--app-dark-muted, #66758d);
+    --invoice-line: var(--app-dark-border, #dce5ee);
+    --invoice-primary: var(--app-dark-accent, #176b87);
+}
+.invoice-history-page { color: var(--invoice-ink); border: 1px solid var(--invoice-line); border-radius: 18px; background: var(--app-dark-surface, #fff); padding: 1.6rem; box-shadow: none; }
+.invoice-history-page .app-page-header { align-items: center; gap: 1.25rem; margin-bottom: 1.5rem; }
+.invoice-history-page .app-page-kicker { color: var(--invoice-primary); font-size: .72rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+.invoice-history-page .app-page-header h2 { margin: .3rem 0 .4rem; color: var(--invoice-ink); font-size: clamp(1.65rem, 3vw, 2.35rem); line-height: 1.1; letter-spacing: -.035em; }
+.invoice-history-page .app-page-header p { color: var(--invoice-muted); margin: 0; }
+:host ::ng-deep .invoice-history-filter .p-select { width: 100%; min-height: 44px; border-color: var(--invoice-line); border-radius: 10px; color: var(--invoice-ink); background: var(--app-dark-surface, #fff); }
+:host ::ng-deep .invoice-history-results .p-datatable-header { background: var(--app-dark-surface, #fff); border: 0; padding: 0 0 1rem; }
+:host ::ng-deep .invoice-history-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem; }
+.invoice-history-toolbar .app-table-search { flex: 1; min-width: min(100%, 12rem); }
+:host ::ng-deep .invoice-history-toolbar .p-iconfield { width: 100%; }
+:host ::ng-deep .invoice-history-toolbar input { width: 100%; min-width: 0; min-height: 44px; border: 1px solid var(--invoice-line); border-radius: 10px; color: var(--invoice-ink); }
+:host ::ng-deep .invoice-history-clear-action { min-height: 44px; border-radius: 10px; color: var(--invoice-primary); border-color: var(--invoice-line); background: var(--app-dark-surface, #fff); font-weight: 650; white-space: nowrap; }
+:host ::ng-deep .invoice-history-clear-action:hover { background: var(--app-dark-info-bg, #f1f5f8); }
+:host ::ng-deep .invoice-history-export-action { min-height: 44px; border-radius: 10px; background: var(--invoice-primary); border-color: var(--invoice-primary); color: var(--app-dark-on-accent, #fff); font-weight: 700; box-shadow: none; }
+:host ::ng-deep .invoice-history-export-action:hover { background: var(--app-dark-accent-hover, #125b73); border-color: var(--app-dark-accent-hover, #125b73); }
+.invoice-history-name { color: var(--invoice-ink); font-size: .9rem; font-weight: 600; line-height: 1.25; }
+:host ::ng-deep .invoice-history-results .p-datatable-thead > tr > th { background: var(--app-dark-info-bg, #f5f8fb); color: var(--invoice-muted); border-color: var(--invoice-line); font-size: .8rem; }
+:host ::ng-deep .invoice-history-results .p-tag { border-radius: 999px; padding: .3rem .6rem; font-size: .75rem; font-weight: 750; }
+:host ::ng-deep .invoice-history-results .p-tag-success { background: var(--app-dark-success-bg, #e9f8f2); color: var(--app-dark-success-text, #08785d); }
+:host ::ng-deep .invoice-history-results .p-tag-danger { background: var(--app-dark-danger-bg, #fff0ed); color: var(--app-dark-danger-text, #c44732); }
+:host ::ng-deep .invoice-history-results .p-paginator { padding: 1rem 0 0; background: transparent; gap: .2rem; flex-wrap: wrap; }
+:host ::ng-deep .invoice-history-results .p-paginator-page-selected { background: var(--app-dark-info-bg, #e8f2f5); color: var(--app-dark-accent, #105d76); }
+:host ::ng-deep .invoice-history-dialog { color: var(--invoice-ink); border: 1px solid var(--invoice-line); border-radius: .85rem; }
+:host ::ng-deep .invoice-history-dialog .p-dialog-header { padding: 1.4rem 1.5rem 1rem; border-bottom: 1px solid var(--invoice-line); }
+:host ::ng-deep .invoice-history-dialog .p-dialog-title { color: var(--invoice-ink); font-size: 1.1rem; font-weight: 750; }
+:host ::ng-deep .invoice-history-dialog .p-dialog-content { padding: 1.25rem 1.5rem; }
+:host ::ng-deep .invoice-history-dialog .card { padding: 1.15rem; border: 1px solid var(--invoice-line); border-radius: 16px; background: var(--app-dark-surface, #fff); box-shadow: none; }
+
 .head{
     display: flex; 
     align-content: center;
@@ -16,18 +53,22 @@
 .info{
     display: flex;
     justify-content: space-between;
+    gap: .75rem;
 }
+.info label { color: var(--invoice-muted); font-size: .76rem; }
 
 .bodyinfo{
-    font-size: 18px;
-    font-weight: bold;
-    padding-top:4px;
+    color: var(--invoice-ink);
+    font-size: .9rem;
+    font-weight: 650;
+    padding-top: .25rem;
+    overflow-wrap: anywhere;
 }
 
 .vertical-line {
     width: 1px;
     height: 50px;
-    background-color: var(--app-dark-surface-muted, #d5d5d5);
+    background-color: var(--invoice-line);
     margin: 0 10px;
     display: inline-block;
 }
@@ -42,21 +83,38 @@
     display: grid;
     gap: 0.5rem;
     width: min(100%, 18rem);
-    margin: 1rem 0;
+    margin: 0 0 1.5rem;
 }
 
 .invoice-history-filter label {
-    font-weight: 600;
+    color: var(--invoice-ink);
+    font-size: .84rem;
+    font-weight: 650;
 }
 
 .invoice-history-filter small {
-    color: var(--text-color-secondary);
+    color: var(--invoice-muted);
+    font-size: .76rem;
+    line-height: 1.5;
 }
 
 .voucher-form, .voucher-invoice { display: flex; flex-direction: column; gap: .75rem; }
 .voucher-invoice { padding: 1rem 0; border-bottom: 1px solid var(--surface-border); }
-.voucher-form select { padding: .75rem; border: 1px solid var(--surface-border); border-radius: 6px; background: var(--surface-card); color: var(--text-color); }
+.voucher-form select { min-height: 44px; padding: .75rem; border: 1px solid var(--invoice-line); border-radius: 10px; background: var(--app-dark-surface, #fff); color: var(--invoice-ink); font: inherit; }
 .voucher-form [role="alert"] { color: var(--p-red-600, var(--app-dark-danger-text, #b91c1c)); }
 .voucher-attachment { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
 .voucher-attachment > p-button:first-child { min-width: 0; overflow-wrap: anywhere; }
 .voucher-attachment > p-button:last-child { flex-shrink: 0; }
+
+@media (max-width: 680px) {
+    .invoice-history-page { padding: 1rem; }
+    .invoice-history-filter { width: 100%; }
+    :host ::ng-deep .invoice-history-toolbar { flex-direction: column; align-items: stretch; gap: .65rem; }
+    .invoice-history-toolbar .app-table-search { order: -1; width: 100%; }
+    :host ::ng-deep .invoice-history-clear-action,
+    :host ::ng-deep .invoice-history-export-action { width: 100%; justify-content: center; }
+    :host ::ng-deep .invoice-history-results .p-paginator button { min-width: 2rem; width: 2rem; }
+    .info { flex-direction: column; }
+    .vertical-line { width: 100%; height: 1px; margin: 0; }
+    .voucher-attachment { flex-wrap: wrap; }
+}

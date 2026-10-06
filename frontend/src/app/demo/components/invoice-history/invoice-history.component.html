@@ -1,10 +1,12 @@
-<div class="card mt-2">
-    <header class="app-history-header">
-        <span class="app-history-header__eyebrow">History</span>
-        <h1>{{ moduleTitle }}</h1>
-        <p class="app-history-header__description">
-            Review invoice dates, amounts, payment status, and owner details.
-        </p>
+<div class="card app-page-card invoice-history-page">
+    <header class="app-page-header">
+        <div>
+            <span class="app-page-kicker">History</span>
+            <h2>{{ moduleTitle }}</h2>
+            <p>
+                Review invoice dates, amounts, payment status, and owner details.
+            </p>
+        </div>
     </header>
 
     <div class="invoice-history-filter">
@@ -25,6 +27,11 @@
 
     <p-table
         #dt1
+        styleClass="p-datatable-sm app-data-table invoice-history-results"
+        responsiveLayout="scroll"
+        [tableStyle]="{ 'min-width': '48rem' }"
+        [pageLinks]="3"
+        [showFirstLastIcon]="false"
         [value]="condoGroups"
         dataKey="condominiumId"
         [rows]="10"
@@ -34,16 +41,17 @@
         [globalFilterFields]="globalFilters"
     >
         <ng-template pTemplate="caption">
-            <div class="flex flex-wrap gap-2 align-items-center">
+            <div class="app-table-toolbar invoice-history-toolbar">
                 <p-button
                     label="Clear"
+                    styleClass="invoice-history-clear-action"
                     [outlined]="true"
                     icon="pi pi-filter-slash"
                     (onClick)="clear(dt1)"
                 />
                 <p-iconField
                     iconPosition="left"
-                    class="w-full sm:w-auto sm:ml-auto"
+                    class="app-table-search"
                 >
                     <p-inputIcon styleClass="pi pi-search" />
                     <input
@@ -61,6 +69,7 @@
                 @if (hasSelectedGroups) {
                 <p-button
                     label="Download selected CSV"
+                    styleClass="invoice-history-export-action"
                     icon="pi pi-file-export"
                     severity="success"
                     (onClick)="exportSelectedCsv()"
@@ -99,7 +108,7 @@
                     />
                 </td>
                 <td>
-                    <span>{{ group.alias | titlecase }}</span>
+                    <span class="invoice-history-name">{{ group.alias | titlecase }}</span>
                 </td>
                 <td>{{ group.invoiceCount }}</td>
                 <td>{{ group.totalAmount | currency : "USD" }}</td>
@@ -136,6 +145,11 @@
 
     <p-table
         #dtHome
+        styleClass="p-datatable-sm app-data-table invoice-history-results"
+        responsiveLayout="scroll"
+        [tableStyle]="{ 'min-width': '48rem' }"
+        [pageLinks]="3"
+        [showFirstLastIcon]="false"
         [value]="propertyDetailsVar"
         dataKey="_id"
         [rows]="10"
@@ -146,15 +160,16 @@
     >
         <ng-template pTemplate="caption">
             <div
-                class="flex flex-wrap gap-2 align-items-center justify-content-between"
+                class="app-table-toolbar invoice-history-toolbar"
             >
                 <p-button
                     label="Clear"
+                    styleClass="invoice-history-clear-action"
                     [outlined]="true"
                     icon="pi pi-filter-slash"
                     (onClick)="clear(dtHome)"
                 />
-                <p-iconField iconPosition="left" class="w-full sm:w-auto">
+                <p-iconField iconPosition="left" class="app-table-search">
                     <p-inputIcon styleClass="pi pi-search" />
                     <input
                         pInputText
@@ -195,7 +210,7 @@
         <ng-template pTemplate="body" let-property>
             <tr>
                 <td>{{ property.invoice_issue | date : "shortDate" }}</td>
-                <td>{{ property.fullname | titlecase }}</td>
+                <td><span class="invoice-history-name">{{ property.fullname | titlecase }}</span></td>
                 <td>{{ property.unit }}</td>
                 <td>
                     <p-tag
@@ -231,6 +246,7 @@
 <!-- MODAL INVOICE HISTORY -->
 
 <p-dialog closeAriaLabel="Close"
+    styleClass="invoice-history-dialog"
     header="{{ selectedCondoGroup?.alias | titlecase }}"
     [(visible)]="dialogVisible"
     [modal]="true"
@@ -269,7 +285,7 @@
     </div>
 
     <div class="card">
-        <p-table [value]="selectedCondoGroup?.invoices ?? []">
+        <p-table [value]="selectedCondoGroup?.invoices ?? []" styleClass="p-datatable-sm app-data-table invoice-history-results" responsiveLayout="scroll" [tableStyle]="{ 'min-width': '48rem' }">
             <ng-template pTemplate="caption">
                 <div class="flex align-items-center justify-content-between">
                     <span style="font-size: 16px"> Detailed information </span>
@@ -332,6 +348,7 @@
 </p-dialog>
 
 <p-dialog closeAriaLabel="Close" header="Upload Voucher" [(visible)]="voucherVisible" [modal]="true"
+    styleClass="invoice-history-dialog"
     [style]="{ width: '36rem', maxWidth: '95vw' }" [draggable]="false" [resizable]="false"
     [closable]="!voucherUploading && !voucherDeleting" [closeOnEscape]="!voucherUploading && !voucherDeleting">
     <div class="voucher-form">
@@ -375,6 +392,7 @@
 </p-dialog>
 
 <p-dialog closeAriaLabel="Close" header="Attachments" [(visible)]="attachmentVisible" [modal]="true"
+    styleClass="invoice-history-dialog"
     [style]="{ width: '36rem', maxWidth: '95vw' }" [draggable]="false" [resizable]="false"
     [closable]="!voucherDeleting" [closeOnEscape]="!voucherDeleting">
     @for (invoice of attachmentGroup?.invoices ?? []; track invoice._id) {
@@ -401,6 +419,7 @@
 </p-dialog>
 
 <p-dialog closeAriaLabel="Close" header="Delete voucher" [(visible)]="deleteVisible" [modal]="true"
+    styleClass="invoice-history-dialog"
     [style]="{ width: '28rem', maxWidth: '95vw' }" [draggable]="false" [resizable]="false"
     [closable]="!voucherDeleting" [closeOnEscape]="!voucherDeleting">
     <p>Delete <strong>{{ pendingDeletion?.receipt?.originalName || 'this voucher' }}</strong>? You can upload the correct file afterwards.</p>

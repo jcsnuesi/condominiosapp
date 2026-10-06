@@ -1,63 +1,95 @@
-<main class="signup-page">
+﻿<main class="signup-page" lang="en">
   <section class="signup-panel" aria-labelledby="signup-title">
-    <a class="brand" routerLink="/auth/login">Condominios App</a>
+    <a class="brand" routerLink="/auth/login"><i class="pi pi-building" aria-hidden="true"></i>Condominios App</a>
     @if (step() === 'choice') {
-      <p class="eyebrow">CREAR CUENTA</p>
-      <h1 id="signup-title">¿Qué necesitas gestionar?</h1>
-      <p class="intro">Te ayudamos a elegir la cuenta adecuada para comenzar.</p>
+      <h1 id="signup-title">Choose your account</h1>
+      <p class="intro">Manage your home or bring your condominium organization together.</p>
+      <nav class="account-switch" aria-label="Account type">
+        <a routerLink="/auth/iot-register">Personal</a>
+        <button type="button" (click)="step.set('account')">Business</button>
+      </nav>
       <div class="choices">
-        <button class="choice" type="button" (click)="step.set('account')">
-          <span class="tag">ADMIN</span><h2>Administrar condominios</h2>
-          <p>Crea tu organización, registra condominios y unidades, y gestiona propietarios, cobros y comunicaciones.</p>
-          <span class="choice-action">Crear cuenta de administración →</span>
-        </button>
-        <a class="choice" routerLink="/auth/iot-register">
-          <span class="tag personal">OWNER PERSONAL</span><h2>Gestionar mi vivienda</h2>
-          <p>Registra tu vivienda personal y gestiona sus dispositivos Smart Home desde tu propia cuenta.</p>
-          <span class="choice-action">Crear cuenta personal →</span>
-        </a>
+        <article class="choice">
+          <span class="tag">Personal</span><h2>Your home, connected</h2>
+          <p>Manage your own home and Smart Home devices from one personal account.</p>
+          <a class="secondary choice-action" routerLink="/auth/iot-register">Create personal account</a>
+          <ul class="features">
+            <li><i class="pi pi-home" aria-hidden="true"></i>Register your personal home</li>
+            <li><i class="pi pi-wifi" aria-hidden="true"></i>Connect your Smart Home devices</li>
+            <li><i class="pi pi-user" aria-hidden="true"></i>Manage your personal access</li>
+          </ul>
+        </article>
+        <article class="choice business">
+          <span class="tag">Business</span><h2>Your organization</h2>
+          <p>Create an organization to manage condominiums, residents, and day-to-day operations.</p>
+          <button class="primary choice-action" type="button" (click)="step.set('account')"><i class="pi pi-plus" aria-hidden="true"></i>Create business account</button>
+          <ul class="features">
+            <li><i class="pi pi-building" aria-hidden="true"></i>Organize condominiums and units</li>
+            <li><i class="pi pi-users" aria-hidden="true"></i>Manage owners and residents</li>
+            <li><i class="pi pi-wallet" aria-hidden="true"></i>Handle billing and communications</li>
+          </ul>
+        </article>
       </div>
-      <aside><h2>¿Tu condominio ya utiliza la plataforma?</h2>
-        <p>Tu administración crea tu acceso, te asigna el condominio y la unidad, y te envía las credenciales por correo.</p>
-        <a routerLink="/auth/login">Iniciar sesión</a> · <a routerLink="/auth/forgot-password">Recuperar contraseña</a>
+      <aside><h2>Does your condominium already use the platform?</h2>
+        <p>Your administrator creates your access, assigns your condominium and unit, and emails your credentials.</p>
+        <div class="help-links"><a routerLink="/auth/login">Sign in</a><a routerLink="/auth/forgot-password">Reset password</a></div>
       </aside>
     } @else if (step() === 'sent') {
-      <p class="eyebrow">ADMIN · VERIFICACIÓN</p>
-      <h1 id="signup-title">Revisa tu correo</h1>
-      <p role="status">Si el correo puede registrarse, recibirás un enlace para activar tu cuenta y tu organización. El enlace vence en 24 horas.</p>
-      <p>Si ya tienes cuenta, inicia sesión o recupera tu contraseña.</p>
+      <p class="eyebrow">Business account · Email verification</p>
+      <h1 id="signup-title">Check your email</h1>
+      <p role="status">If this email can be registered, you will receive a link to activate your account and organization. The link expires in 24 hours.</p>
+      <p>Already have an account? Sign in or reset your password.</p>
       @if (error()) { <p class="error" role="alert">{{ error() }}</p> }
-      @if (notice()) { <p role="status">{{ notice() }}</p> }
-      <button class="secondary" type="button" [disabled]="busy()" (click)="resend()">Reenviar enlace</button>
-      <a class="primary" routerLink="/auth/login">Ir a iniciar sesión</a>
-      <a class="secondary" routerLink="/auth/forgot-password">Recuperar contraseña</a>
+      @if (notice()) { <p class="notice" role="status">{{ notice() }}</p> }
+      <div class="sent-actions">
+        <a class="primary" routerLink="/auth/login">Go to sign in</a>
+        <button class="secondary" type="button" [disabled]="busy()" (click)="resend()">{{ busy() ? 'Sending…' : 'Resend verification link' }}</button>
+        <a class="text-link" routerLink="/auth/forgot-password">Reset password</a>
+      </div>
     } @else {
-      <p class="eyebrow">ADMIN · PASO {{ step() === 'account' ? '1' : '2' }} DE 2</p>
-      <h1 id="signup-title">{{ step() === 'account' ? 'Crea tu acceso' : 'Tu organización' }}</h1>
-      <p class="intro">{{ step() === 'account' ? 'Esta cuenta te permite administrar condominios dentro de tu propia organización.' : 'Puede ser una empresa administradora o la administración de tu condominio.' }}</p>
+      <p class="eyebrow">Business account · Step {{ step() === 'account' ? '1' : '2' }} of 2</p>
+      <h1 id="signup-title">{{ step() === 'account' ? 'Create your account' : 'Set up your organization' }}</h1>
+      <p class="intro">{{ step() === 'account' ? 'Your account gives you access to manage condominiums within your organization.' : 'Use the details of your management company or condominium administration.' }}</p>
       @if (error()) { <p class="error" role="alert">{{ error() }}</p> }
       @if (step() === 'account') {
         <form #accountForm="ngForm" (ngSubmit)="next(accountForm)" class="signup-form">
-          <label for="name">Nombre<input id="name" name="name" required maxlength="100" autocomplete="given-name" [(ngModel)]="form.name"></label>
-          <label for="lastname">Apellido<input id="lastname" name="lastname" required maxlength="100" autocomplete="family-name" [(ngModel)]="form.lastname"></label>
-          <label class="wide" for="email">Correo electrónico<input id="email" type="email" name="email" email required maxlength="254" autocomplete="email" [(ngModel)]="form.email"></label>
-          <label class="wide" for="phone">Teléfono<input id="phone" type="tel" name="phone" required pattern="^\+?[0-9]{8,16}$" autocomplete="tel" [(ngModel)]="form.phone"><small>Entre 8 y 16 dígitos; puedes incluir el prefijo +.</small></label>
-          <label class="wide" for="password">Contraseña<input id="password" type="password" name="password" required minlength="12" maxlength="128" autocomplete="new-password" [(ngModel)]="form.password"><small>Entre 12 y 128 caracteres.</small></label>
-          <div class="actions wide"><button type="button" class="secondary" (click)="step.set('choice')">Volver</button><button class="primary" type="submit" [disabled]="accountForm.invalid">Continuar →</button></div>
+          <label for="name">First name<input id="name" name="name" required maxlength="100" autocomplete="given-name" [(ngModel)]="form.name"></label>
+          <label for="lastname">Last name<input id="lastname" name="lastname" required maxlength="100" autocomplete="family-name" [(ngModel)]="form.lastname"></label>
+          <label class="wide" for="email">Email address<input id="email" type="email" name="email" email required maxlength="254" autocomplete="email" [(ngModel)]="form.email" #email="ngModel" [attr.aria-invalid]="email.touched && email.invalid">
+            @if (email.touched && email.invalid) { <small class="field-error">Enter a valid email address.</small> }
+          </label>
+          <label class="wide" for="phone">Phone number<input id="phone" type="tel" name="phone" required pattern="^\+?[0-9]{8,16}$" autocomplete="tel" [(ngModel)]="form.phone" #phone="ngModel" [attr.aria-invalid]="phone.touched && phone.invalid" aria-describedby="phone-help"><small id="phone-help" [class.field-error]="phone.touched && phone.invalid">Use 8–16 digits, with an optional + prefix.</small></label>
+          <div class="password-field wide">
+            <label for="password">Password</label>
+            <div class="password-input">
+              <input id="password" [type]="showPassword() ? 'text' : 'password'" name="password" required minlength="12" maxlength="128" autocomplete="new-password" [(ngModel)]="form.password" #password="ngModel" [attr.aria-invalid]="password.touched && password.invalid" aria-describedby="password-help">
+              <button class="password-toggle" type="button" (click)="showPassword.set(!showPassword())" [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'" [attr.aria-pressed]="showPassword()" aria-controls="password"><i [class]="showPassword() ? 'pi pi-eye-slash' : 'pi pi-eye'" aria-hidden="true"></i></button>
+            </div>
+            <small id="password-help" [class.field-error]="password.touched && password.invalid">Use 12–128 characters.</small>
+          </div>
+          <div class="password-field wide">
+            <label for="confirm-password">Confirm password</label>
+            <div class="password-input">
+              <input id="confirm-password" [type]="showConfirmPassword() ? 'text' : 'password'" name="confirmPassword" required maxlength="128" autocomplete="new-password" [(ngModel)]="confirmPassword" #confirmation="ngModel" [attr.aria-invalid]="confirmation.touched && !passwordsMatch" aria-describedby="confirm-password-help">
+              <button class="password-toggle" type="button" (click)="showConfirmPassword.set(!showConfirmPassword())" [attr.aria-label]="showConfirmPassword() ? 'Hide confirmation password' : 'Show confirmation password'" [attr.aria-pressed]="showConfirmPassword()" aria-controls="confirm-password"><i [class]="showConfirmPassword() ? 'pi pi-eye-slash' : 'pi pi-eye'" aria-hidden="true"></i></button>
+            </div>
+            <small id="confirm-password-help" [class.field-error]="confirmation.touched && !passwordsMatch" aria-live="polite">{{ confirmation.touched && !passwordsMatch ? 'Passwords must match.' : 'Enter your password again.' }}</small>
+          </div>
+          <div class="actions wide"><button type="button" class="secondary" (click)="step.set('choice')">Back</button><button class="primary" type="submit" [disabled]="accountForm.invalid || !passwordsMatch">Continue<i class="pi pi-arrow-right" aria-hidden="true"></i></button></div>
         </form>
       } @else {
         <form #organizationForm="ngForm" (ngSubmit)="submit(organizationForm)" class="signup-form">
-          <label class="wide" for="company">Nombre de la organización<input id="company" name="company" required maxlength="160" autocomplete="organization" [(ngModel)]="form.company"></label>
-          <label class="wide" for="street">Dirección<input id="street" name="street" required maxlength="200" autocomplete="street-address" [(ngModel)]="form.street_1"></label>
-          <label for="city">Ciudad<input id="city" name="city" required maxlength="100" autocomplete="address-level2" [(ngModel)]="form.city"></label>
-          <label for="state">Provincia<input id="state" name="state" required maxlength="100" autocomplete="address-level1" [(ngModel)]="form.state"></label>
-          <label class="wide" for="country">País<input id="country" name="country" required maxlength="100" autocomplete="country-name" [(ngModel)]="form.country"></label>
-          <label class="terms wide" for="terms"><input id="terms" type="checkbox" name="terms" required [(ngModel)]="form.terms">Acepto los términos y condiciones de la plataforma.</label>
-          <p class="wide">Al verificar tu correo, crearemos tu organización y serás su administrador principal.</p>
-          <div class="actions wide"><button type="button" class="secondary" [disabled]="busy()" (click)="step.set('account')">Volver</button><button class="primary" type="submit" [disabled]="organizationForm.invalid || !form.terms || busy()">{{ busy() ? 'Enviando…' : 'Crear cuenta ADMIN' }}</button></div>
+          <label class="wide" for="company">Organization name<input id="company" name="company" required maxlength="160" autocomplete="organization" [(ngModel)]="form.company"></label>
+          <label class="wide" for="street">Street address<input id="street" name="street" required maxlength="200" autocomplete="street-address" [(ngModel)]="form.street_1"></label>
+          <label for="city">City<input id="city" name="city" required maxlength="100" autocomplete="address-level2" [(ngModel)]="form.city"></label>
+          <label for="state">State or province<input id="state" name="state" required maxlength="100" autocomplete="address-level1" [(ngModel)]="form.state"></label>
+          <label class="wide" for="country">Country<input id="country" name="country" required maxlength="100" autocomplete="country-name" [(ngModel)]="form.country"></label>
+          <label class="terms wide" for="terms"><input id="terms" type="checkbox" name="terms" required [(ngModel)]="form.terms">I agree to the platform's terms and conditions.</label>
+          <p class="wide form-note">Once you verify your email, we will create your organization with you as its primary administrator.</p>
+          <div class="actions wide"><button type="button" class="secondary" [disabled]="busy()" (click)="step.set('account'); error.set('')">Back</button><button class="primary" type="submit" [disabled]="organizationForm.invalid || !form.terms || !passwordsMatch || busy()">{{ busy() ? 'Creating account…' : 'Create business account' }}</button></div>
         </form>
       }
     }
-    <footer>¿Ya tienes cuenta? <a routerLink="/auth/login">Inicia sesión</a></footer>
+    <footer>Already have an account? <a routerLink="/auth/login">Sign in</a></footer>
   </section>
 </main>
