@@ -26,7 +26,7 @@ const {
 
 function buildResetLink(token) {
   const frontendBase = (
-    process.env.FRONTEND_BASE_URL || "http://localhost:9090"
+    process.env.FRONTEND_BASE_URL || "https://condapp.hsantosnuesi.com"
   ).replace(/\/$/, "");
   return `${frontendBase}/#/auth/reset-password/${token}`;
 }

@@ -96,7 +96,6 @@ services:
         condition: service_healthy
 
   call-service:
-    profiles: [calls]
     build:
       context: ./call-service
     environment:
@@ -111,7 +110,7 @@ services:
         condition: service_healthy
     restart: unless-stopped
     read_only: true
-    tmpfs: [/tmp:size=16m, mode=1777]
+    tmpfs: ["/tmp:size=16m,mode=1777"]
     cap_drop: [ALL]
     security_opt: [no-new-privileges:true]
     mem_limit: 256m
@@ -131,9 +130,8 @@ services:
       start_period: 15s
 
   coturn:
-    profiles: [calls]
-    image: coturn/coturn:4.18.0-r0-alpine
-    entrypoint: [/bin/sh, /etc/coturn/start.sh]
+    build:
+      context: ./coturn
     environment:
       TURN_AUTH_SECRET: ${TURN_AUTH_SECRET:-}
       TURN_REALM: ${TURN_REALM:-}
@@ -144,12 +142,16 @@ services:
       - "5349:5349/tcp"
       - "49160-49200:49160-49200/udp"
     volumes:
-      - ./coturn/start.sh:/etc/coturn/start.sh:ro
-      - /srv/coturn/certs:/certs:ro
+      - type: bind
+        source: ${TURN_CERTS_DIR:-/srv/coturn/certs}
+        target: /certs
+        read_only: true
+        bind:
+          create_host_path: false
     networks: [app-network]
     restart: unless-stopped
     read_only: true
-    tmpfs: [/tmp:size=16m, mode=1777]
+    tmpfs: ["/tmp:size=16m,mode=1777"]
     cap_drop: [ALL]
     security_opt: [no-new-privileges:true]
     mem_limit: 256m
@@ -164,6 +166,26 @@ services:
       interval: 15s
       timeout: 5s
       retries: 3
+
+  schedule-migrate:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.schedule-worker
+    command: ["node", "scripts/migrateSchedule.js", "--apply"]
+    environment:
+      MONGODB_URI: ${MONGODB_URI:?Set MONGODB_URI in Coolify runtime environment}
+    networks: [app-network]
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    restart: "no"
+    user: node
+    read_only: true
+    tmpfs: ["/tmp:size=16m,mode=1777"]
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    mem_limit: 512m
+    cpus: 1.0
 
   schedule-worker:
     build:
@@ -183,6 +205,8 @@ services:
     depends_on:
       mongodb:
         condition: service_healthy
+      schedule-migrate:
+        condition: service_completed_successfully
     restart: unless-stopped
     user: node
     read_only: true

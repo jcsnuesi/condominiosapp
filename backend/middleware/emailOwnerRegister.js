@@ -39,7 +39,8 @@ exports.emailOwnerRegister = async function (req, res, next) {
     }
 
     if (String(condominio.organizationId) === String(req.auth.organizationId)) {
-      const verificationLink = `http://localhost:3993/api/create-owner/${registrationToken}`;
+      const apiBaseUrl = String(process.env.PUBLIC_API_BASE_URL || "https://condapp.hsantosnuesi.com/api").replace(/\/$/, "");
+      const verificationLink = `${apiBaseUrl}/create-owner/${registrationToken}`;
 
       // Send the verification email
       const mailOptions = {

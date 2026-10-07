@@ -3,9 +3,16 @@ set -eu
 : "${TURN_AUTH_SECRET:?TURN_AUTH_SECRET required}"
 : "${TURN_REALM:?TURN_REALM required}"
 : "${TURN_EXTERNAL_IP:?TURN_EXTERNAL_IP required}"
-test "${#TURN_AUTH_SECRET}" -ge 32
-test -r /certs/fullchain.pem
-test -r /certs/privkey.pem
+if [ "${#TURN_AUTH_SECRET}" -lt 32 ]; then
+  echo "coturn: TURN_AUTH_SECRET must have at least 32 characters" >&2
+  exit 1
+fi
+for file in /certs/fullchain.pem /certs/privkey.pem; do
+  if [ ! -r "$file" ] || [ ! -s "$file" ]; then
+    echo "coturn: $file must exist and be readable by the container user; check TURN_CERTS_DIR" >&2
+    exit 1
+  fi
+done
 exec turnserver -n \
   --listening-ip=0.0.0.0 --listening-port=3478 --tls-listening-port=5349 \
   --external-ip="$TURN_EXTERNAL_IP" --realm="$TURN_REALM" \

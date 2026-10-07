@@ -32,7 +32,7 @@ function smtpSettings(env = process.env) {
     transport,
     from: String(env.SMTP_FROM || user).trim(),
     apiBaseUrl: String(
-      env.PUBLIC_API_BASE_URL || "http://localhost:3993/api"
+      env.PUBLIC_API_BASE_URL || "https://condapp.hsantosnuesi.com/api"
     ).replace(/\/$/, ""),
   };
 }
@@ -56,7 +56,7 @@ exports.verifySmtpConnection = async function () {
 };
 
 exports.sendWelcome = async function ({ email, name, condominiumName, verificationLink, temporaryPassword }) {
-  const frontendBase = String(process.env.FRONTEND_BASE_URL || "http://localhost:9090").replace(/\/$/, "");
+  const frontendBase = String(process.env.FRONTEND_BASE_URL || "https://condapp.hsantosnuesi.com").replace(/\/$/, "");
   const lines = [
     `Hola${name ? ` ${name}` : ""},`,
     "¡Te damos la bienvenida a la plataforma!",
@@ -71,7 +71,7 @@ exports.sendWelcome = async function ({ email, name, condominiumName, verificati
 };
 
 exports.sendAdminVerification = async function ({ email, token }) {
-  const frontendBase = String(process.env.FRONTEND_BASE_URL || "http://localhost:9090").replace(/\/$/, "");
+  const frontendBase = String(process.env.FRONTEND_BASE_URL || "https://condapp.hsantosnuesi.com").replace(/\/$/, "");
   return sendEmail({
     to: email,
     subject: "Verifica tu cuenta de administración",
@@ -80,7 +80,7 @@ exports.sendAdminVerification = async function ({ email, token }) {
 };
 
 exports.sendPersonalOwnerVerification = async function ({ email, token }) {
-  const frontendBase = String(process.env.FRONTEND_BASE_URL || "http://localhost:9090").replace(/\/$/, "");
+  const frontendBase = String(process.env.FRONTEND_BASE_URL || "https://condapp.hsantosnuesi.com").replace(/\/$/, "");
   const verificationLink = `${frontendBase}/#/auth/verify/owner/${encodeURIComponent(token)}`;
   return sendEmail({
     to: email,

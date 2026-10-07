@@ -18,8 +18,8 @@ Se requiere MongoDB con transacciones (replica set), como en el aprovisionamient
 - `SMTP_USER`, `SMTP_PASS` (se mantiene `EMAIL_PASSWORD` como alternativa heredada).
 - `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE` o `SMTP_SERVICE`, según el proveedor.
 - `SMTP_FROM`, si el remitente difiere del usuario SMTP.
-- `FRONTEND_BASE_URL`: URL pública del frontend, sin `/#/`; los correos nuevos abren la pantalla de confirmación.
-- `PUBLIC_API_BASE_URL`: se mantiene para los correos existentes de propietarios de organización y personal.
+- `FRONTEND_BASE_URL`: `https://condapp.hsantosnuesi.com`, sin `/#/`; los correos nuevos abren la pantalla de confirmación. Es también el valor predeterminado si no se configura la variable.
+- `PUBLIC_API_BASE_URL`: `https://condapp.hsantosnuesi.com/api` para las verificaciones existentes de propietarios de organización, personal e invitaciones. Es también el valor predeterminado. En producción, actualizar estas variables si todavía contienen `localhost`.
 - `TRUST_PROXY_HOPS`: configurar únicamente si el backend está detrás de ese número de proxies confiables. Permite que el límite de registro se aplique a la IP del cliente.
 
 La protección de registro/reenvío/verificación permite 20 intentos por IP en 15 minutos y es local a cada proceso. Una instalación con múltiples réplicas puede complementarla con el límite de su proxy.
