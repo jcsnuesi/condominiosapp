@@ -13,6 +13,15 @@ let running = false,
   stopped = false,
   timer,
   lastCleanup = 0;
+let startupStage = "configuration";
+let startupCollection;
+const safeStartupMessages = new Set([
+  "Invalid SCHEDULE_WORKER_INTERVAL_MS",
+  "MONGODB_URI required",
+  "Run schedule:migrate:apply before starting the worker",
+  "Required schedule unique index missing",
+  "Schedule unique indexes missing; run migration",
+]);
 async function tick() {
   if (running || stopped) return;
   running = true;
@@ -71,6 +80,7 @@ async function start() {
     throw new Error("Invalid SCHEDULE_WORKER_INTERVAL_MS");
   if (!/^mongodb(?:\+srv)?:\/\//.test(process.env.MONGODB_URI || ""))
     throw new Error("MONGODB_URI required");
+  startupStage = "mongodb_connection";
   await mongoose.connect(process.env.MONGODB_URI, {
     serverSelectionTimeoutMS: 5000,
     autoIndex: false,
@@ -81,6 +91,8 @@ async function start() {
       (m) => m?.modelName
     );
     for (const Model of models) {
+      startupStage = "collection_validator";
+      startupCollection = Model.collection.name;
       const existing = await mongoose.connection.db
         .listCollections({ name: Model.collection.name })
         .toArray();
@@ -88,6 +100,7 @@ async function start() {
         throw new Error(
           "Run schedule:migrate:apply before starting the worker"
         );
+      startupStage = "unique_indexes";
       const indexes = await Model.collection.indexes();
       for (const [keys, options] of Model.schema
         .indexes()
@@ -104,10 +117,13 @@ async function start() {
           throw new Error("Required schedule unique index missing");
       }
     }
+    startupCollection = require("./infrastructure/models").ScheduleTask.collection.name;
     const indexes = await ScheduleTaskIndexes();
     if (!indexes)
       throw new Error("Schedule unique indexes missing; run migration");
   }
+  startupCollection = undefined;
+  startupStage = "first_tick";
   await tick();
   timer = setInterval(tick, interval);
 }
@@ -130,9 +146,18 @@ async function stop() {
 if (require.main === module) {
   for (const signal of ["SIGTERM", "SIGINT"])
     process.once(signal, () => stop().then(() => process.exit(0)));
-  start().catch(() => {
+  start().catch((error) => {
     console.error(
-      "Schedule worker startup failed; check configuration and migration"
+      JSON.stringify({
+        event: "schedule.startup.failed",
+        stage: startupStage,
+        collection: startupCollection,
+        errorType: /^[A-Za-z][A-Za-z0-9]*$/.test(error.name || "") ? error.name : "Error",
+        code: typeof error.code === "number" ? error.code : undefined,
+        reason: safeStartupMessages.has(error.message)
+          ? error.message
+          : "Check MongoDB connectivity, permissions and configuration",
+      })
     );
     process.exit(1);
   });
