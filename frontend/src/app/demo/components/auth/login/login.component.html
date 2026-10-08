@@ -80,6 +80,7 @@
                     }
 
                     <div class="login-options">
+                        @if (mfaRequested) { <label>Código MFA o recuperación<input pInputText name="mfaCode" [(ngModel)]="mfaCode" autocomplete="one-time-code" maxlength="16" required></label> }
                         <div class="flex align-items-center">
                             <p-checkbox
                                 id="rememberme1"

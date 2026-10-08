@@ -80,8 +80,15 @@ export class AppMenuComponent {
                 { label: 'Políticas de supervisión', icon: 'pi pi-shield', routerLink: ['/platform/policies'], permission: 'platform.policies.read' },
                 { label: 'Planes', icon: 'pi pi-list', routerLink: ['/platform/plans'], permission: 'platform.memberships.read' },
                 { label: 'Auditoría', icon: 'pi pi-history', routerLink: ['/platform/audit'], permission: 'platform.audit.read' },
+                { label: 'Migración a gratis', icon: 'pi pi-check-square', routerLink: ['/platform/migrations'], permission: 'platform.memberships.manage' },
+                { label: 'Facturación SaaS', icon: 'pi pi-credit-card', routerLink: ['/platform/billing'], permission: 'platform.billing.read' },
+                { label: 'Soporte', icon: 'pi pi-comments', routerLink: ['/platform/support'], permission: 'platform.support.read' },
+                { label: 'Avisos', icon: 'pi pi-megaphone', routerLink: ['/platform/communications'], permission: 'platform.communications.read' },
+                { label: 'Operación técnica', icon: 'pi pi-heart', routerLink: ['/platform/health'], permission: 'platform.operations.read' },
+                { label: 'Configuración', icon: 'pi pi-cog', routerLink: ['/platform/configuration'], permission: 'platform.operations.read' },
+                { label: 'Ciclo de datos', icon: 'pi pi-database', routerLink: ['/platform/lifecycle'], permission: 'platform.data.read' },
             ];
-            return [{ label: 'Administración SaaS', items: links.filter(item => this.hasPermission(item.permission)), visible: true }];
+            return [{ label: 'Administración SaaS', items: [...links.filter(item => this.hasPermission(item.permission)), { label: 'Seguridad', icon: 'pi pi-lock', routerLink: ['/platform/security'] }], visible: true }];
         }
         const identityId = this.cookieValue?._id;
         const isOwner = this.checkRole(['OWNER']);
@@ -96,6 +103,7 @@ export class AppMenuComponent {
             : this.hasPermission('finance.read');
 
         const sections = [
+            { label: 'Comunard', items: [{ label: 'Mi suscripción', icon: 'pi pi-credit-card', routerLink: ['/subscription'] }], visible: this.accessContext.isOwnerAdmin() || (isOwner && !isOrganizationOwner) },
             {
                 label: 'Maintenance',
                 items: [

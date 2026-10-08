@@ -32,10 +32,16 @@ backend/tests/
 docs/*
 !docs/SAAS_PLATFORM_ADMIN.md
 .gitattributes
-/schedule-worker
+/schedule-worker/*
+!/schedule-worker/Dockerfile
 tmp/*
 nginx/dev_default.conf
 .codex-remote-attachments/
 COMUNARD_IOT_IMPLEMENTATION_STATUS.md
 COMUNARD_IOT_INTEGRATION_PLAN.md
 /docs/*
+!docs/SAAS_PLATFORM_ADMIN.md
+!backend/test/saas-commercial.test.js
+!backend/test/saas.integration.cjs
+!backend/test/saas-backup.integration.cjs
+!backend/test/saas.browser.cjs

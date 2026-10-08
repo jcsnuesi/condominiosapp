@@ -25,6 +25,15 @@ test("permission evaluation defaults to no access", () => {
   assert.equal(hasPermission({ permissions: [] }, "owners.read"), false);
 });
 
+test("excluded modules override policy unions and explicit allows, including nested modules", () => {
+  const permissions = evaluatePermissions(
+    ["dashboard.read", "iot.read", "iot.control", "cameras.read", "cameras.recordings.read"],
+    ["iot.create", "iot.history", "cameras.live"], [], ["iot", "cameras"]
+  );
+  assert.deepEqual(permissions, ["dashboard.read"]);
+  assert.deepEqual(evaluatePermissions(["cameras.read", "cameras.recordings.read"], [], [], ["cameras.recordings"]), ["cameras.read"]);
+});
+
 test("personal owner context is isolated and only exists for verified owners with an active residence", () => {
   const context = buildPersonalOwnerAccessContext({
     _id: "owner-1",

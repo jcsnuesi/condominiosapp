@@ -57,7 +57,7 @@ export class AccessManagementService {
         return this.http.get<ApiResponse<AccessPolicy[]>>(this.endpoint('access/policies'));
     }
 
-    createPolicy(policy: Pick<AccessPolicy, 'name' | 'description' | 'permissions'>): Observable<ApiResponse<AccessPolicy>> {
+    createPolicy(policy: Pick<AccessPolicy, 'name' | 'description' | 'permissions' | 'excludedModules'>): Observable<ApiResponse<AccessPolicy>> {
         return this.http.post<ApiResponse<AccessPolicy>>(this.endpoint('access/policies'), policy);
     }
 

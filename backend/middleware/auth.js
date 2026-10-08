@@ -56,6 +56,7 @@ function isPersonalOwnerRouteAllowed(req) {
     routePath === "/auth/me" ||
     routePath === "/auth/me/password" ||
     routePath === "/update-password"
+    || routePath.startsWith("/saas/") || routePath === "/platform-announcements"
   );
 }
 
@@ -98,6 +99,7 @@ module.exports.authenticated = async function (req, res, next) {
 
   // Compatibility helpers receive the verified context, never client input.
   const routePath = `${req.baseUrl || ""}${req.path || ""}`.replace(/^\/api(?=\/)/, "");
+  if (req.auth.isPlatform && require("../service/saasCommercial").enabled("PLATFORM_MFA_ENABLED") && (!req.auth.account.mfaEnabled || !payload.mfaAt || payload.mfaPending) && !/^\/platform\/security(?:\/|$)/.test(routePath) && !(req.method === "GET" && routePath === "/auth/me")) return res.status(403).send({ code: "PLATFORM_MFA_REQUIRED", message: "Configura y verifica MFA en Seguridad" });
   if (req.auth.isPlatform && !(/^\/platform(?:\/|$)/.test(routePath) || /^\/auth\/me(?:\/password)?$/.test(routePath))) {
     return res.status(403).send({ status: "error", code: "PLATFORM_CONTEXT_ROUTE_DENIED", message: "Usa el módulo de administración SaaS" });
   }

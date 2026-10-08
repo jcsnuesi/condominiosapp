@@ -224,6 +224,7 @@ async function syncAllActiveChannels() {
 
   for (const channel of channels) {
     try {
+      if (!await require("./saasCommercial").automationAllowed(channel.organizationId, "str")) continue;
       const result = await syncChannel(channel);
       summary.synced += 1;
       summary.conflicts += result.conflicts;

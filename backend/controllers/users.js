@@ -146,8 +146,17 @@ var controller = {
               "AUTH_CONTEXT_MISSING"
             );
           }
-          const session = jwtoken.resolveSessionExpiration({ rememberMe });
-          const token = jwtoken.createToken(foundUser, { rememberMe });
+          const platform = Boolean(accessContext.isPlatform);
+          let mfaAt = null;
+          const mfaRequired = platform && require("../service/saasCommercial").enabled("PLATFORM_MFA_ENABLED");
+          if (platform && foundUser.mfaEnabled) {
+            try { foundUser = await require("../service/platformMfa").authenticate(foundUser._id, params.mfaCode); mfaAt = Math.floor(Date.now() / 1000); }
+            catch (error) { return apiResponse.failure(res, error.statusCode || 503, { message: error.message }, error.code || "PLATFORM_MFA_UNAVAILABLE"); }
+          }
+          const mfaPending = mfaRequired && !foundUser.mfaEnabled;
+          const session = jwtoken.resolveSessionExpiration({ rememberMe, platform, mfaPending });
+          const token = jwtoken.createToken(foundUser, { rememberMe, mfaPending, mfaAt });
+          if (mfaPending) accessContext.mfaPending = true;
 
           //Generar token jwt y devolverlo
           if (params.gettoken) {
@@ -315,6 +324,7 @@ var controller = {
       }
 
       account.password = await bcrypt.hash(password, saltRounds);
+      if (resetToken.userModel === "PlatformUser") account.sessionVersion = (account.sessionVersion || 0) + 1;
       account.first_password_changed = true;
       await account.save();
 

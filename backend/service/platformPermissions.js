@@ -6,6 +6,9 @@ const PLATFORM_PERMISSIONS = Object.freeze([
   "platform.policies.read", "platform.policies.manage",
   "platform.supervisors.read", "platform.supervisors.manage",
   "platform.access.read", "platform.access.manage", "platform.audit.read",
+  "platform.billing.read", "platform.billing.manage", "platform.support.read", "platform.support.manage",
+  "platform.communications.read", "platform.communications.manage", "platform.operations.read", "platform.operations.manage",
+  "platform.data.read", "platform.data.manage",
 ]);
 
 function platformScopeAllows(scope, type, id) {

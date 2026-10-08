@@ -21,6 +21,7 @@ export class UserGuard implements CanActivate {
         const identity = this._userService.getIdentity();
         const token = this._userService.getToken();
         const payload = this.decodeToken(token);
+        if (payload?.mfaPending && state.url !== '/platform/security') { this._router.navigate(['/platform/security']); return false; }
         if (payload?.role?.startsWith('PLATFORM_') && state.url !== '/' && !state.url.startsWith('/platform')) {
             this._router.navigate(['/platform']);
             return false;

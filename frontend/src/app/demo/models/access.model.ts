@@ -5,6 +5,7 @@ export interface AccessPolicy {
     name: string;
     description: string;
     permissions: string[];
+    excludedModules?: string[];
     isSystem: boolean;
     status: 'active' | 'archived';
 }
@@ -18,6 +19,7 @@ export interface AccessContext {
     organization: { id: string; name: string; status: string } | null;
     isOwnerAdmin: boolean;
     isPlatform?: boolean;
+    mfaPending?: boolean;
     contextType?: string;
     onboardingRequired?: boolean;
     permissions: string[];

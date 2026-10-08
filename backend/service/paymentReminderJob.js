@@ -82,6 +82,7 @@ function createLogPayload(invoice, status, details = {}) {
 }
 
 async function processInvoiceReminder(invoice, deps, options = {}) {
+  if (!await require("./saasCommercial").automationAllowed(invoice.organizationId, "finance") || !await require("./saasCommercial").automationAllowed(invoice.organizationId, "communications")) return { status: "skipped", reason: "membership_or_module_unavailable", invoiceId: invoice?._id };
   const now = options.now || new Date();
   if (remainingInvoiceBalance(invoice) <= 0) {
     return { status: "skipped", reason: "no_pending_balance", invoiceId: invoice?._id };

@@ -34,6 +34,7 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { ChangePasswordComponent } from '../demo/components/change-password/change-password.component';
 import { AuthenticatedUserProfileComponent } from './authenticated-user-profile/authenticated-user-profile.component';
 import { SupportCallComponent } from './support-call/support-call.component';
+import { PlatformAnnouncementsComponent } from './platform-announcements.component';
 
 @NgModule({
     declarations: [
@@ -46,6 +47,7 @@ import { SupportCallComponent } from './support-call/support-call.component';
     ],
     imports: [
         SupportCallComponent,
+        PlatformAnnouncementsComponent,
         AuthenticatedUserProfileComponent,
         ChangePasswordComponent,
         MultiSelectModule,

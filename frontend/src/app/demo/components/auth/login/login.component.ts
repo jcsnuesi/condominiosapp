@@ -161,6 +161,8 @@ export class LoginComponent {
     public url;
     public loginInProgress = false;
     public rememberMe = false;
+    public mfaRequested = false;
+    public mfaCode = '';
     public t = (key: string) => this._i18n.t(key);
 
     password!: string;
@@ -195,6 +197,7 @@ export class LoginComponent {
         const payload = {
             ...this.administrator,
             rememberMe: this.rememberMe,
+            mfaCode: this.mfaCode,
         };
 
         this._userService.login(payload, false).subscribe(
@@ -227,7 +230,7 @@ export class LoginComponent {
 
                     this._accessContext.set(access);
 
-                    const target = access?.isPlatform
+                    const target = access?.mfaPending ? ['/platform/security'] : access?.isPlatform
                         ? [access.permissions.includes('platform.kpis.read') ? '/platform/kpis'
                             : access.permissions.includes('platform.accounts.read') ? '/platform/accounts'
                             : access.permissions.includes('platform.supervisors.read') ? '/platform/supervisors'
@@ -249,6 +252,7 @@ export class LoginComponent {
 
             (error) => {
                 this.loginInProgress = false;
+                if (String(error?.error?.code || '').startsWith('PLATFORM_MFA')) { this.mfaRequested = true; this._messageService.add({ severity: 'warn', summary: 'Verificación MFA', detail: error?.error?.error?.message || 'Ingresa el código de tu autenticador o un código de recuperación.' }); return; }
                 this.show();
             }
         );

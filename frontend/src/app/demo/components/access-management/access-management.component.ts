@@ -27,6 +27,7 @@ export class AccessManagementComponent implements OnInit {
     users: AdministrativeUser[] = [];
     condominiums: Array<{ _id: string; alias: string }> = [];
     permissionOptions: Array<{ label: string; value: string }> = [];
+    moduleOptions: Array<{ label: string; value: string }> = [];
     policyOptions: Array<{ label: string; value: string }> = [];
     condominiumOptions: Array<{ label: string; value: string }> = [];
     isPolicyDialogVisible = false;
@@ -59,7 +60,7 @@ export class AccessManagementComponent implements OnInit {
     editPolicy(policy: AccessPolicy): void {
         if (!this.canManage) return;
         if (policy.isSystem) return;
-        this.policyDraft = { ...policy, permissions: [...policy.permissions] };
+        this.policyDraft = { ...policy, permissions: [...policy.permissions], excludedModules: [...(policy.excludedModules ?? [])] };
         this.isPolicyDialogVisible = true;
     }
 
@@ -148,17 +149,32 @@ export class AccessManagementComponent implements OnInit {
 
     effectivePermissions(): string[] {
         const fromPolicies = this.policies
-            .filter((policy) => (this.grantDraft.policyIds as string[]).includes(policy._id))
+            .filter((policy) => policy.status === 'active' && (this.grantDraft.policyIds as string[]).includes(policy._id))
             .flatMap((policy) => policy.permissions);
         const denied = new Set(this.grantDraft.overrides.deny);
+        const excluded = this.policies
+            .filter(policy => policy.status === 'active' && (this.grantDraft.policyIds as string[]).includes(policy._id))
+            .flatMap(policy => policy.excludedModules ?? []);
         return [...new Set([...fromPolicies, ...this.grantDraft.overrides.allow])]
-            .filter((permission) => !denied.has(permission))
+            .filter((permission) => !denied.has(permission) && !excluded.some(moduleName => permission.startsWith(`${moduleName}.`)))
             .sort();
+    }
+
+    moduleLabels(modules: string[]): string {
+        return modules.map(value => this.moduleOptions.find(option => option.value === value)?.label ?? value).join(', ');
     }
 
     private loadAll(): void {
         this.accessService.getCatalog().pipe(delay(0)).subscribe({
             next: (response) => {
+                const labels: Record<string, string> = {
+                    dashboard: 'Panel de inicio', users: 'Usuarios', condominiums: 'Condominios', owners: 'Propietarios',
+                    staff: 'Personal', bookings: 'Reservas', documents: 'Documentos', inquiries: 'Solicitudes',
+                    str: 'Alquiler de corta duración', finance: 'Finanzas', communications: 'Comunicaciones',
+                    iot: 'IoT / Smart Home', schedules: 'Programaciones', maintenance: 'Mantenimiento', vendors: 'Proveedores',
+                    cameras: 'Cámaras', 'cameras.recordings': 'Grabaciones de cámaras', vehicles: 'Vehículos', gates: 'Control de acceso',
+                };
+                this.moduleOptions = Object.keys(unwrapApiMessage(response)?.modules ?? {}).map(value => ({ label: labels[value] ?? value, value }));
                 this.permissionOptions = (unwrapApiMessage(response)?.permissions ?? []).map(
                     (permission) => ({
                         label: permission,
@@ -249,7 +265,7 @@ export class AccessManagementComponent implements OnInit {
 
     private emptyPolicy(): AccessPolicy {
         return {
-            _id: '', name: '', description: '', permissions: [],
+            _id: '', name: '', description: '', permissions: [], excludedModules: [],
             isSystem: false, status: 'active',
         };
     }

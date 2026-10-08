@@ -212,6 +212,7 @@ class IoTOwnerRegistrationService {
           );
         }
         verification.usedAt = this.now();
+        await require("./saasCommercial").provisionFree("PERSONAL_OWNER", verification.ownerId, verification.ownerId, session);
         await verification.save({ session });
         welcomeAccount = await this.models.Owner.findById(verification.ownerId)
           .select("email name").session(session).lean();

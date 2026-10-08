@@ -3,7 +3,6 @@
 const express = require("express");
 const cors = require("cors");
 const bodyparser = require("body-parser");
-const morgan = require("morgan");
 const packageInfo = require("./package.json");
 const app = express();
 // Set this only when the deployment has the specified number of trusted reverse proxies.
@@ -75,6 +74,9 @@ if (process.env.DISABLE_SCHEDULED_JOBS !== "true") {
   require("./service/iotPresenceJob").startIoTPresenceJob();
   require("./service/iotCommandExpiryJob").startIoTCommandExpiryJob();
   require("./service/cameraLiveJob").startCameraLiveJob();
+  require("./service/saasBillingWorker").start();
+  require("./service/platformNoticeWorker").start();
+  require("./service/platformExportWorker").start();
 } else {
   console.log("Scheduled background jobs are disabled.");
 }
@@ -102,7 +104,13 @@ const organization_routes = require("./routes/organization");
 const iot_routes = require("./routes/iot");
 
 //Middlewares
-app.use(morgan("dev"));
+app.use((req, res, next) => {
+  req.requestId = require("node:crypto").randomUUID();
+  res.set("X-Request-Id", req.requestId);
+  const startedAt = Date.now();
+  res.on("finish", () => console.log(JSON.stringify({ event: "http.request", requestId: req.requestId, method: req.method, route: req.route?.path || "unmatched", status: res.statusCode, durationMs: Date.now() - startedAt, organizationId: req.auth?.organizationId || null })));
+  next();
+});
 
 const localOrigins = [
   "http://localhost:9090",
@@ -169,6 +177,7 @@ app.use("/api", require("./routes/bankReconciliation"));
 app.use("/api", require("./routes/finance"));
 app.use("/api", access_routes);
 app.use("/api", require("./routes/platform"));
+app.use("/api", require("./routes/saas"));
 app.use("/api", organization_routes);
 app.use("/api", iot_routes);
 app.use("/api", require("./modules/cameras/api").createCameraRouter());

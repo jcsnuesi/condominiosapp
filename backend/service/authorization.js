@@ -80,10 +80,11 @@ function unique(values) {
   ];
 }
 
-function evaluatePermissions(policyPermissions, allow = [], deny = []) {
+function evaluatePermissions(policyPermissions, allow = [], deny = [], excludedModules = []) {
   const denied = new Set(unique(deny));
+  const excluded = unique(excludedModules);
   return unique([...(policyPermissions || []), ...allow]).filter(
-    (permission) => !denied.has(permission)
+    (permission) => !denied.has(permission) && !excluded.some(moduleName => permission.startsWith(`${moduleName}.`))
   );
 }
 
@@ -113,6 +114,7 @@ function publicAccessContext(context) {
       : null,
     isOwnerAdmin: Boolean(context.isOwnerAdmin),
     isPlatform: Boolean(context.isPlatform),
+    mfaPending: Boolean(context.mfaPending),
     contextType: context.contextType || "ORGANIZATION",
     onboardingRequired: Boolean(context.isOwnerAdmin && context.organization?.registrationSource === "SELF_SERVICE" && !context.organization?.onboardingCompletedAt),
     permissions: context.permissions,
@@ -164,7 +166,7 @@ function buildPersonalOwnerAccessContext(account) {
   };
 }
 
-async function resolveAccessContext(userPayload) {
+async function resolveBaseAccessContext(userPayload) {
   const role = String(userPayload?.role || "").toUpperCase();
   if (["PLATFORM_ADMIN", "PLATFORM_SUPERVISOR"].includes(role) && userPayload?.sub) {
     return require("./platformAuthorization").resolvePlatformContext({ ...userPayload, role });
@@ -228,7 +230,7 @@ async function resolveAccessContext(userPayload) {
     .populate({
       path: "policyIds",
       match: { status: "active" },
-      select: "permissions",
+      select: "permissions excludedModules",
     })
     .lean();
 
@@ -244,11 +246,20 @@ async function resolveAccessContext(userPayload) {
     permissions: evaluatePermissions(
       policyPermissions,
       grant?.overrides?.allow,
-      grant?.overrides?.deny
+      grant?.overrides?.deny,
+      (grant?.policyIds || []).flatMap(policy => policy.excludedModules || [])
     ),
     scope: grant?.scope || { mode: "SELECTED", condominiumIds: [] },
     grant: grant || null,
   };
+}
+
+async function resolveAccessContext(userPayload) {
+  const context = await resolveBaseAccessContext(userPayload);
+  if (!context || context.isPlatform || !require("./saasCommercial").enabled("SAAS_MODULES_ENABLED")) return context;
+  const member = await require("../models/saasMembership").findOne({ subjectType: context.organizationId ? "ORGANIZATION" : "PERSONAL_OWNER", subjectId: context.organizationId || userPayload.sub }).select("modules").lean();
+  if (member) context.permissions = context.permissions.filter(p => require("./saasCommercial").moduleAllowed(member.modules, p));
+  return context;
 }
 
 module.exports = {

@@ -5,6 +5,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AccessContextService } from '../../service/access-context.service';
 import { AccountPage, Limits, Membership, PlatformAccount, PlatformAudit, PlatformPolicy, PlatformScope, PlatformService, SaasPlan, Supervisor } from '../../service/platform.service';
+import { moduleLabels } from './platform-labels';
 
 type Section = 'accounts' | 'supervisors' | 'policies' | 'plans' | 'audit';
 interface UserDraft { _id: string; name: string; lastname: string; email: string; phone: string; password: string; status: string; policyIds: string[]; scope: PlatformScope; }
@@ -39,6 +40,17 @@ export class PlatformManagementComponent {
   policyDraft: PlatformPolicy | null = null;
   planDraft: SaasPlan | null = null;
   userDraft: UserDraft | null = null;
+  statusAccount: PlatformAccount | null = null;
+  statusReason = '';
+  revokeId = '';
+  auditAction = ''; auditActor = ''; auditFrom = ''; auditTo = '';
+  readonly auditDetail = signal<unknown>(null);
+  revokeSessions(): void { if (!this.revokeId) return; this.saving.set(true); this.api.post(`security/users/${this.revokeId}/revoke`).subscribe({ next: () => { this.revokeId = ''; this.saved(); }, error: e => this.failed(e) }); }
+  openAudit(row: PlatformAudit): void { this.api.get<unknown>(`audit/${row._id}?source=${row.source || 'PLATFORM'}`).subscribe({ next: data => this.auditDetail.set(data), error: e => this.failed(e) }); }
+  readonly moduleOptions = ['dashboard', 'users', 'condominiums', 'owners', 'staff', 'bookings', 'documents', 'inquiries', 'str', 'finance', 'communications', 'iot', 'schedules', 'maintenance', 'vendors', 'cameras', 'cameras.recordings', 'vehicles', 'gates'];
+  readonly moduleLabels = moduleLabels;
+  toggleModule(module: string, event: Event): void { if (!this.planDraft) return; const checked = (event.target as HTMLInputElement).checked; const modules = this.planDraft.modules ?? [...this.moduleOptions]; this.planDraft.modules = checked ? [...new Set([...modules, module])] : modules.filter(m => m !== module); }
+  publishPlan(plan: SaasPlan): void { this.saving.set(true); this.api.post(`plans/${plan._id}/publish`).subscribe({ next: () => this.saved(), error: e => this.failed(e) }); }
   readonly titles: Record<Section, string> = { accounts: 'Cuentas y membresías', supervisors: 'Supervisores', policies: 'Políticas de supervisión', plans: 'Planes del SaaS', audit: 'Auditoría del SaaS' };
   readonly limitLabels: Record<keyof Limits, string> = { condominiums: 'Condominios por cuenta', units: 'Unidades totales', unitsPerCondominium: 'Unidades por condominio', residences: 'Residencias personales' };
   readonly permissionLabels: Record<string, string> = {
@@ -61,7 +73,7 @@ export class PlatformManagementComponent {
       }
     } else if (section === 'policies') this.api.get<{ policies: PlatformPolicy[]; permissions: string[] }>('policies').subscribe({ next: data => { this.policies.set(data.policies); this.permissions.set(data.permissions); this.loading.set(false); }, error: e => this.failed(e) });
     else if (section === 'plans') this.loadPlans('plans');
-    else this.api.get<{ rows: PlatformAudit[]; total: number }>(`audit?page=${this.page}`).subscribe({ next: data => { this.audits.set(data.rows); this.total.set(data.total); this.loading.set(false); }, error: e => this.failed(e) });
+    else this.api.get<{ rows: PlatformAudit[]; total: number }>(`audit?page=${this.page}&action=${encodeURIComponent(this.auditAction)}&actorId=${encodeURIComponent(this.auditActor)}&from=${this.auditFrom}&to=${this.auditTo ? this.auditTo + 'T23:59:59.999-04:00' : ''}`).subscribe({ next: data => { this.audits.set(data.rows); this.total.set(data.total); this.loading.set(false); }, error: e => this.failed(e) });
   }
   private loadPlans(path: string): void { this.api.get<SaasPlan[]>(path).subscribe({ next: data => { this.plans.set(data); if (this.section() === 'plans') this.loading.set(false); }, error: e => this.failed(e) }); }
   searchScope(): void { this.api.get<AccountPage>(`scope-accounts?pageSize=100&search=${encodeURIComponent(this.scopeSearch)}`).subscribe({ next: data => { this.accountOptions.set(data.rows); this.accountOptionTotal.set(data.total); }, error: e => this.failed(e) }); }
@@ -76,14 +88,19 @@ export class PlatformManagementComponent {
   limitKeys(type: string): (keyof Limits)[] { return type === 'PERSONAL_OWNER' ? ['residences'] : ['condominiums', 'units', 'unitsPerCondominium']; }
   saveMembership(): void { if (!this.selectedAccount || this.saving()) return; this.saving.set(true); this.api.saveMembership(this.selectedAccount, this.memberDraft).subscribe({ next: () => this.saved(), error: e => this.failed(e) }); }
   setStatus(account: PlatformAccount): void {
+    this.statusAccount = account; this.statusReason = '';
+  }
+  confirmStatus(): void {
+    const account = this.statusAccount;
+    if (!account || !this.statusReason.trim()) return;
     const status = account.status === 'active' ? (account.subjectType === 'ORGANIZATION' ? 'suspended' : 'inactive') : 'active';
     if (this.saving()) return; this.saving.set(true);
-    this.api.setStatus(account, status).subscribe({ next: () => this.saved(), error: e => this.failed(e) });
+    this.api.setStatus(account, status, this.statusReason).subscribe({ next: () => { this.statusAccount = null; this.saved(); }, error: e => this.failed(e) });
   }
   newPolicy(policy?: PlatformPolicy): void { this.cancel(); this.policyDraft = policy ? { ...policy, permissions: [...policy.permissions] } : { _id: '', name: '', description: '', permissions: [], status: 'active' }; }
   togglePermission(permission: string, event: Event): void { if (!this.policyDraft) return; const checked = (event.target as HTMLInputElement).checked; this.policyDraft.permissions = checked ? [...this.policyDraft.permissions, permission] : this.policyDraft.permissions.filter(p => p !== permission); }
   savePolicy(): void { if (!this.policyDraft || this.saving()) return; this.saving.set(true); this.api.save('policies', this.policyDraft, this.policyDraft._id).subscribe({ next: () => this.saved(), error: e => this.failed(e) }); }
-  newPlan(plan?: SaasPlan): void { this.cancel(); this.planDraft = plan ? { ...plan, limits: { ...plan.limits } } : { _id: '', name: '', subjectType: 'ORGANIZATION', limits: emptyLimits(), status: 'active' }; }
+  newPlan(plan?: SaasPlan): void { this.cancel(); this.planDraft = plan ? { ...plan, modules: plan.modules ? [...plan.modules] : null, limits: { ...plan.limits } } : { _id: '', name: '', subjectType: 'ORGANIZATION', limits: emptyLimits(), status: 'active', kind: 'FREE', priceMinor: 0, currency: 'USD', interval: 'MONTH', modules: [...this.moduleOptions], isDefaultFree: false }; }
   savePlan(): void { if (!this.planDraft || this.saving()) return; this.saving.set(true); this.api.save('plans', this.planDraft, this.planDraft._id).subscribe({ next: () => this.saved(), error: e => this.failed(e) }); }
   newUser(user?: Supervisor): void { this.cancel(); this.userDraft = user ? { ...user, password: '', policyIds: user.policyIds.map(p => p._id), scope: { ...user.scope, organizationIds: [...user.scope.organizationIds], ownerIds: [...user.scope.ownerIds] } } : { _id: '', name: '', lastname: '', email: '', phone: '', password: '', status: 'active', policyIds: [], scope: { mode: 'SELECTED', organizationIds: [], ownerIds: [] } }; }
   selectAccount(account: PlatformAccount, event: Event): void { if (!this.userDraft) return; const key = account.subjectType === 'ORGANIZATION' ? 'organizationIds' : 'ownerIds'; const checked = (event.target as HTMLInputElement).checked; this.userDraft.scope[key] = checked ? [...new Set([...this.userDraft.scope[key], account.id])] : this.userDraft.scope[key].filter(id => id !== account.id); }

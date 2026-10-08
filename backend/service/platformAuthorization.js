@@ -6,9 +6,12 @@ const { PLATFORM_PERMISSIONS, platformScopeAllows } = require("./platformPermiss
 async function resolvePlatformContext(payload) {
   const account = await PlatformUser.findById(payload.sub).populate({ path: "policyIds", match: { status: "active" }, select: "permissions" }).lean();
   if (!account || account.status !== "active" || account.role !== payload.role) return null;
+  if (payload.sessionVersion !== undefined && payload.sessionVersion !== (account.sessionVersion || 0)) return null;
+  if (require("./saasCommercial").enabled("PLATFORM_MFA_ENABLED") && payload.sessionVersion === undefined && payload.iat) return null;
   const isAdmin = account.role === "PLATFORM_ADMIN";
   return {
     account, role: account.role, contextType: "PLATFORM", isPlatform: true,
+    mfaPending: Boolean(payload.mfaPending),
     organization: null, organizationId: null, isOwnerAdmin: false,
     permissions: isAdmin ? [...PLATFORM_PERMISSIONS] : [...new Set(account.policyIds.flatMap(p => p.permissions))],
     scope: isAdmin ? { mode: "ALL", organizationIds: [], ownerIds: [], condominiumIds: [] } : { ...account.scope, condominiumIds: [] },

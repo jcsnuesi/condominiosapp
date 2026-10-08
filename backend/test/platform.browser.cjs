@@ -7,7 +7,7 @@ const http = require("node:http");
 const fs = require("node:fs");
 const path = require("node:path");
 const assert = require("node:assert/strict");
-const build = path.resolve(__dirname, "../../tmp/platform-build");
+const build = process.env.PLATFORM_BROWSER_BUILD ? path.resolve(process.env.PLATFORM_BROWSER_BUILD) : path.resolve(__dirname, "../../tmp/platform-build");
 const artifacts = path.resolve(__dirname, "../../tmp/platform-browser");
 const { PLATFORM_PERMISSIONS } = require("../service/platformPermissions");
 const plan = { _id: "plan-1", name: "Base", subjectType: "ORGANIZATION", status: "active", limits: { condominiums: 2, units: 50, unitsPerCondominium: 25, residences: null } };
@@ -34,6 +34,7 @@ async function main() {
       await context.addCookies([{ name: "identity", value: JSON.stringify(identity), url: base }, { name: "token", value: token, url: base }, { name: "access_context", value: JSON.stringify(access), url: base }]);
       const page = await context.newPage(); const errors = []; const writes = []; const paths = [];
       page.on("pageerror", error => errors.push(error.message));
+      page.on("console", message => { if (message.type() === "error" && /ERROR|NG\d+/.test(message.text())) errors.push(message.text()); });
       await page.route("**/*", async route => {
         const request = route.request(); const url = new URL(request.url());
         if (url.origin === base && !url.pathname.startsWith("/api")) return route.continue();
@@ -50,7 +51,7 @@ async function main() {
         if (["platform/plans", "platform/membership-plans"].includes(apiPath)) data = [plan];
         if (apiPath === "platform/policies" || apiPath === "platform/supervisor-policies") data = { policies: [{ _id: "policy-1", name: "Auditor", description: "Consulta de cumplimiento", permissions: ["platform.kpis.read"], status: "active" }], permissions: PLATFORM_PERMISSIONS };
         if (apiPath === "platform/supervisors") data = [];
-        if (apiPath.endsWith("/access/catalog")) data = { message: { permissions: ["dashboard.read", "condominiums.read"] } };
+        if (apiPath.endsWith("/access/catalog")) data = { message: { modules: { dashboard: ["read"], condominiums: ["read"], iot: ["read", "control"] }, permissions: ["dashboard.read", "condominiums.read", "iot.read", "iot.control"] } };
         if (apiPath.endsWith("/access/users")) data = { message: [{ _id: "staff-1", subjectModel: "Staff_Admin", name: "Ana", lastname: "Santos", email: "ana@example.test", accessGrant: null }] };
         if (apiPath.endsWith("/access/policies") || apiPath.endsWith("/access/condominiums")) data = { message: [] };
         await route.fulfill({ json: { success: true, data, error: null, code: "REQUEST_OK" } });
@@ -94,10 +95,48 @@ async function main() {
       await page.goto(`${base}/index.html#/platform/organizations/${account.id}/access`);
       await expect(page.getByRole("heading", { name: "Políticas y alcance", exact: true })).toBeVisible();
       if (readOnly) await expect(page.getByRole("button", { name: /Nueva política$/ })).toBeDisabled();
+      else {
+        await page.getByRole("button", { name: /Nueva política$/ }).click();
+        const dialog = page.getByRole("dialog", { name: "Política de acceso" });
+        await dialog.locator('input[pInputText]').fill("Sin IoT");
+        await dialog.locator('p-multiselect').last().click();
+        await page.getByRole("option", { name: "IoT / Smart Home", exact: true }).click();
+        await dialog.getByText("Política de acceso", { exact: true }).click();
+        await page.screenshot({ path: path.join(artifacts, "module-exclusions.png"), fullPage: true });
+        assert.deepEqual(errors, [], "Runtime errors in the access policy dialog");
+        await page.getByRole("button", { name: /Guardar$/ }).click();
+        await expect(dialog).toBeHidden();
+        const exclusionWrite = writes.find(write => write.body?.name === "Sin IoT");
+        assert.ok(exclusionWrite);
+        assert.deepEqual(exclusionWrite.body.excludedModules, ["iot"]);
+        assert.deepEqual(exclusionWrite.body.permissions, []);
+      }
       assert.deepEqual(errors, [], "Browser runtime errors");
       await context.close();
     }
-    console.log("PASS: desktop/mobile KPIs, membership editing, supervisor delegation, policy creation, read-only supervisor, organization policy editor; all APIs mocked.");
+    for (const iotAllowed of [true, false]) {
+      const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
+      const identity = { _id: "507f1f77bcf86cd799439013", name: "Ana", lastname: "Santos", role: "STAFF_ADMIN", first_password_changed: true };
+      const access = { organization: { id: account.id, name: account.name, status: "active" }, isOwnerAdmin: false, scope: { mode: "ALL", condominiumIds: [] }, permissions: ["users.read", "cameras.read", ...(iotAllowed ? ["iot.read"] : [])] };
+      const token = `preview.${Buffer.from(JSON.stringify({ sub: identity._id, role: identity.role, exp: Math.floor(Date.now() / 1000) + 3600 })).toString("base64url")}.preview`;
+      await context.addCookies([{ name: "identity", value: JSON.stringify(identity), url: base }, { name: "token", value: token, url: base }, { name: "access_context", value: JSON.stringify(access), url: base }]);
+      const page = await context.newPage();
+      await page.route("**/*", async route => {
+        const url = new URL(route.request().url());
+        if (url.origin === base && !url.pathname.startsWith("/api")) return route.continue();
+        await route.fulfill({ json: { success: true, data: url.pathname.endsWith("auth/me") ? { user: identity, access } : { message: [] }, error: null, code: "REQUEST_OK" } });
+      });
+      await page.goto(`${base}/index.html#/usermanagement`);
+      await expect(page.locator('app-menu')).toBeVisible();
+      await expect(page.locator('app-menu').getByRole("link", { name: "Devices", exact: true })).toHaveCount(iotAllowed ? 1 : 0);
+      await expect(page.locator('app-menu').getByRole("link", { name: "Cámaras", exact: true })).toBeVisible();
+      if (!iotAllowed) {
+        await page.goto(`${base}/index.html#/smart-home`);
+        await expect(page).toHaveURL(/auth\/login/);
+      }
+      await context.close();
+    }
+    console.log("PASS: platform forms, module exclusion policy, IoT menu visibility and direct route denial; all APIs mocked.");
   } finally { await browser.close(); }
 }
 main().catch(error => { console.error(error); process.exitCode = 1; }).finally(() => server.close());

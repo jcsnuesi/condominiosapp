@@ -43,6 +43,13 @@ import { CommunicationLogComponent } from './demo/components/communication-log/c
                             children: [
                                 { path: '', pathMatch: 'full', loadComponent: () => import('./demo/components/platform/platform-welcome.component').then(m => m.PlatformWelcomeComponent) },
                                 { path: 'kpis', data: { permission: 'platform.kpis.read' }, canActivate: [UserGuard], loadComponent: () => import('./demo/components/platform/platform-kpis.component').then(m => m.PlatformKpisComponent) },
+                                { path: 'security', loadComponent: () => import('./demo/components/platform/platform-security.component').then(m => m.PlatformSecurityComponent) },
+                                { path: 'migrations', data: { permission: 'platform.memberships.manage' }, canActivate: [UserGuard], loadComponent: () => import('./demo/components/platform/platform-migration.component').then(m => m.PlatformMigrationComponent) },
+                                ...[
+                                    { path: 'billing', permission: 'platform.billing.read' }, { path: 'support', permission: 'platform.support.read' },
+                                    { path: 'communications', permission: 'platform.communications.read' }, { path: 'health', permission: 'platform.operations.read' },
+                                    { path: 'configuration', permission: 'platform.operations.read' }, { path: 'lifecycle', permission: 'platform.data.read' },
+                                ].map(item => ({ path: item.path, data: { section: item.path, permission: item.permission }, canActivate: [UserGuard], loadComponent: () => import('./demo/components/platform/platform-operations.component').then(m => m.PlatformOperationsComponent) })),
                                 ...[
                                     { path: 'accounts', permission: 'platform.accounts.read' },
                                     { path: 'supervisors', permission: 'platform.supervisors.read' },
@@ -59,6 +66,7 @@ import { CommunicationLogComponent } from './demo/components/communication-log/c
                             canActivate: [UserGuard],
                             loadComponent: () => import('./demo/components/cameras/cameras.component').then((m) => m.CamerasComponent),
                         },
+                        { path: 'subscription', data: { roles: ['ADMIN', 'OWNER'] }, canActivate: [UserGuard], loadComponent: () => import('./demo/components/platform/saas-subscription.component').then(m => m.SaasSubscriptionComponent) },
                         {
                             path: 'schedule',
                             data: { permission: 'schedules.read' },

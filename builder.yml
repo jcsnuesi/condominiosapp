@@ -41,12 +41,25 @@ services:
       PLATFORM_ADMIN_NAME: ${PLATFORM_ADMIN_NAME:-}
       PLATFORM_ADMIN_LASTNAME: ${PLATFORM_ADMIN_LASTNAME:-}
       PLATFORM_ADMIN_PHONE: ${PLATFORM_ADMIN_PHONE:-}
+      SAAS_FREE_REGISTRATION_ENABLED: ${SAAS_FREE_REGISTRATION_ENABLED:-false}
+      SAAS_MODULES_ENABLED: ${SAAS_MODULES_ENABLED:-false}
+      SAAS_PAYPAL_ENABLED: ${SAAS_PAYPAL_ENABLED:-false}
+      SAAS_PAYPAL_ENV: ${SAAS_PAYPAL_ENV:-sandbox}
+      SAAS_PAYPAL_CLIENT_ID: ${SAAS_PAYPAL_CLIENT_ID:-}
+      SAAS_PAYPAL_SECRET: ${SAAS_PAYPAL_SECRET:-}
+      SAAS_PAYPAL_WEBHOOK_ID: ${SAAS_PAYPAL_WEBHOOK_ID:-}
+      PLATFORM_MFA_ENABLED: ${PLATFORM_MFA_ENABLED:-false}
+      PLATFORM_MFA_KEY: ${PLATFORM_MFA_KEY:-}
+      PLATFORM_OPERATIONS_ENABLED: ${PLATFORM_OPERATIONS_ENABLED:-false}
+      PLATFORM_DATA_PURGE_ENABLED: ${PLATFORM_DATA_PURGE_ENABLED:-false}
+      SAAS_BACKUP_STATUS_FILE: /backups/status.json
     ports:
       - "3993:3993"
     networks:
       - app-network
     volumes:
       - uploads:/app/uploads
+      - saas-backups:/backups:ro
     depends_on:
       mongodb:
         condition: service_healthy
@@ -64,6 +77,24 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
+
+  saas-backup:
+    profiles: ["saas-backup"]
+    build:
+      context: ./infra/saas-backup
+    environment:
+      SAAS_BACKUP_MONGODB_URI: ${SAAS_BACKUP_MONGODB_URI:-}
+      SAAS_BACKUP_PASSWORD: ${SAAS_BACKUP_PASSWORD:-}
+      SAAS_BACKUP_S3_URI: ${SAAS_BACKUP_S3_URI:-}
+      AWS_ACCESS_KEY_ID: ${SAAS_BACKUP_AWS_ACCESS_KEY_ID:-}
+      AWS_SECRET_ACCESS_KEY: ${SAAS_BACKUP_AWS_SECRET_ACCESS_KEY:-}
+      AWS_DEFAULT_REGION: ${SAAS_BACKUP_AWS_REGION:-us-east-1}
+    volumes:
+      - uploads:/uploads:ro
+      - saas-backups:/backups
+    networks:
+      - app-network
+    restart: unless-stopped
 
   ocr-service:
     build:
@@ -203,6 +234,7 @@ services:
     environment:
       MONGODB_URI: ${MONGODB_URI:?Set MONGODB_URI in Coolify runtime environment}
       SCHEDULE_WORKER_INTERVAL_MS: ${SCHEDULE_WORKER_INTERVAL_MS:-1800000}
+      SAAS_MODULES_ENABLED: ${SAAS_MODULES_ENABLED:-false}
       SCHEDULE_MODULE_ENABLED: ${SCHEDULE_MODULE_ENABLED:-true}
     networks:
       - app-network
@@ -282,6 +314,7 @@ services:
       options: {max-size: "10m", max-file: "2"}
 
 volumes:
+  saas-backups:
   mongodb-iam-data:
   uploads:
   ocr-models:

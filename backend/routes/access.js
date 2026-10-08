@@ -17,7 +17,7 @@ router.put(
   [authenticated, profileUpload.single("avatar")],
   controller.updateMe
 );
-router.put("/auth/me/password", authenticated, controller.changeMyPassword);
+router.put("/auth/me/password", authenticated, (req, res, next) => req.auth.isPlatform ? require("../service/platformMfa").requireRecentMfa(req, res, next) : next(), controller.changeMyPassword);
 router.get("/access/catalog", [authenticated, requireOwnerAdmin], controller.catalog);
 router.get("/access/policies", [authenticated, requireOwnerAdmin], controller.listPolicies);
 router.post("/access/policies", [authenticated, requireOwnerAdmin], controller.createPolicy);

@@ -14,6 +14,8 @@ COPY modules/schedule/infrastructure/models.js ./modules/schedule/infrastructure
 COPY modules/maintenance/service.js modules/maintenance/evidence-cleanup.js ./modules/maintenance/
 COPY service/authorization.js service/permissionCatalog.js service/residentPropertyAccess.js ./service/
 COPY service/saasMembershipService.js service/platformAuthorization.js service/platformPermissions.js ./service/
+COPY service/saasCommercial.js service/routeModules.js ./service/
+COPY models/saasPlan.js ./models/
 COPY models/saasMembership.js models/platformUser.js models/platformPolicy.js ./models/
 COPY models/accessGrant.js models/admin.js models/condominio.js models/docs.js models/family.js models/historico_owner.js models/organization.js models/owners.js models/staff.js models/staff_admin.js ./models/
 COPY scripts/migrateSchedule.js ./scripts/

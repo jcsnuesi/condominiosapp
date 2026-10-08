@@ -205,6 +205,7 @@ async function changeMyPassword(req, res) {
   const AccountModel = ACCOUNT_MODELS[role];
   const currentPassword = String(req.body.currentPassword || "");
   const newPassword = String(req.body.newPassword || "");
+  if (req.auth.isPlatform && (newPassword.length < 12 || newPassword.length > 128)) return res.status(400).send({ message: "La contraseña de plataforma requiere de 12 a 128 caracteres" });
 
   if (!AccountModel || !currentPassword || newPassword.length < 8) {
     return res.status(400).send({
@@ -236,6 +237,7 @@ async function changeMyPassword(req, res) {
     }
 
     account.password = await bcrypt.hash(newPassword, 10);
+    if (req.auth.isPlatform) account.sessionVersion = (account.sessionVersion || 0) + 1;
     if ("first_password_changed" in account) {
       account.first_password_changed = true;
     }
@@ -268,6 +270,10 @@ async function listPolicies(req, res) {
 }
 
 async function createPolicy(req, res) {
+  if (req.body.excludedModules !== undefined && (!Array.isArray(req.body.excludedModules) || req.body.excludedModules.some(value => typeof value !== "string" || !Object.hasOwn(MODULE_ACTIONS, value)))) {
+    return res.status(400).send({ status: "error", message: "Invalid excluded modules" });
+  }
+  const excludedModules = [...new Set(req.body.excludedModules || [])];
   const permissions = cleanPermissions(req.body.permissions);
   const unknown = invalidPermissions(permissions);
   if (!req.body.name || unknown.length) {
@@ -282,6 +288,7 @@ async function createPolicy(req, res) {
         name: req.body.name,
         description: req.body.description || "",
         permissions,
+        excludedModules,
         isSystem: false,
         createdBy: req.user.sub,
       }], { session });
@@ -298,6 +305,9 @@ async function createPolicy(req, res) {
 }
 
 async function updatePolicy(req, res) {
+  if (req.body.excludedModules !== undefined && (!Array.isArray(req.body.excludedModules) || req.body.excludedModules.some(value => typeof value !== "string" || !Object.hasOwn(MODULE_ACTIONS, value)))) {
+    return res.status(400).send({ status: "error", message: "Invalid excluded modules" });
+  }
   const permissions = cleanPermissions(req.body.permissions);
   const unknown = invalidPermissions(permissions);
   if (!req.body.name || unknown.length) {
@@ -314,7 +324,8 @@ async function updatePolicy(req, res) {
       if (before.isSystem) throw Object.assign(new Error("SYSTEM_POLICY"), { statusCode: 409 });
 
       updated = await AccessPolicy.findByIdAndUpdate(before._id, {
-        $set: { name: req.body.name, description: req.body.description || "", permissions },
+        $set: { name: req.body.name, description: req.body.description || "", permissions,
+          excludedModules: req.body.excludedModules === undefined ? (before.excludedModules || []) : [...new Set(req.body.excludedModules)] },
       }, { new: true, runValidators: true, session });
       await AuthorizationAudit.create([auditData(req, {
         action: "policy.update", targetType: "AccessPolicy", targetId: updated._id,

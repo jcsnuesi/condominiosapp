@@ -23,8 +23,9 @@ function sign(payload) {
 }
 
 exports.createToken = function (user, options = {}) {
+  const platform = String(user.role).startsWith("PLATFORM_");
   const rememberMe = Boolean(options.rememberMe);
-  const expirationDate = rememberMe
+  const expirationDate = platform ? addHours(new Date(), options.mfaPending ? 0.25 : 8) : rememberMe
     ? addDays(new Date(), 30)
     : addHours(new Date(), 12);
 
@@ -36,6 +37,7 @@ exports.createToken = function (user, options = {}) {
     exp: getUnixTime(expirationDate),
     createdBy: user.createdBy || null,
     organizationId: user.organizationId || null,
+    ...(platform ? { sessionVersion: user.sessionVersion || 0, mfaPending: Boolean(options.mfaPending), mfaAt: options.mfaAt || null } : {}),
   };
 
   return sign(payload);
@@ -43,7 +45,7 @@ exports.createToken = function (user, options = {}) {
 
 exports.resolveSessionExpiration = function (options = {}) {
   const rememberMe = Boolean(options.rememberMe);
-  const expirationDate = rememberMe
+  const expirationDate = options.platform ? addHours(new Date(), options.mfaPending ? 0.25 : 8) : rememberMe
     ? addDays(new Date(), 30)
     : addHours(new Date(), 12);
 

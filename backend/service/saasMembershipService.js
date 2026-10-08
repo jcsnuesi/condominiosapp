@@ -6,7 +6,8 @@ function membershipError(code, message, statusCode = 409) {
   return Object.assign(new Error(message), { code, statusCode });
 }
 function isMembershipCurrent(membership, now = new Date()) {
-  return membership.status === "ACTIVE" && membership.billingStatus !== "PAST_DUE" && (!membership.endsAt || new Date(membership.endsAt) > now);
+  const grace = Boolean(membership.graceUntil && new Date(membership.graceUntil) > now);
+  return membership.status === "ACTIVE" && (membership.billingStatus !== "PAST_DUE" || grace) && (!membership.endsAt || new Date(membership.endsAt) > now || grace);
 }
 const normalizeUnit = value => String(value || "").normalize("NFKC").trim().replace(/\s+/g, " ").toLowerCase();
 function unitCount(condominium, assignedLabels = []) {
@@ -74,11 +75,17 @@ async function withMembershipWrite(type, id, work) {
   });
 }
 async function enforceMembershipRequest(req) {
-  if (!["POST", "PUT", "PATCH", "DELETE"].includes(req.method) || /^\/auth\/me(?:\/password)?$/.test(req.path) || req.path === "/update-password") return;
+  if (!["POST", "PUT", "PATCH", "DELETE"].includes(req.method) && !require("./saasCommercial").enabled("SAAS_MODULES_ENABLED")) return;
+  if (/^\/(?:auth\/me(?:\/password)?|update-password|saas\/|platform-announcements)/.test(req.path)) return;
   const type = req.auth.organizationId ? "ORGANIZATION" : "PERSONAL_OWNER";
   const id = req.auth.organizationId || req.user.sub;
   const member = await Membership.findOne({ subjectType: type, subjectId: id }).lean();
-  if (member && !isMembershipCurrent(member)) throw membershipError("SAAS_MEMBERSHIP_INACTIVE", "Tu membresía no está vigente. Contacta al administrador", 403);
+  if (member && !isMembershipCurrent(member) && ["POST", "PUT", "PATCH", "DELETE"].includes(req.method)) throw membershipError("SAAS_MEMBERSHIP_INACTIVE", "Tu membresía no está vigente. Contacta al administrador", 403);
+  if (member && require("./saasCommercial").enabled("SAAS_MODULES_ENABLED")) {
+    const match = require("./routeModules").find(([pattern]) => pattern.test(req.path));
+    const module = /camera-recordings|\/(recordings|playback|events)(?:\/|$)/.test(req.path) && match?.[1] === "cameras" ? "cameras.recordings" : match?.[1];
+    if (module && !require("./saasCommercial").moduleAllowed(member.modules, `${module}.read`)) throw membershipError("SAAS_MODULE_UNAVAILABLE", "Este módulo no está incluido en tu plan", 403);
+  }
 }
 
 // Defense in depth: other writers cannot bypass quota enforcement. Quota-changing

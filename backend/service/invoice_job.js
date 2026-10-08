@@ -288,6 +288,7 @@ async function generateOwnerInvoices(
  */
 async function generateCondominiumInvoices(condominium) {
   try {
+    if (!await require("./saasCommercial").automationAllowed(condominium.organizationId, "finance")) return { condominium: condominium.alias, totalOwners: 0, totalUnits: 0, successful: 0, failed: 0, skipped: true };
     if (!condominium.units_ownerId || condominium.units_ownerId.length === 0) {
       console.log(`⚠️  No owners found for condominium ${condominium.alias}`);
       return {

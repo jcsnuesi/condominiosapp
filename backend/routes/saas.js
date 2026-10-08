@@ -1,0 +1,11 @@
+"use strict";
+const router = require("express").Router();
+const { authenticated } = require("../middleware/auth");
+const c = require("../controllers/saas");
+router.post("/saas/paypal/webhook", c.webhook);
+router.get("/saas/subscription", authenticated, c.subscription);
+router.post("/saas/subscription", authenticated, c.subscribe);
+router.post("/saas/subscription/cancel", authenticated, c.cancel);
+router.get("/saas/receipts/:id", authenticated, c.receipt);
+router.get("/platform-announcements", authenticated, require("../controllers/platformOperations").inbox);
+module.exports = router;

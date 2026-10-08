@@ -33,7 +33,7 @@
                     responsiveLayout="scroll"
                     [rowHover]="true"
                 >
-                    <ng-template pTemplate="header">
+                    <ng-template #header>
                         <tr>
                             <th>Usuario</th>
                             <th>Tipo</th>
@@ -42,7 +42,7 @@
                             <th></th>
                         </tr>
                     </ng-template>
-                    <ng-template pTemplate="body" let-user>
+                    <ng-template #body let-user>
                         <tr>
                             <td>
                                 <strong>{{
@@ -71,7 +71,7 @@
                             </td>
                         </tr>
                     </ng-template>
-                    <ng-template pTemplate="emptymessage"
+                    <ng-template #emptymessage
                         ><tr>
                             <td colspan="5">
                                 No hay usuarios administrativos.
@@ -99,6 +99,9 @@
                         </div>
                         <p>{{ policy.description || "Sin descripción" }}</p>
                         <small>{{ policy.permissions.length }} permisos</small>
+                        @if (policy.excludedModules?.length) {
+                        <small>Módulos excluidos: {{ moduleLabels(policy.excludedModules ?? []) }}</small>
+                        }
                         @if (canManage && !policy.isSystem && policy.status === 'active') {
                         <div class="policy-actions">
                             <p-button
@@ -151,10 +154,24 @@
                 appendTo="body"
                 [panelStyle]="{ 'z-index': 1200 }"
         /></label>
+        <label>Módulos excluidos<p-multiSelect
+            [options]="moduleOptions"
+            optionLabel="label"
+            optionValue="value"
+            [(ngModel)]="policyDraft.excludedModules"
+            display="chip"
+            appendTo="body"
+            [filter]="true"
+            placeholder="Selecciona los módulos que deseas bloquear"
+            ariaLabel="Módulos excluidos"
+            [panelStyle]="{ 'z-index': 1200 }"
+        /></label>
+        <small>Los módulos excluidos se ocultan del menú y se bloquean aunque otra política o un permiso adicional conceda acceso. Puedes crear una política solo de exclusión y combinarla con las políticas actuales.</small>
     </div>
-    <ng-template pTemplate="footer"
+    <ng-template #footer
         ><p-button
             label="Guardar"
+            ariaLabel="Guardar"
             icon="pi pi-check"
             [disabled]="!policyDraft.name"
             (onClick)="savePolicy()"
@@ -227,9 +244,10 @@
             ><span>{{ effectivePermissions().join(", ") || "Ninguno" }}</span>
         </div>
     </div>
-    <ng-template pTemplate="footer"
+    <ng-template #footer
         ><p-button
             label="Guardar asignación"
+            ariaLabel="Guardar asignación"
             icon="pi pi-check"
             (onClick)="saveGrant()"
     /></ng-template>

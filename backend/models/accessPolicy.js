@@ -1,7 +1,7 @@
 "use strict";
 
 const mongoose = require("mongoose");
-const { isValidPermission } = require("../service/permissionCatalog");
+const { isValidPermission, MODULE_ACTIONS } = require("../service/permissionCatalog");
 const Schema = mongoose.Schema;
 
 const AccessPolicySchema = new Schema(
@@ -19,6 +19,10 @@ const AccessPolicySchema = new Schema(
       },
     },
     isSystem: { type: Boolean, default: false },
+    excludedModules: {
+      type: [{ type: String, lowercase: true, trim: true, enum: Object.keys(MODULE_ACTIONS) }],
+      default: [],
+    },
     status: { type: String, enum: ["active", "archived"], default: "active" },
     createdBy: { type: Schema.Types.ObjectId, required: true },
   },

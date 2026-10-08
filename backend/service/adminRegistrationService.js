@@ -129,6 +129,7 @@ class AdminRegistrationService {
       await this.Policy.create(STANDARD_POLICIES.map(policy => ({
         ...policy, organizationId, isSystem: true, status: "active", createdBy: adminId,
       })), { session, ordered: true });
+      await require("./saasCommercial").provisionFree("ORGANIZATION", organizationId, adminId, session);
       await this.Audit.create([{
         organizationId, actorId: adminId, actorRole: "ADMIN", action: "organization.self_register",
         targetType: "Organization", targetId: organizationId,
