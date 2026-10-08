@@ -39,30 +39,38 @@ export interface AdministrativeUser {
 
 @Injectable({ providedIn: 'root' })
 export class AccessManagementService {
+    organizationId: string | null = null;
+    private endpoint(path: string): string {
+        if (!this.organizationId) return `${global.url}${path}`;
+        const base = `${global.url}platform/organizations/${encodeURIComponent(this.organizationId)}/access`;
+        if (path === 'get-properties/current') return `${base}/condominiums`;
+        if (path === 'organization-users') return `${base}/users`;
+        return `${base}/${path.replace(/^access\//, '')}`;
+    }
     constructor(private readonly http: HttpClient) {}
 
     getCatalog(): Observable<ApiResponse<{ modules: Record<string, string[]>; permissions: string[] }>> {
-        return this.http.get<ApiResponse<{ modules: Record<string, string[]>; permissions: string[] }>>(`${global.url}access/catalog`);
+        return this.http.get<ApiResponse<{ modules: Record<string, string[]>; permissions: string[] }>>(this.endpoint('access/catalog'));
     }
 
     getPolicies(): Observable<ApiResponse<AccessPolicy[]>> {
-        return this.http.get<ApiResponse<AccessPolicy[]>>(`${global.url}access/policies`);
+        return this.http.get<ApiResponse<AccessPolicy[]>>(this.endpoint('access/policies'));
     }
 
     createPolicy(policy: Pick<AccessPolicy, 'name' | 'description' | 'permissions'>): Observable<ApiResponse<AccessPolicy>> {
-        return this.http.post<ApiResponse<AccessPolicy>>(`${global.url}access/policies`, policy);
+        return this.http.post<ApiResponse<AccessPolicy>>(this.endpoint('access/policies'), policy);
     }
 
     updatePolicy(policy: AccessPolicy): Observable<ApiResponse<AccessPolicy>> {
-        return this.http.put<ApiResponse<AccessPolicy>>(`${global.url}access/policies/${policy._id}`, policy);
+        return this.http.put<ApiResponse<AccessPolicy>>(this.endpoint(`access/policies/${policy._id}`), policy);
     }
 
     archivePolicy(policyId: string): Observable<ApiResponse<string>> {
-        return this.http.delete<ApiResponse<string>>(`${global.url}access/policies/${policyId}`);
+        return this.http.delete<ApiResponse<string>>(this.endpoint(`access/policies/${policyId}`));
     }
 
     getUsers(): Observable<ApiResponse<AdministrativeUser[]>> {
-        return this.http.get<ApiResponse<AdministrativeUser[]>>(`${global.url}organization-users`);
+        return this.http.get<ApiResponse<AdministrativeUser[]>>(this.endpoint('organization-users'));
     }
 
     updateUserStatus(
@@ -85,12 +93,12 @@ export class AccessManagementService {
 
     saveGrant(user: AdministrativeUser, grant: AccessGrant): Observable<ApiResponse<AccessGrant>> {
         return this.http.put<ApiResponse<AccessGrant>>(
-            `${global.url}access/grants/${user.subjectModel}/${user._id}`,
+            this.endpoint(`access/grants/${user.subjectModel}/${user._id}`),
             grant
         );
     }
 
     getCondominiums(): Observable<ApiResponse<Array<{ _id: string; alias: string }>>> {
-        return this.http.get<ApiResponse<Array<{ _id: string; alias: string }>>>(`${global.url}get-properties/current`);
+        return this.http.get<ApiResponse<Array<{ _id: string; alias: string }>>>(this.endpoint('get-properties/current'));
     }
 }

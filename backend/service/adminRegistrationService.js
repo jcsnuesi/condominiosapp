@@ -44,7 +44,7 @@ class AdminRegistrationService {
     Admin = require("../models/admin"),
     Policy = require("../models/accessPolicy"),
     Audit = require("../models/authorizationAudit"),
-    accounts = [Admin, require("../models/owners"), require("../models/staff_admin"), require("../models/staff"), require("../models/family")],
+    accounts = [Admin, require("../models/owners"), require("../models/staff_admin"), require("../models/staff"), require("../models/family"), require("../models/platformUser")],
     emailService = require("./generateVerification"),
     mongo = mongoose,
     now = () => new Date(),

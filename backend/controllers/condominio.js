@@ -28,6 +28,7 @@ const {
 } = require("../service/residentPropertyAccess");
 
 const mongoose = require("mongoose");
+const { withMembershipWrite } = require("../service/saasMembershipService");
 const { validateSupport, hasSupportKeys } = require("../service/residentSupport");
 
 async function permanentDeleteImpact(
@@ -231,7 +232,7 @@ var Condominium_Controller = {
           paymentDate: condominiumParams.paymentDate,
           createdBy: req.user.sub,
         });
-        await condominio.save();
+        await withMembershipWrite("ORGANIZATION", req.auth.organizationId, session => condominio.save({ session }));
 
         let emailSent = false;
         try {
@@ -258,9 +259,10 @@ var Condominium_Controller = {
         });
       } catch (error) {
         console.log("error", error);
-        return res.status(500).send({
+        return res.status(error.statusCode || 500).send({
           status: "error",
-          message: "Error saving condominium",
+          message: error.code ? error.message : "Error saving condominium",
+          code: error.code,
           error: error.message,
         });
       }
@@ -389,7 +391,7 @@ var Condominium_Controller = {
         if (Object.keys(params).some((key) => key.startsWith("residentSupport.") || key.startsWith("residentSupport["))) return res.status(400).send({ message: "Envía la configuración de atención completa" });
         params.residentSupport = await validateSupport(params.residentSupport, id, req.auth.organizationId);
       }
-      const condominiumUpdated = await Condominium.findOneAndUpdate(
+      const condominiumUpdated = await withMembershipWrite("ORGANIZATION", req.auth.organizationId, session => Condominium.findOneAndUpdate(
         { _id: id, organizationId: req.auth.organizationId },
         {
           $set: Object.fromEntries(
@@ -399,8 +401,8 @@ var Condominium_Controller = {
             )
           ),
         },
-        { new: true, runValidators: true }
-      );
+        { new: true, runValidators: true, session }
+      ));
 
       if (!condominiumUpdated) {
         return res.status(404).send({
@@ -417,7 +419,8 @@ var Condominium_Controller = {
       // console.log("error", error);
       return res.status(error.statusCode || 500).send({
         status: "error",
-        message: "Error al actualizar el condominio",
+        message: error.code ? error.message : "Error al actualizar el condominio",
+        code: error.code,
         error: error,
       });
     }
@@ -1160,22 +1163,27 @@ var Condominium_Controller = {
         });
       }
 
-      await Condominium.insertMany(
-        params.map((condominium) => ({
-          ...condominium,
-          residentSupport: { enabled: false, staffId: null },
-          organizationId: req.auth.organizationId,
-          createdBy: req.user.sub,
-        }))
-      );
+      await withMembershipWrite("ORGANIZATION", req.auth.organizationId, session => Condominium.insertMany(
+        params.map((condominium) => {
+          const doc = new Condominium({
+            ...condominium,
+            residentSupport: { enabled: false, staffId: null },
+            organizationId: req.auth.organizationId,
+            createdBy: req.user.sub,
+          });
+          doc.$session(session);
+          return doc;
+        }), { session }
+      ));
       return res.status(200).send({
         status: "success",
         message: "Condominiums created successfully",
       });
     } catch (error) {
       console.error("Transaction failed: ", error);
-      return res.status(500).send({
+      return res.status(error.statusCode || 500).send({
         status: "error",
+        code: error.code,
         message: error.message,
       });
     }

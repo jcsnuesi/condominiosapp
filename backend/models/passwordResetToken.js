@@ -8,7 +8,7 @@ const PasswordResetTokenSchema = new Schema(
     userId: { type: mongoose.Schema.Types.ObjectId, required: true },
     userModel: {
       type: String,
-      enum: ["Admin", "Staff_Admin", "Staff", "Owner", "Family"],
+      enum: ["Admin", "Staff_Admin", "Staff", "Owner", "Family", "PlatformUser"],
       required: true,
     },
     email: { type: String, required: true, index: true },

@@ -97,6 +97,17 @@ module.exports.authenticated = async function (req, res, next) {
   }
 
   // Compatibility helpers receive the verified context, never client input.
+  const routePath = `${req.baseUrl || ""}${req.path || ""}`.replace(/^\/api(?=\/)/, "");
+  if (req.auth.isPlatform && !(/^\/platform(?:\/|$)/.test(routePath) || /^\/auth\/me(?:\/password)?$/.test(routePath))) {
+    return res.status(403).send({ status: "error", code: "PLATFORM_CONTEXT_ROUTE_DENIED", message: "Usa el módulo de administración SaaS" });
+  }
+  if (!req.auth.isPlatform) {
+    try {
+      await require("../service/saasMembershipService").enforceMembershipRequest(req);
+    } catch (error) {
+      return res.status(error.statusCode || 503).send({ status: "error", code: error.code || "MEMBERSHIP_CHECK_FAILED", message: error.message });
+    }
+  }
   if (
     req.auth.contextType === "PERSONAL_OWNER" &&
     !isPersonalOwnerRouteAllowed(req)

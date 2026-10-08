@@ -81,5 +81,6 @@ CondominiumSchema.index(
 );
 
 CondominiumSchema.plugin(mongooPaginate);
+CondominiumSchema.plugin(require("../service/saasMembershipService").membershipPlugin, { type: "ORGANIZATION", relevant: ["units", "availableUnits", "status", "organizationId"] });
 
 module.exports = mongoose.model("Condominium", CondominiumSchema);

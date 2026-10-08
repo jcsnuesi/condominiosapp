@@ -168,6 +168,7 @@ app.use("/api", payment_routes);
 app.use("/api", require("./routes/bankReconciliation"));
 app.use("/api", require("./routes/finance"));
 app.use("/api", access_routes);
+app.use("/api", require("./routes/platform"));
 app.use("/api", organization_routes);
 app.use("/api", iot_routes);
 app.use("/api", require("./modules/cameras/api").createCameraRouter());

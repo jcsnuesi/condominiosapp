@@ -10,6 +10,8 @@ import {
 } from '../../service/access-management.service';
 import { ImportsModule } from '../../imports_primeng';
 import { delay } from 'rxjs';
+import { ActivatedRoute } from '@angular/router';
+import { AccessContextService } from '../../service/access-context.service';
 
 @Component({
     selector: 'app-access-management',
@@ -17,9 +19,10 @@ import { delay } from 'rxjs';
     imports: [CommonModule, FormsModule, ImportsModule],
     templateUrl: './access-management.component.html',
     styleUrl: './access-management.component.css',
-    providers: [ConfirmationService, MessageService],
+    providers: [AccessManagementService, ConfirmationService, MessageService],
 })
 export class AccessManagementComponent implements OnInit {
+    canManage = true;
     policies: AccessPolicy[] = [];
     users: AdministrativeUser[] = [];
     condominiums: Array<{ _id: string; alias: string }> = [];
@@ -36,25 +39,32 @@ export class AccessManagementComponent implements OnInit {
         private readonly accessService: AccessManagementService,
         private readonly confirmationService: ConfirmationService,
         private readonly messages: MessageService,
-        private readonly changeDetectorRef: ChangeDetectorRef
+        private readonly changeDetectorRef: ChangeDetectorRef,
+        private readonly route: ActivatedRoute,
+        private readonly accessContext: AccessContextService
     ) {}
 
     ngOnInit(): void {
+        this.accessService.organizationId = this.route.snapshot.paramMap.get('organizationId');
+        this.canManage = !this.accessService.organizationId || this.accessContext.hasPermission('platform.access.manage');
         this.loadAll();
     }
 
     openNewPolicy(): void {
+        if (!this.canManage) return;
         this.policyDraft = this.emptyPolicy();
         this.isPolicyDialogVisible = true;
     }
 
     editPolicy(policy: AccessPolicy): void {
+        if (!this.canManage) return;
         if (policy.isSystem) return;
         this.policyDraft = { ...policy, permissions: [...policy.permissions] };
         this.isPolicyDialogVisible = true;
     }
 
     savePolicy(): void {
+        if (!this.canManage) return;
         const request = this.policyDraft._id
             ? this.accessService.updatePolicy(this.policyDraft)
             : this.accessService.createPolicy(this.policyDraft);
@@ -69,6 +79,7 @@ export class AccessManagementComponent implements OnInit {
     }
 
     confirmArchivePolicy(policy: AccessPolicy): void {
+        if (!this.canManage) return;
         this.confirmationService.confirm({
             header: 'Confirmar eliminación',
             message: `¿Quieres eliminar la política “${policy.name}”? Esta acción la archivará y no podrá usarse en nuevas asignaciones.`,
@@ -92,6 +103,7 @@ export class AccessManagementComponent implements OnInit {
     }
 
     editGrant(user: AdministrativeUser): void {
+        if (!this.canManage) return;
         this.selectedUser = user;
         const grant = user.accessGrant;
         this.grantDraft = grant
@@ -113,6 +125,7 @@ export class AccessManagementComponent implements OnInit {
     }
 
     saveGrant(): void {
+        if (!this.canManage) return;
         if (!this.selectedUser) return;
         if (this.grantDraft.scope.mode === 'ALL') {
             this.grantDraft.scope.condominiumIds = [];

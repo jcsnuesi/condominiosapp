@@ -227,7 +227,14 @@ export class LoginComponent {
 
                     this._accessContext.set(access);
 
-                    const target = access?.onboardingRequired
+                    const target = access?.isPlatform
+                        ? [access.permissions.includes('platform.kpis.read') ? '/platform/kpis'
+                            : access.permissions.includes('platform.accounts.read') ? '/platform/accounts'
+                            : access.permissions.includes('platform.supervisors.read') ? '/platform/supervisors'
+                            : access.permissions.includes('platform.policies.read') ? '/platform/policies'
+                            : access.permissions.includes('platform.memberships.read') ? '/platform/plans'
+                            : access.permissions.includes('platform.audit.read') ? '/platform/audit' : '/platform']
+                        : access?.onboardingRequired
                         ? ['/onboarding']
                         : identity.role === 'OWNER' && !identity.organizationId
                             ? ['/smart-home']

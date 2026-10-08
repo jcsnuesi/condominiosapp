@@ -27,6 +27,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    command: ["sh", "-c", "npm run platform:bootstrap && exec npm start"]
     # env_file:
     #   - ./backend/.env
     environment:
@@ -35,6 +36,11 @@ services:
       OCR_SERVICE_TOKEN: ${OCR_SERVICE_TOKEN:?Set OCR_SERVICE_TOKEN in the root .env}
       CALL_TOKEN_SECRET: ${CALL_TOKEN_SECRET:-}
       CALL_INTERNAL_TOKEN: ${CALL_INTERNAL_TOKEN:-}
+      PLATFORM_ADMIN_EMAIL: ${PLATFORM_ADMIN_EMAIL:-}
+      PLATFORM_ADMIN_PASSWORD: ${PLATFORM_ADMIN_PASSWORD:-}
+      PLATFORM_ADMIN_NAME: ${PLATFORM_ADMIN_NAME:-}
+      PLATFORM_ADMIN_LASTNAME: ${PLATFORM_ADMIN_LASTNAME:-}
+      PLATFORM_ADMIN_PHONE: ${PLATFORM_ADMIN_PHONE:-}
     ports:
       - "3993:3993"
     networks:
@@ -229,11 +235,64 @@ services:
       retries: 3
       start_period: 30s
 
+  thingsboard-postgres:
+    image: postgres:18
+    profiles: [thingsboard]
+    restart: "no"
+    env_file:
+      - path: ${THINGSBOARD_ENV_FILE:-./tmp/thingsboard-demo.env}
+        required: false
+    environment:
+      POSTGRES_DB: thingsboard
+    volumes:
+      - thingsboard-postgres-data:/var/lib/postgresql
+    networks: [thingsboard-network]
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U postgres -d thingsboard"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    mem_limit: 768m
+    cpus: 1.0
+    logging:
+      driver: json-file
+      options: {max-size: "10m", max-file: "2"}
+
+  thingsboard-ce:
+    image: thingsboard/tb-node:4.3.1.6
+    profiles: [thingsboard]
+    restart: "no"
+    env_file:
+      - path: ${THINGSBOARD_ENV_FILE:-./tmp/thingsboard-demo.env}
+        required: false
+    ports:
+      - "127.0.0.1:18080:8080"
+    environment:
+      TB_SERVICE_ID: comunard-tb-demo
+      SPRING_DATASOURCE_URL: jdbc:postgresql://thingsboard-postgres:5432/thingsboard
+      TB_QUEUE_TYPE: in-memory
+    depends_on:
+      thingsboard-postgres:
+        condition: service_healthy
+    networks: [thingsboard-network]
+    mem_limit: 3g
+    cpus: 2.0
+    logging:
+      driver: json-file
+      options: {max-size: "10m", max-file: "2"}
+
 volumes:
   mongodb-iam-data:
   uploads:
   ocr-models:
+  # External prevents a project rename from silently selecting a fresh database.
+  # The default reuses the local demo already initialized on this machine.
+  thingsboard-postgres-data:
+    external: true
+    name: ${THINGSBOARD_DB_VOLUME:-comunard-thingsboard-demo_postgres-data}
 
 networks:
+  thingsboard-network:
+    driver: bridge
   app-network:
     driver: bridge

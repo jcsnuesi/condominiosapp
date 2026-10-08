@@ -42,6 +42,7 @@ test("family registration emails a usable unique password and survives mail fail
 });
 
 test("condominium welcome goes to its creator only after saving and preserves success on mail failure", async t => {
+  t.mock.method(require("../models/saasMembership"), "exists", async () => null);
   let saved = false;
   let sent = 0;
   t.mock.method(Condominium, "findOne", async () => null);

@@ -1,0 +1,44 @@
+name: comunard-thingsboard-demo
+services:
+  postgres:
+    image: postgres:18
+    restart: "no"
+    environment:
+      POSTGRES_DB: thingsboard
+      POSTGRES_PASSWORD: ${TB_DEMO_DB_PASSWORD:?Set the local demo database password}
+    volumes:
+      - postgres-data:/var/lib/postgresql
+    networks: [demo]
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U postgres -d thingsboard"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    mem_limit: 768m
+    cpus: 1.0
+    logging:
+      driver: json-file
+      options: {max-size: "10m", max-file: "2"}
+  thingsboard-ce:
+    image: thingsboard/tb-node:4.3.1.6
+    restart: "no"
+    ports:
+      - "127.0.0.1:18080:8080"
+    environment:
+      TB_SERVICE_ID: comunard-tb-demo
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/thingsboard
+      SPRING_DATASOURCE_PASSWORD: ${TB_DEMO_DB_PASSWORD:?Set the local demo database password}
+      TB_QUEUE_TYPE: in-memory
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [demo]
+    mem_limit: 3g
+    cpus: 2.0
+    logging:
+      driver: json-file
+      options: {max-size: "10m", max-file: "2"}
+networks:
+  demo: {}
+volumes:
+  postgres-data: {}

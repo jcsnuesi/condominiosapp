@@ -17,6 +17,8 @@ export interface AccessScope {
 export interface AccessContext {
     organization: { id: string; name: string; status: string } | null;
     isOwnerAdmin: boolean;
+    isPlatform?: boolean;
+    contextType?: string;
     onboardingRequired?: boolean;
     permissions: string[];
     scope: AccessScope;

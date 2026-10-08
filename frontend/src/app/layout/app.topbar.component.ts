@@ -77,6 +77,11 @@ export class AppTopBarComponent implements OnInit, OnDestroy {
     public image: string = '';
     public fullname: string = '';
     public role: string = '';
+    get roleLabel(): string {
+        if (this.role === 'PLATFORM_ADMIN') return 'Administrador SaaS';
+        if (this.role === 'PLATFORM_SUPERVISOR') return 'Supervisor SaaS';
+        return this.role.replace(/_/g, ' ').toLowerCase();
+    }
     public userData: { _id: string; email: string; token: string };
     public token: string = '';
     public needChangePassword: boolean;
@@ -111,6 +116,7 @@ export class AppTopBarComponent implements OnInit, OnDestroy {
     getAvatar(role: string): string {
         if (
             role === 'ADMIN' ||
+            role.startsWith('PLATFORM_') ||
             role === 'SUPER_ADMIN' ||
             role === 'STAFF_ADMIN'
         ) {
@@ -125,6 +131,7 @@ export class AppTopBarComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         this.role = this.identity.role;
         this.fullname = this._format.fullNameFormat(this.identity);
+        if (this.role.startsWith('PLATFORM_')) return;
         this.notificationSubscriptions.add(
             this.notificationInbox.notifications$.subscribe(
                 (notifications) => (this.notifications = notifications)

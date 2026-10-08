@@ -76,6 +76,7 @@ var controller = {
 
     if (val_email && val_password) {
       const userFound = await Promise.all([
+        require("../models/platformUser").findOne({ email: params.email }).select("+password").lean(),
         Admin.findOne({ email: params.email }).select("+password").lean(),
         Staff_Admin.findOne({ email: params.email }).select("+password").lean(),
         Staff.findOne({ email: params.email }).select("+password").lean(),
@@ -208,9 +209,10 @@ var controller = {
         Staff.findOne({ email }).select("_id email"),
         Owner.findOne({ email }).select("_id email"),
         Family.findOne({ email }).select("_id email"),
+        require("../models/platformUser").findOne({ email }).select("_id email"),
       ]);
 
-      const modelNames = ["Admin", "Staff_Admin", "Staff", "Owner", "Family"];
+      const modelNames = ["Admin", "Staff_Admin", "Staff", "Owner", "Family", "PlatformUser"];
       const modelIndex = userSearch.findIndex((user) => Boolean(user));
 
       if (modelIndex === -1) {
@@ -290,6 +292,7 @@ var controller = {
       }
 
       const models = {
+        PlatformUser: require("../models/platformUser"),
         Admin,
         Staff_Admin,
         Staff,

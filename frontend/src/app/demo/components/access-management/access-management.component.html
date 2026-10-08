@@ -9,6 +9,7 @@
         </div>
         <p-button
             label="Nueva política"
+            [disabled]="!canManage"
             icon="pi pi-plus"
             (onClick)="openNewPolicy()"
         />
@@ -62,6 +63,7 @@
                             <td>
                                 <p-button
                                     label="Configurar"
+                                    [disabled]="!canManage"
                                     icon="pi pi-shield"
                                     [outlined]="true"
                                     (onClick)="editGrant(user)"
@@ -97,7 +99,7 @@
                         </div>
                         <p>{{ policy.description || "Sin descripción" }}</p>
                         <small>{{ policy.permissions.length }} permisos</small>
-                        @if (!policy.isSystem && policy.status === 'active') {
+                        @if (canManage && !policy.isSystem && policy.status === 'active') {
                         <div class="policy-actions">
                             <p-button
                                 icon="pi pi-pencil"

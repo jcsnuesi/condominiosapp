@@ -137,4 +137,5 @@ OwnerSchema.pre("findOneAndDelete", async function () {
   }
 });
 
+OwnerSchema.plugin(require("../service/saasMembershipService").membershipPlugin, { type: "PERSONAL_OWNER", relevant: ["propertyDetails"] });
 module.exports = mongoose.model("Owner", OwnerSchema);

@@ -72,6 +72,17 @@ export class AppMenuComponent {
     }
 
     private buildMenu() {
+        if (this.accessContext.access()?.isPlatform) {
+            const links = [
+                { label: 'KPIs del SaaS', icon: 'pi pi-chart-bar', routerLink: ['/platform/kpis'], permission: 'platform.kpis.read' },
+                { label: 'Cuentas y membresías', icon: 'pi pi-building', routerLink: ['/platform/accounts'], permission: 'platform.accounts.read' },
+                { label: 'Supervisores', icon: 'pi pi-users', routerLink: ['/platform/supervisors'], permission: 'platform.supervisors.read' },
+                { label: 'Políticas de supervisión', icon: 'pi pi-shield', routerLink: ['/platform/policies'], permission: 'platform.policies.read' },
+                { label: 'Planes', icon: 'pi pi-list', routerLink: ['/platform/plans'], permission: 'platform.memberships.read' },
+                { label: 'Auditoría', icon: 'pi pi-history', routerLink: ['/platform/audit'], permission: 'platform.audit.read' },
+            ];
+            return [{ label: 'Administración SaaS', items: links.filter(item => this.hasPermission(item.permission)), visible: true }];
+        }
         const identityId = this.cookieValue?._id;
         const isOwner = this.checkRole(['OWNER']);
         const isOrganizationOwner =

@@ -7,6 +7,7 @@ const StaffAdmin = require("../models/staff_admin");
 const Staff = require("../models/staff");
 const Owner = require("../models/owners");
 const Family = require("../models/family");
+const PlatformUser = require("../models/platformUser");
 const { PERMISSIONS } = require("./permissionCatalog");
 const {
   activeFamilyCondominiumIds,
@@ -19,6 +20,8 @@ const ACCOUNT_MODELS = Object.freeze({
   STAFF: Staff,
   OWNER: Owner,
   FAMILY: Family,
+  PLATFORM_ADMIN: PlatformUser,
+  PLATFORM_SUPERVISOR: PlatformUser,
 });
 
 const SUBJECT_MODELS = Object.freeze({
@@ -109,6 +112,8 @@ function publicAccessContext(context) {
         }
       : null,
     isOwnerAdmin: Boolean(context.isOwnerAdmin),
+    isPlatform: Boolean(context.isPlatform),
+    contextType: context.contextType || "ORGANIZATION",
     onboardingRequired: Boolean(context.isOwnerAdmin && context.organization?.registrationSource === "SELF_SERVICE" && !context.organization?.onboardingCompletedAt),
     permissions: context.permissions,
     scope: context.scope,
@@ -161,6 +166,9 @@ function buildPersonalOwnerAccessContext(account) {
 
 async function resolveAccessContext(userPayload) {
   const role = String(userPayload?.role || "").toUpperCase();
+  if (["PLATFORM_ADMIN", "PLATFORM_SUPERVISOR"].includes(role) && userPayload?.sub) {
+    return require("./platformAuthorization").resolvePlatformContext({ ...userPayload, role });
+  }
   const AccountModel = ACCOUNT_MODELS[role];
   if (!AccountModel || !userPayload?.sub) return null;
 

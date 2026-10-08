@@ -37,6 +37,23 @@ import { CommunicationLogComponent } from './demo/components/communication-log/c
                     canActivate: [UserGuard],
                     children: [
                         {
+                            path: 'platform',
+                            data: { roles: ['PLATFORM_ADMIN', 'PLATFORM_SUPERVISOR'] },
+                            canActivate: [UserGuard],
+                            children: [
+                                { path: '', pathMatch: 'full', loadComponent: () => import('./demo/components/platform/platform-welcome.component').then(m => m.PlatformWelcomeComponent) },
+                                { path: 'kpis', data: { permission: 'platform.kpis.read' }, canActivate: [UserGuard], loadComponent: () => import('./demo/components/platform/platform-kpis.component').then(m => m.PlatformKpisComponent) },
+                                ...[
+                                    { path: 'accounts', permission: 'platform.accounts.read' },
+                                    { path: 'supervisors', permission: 'platform.supervisors.read' },
+                                    { path: 'policies', permission: 'platform.policies.read' },
+                                    { path: 'plans', permission: 'platform.memberships.read' },
+                                    { path: 'audit', permission: 'platform.audit.read' },
+                                ].map(item => ({ path: item.path, data: { section: item.path, permission: item.permission }, canActivate: [UserGuard], loadComponent: () => import('./demo/components/platform/platform-management.component').then(m => m.PlatformManagementComponent) })),
+                                { path: 'organizations/:organizationId/access', data: { permission: 'platform.access.read' }, canActivate: [UserGuard], loadComponent: () => import('./demo/components/access-management/access-management.component').then(m => m.AccessManagementComponent) },
+                            ],
+                        },
+                        {
                             path: 'cameras',
                             data: { permission: 'cameras.read' },
                             canActivate: [UserGuard],

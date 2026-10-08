@@ -74,7 +74,7 @@ function hashVerificationToken(token) {
 
 class IoTOwnerRegistrationService {
   constructor({
-    models = { Owner, Admin, StaffAdmin, Staff, Family },
+    models = { Owner, Admin, StaffAdmin, Staff, Family, PlatformUser: require("../models/platformUser") },
     VerificationModel = IoTOwnerVerification,
     emailService = verificationEmail,
     mongo = require("mongoose"),

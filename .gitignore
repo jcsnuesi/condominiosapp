@@ -19,6 +19,9 @@ docker-compose.yml
 /specs
 /ocr-service/.test-deps/
 backend/test/*
+!backend/test/platform.test.js
+!backend/test/platform.integration.cjs
+!backend/test/platform.browser.cjs
 !backend/test/admin-registration.test.js
 !backend/test/welcome-registration.test.js
 docs/COOLIFY_TROUBLESHOOTING.md
@@ -27,6 +30,7 @@ backend/tests/
 /frontend/dist/support-calls-review/
 /frontend/test/
 docs/*
+!docs/SAAS_PLATFORM_ADMIN.md
 .gitattributes
 /schedule-worker
 tmp/*
@@ -34,3 +38,4 @@ nginx/dev_default.conf
 .codex-remote-attachments/
 COMUNARD_IOT_IMPLEMENTATION_STATUS.md
 COMUNARD_IOT_INTEGRATION_PLAN.md
+/docs/*
