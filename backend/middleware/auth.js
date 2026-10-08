@@ -46,6 +46,7 @@ function isPersonalOwnerRouteAllowed(req) {
     ""
   );
   return (
+    /^\/(?:cameras|camera-recordings)(?:\/|$)/.test(routePath) ||
     /^\/schedules(?:\/|$)/.test(routePath) ||
     /^\/tasks(?:\/|$)/.test(routePath) ||
     /^\/maintenance(?:\/|$)/.test(routePath) ||

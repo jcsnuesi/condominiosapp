@@ -51,6 +51,12 @@ const SELF_SERVICE_PERMISSIONS = Object.freeze({
     "iot.delete",
     "iot.control",
     "iot.history",
+    // Camera services check current ownership for each private resource access.
+    // OWNER permissions do not authorize COMMON_AREA cameras.
+    "cameras.read",
+    "cameras.manage",
+    "cameras.live",
+    "cameras.recordings.read",
   ],
   FAMILY: [
     "dashboard.read",

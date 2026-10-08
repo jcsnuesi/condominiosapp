@@ -88,6 +88,23 @@ test('internal endpoint refuses requests without service authentication', async 
   const response = await request('internal/validate', { token: credential(ids.resident, 'OWNER') }, null, 'POST', false);
   assert.equal(response.status, 403);
 });
+test('unconfigured call credentials preserve authorized destinations without issuing a token', async () => {
+  const original = process.env.CALL_TOKEN_SECRET;
+  try {
+    for (const value of [undefined, 'too-short']) {
+      if (value === undefined) delete process.env.CALL_TOKEN_SECRET;
+      else process.env.CALL_TOKEN_SECRET = value;
+      const response = await request('session', null, appToken(ids.resident, 'OWNER'), 'GET', false);
+      assert.equal(response.status, 200);
+      assert.equal(response.body.token, null);
+      assert.equal(response.body.destinations[0].condominiumId, ids.condo);
+      assert.equal(response.body.unavailableReason, 'Servicio de llamadas no disponible.');
+    }
+    condo.residentSupport.enabled = false;
+    const response = await request('session', null, appToken(ids.resident, 'OWNER'), 'GET', false);
+    assert.deepEqual(response.body, { destinations: [], token: null });
+  } finally { process.env.CALL_TOKEN_SECRET = original; }
+});
 test('authorization checks both resident and assigned STAFF and derives unit server-side', async () => {
   const body = { condominiumId: ids.condo, residentToken: credential(ids.resident, 'OWNER'), staffToken: credential(ids.staff, 'STAFF'), staffId: ids.other, units: ['unauthorized'] };
   const response = await request('internal/authorize', body);

@@ -125,6 +125,7 @@ class AWSIoTProvider {
       return {
         state: payload.state || {},
         version: payload.version || 0,
+        reportedMetadata: payload.metadata?.reported || {},
         timestamp: payload.timestamp
           ? new Date(payload.timestamp * 1000)
           : null,

@@ -30,3 +30,7 @@ docs/*
 .gitattributes
 /schedule-worker
 tmp/*
+nginx/dev_default.conf
+.codex-remote-attachments/
+COMUNARD_IOT_IMPLEMENTATION_STATUS.md
+COMUNARD_IOT_INTEGRATION_PLAN.md

@@ -37,6 +37,12 @@ import { CommunicationLogComponent } from './demo/components/communication-log/c
                     canActivate: [UserGuard],
                     children: [
                         {
+                            path: 'cameras',
+                            data: { permission: 'cameras.read' },
+                            canActivate: [UserGuard],
+                            loadComponent: () => import('./demo/components/cameras/cameras.component').then((m) => m.CamerasComponent),
+                        },
+                        {
                             path: 'schedule',
                             data: { permission: 'schedules.read' },
                             canActivate: [UserGuard],

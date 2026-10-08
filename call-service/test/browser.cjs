@@ -24,6 +24,7 @@ const artifacts = path.resolve(__dirname, '../artifacts');
 const target = { condominiumId: '111111111111111111111111', staffId: 'staff', alias: 'Residencial Las Palmas' };
 const history = [];
 let supportConfiguration = { enabled: false, staffId: null };
+let callsConfigured = true;
 const tokenClaims = (token) => JSON.parse(Buffer.from(String(token).split('.')[1], 'base64url').toString());
 const identity = (role) => ({ _id: role.toLowerCase(), role, name: role === 'STAFF' ? 'Atención' : 'María', lastname: 'Prueba', email: `${role.toLowerCase()}@example.test`, avatar: 'noimage.jpeg', first_password_changed: true, createdBy: 'admin', ownerId: 'owner' });
 const access = { organization: { id: 'org', name: 'Piloto', status: 'active' }, permissions: ['condominiums.read', 'dashboard.read'], scope: { mode: 'SELECTED', condominiumIds: [target.condominiumId] }, isOwnerAdmin: false };
@@ -52,7 +53,7 @@ const service = createCallService({
     if (url.pathname.startsWith('/api/')) {
       let role = 'OWNER';
       try { role = tokenClaims(req.headers.authorization).role; } catch {}
-      if (url.pathname === '/api/calls/session') return send(res, { destinations: role === 'ADMIN' ? [] : [target], token: role === 'ADMIN' ? null : `${role}|${role.toLowerCase()}` });
+      if (url.pathname === '/api/calls/session') return send(res, { destinations: role === 'ADMIN' ? [] : [target], token: role === 'ADMIN' || !callsConfigured ? null : `${role}|${role.toLowerCase()}`, ...(!callsConfigured ? { unavailableReason: 'Servicio de llamadas no disponible.' } : {}) });
       if (url.pathname === '/api/auth/me') return send(res, { data: { user: identity(role), access: accessFor(role) } });
       if (url.pathname === '/api/notifications/inbox') return send(res, { data: { notifications: [], unreadCount: 0 } });
       if (url.pathname.startsWith('/api/buildingDetail/')) return send(res, { success: true, data: { condominium: [{ _id: target.condominiumId, alias: target.alias, typeOfProperty: 'Residencial', avatar: 'noimage.jpeg', status: 'active', units_ownerId: [], socialAreas: [], phone: '8095551111', phone2: '', mPayment: 1000, paymentDate: '2026-10-01', createdAt: '2026-01-01' }] }, error: null, code: 'OK' });
@@ -168,7 +169,13 @@ async function main() {
     await admin.page.getByText('Configuración de atención guardada.', { exact: true }).waitFor();
     assert.deepEqual(supportConfiguration, { enabled: true, staffId: 'staff' });
     await admin.page.screenshot({ path: path.join(artifacts, 'admin-support-settings.png'), fullPage: true, animations: 'disabled' });
-    console.log(JSON.stringify({ result: 'passed', scenarios: ['mobile access', 'STAFF availability', 'incoming caller and unit', 'busy STAFF', 'bidirectional audio RTP', 'mute', 'navigation', 'microphone cleanup', 'FAMILY rejection', 'microphone denied', 'administrator configuration'], artifacts }));
+    callsConfigured = false;
+    const unavailable = await contextFor(browser, origin, 'OWNER', { width: 390, height: 844 });
+    await unavailable.page.getByRole('button', { name: 'Llamar a atención', exact: true }).click();
+    await unavailable.page.getByText('Servicio de llamadas no disponible.', { exact: true }).waitFor();
+    assert.equal(await unavailable.page.getByRole('button', { name: 'Llamar', exact: true }).isDisabled(), true);
+    await unavailable.page.screenshot({ path: path.join(artifacts, 'owner-service-unavailable-mobile.png'), fullPage: true, animations: 'disabled' });
+    console.log(JSON.stringify({ result: 'passed', scenarios: ['mobile access', 'STAFF availability', 'incoming caller and unit', 'busy STAFF', 'bidirectional audio RTP', 'mute', 'navigation', 'microphone cleanup', 'FAMILY rejection', 'microphone denied', 'administrator configuration', 'mobile entry with unconfigured call service'], artifacts }));
   } finally { await browser.close(); await service.close(); }
 }
 main().catch(async (error) => { console.error(error); await service.close().catch(() => {}); process.exitCode = 1; });

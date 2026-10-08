@@ -15,6 +15,7 @@ const {
 } = require("./iotCapabilities");
 const { getIoTProvider } = require("./iotProvider");
 const { buildDeviceEvents } = require("./iotEventRules");
+const { reportedTimestamp, connectivityAt } = require("../modules/iot/domain/freshness");
 
 const ALLOWED_METADATA = new Set([
   "manufacturer",
@@ -517,6 +518,14 @@ class IoTService {
 
   async getDeviceState(actor, deviceId) {
     const device = await this.resolveDevice(actor, deviceId, "view");
+    if (device.gatewayId) {
+      return {
+        ...device.shadow,
+        reported: sanitizeDeviceState(device.deviceType, device.shadow?.reported),
+        desired: sanitizeDeviceState(device.deviceType, device.shadow?.desired),
+        delta: sanitizeDeviceState(device.deviceType, device.shadow?.delta),
+      };
+    }
     const shadow = await this.provider.getShadow({
       thingName: device.awsThingName,
     });
@@ -535,17 +544,15 @@ class IoTService {
     const reported = sanitizeDeviceState(device.deviceType, state.reported);
     const desired = sanitizeDeviceState(device.deviceType, state.desired);
     const delta = sanitizeDeviceState(device.deviceType, state.delta);
-    const lastSeen = shadow.timestamp || null;
-    const online =
-      lastSeen &&
-      this.now().getTime() - new Date(lastSeen).getTime() <= 5 * 60 * 1000;
-    const connectivity = !lastSeen ? "UNKNOWN" : online ? "ONLINE" : "OFFLINE";
+    const reportedMetadata = Object.fromEntries(Object.keys(reported).map((key) => [key, shadow.reportedMetadata?.[key]]));
+    const lastSeen = reportedTimestamp(reportedMetadata, this.now()) || device.lastReportedAt || null;
+    const connectivity = connectivityAt(lastSeen, this.now());
     const next = {
       reported,
       desired,
       delta,
       version: shadow.version || 0,
-      updatedAt: lastSeen,
+      updatedAt: shadow.timestamp || null,
     };
     await this.DeviceModel.updateOne(
       { _id: device._id },
@@ -553,6 +560,7 @@ class IoTService {
         $set: {
           shadow: next,
           lastSeen,
+          lastReportedAt: lastSeen,
           connectivity,
         },
       }
@@ -588,6 +596,9 @@ class IoTService {
 
   async controlDevice(actor, deviceId, command, request = null) {
     const device = await this.resolveDevice(actor, deviceId, "control");
+    if (device.gatewayId) {
+      throw apiError("IOT_GATEWAY_COMMANDS_UNAVAILABLE", "Gateway command dispatch is not enabled", 409);
+    }
     if (!device.enabled || device.status !== "ACTIVE") {
       throw apiError(
         "IOT_DEVICE_NOT_CONTROLLABLE",
@@ -642,7 +653,10 @@ class IoTService {
   }
 
   async getDashboard(actor, scopeInput) {
-    const devices = await this.listDevices(actor, scopeInput);
+    const devices = (await this.listDevices(actor, scopeInput)).map((device) => ({
+      ...device,
+      connectivity: connectivityAt(device.lastReportedAt, this.now()),
+    }));
     const active = devices.filter((device) => device.status === "ACTIVE");
     const scope = await this.authorization.canCreateDevice(
       actor,

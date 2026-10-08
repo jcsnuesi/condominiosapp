@@ -72,6 +72,9 @@ if (process.env.DISABLE_SCHEDULED_JOBS !== "true") {
   initializeReservationCleanupSystem();
   require("./service/receiptOcrWorker").start();
   require("./service/iotReconciliationJob").startIoTReconciliationJob();
+  require("./service/iotPresenceJob").startIoTPresenceJob();
+  require("./service/iotCommandExpiryJob").startIoTCommandExpiryJob();
+  require("./service/cameraLiveJob").startCameraLiveJob();
 } else {
   console.log("Scheduled background jobs are disabled.");
 }
@@ -167,6 +170,7 @@ app.use("/api", require("./routes/finance"));
 app.use("/api", access_routes);
 app.use("/api", organization_routes);
 app.use("/api", iot_routes);
+app.use("/api", require("./modules/cameras/api").createCameraRouter());
 app.use("/api", require("./modules/schedule/api"));
 app.use("/api", require("./routes/calls"));
 

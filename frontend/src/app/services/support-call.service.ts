@@ -10,7 +10,7 @@ export interface SupportDestination {
   staffId: string;
   status?: 'available' | 'busy' | 'offline';
 }
-interface CallSession { token: string | null; destinations: SupportDestination[]; }
+interface CallSession { token: string | null; destinations: SupportDestination[]; unavailableReason?: string; }
 export interface SupportCall {
   callId: string;
   alias: string;
@@ -71,7 +71,15 @@ export class SupportCallService {
     try {
       const session = await firstValueFrom(this.http.get<CallSession>(`${global.url}calls/session`));
       if (generation !== this.sessionGeneration) return;
-      if (!session.token) { this.destinations.set([]); return; }
+      if (!session.token) {
+        this.socket?.disconnect();
+        this.socket = null;
+        this.connected.set(false);
+        this.available.set(false);
+        this.destinations.set(session.destinations.map((target) => ({ ...target, status: 'offline' })));
+        this.message.set(session.destinations.length ? session.unavailableReason || 'Servicio de llamadas no disponible.' : '');
+        return;
+      }
       if (this.socket) {
         this.socket.auth = { token: session.token };
         if (this.socket.connected) await this.request('calls:refresh', { token: session.token });

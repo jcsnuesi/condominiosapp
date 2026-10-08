@@ -8,6 +8,7 @@ const { requirePermission } = require("../middleware/organizationAuth");
 const registrationRateLimit = require("../middleware/registrationRateLimit");
 
 const router = express.Router();
+router.use(require("../modules/iot/api").createInventoryRouter());
 const condoRead = requirePermission("iot.read");
 const condoCreate = requirePermission("iot.create");
 

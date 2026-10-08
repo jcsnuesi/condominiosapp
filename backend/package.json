@@ -4,7 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "node --test test/**/*.test.js modules/schedule/tests/*.test.js",
+    "test": "node --test test/**/*.test.js modules/schedule/tests/*.test.js modules/iot/tests/*.test.js modules/cameras/tests/*.test.js",
+    "test:iot": "node --test test/iot-*.test.js modules/iot/tests/*.test.js",
+    "test:cameras": "node --test modules/cameras/tests/*.test.js",
+    "test:cameras:browser": "node modules/cameras/tests/browser.cjs",
+    "test:iot:mongo": "node --test modules/iot/integration/mongo.test.js",
+    "test:iot:edge": "node --test ../edge/gateway-agent/tests/*.test.js ../edge/adapters/camera/tests/*.test.js ../edge/adapters/zigbee/tests/*.test.js ../edge/mediamtx/config.test.js",
+    "iot:simulate": "node modules/iot/simulator.js",
     "test:schedule": "node --test modules/schedule/tests/*.test.js",
     "start": "node index.js",
     "dev": "nodemon index.js",
@@ -20,6 +26,8 @@
   "dependencies": {
     "@aws-sdk/client-iot": "^3.1143.0",
     "@aws-sdk/client-iot-data-plane": "^3.1143.0",
+    "@aws-sdk/client-s3": "3.1143.0",
+    "@aws-sdk/s3-request-presigner": "3.1143.0",
     "api-rest-cleaning": "file:",
     "bcrypt": "^6.0.0",
     "body-parser": "^2.2.2",

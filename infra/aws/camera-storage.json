@@ -1,0 +1,40 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Private Comunard motion recordings: us-east-1 pilot, seven-day lifecycle. No deployment is automatic.",
+  "Resources": {
+    "RecordingsBucket": {
+      "Type": "AWS::S3::Bucket",
+      "DeletionPolicy": "Retain",
+      "UpdateReplacePolicy": "Retain",
+      "Properties": {
+        "PublicAccessBlockConfiguration": { "BlockPublicAcls": true, "BlockPublicPolicy": true, "IgnorePublicAcls": true, "RestrictPublicBuckets": true },
+        "OwnershipControls": { "Rules": [{ "ObjectOwnership": "BucketOwnerEnforced" }] },
+        "BucketEncryption": { "ServerSideEncryptionConfiguration": [{ "ServerSideEncryptionByDefault": { "SSEAlgorithm": "AES256" } }] },
+        "LifecycleConfiguration": { "Rules": [{ "Id": "MotionRetention7Days", "Prefix": "camera/", "Status": "Enabled", "ExpirationInDays": 7, "AbortIncompleteMultipartUpload": { "DaysAfterInitiation": 1 } }] }
+      }
+    },
+    "RecordingsBucketPolicy": {
+      "Type": "AWS::S3::BucketPolicy",
+      "Properties": {
+        "Bucket": { "Ref": "RecordingsBucket" },
+        "PolicyDocument": { "Version": "2012-10-17", "Statement": [{
+          "Sid": "DenyInsecureTransport", "Effect": "Deny", "Principal": "*", "Action": "s3:*",
+          "Resource": [{ "Fn::GetAtt": ["RecordingsBucket", "Arn"] }, { "Fn::Sub": "${RecordingsBucket.Arn}/*" }],
+          "Condition": { "Bool": { "aws:SecureTransport": "false" } }
+        }] }
+      }
+    },
+    "BackendRecordingPolicy": {
+      "Type": "AWS::IAM::ManagedPolicy",
+      "Properties": {
+        "Description": "Attach only to the trusted Comunard backend role; edge uses short object presigns",
+        "PolicyDocument": { "Version": "2012-10-17", "Statement": [{ "Effect": "Allow", "Action": ["s3:GetObject", "s3:PutObject"], "Resource": { "Fn::Sub": "${RecordingsBucket.Arn}/camera/*" } }] }
+      }
+    }
+  },
+  "Outputs": {
+    "BucketName": { "Value": { "Ref": "RecordingsBucket" } },
+    "BucketOwner": { "Value": { "Ref": "AWS::AccountId" } },
+    "PolicyArn": { "Value": { "Ref": "BackendRecordingPolicy" } }
+  }
+}

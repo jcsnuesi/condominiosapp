@@ -187,6 +187,7 @@ test("Shadow refresh sanitizes reported fields and creates typed alert events", 
     provider: {
       getShadow: async () => ({
         timestamp,
+        reportedMetadata: { waterDetected: { timestamp: timestamp.getTime() / 1000 } },
         version: 3,
         state: {
           reported: {

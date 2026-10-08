@@ -34,6 +34,10 @@ export interface IoTDevice {
     id: string;
     displayName: string;
     deviceType: IoTDeviceType;
+    protocol?: 'AWS_SHADOW' | 'ZIGBEE' | 'ONVIF' | 'FRIGATE';
+    gatewayId?: string | null;
+    profileId?: string | null;
+    profileVersion?: number | null;
     location: string;
     scopeType: IoTScopeType;
     status: 'PROVISIONING' | 'ACTIVE' | 'ERROR' | 'DELETING' | 'DELETED';

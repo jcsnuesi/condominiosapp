@@ -1,0 +1,45 @@
+name: comunard-camera-edge
+services:
+  media:
+    image: bluenviron/mediamtx:1.21.1
+    network_mode: host
+    user: "1000:1000"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    restart: unless-stopped
+    volumes:
+      - ${CAMERA_PRIVATE_CONFIG_DIRECTORY:?Set private configuration directory}/mediamtx.json:/mediamtx.yml:ro
+    mem_limit: 256m
+    cpus: 1.0
+  media-auth:
+    build:
+      context: ..
+      dockerfile: edge/camera.Dockerfile
+    network_mode: host
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    restart: unless-stopped
+    command: [node, edge/mediamtx/auth-proxy.js, /run/secrets/media-auth.json]
+    volumes:
+      - ${CAMERA_PRIVATE_CONFIG_DIRECTORY:?Set private configuration directory}/media-auth.json:/run/secrets/media-auth.json:ro
+    mem_limit: 128m
+    cpus: 0.5
+  recorder:
+    build:
+      context: ..
+      dockerfile: edge/camera.Dockerfile
+    network_mode: host
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    restart: unless-stopped
+    tmpfs: [/tmp:size=64m,mode=1777]
+    volumes:
+      - ${CAMERA_PRIVATE_CONFIG_DIRECTORY:?Set private configuration directory}/camera-agent.json:/run/secrets/camera-agent.json:ro
+      - ${CAMERA_STATE_DIRECTORY:?Set persistent state directory}:/var/lib/comunard-camera
+    mem_limit: 512m
+    cpus: 1.0
+# Linux host networking. HTTPS/VPN ingress, TURN and the real DVR motion detector are configured separately.
+# 8889/9997/8079/8090 bind loopback; expose only the controlled HTTPS route and ICE/TURN transport.

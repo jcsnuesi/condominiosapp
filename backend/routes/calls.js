@@ -47,7 +47,9 @@ router.get("/calls/session", authenticated, async (req, res, next) => {
     res.set("Cache-Control", "no-store");
     const targets = await destinations(req.auth);
     if (!req.auth.organizationId || !["OWNER", "FAMILY", "STAFF"].includes(req.auth.role)) return res.json({ destinations: [], token: null });
-    if (!targets.length && !process.env.CALL_TOKEN_SECRET) return res.json({ destinations: [], token: null });
+    if (!process.env.CALL_TOKEN_SECRET || process.env.CALL_TOKEN_SECRET.length < 32) {
+      return res.json({ destinations: targets, token: null, ...(targets.length ? { unavailableReason: "Servicio de llamadas no disponible." } : {}) });
+    }
     const token = jwt.sign({ sub: String(req.auth.account._id), role: req.auth.role }, secret("CALL_TOKEN_SECRET"), { algorithm: "HS256", audience: "call-service", issuer: "condapp", expiresIn: "5m" });
     res.json({ token, destinations: targets });
   } catch (error) { next(error); }

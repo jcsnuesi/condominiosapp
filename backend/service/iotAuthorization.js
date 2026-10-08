@@ -205,7 +205,7 @@ class IoTAuthorizationService {
         organizationId: device.organizationId,
         status: "active",
       })
-        .select("_id")
+        .select("_id units")
         .lean();
       const organization = await this.OrganizationModel.findOne({
         _id: device.organizationId,
@@ -214,6 +214,11 @@ class IoTAuthorizationService {
         .select("_id")
         .lean();
       if (!condominium || !organization) throw notFound();
+      const unit = condominium.units?.find(
+        (item) => idEquals(item._id, device.unitId) &&
+          String(item.status || "active").toLowerCase() === "active"
+      );
+      if (!unit) throw notFound();
       const owner = await this.OwnerModel.findOne({
         _id: actor.account._id,
         status: "active",

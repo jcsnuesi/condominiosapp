@@ -6,6 +6,10 @@ const {
 } = require("../service/authorization");
 
 const ROUTE_MODULES = [
+  [/^\/(?:api\/)?(?:cameras|camera-recordings)(?:\/|$)/i, "cameras"],
+  [/^\/(?:api\/)?(?:vehicle-authorizations|vehicle-access-events)(?:\/|$)/i, "vehicles"],
+  [/^\/(?:api\/)?gates(?:\/|$)/i, "gates"],
+  [/^\/(?:api\/)?iot(?:\/|$)/i, "iot"],
   [/^\/(?:api\/)?calls\/settings(?:\/|$)/i, "condominiums"],
   [/^\/(?:api\/)?maintenance\/vendors(?:\/|$)/i, "vendors"],
   [/^\/(?:api\/)?schedules\/notices(?:\/|$)/i, "maintenance"],
@@ -68,7 +72,16 @@ function enforceAdministrativePermission(req, res, next) {
   }
   const routePath = req.path || "";
   const permission =
-    moduleMatch[1] === "iot" && /\/commands\/?$/i.test(routePath)
+    moduleMatch[1] === "cameras"
+      ? (/\/(?:events|recordings|playback)\/?$/i.test(routePath) ? "cameras.recordings.read"
+        : /\/live-session(?:\/|$)/i.test(routePath) ? "cameras.live"
+        : /\/configuration\/?$/i.test(routePath) ? "cameras.manage"
+        : req.method === "GET" ? "cameras.read" : "cameras.manage")
+      : moduleMatch[1] === "vehicles" ? (req.method === "GET" ? "vehicles.read" : "vehicles.manage")
+      : moduleMatch[1] === "gates" ? "gates.control"
+      : moduleMatch[1] === "iot" && /^\/(?:api\/)?iot\/commands\//i.test(routePath)
+      ? "iot.history"
+      : moduleMatch[1] === "iot" && /\/commands\/?$/i.test(routePath)
       ? "iot.control"
       : moduleMatch[1] === "iot" &&
         /\/(history|events|acknowledge)\/?$/i.test(routePath)

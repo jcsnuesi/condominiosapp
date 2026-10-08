@@ -7,6 +7,17 @@ const IoTDeviceSchema = new Schema(
   {
     displayName: { type: String, required: true, trim: true, maxlength: 120 },
     awsThingName: { type: String, required: true, trim: true, maxlength: 128 },
+    gatewayId: { type: Schema.Types.ObjectId, ref: "IoTGateway", default: null },
+    protocol: { type: String, enum: ["AWS_SHADOW", "ZIGBEE", "ONVIF", "FRIGATE"], default: "AWS_SHADOW" },
+    profileId: { type: Schema.Types.ObjectId, ref: "IoTDeviceProfile", default: null },
+    profileVersion: { type: Number, min: 1, default: null, validate: (value) => value === null || Number.isSafeInteger(value) },
+    bindingAddress: { type: String, trim: true, maxlength: 128, default: null },
+    lastReportedAt: { type: Date, default: null },
+    ingestion: {
+      sequence: { type: Number, min: 0, default: null, validate: (value) => value === null || Number.isSafeInteger(value) },
+      messageId: { type: String, maxlength: 128, default: null },
+      occurredAt: { type: Date, default: null },
+    },
     deviceType: {
       type: String,
       required: true,
@@ -104,6 +115,18 @@ IoTDeviceSchema.pre("validate", function validateContext() {
   }
 });
 
+IoTDeviceSchema.index(
+  { connectivity: 1, status: 1, lastReportedAt: 1 },
+  { name: "iot_presence_sweep" }
+);
+IoTDeviceSchema.index(
+  { gatewayId: 1, bindingAddress: 1 },
+  {
+    unique: true,
+    name: "iot_gateway_binding_unique",
+    partialFilterExpression: { gatewayId: { $type: "objectId" }, bindingAddress: { $type: "string" } },
+  }
+);
 IoTDeviceSchema.index(
   { awsThingName: 1 },
   { unique: true, name: "iot_thing_name_unique" }

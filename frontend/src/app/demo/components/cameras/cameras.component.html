@@ -1,0 +1,112 @@
+<section class="camera-page">
+  <header class="page-heading">
+    <div><h1>Cámaras</h1><p>Video en vivo y los momentos en los que se detectó movimiento.</p></div>
+    @if (canManage()) { <button class="primary" type="button" [disabled]="busy()" (click)="formVisible() ? closeSetup() : openSetup()">{{ formVisible() ? 'Cerrar registro' : 'Agregar cámara' }}</button> }
+  </header>
+  <div class="toolbar">
+    <label>Ubicación
+      <select [ngModel]="contextIndex()" (ngModelChange)="loadContext(+$event)" [disabled]="busy()">
+        @for (item of contexts(); track $index) { <option [ngValue]="$index">{{ item.label }}</option> }
+      </select>
+    </label>
+    <p>Movimiento: 30 segundos de video · Conservación: 7 días</p>
+  </div>
+  @if (error()) { <p class="feedback error" role="alert">{{ error() }}</p> }
+  @if (notice()) { <p class="feedback" role="status">{{ notice() }}</p> }
+  @if (formVisible()) {
+    <form class="registration setup-wizard" (ngSubmit)="submitSetup()" novalidate autocomplete="off">
+      <div class="wizard-heading"><h2>{{ editingCamera() ? 'Revisar configuración' : 'Agregar cámara' }}</h2><p>Paso {{ setupStep() + 1 }} de 4</p></div>
+      <ol class="setup-progress" aria-label="Pasos del registro">
+        @for (step of steps; track $index) { <li [class.current]="setupStep() === $index" [class.complete]="setupStep() > $index" [attr.aria-current]="setupStep() === $index ? 'step' : null">{{ $index + 1 }}. {{ step }}</li> }
+      </ol>
+      <fieldset [disabled]="busy()">
+        @if (setupStep() === 0) {
+          <legend>¿Dónde estará esta cámara?</legend>
+          <p>{{ context()?.label }}. La cámara conservará esta ubicación y sus permisos.</p>
+          <label>Nombre de la cámara<input name="displayName" [(ngModel)]="displayName" maxlength="120" [disabled]="!!editingCamera()" placeholder="Entrada principal" required></label>
+          <label>Equipo que conecta tus cámaras (gateway)<select name="gateway" [(ngModel)]="gatewayId" [disabled]="!!editingCamera()" required>
+            <option value="">Seleccionar gateway</option>
+            @for (gateway of gateways(); track gateway.id) { <option [value]="gateway.id">{{ gateway.displayName }}</option> }
+          </select></label>
+          <p>Debe permanecer encendido en la misma red que la cámara o el grabador. Puedes conectar varias cámaras al mismo gateway.</p>
+          @if (!gateways().length) { <p class="setup-help">Primero debes vincular un gateway activo a esta ubicación. Solicita la instalación inicial; después podrás agregar cámaras desde aquí.</p> }
+        }
+        @if (setupStep() === 1) {
+          <legend>Cuéntanos qué equipo tienes</legend>
+          <label>¿Cómo se conecta?<select name="sourceKind" [(ngModel)]="sourceKind"><option value="DVR_NVR">A través de un DVR/NVR</option><option value="IP_CAMERA">Cámara IP directamente</option></select></label>
+          <label>Marca del {{ sourceKind === 'DVR_NVR' ? 'grabador' : 'equipo' }}<input name="manufacturer" [(ngModel)]="manufacturer" maxlength="80" placeholder="Por ejemplo, Hikvision" required></label>
+          <label>Modelo<input name="model" [(ngModel)]="model" maxlength="120" placeholder="Consulta la etiqueta o los ajustes del equipo" required></label>
+          <label>Versión de firmware (opcional)<input name="firmware" [(ngModel)]="firmware" maxlength="80"></label>
+          <label>{{ sourceKind === 'DVR_NVR' ? 'Canal de la cámara en el grabador' : 'Canal de video' }}<input type="number" name="channel" [(ngModel)]="channel" min="1" max="256" step="1" required></label>
+          <p>No se exige una marca. Si no conoces la marca o el modelo, escribe “Desconocido”; la conexión se comprobará por separado.</p>
+        }
+        @if (setupStep() === 2) {
+          <legend>¿Cómo accedemos al video?</legend>
+          <label>IP local del {{ sourceKind === 'DVR_NVR' ? 'DVR/NVR' : 'equipo' }}<input name="host" [(ngModel)]="host" maxlength="15" placeholder="192.168.1.20" inputmode="decimal" required></label>
+          <label>Puerto del video<input type="number" name="port" [(ngModel)]="port" min="1" max="65535" step="1" required></label>
+          <label>Ruta de video RTSP<input name="streamPath" [(ngModel)]="streamPath" maxlength="1024" placeholder="/ruta-del-canal" spellcheck="false" required></label>
+          @if (manufacturer.trim().toLowerCase() === 'hikvision') {
+            <div class="path-suggestions"><button type="button" (click)="suggestHikvisionPath(1)">Sugerir ruta principal</button><button type="button" (click)="suggestHikvisionPath(2)">Sugerir ruta secundaria</button><p>Ruta habitual de Hikvision para el canal {{ channel }}. Se comprobará con el equipo; no confirma compatibilidad del modelo. Configura el stream en H.264 para este piloto.</p></div>
+          }
+          <label>Usuario del equipo<input name="cameraUsername" [(ngModel)]="username" maxlength="128" autocomplete="off" autocapitalize="none" spellcheck="false"></label>
+          <label>Contraseña del equipo<input type="password" name="cameraPassword" [(ngModel)]="password" maxlength="256" autocomplete="new-password"></label>
+          <p>Usa los datos del equipo, no tu contraseña de Comunard. La ruta depende del modelo y del canal: consúltala en sus ajustes o manual. Las credenciales se guardan cifradas y no se muestran en el listado.</p>
+          @if (editingCamera()) { <p>Para reemplazar la conexión, vuelve a introducir IP, ruta y acceso. Por seguridad no recuperamos las credenciales guardadas en el formulario.</p> }
+        }
+        @if (setupStep() === 3) {
+          <legend>Revisa el equipo y sus funciones</legend>
+          <dl class="setup-summary"><dt>Ubicación</dt><dd>{{ context()?.label }}</dd><dt>Cámara</dt><dd>{{ displayName }}</dd><dt>Equipo</dt><dd>{{ manufacturer }} {{ model }} · Canal {{ channel }}</dd><dt>Conexión</dt><dd>{{ host }}:{{ port }}</dd></dl>
+          <label>¿El equipo ofrece eventos de movimiento?<select name="motionDeclaration" [(ngModel)]="motionDeclaration"><option value="UNKNOWN">No lo sé / aún no recibimos eventos</option><option value="YES">Sí, el equipo lo indica</option><option value="NO">No ofrece esta función</option></select></label>
+          @if (motionDeclaration === 'NO') { <p class="setup-help">Se agregará para video en vivo. No se activarán grabaciones por movimiento.</p> }
+          @else { <p class="setup-help">El video se puede usar aunque no lleguen eventos. Las grabaciones de 30 segundos requieren un evento real de movimiento; la función seguirá sin verificar hasta recibirlo. Conservación: 7 días.</p> }
+          <p>Guardar enviará la conexión al gateway. Después podrás comprobar el video y agregar más cámaras.</p>
+        }
+      </fieldset>
+      <div class="setup-actions">
+        @if (setupStep() > (editingCamera() ? 1 : 0)) { <button type="button" [disabled]="busy()" (click)="setupStep.set(setupStep() - 1)">Anterior</button> }
+        <button class="primary" type="submit" [disabled]="busy() || (!gateways().length && !editingCamera())">{{ busy() ? 'Guardando…' : setupStep() === 3 ? 'Guardar cámara' : 'Continuar' }}</button>
+      </div>
+    </form>
+  }
+  @if (busy()) { <p role="status">Cargando cámaras…</p> }
+  @else if (!contexts().length && !error()) { <div class="empty"><h2>No hay ubicaciones disponibles</h2><p>Revisa con el administrador la asociación de tu cuenta y sus permisos de cámaras.</p></div> }
+  @else if (!cameras().length && !error()) { <div class="empty"><h2>Aún no hay cámaras en esta ubicación</h2><p>Registra una cámara y conecta su gateway para comenzar a ver video.</p></div> }
+  <div class="camera-grid">
+    @for (camera of cameras(); track camera.id) {
+      <article class="camera-tile">
+        <header><h2>{{ camera.displayName }}</h2><span class="status" [class.available]="camera.status === 'ACTIVE'">{{ label(camera) }}</span></header>
+        @if (camera.equipment) { <p class="equipment-label">{{ camera.equipment.manufacturer }} {{ camera.equipment.model }} · Canal {{ camera.equipment.channel }}</p> }
+        <p class="capability">{{ motionLabel(camera) }}</p>
+        @if (camera.status === 'ACTIVE' && canLive()) { <app-camera-player [camera]="camera" /> }
+        @else { <div class="waiting">{{ camera.status === 'ACTIVE' ? 'Solicita permiso para ver esta cámara en vivo.' : 'El video estará disponible después de validar la conexión.' }}</div> }
+        @if (canRecordings() && camera.recordingMode !== 'NONE') { <button type="button" class="history" (click)="select(camera)">Ver grabaciones</button> }
+        @if (canManage() && camera.status !== 'REVOKED') { <button type="button" class="history" [disabled]="busy()" (click)="openSetup(camera)">Revisar configuración</button> }
+        @if (canManage() && camera.status === 'DISABLED' && camera.configurationVersion > 0) {
+          <button type="button" class="history" [disabled]="busy()" (click)="changeStatus(camera, 'PROVISIONING')">Reconectar</button>
+        }
+        @if (canManage() && (camera.status === 'ACTIVE' || camera.status === 'PROVISIONING')) {
+          <button type="button" class="history" [disabled]="busy()" (click)="changeStatus(camera, 'DISABLED')">Deshabilitar</button>
+        }
+        @if (canManage() && (camera.status === 'PROVISIONING' || (camera.status === 'DISABLED' && !camera.configurationVersion))) {
+          <button type="button" class="history" [disabled]="busy()" (click)="activate(camera)">Comprobar video</button>
+        }
+      </article>
+    }
+  </div>
+  @if (nextCamera()) { <button type="button" (click)="moreCameras()" [disabled]="busy()">Más cámaras</button> }
+  @if (selected(); as camera) {
+    <section class="recordings">
+      <header><div><h2>Grabaciones de {{ camera.displayName }}</h2><p>Solo se guardan eventos de movimiento.</p></div>
+        <label>Fecha<input type="date" [(ngModel)]="date" (change)="loadRecordings()"></label></header>
+      @if (playbackUrl(); as url) { <video class="playback" [src]="url" controls autoplay playsinline aria-label="Grabación seleccionada"></video><button type="button" (click)="stopPlayback()">Cerrar grabación</button> }
+      @if (!recordings().length) { <p>No hay grabaciones para esta fecha.</p> }
+      <ul>
+        @for (recording of recordings(); track recording.id) {
+          <li><div><strong>{{ recording.occurredAt | date:'shortTime' }}</strong><span>{{ recording.durationSeconds }} segundos</span></div>
+            <button type="button" (click)="play(recording)" [disabled]="recording.status !== 'AVAILABLE' || recording.kind !== 'CLIP'">{{ recording.status === 'AVAILABLE' ? 'Reproducir' : recording.status === 'PENDING' ? 'Preparando' : 'No disponible' }}</button></li>
+        }
+      </ul>
+      @if (nextRecording()) { <button type="button" (click)="loadRecordings(true)">Más grabaciones</button> }
+    </section>
+  }
+</section>
