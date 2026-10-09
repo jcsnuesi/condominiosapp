@@ -317,7 +317,8 @@ function createIoTController({
           message: "A residence name is required",
         });
       }
-      if ((actor.account.propertyDetails || []).length >= 20) {
+      const hasMembership = await require("../models/saasMembership").exists({ subjectType: "PERSONAL_OWNER", subjectId: actor.account._id });
+      if (!hasMembership && (actor.account.propertyDetails || []).length >= 20) {
         return res.status(409).send({
           status: "error",
           code: "IOT_RESIDENCE_LIMIT_REACHED",
@@ -333,9 +334,9 @@ function createIoTController({
               _id: actor.account._id,
               status: "active",
               emailVerified: true,
-              $expr: {
+              ...(!hasMembership ? { $expr: {
                 $lt: [{ $size: { $ifNull: ["$propertyDetails", []] } }, 20],
-              },
+              } } : {}),
             },
             {
               $push: {

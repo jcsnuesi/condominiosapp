@@ -10,6 +10,8 @@ const charge = new Schema({
   amountMinor: { type: Number, required: true, min: 0 },
   currency: { type: String, enum: ["USD"], required: true },
   occurredAt: { type: Date, required: true },
+  component: { type: String, enum: ["RENEWAL", "PRORATION", "ADJUSTMENT"], default: "RENEWAL" },
+  breakdown: { type: Schema.Types.Mixed, default: null },
 }, { timestamps: true });
 charge.index({ providerId: 1, environment: 1, kind: 1 }, { unique: true });
 charge.index({ subjectType: 1, subjectId: 1, occurredAt: -1 });

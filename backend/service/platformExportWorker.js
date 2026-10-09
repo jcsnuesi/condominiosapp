@@ -33,7 +33,7 @@ async function run() {
           const filter = Model.modelName === "Organization" ? { _id: job.organizationId } : { organizationId: job.organizationId };
           for await (const document of Model.find(filter).lean().cursor({ batchSize: 100 })) { await file.write(JSON.stringify({ collection: Model.collection.name, document: redact(document) }) + "\n"); recordCount++; }
         }
-        for (const Model of [require("../models/saasMembership"), require("../models/saasSubscription"), require("../models/saasBilling").Charge]) {
+        for (const Model of [require("../models/saasMembership"), require("../models/saasSubscription"), require("../models/saasBilling").Charge, require("../models/saasCapacityChange"), require("../models/saasBillingAdjustment")]) {
           for await (const document of Model.find({ subjectType: "ORGANIZATION", subjectId: job.organizationId }).lean().cursor({ batchSize: 100 })) { await file.write(JSON.stringify({ collection: Model.collection.name, document: redact(document) }) + "\n"); recordCount++; }
         }
         await file.close(); file = null;

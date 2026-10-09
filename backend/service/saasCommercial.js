@@ -14,11 +14,17 @@ function commercialInput(input, previous = {}) {
   if (typeof isDefaultFree !== "boolean" || (isDefaultFree && kind !== "FREE")) fail("El predeterminado debe ser gratuito");
   if (input.currency && input.currency !== "USD") fail("La moneda inicial es USD");
   if (input.interval && input.interval !== "MONTH") fail("La periodicidad inicial es mensual");
-  return { kind, priceMinor, currency: "USD", interval: "MONTH", modules: modules === null ? null : [...new Set(modules)], isDefaultFree };
+  const extraPriceMinor = input.extraPriceMinor === undefined ? previous.extraPriceMinor ?? null : input.extraPriceMinor;
+  const allocationMode = input.allocationMode ?? previous.allocationMode ?? "UNIFORM";
+  if (extraPriceMinor !== null && (kind !== "PAID" || !Number.isSafeInteger(extraPriceMinor) || extraPriceMinor <= 0)) fail("La tarifa adicional debe ser positiva y pertenecer a un plan de pago");
+  if (!["UNIFORM", "DISTRIBUTED"].includes(allocationMode) || (allocationMode === "DISTRIBUTED" && (kind !== "PAID" || (input.subjectType ?? previous.subjectType) !== "ORGANIZATION"))) fail("Distribución de cupos inválida");
+  return { kind, priceMinor, currency: "USD", interval: "MONTH", modules: modules === null ? null : [...new Set(modules)], isDefaultFree, extraPriceMinor, allocationMode };
 }
 function snapshot(plan) {
   return { planId: plan._id, plan: plan.name, kind: plan.kind || "LEGACY", priceMinor: plan.priceMinor || 0,
-    currency: "USD", interval: "MONTH", modules: plan.modules ?? null, limits: plan.limits.toObject ? plan.limits.toObject() : plan.limits };
+    currency: "USD", interval: "MONTH", modules: plan.modules ?? null, limits: plan.limits.toObject ? plan.limits.toObject() : plan.limits,
+    basePriceMinor: plan.priceMinor || 0, additionalQuantity: 0, extraPriceMinor: plan.extraPriceMinor ?? null, allocationMode: plan.allocationMode || "UNIFORM",
+    includedLimits: plan.limits.toObject ? plan.limits.toObject() : plan.limits };
 }
 function moduleAllowed(modules, permission) {
   if (modules === null || modules === undefined) return true;

@@ -12,6 +12,7 @@ const schema = new Schema({
   state: { type: String, enum: ["PENDING", "ACTIVE", "GRACE", "CANCELLED", "FREE", "ERROR"], default: "PENDING" },
   open: { type: Boolean, default: true },
   paidThrough: { type: Date, default: null },
+  periodStart: { type: Date, default: null },
   graceUntil: { type: Date, default: null },
   cancelRequested: { type: Boolean, default: false },
   approvalUrl: { type: String, default: null },

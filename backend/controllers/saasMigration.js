@@ -45,7 +45,7 @@ exports.apply = handle(async (req, res) => {
     await Plan.updateOne({ _id: req.body.planId }, { $inc: { revision: 1 } }, { session });
     for (const row of data.rows) {
       const filter = { subjectType: row.subjectType, subjectId: row.subjectId };
-      const after = { ...data.plan, ...filter, status: "ACTIVE", billingStatus: "CURRENT", endsAt: null, graceUntil: null, reason: req.body.reason.trim(), updatedBy: req.user.sub };
+      const after = { ...data.plan, ...filter, distributionEnabled: false, allocations: [], scheduledCapacity: null, status: "ACTIVE", billingStatus: "CURRENT", endsAt: null, graceUntil: null, reason: req.body.reason.trim(), updatedBy: req.user.sub };
       await Membership.findOneAndUpdate(filter, { $set: after, $inc: { revision: 1 } }, { session, upsert: true, runValidators: true });
       await require("../models/platformAudit").create([{ actorId: req.user.sub, targetType: row.subjectType, targetId: row.subjectId, action: "saas.migration.free", before: row.previous, after, ip: req.ip }], { session });
     }

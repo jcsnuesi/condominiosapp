@@ -16,6 +16,8 @@ COPY backend/modules/maintenance/service.js backend/modules/maintenance/evidence
 COPY backend/service/authorization.js backend/service/permissionCatalog.js backend/service/residentPropertyAccess.js ./service/
 COPY backend/service/saasMembershipService.js backend/service/platformAuthorization.js backend/service/platformPermissions.js ./service/
 COPY backend/service/saasCommercial.js backend/service/routeModules.js ./service/
+COPY backend/service/saasCapacityService.js ./service/
+COPY backend/models/platformAudit.js ./models/
 COPY backend/models/saasPlan.js ./models/
 COPY backend/models/saasMembership.js backend/models/platformUser.js backend/models/platformPolicy.js ./models/
 COPY backend/models/accessGrant.js backend/models/admin.js backend/models/condominio.js backend/models/docs.js backend/models/family.js backend/models/historico_owner.js backend/models/organization.js backend/models/owners.js backend/models/staff.js backend/models/staff_admin.js ./models/

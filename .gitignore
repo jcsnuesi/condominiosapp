@@ -45,3 +45,13 @@ COMUNARD_IOT_INTEGRATION_PLAN.md
 !backend/test/saas.integration.cjs
 !backend/test/saas-backup.integration.cjs
 !backend/test/saas.browser.cjs
+!backend/test/saas-capacity.test.js
+!backend/test/saas-capacity.integration.cjs
+!backend/test/saas-capacity.browser.cjs
+/frontend/dist/capacity-review/
+!/infra/saas-backup/saas.env.example
+!docs/SAAS_PLATFORM_ADMIN.md
+!backend/test/saas.browser.cjs
+!infra/saas-backup/saas.env.example
+backend/test/*
+docs/SAAS_PLATFORM_ADMIN.md

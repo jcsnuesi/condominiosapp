@@ -55,33 +55,61 @@ exports.verifySmtpConnection = async function () {
   await createTransport().verify();
 };
 
-exports.sendWelcome = async function ({ email, name, condominiumName, verificationLink, temporaryPassword }) {
-  const frontendBase = String(process.env.FRONTEND_BASE_URL || "https://condapp.hsantosnuesi.com").replace(/\/$/, "");
+exports.sendWelcome = async function ({
+  email,
+  name,
+  condominiumName,
+  verificationLink,
+  temporaryPassword,
+}) {
+  const frontendBase = String(
+    process.env.FRONTEND_ORIGINS || "https://condapp.hsantosnuesi.com"
+  ).replace(/\/$/, "");
   const lines = [
     `Hola${name ? ` ${name}` : ""},`,
     "¡Te damos la bienvenida a la plataforma!",
-    condominiumName ? `El condominio ${condominiumName} ya está registrado en la plataforma.` : "Tu cuenta ha sido creada correctamente.",
-    verificationLink ? `Verifica tu cuenta para comenzar: ${verificationLink}` : "Ya puedes iniciar sesión con tu correo y contraseña.",
+    condominiumName
+      ? `El condominio ${condominiumName} ya está registrado en la plataforma.`
+      : "Tu cuenta ha sido creada correctamente.",
+    verificationLink
+      ? `Verifica tu cuenta para comenzar: ${verificationLink}`
+      : "Ya puedes iniciar sesión con tu correo y contraseña.",
     `Accede a la plataforma: ${frontendBase}/#/auth/login`,
   ];
   if (temporaryPassword) {
-    lines.push(`Correo: ${email}`, `Contraseña temporal: ${temporaryPassword}`, "Cambia tu contraseña al ingresar.");
+    lines.push(
+      `Correo: ${email}`,
+      `Contraseña temporal: ${temporaryPassword}`,
+      "Cambia tu contraseña al ingresar."
+    );
   }
-  return sendEmail({ to: email, subject: "Bienvenida a la plataforma", text: lines.join("\n\n") });
+  return sendEmail({
+    to: email,
+    subject: "Bienvenida a la plataforma",
+    text: lines.join("\n\n"),
+  });
 };
 
 exports.sendAdminVerification = async function ({ email, token }) {
-  const frontendBase = String(process.env.FRONTEND_BASE_URL || "https://condapp.hsantosnuesi.com").replace(/\/$/, "");
+  const frontendBase = String(
+    process.env.FRONTEND_ORIGINS || "https://condapp.hsantosnuesi.com"
+  ).replace(/\/$/, "");
   return sendEmail({
     to: email,
     subject: "Verifica tu cuenta de administración",
-    text: `Para crear tu cuenta ADMIN y tu organización, abre este enlace dentro de las próximas 24 horas:\n\n${frontendBase}/#/auth/verify/admin/${encodeURIComponent(token)}\n`,
+    text: `Para crear tu cuenta ADMIN y tu organización, abre este enlace dentro de las próximas 24 horas:\n\n${frontendBase}/#/auth/verify/admin/${encodeURIComponent(
+      token
+    )}\n`,
   });
 };
 
 exports.sendPersonalOwnerVerification = async function ({ email, token }) {
-  const frontendBase = String(process.env.FRONTEND_BASE_URL || "https://condapp.hsantosnuesi.com").replace(/\/$/, "");
-  const verificationLink = `${frontendBase}/#/auth/verify/owner/${encodeURIComponent(token)}`;
+  const frontendBase = String(
+    process.env.FRONTEND_ORIGINS || "https://condapp.hsantosnuesi.com"
+  ).replace(/\/$/, "");
+  const verificationLink = `${frontendBase}/#/auth/verify/owner/${encodeURIComponent(
+    token
+  )}`;
   return sendEmail({
     to: email,
     subject: "Verifica tu cuenta de Smart Home",

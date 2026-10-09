@@ -13,6 +13,8 @@ const schema = new Schema({
   paypalPlanId: { type: String, default: null },
   publishing: { type: Boolean, default: false },
   revision: { type: Number, default: 0 },
+  extraPriceMinor: { type: Number, min: 1, default: null, validate: v => v === null || Number.isSafeInteger(v) },
+  allocationMode: { type: String, enum: ["UNIFORM", "DISTRIBUTED"], default: "UNIFORM" },
   paypalEnvironment: { type: String, enum: ["sandbox", "live"], default: null },
   limits: { condominiums: { ...limits }, units: { ...limits }, unitsPerCondominium: { ...limits }, residences: { ...limits } },
   status: { type: String, enum: ["active", "archived"], default: "active" },

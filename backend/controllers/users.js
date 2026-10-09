@@ -26,7 +26,7 @@ const {
 
 function buildResetLink(token) {
   const frontendBase = (
-    process.env.FRONTEND_BASE_URL || "https://condapp.hsantosnuesi.com"
+    process.env.FRONTEND_ORIGINS || "https://condapp.hsantosnuesi.com"
   ).replace(/\/$/, "");
   return `${frontendBase}/#/auth/reset-password/${token}`;
 }
@@ -58,7 +58,13 @@ async function sendResetPasswordEmail(email, resetLink) {
 
 var controller = {
   login: async function (req, res) {
-    const params = { ...req.body, email: typeof req.body.email === "string" ? req.body.email.trim().toLowerCase() : "" };
+    const params = {
+      ...req.body,
+      email:
+        typeof req.body.email === "string"
+          ? req.body.email.trim().toLowerCase()
+          : "",
+    };
 
     const rememberMe = Boolean(params.rememberMe);
 
@@ -76,7 +82,10 @@ var controller = {
 
     if (val_email && val_password) {
       const userFound = await Promise.all([
-        require("../models/platformUser").findOne({ email: params.email }).select("+password").lean(),
+        require("../models/platformUser")
+          .findOne({ email: params.email })
+          .select("+password")
+          .lean(),
         Admin.findOne({ email: params.email }).select("+password").lean(),
         Staff_Admin.findOne({ email: params.email }).select("+password").lean(),
         Staff.findOne({ email: params.email }).select("+password").lean(),
@@ -122,80 +131,109 @@ var controller = {
         );
       }
 
-      bcrypt.compare(params.password, foundUser.password, async (err, verified) => {
-        if (err) {
-          return apiResponse.failure(
-            res,
-            500,
-            { message: "Server error validating credentials" },
-            "AUTH_VERIFY_ERROR"
-          );
-        }
-
-        if (verified) {
-          const accessContext = await resolveAccessContext({
-            sub: foundUser._id,
-            role: foundUser.role,
-            organizationId: foundUser.organizationId,
-          });
-          if (!accessContext) {
+      bcrypt.compare(
+        params.password,
+        foundUser.password,
+        async (err, verified) => {
+          if (err) {
             return apiResponse.failure(
               res,
-              403,
-              { message: "Account has no active organization access" },
-              "AUTH_CONTEXT_MISSING"
+              500,
+              { message: "Server error validating credentials" },
+              "AUTH_VERIFY_ERROR"
             );
           }
-          const platform = Boolean(accessContext.isPlatform);
-          let mfaAt = null;
-          const mfaRequired = platform && require("../service/saasCommercial").enabled("PLATFORM_MFA_ENABLED");
-          if (platform && foundUser.mfaEnabled) {
-            try { foundUser = await require("../service/platformMfa").authenticate(foundUser._id, params.mfaCode); mfaAt = Math.floor(Date.now() / 1000); }
-            catch (error) { return apiResponse.failure(res, error.statusCode || 503, { message: error.message }, error.code || "PLATFORM_MFA_UNAVAILABLE"); }
-          }
-          const mfaPending = mfaRequired && !foundUser.mfaEnabled;
-          const session = jwtoken.resolveSessionExpiration({ rememberMe, platform, mfaPending });
-          const token = jwtoken.createToken(foundUser, { rememberMe, mfaPending, mfaAt });
-          if (mfaPending) accessContext.mfaPending = true;
 
-          //Generar token jwt y devolverlo
-          if (params.gettoken) {
-            return apiResponse.success(
-              res,
-              200,
-              {
-                token,
-                session,
-              },
-              "AUTH_LOGIN_TOKEN"
-            );
+          if (verified) {
+            const accessContext = await resolveAccessContext({
+              sub: foundUser._id,
+              role: foundUser.role,
+              organizationId: foundUser.organizationId,
+            });
+            if (!accessContext) {
+              return apiResponse.failure(
+                res,
+                403,
+                { message: "Account has no active organization access" },
+                "AUTH_CONTEXT_MISSING"
+              );
+            }
+            const platform = Boolean(accessContext.isPlatform);
+            let mfaAt = null;
+            const mfaRequired =
+              platform &&
+              require("../service/saasCommercial").enabled(
+                "PLATFORM_MFA_ENABLED"
+              );
+            if (platform && foundUser.mfaEnabled) {
+              try {
+                foundUser =
+                  await require("../service/platformMfa").authenticate(
+                    foundUser._id,
+                    params.mfaCode
+                  );
+                mfaAt = Math.floor(Date.now() / 1000);
+              } catch (error) {
+                return apiResponse.failure(
+                  res,
+                  error.statusCode || 503,
+                  { message: error.message },
+                  error.code || "PLATFORM_MFA_UNAVAILABLE"
+                );
+              }
+            }
+            const mfaPending = mfaRequired && !foundUser.mfaEnabled;
+            const session = jwtoken.resolveSessionExpiration({
+              rememberMe,
+              platform,
+              mfaPending,
+            });
+            const token = jwtoken.createToken(foundUser, {
+              rememberMe,
+              mfaPending,
+              mfaAt,
+            });
+            if (mfaPending) accessContext.mfaPending = true;
+
+            //Generar token jwt y devolverlo
+            if (params.gettoken) {
+              return apiResponse.success(
+                res,
+                200,
+                {
+                  token,
+                  session,
+                },
+                "AUTH_LOGIN_TOKEN"
+              );
+            } else {
+              //Limpiar el objeto para que no se muestre el resultado de la password
+              foundUser.password = undefined;
+
+              //Devolver datos
+
+              return apiResponse.success(
+                res,
+                200,
+                {
+                  user: foundUser,
+                  token,
+                  session,
+                  access: publicAccessContext(accessContext),
+                },
+                "AUTH_LOGIN_SUCCESS"
+              );
+            }
           } else {
-            //Limpiar el objeto para que no se muestre el resultado de la password
-            foundUser.password = undefined;
-
-            //Devolver datos
-
-            return apiResponse.success(
+            return apiResponse.failure(
               res,
-              200,
-              {
-                user: foundUser,
-                token,
-                session,
-                access: publicAccessContext(accessContext),
-              },
-              "AUTH_LOGIN_SUCCESS"
+              401,
+              { message: "Invalid credentials." },
+              "AUTH_INVALID_CREDENTIALS"
             );
           }
-        } else {
-          return apiResponse.failure(
-            res,
-            401,
-            { message: "Invalid credentials." },
-            "AUTH_INVALID_CREDENTIALS"
-          );
         }
-      });
+      );
     } else {
       return apiResponse.failure(
         res,
@@ -218,10 +256,19 @@ var controller = {
         Staff.findOne({ email }).select("_id email"),
         Owner.findOne({ email }).select("_id email"),
         Family.findOne({ email }).select("_id email"),
-        require("../models/platformUser").findOne({ email }).select("_id email"),
+        require("../models/platformUser")
+          .findOne({ email })
+          .select("_id email"),
       ]);
 
-      const modelNames = ["Admin", "Staff_Admin", "Staff", "Owner", "Family", "PlatformUser"];
+      const modelNames = [
+        "Admin",
+        "Staff_Admin",
+        "Staff",
+        "Owner",
+        "Family",
+        "PlatformUser",
+      ];
       const modelIndex = userSearch.findIndex((user) => Boolean(user));
 
       if (modelIndex === -1) {
@@ -324,7 +371,8 @@ var controller = {
       }
 
       account.password = await bcrypt.hash(password, saltRounds);
-      if (resetToken.userModel === "PlatformUser") account.sessionVersion = (account.sessionVersion || 0) + 1;
+      if (resetToken.userModel === "PlatformUser")
+        account.sessionVersion = (account.sessionVersion || 0) + 1;
       account.first_password_changed = true;
       await account.save();
 

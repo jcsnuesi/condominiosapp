@@ -3,7 +3,7 @@
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || "../../tmp/schedule-tools/node_modules/playwright");
 const { expect } = require(`${process.env.PLAYWRIGHT_MODULE || "../../tmp/schedule-tools/node_modules/playwright"}/test`);
 const http = require("node:http"), fs = require("node:fs"), path = require("node:path"), assert = require("node:assert/strict");
-const build = path.resolve(__dirname, "../../tmp/saas-platform-build"), artifacts = path.resolve(__dirname, "../../tmp/saas-browser");
+const build = path.resolve(__dirname, process.env.SAAS_BROWSER_BUILD || "../../tmp/saas-platform-build"), artifacts = path.resolve(__dirname, "../../tmp/saas-browser");
 const orgId = "507f1f77bcf86cd799439012", userId = "507f1f77bcf86cd799439011";
 const free = { _id: "507f1f77bcf86cd799439013", name: "Gratis", subjectType: "ORGANIZATION", kind: "FREE", status: "active", priceMinor: 0, modules: ["dashboard"], isDefaultFree: true, limits: { condominiums: 1, units: 2, unitsPerCondominium: 2, residences: null } };
 const paid = { ...free, _id: "507f1f77bcf86cd799439014", name: "Mensual", kind: "PAID", priceMinor: 1000, isDefaultFree: false, paypalPlanId: "P-FIXTURE" };

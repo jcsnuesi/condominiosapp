@@ -98,9 +98,11 @@ async function accountSnapshot(context, selected = null) {
   }
   const row = (type, account, usage) => {
     const member = bySubject.get(`${type}:${account._id}`) || null;
+    const exceeded = member ? exceededLimits(member.limits, usage) : [];
+    if (member?.distributionEnabled && condos.some(c => String(c.organizationId) === String(account._id) && unitCount(c, assignedLabels.get(String(c._id))) > (member.allocations?.find(a => String(a.condominiumId) === String(c._id))?.capacity || 0))) exceeded.push("condominiumAllocations");
     return { id: account._id, subjectType: type, name: `${account.name} ${account.lastname || ""}`.trim(), status: account.status, createdAt: account.createdAt, ownerAdminId: account.ownerAdminId || null,
-      membership: member, usage, exceeded: member ? exceededLimits(member.limits, usage) : [],
-      compliance: !member ? "UNPROVISIONED" : !isMembershipCurrent(member) ? "INACTIVE" : exceededLimits(member.limits, usage).length ? "EXCEEDED" : "COMPLIANT" };
+      membership: member, usage, exceeded,
+      compliance: !member ? "UNPROVISIONED" : !isMembershipCurrent(member) ? "INACTIVE" : exceeded.length ? "EXCEEDED" : "COMPLIANT" };
   };
   return [...orgs.map(o => row("ORGANIZATION", o, orgUsage.get(String(o._id)) || { condominiums: 0, units: 0, unitsPerCondominium: 0, residences: 0 })),
     ...owners.map(o => row("PERSONAL_OWNER", o, { condominiums: 0, units: 0, unitsPerCondominium: 0, residences: residenceCount(o) }))];
@@ -172,9 +174,14 @@ const kpis = handle(async (req, res) => {
     filter.environment = require("../service/saasPaypal").environment();
     const [subscriptions] = await require("../models/saasSubscription").aggregate([{ $match: filter }, { $group: { _id: null, mrrMinor: { $sum: { $cond: [{ $and: ["$open", { $eq: ["$state", "ACTIVE"] }, { $ne: ["$cancelRequested", true] }, { $gt: ["$paidThrough", new Date()] }] }, "$terms.priceMinor", 0] } }, cancelled: { $sum: { $cond: ["$cancelRequested", 1, 0] } } } }]);
     result.mrrMinor = subscriptions?.mrrMinor || 0; result.cancelledSubscriptions = subscriptions?.cancelled || 0;
+    const [split] = await require("../models/saasSubscription").aggregate([{ $match: { ...filter, open: true, state: "ACTIVE", cancelRequested: false, paidThrough: { $gt: new Date() } } }, { $group: { _id: null, base: { $sum: { $ifNull: ["$terms.basePriceMinor", "$terms.priceMinor"] } }, extras: { $sum: { $multiply: [{ $ifNull: ["$terms.additionalQuantity", 0] }, { $ifNull: ["$terms.extraPriceMinor", 0] }] } } } }]);
+    result.mrrBaseMinor = split?.base || 0; result.mrrExtraMinor = split?.extras || 0;
     const totals = await require("../models/saasBilling").Charge.aggregate([{ $match: { ...filter, occurredAt: { $gte: start } } }, { $group: { _id: "$kind", amountMinor: { $sum: "$amountMinor" } } }]);
     result.revenueMonthMinor = totals.find(row => row._id === "PAYMENT")?.amountMinor || 0;
     result.refundsMonthMinor = totals.filter(row => row._id !== "PAYMENT").reduce((n, row) => n + row.amountMinor, 0);
+    const components = await require("../models/saasBilling").Charge.aggregate([{ $match: { ...filter, occurredAt: { $gte: start }, kind: "PAYMENT" } }, { $group: { _id: "$component", amountMinor: { $sum: "$amountMinor" } } }]);
+    result.prorationRevenueMonthMinor = components.find(row => row._id === "PRORATION")?.amountMinor || 0;
+    result.adjustmentRevenueMonthMinor = components.find(row => row._id === "ADJUSTMENT")?.amountMinor || 0;
   }
   ok(res, result);
 });
@@ -204,7 +211,11 @@ const saveMembership = handle(async (req, res) => {
     const plan = await Plan.findOne({ name: input.plan, subjectType: type, ...(before?.plan === input.plan ? {} : { status: "active" }) }).session(session).lean();
     if (!plan) fail("Selecciona un plan activo para este tipo de cuenta");
     if (before?.kind === "PAID" && await require("../models/saasSubscription").exists({ subjectType: type, subjectId: id, open: true }).session(session)) fail("Gestiona la suscripción PayPal antes de cambiar la membresía", 409);
-    saved = await Membership.findOneAndUpdate({ subjectType: type, subjectId: id }, { $set: { ...require("../service/saasCommercial").snapshot(plan), limits: limitsInput(input.limits || plan.limits), status: input.status, billingStatus: plan.kind === "FREE" ? "CURRENT" : input.billingStatus, endsAt: plan.kind === "FREE" ? null : endsAt, graceUntil: null, reason: input.reason.trim(), updatedBy: req.user.sub }, $inc: { revision: 1 } }, { upsert: true, returnDocument: "after", runValidators: true, session });
+    const distributionEnabled = Boolean(before?.distributionEnabled && before.plan === plan.name && plan.kind === "PAID" && plan.allocationMode === "DISTRIBUTED");
+    const limits = limitsInput(input.limits || plan.limits);
+    if (distributionEnabled) limits.unitsPerCondominium = null;
+    if (distributionEnabled) await require("../service/saasCapacityService").validateDistribution(id, before.allocations, limits.units, session);
+    saved = await Membership.findOneAndUpdate({ subjectType: type, subjectId: id }, { $set: { ...require("../service/saasCommercial").snapshot(plan), limits, distributionEnabled, allocations: distributionEnabled ? before.allocations : [], scheduledCapacity: null, status: input.status, billingStatus: plan.kind === "FREE" ? "CURRENT" : input.billingStatus, endsAt: plan.kind === "FREE" ? null : endsAt, graceUntil: null, reason: input.reason.trim(), updatedBy: req.user.sub }, $inc: { revision: 1 } }, { upsert: true, returnDocument: "after", runValidators: true, session });
     await writeAudit(req, session, "membership.upsert", type, id, before, saved.toObject());
   });
   const usage = await usageFor(type, id);

@@ -34,6 +34,41 @@ function residenceCount(owner) {
 function exceededLimits(limits, usage) {
   return Object.entries(limits || {}).filter(([key, value]) => value !== null && value !== undefined && usage[key] > value).map(([key]) => key);
 }
+function effectiveWriteLimits(member) {
+  const limits = { ...member.limits };
+  if (member.distributionEnabled) limits.unitsPerCondominium = null;
+  if (member.scheduledCapacity) {
+    const key = member.subjectType === "ORGANIZATION" ? "units" : "residences";
+    limits[key] = Math.min(limits[key] ?? Infinity, member.scheduledCapacity.limits[key]);
+  }
+  return limits;
+}
+async function distributedUsage(member, session) {
+  if (!member?.distributionEnabled) return [];
+  return require("./saasCapacityService").condominiumUsage(member.subjectId, session);
+}
+function checkDistributed(member, after, before = []) {
+  if (!member?.distributionEnabled) return;
+  for (const row of after) {
+    const cap = member.allocations?.find(a => String(a.condominiumId) === String(row.condominiumId))?.capacity || 0;
+    const previous = before.find(a => String(a.condominiumId) === String(row.condominiumId))?.used || 0;
+    if (row.used > cap && row.used > previous) throw membershipError("SAAS_LIMIT_REACHED", "El condominio supera su cupo de unidades asignado");
+  }
+}
+async function allocateNewCondominium(member, doc, session) {
+  if (!member.distributionEnabled || doc.status === "inactive") return member;
+  const count = unitCount(doc);
+  const capacity = member.allocations?.find(a => String(a.condominiumId) === String(doc._id))?.capacity;
+  if (capacity !== undefined) {
+    if (count > capacity) throw membershipError("SAAS_LIMIT_REACHED", "El condominio supera su cupo asignado");
+    return member;
+  }
+  const allocations = [...(member.allocations || []), { condominiumId: doc._id, capacity: count }];
+  const total = allocations.reduce((n, row) => n + row.capacity, 0);
+  if (total > (effectiveWriteLimits(member).units ?? Infinity)) throw membershipError("SAAS_LIMIT_REACHED", "No hay capacidad sin asignar para crear este condominio");
+  await Membership.updateOne({ _id: member._id }, { $set: { allocations } }, { session });
+  return { ...member, allocations };
+}
 async function usageFor(type, id, session = null) {
   if (type === "PERSONAL_OWNER") {
     const owner = await require("../models/owners").findById(id).select("propertyDetails").session(session).lean();
@@ -58,19 +93,23 @@ async function lockMembership(type, id, session) {
 async function assertUsage(type, id, member, session) {
   if (!member) return;
   const usage = await usageFor(type, id, session);
-  if (exceededLimits(member.limits, usage).length) throw membershipError("SAAS_LIMIT_REACHED", "La operación supera el límite de la membresía");
+  if (exceededLimits(effectiveWriteLimits(member), usage).length) throw membershipError("SAAS_LIMIT_REACHED", "La operación supera el límite de la membresía");
+  checkDistributed(member, await distributedUsage(member, session));
 }
 async function withMembershipWrite(type, id, work) {
   if (!await Membership.exists({ subjectType: type, subjectId: id })) return work(null);
   return mongoose.connection.transaction(async session => {
     const member = await lockMembership(type, id, session);
     const before = await usageFor(type, id, session);
+    const beforeDistribution = await distributedUsage(member, session);
     const result = await work(session);
     const after = await usageFor(type, id, session);
     // Reductions remain possible for accounts already exceeding a downgraded plan.
-    for (const key of exceededLimits(member.limits, after)) {
+    for (const key of exceededLimits(effectiveWriteLimits(member), after)) {
       if (after[key] > before[key]) throw membershipError("SAAS_LIMIT_REACHED", "La operación supera el límite de la membresía");
     }
+    const current = await Membership.findById(member._id).session(session).lean();
+    checkDistributed(current, await distributedUsage(current, session), beforeDistribution);
     return result;
   });
 }
@@ -95,14 +134,15 @@ function membershipPlugin(schema, { type, relevant }) {
     const checks = new Map();
     for (const doc of docs) {
       const id = type === "ORGANIZATION" ? doc.organizationId : doc._id;
-      const member = await lockMembership(type, id, doc.$session?.());
+      let member = await lockMembership(type, id, doc.$session?.());
       if (!member) continue;
+      if (type === "ORGANIZATION") member = await allocateNewCondominium(member, doc, doc.$session());
       const key = String(id);
       const usage = checks.get(key) || await usageFor(type, id, doc.$session());
       if (type === "ORGANIZATION" && doc.status !== "inactive") {
         usage.condominiums++; usage.units += unitCount(doc); usage.unitsPerCondominium = Math.max(usage.unitsPerCondominium, unitCount(doc));
       } else if (type === "PERSONAL_OWNER") usage.residences += residenceCount(doc);
-      if (exceededLimits(member.limits, usage).length) throw membershipError("SAAS_LIMIT_REACHED", "La importación supera el límite de la membresía");
+      if (exceededLimits(effectiveWriteLimits(member), usage).length) throw membershipError("SAAS_LIMIT_REACHED", "La importación supera el límite de la membresía");
       checks.set(key, usage);
     }
   });
@@ -113,8 +153,9 @@ function membershipPlugin(schema, { type, relevant }) {
     if (!this.isNew && !relevant.some(key => this.isModified(key))) return;
     const id = type === "ORGANIZATION" ? this.organizationId : this._id;
     if (type === "ORGANIZATION" && !this.isNew && this.isModified("organizationId")) throw membershipError("SAAS_UNSUPPORTED_UPDATE", "No puedes trasladar recursos entre cuentas", 400);
-    const member = await lockMembership(type, id, this.$session());
+    let member = await lockMembership(type, id, this.$session());
     if (!member) return;
+    if (type === "ORGANIZATION" && this.isNew) member = await allocateNewCondominium(member, this, this.$session());
     const beforeUsage = await usageFor(type, id, this.$session());
     const previous = this.isNew ? null : await this.constructor.findById(this._id).session(this.$session()).lean();
     const afterUsage = { ...beforeUsage };
@@ -123,11 +164,12 @@ function membershipPlugin(schema, { type, relevant }) {
       const activeAfter = this.status !== "inactive";
       afterUsage.condominiums += Number(activeAfter) - Number(Boolean(activeBefore));
       afterUsage.units += (activeAfter ? unitCount(this) : 0) - (activeBefore ? unitCount(previous) : 0);
-      if (activeAfter && member.limits.unitsPerCondominium !== null && member.limits.unitsPerCondominium !== undefined && unitCount(this) > member.limits.unitsPerCondominium && unitCount(this) > unitCount(previous || {})) {
+      const cap = member.distributionEnabled ? member.allocations?.find(a => String(a.condominiumId) === String(this._id))?.capacity || 0 : member.limits.unitsPerCondominium;
+      if (activeAfter && cap !== null && cap !== undefined && unitCount(this) > cap && unitCount(this) > (activeBefore ? unitCount(previous) : 0)) {
         throw membershipError("SAAS_LIMIT_REACHED", "El condominio supera su límite de unidades");
       }
     } else afterUsage.residences += residenceCount(this) - residenceCount(previous || {});
-    if (exceededLimits(member.limits, afterUsage).some(key => afterUsage[key] > beforeUsage[key])) throw membershipError("SAAS_LIMIT_REACHED", "La operación supera el límite de la membresía");
+    if (exceededLimits(effectiveWriteLimits(member), afterUsage).some(key => afterUsage[key] > beforeUsage[key])) throw membershipError("SAAS_LIMIT_REACHED", "La operación supera el límite de la membresía");
   });
   for (const method of ["updateOne", "findOneAndUpdate", "updateMany", "replaceOne", "findOneAndReplace"]) {
     schema.pre(method, async function () {
@@ -146,19 +188,20 @@ function membershipPlugin(schema, { type, relevant }) {
           if (Array.isArray(update) || keys.some(key => key === "organizationId" || key === "_id")) throw membershipError("SAAS_UNSUPPORTED_UPDATE", "No puedes trasladar recursos entre cuentas", 400);
           const owners = type === "ORGANIZATION" ? await require("../models/owners").find({ organizationId: id, status: { $ne: "inactive" }, "propertyDetails.addressId": doc._id }).select("propertyDetails.addressId propertyDetails.condominium_unit propertyDetails.status_property").session(session).lean() : [];
           const assignedLabels = assignedUnitLabels(owners).get(String(doc._id)) || [];
-          this._saasChecks.push({ id, member, documentId: doc._id, assignedLabels, beforeUnitCount: unitCount(doc, assignedLabels), before: await usageFor(type, id, session) });
+          this._saasChecks.push({ id, member, documentId: doc._id, assignedLabels, beforeUnitCount: doc.status !== "inactive" ? unitCount(doc, assignedLabels) : 0, before: await usageFor(type, id, session) });
         }
       }
     });
     schema.post(method, async function () {
       for (const check of this._saasChecks || []) {
         const after = await usageFor(type, check.id, this.getOptions().session);
-        if (type === "ORGANIZATION" && check.member.limits.unitsPerCondominium !== null && check.member.limits.unitsPerCondominium !== undefined) {
+        if (type === "ORGANIZATION" && (check.member.distributionEnabled || check.member.limits.unitsPerCondominium !== null && check.member.limits.unitsPerCondominium !== undefined)) {
           const updated = await this.model.findById(check.documentId).session(this.getOptions().session).lean();
           const count = updated && updated.status !== "inactive" ? unitCount(updated, check.assignedLabels) : 0;
-          if (count > check.member.limits.unitsPerCondominium && count > check.beforeUnitCount) throw membershipError("SAAS_LIMIT_REACHED", "El condominio supera su límite de unidades");
+          const cap = check.member.distributionEnabled ? check.member.allocations?.find(a => String(a.condominiumId) === String(check.documentId))?.capacity || 0 : check.member.limits.unitsPerCondominium;
+          if (count > cap && count > check.beforeUnitCount) throw membershipError("SAAS_LIMIT_REACHED", "El condominio supera su límite de unidades");
         }
-        if (exceededLimits(check.member.limits, after).some(key => after[key] > check.before[key])) throw membershipError("SAAS_LIMIT_REACHED", "La operación supera el límite de la membresía");
+        if (exceededLimits(effectiveWriteLimits(check.member), after).some(key => after[key] > check.before[key])) throw membershipError("SAAS_LIMIT_REACHED", "La operación supera el límite de la membresía");
       }
     });
   }

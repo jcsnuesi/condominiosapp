@@ -7,7 +7,8 @@ async function run() {
   try {
     let failed = false;
     const Subscription = require("../models/saasSubscription");
-    const cursor = Subscription.find({ open: true, environment: require("./saasPaypal").environment(), $or: [{ paidThrough: { $lte: new Date() } }, { paidThrough: null, createdAt: { $lte: new Date(Date.now() - 86400000) } }] }).lean().cursor();
+    try { await require("./saasCapacityBilling").reconcilePending(); } catch { failed = true; state.failures++; }
+    const cursor = Subscription.find({ open: true, environment: require("./saasPaypal").environment(), $or: [{ graceUntil: { $lte: new Date() } }, { paidThrough: { $lte: new Date() } }, { paidThrough: null, createdAt: { $lte: new Date(Date.now() - 86400000) } }] }).lean().cursor();
     for await (const subscription of cursor) {
       try { await require("./saasBillingService").settle(subscription); }
       catch { failed = true; state.failures++; console.error(JSON.stringify({ event: "saas.reconciliation.failed", subscriptionId: String(subscription._id), subjectId: String(subscription.subjectId) })); }
